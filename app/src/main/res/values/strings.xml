@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Quick Search</string>
+    <string name="search_hint">Search apps</string>
+    <string name="desc_search_icon">Search</string>
+    <string name="desc_clear_search">Clear search text</string>
+    <string name="usage_permission_title">Grant usage access</string>
+    <string name="usage_permission_subtitle">Quick Search needs Usage Access and visibility to every installed app so it can surface your most recent launches instantly.</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="recent_apps_title">Recently used</string>
+    <string name="recent_apps_subtitle">Your latest launches stay pinned here for two quick rows.</string>
+    <string name="search_results_title">Matching apps</string>
+    <string name="search_results_subtitle">Matches for "%1$s"</string>
+    <string name="empty_state_title">Nothing to show (yet)</string>
+    <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
+    <string name="desc_launch_app">Open %1$s</string>
+    <string name="error_launch_app">Unable to open %1$s</string>
+    <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
 </resources>

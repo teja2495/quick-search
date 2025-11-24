@@ -1,0 +1,27 @@
+package com.tk.quicksearch.model
+
+import android.graphics.drawable.Drawable
+import java.util.Locale
+
+/**
+ * Snapshot of a launchable application that can be rendered inside the quick search grid.
+ */
+data class AppInfo(
+    val appName: String,
+    val packageName: String,
+    val icon: Drawable,
+    val lastUsedTime: Long,
+    val isSystemApp: Boolean
+)
+
+/**
+ * Returns true when the current app matches the provided search query.
+ */
+fun AppInfo.matches(query: String): Boolean {
+    if (query.isBlank()) return true
+    val normalizedQuery = query.lowercase(Locale.getDefault())
+    return appName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+        packageName.lowercase(Locale.getDefault()).contains(normalizedQuery)
+}
+
+
