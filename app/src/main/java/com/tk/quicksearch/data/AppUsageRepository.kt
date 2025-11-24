@@ -63,8 +63,10 @@ class AppUsageRepository(
 
         val usageMap = lastUsedMap()
 
+        val currentPackageName = context.packageName
         return resolveInfos
             .distinctBy { it.activityInfo.packageName }
+            .filter { it.activityInfo.packageName != currentPackageName }
             .map { resolveInfo ->
                 val packageName = resolveInfo.activityInfo.packageName
                 val label = resolveInfo.loadLabel(packageManager)?.toString()
