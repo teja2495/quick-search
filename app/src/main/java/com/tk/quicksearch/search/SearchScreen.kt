@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.focus.FocusRequester
@@ -109,15 +108,6 @@ fun SearchScreen(
     onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val backgroundBrush = remember(colorScheme.surface, colorScheme.surfaceVariant) {
-        Brush.verticalGradient(
-            listOf(
-                colorScheme.surface,
-                colorScheme.surfaceVariant.copy(alpha = 0.6f)
-            )
-        )
-    }
-
     val displayApps = remember(state.query, state.recentApps, state.searchResults) {
         if (state.query.isBlank()) state.recentApps else state.searchResults
     }
@@ -125,7 +115,7 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundBrush)
+            .background(colorScheme.background)
             .systemBarsPadding()
             .imePadding()
             .navigationBarsPadding()
