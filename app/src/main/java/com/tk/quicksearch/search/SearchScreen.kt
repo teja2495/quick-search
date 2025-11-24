@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -345,18 +346,12 @@ private fun AppGrid(
                     val app = rowApps.getOrNull(columnIndex)
                     if (app != null) {
                         AppGridItem(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(0.9f),
+                            modifier = Modifier.weight(1f),
                             appInfo = app,
                             onClick = { onAppClick(app) }
                         )
                     } else {
-                        Spacer(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(0.9f)
-                        )
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
@@ -372,8 +367,9 @@ private fun AppGridItem(
     onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         val placeholderLabel = remember(appInfo.appName) {
             appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
@@ -384,8 +380,8 @@ private fun AppGridItem(
 
         Surface(
             modifier = Modifier.size(64.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 6.dp,
+            color = Color.Transparent,
+            tonalElevation = 0.dp,
             onClick = onClick,
             shape = RoundedCornerShape(20.dp)
         ) {
@@ -414,10 +410,12 @@ private fun AppGridItem(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = appInfo.appName,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
