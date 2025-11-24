@@ -144,10 +144,12 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        QuickActionsSection(
-            query = state.query,
-            onSearchEngineClick = onSearchEngineClick
-        )
+        if (state.query.isNotBlank()) {
+            QuickActionsSection(
+                query = state.query,
+                onSearchEngineClick = onSearchEngineClick
+            )
+        }
 
         AppGridSection(
             apps = displayApps,
