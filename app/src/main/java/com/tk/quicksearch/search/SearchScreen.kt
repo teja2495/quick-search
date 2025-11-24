@@ -93,7 +93,8 @@ fun SearchRoute(
         onQueryChanged = viewModel::onQueryChange,
         onClearQuery = viewModel::clearQuery,
         onRequestUsagePermission = viewModel::openUsageAccessSettings,
-        onAppClick = viewModel::launchApp
+        onAppClick = viewModel::launchApp,
+        onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) }
     )
 }
 
@@ -104,7 +105,8 @@ fun SearchScreen(
     onQueryChanged: (String) -> Unit,
     onClearQuery: () -> Unit,
     onRequestUsagePermission: () -> Unit,
-    onAppClick: (AppInfo) -> Unit
+    onAppClick: (AppInfo) -> Unit,
+    onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val backgroundBrush = remember(colorScheme.surface, colorScheme.surfaceVariant) {
@@ -152,7 +154,10 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        QuickActionsSection()
+        QuickActionsSection(
+            query = state.query,
+            onSearchEngineClick = onSearchEngineClick
+        )
 
         AppGridSection(
             apps = displayApps,
@@ -296,9 +301,12 @@ private fun InfoBanner(message: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun QuickActionsSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    query: String,
+    onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -324,10 +332,11 @@ private fun QuickActionsSection(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
+            Surface(
+                modifier = Modifier.size(24.dp),
+                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE) },
+                shape = CircleShape,
+                color = Color.Transparent
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.google),
@@ -339,10 +348,11 @@ private fun QuickActionsSection(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(16.dp))
+            Surface(
+                modifier = Modifier.size(28.dp),
+                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.CHATGPT) },
+                shape = RoundedCornerShape(16.dp),
+                color = Color.Transparent
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.chatgpt),
@@ -354,10 +364,11 @@ private fun QuickActionsSection(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(14.dp))
+            Surface(
+                modifier = Modifier.size(28.dp),
+                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
+                shape = RoundedCornerShape(14.dp),
+                color = Color.Transparent
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.perplexity),

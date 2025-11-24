@@ -122,6 +122,30 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         context.startActivity(launchIntent)
     }
 
+    fun openSearchUrl(query: String, searchEngine: SearchEngine) {
+        val context = getApplication<Application>()
+        val searchUrl = buildSearchUrl(query, searchEngine)
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    private fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
+        val encodedQuery = Uri.encode(query)
+        return when (searchEngine) {
+            SearchEngine.GOOGLE -> "https://www.google.com/search?q=$encodedQuery"
+            SearchEngine.CHATGPT -> "https://chatgpt.com/?prompt=$encodedQuery"
+            SearchEngine.PERPLEXITY -> "https://www.perplexity.ai/search?q=$encodedQuery"
+        }
+    }
+
+    enum class SearchEngine {
+        GOOGLE,
+        CHATGPT,
+        PERPLEXITY
+    }
+
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
         return source
