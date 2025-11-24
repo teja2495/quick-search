@@ -208,22 +208,19 @@ private fun PersistentSearchField(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        trailingIcon = {
-            IconButton(
-                onClick = onClearQuery,
-                enabled = query.isNotEmpty()
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_clear_search),
-                    tint = if (query.isNotEmpty()) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
+        trailingIcon = if (query.isNotEmpty()) {
+            {
+                IconButton(
+                    onClick = onClearQuery
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.desc_clear_search),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
-        },
+        } else null,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
@@ -305,25 +302,6 @@ private fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = if (isSearching) {
-                stringResource(R.string.search_results_title)
-            } else {
-                stringResource(R.string.recent_apps_title)
-            },
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = if (isSearching) {
-                stringResource(R.string.search_results_subtitle, query)
-            } else {
-                stringResource(R.string.recent_apps_subtitle)
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
         Spacer(modifier = Modifier.height(12.dp))
 
         Crossfade(targetState = Triple(apps, isLoading, isSearching), label = "grid") { (items, loading, _) ->
@@ -333,7 +311,7 @@ private fun AppGridSection(
                 }
 
                 items.isEmpty() -> {
-                    EmptyState()
+                    Box {}
                 }
 
                 else -> {
