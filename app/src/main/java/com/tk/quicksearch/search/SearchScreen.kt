@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -32,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -146,6 +149,8 @@ fun SearchScreen(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        QuickActionsSection()
 
         AppGridSection(
             apps = displayApps,
@@ -285,6 +290,52 @@ private fun InfoBanner(message: String) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onErrorContainer
+        )
+    }
+}
+
+@Composable
+private fun QuickActionsSection(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Search,
+                contentDescription = "Search",
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Icon(
+                imageVector = Icons.Rounded.Public,
+                contentDescription = "Google",
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Icon(
+                imageVector = Icons.Rounded.Star,
+                contentDescription = "Star",
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.outlineVariant
         )
     }
 }
