@@ -94,3 +94,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# AI context files
+AI_CONTEXT.md
