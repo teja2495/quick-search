@@ -111,6 +111,8 @@ fun SearchScreen(
     val displayApps = remember(state.query, state.recentApps, state.searchResults) {
         if (state.query.isBlank()) state.recentApps else state.searchResults
     }
+    val hasAppResults = displayApps.isNotEmpty()
+    val isSearching = state.query.isNotBlank()
 
     Column(
         modifier = modifier
@@ -119,7 +121,12 @@ fun SearchScreen(
             .systemBarsPadding()
             .imePadding()
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(
+                start = 20.dp,
+                top = 16.dp,
+                end = 20.dp,
+                bottom = if (isSearching && !hasAppResults) 8.dp else 16.dp
+            ),
         verticalArrangement = Arrangement.Top
     ) {
         PersistentSearchField(
@@ -147,6 +154,7 @@ fun SearchScreen(
         if (state.query.isNotBlank()) {
             QuickActionsSection(
                 query = state.query,
+                hasAppResults = hasAppResults,
                 onSearchEngineClick = onSearchEngineClick
             )
         }
@@ -154,7 +162,8 @@ fun SearchScreen(
         AppGridSection(
             apps = displayApps,
             isLoading = state.isLoading,
-            isSearching = state.query.isNotBlank(),
+            isSearching = isSearching,
+            hasAppResults = hasAppResults,
             query = state.query,
             onAppClick = onAppClick
         )
@@ -298,6 +307,7 @@ private fun InfoBanner(message: String) {
 private fun QuickActionsSection(
     modifier: Modifier = Modifier,
     query: String,
+    hasAppResults: Boolean,
     onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     Column(
@@ -318,14 +328,14 @@ private fun QuickActionsSection(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(if (hasAppResults) 24.dp else 32.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             Spacer(modifier = Modifier.width(16.dp))
             
             Surface(
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(if (hasAppResults) 24.dp else 44.dp),
                 onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE) },
                 shape = CircleShape,
                 color = Color.Transparent
@@ -341,7 +351,7 @@ private fun QuickActionsSection(
             Spacer(modifier = Modifier.width(16.dp))
             
             Surface(
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(if (hasAppResults) 28.dp else 48.dp),
                 onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.CHATGPT) },
                 shape = RoundedCornerShape(16.dp),
                 color = Color.Transparent
@@ -357,7 +367,7 @@ private fun QuickActionsSection(
             Spacer(modifier = Modifier.width(16.dp))
             
             Surface(
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(if (hasAppResults) 28.dp else 48.dp),
                 onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
                 shape = RoundedCornerShape(14.dp),
                 color = Color.Transparent
@@ -371,10 +381,12 @@ private fun QuickActionsSection(
             }
         }
 
-        Divider(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
+        if (hasAppResults) {
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+        }
     }
 }
 
@@ -383,6 +395,7 @@ private fun AppGridSection(
     apps: List<AppInfo>,
     isLoading: Boolean,
     isSearching: Boolean,
+    hasAppResults: Boolean,
     query: String,
     onAppClick: (AppInfo) -> Unit,
     modifier: Modifier = Modifier
@@ -392,7 +405,7 @@ private fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(if (isSearching && !hasAppResults) 0.dp else 12.dp))
 
         Crossfade(targetState = Triple(apps, isLoading, isSearching), label = "grid") { (items, loading, _) ->
             when {
