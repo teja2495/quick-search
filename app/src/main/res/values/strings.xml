@@ -51,4 +51,16 @@
     <string name="settings_app_labels_toggle">Show app labels</string>
     <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
     <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
+    <string name="settings_search_engines_title">Search engines</string>
+    <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
+    <string name="settings_action_move_up">Move up</string>
+    <string name="settings_action_move_down">Move down</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_chatgpt">ChatGPT</string>
+    <string name="search_engine_perplexity">Perplexity</string>
+    <string name="search_engine_grok">Grok</string>
+    <string name="search_engine_google_maps">Google Maps</string>
+    <string name="search_engine_google_play">Google Play</string>
+    <string name="search_engine_reddit">Reddit</string>
+    <string name="search_engine_youtube">YouTube</string>
 </resources>

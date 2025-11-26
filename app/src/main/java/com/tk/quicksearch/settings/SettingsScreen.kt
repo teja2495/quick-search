@@ -12,8 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -33,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchViewModel
 
 @Composable
@@ -48,7 +57,11 @@ fun SettingsRoute(
         hiddenApps = uiState.hiddenApps,
         onUnhideApp = viewModel::unhideApp,
         showAppLabels = uiState.showAppLabels,
-        onToggleAppLabels = viewModel::setShowAppLabels
+        onToggleAppLabels = viewModel::setShowAppLabels,
+        searchEngineOrder = uiState.searchEngineOrder,
+        disabledSearchEngines = uiState.disabledSearchEngines,
+        onToggleSearchEngine = viewModel::setSearchEngineEnabled,
+        onReorderSearchEngines = viewModel::reorderSearchEngines
     )
 }
 
@@ -59,14 +72,20 @@ private fun SettingsScreen(
     hiddenApps: List<AppInfo>,
     onUnhideApp: (AppInfo) -> Unit,
     showAppLabels: Boolean,
-    onToggleAppLabels: (Boolean) -> Unit
+    onToggleAppLabels: (Boolean) -> Unit,
+    searchEngineOrder: List<SearchEngine>,
+    disabledSearchEngines: Set<SearchEngine>,
+    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
+    onReorderSearchEngines: (List<SearchEngine>) -> Unit
 ) {
     BackHandler(onBack = onBack)
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
+            .verticalScroll(scrollState)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.Top
     ) {
@@ -92,6 +111,13 @@ private fun SettingsScreen(
         AppLabelsSection(
             showAppLabels = showAppLabels,
             onToggleAppLabels = onToggleAppLabels
+        )
+
+        SearchEnginesSection(
+            searchEngineOrder = searchEngineOrder,
+            disabledSearchEngines = disabledSearchEngines,
+            onToggleSearchEngine = onToggleSearchEngine,
+            onReorderSearchEngines = onReorderSearchEngines
         )
 
         HiddenAppsSection(
@@ -154,6 +180,150 @@ private fun AppLabelsSection(
             Switch(
                 checked = showAppLabels,
                 onCheckedChange = onToggleAppLabels
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchEnginesSection(
+    searchEngineOrder: List<SearchEngine>,
+    disabledSearchEngines: Set<SearchEngine>,
+    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
+    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.settings_search_engines_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_search_engines_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            searchEngineOrder.forEachIndexed { index, engine ->
+                SearchEngineRow(
+                    engine = engine,
+                    isEnabled = engine !in disabledSearchEngines,
+                    canMoveUp = index > 0,
+                    canMoveDown = index < searchEngineOrder.lastIndex,
+                    onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
+                    onMoveUp = {
+                        val newOrder = searchEngineOrder.toMutableList()
+                        newOrder[index] = newOrder[index - 1].also { newOrder[index - 1] = newOrder[index] }
+                        onReorderSearchEngines(newOrder)
+                    },
+                    onMoveDown = {
+                        val newOrder = searchEngineOrder.toMutableList()
+                        newOrder[index] = newOrder[index + 1].also { newOrder[index + 1] = newOrder[index] }
+                        onReorderSearchEngines(newOrder)
+                    }
+                )
+                if (index != searchEngineOrder.lastIndex) {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchEngineRow(
+    engine: SearchEngine,
+    isEnabled: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onToggle: (Boolean) -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
+    val engineName = when (engine) {
+        SearchEngine.GOOGLE -> stringResource(R.string.search_engine_google)
+        SearchEngine.CHATGPT -> stringResource(R.string.search_engine_chatgpt)
+        SearchEngine.PERPLEXITY -> stringResource(R.string.search_engine_perplexity)
+        SearchEngine.GROK -> stringResource(R.string.search_engine_grok)
+        SearchEngine.GOOGLE_MAPS -> stringResource(R.string.search_engine_google_maps)
+        SearchEngine.GOOGLE_PLAY -> stringResource(R.string.search_engine_google_play)
+        SearchEngine.REDDIT -> stringResource(R.string.search_engine_reddit)
+        SearchEngine.YOUTUBE -> stringResource(R.string.search_engine_youtube)
+    }
+    
+    val drawableId = when (engine) {
+        SearchEngine.GOOGLE -> R.drawable.google
+        SearchEngine.CHATGPT -> R.drawable.chatgpt
+        SearchEngine.PERPLEXITY -> R.drawable.perplexity
+        SearchEngine.GROK -> R.drawable.grok
+        SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
+        SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
+        SearchEngine.REDDIT -> R.drawable.reddit
+        SearchEngine.YOUTUBE -> R.drawable.youtube
+    }
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Image(
+            painter = painterResource(id = drawableId),
+            contentDescription = engineName,
+            modifier = Modifier.width(32.dp),
+            contentScale = ContentScale.Fit
+        )
+        
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = engineName,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onMoveUp,
+                enabled = canMoveUp
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowUpward,
+                    contentDescription = stringResource(R.string.settings_action_move_up),
+                    tint = if (canMoveUp) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                )
+            }
+            
+            IconButton(
+                onClick = onMoveDown,
+                enabled = canMoveDown
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDownward,
+                    contentDescription = stringResource(R.string.settings_action_move_down),
+                    tint = if (canMoveDown) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                )
+            }
+            
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = onToggle
             )
         }
     }

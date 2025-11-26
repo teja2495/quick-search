@@ -123,7 +123,8 @@ fun SearchRoute(
         onHideApp = viewModel::hideApp,
         onPinApp = viewModel::pinApp,
         onUnpinApp = viewModel::unpinApp,
-        onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) }
+        onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
+        viewModel = viewModel
     )
 }
 
@@ -141,7 +142,8 @@ fun SearchScreen(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
-    onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    viewModel: SearchViewModel
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val displayApps = remember(state.query, state.recentApps, state.searchResults, state.pinnedApps) {
@@ -197,10 +199,20 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
+        val enabledEngines: List<SearchEngine> = remember(
+            state.searchEngineOrder,
+            state.disabledSearchEngines
+        ) {
+            val order: List<SearchEngine> = state.searchEngineOrder
+            val disabled: Set<SearchEngine> = state.disabledSearchEngines
+            order.filter { engine -> engine !in disabled }
+        }
+
         if (state.query.isNotBlank()) {
             SearchEnginesSection(
                 query = state.query,
                 hasAppResults = hasAppResults,
+                enabledEngines = enabledEngines,
                 onSearchEngineClick = onSearchEngineClick
             )
         }
@@ -375,8 +387,11 @@ private fun SearchEnginesSection(
     modifier: Modifier = Modifier,
     query: String,
     hasAppResults: Boolean,
-    onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
+    enabledEngines: List<SearchEngine>,
+    onSearchEngineClick: (String, SearchEngine) -> Unit
 ) {
+    if (enabledEngines.isEmpty()) return
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -404,91 +419,40 @@ private fun SearchEnginesSection(
             
             Spacer(modifier = Modifier.width(20.dp))
             
-            Image(
-                painter = painterResource(id = R.drawable.google),
-                contentDescription = "Google",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.chatgpt),
-                contentDescription = "ChatGPT",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.CHATGPT) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.perplexity),
-                contentDescription = "Perplexity",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.grok),
-                contentDescription = "Grok",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GROK) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.google_maps),
-                contentDescription = "Google Maps",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE_MAPS) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.google_play),
-                contentDescription = "Google Play",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE_PLAY) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.reddit),
-                contentDescription = "Reddit",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.REDDIT) },
-                contentScale = ContentScale.Fit
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            Image(
-                painter = painterResource(id = R.drawable.youtube),
-                contentDescription = "YouTube",
-                modifier = Modifier
-                    .size(if (hasAppResults) 24.dp else 40.dp)
-                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.YOUTUBE) },
-                contentScale = ContentScale.Fit
-            )
+            enabledEngines.forEach { engine ->
+                val drawableId = when (engine) {
+                    SearchEngine.GOOGLE -> R.drawable.google
+                    SearchEngine.CHATGPT -> R.drawable.chatgpt
+                    SearchEngine.PERPLEXITY -> R.drawable.perplexity
+                    SearchEngine.GROK -> R.drawable.grok
+                    SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
+                    SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
+                    SearchEngine.REDDIT -> R.drawable.reddit
+                    SearchEngine.YOUTUBE -> R.drawable.youtube
+                }
+                
+                val contentDescription = when (engine) {
+                    SearchEngine.GOOGLE -> "Google"
+                    SearchEngine.CHATGPT -> "ChatGPT"
+                    SearchEngine.PERPLEXITY -> "Perplexity"
+                    SearchEngine.GROK -> "Grok"
+                    SearchEngine.GOOGLE_MAPS -> "Google Maps"
+                    SearchEngine.GOOGLE_PLAY -> "Google Play"
+                    SearchEngine.REDDIT -> "Reddit"
+                    SearchEngine.YOUTUBE -> "YouTube"
+                }
+                
+                Image(
+                    painter = painterResource(id = drawableId),
+                    contentDescription = contentDescription,
+                    modifier = Modifier
+                        .size(if (hasAppResults) 24.dp else 40.dp)
+                        .clickable { onSearchEngineClick(query, engine) },
+                    contentScale = ContentScale.Fit
+                )
+                
+                Spacer(modifier = Modifier.width(20.dp))
+            }
             
             Spacer(modifier = Modifier.width(16.dp))
         }

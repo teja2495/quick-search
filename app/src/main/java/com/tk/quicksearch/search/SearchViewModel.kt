@@ -21,6 +21,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
+enum class SearchEngine {
+    GOOGLE,
+    CHATGPT,
+    PERPLEXITY,
+    GROK,
+    GOOGLE_MAPS,
+    GOOGLE_PLAY,
+    REDDIT,
+    YOUTUBE
+}
+
 data class SearchUiState(
     val query: String = "",
     val hasUsagePermission: Boolean = false,
@@ -32,7 +43,9 @@ data class SearchUiState(
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
-    val showAppLabels: Boolean = true
+    val showAppLabels: Boolean = true,
+    val searchEngineOrder: List<SearchEngine> = emptyList(),
+    val disabledSearchEngines: Set<SearchEngine> = emptySet()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -44,12 +57,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
     private var pinnedPackages: Set<String> = userPreferences.getPinnedPackages()
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
+    private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
+    private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { it.copy(showAppLabels = showAppLabels) }
+        _uiState.update { 
+            it.copy(
+                showAppLabels = showAppLabels,
+                searchEngineOrder = searchEngineOrder,
+                disabledSearchEngines = disabledSearchEngines
+            )
+        }
         refreshUsageAccess()
         loadApps()
     }
@@ -313,6 +334,60 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun getEnabledSearchEngines(): List<SearchEngine> {
+        return searchEngineOrder.filter { it !in disabledSearchEngines }
+    }
+
+    fun setSearchEngineEnabled(engine: SearchEngine, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val disabled = disabledSearchEngines.toMutableSet()
+            if (enabled) {
+                disabled.remove(engine)
+            } else {
+                disabled.add(engine)
+            }
+            disabledSearchEngines = disabled
+            userPreferences.setDisabledSearchEngines(disabled.map { it.name }.toSet())
+            _uiState.update { 
+                it.copy(disabledSearchEngines = disabledSearchEngines)
+            }
+        }
+    }
+
+    fun reorderSearchEngines(newOrder: List<SearchEngine>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchEngineOrder = newOrder
+            userPreferences.setSearchEngineOrder(newOrder.map { it.name })
+            _uiState.update { 
+                it.copy(searchEngineOrder = searchEngineOrder)
+            }
+        }
+    }
+
+    private fun loadSearchEngineOrder(): List<SearchEngine> {
+        val savedOrder = userPreferences.getSearchEngineOrder()
+        val allEngines = SearchEngine.values().toList()
+        
+        if (savedOrder.isEmpty()) {
+            // First time - use default order
+            return allEngines
+        }
+        
+        // Merge saved order with any new engines that might have been added
+        val savedEngines = savedOrder.mapNotNull { name ->
+            SearchEngine.values().find { it.name == name }
+        }
+        val newEngines = allEngines.filter { it !in savedEngines }
+        return savedEngines + newEngines
+    }
+
+    private fun loadDisabledSearchEngines(): Set<SearchEngine> {
+        val disabledNames = userPreferences.getDisabledSearchEngines()
+        return disabledNames.mapNotNull { name ->
+            SearchEngine.values().find { it.name == name }
+        }.toSet()
+    }
+
     private fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
         val encodedQuery = Uri.encode(query)
         return when (searchEngine) {
@@ -327,16 +402,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    enum class SearchEngine {
-        GOOGLE,
-        CHATGPT,
-        PERPLEXITY,
-        GROK,
-        GOOGLE_MAPS,
-        GOOGLE_PLAY,
-        REDDIT,
-        YOUTUBE
-    }
 
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()

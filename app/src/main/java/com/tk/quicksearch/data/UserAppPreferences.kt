@@ -37,6 +37,25 @@ class UserAppPreferences(context: Context) {
         it.remove(packageName)
     }
 
+    fun getDisabledSearchEngines(): Set<String> = prefs.getStringSet(KEY_DISABLED_SEARCH_ENGINES, emptySet()).orEmpty().toSet()
+
+    fun setDisabledSearchEngines(disabled: Set<String>) {
+        prefs.edit().putStringSet(KEY_DISABLED_SEARCH_ENGINES, disabled).apply()
+    }
+
+    fun getSearchEngineOrder(): List<String> {
+        val orderString = prefs.getString(KEY_SEARCH_ENGINE_ORDER, null)
+        return if (orderString.isNullOrBlank()) {
+            emptyList()
+        } else {
+            orderString.split(",").filter { it.isNotBlank() }
+        }
+    }
+
+    fun setSearchEngineOrder(order: List<String>) {
+        prefs.edit().putString(KEY_SEARCH_ENGINE_ORDER, order.joinToString(",")).apply()
+    }
+
     private inline fun updateStringSet(
         key: String,
         block: (MutableSet<String>) -> Unit
@@ -53,6 +72,8 @@ class UserAppPreferences(context: Context) {
         private const val KEY_HIDDEN = "hidden_packages"
         private const val KEY_PINNED = "pinned_packages"
         private const val KEY_SHOW_APP_LABELS = "show_app_labels"
+        private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
+        private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
     }
 }
 
