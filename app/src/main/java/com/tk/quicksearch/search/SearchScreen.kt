@@ -192,6 +192,7 @@ fun SearchScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
+    val scrollState = rememberScrollState()
     
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
@@ -384,25 +385,16 @@ private fun ContactResultsSection(
 ) {
     when {
         hasPermission && contacts.isNotEmpty() -> {
-            if (isExpanded) {
-                ExpandedContactsResultCard(
-                    modifier = modifier,
-                    contacts = contacts,
-                    onContactClick = onContactClick,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact,
-                    onCollapseClick = onExpandClick
-                )
-            } else {
-                ContactsResultCard(
-                    contacts = contacts.take(INITIAL_RESULT_COUNT),
-                    allContacts = contacts,
-                    onContactClick = onContactClick,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact,
-                    onExpandClick = if (contacts.size > INITIAL_RESULT_COUNT) onExpandClick else null
-                )
-            }
+            ContactsResultCard(
+                contacts = if (isExpanded) contacts.take(MAX_EXPANDED_RESULTS) else contacts.take(INITIAL_RESULT_COUNT),
+                allContacts = contacts,
+                isExpanded = isExpanded,
+                onContactClick = onContactClick,
+                onCallContact = onCallContact,
+                onSmsContact = onSmsContact,
+                onExpandClick = if (contacts.size > INITIAL_RESULT_COUNT) onExpandClick else null,
+                onCollapseClick = if (isExpanded) onExpandClick else null
+            )
         }
 
         !hasPermission -> {
@@ -428,21 +420,14 @@ private fun FileResultsSection(
 ) {
     when {
         hasPermission && files.isNotEmpty() -> {
-            if (isExpanded) {
-                ExpandedFilesResultCard(
-                    modifier = modifier,
-                    files = files,
-                    onFileClick = onFileClick,
-                    onCollapseClick = onExpandClick
-                )
-            } else {
-                FilesResultCard(
-                    files = files.take(INITIAL_RESULT_COUNT),
-                    allFiles = files,
-                    onFileClick = onFileClick,
-                    onExpandClick = if (files.size > INITIAL_RESULT_COUNT) onExpandClick else null
-                )
-            }
+            FilesResultCard(
+                files = if (isExpanded) files.take(MAX_EXPANDED_RESULTS) else files.take(INITIAL_RESULT_COUNT),
+                allFiles = files,
+                isExpanded = isExpanded,
+                onFileClick = onFileClick,
+                onExpandClick = if (files.size > INITIAL_RESULT_COUNT) onExpandClick else null,
+                onCollapseClick = if (isExpanded) onExpandClick else null
+            )
         }
 
         !hasPermission -> {
@@ -460,10 +445,12 @@ private fun FileResultsSection(
 private fun ContactsResultCard(
     contacts: List<ContactInfo>,
     allContacts: List<ContactInfo>,
+    isExpanded: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
-    onExpandClick: (() -> Unit)?
+    onExpandClick: (() -> Unit)?,
+    onCollapseClick: (() -> Unit)?
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -500,7 +487,7 @@ private fun ContactsResultCard(
                         )
                     }
                 }
-                if (onExpandClick != null) {
+                if (onExpandClick != null && !isExpanded) {
                     Spacer(modifier = Modifier.height(2.dp))
                     val moreCount = maxOf(0, allContacts.size - INITIAL_RESULT_COUNT)
                     TextButton(
@@ -520,71 +507,22 @@ private fun ContactsResultCard(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExpandedContactsResultCard(
-    modifier: Modifier = Modifier,
-    contacts: List<ContactInfo>,
-    onContactClick: (ContactInfo) -> Unit,
-    onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit,
-    onCollapseClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.contacts_section_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    TextButton(onClick = onCollapseClick) {
+                if (onCollapseClick != null && isExpanded) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    TextButton(
+                        onClick = { onCollapseClick() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(
                             text = "Collapse",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Icon(
                             imageVector = Icons.Rounded.ExpandLess,
                             contentDescription = "Collapse",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                val displayedContacts = contacts.take(MAX_EXPANDED_RESULTS)
-                displayedContacts.forEachIndexed { index, contactInfo ->
-                    ContactResultRow(
-                        contactInfo = contactInfo,
-                        onContactClick = onContactClick,
-                        onCallContact = onCallContact,
-                        onSmsContact = onSmsContact
-                    )
-                    if (index < displayedContacts.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.outlineVariant
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -592,6 +530,7 @@ private fun ExpandedContactsResultCard(
         }
     }
 }
+
 
 @Composable
 private fun ContactResultRow(
@@ -644,8 +583,10 @@ private fun ContactResultRow(
 private fun FilesResultCard(
     files: List<DeviceFile>,
     allFiles: List<DeviceFile>,
+    isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
-    onExpandClick: (() -> Unit)?
+    onExpandClick: (() -> Unit)?,
+    onCollapseClick: (() -> Unit)?
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -680,7 +621,7 @@ private fun FilesResultCard(
                         )
                     }
                 }
-                if (onExpandClick != null) {
+                if (onExpandClick != null && !isExpanded) {
                     Spacer(modifier = Modifier.height(2.dp))
                     val moreCount = maxOf(0, allFiles.size - INITIAL_RESULT_COUNT)
                     TextButton(
@@ -700,67 +641,22 @@ private fun FilesResultCard(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ExpandedFilesResultCard(
-    modifier: Modifier = Modifier,
-    files: List<DeviceFile>,
-    onFileClick: (DeviceFile) -> Unit,
-    onCollapseClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            ),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.files_section_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    TextButton(onClick = onCollapseClick) {
+                if (onCollapseClick != null && isExpanded) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    TextButton(
+                        onClick = { onCollapseClick() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Text(
                             text = "Collapse",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Icon(
                             imageVector = Icons.Rounded.ExpandLess,
                             contentDescription = "Collapse",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                val displayedFiles = files.take(MAX_EXPANDED_RESULTS)
-                displayedFiles.forEachIndexed { index, file ->
-                    FileResultRow(
-                        deviceFile = file,
-                        onClick = onFileClick
-                    )
-                    if (index < displayedFiles.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.outlineVariant
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -768,6 +664,7 @@ private fun ExpandedFilesResultCard(
         }
     }
 }
+
 
 @Composable
 private fun FileResultRow(
