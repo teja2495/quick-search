@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -386,7 +388,10 @@ private fun SearchEnginesSection(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -429,6 +434,30 @@ private fun SearchEnginesSection(
                     .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
                 contentScale = ContentScale.Fit
             )
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            Image(
+                painter = painterResource(id = R.drawable.google_play),
+                contentDescription = "Google Play",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE_PLAY) },
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            Image(
+                painter = painterResource(id = R.drawable.youtube),
+                contentDescription = "YouTube",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.YOUTUBE) },
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
         }
 
         if (hasAppResults) {
