@@ -18,6 +18,9 @@
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="action_app_info">App info</string>
     <string name="action_uninstall_app">Uninstall</string>
+    <string name="action_hide_app">Hide</string>
+    <string name="action_pin_app">Pin</string>
+    <string name="action_unpin_app">Unpin</string>
     <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_section_permissions">Permissions</string>
@@ -39,4 +42,8 @@
     <string name="settings_action_open_system_settings">Open Android app settings</string>
     <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
     <string name="desc_navigate_back">Navigate back</string>
+    <string name="settings_hidden_apps_title">Hidden apps</string>
+    <string name="settings_hidden_apps_desc">These apps stay out of Quick Search until you restore them.</string>
+    <string name="settings_hidden_apps_empty">No hidden apps yet.</string>
+    <string name="settings_action_unhide_app">Unhide</string>
 </resources>

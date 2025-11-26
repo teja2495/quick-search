@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
+import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.matches
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,8 @@ data class SearchUiState(
     val isLoading: Boolean = true,
     val recentApps: List<AppInfo> = emptyList(),
     val searchResults: List<AppInfo> = emptyList(),
+    val pinnedApps: List<AppInfo> = emptyList(),
+    val hiddenApps: List<AppInfo> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null
@@ -34,8 +37,11 @@ data class SearchUiState(
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = AppUsageRepository(application.applicationContext)
+    private val userPreferences = UserAppPreferences(application.applicationContext)
     private var cachedApps: List<AppInfo> = emptyList()
     private var noMatchPrefix: String? = null
+    private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
+    private var pinnedPackages: Set<String> = userPreferences.getPinnedPackages()
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -57,15 +63,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 this@SearchViewModel.cachedApps = cachedApps
                 noMatchPrefix = null
                 val lastUpdated = repository.cacheLastUpdatedMillis()
-                _uiState.update { state ->
-                    state.copy(
-                        recentApps = repository.extractRecentApps(cachedApps, GRID_ITEM_COUNT),
-                        searchResults = deriveMatches(state.query, cachedApps),
-                        isLoading = false,
-                        indexedAppCount = cachedApps.size,
-                        cacheLastUpdatedMillis = lastUpdated
-                    )
-                }
+                refreshDerivedState(
+                    lastUpdated = lastUpdated,
+                    isLoading = false
+                )
             }
             
             // Then refresh in background
@@ -89,15 +90,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     cachedApps = apps
                     noMatchPrefix = null
                     val lastUpdated = System.currentTimeMillis()
-                    _uiState.update { state ->
-                        state.copy(
-                            recentApps = repository.extractRecentApps(apps, GRID_ITEM_COUNT),
-                            searchResults = deriveMatches(state.query, apps),
-                            isLoading = false,
-                            indexedAppCount = apps.size,
-                            cacheLastUpdatedMillis = lastUpdated
-                        )
-                    }
+                    refreshDerivedState(
+                        lastUpdated = lastUpdated,
+                        isLoading = false
+                    )
                 }
                 .onFailure { error ->
                     val fallbackMessage = getApplication<Application>().getString(R.string.error_loading_user_apps)
@@ -125,7 +121,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val matches = if (shouldSkipSearch) {
             emptyList()
         } else {
-            deriveMatches(newQuery, cachedApps).also { results ->
+            deriveMatches(newQuery, searchSourceApps()).also { results ->
                 if (results.isEmpty()) {
                     noMatchPrefix = normalizedQuery
                 }
@@ -256,6 +252,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 state.copy(
                     recentApps = emptyList(),
                     searchResults = emptyList(),
+                    pinnedApps = emptyList(),
+                    hiddenApps = emptyList(),
                     indexedAppCount = 0,
                     cacheLastUpdatedMillis = 0L,
                     isLoading = true
@@ -269,6 +267,38 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 ).show()
             }
             refreshApps()
+        }
+    }
+
+    fun hideApp(appInfo: AppInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            hiddenPackages = userPreferences.hidePackage(appInfo.packageName)
+            if (pinnedPackages.contains(appInfo.packageName)) {
+                pinnedPackages = userPreferences.unpinPackage(appInfo.packageName)
+            }
+            refreshDerivedState()
+        }
+    }
+
+    fun unhideApp(appInfo: AppInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            hiddenPackages = userPreferences.unhidePackage(appInfo.packageName)
+            refreshDerivedState()
+        }
+    }
+
+    fun pinApp(appInfo: AppInfo) {
+        if (hiddenPackages.contains(appInfo.packageName)) return
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedPackages = userPreferences.pinPackage(appInfo.packageName)
+            refreshDerivedState()
+        }
+    }
+
+    fun unpinApp(appInfo: AppInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedPackages = userPreferences.unpinPackage(appInfo.packageName)
+            refreshDerivedState()
         }
     }
 
@@ -299,6 +329,59 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     companion object {
         private const val GRID_ITEM_COUNT = 10
+    }
+
+    private fun availableApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
+        if (apps.isEmpty()) return emptyList()
+        return apps.filterNot { hiddenPackages.contains(it.packageName) }
+    }
+
+    private fun searchSourceApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
+        if (apps.isEmpty()) return emptyList()
+        return apps.filterNot {
+            hiddenPackages.contains(it.packageName) || pinnedPackages.contains(it.packageName)
+        }
+    }
+
+    private fun computePinnedApps(apps: List<AppInfo>): List<AppInfo> {
+        if (apps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
+        return apps
+            .asSequence()
+            .filter { pinnedPackages.contains(it.packageName) && !hiddenPackages.contains(it.packageName) }
+            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+            .toList()
+    }
+
+    private fun refreshDerivedState(
+        lastUpdated: Long? = null,
+        isLoading: Boolean? = null
+    ) {
+        val apps = cachedApps
+        val visibleAppList = availableApps(apps)
+        val pinnedAppList = computePinnedApps(apps)
+        val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
+        val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
+        val query = _uiState.value.query
+        val searchResults = if (query.isBlank()) {
+            emptyList()
+        } else {
+            deriveMatches(query, searchSourceApps(apps))
+        }
+        val hiddenAppList = apps
+            .filter { hiddenPackages.contains(it.packageName) }
+            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+
+        _uiState.update { state ->
+            state.copy(
+                recentApps = recents,
+                searchResults = searchResults,
+                pinnedApps = pinnedAppList,
+                hiddenApps = hiddenAppList,
+                indexedAppCount = visibleAppList.size,
+                cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
+                isLoading = isLoading ?: state.isLoading
+            )
+        }
     }
 }
 

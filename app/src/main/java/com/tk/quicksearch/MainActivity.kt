@@ -35,7 +35,8 @@ class MainActivity : ComponentActivity() {
                     )
 
                     RootDestination.Settings -> SettingsRoute(
-                        onBack = { destination = RootDestination.Search }
+                        onBack = { destination = RootDestination.Search },
+                        viewModel = searchViewModel
                     )
                 }
             }

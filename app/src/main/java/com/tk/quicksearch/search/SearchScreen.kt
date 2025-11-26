@@ -26,8 +26,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -113,6 +115,9 @@ fun SearchRoute(
         onAppClick = viewModel::launchApp,
         onAppInfoClick = viewModel::openAppInfo,
         onUninstallClick = viewModel::requestUninstall,
+        onHideApp = viewModel::hideApp,
+        onPinApp = viewModel::pinApp,
+        onUnpinApp = viewModel::unpinApp,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) }
     )
 }
@@ -128,11 +133,23 @@ fun SearchScreen(
     onAppClick: (AppInfo) -> Unit,
     onAppInfoClick: (AppInfo) -> Unit,
     onUninstallClick: (AppInfo) -> Unit,
+    onHideApp: (AppInfo) -> Unit,
+    onPinApp: (AppInfo) -> Unit,
+    onUnpinApp: (AppInfo) -> Unit,
     onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val displayApps = remember(state.query, state.recentApps, state.searchResults) {
-        if (state.query.isBlank()) state.recentApps else state.searchResults
+    val displayApps = remember(state.query, state.recentApps, state.searchResults, state.pinnedApps) {
+        if (state.query.isBlank()) {
+            val pinnedPackages = state.pinnedApps.map { it.packageName }.toSet()
+            (state.pinnedApps + state.recentApps.filterNot { pinnedPackages.contains(it.packageName) })
+                .take(GRID_APP_COUNT)
+        } else {
+            state.searchResults
+        }
+    }
+    val pinnedPackageNames = remember(state.pinnedApps) {
+        state.pinnedApps.map { it.packageName }.toSet()
     }
     val hasAppResults = displayApps.isNotEmpty()
     val isSearching = state.query.isNotBlank()
@@ -187,10 +204,13 @@ fun SearchScreen(
             apps = displayApps,
             isSearching = isSearching,
             hasAppResults = hasAppResults,
-            query = state.query,
             onAppClick = onAppClick,
             onAppInfoClick = onAppInfoClick,
-            onUninstallClick = onUninstallClick
+            onUninstallClick = onUninstallClick,
+            onHideApp = onHideApp,
+            onPinApp = onPinApp,
+            onUnpinApp = onUnpinApp,
+            pinnedPackageNames = pinnedPackageNames
         )
     }
 }
@@ -431,10 +451,13 @@ private fun AppGridSection(
     apps: List<AppInfo>,
     isSearching: Boolean,
     hasAppResults: Boolean,
-    query: String,
     onAppClick: (AppInfo) -> Unit,
     onAppInfoClick: (AppInfo) -> Unit,
     onUninstallClick: (AppInfo) -> Unit,
+    onHideApp: (AppInfo) -> Unit,
+    onPinApp: (AppInfo) -> Unit,
+    onUnpinApp: (AppInfo) -> Unit,
+    pinnedPackageNames: Set<String>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -452,7 +475,11 @@ private fun AppGridSection(
                     apps = items,
                     onAppClick = onAppClick,
                     onAppInfoClick = onAppInfoClick,
-                    onUninstallClick = onUninstallClick
+                    onUninstallClick = onUninstallClick,
+                    onHideApp = onHideApp,
+                    onPinApp = onPinApp,
+                    onUnpinApp = onUnpinApp,
+                    pinnedPackageNames = pinnedPackageNames
                 )
             }
         }
@@ -464,7 +491,11 @@ private fun AppGrid(
     apps: List<AppInfo>,
     onAppClick: (AppInfo) -> Unit,
     onAppInfoClick: (AppInfo) -> Unit,
-    onUninstallClick: (AppInfo) -> Unit
+    onUninstallClick: (AppInfo) -> Unit,
+    onHideApp: (AppInfo) -> Unit,
+    onPinApp: (AppInfo) -> Unit,
+    onUnpinApp: (AppInfo) -> Unit,
+    pinnedPackageNames: Set<String>
 ) {
     val rows = remember(apps) {
         apps.take(GRID_APP_COUNT).chunked(COLUMNS)
@@ -489,7 +520,11 @@ private fun AppGrid(
                             onClick = { onAppClick(app) },
                             onAppInfoClick = { onAppInfoClick(app) },
                             onUninstallClick = { onUninstallClick(app) },
-                            showUninstall = !app.isSystemApp
+                        onHideApp = { onHideApp(app) },
+                        onPinApp = { onPinApp(app) },
+                        onUnpinApp = { onUnpinApp(app) },
+                        isPinned = pinnedPackageNames.contains(app.packageName),
+                        showUninstall = !app.isSystemApp
                         )
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
@@ -508,6 +543,10 @@ private fun AppGridItem(
     onClick: () -> Unit,
     onAppInfoClick: () -> Unit,
     onUninstallClick: () -> Unit,
+    onHideApp: () -> Unit,
+    onPinApp: () -> Unit,
+    onUnpinApp: () -> Unit,
+    isPinned: Boolean,
     showUninstall: Boolean
 ) {
     val context = LocalContext.current
@@ -610,6 +649,44 @@ private fun AppGridItem(
                 onClick = {
                     showOptions = false
                     onAppInfoClick()
+                }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_hide_app)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showOptions = false
+                    onHideApp()
+                }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(
+                            if (isPinned) R.string.action_unpin_app else R.string.action_pin_app
+                        )
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.PushPin,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showOptions = false
+                    if (isPinned) {
+                        onUnpinApp()
+                    } else {
+                        onPinApp()
+                    }
                 }
             )
             if (showUninstall) {
