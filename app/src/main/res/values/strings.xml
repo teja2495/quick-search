@@ -15,4 +15,7 @@
     <string name="desc_launch_app">Open %1$s</string>
     <string name="error_launch_app">Unable to open %1$s</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
+    <string name="action_app_info">App info</string>
+    <string name="action_uninstall_app">Uninstall</string>
+    <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
 </resources>

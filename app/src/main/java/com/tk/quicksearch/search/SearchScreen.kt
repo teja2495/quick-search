@@ -18,10 +18,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -34,6 +38,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -43,6 +50,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -62,6 +71,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -98,6 +108,8 @@ fun SearchRoute(
         onClearQuery = viewModel::clearQuery,
         onRequestUsagePermission = viewModel::openUsageAccessSettings,
         onAppClick = viewModel::launchApp,
+        onAppInfoClick = viewModel::openAppInfo,
+        onUninstallClick = viewModel::requestUninstall,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) }
     )
 }
@@ -110,6 +122,8 @@ fun SearchScreen(
     onClearQuery: () -> Unit,
     onRequestUsagePermission: () -> Unit,
     onAppClick: (AppInfo) -> Unit,
+    onAppInfoClick: (AppInfo) -> Unit,
+    onUninstallClick: (AppInfo) -> Unit,
     onSearchEngineClick: (String, SearchViewModel.SearchEngine) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -169,7 +183,9 @@ fun SearchScreen(
             isSearching = isSearching,
             hasAppResults = hasAppResults,
             query = state.query,
-            onAppClick = onAppClick
+            onAppClick = onAppClick,
+            onAppInfoClick = onAppInfoClick,
+            onUninstallClick = onUninstallClick
         )
     }
 }
@@ -401,6 +417,8 @@ private fun AppGridSection(
     hasAppResults: Boolean,
     query: String,
     onAppClick: (AppInfo) -> Unit,
+    onAppInfoClick: (AppInfo) -> Unit,
+    onUninstallClick: (AppInfo) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -414,7 +432,12 @@ private fun AppGridSection(
             if (items.isEmpty()) {
                 Box {}
             } else {
-                AppGrid(apps = items, onAppClick = onAppClick)
+                AppGrid(
+                    apps = items,
+                    onAppClick = onAppClick,
+                    onAppInfoClick = onAppInfoClick,
+                    onUninstallClick = onUninstallClick
+                )
             }
         }
     }
@@ -423,7 +446,9 @@ private fun AppGridSection(
 @Composable
 private fun AppGrid(
     apps: List<AppInfo>,
-    onAppClick: (AppInfo) -> Unit
+    onAppClick: (AppInfo) -> Unit,
+    onAppInfoClick: (AppInfo) -> Unit,
+    onUninstallClick: (AppInfo) -> Unit
 ) {
     val rows = remember(apps) {
         apps.take(GRID_APP_COUNT).chunked(COLUMNS)
@@ -445,7 +470,10 @@ private fun AppGrid(
                         AppGridItem(
                             modifier = Modifier.weight(1f),
                             appInfo = app,
-                            onClick = { onAppClick(app) }
+                            onClick = { onAppClick(app) },
+                            onAppInfoClick = { onAppInfoClick(app) },
+                            onUninstallClick = { onUninstallClick(app) },
+                            showUninstall = !app.isSystemApp
                         )
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
@@ -456,12 +484,15 @@ private fun AppGrid(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AppGridItem(
     modifier: Modifier = Modifier,
     appInfo: AppInfo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAppInfoClick: () -> Unit,
+    onUninstallClick: () -> Unit,
+    showUninstall: Boolean
 ) {
     val context = LocalContext.current
     val packageName = appInfo.packageName
@@ -487,55 +518,101 @@ private fun AppGridItem(
         value = bitmap
     }
 
-    Column(
+    var showOptions by remember { mutableStateOf(false) }
+    Box(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         val placeholderLabel = remember(appInfo.appName) {
             appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
         }
 
-        Surface(
-            modifier = Modifier.size(64.dp),
-            color = Color.Transparent,
-            tonalElevation = 0.dp,
-            onClick = onClick,
-            shape = RoundedCornerShape(20.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.size(64.dp),
+                color = Color.Transparent,
+                tonalElevation = 0.dp,
+                shape = RoundedCornerShape(20.dp)
             ) {
-                val bitmap = iconBitmap
-                if (bitmap != null) {
-                    Image(
-                        bitmap = bitmap,
-                        contentDescription = stringResource(
-                            R.string.desc_launch_app,
-                            appInfo.appName
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .combinedClickable(
+                            onClick = onClick,
+                            onLongClick = { showOptions = true }
                         ),
-                        modifier = Modifier.size(52.dp)
-                    )
-                } else {
-                    Text(
-                        text = placeholderLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    contentAlignment = Alignment.Center
+                ) {
+                    val bitmap = iconBitmap
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = stringResource(
+                                R.string.desc_launch_app,
+                                appInfo.appName
+                            ),
+                            modifier = Modifier.size(52.dp)
+                        )
+                    } else {
+                        Text(
+                            text = placeholderLabel,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = appInfo.appName,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = appInfo.appName,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        DropdownMenu(
+            expanded = showOptions,
+            onDismissRequest = { showOptions = false },
+            shape = RoundedCornerShape(24.dp),
+            properties = PopupProperties(focusable = false)
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_app_info)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showOptions = false
+                    onAppInfoClick()
+                }
+            )
+            if (showUninstall) {
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.action_uninstall_app)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = {
+                        showOptions = false
+                        onUninstallClick()
+                    }
+                )
+            }
+        }
     }
 }
 
