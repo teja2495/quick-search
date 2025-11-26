@@ -471,6 +471,17 @@ private fun SearchEnginesSection(
             Spacer(modifier = Modifier.width(20.dp))
             
             Image(
+                painter = painterResource(id = R.drawable.reddit),
+                contentDescription = "Reddit",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.REDDIT) },
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            Image(
                 painter = painterResource(id = R.drawable.youtube),
                 contentDescription = "YouTube",
                 modifier = Modifier
