@@ -3,7 +3,6 @@ package com.tk.quicksearch.search
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,16 +41,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,6 +69,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SearchRoute(
@@ -161,7 +166,6 @@ fun SearchScreen(
 
         AppGridSection(
             apps = displayApps,
-            isLoading = state.isLoading,
             isSearching = isSearching,
             hasAppResults = hasAppResults,
             query = state.query,
@@ -393,7 +397,6 @@ private fun QuickActionsSection(
 @Composable
 private fun AppGridSection(
     apps: List<AppInfo>,
-    isLoading: Boolean,
     isSearching: Boolean,
     hasAppResults: Boolean,
     query: String,
@@ -407,19 +410,11 @@ private fun AppGridSection(
     ) {
         Spacer(modifier = Modifier.height(if (isSearching && !hasAppResults) 0.dp else 12.dp))
 
-        Crossfade(targetState = Triple(apps, isLoading, isSearching), label = "grid") { (items, loading, _) ->
-            when {
-                loading && items.isEmpty() -> {
-                    CircularProgressIndicator()
-                }
-
-                items.isEmpty() -> {
-                    Box {}
-                }
-
-                else -> {
-                    AppGrid(apps = items, onAppClick = onAppClick)
-                }
+        Crossfade(targetState = apps, label = "grid") { items ->
+            if (items.isEmpty()) {
+                Box {}
+            } else {
+                AppGrid(apps = items, onAppClick = onAppClick)
             }
         }
     }
@@ -468,6 +463,30 @@ private fun AppGridItem(
     appInfo: AppInfo,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val packageName = appInfo.packageName
+    val cachedIcon = remember(packageName) { AppIconCache.get(packageName) }
+    val iconBitmap by produceState(initialValue = cachedIcon, key1 = packageName) {
+        val existing = AppIconCache.get(packageName)
+        if (existing != null) {
+            value = existing
+            return@produceState
+        }
+
+        val bitmap = withContext(Dispatchers.IO) {
+            runCatching {
+                context.packageManager.getApplicationIcon(packageName)
+                    .toBitmap()
+                    .asImageBitmap()
+            }.getOrNull()
+        }
+
+        if (bitmap != null) {
+            AppIconCache.put(packageName, bitmap)
+        }
+        value = bitmap
+    }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -475,9 +494,6 @@ private fun AppGridItem(
     ) {
         val placeholderLabel = remember(appInfo.appName) {
             appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
-        }
-        val iconBitmap = remember(appInfo.packageName, appInfo.icon) {
-            runCatching { appInfo.icon.toBitmap().asImageBitmap() }.getOrNull()
         }
 
         Surface(
@@ -491,9 +507,10 @@ private fun AppGridItem(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                if (iconBitmap != null) {
+                val bitmap = iconBitmap
+                if (bitmap != null) {
                     Image(
-                        bitmap = iconBitmap,
+                        bitmap = bitmap,
                         contentDescription = stringResource(
                             R.string.desc_launch_app,
                             appInfo.appName
@@ -545,4 +562,15 @@ private fun EmptyState() {
 private const val ROW_COUNT = 2
 private const val COLUMNS = 5
 private const val GRID_APP_COUNT = ROW_COUNT * COLUMNS
+
+private object AppIconCache {
+    private val cache = ConcurrentHashMap<String, ImageBitmap?>()
+
+    fun get(packageName: String): ImageBitmap? = cache[packageName]
+
+    fun put(packageName: String, bitmap: ImageBitmap?) {
+        if (bitmap == null) return
+        cache[packageName] = bitmap
+    }
+}
 

@@ -1,6 +1,5 @@
 package com.tk.quicksearch.model
 
-import android.graphics.drawable.Drawable
 import java.util.Locale
 
 /**
@@ -9,7 +8,6 @@ import java.util.Locale
 data class AppInfo(
     val appName: String,
     val packageName: String,
-    val icon: Drawable,
     val lastUsedTime: Long,
     val isSystemApp: Boolean
 )

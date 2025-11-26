@@ -72,12 +72,9 @@ class AppUsageRepository(
                 val label = resolveInfo.loadLabel(packageManager)?.toString()
                     ?.takeIf { it.isNotBlank() }
                     ?: packageName.substringAfterLast(".").replaceFirstChar { it.titlecase(Locale.getDefault()) }
-                val icon = runCatching { resolveInfo.loadIcon(packageManager) }
-                    .getOrElse { packageManager.defaultActivityIcon }
                 AppInfo(
                     appName = label,
                     packageName = packageName,
-                    icon = icon,
                     lastUsedTime = usageMap[packageName] ?: 0L,
                     isSystemApp = (resolveInfo.activityInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
                 )
