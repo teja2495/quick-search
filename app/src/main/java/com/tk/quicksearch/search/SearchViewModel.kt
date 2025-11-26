@@ -32,6 +32,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository = AppUsageRepository(application.applicationContext)
     private var cachedApps: List<AppInfo> = emptyList()
+    private var noMatchPrefix: String? = null
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -51,6 +52,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             if (cachedApps != null && cachedApps.isNotEmpty()) {
                 // Show cached apps immediately
                 this@SearchViewModel.cachedApps = cachedApps
+                noMatchPrefix = null
                 _uiState.update { state ->
                     state.copy(
                         recentApps = repository.extractRecentApps(cachedApps, GRID_ITEM_COUNT),
@@ -79,6 +81,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             runCatching { repository.loadLaunchableApps() }
                 .onSuccess { apps ->
                     cachedApps = apps
+                    noMatchPrefix = null
                     _uiState.update { state ->
                         state.copy(
                             recentApps = repository.extractRecentApps(apps, GRID_ITEM_COUNT),
@@ -100,12 +103,44 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onQueryChange(newQuery: String) {
+        if (newQuery.isBlank()) {
+            noMatchPrefix = null
+            _uiState.update { it.copy(query = "", searchResults = emptyList()) }
+            return
+        }
+
+        val normalizedQuery = newQuery.lowercase(Locale.getDefault())
+        resetNoMatchPrefixIfNeeded(normalizedQuery)
+
+        val shouldSkipSearch = shouldSkipDueToNoMatchPrefix(normalizedQuery)
+        val matches = if (shouldSkipSearch) {
+            emptyList()
+        } else {
+            deriveMatches(newQuery, cachedApps).also { results ->
+                if (results.isEmpty()) {
+                    noMatchPrefix = normalizedQuery
+                }
+            }
+        }
+
         _uiState.update { state ->
             state.copy(
                 query = newQuery,
-                searchResults = deriveMatches(newQuery, cachedApps)
+                searchResults = matches
             )
         }
+    }
+
+    private fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
+        val prefix = noMatchPrefix ?: return
+        if (!normalizedQuery.startsWith(prefix)) {
+            noMatchPrefix = null
+        }
+    }
+
+    private fun shouldSkipDueToNoMatchPrefix(normalizedQuery: String): Boolean {
+        val prefix = noMatchPrefix ?: return false
+        return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
     }
 
     fun clearQuery() {

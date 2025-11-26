@@ -171,7 +171,7 @@ fun SearchScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         if (state.query.isNotBlank()) {
-            QuickActionsSection(
+            SearchEnginesSection(
                 query = state.query,
                 hasAppResults = hasAppResults,
                 onSearchEngineClick = onSearchEngineClick
@@ -324,7 +324,7 @@ private fun InfoBanner(message: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun QuickActionsSection(
+private fun SearchEnginesSection(
     modifier: Modifier = Modifier,
     query: String,
     hasAppResults: Boolean,
