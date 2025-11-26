@@ -2,6 +2,7 @@ package com.tk.quicksearch.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.tk.quicksearch.model.FileType
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -64,6 +65,22 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putString("$KEY_PREFERRED_PHONE_PREFIX$contactId", phoneNumber).apply()
     }
 
+    fun getEnabledFileTypes(): Set<FileType> {
+        val enabledNames = prefs.getStringSet(KEY_ENABLED_FILE_TYPES, null)
+        return if (enabledNames == null) {
+            // Default: all file types enabled
+            FileType.values().toSet()
+        } else {
+            enabledNames.mapNotNull { name ->
+                FileType.values().find { it.name == name }
+            }.toSet()
+        }
+    }
+
+    fun setEnabledFileTypes(enabled: Set<FileType>) {
+        prefs.edit().putStringSet(KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
+    }
+
     private inline fun updateStringSet(
         key: String,
         block: (MutableSet<String>) -> Unit
@@ -83,6 +100,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
         private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
+        private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
     }
 }
 

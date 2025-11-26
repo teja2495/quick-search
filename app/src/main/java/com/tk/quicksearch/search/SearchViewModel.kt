@@ -17,6 +17,8 @@ import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.model.FileTypeUtils
 import com.tk.quicksearch.model.matches
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,7 +65,8 @@ data class SearchUiState(
     val showAppLabels: Boolean = true,
     val searchEngineOrder: List<SearchEngine> = emptyList(),
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
-    val phoneNumberSelection: PhoneNumberSelection? = null
+    val phoneNumberSelection: PhoneNumberSelection? = null,
+    val enabledFileTypes: Set<FileType> = FileType.values().toSet()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -79,6 +82,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
+    private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -90,7 +94,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             it.copy(
                 showAppLabels = showAppLabels,
                 searchEngineOrder = searchEngineOrder,
-                disabledSearchEngines = disabledSearchEngines
+                disabledSearchEngines = disabledSearchEngines,
+                enabledFileTypes = enabledFileTypes
             )
         }
         refreshUsageAccess()
@@ -413,6 +418,27 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setFileTypeEnabled(fileType: FileType, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val updated = enabledFileTypes.toMutableSet()
+            if (enabled) {
+                updated.add(fileType)
+            } else {
+                updated.remove(fileType)
+            }
+            enabledFileTypes = updated
+            userPreferences.setEnabledFileTypes(enabledFileTypes)
+            _uiState.update { 
+                it.copy(enabledFileTypes = enabledFileTypes)
+            }
+            // Re-run file search if there's an active query
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                performSecondarySearches(query)
+            }
+        }
+    }
+
     private fun loadSearchEngineOrder(): List<SearchEngine> {
         val savedOrder = userPreferences.getSearchEngineOrder()
         val allEngines = SearchEngine.values().toList()
@@ -554,7 +580,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
             val filesDeferred = async {
                 if (canSearchFiles) {
-                    fileRepository.searchFiles(query, FILE_RESULT_LIMIT)
+                    val allFiles = fileRepository.searchFiles(query, FILE_RESULT_LIMIT * 2) // Get more to filter
+                    // Filter files based on enabled file types
+                    allFiles.filter { file ->
+                        val fileType = FileTypeUtils.getFileType(file)
+                        fileType in enabledFileTypes
+                    }.take(FILE_RESULT_LIMIT)
                 } else {
                     emptyList()
                 }

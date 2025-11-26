@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchViewModel
 
@@ -61,7 +62,9 @@ fun SettingsRoute(
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
-        onReorderSearchEngines = viewModel::reorderSearchEngines
+        onReorderSearchEngines = viewModel::reorderSearchEngines,
+        enabledFileTypes = uiState.enabledFileTypes,
+        onToggleFileType = viewModel::setFileTypeEnabled
     )
 }
 
@@ -76,7 +79,9 @@ private fun SettingsScreen(
     searchEngineOrder: List<SearchEngine>,
     disabledSearchEngines: Set<SearchEngine>,
     onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
-    onReorderSearchEngines: (List<SearchEngine>) -> Unit
+    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
+    enabledFileTypes: Set<FileType>,
+    onToggleFileType: (FileType, Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -118,6 +123,11 @@ private fun SettingsScreen(
             disabledSearchEngines = disabledSearchEngines,
             onToggleSearchEngine = onToggleSearchEngine,
             onReorderSearchEngines = onReorderSearchEngines
+        )
+
+        FileTypesSection(
+            enabledFileTypes = enabledFileTypes,
+            onToggleFileType = onToggleFileType
         )
 
         HiddenAppsSection(
@@ -326,6 +336,77 @@ private fun SearchEngineRow(
                 onCheckedChange = onToggle
             )
         }
+    }
+}
+
+@Composable
+private fun FileTypesSection(
+    enabledFileTypes: Set<FileType>,
+    onToggleFileType: (FileType, Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.settings_file_types_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_file_types_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            FileType.values().forEachIndexed { index, fileType ->
+                FileTypeRow(
+                    fileType = fileType,
+                    isEnabled = fileType in enabledFileTypes,
+                    onToggle = { enabled -> onToggleFileType(fileType, enabled) }
+                )
+                if (index != FileType.values().lastIndex) {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FileTypeRow(
+    fileType: FileType,
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    val fileTypeName = when (fileType) {
+        FileType.IMAGES -> stringResource(R.string.file_type_images)
+        FileType.VIDEOS -> stringResource(R.string.file_type_videos)
+        FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
+        FileType.OTHER -> stringResource(R.string.file_type_other)
+    }
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = fileTypeName,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Switch(
+            checked = isEnabled,
+            onCheckedChange = onToggle
+        )
     }
 }
 
