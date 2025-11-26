@@ -319,6 +319,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             SearchEngine.GOOGLE -> "https://www.google.com/search?q=$encodedQuery"
             SearchEngine.CHATGPT -> "https://chatgpt.com/?prompt=$encodedQuery"
             SearchEngine.PERPLEXITY -> "https://www.perplexity.ai/search?q=$encodedQuery"
+            SearchEngine.GROK -> "https://grok.com/?q=$encodedQuery"
+            SearchEngine.GOOGLE_MAPS -> "http://maps.google.com/?q=$encodedQuery"
             SearchEngine.GOOGLE_PLAY -> "https://play.google.com/store/search?q=$encodedQuery&c=apps"
             SearchEngine.YOUTUBE -> "https://www.youtube.com/results?search_query=$encodedQuery"
         }
@@ -328,6 +330,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         GOOGLE,
         CHATGPT,
         PERPLEXITY,
+        GROK,
+        GOOGLE_MAPS,
         GOOGLE_PLAY,
         YOUTUBE
     }

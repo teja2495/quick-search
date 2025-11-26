@@ -438,6 +438,28 @@ private fun SearchEnginesSection(
             Spacer(modifier = Modifier.width(20.dp))
             
             Image(
+                painter = painterResource(id = R.drawable.grok),
+                contentDescription = "Grok",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GROK) },
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            Image(
+                painter = painterResource(id = R.drawable.google_maps),
+                contentDescription = "Google Maps",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE_MAPS) },
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(20.dp))
+            
+            Image(
                 painter = painterResource(id = R.drawable.google_play),
                 contentDescription = "Google Play",
                 modifier = Modifier
