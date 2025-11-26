@@ -1,18 +1,26 @@
 package com.tk.quicksearch.search
 
 import android.app.Application
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
+import com.tk.quicksearch.data.ContactRepository
+import com.tk.quicksearch.data.FileSearchRepository
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.matches
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,11 +43,15 @@ enum class SearchEngine {
 data class SearchUiState(
     val query: String = "",
     val hasUsagePermission: Boolean = false,
+    val hasContactPermission: Boolean = false,
+    val hasFilePermission: Boolean = false,
     val isLoading: Boolean = true,
     val recentApps: List<AppInfo> = emptyList(),
     val searchResults: List<AppInfo> = emptyList(),
     val pinnedApps: List<AppInfo> = emptyList(),
     val hiddenApps: List<AppInfo> = emptyList(),
+    val contactResults: List<ContactInfo> = emptyList(),
+    val fileResults: List<DeviceFile> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
@@ -51,6 +63,8 @@ data class SearchUiState(
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = AppUsageRepository(application.applicationContext)
+    private val contactRepository = ContactRepository(application.applicationContext)
+    private val fileRepository = FileSearchRepository(application.applicationContext)
     private val userPreferences = UserAppPreferences(application.applicationContext)
     private var cachedApps: List<AppInfo> = emptyList()
     private var noMatchPrefix: String? = null
@@ -59,6 +73,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
+    private var searchJob: Job? = null
+    private var queryVersion: Long = 0L
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -72,6 +88,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
         }
         refreshUsageAccess()
+        refreshOptionalPermissions()
         loadApps()
     }
 
@@ -134,7 +151,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun onQueryChange(newQuery: String) {
         if (newQuery.isBlank()) {
             noMatchPrefix = null
-            _uiState.update { it.copy(query = "", searchResults = emptyList()) }
+            searchJob?.cancel()
+            _uiState.update { 
+                it.copy(
+                    query = "",
+                    searchResults = emptyList(),
+                    contactResults = emptyList(),
+                    fileResults = emptyList()
+                ) 
+            }
             return
         }
 
@@ -158,6 +183,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 searchResults = matches
             )
         }
+        performSecondarySearches(newQuery.trim())
     }
 
     private fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
@@ -185,6 +211,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (latest) {
             refreshApps()
         }
+        handleOptionalPermissionChange()
     }
 
     fun openUsageAccessSettings() {
@@ -203,6 +230,22 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+    }
+
+    fun openAllFilesAccessSettings() {
+        val context = getApplication<Application>()
+        val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+            data = Uri.parse("package:${context.packageName}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        runCatching {
+            context.startActivity(manageIntent)
+        }.onFailure {
+            val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(fallback)
+        }
     }
 
     fun launchApp(appInfo: AppInfo) {
@@ -415,6 +458,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     companion object {
         private const val GRID_ITEM_COUNT = 10
+        private const val CONTACT_RESULT_LIMIT = 5
+        private const val FILE_RESULT_LIMIT = 5
     }
 
     private fun availableApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
@@ -467,6 +512,150 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
                 isLoading = isLoading ?: state.isLoading
             )
+        }
+    }
+
+    fun handleOptionalPermissionChange() {
+        val optionalChanged = refreshOptionalPermissions()
+        if (optionalChanged && _uiState.value.query.isNotBlank()) {
+            performSecondarySearches(_uiState.value.query)
+        }
+    }
+
+    private fun performSecondarySearches(query: String) {
+        searchJob?.cancel()
+        if (query.isBlank()) {
+            _uiState.update {
+                it.copy(
+                    contactResults = emptyList(),
+                    fileResults = emptyList()
+                )
+            }
+            return
+        }
+
+        val canSearchContacts = _uiState.value.hasContactPermission
+        val canSearchFiles = _uiState.value.hasFilePermission
+        val currentVersion = ++queryVersion
+
+        searchJob = viewModelScope.launch(Dispatchers.IO) {
+            val contactsDeferred = async {
+                if (canSearchContacts) {
+                    contactRepository.searchContacts(query, CONTACT_RESULT_LIMIT)
+                } else {
+                    emptyList()
+                }
+            }
+            val filesDeferred = async {
+                if (canSearchFiles) {
+                    fileRepository.searchFiles(query, FILE_RESULT_LIMIT)
+                } else {
+                    emptyList()
+                }
+            }
+            val contactResults = contactsDeferred.await()
+            val fileResults = filesDeferred.await()
+
+            withContext(Dispatchers.Main) {
+                if (currentVersion == queryVersion) {
+                    _uiState.update { state ->
+                        state.copy(
+                            contactResults = contactResults,
+                            fileResults = fileResults
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun refreshOptionalPermissions(): Boolean {
+        val hasContacts = contactRepository.hasPermission()
+        val hasFiles = fileRepository.hasPermission()
+        val previousState = _uiState.value
+        val changed =
+            previousState.hasContactPermission != hasContacts || previousState.hasFilePermission != hasFiles
+
+        if (changed) {
+            _uiState.update { state ->
+                state.copy(
+                    hasContactPermission = hasContacts,
+                    hasFilePermission = hasFiles,
+                    contactResults = if (hasContacts) state.contactResults else emptyList(),
+                    fileResults = if (hasFiles) state.fileResults else emptyList()
+                )
+            }
+        }
+        return changed
+    }
+
+    fun openContact(contactInfo: ContactInfo) {
+        val context = getApplication<Application>()
+        val lookupUri = ContactsContract.Contacts.getLookupUri(contactInfo.contactId, contactInfo.lookupKey)
+        if (lookupUri == null) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_open_contact),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val intent = Intent(Intent.ACTION_VIEW, lookupUri).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    fun callContact(contactInfo: ContactInfo) {
+        val number = contactInfo.primaryNumber
+        val context = getApplication<Application>()
+        if (number.isNullOrBlank()) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_missing_phone_number),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:${Uri.encode(number)}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    fun smsContact(contactInfo: ContactInfo) {
+        val number = contactInfo.primaryNumber
+        val context = getApplication<Application>()
+        if (number.isNullOrBlank()) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_missing_phone_number),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("smsto:${Uri.encode(number)}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    fun openFile(deviceFile: DeviceFile) {
+        val context = getApplication<Application>()
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(deviceFile.uri, deviceFile.mimeType ?: "*/*")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        try {
+            context.startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_open_file, deviceFile.displayName),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

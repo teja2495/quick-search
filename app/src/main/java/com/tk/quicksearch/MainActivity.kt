@@ -1,21 +1,44 @@
 package com.tk.quicksearch
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
+import android.provider.Settings
 import com.tk.quicksearch.search.SearchRoute
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val searchViewModel: SearchViewModel by viewModels()
+
+    private val optionalPermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            searchViewModel.handleOptionalPermissionChange()
+        }
+
+    private val manageAllFilesPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            searchViewModel.handleOptionalPermissionChange()
+        }
+
+    private var hasRequestedAllFilesAccess: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -25,7 +48,6 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             QuickSearchTheme {
-                val searchViewModel: SearchViewModel = viewModel()
                 var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
 
                 when (destination) {
@@ -41,6 +63,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        requestOptionalPermissionsIfNeeded()
+    }
+
+    private fun requestOptionalPermissionsIfNeeded() {
+        val runtimePermissions = buildList {
+            if (!hasPermission(Manifest.permission.READ_CONTACTS)) {
+                add(Manifest.permission.READ_CONTACTS)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+
+        if (runtimePermissions.isEmpty()) {
+            searchViewModel.handleOptionalPermissionChange()
+        } else {
+            optionalPermissionsLauncher.launch(runtimePermissions.toTypedArray())
+        }
+
+        requestAllFilesAccessIfNeeded()
+    }
+
+    private fun requestAllFilesAccessIfNeeded() {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            !Environment.isExternalStorageManager() &&
+            !hasRequestedAllFilesAccess
+        ) {
+            hasRequestedAllFilesAccess = true
+            val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            runCatching {
+                manageAllFilesPermissionLauncher.launch(manageIntent)
+            }.onFailure {
+                val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                manageAllFilesPermissionLauncher.launch(fallback)
+            }
+        }
+    }
+
+    private fun hasPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
     }
 }
 

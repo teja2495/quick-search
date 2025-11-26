@@ -28,12 +28,16 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -87,6 +91,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.DeviceFile
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -123,8 +129,13 @@ fun SearchRoute(
         onHideApp = viewModel::hideApp,
         onPinApp = viewModel::pinApp,
         onUnpinApp = viewModel::unpinApp,
+        onContactClick = viewModel::openContact,
+        onCallContact = viewModel::callContact,
+        onSmsContact = viewModel::smsContact,
+        onFileClick = viewModel::openFile,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
-        viewModel = viewModel
+        onOpenAppSettings = viewModel::openAppSettings,
+        onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings
     )
 }
 
@@ -142,8 +153,13 @@ fun SearchScreen(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
+    onContactClick: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onFileClick: (DeviceFile) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
-    viewModel: SearchViewModel
+    onOpenAppSettings: () -> Unit,
+    onOpenStorageAccessSettings: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val displayApps = remember(state.query, state.recentApps, state.searchResults, state.pinnedApps) {
@@ -197,6 +213,27 @@ fun SearchScreen(
             InfoBanner(message = errorMessage)
         }
 
+        if (state.query.isNotBlank()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            ContactResultsSection(
+                hasPermission = state.hasContactPermission,
+                contacts = state.contactResults,
+                onContactClick = onContactClick,
+                onCallContact = onCallContact,
+                onSmsContact = onSmsContact,
+                onOpenAppSettings = onOpenAppSettings
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            FileResultsSection(
+                hasPermission = state.hasFilePermission,
+                files = state.fileResults,
+                onFileClick = onFileClick,
+                onRequestPermission = onOpenStorageAccessSettings
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         val enabledEngines: List<SearchEngine> = remember(
@@ -232,6 +269,259 @@ fun SearchScreen(
             pinnedPackageNames = pinnedPackageNames,
             showAppLabels = shouldShowAppLabels
         )
+    }
+}
+
+@Composable
+private fun ContactResultsSection(
+    hasPermission: Boolean,
+    contacts: List<ContactInfo>,
+    onContactClick: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onOpenAppSettings: () -> Unit
+) {
+    when {
+        hasPermission && contacts.isNotEmpty() -> {
+            ContactsResultCard(
+                contacts = contacts,
+                onContactClick = onContactClick,
+                onCallContact = onCallContact,
+                onSmsContact = onSmsContact
+            )
+        }
+
+        !hasPermission -> {
+            PermissionDisabledCard(
+                title = stringResource(R.string.contacts_permission_title),
+                message = stringResource(R.string.contacts_permission_subtitle),
+                actionLabel = stringResource(R.string.permission_action_manage_android),
+                onActionClick = onOpenAppSettings
+            )
+        }
+    }
+}
+
+@Composable
+private fun FileResultsSection(
+    hasPermission: Boolean,
+    files: List<DeviceFile>,
+    onFileClick: (DeviceFile) -> Unit,
+    onRequestPermission: () -> Unit
+) {
+    when {
+        hasPermission && files.isNotEmpty() -> {
+            FilesResultCard(
+                files = files,
+                onFileClick = onFileClick
+            )
+        }
+
+        !hasPermission -> {
+            PermissionDisabledCard(
+                title = stringResource(R.string.files_permission_title),
+                message = stringResource(R.string.files_permission_subtitle),
+                actionLabel = stringResource(R.string.permission_action_manage_android),
+                onActionClick = onRequestPermission
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContactsResultCard(
+    contacts: List<ContactInfo>,
+    onContactClick: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.contacts_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            contacts.forEachIndexed { index, contactInfo ->
+                ContactResultRow(
+                    contactInfo = contactInfo,
+                    onContactClick = onContactClick,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact
+                )
+                if (index != contacts.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContactResultRow(
+    contactInfo: ContactInfo,
+    onContactClick: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit
+) {
+    val hasNumber = contactInfo.primaryNumber != null
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onContactClick(contactInfo) }
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = contactInfo.displayName,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        IconButton(
+            onClick = { onCallContact(contactInfo) },
+            enabled = hasNumber
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Call,
+                contentDescription = stringResource(R.string.contacts_action_call),
+                tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        IconButton(
+            onClick = { onSmsContact(contactInfo) },
+            enabled = hasNumber
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Sms,
+                contentDescription = stringResource(R.string.contacts_action_sms),
+                tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilesResultCard(
+    files: List<DeviceFile>,
+    onFileClick: (DeviceFile) -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.files_section_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            files.forEachIndexed { index, file ->
+                FileResultRow(
+                    deviceFile = file,
+                    onClick = onFileClick
+                )
+                if (index != files.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FileResultRow(
+    deviceFile: DeviceFile,
+    onClick: (DeviceFile) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(deviceFile) }
+            .padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.InsertDriveFile,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = deviceFile.displayName,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Icon(
+            imageVector = Icons.Rounded.OpenInNew,
+            contentDescription = stringResource(R.string.files_action_open),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun PermissionDisabledCard(
+    title: String,
+    message: String,
+    actionLabel: String,
+    onActionClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick = onActionClick,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(text = actionLabel)
+            }
+        }
     }
 }
 

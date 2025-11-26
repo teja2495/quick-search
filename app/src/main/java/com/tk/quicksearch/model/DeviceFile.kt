@@ -1,0 +1,15 @@
+package com.tk.quicksearch.model
+
+import android.net.Uri
+
+/**
+ * File metadata returned from device-wide searches via MediaStore.
+ */
+data class DeviceFile(
+    val uri: Uri,
+    val displayName: String,
+    val mimeType: String?,
+    val lastModified: Long
+)
+
+
