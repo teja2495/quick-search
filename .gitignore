@@ -95,5 +95,8 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Custom metadata
+*.salive
+
 # AI context files
 AI_CONTEXT.md
