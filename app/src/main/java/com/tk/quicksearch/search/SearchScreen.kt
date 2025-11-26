@@ -26,14 +26,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
@@ -54,6 +56,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -80,6 +83,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -96,6 +100,15 @@ import com.tk.quicksearch.model.DeviceFile
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private enum class ExpandedSection {
+    NONE,
+    CONTACTS,
+    FILES
+}
+
+private const val INITIAL_RESULT_COUNT = 1
+private const val MAX_EXPANDED_RESULTS = 10
 
 @Composable
 fun SearchRoute(
@@ -176,22 +189,42 @@ fun SearchScreen(
     }
     val hasAppResults = displayApps.isNotEmpty()
     val isSearching = state.query.isNotBlank()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    
+    var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
+    
+    // Reset expansion when query changes
+    LaunchedEffect(state.query) {
+        expandedSection = ExpandedSection.NONE
+    }
+    
+    // Scroll to bottom by default and when content changes (instant, no animation)
+    LaunchedEffect(displayApps.size, state.query, expandedSection) {
+        if (expandedSection == ExpandedSection.NONE) {
+            // Wait for layout to be complete
+            kotlinx.coroutines.delay(150)
+            // Jump to bottom instantly (no animation)
+            val maxScroll = scrollState.maxValue
+            if (maxScroll > 0) {
+                scrollState.scrollTo(maxScroll)
+            }
+        }
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(colorScheme.background)
             .systemBarsPadding()
-            .imePadding()
             .navigationBarsPadding()
             .padding(
                 start = 20.dp,
                 top = 16.dp,
-                end = 20.dp,
-                bottom = if (isSearching && !hasAppResults) 8.dp else 16.dp
+                end = 20.dp
             ),
         verticalArrangement = Arrangement.Top
     ) {
+        // Fixed search bar at the top
         PersistentSearchField(
             query = state.query,
             onQueryChange = onQueryChanged,
@@ -199,7 +232,28 @@ fun SearchScreen(
             onSettingsClick = onSettingsClick
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Calculate enabled engines
+        val enabledEngines: List<SearchEngine> = remember(
+            state.searchEngineOrder,
+            state.disabledSearchEngines
+        ) {
+            val order: List<SearchEngine> = state.searchEngineOrder
+            val disabled: Set<SearchEngine> = state.disabledSearchEngines
+            order.filter { engine -> engine !in disabled }
+        }
+
+        // Scrollable content below the search bar
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(scrollState)
+                .padding(
+                    bottom = if (isSearching && !hasAppResults && expandedSection == ExpandedSection.NONE) 0.dp else 16.dp
+                ),
+            verticalArrangement = Arrangement.Top
+        ) {
 
         if (!state.hasUsagePermission) {
             UsagePermissionCard(
@@ -214,81 +268,141 @@ fun SearchScreen(
         }
 
         if (state.query.isNotBlank()) {
-            Spacer(modifier = Modifier.height(16.dp))
-            ContactResultsSection(
-                hasPermission = state.hasContactPermission,
-                contacts = state.contactResults,
-                onContactClick = onContactClick,
-                onCallContact = onCallContact,
-                onSmsContact = onSmsContact,
-                onOpenAppSettings = onOpenAppSettings
-            )
+            val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
+            val isFilesExpanded = expandedSection == ExpandedSection.FILES
+            
+            // Show contacts section only if files are not expanded
+            if (!isFilesExpanded) {
+                ContactResultsSection(
+                    modifier = Modifier,
+                    hasPermission = state.hasContactPermission,
+                    contacts = state.contactResults,
+                    isExpanded = isContactsExpanded,
+                    onContactClick = onContactClick,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onOpenAppSettings = onOpenAppSettings,
+                    onExpandClick = { 
+                        if (isContactsExpanded) {
+                            keyboardController?.show()
+                            expandedSection = ExpandedSection.NONE
+                        } else {
+                            keyboardController?.hide()
+                            expandedSection = ExpandedSection.CONTACTS
+                        }
+                    }
+                )
+            }
 
+            // Show files section only if contacts are not expanded
+            if (!isContactsExpanded) {
+                Spacer(modifier = Modifier.height(12.dp))
+                FileResultsSection(
+                    modifier = Modifier,
+                    hasPermission = state.hasFilePermission,
+                    files = state.fileResults,
+                    isExpanded = isFilesExpanded,
+                    onFileClick = onFileClick,
+                    onRequestPermission = onOpenStorageAccessSettings,
+                    onExpandClick = { 
+                        if (isFilesExpanded) {
+                            keyboardController?.show()
+                            expandedSection = ExpandedSection.NONE
+                        } else {
+                            keyboardController?.hide()
+                            expandedSection = ExpandedSection.FILES
+                        }
+                    }
+                )
+            }
+        }
+
+        // Only show spacer and other content if no section is expanded
+        if (expandedSection == ExpandedSection.NONE) {
             Spacer(modifier = Modifier.height(12.dp))
-
-            FileResultsSection(
-                hasPermission = state.hasFilePermission,
-                files = state.fileResults,
-                onFileClick = onFileClick,
-                onRequestPermission = onOpenStorageAccessSettings
-            )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        // Only show search engines and app grid if no section is expanded
+        if (expandedSection == ExpandedSection.NONE) {
+            // Show search engines inside scrollable area only if there are apps
+            if (state.query.isNotBlank() && hasAppResults) {
+                SearchEnginesSection(
+                    query = state.query,
+                    hasAppResults = hasAppResults,
+                    enabledEngines = enabledEngines,
+                    onSearchEngineClick = onSearchEngineClick
+                )
+            }
 
-        val enabledEngines: List<SearchEngine> = remember(
-            state.searchEngineOrder,
-            state.disabledSearchEngines
-        ) {
-            val order: List<SearchEngine> = state.searchEngineOrder
-            val disabled: Set<SearchEngine> = state.disabledSearchEngines
-            order.filter { engine -> engine !in disabled }
-        }
+            val shouldShowAppLabels = state.showAppLabels || isSearching
 
-        if (state.query.isNotBlank()) {
-            SearchEnginesSection(
-                query = state.query,
+            AppGridSection(
+                apps = displayApps,
+                isSearching = isSearching,
                 hasAppResults = hasAppResults,
-                enabledEngines = enabledEngines,
-                onSearchEngineClick = onSearchEngineClick
+                onAppClick = onAppClick,
+                onAppInfoClick = onAppInfoClick,
+                onUninstallClick = onUninstallClick,
+                onHideApp = onHideApp,
+                onPinApp = onPinApp,
+                onUnpinApp = onUnpinApp,
+                pinnedPackageNames = pinnedPackageNames,
+                showAppLabels = shouldShowAppLabels
             )
         }
+        }
 
-        val shouldShowAppLabels = state.showAppLabels || isSearching
-
-        AppGridSection(
-            apps = displayApps,
-            isSearching = isSearching,
-            hasAppResults = hasAppResults,
-            onAppClick = onAppClick,
-            onAppInfoClick = onAppInfoClick,
-            onUninstallClick = onUninstallClick,
-            onHideApp = onHideApp,
-            onPinApp = onPinApp,
-            onUnpinApp = onUnpinApp,
-            pinnedPackageNames = pinnedPackageNames,
-            showAppLabels = shouldShowAppLabels
-        )
+        // Show search engines fixed at bottom (above keyboard) when no apps and searching
+        if (expandedSection == ExpandedSection.NONE && state.query.isNotBlank() && !hasAppResults) {
+            Box(
+                modifier = Modifier
+                    .imePadding()
+                    .padding(bottom = 8.dp)
+            ) {
+                SearchEnginesSection(
+                    query = state.query,
+                    hasAppResults = hasAppResults,
+                    enabledEngines = enabledEngines,
+                    onSearchEngineClick = onSearchEngineClick
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun ContactResultsSection(
+    modifier: Modifier = Modifier,
     hasPermission: Boolean,
     contacts: List<ContactInfo>,
+    isExpanded: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
-    onOpenAppSettings: () -> Unit
+    onOpenAppSettings: () -> Unit,
+    onExpandClick: () -> Unit
 ) {
     when {
         hasPermission && contacts.isNotEmpty() -> {
-            ContactsResultCard(
-                contacts = contacts,
-                onContactClick = onContactClick,
-                onCallContact = onCallContact,
-                onSmsContact = onSmsContact
-            )
+            if (isExpanded) {
+                ExpandedContactsResultCard(
+                    modifier = modifier,
+                    contacts = contacts,
+                    onContactClick = onContactClick,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onCollapseClick = onExpandClick
+                )
+            } else {
+                ContactsResultCard(
+                    contacts = contacts.take(INITIAL_RESULT_COUNT),
+                    allContacts = contacts,
+                    onContactClick = onContactClick,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onExpandClick = if (contacts.size > INITIAL_RESULT_COUNT) onExpandClick else null
+                )
+            }
         }
 
         !hasPermission -> {
@@ -304,17 +418,31 @@ private fun ContactResultsSection(
 
 @Composable
 private fun FileResultsSection(
+    modifier: Modifier = Modifier,
     hasPermission: Boolean,
     files: List<DeviceFile>,
+    isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
-    onRequestPermission: () -> Unit
+    onRequestPermission: () -> Unit,
+    onExpandClick: () -> Unit
 ) {
     when {
         hasPermission && files.isNotEmpty() -> {
-            FilesResultCard(
-                files = files,
-                onFileClick = onFileClick
-            )
+            if (isExpanded) {
+                ExpandedFilesResultCard(
+                    modifier = modifier,
+                    files = files,
+                    onFileClick = onFileClick,
+                    onCollapseClick = onExpandClick
+                )
+            } else {
+                FilesResultCard(
+                    files = files.take(INITIAL_RESULT_COUNT),
+                    allFiles = files,
+                    onFileClick = onFileClick,
+                    onExpandClick = if (files.size > INITIAL_RESULT_COUNT) onExpandClick else null
+                )
+            }
         }
 
         !hasPermission -> {
@@ -331,38 +459,134 @@ private fun FileResultsSection(
 @Composable
 private fun ContactsResultCard(
     contacts: List<ContactInfo>,
+    allContacts: List<ContactInfo>,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit
+    onSmsContact: (ContactInfo) -> Unit,
+    onExpandClick: (() -> Unit)?
 ) {
-    ElevatedCard(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = MaterialTheme.shapes.extraLarge
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Text(
+            text = stringResource(R.string.contacts_section_title),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            shape = MaterialTheme.shapes.extraLarge
         ) {
-            Text(
-                text = stringResource(R.string.contacts_section_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            contacts.forEachIndexed { index, contactInfo ->
-                ContactResultRow(
-                    contactInfo = contactInfo,
-                    onContactClick = onContactClick,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact
-                )
-                if (index != contacts.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.outlineVariant
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                contacts.forEachIndexed { index, contactInfo ->
+                    ContactResultRow(
+                        contactInfo = contactInfo,
+                        onContactClick = onContactClick,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact
                     )
+                    if (index != contacts.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                }
+                if (onExpandClick != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    val moreCount = maxOf(0, allContacts.size - INITIAL_RESULT_COUNT)
+                    TextButton(
+                        onClick = { onExpandClick() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Show $moreCount more",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = "Expand",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandedContactsResultCard(
+    modifier: Modifier = Modifier,
+    contacts: List<ContactInfo>,
+    onContactClick: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onCollapseClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.contacts_section_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    TextButton(onClick = onCollapseClick) {
+                        Text(
+                            text = "Collapse",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandLess,
+                            contentDescription = "Collapse",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                val displayedContacts = contacts.take(MAX_EXPANDED_RESULTS)
+                displayedContacts.forEachIndexed { index, contactInfo ->
+                    ContactResultRow(
+                        contactInfo = contactInfo,
+                        onContactClick = onContactClick,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact
+                    )
+                    if (index < displayedContacts.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
                 }
             }
         }
@@ -381,14 +605,14 @@ private fun ContactResultRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onContactClick(contactInfo) }
-            .padding(vertical = 6.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = contactInfo.displayName,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -419,34 +643,126 @@ private fun ContactResultRow(
 @Composable
 private fun FilesResultCard(
     files: List<DeviceFile>,
-    onFileClick: (DeviceFile) -> Unit
+    allFiles: List<DeviceFile>,
+    onFileClick: (DeviceFile) -> Unit,
+    onExpandClick: (() -> Unit)?
 ) {
-    ElevatedCard(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        shape = MaterialTheme.shapes.extraLarge
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Text(
+            text = stringResource(R.string.files_section_title),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            shape = MaterialTheme.shapes.extraLarge
         ) {
-            Text(
-                text = stringResource(R.string.files_section_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            files.forEachIndexed { index, file ->
-                FileResultRow(
-                    deviceFile = file,
-                    onClick = onFileClick
-                )
-                if (index != files.lastIndex) {
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.outlineVariant
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                files.forEachIndexed { index, file ->
+                    FileResultRow(
+                        deviceFile = file,
+                        onClick = onFileClick
                     )
+                    if (index != files.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                }
+                if (onExpandClick != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    val moreCount = maxOf(0, allFiles.size - INITIAL_RESULT_COUNT)
+                    TextButton(
+                        onClick = { onExpandClick() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Show $moreCount more",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = "Expand",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandedFilesResultCard(
+    modifier: Modifier = Modifier,
+    files: List<DeviceFile>,
+    onFileClick: (DeviceFile) -> Unit,
+    onCollapseClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.files_section_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    TextButton(onClick = onCollapseClick) {
+                        Text(
+                            text = "Collapse",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandLess,
+                            contentDescription = "Collapse",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                val displayedFiles = files.take(MAX_EXPANDED_RESULTS)
+                displayedFiles.forEachIndexed { index, file ->
+                    FileResultRow(
+                        deviceFile = file,
+                        onClick = onFileClick
+                    )
+                    if (index < displayedFiles.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
                 }
             }
         }
@@ -462,27 +778,23 @@ private fun FileResultRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(deviceFile) }
-            .padding(vertical = 6.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Rounded.InsertDriveFile,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(20.dp)
         )
         Text(
             text = deviceFile.displayName,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
-        )
-        Icon(
-            imageVector = Icons.Rounded.OpenInNew,
-            contentDescription = stringResource(R.string.files_action_open),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
