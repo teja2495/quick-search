@@ -5,7 +5,14 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.search.SearchRoute
+import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,8 +25,25 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             QuickSearchTheme {
-                SearchRoute()
+                val searchViewModel: SearchViewModel = viewModel()
+                var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
+
+                when (destination) {
+                    RootDestination.Search -> SearchRoute(
+                        viewModel = searchViewModel,
+                        onSettingsClick = { destination = RootDestination.Settings }
+                    )
+
+                    RootDestination.Settings -> SettingsRoute(
+                        onBack = { destination = RootDestination.Search }
+                    )
+                }
             }
         }
     }
+}
+
+private enum class RootDestination {
+    Search,
+    Settings
 }

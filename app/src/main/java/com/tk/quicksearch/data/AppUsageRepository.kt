@@ -52,6 +52,12 @@ class AppUsageRepository(
         return appCache.loadCachedApps()
     }
 
+    fun cacheLastUpdatedMillis(): Long = appCache.getLastUpdateTime()
+
+    fun clearCache() {
+        appCache.clearCache()
+    }
+
     /**
      * Reads all launchable apps on the device alongside their last used timestamp.
      * Also saves the result to cache for instant loading next time.

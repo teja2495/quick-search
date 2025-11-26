@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 data class SearchUiState(
@@ -25,6 +26,8 @@ data class SearchUiState(
     val isLoading: Boolean = true,
     val recentApps: List<AppInfo> = emptyList(),
     val searchResults: List<AppInfo> = emptyList(),
+    val indexedAppCount: Int = 0,
+    val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null
 )
 
@@ -53,11 +56,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 // Show cached apps immediately
                 this@SearchViewModel.cachedApps = cachedApps
                 noMatchPrefix = null
+                val lastUpdated = repository.cacheLastUpdatedMillis()
                 _uiState.update { state ->
                     state.copy(
                         recentApps = repository.extractRecentApps(cachedApps, GRID_ITEM_COUNT),
                         searchResults = deriveMatches(state.query, cachedApps),
-                        isLoading = false
+                        isLoading = false,
+                        indexedAppCount = cachedApps.size,
+                        cacheLastUpdatedMillis = lastUpdated
                     )
                 }
             }
@@ -82,11 +88,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 .onSuccess { apps ->
                     cachedApps = apps
                     noMatchPrefix = null
+                    val lastUpdated = System.currentTimeMillis()
                     _uiState.update { state ->
                         state.copy(
                             recentApps = repository.extractRecentApps(apps, GRID_ITEM_COUNT),
                             searchResults = deriveMatches(state.query, apps),
-                            isLoading = false
+                            isLoading = false,
+                            indexedAppCount = apps.size,
+                            cacheLastUpdatedMillis = lastUpdated
                         )
                     }
                 }
@@ -167,6 +176,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         context.startActivity(intent)
     }
 
+    fun openAppSettings() {
+        val context = getApplication<Application>()
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:${context.packageName}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
     fun launchApp(appInfo: AppInfo) {
         val context = getApplication<Application>()
         val launchIntent = context.packageManager
@@ -227,6 +245,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+    }
+
+    fun clearCachedApps() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearCache()
+            cachedApps = emptyList()
+            noMatchPrefix = null
+            _uiState.update { state ->
+                state.copy(
+                    recentApps = emptyList(),
+                    searchResults = emptyList(),
+                    indexedAppCount = 0,
+                    cacheLastUpdatedMillis = 0L,
+                    isLoading = true
+                )
+            }
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(R.string.settings_cache_cleared_toast),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            refreshApps()
+        }
     }
 
     private fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {

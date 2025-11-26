@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -86,6 +87,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SearchRoute(
     modifier: Modifier = Modifier,
+    onSettingsClick: () -> Unit = {},
     viewModel: SearchViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -107,6 +109,7 @@ fun SearchRoute(
         onQueryChanged = viewModel::onQueryChange,
         onClearQuery = viewModel::clearQuery,
         onRequestUsagePermission = viewModel::openUsageAccessSettings,
+        onSettingsClick = onSettingsClick,
         onAppClick = viewModel::launchApp,
         onAppInfoClick = viewModel::openAppInfo,
         onUninstallClick = viewModel::requestUninstall,
@@ -120,6 +123,7 @@ fun SearchScreen(
     state: SearchUiState,
     onQueryChanged: (String) -> Unit,
     onClearQuery: () -> Unit,
+    onSettingsClick: () -> Unit,
     onRequestUsagePermission: () -> Unit,
     onAppClick: (AppInfo) -> Unit,
     onAppInfoClick: (AppInfo) -> Unit,
@@ -151,7 +155,8 @@ fun SearchScreen(
         PersistentSearchField(
             query = state.query,
             onQueryChange = onQueryChanged,
-            onClearQuery = onClearQuery
+            onClearQuery = onClearQuery,
+            onSettingsClick = onSettingsClick
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -196,6 +201,7 @@ private fun PersistentSearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -242,19 +248,29 @@ private fun PersistentSearchField(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        trailingIcon = if (query.isNotEmpty()) {
-            {
-                IconButton(
-                    onClick = onClearQuery
-                ) {
+        trailingIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = onClearQuery) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = stringResource(R.string.desc_clear_search),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                IconButton(onClick = onSettingsClick) {
                     Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(R.string.desc_clear_search),
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = stringResource(R.string.desc_open_settings),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-        } else null,
+        },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
