@@ -46,4 +46,9 @@
     <string name="settings_hidden_apps_desc">These apps stay out of Quick Search until you restore them.</string>
     <string name="settings_hidden_apps_empty">No hidden apps yet.</string>
     <string name="settings_action_unhide_app">Unhide</string>
+    <string name="settings_app_labels_title">Appearance</string>
+    <string name="settings_app_labels_desc">Choose whether app names show under icons.</string>
+    <string name="settings_app_labels_toggle">Show app labels</string>
+    <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
+    <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
 </resources>

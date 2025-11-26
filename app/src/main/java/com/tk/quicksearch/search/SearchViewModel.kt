@@ -31,7 +31,8 @@ data class SearchUiState(
     val hiddenApps: List<AppInfo> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showAppLabels: Boolean = true
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -42,11 +43,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var noMatchPrefix: String? = null
     private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
     private var pinnedPackages: Set<String> = userPreferences.getPinnedPackages()
+    private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     init {
+        _uiState.update { it.copy(showAppLabels = showAppLabels) }
         refreshUsageAccess()
         loadApps()
     }
@@ -299,6 +302,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             pinnedPackages = userPreferences.unpinPackage(appInfo.packageName)
             refreshDerivedState()
+        }
+    }
+
+    fun setShowAppLabels(showLabels: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowAppLabels(showLabels)
+            showAppLabels = showLabels
+            _uiState.update { it.copy(showAppLabels = showLabels) }
         }
     }
 

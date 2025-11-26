@@ -15,6 +15,12 @@ class UserAppPreferences(context: Context) {
 
     fun getPinnedPackages(): Set<String> = prefs.getStringSet(KEY_PINNED, emptySet()).orEmpty().toSet()
 
+    fun shouldShowAppLabels(): Boolean = prefs.getBoolean(KEY_SHOW_APP_LABELS, true)
+
+    fun setShowAppLabels(showLabels: Boolean) {
+        prefs.edit().putBoolean(KEY_SHOW_APP_LABELS, showLabels).apply()
+    }
+
     fun hidePackage(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN) {
         it.add(packageName)
     }
@@ -46,6 +52,7 @@ class UserAppPreferences(context: Context) {
         private const val PREFS_NAME = "user_app_preferences"
         private const val KEY_HIDDEN = "hidden_packages"
         private const val KEY_PINNED = "pinned_packages"
+        private const val KEY_SHOW_APP_LABELS = "show_app_labels"
     }
 }
 

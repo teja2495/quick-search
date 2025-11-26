@@ -210,7 +210,8 @@ fun SearchScreen(
             onHideApp = onHideApp,
             onPinApp = onPinApp,
             onUnpinApp = onUnpinApp,
-            pinnedPackageNames = pinnedPackageNames
+            pinnedPackageNames = pinnedPackageNames,
+            showAppLabels = state.showAppLabels
         )
     }
 }
@@ -458,6 +459,7 @@ private fun AppGridSection(
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
     pinnedPackageNames: Set<String>,
+    showAppLabels: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -479,7 +481,8 @@ private fun AppGridSection(
                     onHideApp = onHideApp,
                     onPinApp = onPinApp,
                     onUnpinApp = onUnpinApp,
-                    pinnedPackageNames = pinnedPackageNames
+                    pinnedPackageNames = pinnedPackageNames,
+                    showAppLabels = showAppLabels
                 )
             }
         }
@@ -495,7 +498,8 @@ private fun AppGrid(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
-    pinnedPackageNames: Set<String>
+    pinnedPackageNames: Set<String>,
+    showAppLabels: Boolean
 ) {
     val rows = remember(apps) {
         apps.take(GRID_APP_COUNT).chunked(COLUMNS)
@@ -524,7 +528,8 @@ private fun AppGrid(
                         onPinApp = { onPinApp(app) },
                         onUnpinApp = { onUnpinApp(app) },
                         isPinned = pinnedPackageNames.contains(app.packageName),
-                        showUninstall = !app.isSystemApp
+                        showUninstall = !app.isSystemApp,
+                        showAppLabel = showAppLabels
                         )
                     } else {
                         Spacer(modifier = Modifier.weight(1f))
@@ -547,7 +552,8 @@ private fun AppGridItem(
     onPinApp: () -> Unit,
     onUnpinApp: () -> Unit,
     isPinned: Boolean,
-    showUninstall: Boolean
+    showUninstall: Boolean,
+    showAppLabel: Boolean
 ) {
     val context = LocalContext.current
     val packageName = appInfo.packageName
@@ -620,16 +626,18 @@ private fun AppGridItem(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = appInfo.appName,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (showAppLabel) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = appInfo.appName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
         DropdownMenu(

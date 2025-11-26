@@ -20,6 +20,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,7 +46,9 @@ fun SettingsRoute(
         modifier = modifier,
         onBack = onBack,
         hiddenApps = uiState.hiddenApps,
-        onUnhideApp = viewModel::unhideApp
+        onUnhideApp = viewModel::unhideApp,
+        showAppLabels = uiState.showAppLabels,
+        onToggleAppLabels = viewModel::setShowAppLabels
     )
 }
 
@@ -54,7 +57,9 @@ private fun SettingsScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     hiddenApps: List<AppInfo>,
-    onUnhideApp: (AppInfo) -> Unit
+    onUnhideApp: (AppInfo) -> Unit,
+    showAppLabels: Boolean,
+    onToggleAppLabels: (Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     Column(
@@ -84,10 +89,73 @@ private fun SettingsScreen(
             )
         }
 
+        AppLabelsSection(
+            showAppLabels = showAppLabels,
+            onToggleAppLabels = onToggleAppLabels
+        )
+
         HiddenAppsSection(
             hiddenApps = hiddenApps,
             onUnhideApp = onUnhideApp
         )
+    }
+}
+
+@Composable
+private fun AppLabelsSection(
+    showAppLabels: Boolean,
+    onToggleAppLabels: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.settings_app_labels_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_app_labels_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_app_labels_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        if (showAppLabels) {
+                            R.string.settings_app_labels_toggle_on_desc
+                        } else {
+                            R.string.settings_app_labels_toggle_off_desc
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = showAppLabels,
+                onCheckedChange = onToggleAppLabels
+            )
+        }
     }
 }
 
