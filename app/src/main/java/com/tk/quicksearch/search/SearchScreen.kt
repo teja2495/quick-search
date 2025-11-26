@@ -1,6 +1,9 @@
 package com.tk.quicksearch.search
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -200,6 +203,8 @@ fun SearchScreen(
             )
         }
 
+        val shouldShowAppLabels = state.showAppLabels || isSearching
+
         AppGridSection(
             apps = displayApps,
             isSearching = isSearching,
@@ -211,7 +216,7 @@ fun SearchScreen(
             onPinApp = onPinApp,
             onUnpinApp = onUnpinApp,
             pinnedPackageNames = pinnedPackageNames,
-            showAppLabels = state.showAppLabels
+            showAppLabels = shouldShowAppLabels
         )
     }
 }
@@ -261,7 +266,8 @@ private fun PersistentSearchField(
             )
         },
         textStyle = MaterialTheme.typography.titleLarge,
-        singleLine = true,
+        singleLine = false,
+        maxLines = 3,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Rounded.Search,
@@ -283,12 +289,14 @@ private fun PersistentSearchField(
                         )
                     }
                 }
-                IconButton(onClick = onSettingsClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = stringResource(R.string.desc_open_settings),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                if (query.isEmpty()) {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.Settings,
+                            contentDescription = stringResource(R.string.desc_open_settings),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         },
@@ -463,7 +471,14 @@ private fun AppGridSection(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMediumLow
+                )
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
