@@ -38,7 +38,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         refreshUsageAccess()
-        refreshApps()
+        loadApps()
+    }
+
+    /**
+     * Loads apps from cache first for instant display, then refreshes in background.
+     */
+    private fun loadApps() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Try to load from cache first
+            val cachedApps = repository.loadCachedApps()
+            if (cachedApps != null && cachedApps.isNotEmpty()) {
+                // Show cached apps immediately
+                this@SearchViewModel.cachedApps = cachedApps
+                _uiState.update { state ->
+                    state.copy(
+                        recentApps = repository.extractRecentApps(cachedApps, GRID_ITEM_COUNT),
+                        searchResults = deriveMatches(state.query, cachedApps),
+                        isLoading = false
+                    )
+                }
+            }
+            
+            // Then refresh in background
+            refreshApps()
+        }
     }
 
     fun refreshUsageAccess() {
@@ -47,7 +71,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun refreshApps() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            // Only show loading if we don't have any cached apps yet
+            if (cachedApps.isEmpty()) {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            }
+            
             runCatching { repository.loadLaunchableApps() }
                 .onSuccess { apps ->
                     cachedApps = apps

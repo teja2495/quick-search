@@ -23,6 +23,7 @@ class AppUsageRepository(
     private val packageManager: PackageManager = context.packageManager
     private val usageStatsManager: UsageStatsManager? =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+    private val appCache = AppCache(context)
 
     fun hasUsageAccess(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
@@ -44,9 +45,18 @@ class AppUsageRepository(
     }
 
     /**
-     * Reads all launchable apps on the device alongside their last used timestamp.
+     * Loads app list from cache if available.
+     * Returns null if no cache exists.
      */
-    fun loadLaunchableApps(): List<AppInfo> {
+    suspend fun loadCachedApps(): List<AppInfo>? {
+        return appCache.loadCachedApps()
+    }
+
+    /**
+     * Reads all launchable apps on the device alongside their last used timestamp.
+     * Also saves the result to cache for instant loading next time.
+     */
+    suspend fun loadLaunchableApps(): List<AppInfo> {
         val launcherIntent = Intent(Intent.ACTION_MAIN, null).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)
         }
@@ -64,7 +74,7 @@ class AppUsageRepository(
         val usageMap = lastUsedMap()
 
         val currentPackageName = context.packageName
-        return resolveInfos
+        val apps = resolveInfos
             .distinctBy { it.activityInfo.packageName }
             .filter { it.activityInfo.packageName != currentPackageName }
             .map { resolveInfo ->
@@ -82,6 +92,11 @@ class AppUsageRepository(
             .sortedWith(
                 compareByDescending<AppInfo> { it.lastUsedTime }.thenBy { it.appName.lowercase(Locale.getDefault()) }
             )
+        
+        // Save to cache for next startup
+        appCache.saveApps(apps)
+        
+        return apps
     }
 
     fun extractRecentApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
