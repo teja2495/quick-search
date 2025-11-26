@@ -22,8 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -393,57 +393,42 @@ private fun SearchEnginesSection(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
-                modifier = Modifier.size(if (hasAppResults) 24.dp else 32.dp),
+                modifier = Modifier.size(if (hasAppResults) 20.dp else 32.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             
-            Surface(
-                modifier = Modifier.size(if (hasAppResults) 24.dp else 44.dp),
-                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE) },
-                shape = CircleShape,
-                color = Color.Transparent
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Google",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.google),
+                contentDescription = "Google",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.GOOGLE) },
+                contentScale = ContentScale.Fit
+            )
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             
-            Surface(
-                modifier = Modifier.size(if (hasAppResults) 28.dp else 48.dp),
-                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.CHATGPT) },
-                shape = RoundedCornerShape(16.dp),
-                color = Color.Transparent
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.chatgpt),
-                    contentDescription = "ChatGPT",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.chatgpt),
+                contentDescription = "ChatGPT",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.CHATGPT) },
+                contentScale = ContentScale.Fit
+            )
             
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(20.dp))
             
-            Surface(
-                modifier = Modifier.size(if (hasAppResults) 28.dp else 48.dp),
-                onClick = { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
-                shape = RoundedCornerShape(14.dp),
-                color = Color.Transparent
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.perplexity),
-                    contentDescription = "Perplexity",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.perplexity),
+                contentDescription = "Perplexity",
+                modifier = Modifier
+                    .size(if (hasAppResults) 24.dp else 40.dp)
+                    .clickable { onSearchEngineClick(query, SearchViewModel.SearchEngine.PERPLEXITY) },
+                contentScale = ContentScale.Fit
+            )
         }
 
         if (hasAppResults) {
