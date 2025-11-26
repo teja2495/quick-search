@@ -56,6 +56,14 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putString(KEY_SEARCH_ENGINE_ORDER, order.joinToString(",")).apply()
     }
 
+    fun getPreferredPhoneNumber(contactId: Long): String? {
+        return prefs.getString("$KEY_PREFERRED_PHONE_PREFIX$contactId", null)
+    }
+
+    fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) {
+        prefs.edit().putString("$KEY_PREFERRED_PHONE_PREFIX$contactId", phoneNumber).apply()
+    }
+
     private inline fun updateStringSet(
         key: String,
         block: (MutableSet<String>) -> Unit
@@ -74,6 +82,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHOW_APP_LABELS = "show_app_labels"
         private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
+        private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
     }
 }
 

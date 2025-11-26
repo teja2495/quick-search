@@ -35,6 +35,12 @@
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
     <string name="error_open_file">Unable to open %1$s</string>
+    <string name="dialog_select_phone_number_title">Select phone number</string>
+    <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
+    <string name="dialog_remember_choice">Remember this choice</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_call">Call</string>
+    <string name="dialog_sms">SMS</string>
     <string name="settings_title">Settings</string>
     <string name="settings_section_permissions">Permissions</string>
     <string name="settings_section_permissions_desc">Grant Android permissions to keep the index up to date.</string>

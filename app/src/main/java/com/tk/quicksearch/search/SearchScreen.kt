@@ -43,8 +43,11 @@ import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -146,6 +149,8 @@ fun SearchRoute(
         onCallContact = viewModel::callContact,
         onSmsContact = viewModel::smsContact,
         onFileClick = viewModel::openFile,
+        onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
+        onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
         onOpenAppSettings = viewModel::openAppSettings,
         onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings
@@ -172,7 +177,9 @@ fun SearchScreen(
     onFileClick: (DeviceFile) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onOpenAppSettings: () -> Unit,
-    onOpenStorageAccessSettings: () -> Unit
+    onOpenStorageAccessSettings: () -> Unit,
+    onPhoneNumberSelected: (String, Boolean) -> Unit,
+    onDismissPhoneNumberSelection: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val displayApps = remember(state.query, state.recentApps, state.searchResults, state.pinnedApps) {
@@ -368,6 +375,16 @@ fun SearchScreen(
                 )
             }
         }
+    }
+    
+    // Phone number selection dialog
+    state.phoneNumberSelection?.let { selection ->
+        PhoneNumberSelectionDialog(
+            contactInfo = selection.contactInfo,
+            isCall = selection.isCall,
+            onPhoneNumberSelected = onPhoneNumberSelected,
+            onDismiss = onDismissPhoneNumberSelection
+        )
     }
 }
 
@@ -1260,6 +1277,97 @@ private fun EmptyState() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@Composable
+private fun PhoneNumberSelectionDialog(
+    contactInfo: ContactInfo,
+    isCall: Boolean,
+    onPhoneNumberSelected: (String, Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var rememberChoice by remember { mutableStateOf(false) }
+    var selectedNumber by remember { mutableStateOf<String?>(contactInfo.phoneNumbers.firstOrNull()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.dialog_select_phone_number_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.dialog_select_phone_number_message, contactInfo.displayName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                // List of phone numbers
+                contactInfo.phoneNumbers.forEach { number ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedNumber = number },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        RadioButton(
+                            selected = selectedNumber == number,
+                            onClick = { selectedNumber = number }
+                        )
+                        Text(
+                            text = number,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Remember choice checkbox
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Checkbox(
+                        checked = rememberChoice,
+                        onCheckedChange = { rememberChoice = it }
+                    )
+                    Text(
+                        text = stringResource(R.string.dialog_remember_choice),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    selectedNumber?.let { number ->
+                        onPhoneNumberSelected(number, rememberChoice)
+                    }
+                },
+                enabled = selectedNumber != null
+            ) {
+                Text(text = if (isCall) stringResource(R.string.dialog_call) else stringResource(R.string.dialog_sms))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
 }
 
 private const val ROW_COUNT = 2

@@ -40,6 +40,11 @@ enum class SearchEngine {
     YOUTUBE
 }
 
+data class PhoneNumberSelection(
+    val contactInfo: ContactInfo,
+    val isCall: Boolean // true for call, false for SMS
+)
+
 data class SearchUiState(
     val query: String = "",
     val hasUsagePermission: Boolean = false,
@@ -57,7 +62,8 @@ data class SearchUiState(
     val errorMessage: String? = null,
     val showAppLabels: Boolean = true,
     val searchEngineOrder: List<SearchEngine> = emptyList(),
-    val disabledSearchEngines: Set<SearchEngine> = emptySet()
+    val disabledSearchEngines: Set<SearchEngine> = emptySet(),
+    val phoneNumberSelection: PhoneNumberSelection? = null
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -607,9 +613,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun callContact(contactInfo: ContactInfo) {
-        val number = contactInfo.primaryNumber
         val context = getApplication<Application>()
-        if (number.isNullOrBlank()) {
+        if (contactInfo.phoneNumbers.isEmpty()) {
             Toast.makeText(
                 context,
                 context.getString(R.string.error_missing_phone_number),
@@ -617,24 +622,89 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             ).show()
             return
         }
+        
+        // Check if there's a preferred number stored
+        val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
+        if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
+            // Use preferred number directly
+            performCall(preferredNumber)
+            return
+        }
+        
+        // If multiple numbers, show selection dialog
+        if (contactInfo.phoneNumbers.size > 1) {
+            _uiState.update { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = true)) }
+            return
+        }
+        
+        // Single number, use it directly
+        performCall(contactInfo.phoneNumbers.first())
+    }
+
+    fun smsContact(contactInfo: ContactInfo) {
+        val context = getApplication<Application>()
+        if (contactInfo.phoneNumbers.isEmpty()) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_missing_phone_number),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        
+        // Check if there's a preferred number stored
+        val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
+        if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
+            // Use preferred number directly
+            performSms(preferredNumber)
+            return
+        }
+        
+        // If multiple numbers, show selection dialog
+        if (contactInfo.phoneNumbers.size > 1) {
+            _uiState.update { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = false)) }
+            return
+        }
+        
+        // Single number, use it directly
+        performSms(contactInfo.phoneNumbers.first())
+    }
+    
+    fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) {
+        val selection = _uiState.value.phoneNumberSelection ?: return
+        val contactInfo = selection.contactInfo
+        
+        // Store preference if requested
+        if (rememberChoice) {
+            userPreferences.setPreferredPhoneNumber(contactInfo.contactId, phoneNumber)
+        }
+        
+        // Perform the action
+        if (selection.isCall) {
+            performCall(phoneNumber)
+        } else {
+            performSms(phoneNumber)
+        }
+        
+        // Clear the selection dialog
+        _uiState.update { it.copy(phoneNumberSelection = null) }
+    }
+    
+    fun dismissPhoneNumberSelection() {
+        _uiState.update { it.copy(phoneNumberSelection = null) }
+    }
+    
+    private fun performCall(number: String) {
+        val context = getApplication<Application>()
         val intent = Intent(Intent.ACTION_DIAL).apply {
             data = Uri.parse("tel:${Uri.encode(number)}")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
     }
-
-    fun smsContact(contactInfo: ContactInfo) {
-        val number = contactInfo.primaryNumber
+    
+    private fun performSms(number: String) {
         val context = getApplication<Application>()
-        if (number.isNullOrBlank()) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_missing_phone_number),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("smsto:${Uri.encode(number)}")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
