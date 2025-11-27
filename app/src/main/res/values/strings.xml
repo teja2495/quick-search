@@ -94,4 +94,25 @@
     <string name="settings_layout_toggle">Keyboard-aligned layout</string>
     <string name="settings_layout_toggle_on_desc">Results align towards keyboard (bottom to top: Apps → Search Engines → Contacts → Files).</string>
     <string name="settings_layout_toggle_off_desc">Results align towards search bar (top to bottom: Apps → Search Engines → Contacts → Files).</string>
+    <string name="widget_label_text">Quick Search</string>
+    <string name="widget_settings_title">Quick Search widget</string>
+    <string name="widget_preview_title">Live preview</string>
+    <string name="widget_loading_state">Loading widget settings…</string>
+    <string name="widget_section_colors">Color presets</string>
+    <string name="widget_section_light_wallpapers">For light wallpapers</string>
+    <string name="widget_section_dark_wallpapers">For dark wallpapers</string>
+    <string name="widget_section_style">Style</string>
+    <string name="widget_section_text">Text</string>
+    <string name="widget_slider_radius">Corner radius</string>
+    <string name="widget_slider_border">Border thickness</string>
+    <string name="widget_slider_transparency">Background transparency</string>
+    <string name="widget_toggle_show_label">Show “Quick Search” text</string>
+    <string name="widget_action_save">Save widget</string>
+    <string name="widget_action_cancel">Cancel</string>
+    <string name="widget_preset_dawn">Dawn Frost</string>
+    <string name="widget_preset_canvas">Soft Canvas</string>
+    <string name="widget_preset_sunrise">Warm Sunrise</string>
+    <string name="widget_preset_ember">Deep Ember</string>
+    <string name="widget_preset_midnight">Midnight Neon</string>
+    <string name="widget_preset_void">Carbon Mist</string>
 </resources>
