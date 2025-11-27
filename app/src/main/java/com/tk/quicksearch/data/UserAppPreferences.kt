@@ -71,9 +71,21 @@ class UserAppPreferences(context: Context) {
             // Default: all file types enabled
             FileType.values().toSet()
         } else {
-            enabledNames.mapNotNull { name ->
+            val migratedNames = enabledNames.map { name ->
+                // Migrate old IMAGES or VIDEOS to PHOTOS_AND_VIDEOS
+                when (name) {
+                    "IMAGES", "VIDEOS" -> "PHOTOS_AND_VIDEOS"
+                    else -> name
+                }
+            }.toSet()
+            val result = migratedNames.mapNotNull { name ->
                 FileType.values().find { it.name == name }
             }.toSet()
+            // If migration occurred, save the migrated preferences
+            if (migratedNames != enabledNames) {
+                setEnabledFileTypes(result)
+            }
+            result
         }
     }
 

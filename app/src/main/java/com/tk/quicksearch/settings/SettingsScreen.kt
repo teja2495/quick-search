@@ -385,9 +385,9 @@ private fun FileTypeRow(
     onToggle: (Boolean) -> Unit
 ) {
     val fileTypeName = when (fileType) {
-        FileType.IMAGES -> stringResource(R.string.file_type_images)
-        FileType.VIDEOS -> stringResource(R.string.file_type_videos)
+        FileType.PHOTOS_AND_VIDEOS -> stringResource(R.string.file_type_photos_and_videos)
         FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
+        FileType.APK -> stringResource(R.string.file_type_apk)
         FileType.OTHER -> stringResource(R.string.file_type_other)
     }
     

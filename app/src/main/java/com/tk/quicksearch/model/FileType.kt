@@ -4,9 +4,9 @@ package com.tk.quicksearch.model
  * Categories of file types that can be filtered in search results.
  */
 enum class FileType {
-    IMAGES,
-    VIDEOS,
+    PHOTOS_AND_VIDEOS,
     DOCUMENTS,
+    APK,
     OTHER
 }
 
@@ -24,8 +24,9 @@ object FileTypeUtils {
         val normalizedMime = mimeType.lowercase()
         
         return when {
-            normalizedMime.startsWith("image/") -> FileType.IMAGES
-            normalizedMime.startsWith("video/") -> FileType.VIDEOS
+            normalizedMime.startsWith("image/") -> FileType.PHOTOS_AND_VIDEOS
+            normalizedMime.startsWith("video/") -> FileType.PHOTOS_AND_VIDEOS
+            normalizedMime.startsWith("application/vnd.android.package-archive") -> FileType.APK
             normalizedMime.startsWith("application/pdf") -> FileType.DOCUMENTS
             normalizedMime.startsWith("application/msword") -> FileType.DOCUMENTS
             normalizedMime.startsWith("application/vnd.ms-word") -> FileType.DOCUMENTS
