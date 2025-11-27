@@ -89,4 +89,9 @@
     <string name="file_type_documents">Documents</string>
     <string name="file_type_apk">APK</string>
     <string name="file_type_other">Other</string>
+    <string name="settings_layout_title">Layout</string>
+    <string name="settings_layout_desc">Choose how results are arranged on the search screen.</string>
+    <string name="settings_layout_toggle">Keyboard-aligned layout</string>
+    <string name="settings_layout_toggle_on_desc">Results align towards keyboard (bottom to top: Apps → Search Engines → Contacts → Files).</string>
+    <string name="settings_layout_toggle_off_desc">Results align towards search bar (top to bottom: Apps → Search Engines → Contacts → Files).</string>
 </resources>

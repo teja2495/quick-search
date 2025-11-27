@@ -93,6 +93,12 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putStringSet(KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
     }
 
+    fun isKeyboardAlignedLayout(): Boolean = prefs.getBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, true)
+
+    fun setKeyboardAlignedLayout(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, enabled).apply()
+    }
+
     private inline fun updateStringSet(
         key: String,
         block: (MutableSet<String>) -> Unit
@@ -113,6 +119,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
         private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
         private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
+        private const val KEY_KEYBOARD_ALIGNED_LAYOUT = "keyboard_aligned_layout"
     }
 }
 

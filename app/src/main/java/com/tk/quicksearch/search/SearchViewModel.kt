@@ -67,7 +67,8 @@ data class SearchUiState(
     val searchEngineOrder: List<SearchEngine> = emptyList(),
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
-    val enabledFileTypes: Set<FileType> = FileType.values().toSet()
+    val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
+    val keyboardAlignedLayout: Boolean = true
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -84,6 +85,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
+    private var keyboardAlignedLayout: Boolean = userPreferences.isKeyboardAlignedLayout()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -96,7 +98,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 showAppLabels = showAppLabels,
                 searchEngineOrder = searchEngineOrder,
                 disabledSearchEngines = disabledSearchEngines,
-                enabledFileTypes = enabledFileTypes
+                enabledFileTypes = enabledFileTypes,
+                keyboardAlignedLayout = keyboardAlignedLayout
             )
         }
         refreshUsageAccess()
@@ -436,6 +439,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val query = _uiState.value.query
             if (query.isNotBlank()) {
                 performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setKeyboardAlignedLayout(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setKeyboardAlignedLayout(enabled)
+            keyboardAlignedLayout = enabled
+            _uiState.update { 
+                it.copy(keyboardAlignedLayout = keyboardAlignedLayout)
             }
         }
     }

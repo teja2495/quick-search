@@ -64,7 +64,9 @@ fun SettingsRoute(
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
         enabledFileTypes = uiState.enabledFileTypes,
-        onToggleFileType = viewModel::setFileTypeEnabled
+        onToggleFileType = viewModel::setFileTypeEnabled,
+        keyboardAlignedLayout = uiState.keyboardAlignedLayout,
+        onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout
     )
 }
 
@@ -81,7 +83,9 @@ private fun SettingsScreen(
     onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
     onReorderSearchEngines: (List<SearchEngine>) -> Unit,
     enabledFileTypes: Set<FileType>,
-    onToggleFileType: (FileType, Boolean) -> Unit
+    onToggleFileType: (FileType, Boolean) -> Unit,
+    keyboardAlignedLayout: Boolean,
+    onToggleKeyboardAlignedLayout: (Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -116,6 +120,11 @@ private fun SettingsScreen(
         AppLabelsSection(
             showAppLabels = showAppLabels,
             onToggleAppLabels = onToggleAppLabels
+        )
+
+        LayoutSection(
+            keyboardAlignedLayout = keyboardAlignedLayout,
+            onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout
         )
 
         SearchEnginesSection(
@@ -190,6 +199,64 @@ private fun AppLabelsSection(
             Switch(
                 checked = showAppLabels,
                 onCheckedChange = onToggleAppLabels
+            )
+        }
+    }
+}
+
+@Composable
+private fun LayoutSection(
+    keyboardAlignedLayout: Boolean,
+    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.settings_layout_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_layout_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_layout_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        if (keyboardAlignedLayout) {
+                            R.string.settings_layout_toggle_on_desc
+                        } else {
+                            R.string.settings_layout_toggle_off_desc
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout
             )
         }
     }

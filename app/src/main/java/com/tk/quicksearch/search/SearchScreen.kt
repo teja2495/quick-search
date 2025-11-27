@@ -206,16 +206,22 @@ fun SearchScreen(
         expandedSection = ExpandedSection.NONE
     }
     
-    // Scroll to bottom by default and when content changes (instant, no animation)
-    LaunchedEffect(displayApps.size, state.query, expandedSection) {
-        if (expandedSection == ExpandedSection.NONE) {
+    // Scroll to bottom by default and when content changes (instant, no animation) - only for keyboard-aligned layout
+    LaunchedEffect(
+        state.query,
+        displayApps.size,
+        state.contactResults.size,
+        state.fileResults.size,
+        state.hasUsagePermission,
+        state.errorMessage,
+        expandedSection,
+        state.keyboardAlignedLayout
+    ) {
+        if (expandedSection == ExpandedSection.NONE && state.keyboardAlignedLayout) {
             // Wait for layout to be complete
             kotlinx.coroutines.delay(150)
             // Jump to bottom instantly (no animation)
-            val maxScroll = scrollState.maxValue
-            if (maxScroll > 0) {
-                scrollState.scrollTo(maxScroll)
-            }
+            scrollState.scrollTo(scrollState.maxValue)
         }
     }
 
@@ -253,126 +259,211 @@ fun SearchScreen(
         }
 
         // Scrollable content below the search bar
-        Column(
+        Box(
             modifier = Modifier
                 .weight(1f)
+                .imePadding()
                 .verticalScroll(scrollState)
-                .padding(
-                    bottom = if (isSearching && !hasAppResults && expandedSection == ExpandedSection.NONE) 0.dp else 16.dp
-                ),
-            verticalArrangement = Arrangement.Top
         ) {
+            if (state.keyboardAlignedLayout) {
+                // Keyboard-aligned layout: reverse priority order (bottom to top)
+                // Files → Contacts → Search Engines → Apps
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (!state.hasUsagePermission) {
+                        UsagePermissionCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            onRequestPermission = onRequestUsagePermission
+                        )
+                    }
 
-        if (!state.hasUsagePermission) {
-            UsagePermissionCard(
-                modifier = Modifier.fillMaxWidth(),
-                onRequestPermission = onRequestUsagePermission
-            )
-        }
+                    state.errorMessage?.takeIf { it.isNotBlank() }?.let { errorMessage ->
+                        InfoBanner(message = errorMessage)
+                    }
 
-        state.errorMessage?.takeIf { it.isNotBlank() }?.let { errorMessage ->
-            Spacer(modifier = Modifier.height(16.dp))
-            InfoBanner(message = errorMessage)
-        }
+                    if (state.query.isNotBlank()) {
+                        val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
+                        val isFilesExpanded = expandedSection == ExpandedSection.FILES
+                        val shouldShowFilesSection = !state.hasFilePermission || state.fileResults.isNotEmpty()
+                        val shouldShowContactsSection = !state.hasContactPermission || state.contactResults.isNotEmpty()
 
-        if (state.query.isNotBlank()) {
-            val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
-            val isFilesExpanded = expandedSection == ExpandedSection.FILES
-            
-            // Show contacts section only if files are not expanded
-            if (!isFilesExpanded) {
-                ContactResultsSection(
-                    modifier = Modifier,
-                    hasPermission = state.hasContactPermission,
-                    contacts = state.contactResults,
-                    isExpanded = isContactsExpanded,
-                    onContactClick = onContactClick,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact,
-                    onOpenAppSettings = onOpenAppSettings,
-                    onExpandClick = { 
-                        if (isContactsExpanded) {
-                            keyboardController?.show()
-                            expandedSection = ExpandedSection.NONE
-                        } else {
-                            keyboardController?.hide()
-                            expandedSection = ExpandedSection.CONTACTS
+                        if (shouldShowFilesSection && !isContactsExpanded) {
+                            FileResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasFilePermission,
+                                files = state.fileResults,
+                                isExpanded = isFilesExpanded,
+                                onFileClick = onFileClick,
+                                onRequestPermission = onOpenStorageAccessSettings,
+                                onExpandClick = {
+                                    if (isFilesExpanded) {
+                                        keyboardController?.show()
+                                        expandedSection = ExpandedSection.NONE
+                                    } else {
+                                        keyboardController?.hide()
+                                        expandedSection = ExpandedSection.FILES
+                                    }
+                                }
+                            )
+                        }
+
+                        if (shouldShowContactsSection && !isFilesExpanded) {
+                            ContactResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasContactPermission,
+                                contacts = state.contactResults,
+                                isExpanded = isContactsExpanded,
+                                onContactClick = onContactClick,
+                                onCallContact = onCallContact,
+                                onSmsContact = onSmsContact,
+                                onOpenAppSettings = onOpenAppSettings,
+                                onExpandClick = {
+                                    if (isContactsExpanded) {
+                                        keyboardController?.show()
+                                        expandedSection = ExpandedSection.NONE
+                                    } else {
+                                        keyboardController?.hide()
+                                        expandedSection = ExpandedSection.CONTACTS
+                                    }
+                                }
+                            )
                         }
                     }
-                )
-            }
 
-            // Show files section only if contacts are not expanded
-            if (!isContactsExpanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                FileResultsSection(
-                    modifier = Modifier,
-                    hasPermission = state.hasFilePermission,
-                    files = state.fileResults,
-                    isExpanded = isFilesExpanded,
-                    onFileClick = onFileClick,
-                    onRequestPermission = onOpenStorageAccessSettings,
-                    onExpandClick = { 
-                        if (isFilesExpanded) {
-                            keyboardController?.show()
-                            expandedSection = ExpandedSection.NONE
-                        } else {
-                            keyboardController?.hide()
-                            expandedSection = ExpandedSection.FILES
+                    if (expandedSection == ExpandedSection.NONE) {
+                        SearchEnginesSection(
+                            query = state.query,
+                            hasAppResults = hasAppResults,
+                            enabledEngines = enabledEngines,
+                            onSearchEngineClick = onSearchEngineClick
+                        )
+
+                        val shouldShowAppLabels = state.showAppLabels || isSearching
+
+                        AppGridSection(
+                            apps = displayApps,
+                            isSearching = isSearching,
+                            hasAppResults = hasAppResults,
+                            onAppClick = onAppClick,
+                            onAppInfoClick = onAppInfoClick,
+                            onUninstallClick = onUninstallClick,
+                            onHideApp = onHideApp,
+                            onPinApp = onPinApp,
+                            onUnpinApp = onUnpinApp,
+                            pinnedPackageNames = pinnedPackageNames,
+                            showAppLabels = shouldShowAppLabels
+                        )
+                    }
+                }
+            } else {
+                // Top-aligned layout: Apps, Contacts, Files at top; Search Engines always at bottom
+                // Top section: Apps → Contacts → Files
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (!state.hasUsagePermission) {
+                        UsagePermissionCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            onRequestPermission = onRequestUsagePermission
+                        )
+                    }
+
+                    state.errorMessage?.takeIf { it.isNotBlank() }?.let { errorMessage ->
+                        InfoBanner(message = errorMessage)
+                    }
+
+                    if (expandedSection == ExpandedSection.NONE) {
+                        val shouldShowAppLabels = state.showAppLabels || isSearching
+
+                        AppGridSection(
+                            apps = displayApps,
+                            isSearching = isSearching,
+                            hasAppResults = hasAppResults,
+                            onAppClick = onAppClick,
+                            onAppInfoClick = onAppInfoClick,
+                            onUninstallClick = onUninstallClick,
+                            onHideApp = onHideApp,
+                            onPinApp = onPinApp,
+                            onUnpinApp = onUnpinApp,
+                            pinnedPackageNames = pinnedPackageNames,
+                            showAppLabels = shouldShowAppLabels
+                        )
+                    }
+
+                    if (state.query.isNotBlank()) {
+                        val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
+                        val isFilesExpanded = expandedSection == ExpandedSection.FILES
+                        val shouldShowContactsSection = !state.hasContactPermission || state.contactResults.isNotEmpty()
+                        val shouldShowFilesSection = !state.hasFilePermission || state.fileResults.isNotEmpty()
+
+                        if (shouldShowContactsSection && !isFilesExpanded) {
+                            ContactResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasContactPermission,
+                                contacts = state.contactResults,
+                                isExpanded = isContactsExpanded,
+                                onContactClick = onContactClick,
+                                onCallContact = onCallContact,
+                                onSmsContact = onSmsContact,
+                                onOpenAppSettings = onOpenAppSettings,
+                                onExpandClick = {
+                                    if (isContactsExpanded) {
+                                        keyboardController?.show()
+                                        expandedSection = ExpandedSection.NONE
+                                    } else {
+                                        keyboardController?.hide()
+                                        expandedSection = ExpandedSection.CONTACTS
+                                    }
+                                }
+                            )
+                        }
+
+                        if (shouldShowFilesSection && !isContactsExpanded) {
+                            FileResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasFilePermission,
+                                files = state.fileResults,
+                                isExpanded = isFilesExpanded,
+                                onFileClick = onFileClick,
+                                onRequestPermission = onOpenStorageAccessSettings,
+                                onExpandClick = {
+                                    if (isFilesExpanded) {
+                                        keyboardController?.show()
+                                        expandedSection = ExpandedSection.NONE
+                                    } else {
+                                        keyboardController?.hide()
+                                        expandedSection = ExpandedSection.FILES
+                                    }
+                                }
+                            )
                         }
                     }
-                )
-            }
-        }
-
-        // Only show spacer and other content if no section is expanded
-        if (expandedSection == ExpandedSection.NONE) {
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        // Only show search engines and app grid if no section is expanded
-        if (expandedSection == ExpandedSection.NONE) {
-            // Show search engines inside scrollable area only if there are apps
-            if (state.query.isNotBlank() && hasAppResults) {
-                SearchEnginesSection(
-                    query = state.query,
-                    hasAppResults = hasAppResults,
-                    enabledEngines = enabledEngines,
-                    onSearchEngineClick = onSearchEngineClick
-                )
-            }
-
-            val shouldShowAppLabels = state.showAppLabels || isSearching
-
-            AppGridSection(
-                apps = displayApps,
-                isSearching = isSearching,
-                hasAppResults = hasAppResults,
-                onAppClick = onAppClick,
-                onAppInfoClick = onAppInfoClick,
-                onUninstallClick = onUninstallClick,
-                onHideApp = onHideApp,
-                onPinApp = onPinApp,
-                onUnpinApp = onUnpinApp,
-                pinnedPackageNames = pinnedPackageNames,
-                showAppLabels = shouldShowAppLabels
-            )
-        }
-        }
-
-        // Show search engines fixed at bottom (above keyboard) when no apps and searching
-        if (expandedSection == ExpandedSection.NONE && state.query.isNotBlank() && !hasAppResults) {
-            Box(
-                modifier = Modifier
-                    .imePadding()
-                    .padding(bottom = 8.dp)
-            ) {
-                SearchEnginesSection(
-                    query = state.query,
-                    hasAppResults = hasAppResults,
-                    enabledEngines = enabledEngines,
-                    onSearchEngineClick = onSearchEngineClick
-                )
+                }
+                
+                // Bottom section: Search Engines (always aligned to keyboard)
+                if (expandedSection == ExpandedSection.NONE && state.query.isNotBlank()) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        SearchEnginesSection(
+                            query = state.query,
+                            hasAppResults = hasAppResults,
+                            enabledEngines = enabledEngines,
+                            onSearchEngineClick = onSearchEngineClick
+                        )
+                    }
+                }
             }
         }
     }
@@ -1011,8 +1102,6 @@ private fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Spacer(modifier = Modifier.height(if (isSearching && !hasAppResults) 0.dp else 12.dp))
-
         Crossfade(targetState = apps, label = "grid") { items ->
             if (items.isEmpty()) {
                 Box {}
