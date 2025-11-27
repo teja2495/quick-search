@@ -945,6 +945,7 @@ private fun SearchEnginesSection(
                     SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
                     SearchEngine.REDDIT -> R.drawable.reddit
                     SearchEngine.YOUTUBE -> R.drawable.youtube
+                    SearchEngine.AMAZON -> R.drawable.amazon
                 }
                 
                 val contentDescription = when (engine) {
@@ -956,6 +957,7 @@ private fun SearchEnginesSection(
                     SearchEngine.GOOGLE_PLAY -> "Google Play"
                     SearchEngine.REDDIT -> "Reddit"
                     SearchEngine.YOUTUBE -> "YouTube"
+                    SearchEngine.AMAZON -> "Amazon"
                 }
                 
                 Image(

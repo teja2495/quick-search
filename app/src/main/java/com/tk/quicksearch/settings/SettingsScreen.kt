@@ -267,6 +267,7 @@ private fun SearchEngineRow(
         SearchEngine.GOOGLE_PLAY -> stringResource(R.string.search_engine_google_play)
         SearchEngine.REDDIT -> stringResource(R.string.search_engine_reddit)
         SearchEngine.YOUTUBE -> stringResource(R.string.search_engine_youtube)
+        SearchEngine.AMAZON -> stringResource(R.string.search_engine_amazon)
     }
     
     val drawableId = when (engine) {
@@ -278,6 +279,7 @@ private fun SearchEngineRow(
         SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
         SearchEngine.REDDIT -> R.drawable.reddit
         SearchEngine.YOUTUBE -> R.drawable.youtube
+        SearchEngine.AMAZON -> R.drawable.amazon
     }
     
     Row(

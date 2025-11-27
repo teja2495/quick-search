@@ -39,7 +39,8 @@ enum class SearchEngine {
     GOOGLE_MAPS,
     GOOGLE_PLAY,
     REDDIT,
-    YOUTUBE
+    YOUTUBE,
+    AMAZON
 }
 
 data class PhoneNumberSelection(
@@ -474,6 +475,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             SearchEngine.GOOGLE_PLAY -> "https://play.google.com/store/search?q=$encodedQuery&c=apps"
             SearchEngine.REDDIT -> "https://www.reddit.com/search/?q=$encodedQuery"
             SearchEngine.YOUTUBE -> "https://www.youtube.com/results?search_query=$encodedQuery"
+            SearchEngine.AMAZON -> "https://www.amazon.com/s?k=$encodedQuery"
         }
     }
 
