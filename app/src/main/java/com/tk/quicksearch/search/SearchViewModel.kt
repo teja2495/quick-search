@@ -580,7 +580,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun performSecondarySearches(query: String) {
         searchJob?.cancel()
-        if (query.isBlank() || query.length < 3) {
+        if (query.isBlank() || query.length < 2) {
             _uiState.update {
                 it.copy(
                     contactResults = emptyList(),
