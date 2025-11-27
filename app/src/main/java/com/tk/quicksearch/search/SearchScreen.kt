@@ -258,11 +258,10 @@ fun SearchScreen(
             order.filter { engine -> engine !in disabled }
         }
 
-        // Scrollable content below the search bar
+        // Scrollable content between search bar and search engines
         Box(
             modifier = Modifier
                 .weight(1f)
-                .imePadding()
                 .verticalScroll(scrollState)
         ) {
             if (state.keyboardAlignedLayout) {
@@ -271,7 +270,8 @@ fun SearchScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     if (!state.hasUsagePermission) {
@@ -335,13 +335,6 @@ fun SearchScreen(
                     }
 
                     if (expandedSection == ExpandedSection.NONE) {
-                        SearchEnginesSection(
-                            query = state.query,
-                            hasAppResults = hasAppResults,
-                            enabledEngines = enabledEngines,
-                            onSearchEngineClick = onSearchEngineClick
-                        )
-
                         if (hasAppResults) {
                             val shouldShowAppLabels = state.showAppLabels || isSearching
 
@@ -360,8 +353,6 @@ fun SearchScreen(
                             )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(6.dp))
                 }
             } else {
                 // Top-aligned layout: Apps, Contacts, Files at top; Search Engines always at bottom
@@ -370,7 +361,7 @@ fun SearchScreen(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                        .padding(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     if (!state.hasUsagePermission) {
@@ -451,25 +442,19 @@ fun SearchScreen(
                         }
                     }
                 }
-                
-                // Bottom section: Search Engines (always aligned to keyboard)
-                if (expandedSection == ExpandedSection.NONE && state.query.isNotBlank()) {
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        SearchEnginesSection(
-                            query = state.query,
-                            hasAppResults = hasAppResults,
-                            enabledEngines = enabledEngines,
-                            onSearchEngineClick = onSearchEngineClick
-                        )
-                    }
-                }
             }
         }
+
+        // Fixed search engines section at the bottom (above keyboard, not scrollable)
+        SearchEnginesSection(
+            query = state.query,
+            hasAppResults = hasAppResults,
+            enabledEngines = enabledEngines,
+            onSearchEngineClick = onSearchEngineClick,
+            modifier = Modifier
+                .imePadding()
+                .padding(bottom = 12.dp)
+        )
     }
     
     // Phone number selection dialog
@@ -1004,7 +989,8 @@ private fun SearchEnginesSection(
     if (enabledEngines.isEmpty()) return
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -1024,7 +1010,7 @@ private fun SearchEnginesSection(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
-                modifier = Modifier.size(if (hasAppResults) 20.dp else 32.dp),
+                modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
@@ -1059,7 +1045,7 @@ private fun SearchEnginesSection(
                     painter = painterResource(id = drawableId),
                     contentDescription = contentDescription,
                     modifier = Modifier
-                        .size(if (hasAppResults) 24.dp else 40.dp)
+                        .size(24.dp)
                         .clickable { onSearchEngineClick(query, engine) },
                     contentScale = ContentScale.Fit
                 )
@@ -1068,13 +1054,6 @@ private fun SearchEnginesSection(
             }
             
             Spacer(modifier = Modifier.width(16.dp))
-        }
-
-        if (hasAppResults) {
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
         }
     }
 }
