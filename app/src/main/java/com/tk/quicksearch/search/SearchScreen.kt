@@ -446,15 +446,18 @@ fun SearchScreen(
         }
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
-        SearchEnginesSection(
-            query = state.query,
-            hasAppResults = hasAppResults,
-            enabledEngines = enabledEngines,
-            onSearchEngineClick = onSearchEngineClick,
-            modifier = Modifier
-                .imePadding()
-                .padding(bottom = 12.dp)
-        )
+        // Hide when files or contacts are expanded
+        if (expandedSection == ExpandedSection.NONE) {
+            SearchEnginesSection(
+                query = state.query,
+                hasAppResults = hasAppResults,
+                enabledEngines = enabledEngines,
+                onSearchEngineClick = onSearchEngineClick,
+                modifier = Modifier
+                    .imePadding()
+                    .padding(bottom = 12.dp)
+            )
+        }
     }
     
     // Phone number selection dialog
@@ -584,45 +587,43 @@ private fun ContactsResultCard(
                         )
                     }
                 }
-                if (onExpandClick != null && !isExpanded) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    val moreCount = maxOf(0, allContacts.size - INITIAL_RESULT_COUNT)
-                    TextButton(
-                        onClick = { onExpandClick() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Show $moreCount more",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = "Expand",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-                if (onCollapseClick != null && isExpanded) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    TextButton(
-                        onClick = { onCollapseClick() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Collapse",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandLess,
-                            contentDescription = "Collapse",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
+            }
+        }
+        if (onExpandClick != null && !isExpanded) {
+            val moreCount = maxOf(0, allContacts.size - INITIAL_RESULT_COUNT)
+            TextButton(
+                onClick = { onExpandClick() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Show $moreCount more",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ExpandMore,
+                    contentDescription = "Expand",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+        if (onCollapseClick != null && isExpanded) {
+            TextButton(
+                onClick = { onCollapseClick() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Collapse",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ExpandLess,
+                    contentDescription = "Collapse",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }
@@ -718,45 +719,43 @@ private fun FilesResultCard(
                         )
                     }
                 }
-                if (onExpandClick != null && !isExpanded) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    val moreCount = maxOf(0, allFiles.size - INITIAL_RESULT_COUNT)
-                    TextButton(
-                        onClick = { onExpandClick() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Show $moreCount more",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = "Expand",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-                if (onCollapseClick != null && isExpanded) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    TextButton(
-                        onClick = { onCollapseClick() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Collapse",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandLess,
-                            contentDescription = "Collapse",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
+            }
+        }
+        if (onExpandClick != null && !isExpanded) {
+            val moreCount = maxOf(0, allFiles.size - INITIAL_RESULT_COUNT)
+            TextButton(
+                onClick = { onExpandClick() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Show $moreCount more",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ExpandMore,
+                    contentDescription = "Expand",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+        if (onCollapseClick != null && isExpanded) {
+            TextButton(
+                onClick = { onCollapseClick() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Collapse",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ExpandLess,
+                    contentDescription = "Collapse",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }
