@@ -206,7 +206,9 @@ fun SearchScreen(
         expandedSection = ExpandedSection.NONE
     }
     
-    // Scroll to bottom by default and when content changes (instant, no animation) - only for keyboard-aligned layout
+    // Scroll behavior: 
+    // - For keyboard-aligned layout when not expanded: scroll to bottom
+    // - For keyboard-aligned layout when expanded: scroll to top (towards search bar)
     LaunchedEffect(
         state.query,
         displayApps.size,
@@ -217,11 +219,16 @@ fun SearchScreen(
         expandedSection,
         state.keyboardAlignedLayout
     ) {
-        if (expandedSection == ExpandedSection.NONE && state.keyboardAlignedLayout) {
+        if (state.keyboardAlignedLayout) {
             // Wait for layout to be complete
             delay(150)
-            // Jump to bottom instantly (no animation)
-            scrollState.scrollTo(scrollState.maxValue)
+            if (expandedSection == ExpandedSection.NONE) {
+                // Jump to bottom instantly (no animation)
+                scrollState.scrollTo(scrollState.maxValue)
+            } else {
+                // When expanded, scroll to top (towards search bar)
+                scrollState.scrollTo(0)
+            }
         }
     }
 
@@ -264,7 +271,9 @@ fun SearchScreen(
                 .weight(1f)
                 .verticalScroll(scrollState)
         ) {
-            if (state.keyboardAlignedLayout) {
+            // When contacts or files are expanded, use top-aligned layout (towards search bar)
+            // even if keyboardAlignedLayout is enabled
+            if (state.keyboardAlignedLayout && expandedSection == ExpandedSection.NONE) {
                 // Keyboard-aligned layout: reverse priority order (bottom to top)
                 // Files → Contacts → Search Engines → Apps
                 Column(
@@ -357,6 +366,7 @@ fun SearchScreen(
             } else {
                 // Top-aligned layout: Apps, Contacts, Files at top; Search Engines always at bottom
                 // Top section: Apps → Contacts → Files
+                // Also used when keyboardAlignedLayout is true but contacts/files are expanded
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
