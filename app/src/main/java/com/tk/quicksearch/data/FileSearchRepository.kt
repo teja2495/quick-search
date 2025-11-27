@@ -85,7 +85,10 @@ class FileSearchRepository(
             }
         }
 
-        return results
+        return results.sortedWith(compareBy(
+            { com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
+            { it.displayName.lowercase(Locale.getDefault()) }
+        ))
     }
 }
 

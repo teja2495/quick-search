@@ -85,7 +85,10 @@ class ContactRepository(
                 displayName = contact.displayName,
                 phoneNumbers = contact.numbers
             )
-        }
+        }.sortedWith(compareBy(
+            { com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
+            { it.displayName.lowercase(Locale.getDefault()) }
+        ))
     }
 
     private data class MutableContact(
