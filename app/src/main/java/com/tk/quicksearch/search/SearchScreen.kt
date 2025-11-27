@@ -342,22 +342,26 @@ fun SearchScreen(
                             onSearchEngineClick = onSearchEngineClick
                         )
 
-                        val shouldShowAppLabels = state.showAppLabels || isSearching
+                        if (hasAppResults) {
+                            val shouldShowAppLabels = state.showAppLabels || isSearching
 
-                        AppGridSection(
-                            apps = displayApps,
-                            isSearching = isSearching,
-                            hasAppResults = hasAppResults,
-                            onAppClick = onAppClick,
-                            onAppInfoClick = onAppInfoClick,
-                            onUninstallClick = onUninstallClick,
-                            onHideApp = onHideApp,
-                            onPinApp = onPinApp,
-                            onUnpinApp = onUnpinApp,
-                            pinnedPackageNames = pinnedPackageNames,
-                            showAppLabels = shouldShowAppLabels
-                        )
+                            AppGridSection(
+                                apps = displayApps,
+                                isSearching = isSearching,
+                                hasAppResults = hasAppResults,
+                                onAppClick = onAppClick,
+                                onAppInfoClick = onAppInfoClick,
+                                onUninstallClick = onUninstallClick,
+                                onHideApp = onHideApp,
+                                onPinApp = onPinApp,
+                                onUnpinApp = onUnpinApp,
+                                pinnedPackageNames = pinnedPackageNames,
+                                showAppLabels = shouldShowAppLabels
+                            )
+                        }
                     }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
                 }
             } else {
                 // Top-aligned layout: Apps, Contacts, Files at top; Search Engines always at bottom
