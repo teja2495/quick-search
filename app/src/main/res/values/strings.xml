@@ -22,6 +22,7 @@
     <string name="action_pin_app">Pin</string>
     <string name="action_unpin_app">Unpin</string>
     <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
+    <string name="apps_section_title">Apps</string>
     <string name="contacts_section_title">Contacts</string>
     <string name="contacts_permission_title">Contacts search disabled</string>
     <string name="contacts_permission_subtitle">Grant Contacts permission to quickly search and act on people.</string>

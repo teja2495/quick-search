@@ -121,7 +121,7 @@ private enum class ExpandedSection {
     FILES
 }
 
-private const val INITIAL_RESULT_COUNT = 2
+private const val INITIAL_RESULT_COUNT = 1
 
 @Composable
 fun SearchRoute(
@@ -220,6 +220,7 @@ fun SearchScreen(
     val autoExpandFiles = hasFileResults && !hasContactResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
+    val shouldReverseResults = state.keyboardAlignedLayout
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
@@ -357,6 +358,7 @@ fun SearchScreen(
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
+                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -450,6 +452,7 @@ fun SearchScreen(
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
+                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -472,6 +475,7 @@ fun SearchScreen(
                                 onRequestPermission = onOpenStorageAccessSettings,
                                 showAllResults = autoExpandFiles,
                                 showExpandControls = hasBothContactsAndFiles,
+                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isFilesExpanded) {
                                         keyboardController?.show()
@@ -526,33 +530,49 @@ private fun ContactResultsSection(
     onOpenAppSettings: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
+    reverseResults: Boolean = false,
     onExpandClick: () -> Unit
 ) {
-    when {
-        hasPermission && contacts.isNotEmpty() -> {
-            val displayAsExpanded = isExpanded || showAllResults
-            val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
-            val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
-            val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
-            ContactsResultCard(
-                contacts = if (displayAsExpanded) contacts else contacts.take(INITIAL_RESULT_COUNT),
-                allContacts = contacts,
-                isExpanded = displayAsExpanded,
-                onContactClick = onContactClick,
-                onCallContact = onCallContact,
-                onSmsContact = onSmsContact,
-                onExpandClick = expandHandler,
-                onCollapseClick = collapseHandler
-            )
-        }
+    val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
+    if (!hasVisibleContent) return
+    val orderedContacts = if (reverseResults) contacts.asReversed() else contacts
 
-        !hasPermission -> {
-            PermissionDisabledCard(
-                title = stringResource(R.string.contacts_permission_title),
-                message = stringResource(R.string.contacts_permission_subtitle),
-                actionLabel = stringResource(R.string.permission_action_manage_android),
-                onActionClick = onOpenAppSettings
-            )
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ResultSectionTitle(text = stringResource(R.string.contacts_section_title))
+        when {
+            hasPermission && contacts.isNotEmpty() -> {
+                val displayAsExpanded = isExpanded || showAllResults
+                val canShowExpand = showExpandControls && orderedContacts.size > INITIAL_RESULT_COUNT
+                val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
+                val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
+                val displayContacts = if (displayAsExpanded) {
+                    orderedContacts
+                } else {
+                    orderedContacts.take(INITIAL_RESULT_COUNT)
+                }
+                ContactsResultCard(
+                    contacts = displayContacts,
+                    allContacts = orderedContacts,
+                    isExpanded = displayAsExpanded,
+                    onContactClick = onContactClick,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onExpandClick = expandHandler,
+                    onCollapseClick = collapseHandler
+                )
+            }
+
+            !hasPermission -> {
+                PermissionDisabledCard(
+                    title = stringResource(R.string.contacts_permission_title),
+                    message = stringResource(R.string.contacts_permission_subtitle),
+                    actionLabel = stringResource(R.string.permission_action_manage_android),
+                    onActionClick = onOpenAppSettings
+                )
+            }
         }
     }
 }
@@ -567,33 +587,64 @@ private fun FileResultsSection(
     onRequestPermission: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
+    reverseResults: Boolean = false,
     onExpandClick: () -> Unit
 ) {
-    when {
-        hasPermission && files.isNotEmpty() -> {
-            val displayAsExpanded = isExpanded || showAllResults
-            val canShowExpand = showExpandControls && files.size > INITIAL_RESULT_COUNT
-            val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
-            val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
-            FilesResultCard(
-                files = if (displayAsExpanded) files else files.take(INITIAL_RESULT_COUNT),
-                allFiles = files,
-                isExpanded = displayAsExpanded,
-                onFileClick = onFileClick,
-                onExpandClick = expandHandler,
-                onCollapseClick = collapseHandler
-            )
-        }
+    val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
+    if (!hasVisibleContent) return
+    val orderedFiles = if (reverseResults) files.asReversed() else files
 
-        !hasPermission -> {
-            PermissionDisabledCard(
-                title = stringResource(R.string.files_permission_title),
-                message = stringResource(R.string.files_permission_subtitle),
-                actionLabel = stringResource(R.string.permission_action_manage_android),
-                onActionClick = onRequestPermission
-            )
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ResultSectionTitle(text = stringResource(R.string.files_section_title))
+        when {
+            hasPermission && files.isNotEmpty() -> {
+                val displayAsExpanded = isExpanded || showAllResults
+                val canShowExpand = showExpandControls && orderedFiles.size > INITIAL_RESULT_COUNT
+                val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
+                val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
+                val displayFiles = if (displayAsExpanded) {
+                    orderedFiles
+                } else {
+                    orderedFiles.take(INITIAL_RESULT_COUNT)
+                }
+                FilesResultCard(
+                    files = displayFiles,
+                    allFiles = orderedFiles,
+                    isExpanded = displayAsExpanded,
+                    onFileClick = onFileClick,
+                    onExpandClick = expandHandler,
+                    onCollapseClick = collapseHandler
+                )
+            }
+
+            !hasPermission -> {
+                PermissionDisabledCard(
+                    title = stringResource(R.string.files_permission_title),
+                    message = stringResource(R.string.files_permission_subtitle),
+                    actionLabel = stringResource(R.string.permission_action_manage_android),
+                    onActionClick = onRequestPermission
+                )
+            }
         }
     }
+}
+
+@Composable
+private fun ResultSectionTitle(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp)
+    )
 }
 
 @Composable
@@ -1231,6 +1282,9 @@ private fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        if (hasAppResults) {
+            ResultSectionTitle(text = stringResource(R.string.apps_section_title))
+        }
         Crossfade(targetState = apps, label = "grid") { items ->
             if (items.isEmpty()) {
                 Box {}
