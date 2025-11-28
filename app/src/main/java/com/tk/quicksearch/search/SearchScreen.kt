@@ -1269,8 +1269,6 @@ private fun SearchEnginesSection(
                             SearchEngine.AI_MODE -> "AI mode"
                         }
                         
-                        val aiModeIconSize = if (engine == SearchEngine.AI_MODE) 20.dp else iconSize
-                        
                         Box(
                             modifier = Modifier
                                 .width(itemWidthDp)
@@ -1283,7 +1281,7 @@ private fun SearchEnginesSection(
                                 painter = painterResource(id = drawableId),
                                 contentDescription = contentDescription,
                                 modifier = Modifier
-                                    .size(aiModeIconSize),
+                                    .size(iconSize),
                                 contentScale = ContentScale.Fit
                             )
                         }
