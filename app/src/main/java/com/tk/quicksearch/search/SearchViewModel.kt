@@ -69,7 +69,10 @@ data class SearchUiState(
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
     val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
-    val keyboardAlignedLayout: Boolean = true
+    val keyboardAlignedLayout: Boolean = true,
+    val shortcutsEnabled: Boolean = true,
+    val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
+    val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -87,6 +90,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
     private var keyboardAlignedLayout: Boolean = userPreferences.isKeyboardAlignedLayout()
+    private var shortcutsEnabled: Boolean = userPreferences.areShortcutsEnabled()
+    private var shortcutCodes: Map<SearchEngine, String> = userPreferences.getAllShortcutCodes()
+    private var shortcutEnabled: Map<SearchEngine, Boolean> = SearchEngine.values().associateWith { 
+        userPreferences.isShortcutEnabled(it) 
+    }
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -100,7 +108,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 searchEngineOrder = searchEngineOrder,
                 disabledSearchEngines = disabledSearchEngines,
                 enabledFileTypes = enabledFileTypes,
-                keyboardAlignedLayout = keyboardAlignedLayout
+                keyboardAlignedLayout = keyboardAlignedLayout,
+                shortcutsEnabled = shortcutsEnabled,
+                shortcutCodes = shortcutCodes,
+                shortcutEnabled = shortcutEnabled
             )
         }
         refreshUsageAccess()
@@ -179,6 +190,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
 
+        // Check for shortcuts if enabled
+        if (userPreferences.areShortcutsEnabled()) {
+            val shortcutMatch = detectShortcut(newQuery)
+            if (shortcutMatch != null) {
+                val (queryWithoutShortcut, engine) = shortcutMatch
+                // Automatically perform search with the detected engine
+                openSearchUrl(queryWithoutShortcut.trim(), engine)
+                // Clear the query after performing search
+                clearQuery()
+                return
+            }
+        }
+
         val normalizedQuery = newQuery.lowercase(Locale.getDefault())
         resetNoMatchPrefixIfNeeded(normalizedQuery)
 
@@ -200,6 +224,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
         }
         performSecondarySearches(newQuery.trim())
+    }
+
+    private fun detectShortcut(query: String): Pair<String, SearchEngine>? {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) return null
+
+        // Look for shortcut at the end of the query (e.g., "search query ggl")
+        // Shortcut should be separated by space
+        val words = trimmedQuery.split("\\s+".toRegex())
+        if (words.size < 2) return null
+
+        val lastWord = words.last().lowercase(Locale.getDefault())
+        
+        // Check each enabled search engine for matching shortcut
+        for (engine in SearchEngine.values()) {
+            if (!userPreferences.isShortcutEnabled(engine)) continue
+            val shortcutCode = userPreferences.getShortcutCode(engine).lowercase(Locale.getDefault())
+            if (lastWord == shortcutCode) {
+                // Extract query without the shortcut
+                val queryWithoutShortcut = words.dropLast(1).joinToString(" ")
+                return Pair(queryWithoutShortcut, engine)
+            }
+        }
+        
+        return null
     }
 
     private fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
@@ -452,6 +501,48 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 it.copy(keyboardAlignedLayout = keyboardAlignedLayout)
             }
         }
+    }
+
+    fun setShortcutsEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShortcutsEnabled(enabled)
+            shortcutsEnabled = enabled
+            _uiState.update { 
+                it.copy(shortcutsEnabled = shortcutsEnabled)
+            }
+        }
+    }
+
+    fun setShortcutCode(engine: SearchEngine, code: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShortcutCode(engine, code)
+            shortcutCodes = shortcutCodes.toMutableMap().apply { put(engine, code) }
+            _uiState.update { 
+                it.copy(shortcutCodes = shortcutCodes)
+            }
+        }
+    }
+
+    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShortcutEnabled(engine, enabled)
+            shortcutEnabled = shortcutEnabled.toMutableMap().apply { put(engine, enabled) }
+            _uiState.update { 
+                it.copy(shortcutEnabled = shortcutEnabled)
+            }
+        }
+    }
+
+    fun getShortcutCode(engine: SearchEngine): String {
+        return shortcutCodes[engine] ?: userPreferences.getShortcutCode(engine)
+    }
+
+    fun isShortcutEnabled(engine: SearchEngine): Boolean {
+        return shortcutEnabled[engine] ?: userPreferences.isShortcutEnabled(engine)
+    }
+
+    fun areShortcutsEnabled(): Boolean {
+        return shortcutsEnabled
     }
 
     private fun loadSearchEngineOrder(): List<SearchEngine> {

@@ -3,6 +3,7 @@ package com.tk.quicksearch.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.search.SearchEngine
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -99,6 +100,54 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, enabled).apply()
     }
 
+    fun areShortcutsEnabled(): Boolean = prefs.getBoolean(KEY_SHORTCUTS_ENABLED, true)
+
+    fun setShortcutsEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SHORTCUTS_ENABLED, enabled).apply()
+    }
+
+    fun getShortcutCode(engine: SearchEngine): String {
+        val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
+        val defaultCode = getDefaultShortcutCode(engine)
+        return prefs.getString(key, defaultCode) ?: defaultCode
+    }
+
+    fun setShortcutCode(engine: SearchEngine, code: String) {
+        val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
+        prefs.edit().putString(key, code.lowercase()).apply()
+    }
+
+    fun isShortcutEnabled(engine: SearchEngine): Boolean {
+        val key = "$KEY_SHORTCUT_ENABLED_PREFIX${engine.name}"
+        return prefs.getBoolean(key, true)
+    }
+
+    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) {
+        val key = "$KEY_SHORTCUT_ENABLED_PREFIX${engine.name}"
+        prefs.edit().putBoolean(key, enabled).apply()
+    }
+
+    fun getAllShortcutCodes(): Map<SearchEngine, String> {
+        return SearchEngine.values().associateWith { engine ->
+            getShortcutCode(engine)
+        }
+    }
+
+    private fun getDefaultShortcutCode(engine: SearchEngine): String {
+        return when (engine) {
+            SearchEngine.GOOGLE -> "ggl"
+            SearchEngine.CHATGPT -> "cgpt"
+            SearchEngine.PERPLEXITY -> "ppx"
+            SearchEngine.GROK -> "grk"
+            SearchEngine.GOOGLE_MAPS -> "mps"
+            SearchEngine.GOOGLE_PLAY -> "gplay"
+            SearchEngine.REDDIT -> "rdt"
+            SearchEngine.YOUTUBE -> "ytb"
+            SearchEngine.AMAZON -> "amz"
+            SearchEngine.AI_MODE -> "gai"
+        }
+    }
+
     private inline fun updateStringSet(
         key: String,
         block: (MutableSet<String>) -> Unit
@@ -120,6 +169,9 @@ class UserAppPreferences(context: Context) {
         private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
         private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
         private const val KEY_KEYBOARD_ALIGNED_LAYOUT = "keyboard_aligned_layout"
+        private const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"
+        private const val KEY_SHORTCUT_CODE_PREFIX = "shortcut_code_"
+        private const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
     }
 }
 

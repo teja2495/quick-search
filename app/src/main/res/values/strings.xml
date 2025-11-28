@@ -96,6 +96,12 @@
     <string name="settings_layout_toggle">Keyboard-aligned layout</string>
     <string name="settings_layout_toggle_on_desc">Results align towards keyboard (bottom to top: Apps → Search Engines → Contacts → Files).</string>
     <string name="settings_layout_toggle_off_desc">Results align towards search bar (top to bottom: Apps → Search Engines → Contacts → Files).</string>
+    <string name="settings_shortcuts_title">Shortcuts</string>
+    <string name="settings_shortcuts_desc">Add shortcut codes at the end of your search query to automatically search with a specific engine. For example, type \"weather ggl\" to search Google.</string>
+    <string name="settings_shortcuts_toggle">Enable shortcuts</string>
+    <string name="settings_shortcuts_toggle_on_desc">Shortcut codes are active. Add them at the end of your query.</string>
+    <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
+    <string name="settings_action_edit_shortcut">Edit shortcut code</string>
     <string name="widget_label_text">Quick Search</string>
     <string name="widget_settings_title">Quick Search widget</string>
     <string name="widget_preview_title">Live preview</string>
