@@ -220,7 +220,6 @@ fun SearchScreen(
     val autoExpandFiles = hasFileResults && !hasContactResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
-    val shouldReverseResults = state.keyboardAlignedLayout
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
@@ -358,7 +357,6 @@ fun SearchScreen(
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
-                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -452,7 +450,6 @@ fun SearchScreen(
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
-                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -475,7 +472,6 @@ fun SearchScreen(
                                 onRequestPermission = onOpenStorageAccessSettings,
                                 showAllResults = autoExpandFiles,
                                 showExpandControls = hasBothContactsAndFiles,
-                                reverseResults = shouldReverseResults,
                                 onExpandClick = {
                                     if (isFilesExpanded) {
                                         keyboardController?.show()
@@ -530,12 +526,11 @@ private fun ContactResultsSection(
     onOpenAppSettings: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
-    reverseResults: Boolean = false,
     onExpandClick: () -> Unit
 ) {
     val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
-    val orderedContacts = if (reverseResults) contacts.asReversed() else contacts
+    val orderedContacts = contacts
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -587,12 +582,11 @@ private fun FileResultsSection(
     onRequestPermission: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
-    reverseResults: Boolean = false,
     onExpandClick: () -> Unit
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
-    val orderedFiles = if (reverseResults) files.asReversed() else files
+    val orderedFiles = files
 
     Column(
         modifier = modifier.fillMaxWidth(),
