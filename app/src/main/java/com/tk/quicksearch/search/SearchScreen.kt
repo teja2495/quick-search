@@ -100,6 +100,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
@@ -496,9 +497,7 @@ fun SearchScreen(
                 hasAppResults = hasAppResults,
                 enabledEngines = enabledEngines,
                 onSearchEngineClick = onSearchEngineClick,
-                modifier = Modifier
-                    .imePadding()
-                    .padding(bottom = 12.dp)
+                modifier = Modifier.imePadding()
             )
         }
     }
@@ -1178,25 +1177,37 @@ private fun SearchEnginesSection(
 ) {
     if (enabledEngines.isEmpty()) return
 
-    Column(
+    Surface(
         modifier = modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .layout { measurable, constraints ->
+                // Parent has 20dp padding on each side
+                // Extend width by 40dp (20dp on each side) to reach screen edges
+                val parentPadding = 20.dp.roundToPx()
+                val extendedWidth = constraints.maxWidth + (parentPadding * 2)
+                val extendedConstraints = constraints.copy(
+                    minWidth = extendedWidth,
+                    maxWidth = extendedWidth
+                )
+                val placeable = measurable.measure(extendedConstraints)
+                layout(
+                    width = constraints.maxWidth, // Report parent width to avoid overflow
+                    height = placeable.height
+                ) {
+                    // Place 20dp to the left so it extends to screen edges
+                    placeable.placeRelative(x = -parentPadding, y = 0)
+                }
+            },
+        color = Color.Black,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
-        Divider(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Fixed search icon
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
@@ -1206,44 +1217,53 @@ private fun SearchEnginesSection(
             
             Spacer(modifier = Modifier.width(20.dp))
             
-            enabledEngines.forEach { engine ->
-                val drawableId = when (engine) {
-                    SearchEngine.GOOGLE -> R.drawable.google
-                    SearchEngine.CHATGPT -> R.drawable.chatgpt
-                    SearchEngine.PERPLEXITY -> R.drawable.perplexity
-                    SearchEngine.GROK -> R.drawable.grok
-                    SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
-                    SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
-                    SearchEngine.REDDIT -> R.drawable.reddit
-                    SearchEngine.YOUTUBE -> R.drawable.youtube
-                    SearchEngine.AMAZON -> R.drawable.amazon
+            // Scrollable search engine icons
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                enabledEngines.forEach { engine ->
+                    val drawableId = when (engine) {
+                        SearchEngine.GOOGLE -> R.drawable.google
+                        SearchEngine.CHATGPT -> R.drawable.chatgpt
+                        SearchEngine.PERPLEXITY -> R.drawable.perplexity
+                        SearchEngine.GROK -> R.drawable.grok
+                        SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
+                        SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
+                        SearchEngine.REDDIT -> R.drawable.reddit
+                        SearchEngine.YOUTUBE -> R.drawable.youtube
+                        SearchEngine.AMAZON -> R.drawable.amazon
+                    }
+                    
+                    val contentDescription = when (engine) {
+                        SearchEngine.GOOGLE -> "Google"
+                        SearchEngine.CHATGPT -> "ChatGPT"
+                        SearchEngine.PERPLEXITY -> "Perplexity"
+                        SearchEngine.GROK -> "Grok"
+                        SearchEngine.GOOGLE_MAPS -> "Google Maps"
+                        SearchEngine.GOOGLE_PLAY -> "Google Play"
+                        SearchEngine.REDDIT -> "Reddit"
+                        SearchEngine.YOUTUBE -> "YouTube"
+                        SearchEngine.AMAZON -> "Amazon"
+                    }
+                    
+                    Image(
+                        painter = painterResource(id = drawableId),
+                        contentDescription = contentDescription,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onSearchEngineClick(query, engine) },
+                        contentScale = ContentScale.Fit
+                    )
+                    
+                    Spacer(modifier = Modifier.width(20.dp))
                 }
                 
-                val contentDescription = when (engine) {
-                    SearchEngine.GOOGLE -> "Google"
-                    SearchEngine.CHATGPT -> "ChatGPT"
-                    SearchEngine.PERPLEXITY -> "Perplexity"
-                    SearchEngine.GROK -> "Grok"
-                    SearchEngine.GOOGLE_MAPS -> "Google Maps"
-                    SearchEngine.GOOGLE_PLAY -> "Google Play"
-                    SearchEngine.REDDIT -> "Reddit"
-                    SearchEngine.YOUTUBE -> "YouTube"
-                    SearchEngine.AMAZON -> "Amazon"
-                }
-                
-                Image(
-                    painter = painterResource(id = drawableId),
-                    contentDescription = contentDescription,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onSearchEngineClick(query, engine) },
-                    contentScale = ContentScale.Fit
-                )
-                
-                Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.width(16.dp))
             }
-            
-            Spacer(modifier = Modifier.width(16.dp))
         }
     }
 }
