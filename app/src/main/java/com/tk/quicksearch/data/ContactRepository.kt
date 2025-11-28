@@ -78,12 +78,43 @@ class ContactRepository(
             }
         }
 
+        // Fetch photo URIs for contacts
+        if (contacts.isNotEmpty()) {
+            val contactIds = contacts.keys.joinToString(",")
+            val photoProjection = arrayOf(
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.PHOTO_URI
+            )
+            val photoCursor = contentResolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                photoProjection,
+                "${ContactsContract.Contacts._ID} IN ($contactIds)",
+                null,
+                null
+            )
+            
+            photoCursor?.use { c ->
+                val idIndex = c.getColumnIndexOrThrow(ContactsContract.Contacts._ID)
+                val photoUriIndex = c.getColumnIndex(ContactsContract.Contacts.PHOTO_URI)
+                
+                while (c.moveToNext()) {
+                    val contactId = c.getLong(idIndex)
+                    val photoUri = if (photoUriIndex >= 0) {
+                        c.getString(photoUriIndex)
+                    } else null
+                    
+                    contacts[contactId]?.photoUri = photoUri?.takeIf { it.isNotBlank() }
+                }
+            }
+        }
+        
         return contacts.values.map { contact ->
             ContactInfo(
                 contactId = contact.contactId,
                 lookupKey = contact.lookupKey,
                 displayName = contact.displayName,
-                phoneNumbers = contact.numbers
+                phoneNumbers = contact.numbers,
+                photoUri = contact.photoUri
             )
         }.sortedWith(compareBy(
             { com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
@@ -95,7 +126,8 @@ class ContactRepository(
         val contactId: Long,
         val lookupKey: String,
         val displayName: String,
-        val numbers: MutableList<String>
+        val numbers: MutableList<String>,
+        var photoUri: String? = null
     )
 }
 

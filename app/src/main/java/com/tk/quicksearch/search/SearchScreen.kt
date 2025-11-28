@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -73,11 +74,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.CircleShape
+import android.net.Uri
+import android.graphics.BitmapFactory
+import java.io.InputStream
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -89,6 +96,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.drawable.toBitmap
@@ -566,12 +574,6 @@ private fun ContactsResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(R.string.contacts_section_title),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
@@ -600,13 +602,12 @@ private fun ContactsResultCard(
             }
         }
         if (onExpandClick != null && !isExpanded) {
-            val moreCount = maxOf(0, allContacts.size - INITIAL_RESULT_COUNT)
             TextButton(
                 onClick = { onExpandClick() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Show $moreCount more",
+                    text = "Show more contacts",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -647,7 +648,31 @@ private fun ContactResultRow(
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit
 ) {
+    val context = LocalContext.current
     val hasNumber = contactInfo.primaryNumber != null
+    
+    // Load contact photo
+    val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = contactInfo.photoUri) {
+        val photoUri = contactInfo.photoUri
+        if (photoUri != null) {
+            val bitmap = withContext(Dispatchers.IO) {
+                runCatching {
+                    val uri = Uri.parse(photoUri)
+                    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+                    inputStream?.use { stream ->
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                    }
+                }.getOrNull()
+            }
+            value = bitmap
+        }
+    }
+    
+    val placeholderInitials = remember(contactInfo.displayName) {
+        contactInfo.displayName.split(" ").mapNotNull { it.firstOrNull()?.uppercaseChar() }
+            .take(2).joinToString("")
+    }
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -657,6 +682,34 @@ private fun ContactResultRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Contact photo/avatar
+        Surface(
+            modifier = Modifier.size(40.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (contactPhoto != null) {
+                    Image(
+                        bitmap = contactPhoto!!,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = placeholderInitials,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+        
         Text(
             text = contactInfo.displayName,
             modifier = Modifier.weight(1f),
@@ -705,12 +758,6 @@ private fun FilesResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(R.string.files_section_title),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
@@ -725,7 +772,8 @@ private fun FilesResultCard(
                 files.forEachIndexed { index, file ->
                     FileResultRow(
                         deviceFile = file,
-                        onClick = onFileClick
+                        onClick = onFileClick,
+                        isExpanded = isExpanded
                     )
                     if (index != files.lastIndex) {
                         HorizontalDivider(
@@ -737,13 +785,12 @@ private fun FilesResultCard(
             }
         }
         if (onExpandClick != null && !isExpanded) {
-            val moreCount = maxOf(0, allFiles.size - INITIAL_RESULT_COUNT)
             TextButton(
                 onClick = { onExpandClick() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Show $moreCount more",
+                    text = "Show more files",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -780,12 +827,13 @@ private fun FilesResultCard(
 @Composable
 private fun FileResultRow(
     deviceFile: DeviceFile,
-    onClick: (DeviceFile) -> Unit
+    onClick: (DeviceFile) -> Unit,
+    isExpanded: Boolean = false
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .then(if (isExpanded) Modifier else Modifier.height(48.dp))
             .clickable { onClick(deviceFile) }
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -795,15 +843,17 @@ private fun FileResultRow(
             imageVector = Icons.Rounded.InsertDriveFile,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier
+                .size(24.dp)
+                .padding(start = 4.dp)
         )
         Text(
             text = deviceFile.displayName,
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            maxLines = if (isExpanded) Int.MAX_VALUE else 2,
+            overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis
         )
     }
 }
@@ -858,6 +908,9 @@ private fun PersistentSearchField(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    
+    // Track if text is multi-line to adjust text size
+    var isMultiLine by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -875,14 +928,47 @@ private fun PersistentSearchField(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .clip(RoundedCornerShape(28.dp))
-            .background(MaterialTheme.colorScheme.surface),
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        // Calculate available width for text (accounting for icons and padding)
+        // Leading icon: ~48dp, trailing icons: ~48-96dp, horizontal padding: ~32dp
+        val availableTextWidth = maxWidth - 176.dp
+        
+        // Hidden Text composable to measure text layout and detect line count
+        // Positioned absolutely and made invisible so it doesn't affect layout
+        Text(
+            text = query.ifEmpty { " " },
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 3,
+            onTextLayout = { layoutResult ->
+                isMultiLine = layoutResult.lineCount > 1
+            },
+            modifier = Modifier
+                .width(availableTextWidth)
+                .alpha(0f)
+                .layout { measurable, constraints ->
+                    // Measure but don't take up any space in layout
+                    val placeable = measurable.measure(constraints)
+                    layout(0, 0) {
+                        // Don't place it - it's just for measurement
+                    }
+                }
+        )
+
+        // Determine text style based on whether text is multi-line
+        val textStyle = if (isMultiLine) {
+            MaterialTheme.typography.titleMedium
+        } else {
+            MaterialTheme.typography.titleLarge
+        }
+
+        TextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .clip(RoundedCornerShape(28.dp))
+                .background(MaterialTheme.colorScheme.surface),
         placeholder = {
             Text(
                 text = stringResource(R.string.search_hint),
@@ -890,7 +976,7 @@ private fun PersistentSearchField(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        textStyle = MaterialTheme.typography.titleLarge,
+        textStyle = textStyle,
         singleLine = false,
         maxLines = 3,
         leadingIcon = {
@@ -939,6 +1025,7 @@ private fun PersistentSearchField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     )
+    }
 }
 
 @Composable

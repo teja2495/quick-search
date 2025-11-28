@@ -7,7 +7,8 @@ data class ContactInfo(
     val contactId: Long,
     val lookupKey: String,
     val displayName: String,
-    val phoneNumbers: List<String>
+    val phoneNumbers: List<String>,
+    val photoUri: String? = null
 ) {
     val primaryNumber: String? = phoneNumbers.firstOrNull()
 }
