@@ -1077,13 +1077,15 @@ private fun PersistentSearchField(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = stringResource(R.string.desc_search_icon),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
             )
         },
         trailingIcon = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(end = 4.dp)
             ) {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = onClearQuery) {
@@ -1320,7 +1322,7 @@ private fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (hasAppResults) {
+        if (hasAppResults && isSearching) {
             ResultSectionTitle(text = stringResource(R.string.apps_section_title))
         }
         Crossfade(targetState = apps, label = "grid") { items ->
