@@ -498,13 +498,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return source
             .asSequence()
             .filter { it.matches(query) }
-            .map { app ->
+            .mapNotNull { app ->
                 val priority = com.tk.quicksearch.util.SearchRankingUtils.getBestMatchPriority(
                     query,
                     app.appName,
                     app.packageName
                 )
-                app to priority
+                if (com.tk.quicksearch.util.SearchRankingUtils.isOtherMatch(priority)) {
+                    null
+                } else {
+                    app to priority
+                }
             }
             .sortedWith(compareBy({ it.second }, { it.first.appName.lowercase(Locale.getDefault()) }))
             .map { it.first }

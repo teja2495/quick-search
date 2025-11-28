@@ -108,18 +108,32 @@ class ContactRepository(
             }
         }
         
-        return contacts.values.map { contact ->
-            ContactInfo(
-                contactId = contact.contactId,
-                lookupKey = contact.lookupKey,
-                displayName = contact.displayName,
-                phoneNumbers = contact.numbers,
-                photoUri = contact.photoUri
-            )
-        }.sortedWith(compareBy(
-            { com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
-            { it.displayName.lowercase(Locale.getDefault()) }
-        ))
+        return contacts.values
+            .map { contact ->
+                ContactInfo(
+                    contactId = contact.contactId,
+                    lookupKey = contact.lookupKey,
+                    displayName = contact.displayName,
+                    phoneNumbers = contact.numbers,
+                    photoUri = contact.photoUri
+                )
+            }
+            .mapNotNull { contact ->
+                val priority = com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(
+                    contact.displayName,
+                    query
+                )
+                if (com.tk.quicksearch.util.SearchRankingUtils.isOtherMatch(priority)) {
+                    null
+                } else {
+                    contact to priority
+                }
+            }
+            .sortedWith(compareBy(
+                { it.second },
+                { it.first.displayName.lowercase(Locale.getDefault()) }
+            ))
+            .map { it.first }
     }
 
     private data class MutableContact(

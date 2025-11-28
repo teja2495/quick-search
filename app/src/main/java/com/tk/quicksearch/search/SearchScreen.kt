@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
@@ -119,7 +120,7 @@ private enum class ExpandedSection {
     FILES
 }
 
-private const val INITIAL_RESULT_COUNT = 1
+private const val INITIAL_RESULT_COUNT = 2
 
 @Composable
 fun SearchRoute(
@@ -190,20 +191,28 @@ fun SearchScreen(
     onDismissPhoneNumberSelection: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val displayApps = remember(state.query, state.recentApps, state.searchResults, state.pinnedApps) {
-        if (state.query.isBlank()) {
+    val isSearching = state.query.isNotBlank()
+    val visibleRowCount = if (isSearching) SEARCH_ROW_COUNT else ROW_COUNT
+    val visibleAppLimit = visibleRowCount * COLUMNS
+    val displayApps = remember(
+        state.query,
+        state.recentApps,
+        state.searchResults,
+        state.pinnedApps,
+        visibleAppLimit
+    ) {
+        if (!isSearching) {
             val pinnedPackages = state.pinnedApps.map { it.packageName }.toSet()
             (state.pinnedApps + state.recentApps.filterNot { pinnedPackages.contains(it.packageName) })
-                .take(GRID_APP_COUNT)
+                .take(visibleAppLimit)
         } else {
-            state.searchResults
+            state.searchResults.take(visibleAppLimit)
         }
     }
     val pinnedPackageNames = remember(state.pinnedApps) {
         state.pinnedApps.map { it.packageName }.toSet()
     }
     val hasAppResults = displayApps.isNotEmpty()
-    val isSearching = state.query.isNotBlank()
     val keyboardController = LocalSoftwareKeyboardController.current
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
@@ -366,7 +375,8 @@ fun SearchScreen(
                                 onPinApp = onPinApp,
                                 onUnpinApp = onUnpinApp,
                                 pinnedPackageNames = pinnedPackageNames,
-                                showAppLabels = shouldShowAppLabels
+                                showAppLabels = shouldShowAppLabels,
+                                rowCount = visibleRowCount
                             )
                         }
                     }
@@ -407,7 +417,8 @@ fun SearchScreen(
                             onPinApp = onPinApp,
                             onUnpinApp = onUnpinApp,
                             pinnedPackageNames = pinnedPackageNames,
-                            showAppLabels = shouldShowAppLabels
+                            showAppLabels = shouldShowAppLabels,
+                            rowCount = visibleRowCount
                         )
                     }
 
@@ -582,8 +593,7 @@ private fun ContactsResultCard(
             shape = MaterialTheme.shapes.extraLarge
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 contacts.forEachIndexed { index, contactInfo ->
                     ContactResultRow(
@@ -599,24 +609,28 @@ private fun ContactsResultCard(
                         )
                     }
                 }
-            }
-        }
-        if (onExpandClick != null && !isExpanded) {
-            TextButton(
-                onClick = { onExpandClick() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Show more contacts",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
-                    contentDescription = "Expand",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
+                if (onExpandClick != null && !isExpanded) {
+                    TextButton(
+                        onClick = { onExpandClick() },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .height(28.dp)
+                            .padding(top = 2.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = "More",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = "Expand",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
         }
         if (onCollapseClick != null && isExpanded) {
@@ -766,8 +780,7 @@ private fun FilesResultCard(
             shape = MaterialTheme.shapes.extraLarge
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 files.forEachIndexed { index, file ->
                     FileResultRow(
@@ -782,24 +795,28 @@ private fun FilesResultCard(
                         )
                     }
                 }
-            }
-        }
-        if (onExpandClick != null && !isExpanded) {
-            TextButton(
-                onClick = { onExpandClick() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Show more files",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
-                    contentDescription = "Expand",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
+                if (onExpandClick != null && !isExpanded) {
+                    TextButton(
+                        onClick = { onExpandClick() },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .height(28.dp)
+                            .padding(top = 2.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = "More",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = "Expand",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
             }
         }
         if (onCollapseClick != null && isExpanded) {
@@ -1173,7 +1190,8 @@ private fun AppGridSection(
     onUnpinApp: (AppInfo) -> Unit,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rowCount: Int = ROW_COUNT
 ) {
     Column(
         modifier = modifier
@@ -1200,7 +1218,8 @@ private fun AppGridSection(
                     onPinApp = onPinApp,
                     onUnpinApp = onUnpinApp,
                     pinnedPackageNames = pinnedPackageNames,
-                    showAppLabels = showAppLabels
+                    showAppLabels = showAppLabels,
+                    rowCount = rowCount
                 )
             }
         }
@@ -1217,17 +1236,18 @@ private fun AppGrid(
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
     pinnedPackageNames: Set<String>,
-    showAppLabels: Boolean
+    showAppLabels: Boolean,
+    rowCount: Int = ROW_COUNT
 ) {
     val rows = remember(apps) {
-        apps.take(GRID_APP_COUNT).chunked(COLUMNS)
+        apps.take(rowCount * COLUMNS).chunked(COLUMNS)
     }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        repeat(ROW_COUNT) { rowIndex ->
+        repeat(rowCount) { rowIndex ->
             val rowApps = rows.getOrNull(rowIndex).orEmpty()
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1547,8 +1567,8 @@ private fun PhoneNumberSelectionDialog(
 }
 
 private const val ROW_COUNT = 2
+private const val SEARCH_ROW_COUNT = 1
 private const val COLUMNS = 5
-private const val GRID_APP_COUNT = ROW_COUNT * COLUMNS
 
 private object AppIconCache {
     private val cache = ConcurrentHashMap<String, ImageBitmap?>()
