@@ -30,6 +30,13 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.gestures.scrollBy
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.border
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
@@ -1177,6 +1184,8 @@ private fun SearchEnginesSection(
 ) {
     if (enabledEngines.isEmpty()) return
 
+    val scrollState = rememberLazyListState()
+
     Surface(
         modifier = modifier
             .layout { measurable, constraints ->
@@ -1217,52 +1226,69 @@ private fun SearchEnginesSection(
             
             Spacer(modifier = Modifier.width(20.dp))
             
-            // Scrollable search engine icons
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+            // Scrollable search engine icons with pagination (6 items at a time)
+            BoxWithConstraints(
+                modifier = Modifier.weight(1f)
             ) {
-                enabledEngines.forEach { engine ->
-                    val drawableId = when (engine) {
-                        SearchEngine.GOOGLE -> R.drawable.google
-                        SearchEngine.CHATGPT -> R.drawable.chatgpt
-                        SearchEngine.PERPLEXITY -> R.drawable.perplexity
-                        SearchEngine.GROK -> R.drawable.grok
-                        SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
-                        SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
-                        SearchEngine.REDDIT -> R.drawable.reddit
-                        SearchEngine.YOUTUBE -> R.drawable.youtube
-                        SearchEngine.AMAZON -> R.drawable.amazon
-                    }
-                    
-                    val contentDescription = when (engine) {
-                        SearchEngine.GOOGLE -> "Google"
-                        SearchEngine.CHATGPT -> "ChatGPT"
-                        SearchEngine.PERPLEXITY -> "Perplexity"
-                        SearchEngine.GROK -> "Grok"
-                        SearchEngine.GOOGLE_MAPS -> "Google Maps"
-                        SearchEngine.GOOGLE_PLAY -> "Google Play"
-                        SearchEngine.REDDIT -> "Reddit"
-                        SearchEngine.YOUTUBE -> "YouTube"
-                        SearchEngine.AMAZON -> "Amazon"
-                    }
-                    
-                    Image(
-                        painter = painterResource(id = drawableId),
-                        contentDescription = contentDescription,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onSearchEngineClick(query, engine) },
-                        contentScale = ContentScale.Fit
-                    )
-                    
-                    Spacer(modifier = Modifier.width(20.dp))
-                }
+                val iconSize = 24.dp
+                val spacing = 20.dp
+                // Calculate item width: (available width - 5 spacings) / 6 items
+                // maxWidth is already in Dp, so we can do arithmetic directly
+                val totalSpacing = spacing * 5 // 5 spacings between 6 items
+                val itemWidthDp = (maxWidth - totalSpacing) / 6 // 6 items with 5 spacings
                 
-                Spacer(modifier = Modifier.width(16.dp))
+                LazyRow(
+                    state = scrollState,
+                    horizontalArrangement = Arrangement.spacedBy(spacing),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    itemsIndexed(enabledEngines) { index, engine ->
+                        val drawableId = when (engine) {
+                            SearchEngine.GOOGLE -> R.drawable.google
+                            SearchEngine.CHATGPT -> R.drawable.chatgpt
+                            SearchEngine.PERPLEXITY -> R.drawable.perplexity
+                            SearchEngine.GROK -> R.drawable.grok
+                            SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
+                            SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
+                            SearchEngine.REDDIT -> R.drawable.reddit
+                            SearchEngine.YOUTUBE -> R.drawable.youtube
+                            SearchEngine.AMAZON -> R.drawable.amazon
+                            SearchEngine.AI_MODE -> R.drawable.ai_mode
+                        }
+                        
+                        val contentDescription = when (engine) {
+                            SearchEngine.GOOGLE -> "Google"
+                            SearchEngine.CHATGPT -> "ChatGPT"
+                            SearchEngine.PERPLEXITY -> "Perplexity"
+                            SearchEngine.GROK -> "Grok"
+                            SearchEngine.GOOGLE_MAPS -> "Google Maps"
+                            SearchEngine.GOOGLE_PLAY -> "Google Play"
+                            SearchEngine.REDDIT -> "Reddit"
+                            SearchEngine.YOUTUBE -> "YouTube"
+                            SearchEngine.AMAZON -> "Amazon"
+                            SearchEngine.AI_MODE -> "AI mode"
+                        }
+                        
+                        val aiModeIconSize = if (engine == SearchEngine.AI_MODE) 20.dp else iconSize
+                        
+                        Box(
+                            modifier = Modifier
+                                .width(itemWidthDp)
+                                .clickable {
+                                    onSearchEngineClick(query, engine)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = drawableId),
+                                contentDescription = contentDescription,
+                                modifier = Modifier
+                                    .size(aiModeIconSize),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
+                }
             }
         }
     }

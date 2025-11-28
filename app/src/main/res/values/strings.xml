@@ -84,6 +84,7 @@
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_youtube">YouTube</string>
     <string name="search_engine_amazon">Amazon</string>
+    <string name="search_engine_ai_mode">AI mode</string>
     <string name="settings_file_types_title">File types</string>
     <string name="settings_file_types_desc">Choose which file types appear in search results.</string>
     <string name="file_type_photos_and_videos">Photos &amp; Videos</string>

@@ -40,7 +40,8 @@ enum class SearchEngine {
     GOOGLE_PLAY,
     REDDIT,
     YOUTUBE,
-    AMAZON
+    AMAZON,
+    AI_MODE
 }
 
 data class PhoneNumberSelection(
@@ -489,6 +490,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             SearchEngine.REDDIT -> "https://www.reddit.com/search/?q=$encodedQuery"
             SearchEngine.YOUTUBE -> "https://www.youtube.com/results?search_query=$encodedQuery"
             SearchEngine.AMAZON -> "https://www.amazon.com/s?k=$encodedQuery"
+            SearchEngine.AI_MODE -> "https://www.google.com/search?q=$encodedQuery&udm=50"
         }
     }
 
