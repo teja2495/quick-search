@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -213,6 +214,11 @@ fun SearchScreen(
         state.pinnedApps.map { it.packageName }.toSet()
     }
     val hasAppResults = displayApps.isNotEmpty()
+    val hasContactResults = state.contactResults.isNotEmpty()
+    val hasFileResults = state.fileResults.isNotEmpty()
+    val autoExpandContacts = hasContactResults && !hasFileResults
+    val autoExpandFiles = hasFileResults && !hasContactResults
+    val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
@@ -314,8 +320,8 @@ fun SearchScreen(
                     if (state.query.isNotBlank()) {
                         val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
                         val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowFilesSection = !state.hasFilePermission || state.fileResults.isNotEmpty()
-                        val shouldShowContactsSection = !state.hasContactPermission || state.contactResults.isNotEmpty()
+                        val shouldShowFilesSection = !state.hasFilePermission || hasFileResults
+                        val shouldShowContactsSection = !state.hasContactPermission || hasContactResults
 
                         if (shouldShowFilesSection && !isContactsExpanded) {
                             FileResultsSection(
@@ -325,6 +331,8 @@ fun SearchScreen(
                                 isExpanded = isFilesExpanded,
                                 onFileClick = onFileClick,
                                 onRequestPermission = onOpenStorageAccessSettings,
+                                showAllResults = autoExpandFiles,
+                                showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isFilesExpanded) {
                                         keyboardController?.show()
@@ -347,6 +355,8 @@ fun SearchScreen(
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
+                                showAllResults = autoExpandContacts,
+                                showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -425,8 +435,8 @@ fun SearchScreen(
                     if (state.query.isNotBlank()) {
                         val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
                         val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowContactsSection = !state.hasContactPermission || state.contactResults.isNotEmpty()
-                        val shouldShowFilesSection = !state.hasFilePermission || state.fileResults.isNotEmpty()
+                        val shouldShowContactsSection = !state.hasContactPermission || hasContactResults
+                        val shouldShowFilesSection = !state.hasFilePermission || hasFileResults
 
                         if (shouldShowContactsSection && !isFilesExpanded) {
                             ContactResultsSection(
@@ -438,6 +448,8 @@ fun SearchScreen(
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
+                                showAllResults = autoExpandContacts,
+                                showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
                                         keyboardController?.show()
@@ -458,6 +470,8 @@ fun SearchScreen(
                                 isExpanded = isFilesExpanded,
                                 onFileClick = onFileClick,
                                 onRequestPermission = onOpenStorageAccessSettings,
+                                showAllResults = autoExpandFiles,
+                                showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isFilesExpanded) {
                                         keyboardController?.show()
@@ -510,19 +524,25 @@ private fun ContactResultsSection(
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
     onOpenAppSettings: () -> Unit,
+    showAllResults: Boolean = false,
+    showExpandControls: Boolean = false,
     onExpandClick: () -> Unit
 ) {
     when {
         hasPermission && contacts.isNotEmpty() -> {
+            val displayAsExpanded = isExpanded || showAllResults
+            val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
+            val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
+            val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
             ContactsResultCard(
-                contacts = if (isExpanded) contacts else contacts.take(INITIAL_RESULT_COUNT),
+                contacts = if (displayAsExpanded) contacts else contacts.take(INITIAL_RESULT_COUNT),
                 allContacts = contacts,
-                isExpanded = isExpanded,
+                isExpanded = displayAsExpanded,
                 onContactClick = onContactClick,
                 onCallContact = onCallContact,
                 onSmsContact = onSmsContact,
-                onExpandClick = if (contacts.size > INITIAL_RESULT_COUNT) onExpandClick else null,
-                onCollapseClick = if (isExpanded) onExpandClick else null
+                onExpandClick = expandHandler,
+                onCollapseClick = collapseHandler
             )
         }
 
@@ -545,17 +565,23 @@ private fun FileResultsSection(
     isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
     onRequestPermission: () -> Unit,
+    showAllResults: Boolean = false,
+    showExpandControls: Boolean = false,
     onExpandClick: () -> Unit
 ) {
     when {
         hasPermission && files.isNotEmpty() -> {
+            val displayAsExpanded = isExpanded || showAllResults
+            val canShowExpand = showExpandControls && files.size > INITIAL_RESULT_COUNT
+            val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
+            val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
             FilesResultCard(
-                files = if (isExpanded) files else files.take(INITIAL_RESULT_COUNT),
+                files = if (displayAsExpanded) files else files.take(INITIAL_RESULT_COUNT),
                 allFiles = files,
-                isExpanded = isExpanded,
+                isExpanded = displayAsExpanded,
                 onFileClick = onFileClick,
-                onExpandClick = if (files.size > INITIAL_RESULT_COUNT) onExpandClick else null,
-                onCollapseClick = if (isExpanded) onExpandClick else null
+                onExpandClick = expandHandler,
+                onCollapseClick = collapseHandler
             )
         }
 
@@ -690,9 +716,9 @@ private fun ContactResultRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .heightIn(min = 52.dp)
             .clickable { onContactClick(contactInfo) }
-            .padding(vertical = 2.dp),
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -850,9 +876,9 @@ private fun FileResultRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (isExpanded) Modifier else Modifier.height(48.dp))
+            .heightIn(min = if (isExpanded) 0.dp else 52.dp)
             .clickable { onClick(deviceFile) }
-            .padding(vertical = 2.dp),
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
