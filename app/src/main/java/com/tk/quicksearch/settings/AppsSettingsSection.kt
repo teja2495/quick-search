@@ -40,7 +40,7 @@ fun AppLabelsSection(
         text = stringResource(R.string.settings_layout_toggle),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+        modifier = modifier.padding(bottom = 8.dp)
     )
     Spacer(modifier = Modifier.height(16.dp))
     
@@ -111,27 +111,12 @@ fun AppLabelsSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_app_labels_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(
-                        if (showAppLabels) {
-                            R.string.settings_app_labels_toggle_on_desc
-                        } else {
-                            R.string.settings_app_labels_toggle_off_desc
-                        }
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            Text(
+                text = stringResource(R.string.settings_app_labels_toggle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
             Switch(
                 checked = showAppLabels,
                 onCheckedChange = onToggleAppLabels

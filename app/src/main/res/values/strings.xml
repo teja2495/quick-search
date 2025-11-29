@@ -87,7 +87,7 @@
     <string name="search_engine_youtube">YouTube</string>
     <string name="search_engine_amazon">Amazon</string>
     <string name="search_engine_ai_mode">AI mode</string>
-    <string name="settings_file_types_title">File types</string>
+    <string name="settings_file_types_title">Result File Types</string>
     <string name="settings_file_types_desc">Choose which file types appear in search results.</string>
     <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
     <string name="file_type_documents">Documents</string>
@@ -97,8 +97,8 @@
     <string name="settings_layout_option_top">Top</string>
     <string name="settings_layout_option_bottom">Bottom</string>
     <string name="settings_shortcuts_title">Shortcuts</string>
-    <string name="settings_shortcuts_desc">Add shortcut codes at the end of your search query to automatically search with a specific engine. For example, type \"weather ggl\" to search Google.</string>
-    <string name="settings_shortcuts_toggle">Enable shortcuts</string>
+    <string name="settings_shortcuts_desc"> Add shortcuts at the end of your query to trigger search instantly.</string>
+    <string name="settings_shortcuts_toggle">Shortcuts</string>
     <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_action_edit_shortcut">Edit shortcut code</string>

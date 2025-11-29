@@ -78,11 +78,6 @@ fun SearchEnginesSection(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
     )
-    Text(
-        text = stringResource(R.string.settings_search_engines_desc),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
     Spacer(modifier = Modifier.height(16.dp))
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -108,13 +103,7 @@ fun SearchEnginesSection(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = stringResource(
-                                if (shortcutsEnabled) {
-                                    R.string.settings_shortcuts_toggle_on_desc
-                                } else {
-                                    R.string.settings_shortcuts_toggle_off_desc
-                                }
-                            ),
+                            text = stringResource(R.string.settings_shortcuts_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -391,13 +380,7 @@ fun ShortcutsSection(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = stringResource(
-                            if (shortcutsEnabled) {
-                                R.string.settings_shortcuts_toggle_on_desc
-                            } else {
-                                R.string.settings_shortcuts_toggle_off_desc
-                            }
-                        ),
+                        text = stringResource(R.string.settings_shortcuts_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -473,7 +456,7 @@ private fun ShortcutCodeDisplay(
     if (isEditing) {
         TextField(
             value = editingCode,
-            onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() } },
+            onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
@@ -634,7 +617,7 @@ private fun ShortcutRow(
             if (isEditing) {
                 TextField(
                     value = editingCode,
-                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() } },
+                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)

@@ -69,8 +69,8 @@ class UserAppPreferences(context: Context) {
     fun getEnabledFileTypes(): Set<FileType> {
         val enabledNames = prefs.getStringSet(KEY_ENABLED_FILE_TYPES, null)
         return if (enabledNames == null) {
-            // Default: all file types enabled
-            FileType.values().toSet()
+            // Default: all file types enabled except OTHER
+            FileType.values().filter { it != FileType.OTHER }.toSet()
         } else {
             val migratedNames = enabledNames.map { name ->
                 // Migrate old IMAGES or VIDEOS to PHOTOS_AND_VIDEOS
@@ -94,7 +94,7 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putStringSet(KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
     }
 
-    fun isKeyboardAlignedLayout(): Boolean = prefs.getBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, true)
+    fun isKeyboardAlignedLayout(): Boolean = prefs.getBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, false)
 
     fun setKeyboardAlignedLayout(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_KEYBOARD_ALIGNED_LAYOUT, enabled).apply()

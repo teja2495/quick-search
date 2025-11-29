@@ -138,20 +138,6 @@ private fun SettingsScreen(
                 onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout
             )
 
-            // Search Engine Section (includes shortcuts)
-            SearchEnginesSection(
-                searchEngineOrder = searchEngineOrder,
-                disabledSearchEngines = disabledSearchEngines,
-                onToggleSearchEngine = onToggleSearchEngine,
-                onReorderSearchEngines = onReorderSearchEngines,
-                shortcutsEnabled = shortcutsEnabled,
-                onToggleShortcutsEnabled = onToggleShortcutsEnabled,
-                shortcutCodes = shortcutCodes,
-                setShortcutCode = setShortcutCode,
-                shortcutEnabled = shortcutEnabled,
-                setShortcutEnabled = setShortcutEnabled
-            )
-
             if (hiddenApps.isNotEmpty()) {
                 HiddenAppsSection(
                     hiddenApps = hiddenApps,
@@ -170,6 +156,20 @@ private fun SettingsScreen(
                 enabledFileTypes = enabledFileTypes,
                 onToggleFileType = onToggleFileType
             )
+
+            // Search Engine Section (includes shortcuts)
+            SearchEnginesSection(
+                searchEngineOrder = searchEngineOrder,
+                disabledSearchEngines = disabledSearchEngines,
+                onToggleSearchEngine = onToggleSearchEngine,
+                onReorderSearchEngines = onReorderSearchEngines,
+                shortcutsEnabled = shortcutsEnabled,
+                onToggleShortcutsEnabled = onToggleShortcutsEnabled,
+                shortcutCodes = shortcutCodes,
+                setShortcutCode = setShortcutCode,
+                shortcutEnabled = shortcutEnabled,
+                setShortcutEnabled = setShortcutEnabled
+            )
             
             // App Version
             Spacer(modifier = Modifier.height(32.dp))
@@ -185,7 +185,7 @@ private fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 100.dp, top = 45.dp),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
