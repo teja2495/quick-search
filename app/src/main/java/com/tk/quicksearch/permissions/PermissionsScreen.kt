@@ -74,7 +74,8 @@ fun PermissionsScreen(
     var filesPermissionDenied by remember { mutableStateOf(false) }
     
     // Toggle states - all disabled (OFF) by default
-    var usageToggleEnabled by remember { mutableStateOf(false) }
+    // Usage toggle only enabled when permission is actually granted
+    var usageToggleEnabled by remember { mutableStateOf(appUsageRepository.hasUsageAccess()) }
     var contactsToggleEnabled by remember { mutableStateOf(false) }
     var filesToggleEnabled by remember { mutableStateOf(false) }
 
@@ -129,8 +130,8 @@ fun PermissionsScreen(
                 hasFilesPermission = newFilesPermission
                 
                 // Update toggle states to match actual permissions
-                // If permission is granted, ensure toggle is on
-                if (newUsagePermission) usageToggleEnabled = true
+                // Usage toggle only enabled when permission is actually granted
+                usageToggleEnabled = newUsagePermission
                 if (newContactsPermission) contactsToggleEnabled = true
                 if (newFilesPermission) {
                     filesToggleEnabled = true
@@ -180,18 +181,15 @@ fun PermissionsScreen(
                 isEnabled = usageToggleEnabled,
                 isMandatory = true,
                 onToggleChange = { enabled ->
-                    if (enabled) {
-                        usageToggleEnabled = true
-                        if (!hasUsagePermission) {
-                            // Request usage permission
-                            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-                                data = Uri.parse("package:${context.packageName}")
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
+                    if (enabled && !hasUsagePermission) {
+                        // Request usage permission - toggle will be updated when permission is granted
+                        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
+                        context.startActivity(intent)
                     }
-                    // Can't disable mandatory permission
+                    // Toggle state is controlled by actual permission, not user action
                 }
             )
 
@@ -274,15 +272,6 @@ fun PermissionsScreen(
                 Text(
                     text = stringResource(R.string.permissions_action_continue),
                     style = MaterialTheme.typography.bodySmall
-                )
-            }
-            
-            if (!hasUsagePermission) {
-                Text(
-                    text = stringResource(R.string.permissions_usage_required),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
         }
