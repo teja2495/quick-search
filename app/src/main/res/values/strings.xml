@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Quick Search</string>
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search Anything...</string>
     <string name="desc_search_icon">Search</string>
     <string name="desc_clear_search">Clear search text</string>
     <string name="desc_open_settings">Open Quick Search settings</string>
@@ -90,7 +90,7 @@
     <string name="settings_file_types_desc">Choose which file types appear in search results.</string>
     <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
     <string name="file_type_documents">Documents</string>
-    <string name="file_type_apk">APK</string>
+    <string name="file_type_apk">APKs</string>
     <string name="file_type_other">Other</string>
     <string name="settings_layout_title">Layout</string>
     <string name="settings_layout_desc">Choose how results are arranged on the search screen.</string>
