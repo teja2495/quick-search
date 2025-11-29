@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -642,6 +643,22 @@ private fun ShortcutRow(
                             isEditing = false
                         }
                     ),
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                if (editingCode.isNotBlank()) {
+                                    onCodeChange(editingCode)
+                                }
+                                isEditing = false
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = stringResource(R.string.settings_action_edit_shortcut),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
