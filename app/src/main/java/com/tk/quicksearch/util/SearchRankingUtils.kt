@@ -28,28 +28,53 @@ object SearchRankingUtils {
      */
     fun calculateMatchPriority(text: String, query: String): Int {
         if (query.isBlank()) return PRIORITY_OTHER
-        
+
         val normalizedText = text.lowercase(Locale.getDefault())
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
-        
+
+        // Support multi-word queries by also matching individual words.
+        // Example: "Teja Atch" should still match "Sai Teja Atchala"
+        // by treating "atch" as a prefix of the "Atchala" word.
+        val queryTokens = normalizedQuery
+            .split("\\s+".toRegex())
+            .mapNotNull { it.ifBlank { null } }
+
+        // The primary token we consider for "starts with" checks.
+        // For multi-word queries, the last token is often the one being completed
+        // (e.g. "teja atch" → "atch").
+        val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
+
         // Priority 1: Exact match
         if (normalizedText == normalizedQuery) {
             return PRIORITY_EXACT_MATCH
         }
-        
+
         // Priority 2: Starts with query
-        if (normalizedText.startsWith(normalizedQuery)) {
+        if (normalizedText.startsWith(normalizedQuery) || normalizedText.startsWith(primaryToken)) {
             return PRIORITY_STARTS_WITH
         }
-        
+
         // Priority 3: Any word (after splitting on whitespace) starts with query
-        if (normalizedText
-                .split("\\s+".toRegex())
-                .any { it.startsWith(normalizedQuery) }
-        ) {
+        val textWords = normalizedText.split("\\s+".toRegex())
+
+        val anyWordStartsWithQuery =
+            textWords.any { it.startsWith(normalizedQuery) || it.startsWith(primaryToken) }
+
+        // Additionally, for multi-word queries, allow matching if *any* query token
+        // is a prefix of a word in the text.
+        val anyWordStartsWithAnyToken =
+            if (queryTokens.size > 1) {
+                textWords.any { word ->
+                    queryTokens.any { token -> word.startsWith(token) }
+                }
+            } else {
+                false
+            }
+
+        if (anyWordStartsWithQuery || anyWordStartsWithAnyToken) {
             return PRIORITY_WORD_STARTS_WITH
         }
-        
+
         // Priority 4: Other matches (contains query)
         return PRIORITY_OTHER
     }

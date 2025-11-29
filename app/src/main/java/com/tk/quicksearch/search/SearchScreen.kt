@@ -80,6 +80,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -689,13 +690,15 @@ private fun ContactsResultCard(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 contacts.forEachIndexed { index, contactInfo ->
-                    ContactResultRow(
-                        contactInfo = contactInfo,
-                        useWhatsAppForMessages = useWhatsAppForMessages,
-                        onContactClick = onContactClick,
-                        onCallContact = onCallContact,
-                        onSmsContact = onSmsContact
-                    )
+                    key(contactInfo.contactId) {
+                        ContactResultRow(
+                            contactInfo = contactInfo,
+                            useWhatsAppForMessages = useWhatsAppForMessages,
+                            onContactClick = onContactClick,
+                            onCallContact = onCallContact,
+                            onSmsContact = onSmsContact
+                        )
+                    }
                     if (index != contacts.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
@@ -764,6 +767,8 @@ private fun ContactResultRow(
     val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = contactInfo.photoUri) {
         val photoUri = contactInfo.photoUri
         if (photoUri != null) {
+            // Reset to avoid showing stale images while loading a new one
+            value = null
             val bitmap = withContext(Dispatchers.IO) {
                 runCatching {
                     val uri = Uri.parse(photoUri)
@@ -774,6 +779,9 @@ private fun ContactResultRow(
                 }.getOrNull()
             }
             value = bitmap
+        } else {
+            // Ensure we don't keep an old bitmap when this contact has no photo
+            value = null
         }
     }
     

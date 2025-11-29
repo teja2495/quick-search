@@ -688,7 +688,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun performSecondarySearches(query: String) {
         searchJob?.cancel()
-        if (query.isBlank() || query.length < 2) {
+        if (query.isBlank()) {
+            _uiState.update {
+                it.copy(
+                    contactResults = emptyList(),
+                    fileResults = emptyList()
+                )
+            }
+            return
+        }
+
+        // Avoid running contact/file searches for single-character queries
+        if (query.length == 1) {
             _uiState.update {
                 it.copy(
                     contactResults = emptyList(),
