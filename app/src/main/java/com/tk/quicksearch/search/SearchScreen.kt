@@ -276,16 +276,6 @@ fun SearchScreen(
             ),
         verticalArrangement = Arrangement.Top
     ) {
-        // Fixed search bar at the top
-        PersistentSearchField(
-            query = state.query,
-            onQueryChange = onQueryChanged,
-            onClearQuery = onClearQuery,
-            onSettingsClick = onSettingsClick
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         // Calculate enabled engines
         val enabledEngines: List<SearchEngine> = remember(
             state.searchEngineOrder,
@@ -296,6 +286,28 @@ fun SearchScreen(
             order.filter { engine -> engine !in disabled }
         }
 
+        // Fixed search bar at the top
+        PersistentSearchField(
+            query = state.query,
+            onQueryChange = onQueryChanged,
+            onClearQuery = onClearQuery,
+            onSettingsClick = onSettingsClick,
+            onSearchAction = {
+                if (state.query.isBlank()) return@PersistentSearchField
+
+                val firstApp = displayApps.firstOrNull()
+                if (firstApp != null) {
+                    onAppClick(firstApp)
+                } else {
+                    val primaryEngine = enabledEngines.firstOrNull()
+                    if (primaryEngine != null) {
+                        onSearchEngineClick(state.query, primaryEngine)
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
         // Scrollable content between search bar and search engines
         Box(
             modifier = Modifier
@@ -1013,6 +1025,7 @@ private fun PersistentSearchField(
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
     onSettingsClick: () -> Unit,
+    onSearchAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -1126,7 +1139,10 @@ private fun PersistentSearchField(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
-                keyboardController?.show()
+                if (query.isNotBlank()) {
+                    onSearchAction()
+                }
+                keyboardController?.hide()
             }
         ),
         colors = TextFieldDefaults.colors(
