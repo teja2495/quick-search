@@ -72,7 +72,8 @@ data class SearchUiState(
     val keyboardAlignedLayout: Boolean = true,
     val shortcutsEnabled: Boolean = true,
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
-    val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap()
+    val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
+    val useWhatsAppForMessages: Boolean = false
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -95,6 +96,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var shortcutEnabled: Map<SearchEngine, Boolean> = SearchEngine.values().associateWith { 
         userPreferences.isShortcutEnabled(it) 
     }
+    private var useWhatsAppForMessages: Boolean = userPreferences.useWhatsAppForMessages()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -111,7 +113,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 keyboardAlignedLayout = keyboardAlignedLayout,
                 shortcutsEnabled = shortcutsEnabled,
                 shortcutCodes = shortcutCodes,
-                shortcutEnabled = shortcutEnabled
+                shortcutEnabled = shortcutEnabled,
+                useWhatsAppForMessages = useWhatsAppForMessages
             )
         }
         refreshUsageAccess()
@@ -172,6 +175,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         )
                     }
                 }
+        }
+    }
+
+    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
+        useWhatsAppForMessages = useWhatsApp
+        userPreferences.setUseWhatsAppForMessages(useWhatsApp)
+        _uiState.update { state ->
+            state.copy(useWhatsAppForMessages = useWhatsAppForMessages)
         }
     }
 
@@ -808,7 +819,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
             // Use preferred number directly
-            performSms(preferredNumber)
+            performMessaging(preferredNumber)
             return
         }
         
@@ -819,7 +830,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
         
         // Single number, use it directly
-        performSms(contactInfo.phoneNumbers.first())
+        performMessaging(contactInfo.phoneNumbers.first())
     }
     
     fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) {
@@ -835,7 +846,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (selection.isCall) {
             performCall(phoneNumber)
         } else {
-            performSms(phoneNumber)
+            performMessaging(phoneNumber)
         }
         
         // Clear the selection dialog
@@ -862,6 +873,44 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+    }
+
+    private fun performMessaging(number: String) {
+        if (useWhatsAppForMessages) {
+            openWhatsAppChat(number)
+        } else {
+            performSms(number)
+        }
+    }
+
+    private fun openWhatsAppChat(phoneNumber: String) {
+        if (phoneNumber.isBlank()) return
+
+        val context = getApplication<Application>()
+        val uri = Uri.parse("https://wa.me/${Uri.encode(phoneNumber)}")
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            // Prefer the standard WhatsApp package if available
+            setPackage("com.whatsapp")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // Fallback: try without explicit package (e.g. WhatsApp Business or browser)
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            try {
+                context.startActivity(fallbackIntent)
+            } catch (inner: Exception) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_missing_phone_number),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     fun openFile(deviceFile: DeviceFile) {

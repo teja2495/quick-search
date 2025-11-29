@@ -359,6 +359,7 @@ fun SearchScreen(
                                 hasPermission = state.hasContactPermission,
                                 contacts = state.contactResults,
                                 isExpanded = isContactsExpanded,
+                                useWhatsAppForMessages = state.useWhatsAppForMessages,
                                 onContactClick = onContactClick,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
@@ -452,6 +453,7 @@ fun SearchScreen(
                                 hasPermission = state.hasContactPermission,
                                 contacts = state.contactResults,
                                 isExpanded = isContactsExpanded,
+                                useWhatsAppForMessages = state.useWhatsAppForMessages,
                                 onContactClick = onContactClick,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
@@ -526,6 +528,7 @@ private fun ContactResultsSection(
     hasPermission: Boolean,
     contacts: List<ContactInfo>,
     isExpanded: Boolean,
+    useWhatsAppForMessages: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
@@ -558,6 +561,7 @@ private fun ContactResultsSection(
                     contacts = displayContacts,
                     allContacts = orderedContacts,
                     isExpanded = displayAsExpanded,
+                    useWhatsAppForMessages = useWhatsAppForMessages,
                     onContactClick = onContactClick,
                     onCallContact = onCallContact,
                     onSmsContact = onSmsContact,
@@ -652,6 +656,7 @@ private fun ContactsResultCard(
     contacts: List<ContactInfo>,
     allContacts: List<ContactInfo>,
     isExpanded: Boolean,
+    useWhatsAppForMessages: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
@@ -675,6 +680,7 @@ private fun ContactsResultCard(
                 contacts.forEachIndexed { index, contactInfo ->
                     ContactResultRow(
                         contactInfo = contactInfo,
+                        useWhatsAppForMessages = useWhatsAppForMessages,
                         onContactClick = onContactClick,
                         onCallContact = onCallContact,
                         onSmsContact = onSmsContact
@@ -735,6 +741,7 @@ private fun ContactsResultCard(
 @Composable
 private fun ContactResultRow(
     contactInfo: ContactInfo,
+    useWhatsAppForMessages: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit
@@ -818,7 +825,7 @@ private fun ContactResultRow(
                 imageVector = Icons.Rounded.Call,
                 contentDescription = stringResource(R.string.contacts_action_call),
                 tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
         IconButton(
@@ -826,12 +833,21 @@ private fun ContactResultRow(
             enabled = hasNumber,
             modifier = Modifier.size(40.dp)
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Sms,
-                contentDescription = stringResource(R.string.contacts_action_sms),
-                tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
+            if (useWhatsAppForMessages) {
+                Icon(
+                    painter = painterResource(id = R.drawable.whatsapp),
+                    contentDescription = stringResource(R.string.contacts_action_whatsapp),
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Rounded.Sms,
+                    contentDescription = stringResource(R.string.contacts_action_sms),
+                    tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }

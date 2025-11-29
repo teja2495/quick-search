@@ -127,6 +127,14 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putBoolean(key, enabled).apply()
     }
 
+    fun useWhatsAppForMessages(): Boolean {
+        return prefs.getBoolean(KEY_USE_WHATSAPP_FOR_MESSAGES, false)
+    }
+
+    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
+        prefs.edit().putBoolean(KEY_USE_WHATSAPP_FOR_MESSAGES, useWhatsApp).apply()
+    }
+
     fun getAllShortcutCodes(): Map<SearchEngine, String> {
         return SearchEngine.values().associateWith { engine ->
             getShortcutCode(engine)
@@ -172,6 +180,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"
         private const val KEY_SHORTCUT_CODE_PREFIX = "shortcut_code_"
         private const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
+        private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages"
     }
 }
 

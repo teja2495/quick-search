@@ -28,6 +28,7 @@
     <string name="contacts_permission_subtitle">Grant Contacts permission to quickly search and act on people.</string>
     <string name="contacts_action_call">Call contact</string>
     <string name="contacts_action_sms">Message contact</string>
+    <string name="contacts_action_whatsapp">WhatsApp contact</string>
     <string name="files_section_title">Files</string>
     <string name="files_permission_title">File search disabled</string>
     <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
@@ -102,6 +103,11 @@
     <string name="settings_shortcuts_toggle_on_desc">Shortcut codes are active. Add them at the end of your query.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_action_edit_shortcut">Edit shortcut code</string>
+    <string name="settings_messaging_title">Messaging</string>
+    <string name="settings_messaging_desc">Choose which app is used when you tap the message action on a contact.</string>
+    <string name="settings_messaging_toggle">Use WhatsApp for messages</string>
+    <string name="settings_messaging_toggle_on_desc">Contact message actions will open WhatsApp.</string>
+    <string name="settings_messaging_toggle_off_desc">Contact message actions will use your default SMS app.</string>
     <string name="widget_label_text">Quick Search</string>
     <string name="widget_settings_title">Quick Search widget</string>
     <string name="widget_preview_title">Live preview</string>

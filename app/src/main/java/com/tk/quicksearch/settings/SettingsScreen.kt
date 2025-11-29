@@ -87,7 +87,9 @@ fun SettingsRoute(
         shortcutCodes = uiState.shortcutCodes,
         setShortcutCode = viewModel::setShortcutCode,
         shortcutEnabled = uiState.shortcutEnabled,
-        setShortcutEnabled = viewModel::setShortcutEnabled
+        setShortcutEnabled = viewModel::setShortcutEnabled,
+        useWhatsAppForMessages = uiState.useWhatsAppForMessages,
+        onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages
     )
 }
 
@@ -112,7 +114,9 @@ private fun SettingsScreen(
     shortcutCodes: Map<SearchEngine, String>,
     setShortcutCode: (SearchEngine, String) -> Unit,
     shortcutEnabled: Map<SearchEngine, Boolean>,
-    setShortcutEnabled: (SearchEngine, Boolean) -> Unit
+    setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
+    useWhatsAppForMessages: Boolean,
+    onToggleUseWhatsAppForMessages: (Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -152,6 +156,11 @@ private fun SettingsScreen(
         LayoutSection(
             keyboardAlignedLayout = keyboardAlignedLayout,
             onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout
+        )
+
+        MessagingSection(
+            useWhatsAppForMessages = useWhatsAppForMessages,
+            onToggleUseWhatsAppForMessages = onToggleUseWhatsAppForMessages
         )
 
         SearchEnginesSection(
@@ -293,6 +302,64 @@ private fun LayoutSection(
             Switch(
                 checked = keyboardAlignedLayout,
                 onCheckedChange = onToggleKeyboardAlignedLayout
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessagingSection(
+    useWhatsAppForMessages: Boolean,
+    onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.settings_messaging_title),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_messaging_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_messaging_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(
+                        if (useWhatsAppForMessages) {
+                            R.string.settings_messaging_toggle_on_desc
+                        } else {
+                            R.string.settings_messaging_toggle_off_desc
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = useWhatsAppForMessages,
+                onCheckedChange = onToggleUseWhatsAppForMessages
             )
         }
     }
