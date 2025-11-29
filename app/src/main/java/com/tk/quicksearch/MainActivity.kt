@@ -18,6 +18,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import android.provider.Settings
+import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.SearchRoute
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.settings.SettingsRoute
@@ -26,6 +28,7 @@ import com.tk.quicksearch.ui.theme.QuickSearchTheme
 class MainActivity : ComponentActivity() {
 
     private val searchViewModel: SearchViewModel by viewModels()
+    private lateinit var userPreferences: UserAppPreferences
 
     private val optionalPermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -41,6 +44,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize userPreferences after super.onCreate() when context is ready
+        userPreferences = UserAppPreferences(this)
+        
         enableEdgeToEdge()
         window.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE or
@@ -48,22 +55,40 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             QuickSearchTheme {
+                val isFirstLaunch = userPreferences.isFirstLaunch()
+                var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
                 var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
 
-                when (destination) {
-                    RootDestination.Search -> SearchRoute(
-                        viewModel = searchViewModel,
-                        onSettingsClick = { destination = RootDestination.Settings }
+                // Always check isFirstLaunch to handle app restarts correctly
+                if (showPermissions && isFirstLaunch) {
+                    PermissionsScreen(
+                        onPermissionsComplete = {
+                            userPreferences.setFirstLaunchCompleted()
+                            showPermissions = false
+                            // Request permissions that might have been skipped
+                            requestOptionalPermissionsIfNeeded()
+                        }
                     )
+                } else {
+                    showPermissions = false // Ensure it's false if not first launch
+                    when (destination) {
+                        RootDestination.Search -> SearchRoute(
+                            viewModel = searchViewModel,
+                            onSettingsClick = { destination = RootDestination.Settings }
+                        )
 
-                    RootDestination.Settings -> SettingsRoute(
-                        onBack = { destination = RootDestination.Search },
-                        viewModel = searchViewModel
-                    )
+                        RootDestination.Settings -> SettingsRoute(
+                            onBack = { destination = RootDestination.Search },
+                            viewModel = searchViewModel
+                        )
+                    }
                 }
             }
         }
-        requestOptionalPermissionsIfNeeded()
+        // Only request permissions automatically if not first launch
+        if (!userPreferences.isFirstLaunch()) {
+            requestOptionalPermissionsIfNeeded()
+        }
     }
 
     private fun requestOptionalPermissionsIfNeeded() {

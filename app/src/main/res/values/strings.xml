@@ -99,7 +99,7 @@
     <string name="settings_shortcuts_title">Shortcuts</string>
     <string name="settings_shortcuts_desc">Add shortcut codes at the end of your search query to automatically search with a specific engine. For example, type \"weather ggl\" to search Google.</string>
     <string name="settings_shortcuts_toggle">Enable shortcuts</string>
-    <string name="settings_shortcuts_toggle_on_desc">Shortcut codes are active. Add them at the end of your query.</string>
+    <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_action_edit_shortcut">Edit shortcut code</string>
     <string name="settings_shortcut_label">Shortcut:</string>
@@ -127,4 +127,17 @@
     <string name="widget_preset_ember">Deep Ember</string>
     <string name="widget_preset_midnight">Midnight Neon</string>
     <string name="widget_preset_void">Carbon Mist</string>
+    <string name="permissions_screen_title">Welcome to Quick Search</string>
+    <string name="permissions_screen_subtitle">To provide the best search experience, we need a few permissions.</string>
+    <string name="permissions_usage_title">Usage Access</string>
+    <string name="permissions_usage_desc">Required to show your recently used apps.</string>
+    <string name="permissions_contacts_title">Contacts</string>
+    <string name="permissions_contacts_desc">Search and quickly call or message your contacts.</string>
+    <string name="permissions_files_title">File Access</string>
+    <string name="permissions_files_desc">Search through your documents, photos, videos, and other files.</string>
+    <string name="permissions_action_grant">Grant Permission</string>
+    <string name="permissions_action_continue">Continue</string>
+    <string name="permissions_action_skip">Skip for now</string>
+    <string name="permissions_granted">Granted</string>
+    <string name="permissions_usage_required">Usage access is required to continue</string>
 </resources>
