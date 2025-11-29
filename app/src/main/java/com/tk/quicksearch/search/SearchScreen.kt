@@ -224,7 +224,6 @@ fun SearchScreen(
     val hasAppResults = displayApps.isNotEmpty()
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
-    val autoExpandContacts = hasContactResults && !hasFileResults
     val autoExpandFiles = hasFileResults && !hasContactResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -376,7 +375,7 @@ fun SearchScreen(
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = autoExpandContacts,
+                                showAllResults = false,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
@@ -470,7 +469,7 @@ fun SearchScreen(
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = autoExpandContacts,
+                                showAllResults = false,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
