@@ -75,7 +75,7 @@ fun ExcludedItemsSection(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp),
+            .padding(top = 24.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -91,7 +91,7 @@ fun ExcludedItemsSection(
             )
         }
     }
-    Spacer(modifier = Modifier.height(4.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),

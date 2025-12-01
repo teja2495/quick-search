@@ -89,7 +89,6 @@ fun SearchEnginesSection(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(bottom = 16.dp)
     )
-    Spacer(modifier = Modifier.height(16.dp))
     
     // Combined toggle card for enabling/disabling search engine section and shortcuts
     if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
@@ -457,9 +456,9 @@ fun ShortcutsSection(
     Text(
         text = stringResource(R.string.settings_shortcuts_desc),
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 16.dp)
     )
-    Spacer(modifier = Modifier.height(16.dp))
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge

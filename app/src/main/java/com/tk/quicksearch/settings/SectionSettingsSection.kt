@@ -58,7 +58,7 @@ fun SectionSettingsSection(
         text = stringResource(R.string.settings_sections_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+        modifier = modifier.padding(bottom = 8.dp)
     )
     Text(
         text = stringResource(R.string.settings_sections_desc),
@@ -66,7 +66,6 @@ fun SectionSettingsSection(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(bottom = 16.dp)
     )
-    Spacer(modifier = Modifier.height(16.dp))
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge

@@ -936,7 +936,7 @@ private fun ResultSectionTitle(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 4.dp)
+            .padding(start = 4.dp, end = 4.dp, bottom = 8.dp)
     )
 }
 
