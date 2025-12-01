@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -226,6 +227,7 @@ fun SearchScreen(
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
     val autoExpandFiles = hasFileResults && !hasContactResults
+    val autoExpandContacts = hasContactResults && !hasFileResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
     
@@ -244,7 +246,12 @@ fun SearchScreen(
         expandedSection = ExpandedSection.NONE
     }
     
-    // Scroll behavior: 
+    BackHandler(enabled = expandedSection != ExpandedSection.NONE) {
+        keyboardController?.show()
+        expandedSection = ExpandedSection.NONE
+    }
+
+    // Scroll behavior:
     // - For keyboard-aligned layout when not expanded: scroll to bottom
     // - For keyboard-aligned layout when expanded: scroll to top (towards search bar)
     LaunchedEffect(
@@ -350,11 +357,26 @@ fun SearchScreen(
                         val shouldShowFilesSection = !state.hasFilePermission || hasFileResults
                         val shouldShowContactsSection = !state.hasContactPermission || hasContactResults
 
+                        // When using bottom-aligned layout, reverse the order only when a section
+                        // is showing all results (expanded or auto-expanded). This keeps the
+                        // single collapsed row (with a "More" button) on the top result, while
+                        // full lists are shown bottom-to-top.
+                        val collapsedContacts = if (isContactsExpanded || autoExpandContacts) {
+                            state.contactResults.asReversed()
+                        } else {
+                            state.contactResults
+                        }
+                        val collapsedFiles = if (isFilesExpanded || autoExpandFiles) {
+                            state.fileResults.asReversed()
+                        } else {
+                            state.fileResults
+                        }
+
                         if (shouldShowFilesSection && !isContactsExpanded) {
                             FileResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasFilePermission,
-                                files = state.fileResults,
+                                files = collapsedFiles,
                                 isExpanded = isFilesExpanded,
                                 onFileClick = onFileClick,
                                 onRequestPermission = onOpenStorageAccessSettings,
@@ -385,14 +407,14 @@ fun SearchScreen(
                             ContactResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasContactPermission,
-                                contacts = state.contactResults,
+                                contacts = collapsedContacts,
                                 isExpanded = isContactsExpanded,
                                 useWhatsAppForMessages = state.useWhatsAppForMessages,
                                 onContactClick = onContactClick,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = false,
+                                showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {
@@ -497,7 +519,7 @@ fun SearchScreen(
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
                                 onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = false,
+                                showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
                                     if (isContactsExpanded) {

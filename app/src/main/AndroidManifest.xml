@@ -10,6 +10,8 @@
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission
         android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- Needed to initiate APK installs via ACTION_INSTALL_PACKAGE on Android O+ -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"

@@ -727,6 +727,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         searchJob = viewModelScope.launch(Dispatchers.IO) {
             val contactsDeferred = async {
                 if (canSearchContacts) {
+                    // Start with a small, UI-friendly limit
                     contactRepository.searchContacts(query, CONTACT_RESULT_LIMIT)
                 } else {
                     emptyList()
@@ -734,8 +735,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
             val filesDeferred = async {
                 if (canSearchFiles) {
-                    val allFiles = fileRepository.searchFiles(query, FILE_RESULT_LIMIT * 2) // Get more to filter
-                    // Filter files based on enabled file types
+                    // Start with a small limit, we may widen it later
+                    val allFiles = fileRepository.searchFiles(query, FILE_RESULT_LIMIT * 2)
+                    // Filter files based on enabled file types and keep only top N initially
                     allFiles.filter { file ->
                         val fileType = FileTypeUtils.getFileType(file)
                         fileType in enabledFileTypes
@@ -744,8 +746,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     emptyList()
                 }
             }
-            val contactResults = contactsDeferred.await()
-            val fileResults = filesDeferred.await()
+
+            var contactResults = contactsDeferred.await()
+            var fileResults = filesDeferred.await()
+
+            // If only one type has results, fetch all results for that type
+            if (canSearchContacts && contactResults.isNotEmpty() && !canSearchFiles) {
+                contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
+            } else if (canSearchFiles && fileResults.isNotEmpty() && !canSearchContacts) {
+                val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
+                fileResults = allFiles.filter { file ->
+                    val fileType = FileTypeUtils.getFileType(file)
+                    fileType in enabledFileTypes
+                }
+            } else if (canSearchContacts && canSearchFiles) {
+                // Both searches are enabled; widen the one that is present if the other is empty
+                if (contactResults.isEmpty() && fileResults.isNotEmpty()) {
+                    val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
+                    fileResults = allFiles.filter { file ->
+                        val fileType = FileTypeUtils.getFileType(file)
+                        fileType in enabledFileTypes
+                    }
+                } else if (fileResults.isEmpty() && contactResults.isNotEmpty()) {
+                    contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
+                }
+            }
 
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
@@ -937,19 +962,67 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun openFile(deviceFile: DeviceFile) {
         val context = getApplication<Application>()
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(deviceFile.uri, deviceFile.mimeType ?: "*/*")
+
+        // Normalise APK handling so installers can recognise the file correctly
+        val isApk = isApkFile(deviceFile)
+        val mimeType = if (isApk) {
+            // Always force the canonical APK MIME type
+            "application/vnd.android.package-archive"
+        } else {
+            deviceFile.mimeType ?: "*/*"
+        }
+
+        // Primary intent: generic VIEW, which most installers handle
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(deviceFile.uri, mimeType)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+
         try {
-            context.startActivity(intent)
+            context.startActivity(viewIntent)
         } catch (exception: ActivityNotFoundException) {
+            // If no VIEW handler is found for APKs, explicitly try the package installer
+            if (isApk) {
+                val installIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+                    setDataAndType(deviceFile.uri, mimeType)
+                    addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+                try {
+                    context.startActivity(installIntent)
+                    return
+                } catch (_: Exception) {
+                    // Fall through to generic error toast below
+                }
+            }
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_open_file, deviceFile.displayName),
+                Toast.LENGTH_SHORT
+            ).show()
+        } catch (exception: SecurityException) {
+            // Covers cases where the system blocks installing APKs from this app
             Toast.makeText(
                 context,
                 context.getString(R.string.error_open_file, deviceFile.displayName),
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    /**
+     * Best-effort detection of APK files, even when MIME type is missing or incorrect.
+     */
+    private fun isApkFile(deviceFile: DeviceFile): Boolean {
+        val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
+        if (mime == "application/vnd.android.package-archive") {
+            return true
+        }
+
+        val name = deviceFile.displayName.lowercase(Locale.getDefault())
+        return name.endsWith(".apk")
     }
 }
 

@@ -143,7 +143,7 @@ private fun ContactsResultCard(
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
             shape = MaterialTheme.shapes.extraLarge
         ) {
