@@ -31,6 +31,8 @@ fun AppLabelsSection(
     onToggleAppLabels: (Boolean) -> Unit,
     keyboardAlignedLayout: Boolean,
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    showSectionTitles: Boolean,
+    onToggleShowSectionTitles: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Results Alignment Title
@@ -90,6 +92,33 @@ fun AppLabelsSection(
             Switch(
                 checked = showAppLabels,
                 onCheckedChange = onToggleAppLabels
+            )
+        }
+    }
+    
+    Spacer(modifier = Modifier.height(16.dp))
+    
+    // Show Section Titles Card
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.settings_section_titles_toggle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = showSectionTitles,
+                onCheckedChange = onToggleShowSectionTitles
             )
         }
     }

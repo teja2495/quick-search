@@ -73,7 +73,8 @@ data class SearchUiState(
     val shortcutsEnabled: Boolean = true,
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
-    val useWhatsAppForMessages: Boolean = false
+    val useWhatsAppForMessages: Boolean = false,
+    val showSectionTitles: Boolean = true
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -97,6 +98,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.isShortcutEnabled(it) 
     }
     private var useWhatsAppForMessages: Boolean = userPreferences.useWhatsAppForMessages()
+    private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -114,7 +116,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 shortcutsEnabled = shortcutsEnabled,
                 shortcutCodes = shortcutCodes,
                 shortcutEnabled = shortcutEnabled,
-                useWhatsAppForMessages = useWhatsAppForMessages
+                useWhatsAppForMessages = useWhatsAppForMessages,
+                showSectionTitles = showSectionTitles
             )
         }
         refreshUsageAccess()
@@ -450,6 +453,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowAppLabels(showLabels)
             showAppLabels = showLabels
             _uiState.update { it.copy(showAppLabels = showLabels) }
+        }
+    }
+
+    fun setShowSectionTitles(showTitles: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowSectionTitles(showTitles)
+            showSectionTitles = showTitles
+            _uiState.update { it.copy(showSectionTitles = showTitles) }
         }
     }
 

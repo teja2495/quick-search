@@ -72,6 +72,7 @@
     <string name="settings_app_labels_toggle">App Labels</string>
     <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
     <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
+    <string name="settings_section_titles_toggle">Section Titles</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
     <string name="settings_shortcuts_hint">Hint: Adding the shortcut at the end of your query will trigger search instantly.</string>

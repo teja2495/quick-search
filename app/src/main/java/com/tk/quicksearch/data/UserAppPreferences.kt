@@ -149,6 +149,12 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
     }
 
+    fun shouldShowSectionTitles(): Boolean = prefs.getBoolean(KEY_SHOW_SECTION_TITLES, true)
+
+    fun setShowSectionTitles(showTitles: Boolean) {
+        prefs.edit().putBoolean(KEY_SHOW_SECTION_TITLES, showTitles).apply()
+    }
+
     private fun getDefaultShortcutCode(engine: SearchEngine): String {
         return when (engine) {
             SearchEngine.GOOGLE -> "ggl"
@@ -190,6 +196,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
         private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages"
         private const val KEY_FIRST_LAUNCH = "first_launch"
+        private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
     }
 }
 

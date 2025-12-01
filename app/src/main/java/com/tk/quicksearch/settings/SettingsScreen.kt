@@ -62,7 +62,9 @@ fun SettingsRoute(
         shortcutEnabled = uiState.shortcutEnabled,
         setShortcutEnabled = viewModel::setShortcutEnabled,
         useWhatsAppForMessages = uiState.useWhatsAppForMessages,
-        onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages
+        onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages,
+        showSectionTitles = uiState.showSectionTitles,
+        onToggleShowSectionTitles = viewModel::setShowSectionTitles
     )
 }
 
@@ -87,7 +89,9 @@ private fun SettingsScreen(
     shortcutEnabled: Map<SearchEngine, Boolean>,
     setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
     useWhatsAppForMessages: Boolean,
-    onToggleUseWhatsAppForMessages: (Boolean) -> Unit
+    onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
+    showSectionTitles: Boolean,
+    onToggleShowSectionTitles: (Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -131,7 +135,9 @@ private fun SettingsScreen(
                 showAppLabels = showAppLabels,
                 onToggleAppLabels = onToggleAppLabels,
                 keyboardAlignedLayout = keyboardAlignedLayout,
-                onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout
+                onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
+                showSectionTitles = showSectionTitles,
+                onToggleShowSectionTitles = onToggleShowSectionTitles
             )
 
             if (hiddenApps.isNotEmpty()) {

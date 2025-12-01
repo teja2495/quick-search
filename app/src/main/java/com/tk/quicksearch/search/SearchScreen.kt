@@ -232,6 +232,13 @@ fun SearchScreen(
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
     
+    // Helper lambda for conditionally showing section titles
+    val resultSectionTitleLambda: @Composable (String) -> Unit = { text ->
+        if (state.showSectionTitles) {
+            ResultSectionTitle(text = text)
+        }
+    }
+    
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
         expandedSection = ExpandedSection.NONE
@@ -362,7 +369,7 @@ fun SearchScreen(
                                         expandedSection = ExpandedSection.FILES
                                     }
                                 },
-                                resultSectionTitle = { text -> ResultSectionTitle(text = text) },
+                                resultSectionTitle = resultSectionTitleLambda,
                                 permissionDisabledCard = { title, message, actionLabel, onActionClick ->
                                     PermissionDisabledCard(
                                         title = title,
@@ -396,7 +403,7 @@ fun SearchScreen(
                                         expandedSection = ExpandedSection.CONTACTS
                                     }
                                 },
-                                resultSectionTitle = { text -> ResultSectionTitle(text = text) },
+                                resultSectionTitle = resultSectionTitleLambda,
                                 permissionDisabledCard = { title, message, actionLabel, onActionClick ->
                                     PermissionDisabledCard(
                                         title = title,
@@ -426,7 +433,7 @@ fun SearchScreen(
                                 pinnedPackageNames = pinnedPackageNames,
                                 showAppLabels = shouldShowAppLabels,
                                 rowCount = visibleRowCount,
-                                resultSectionTitle = { text -> ResultSectionTitle(text = text) }
+                                resultSectionTitle = resultSectionTitleLambda
                             )
                         }
                     }
@@ -501,7 +508,7 @@ fun SearchScreen(
                                         expandedSection = ExpandedSection.CONTACTS
                                     }
                                 },
-                                resultSectionTitle = { text -> ResultSectionTitle(text = text) },
+                                resultSectionTitle = resultSectionTitleLambda,
                                 permissionDisabledCard = { title, message, actionLabel, onActionClick ->
                                     PermissionDisabledCard(
                                         title = title,
@@ -532,7 +539,7 @@ fun SearchScreen(
                                         expandedSection = ExpandedSection.FILES
                                     }
                                 },
-                                resultSectionTitle = { text -> ResultSectionTitle(text = text) },
+                                resultSectionTitle = resultSectionTitleLambda,
                                 permissionDisabledCard = { title, message, actionLabel, onActionClick ->
                                     PermissionDisabledCard(
                                         title = title,
