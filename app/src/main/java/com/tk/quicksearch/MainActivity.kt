@@ -65,8 +65,9 @@ class MainActivity : ComponentActivity() {
                         onPermissionsComplete = {
                             userPreferences.setFirstLaunchCompleted()
                             showPermissions = false
-                            // Request permissions that might have been skipped
-                            requestOptionalPermissionsIfNeeded()
+                            // Don't automatically request permissions - let user enable sections in settings
+                            // Just refresh permission state to update UI
+                            searchViewModel.handleOptionalPermissionChange()
                         }
                     )
                 } else {
@@ -85,9 +86,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        // Only request permissions automatically if not first launch
+        // Don't automatically request permissions - let user enable sections in settings if they want
+        // Just refresh permission state to update UI
         if (!userPreferences.isFirstLaunch()) {
-            requestOptionalPermissionsIfNeeded()
+            searchViewModel.handleOptionalPermissionChange()
         }
     }
 

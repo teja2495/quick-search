@@ -20,8 +20,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
+import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.FileType
@@ -43,6 +55,108 @@ fun SettingsRoute(
     viewModel: SearchViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    
+    // Track pending section enablement after permission grant
+    var pendingSectionEnable by remember { mutableStateOf<SearchSection?>(null) }
+    
+    // Launcher for runtime permissions (contacts, files on pre-R)
+    val runtimePermissionsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
+        val filesGranted = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
+        } else {
+            false
+        }
+        
+        // Refresh permission state
+        viewModel.handleOptionalPermissionChange()
+        
+        // If permission was granted and we have a pending section, enable it
+        if (pendingSectionEnable != null) {
+            val section = pendingSectionEnable!!
+            when (section) {
+                SearchSection.CONTACTS -> {
+                    if (contactsGranted) {
+                        viewModel.setSectionEnabled(section, true)
+                    }
+                }
+                SearchSection.FILES -> {
+                    if (filesGranted || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager())) {
+                        viewModel.setSectionEnabled(section, true)
+                    }
+                }
+                else -> {}
+            }
+            pendingSectionEnable = null
+        }
+    }
+    
+    // Launcher for all files access (Android R+)
+    val allFilesAccessLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        val filesGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+        
+        // Refresh permission state
+        viewModel.handleOptionalPermissionChange()
+        
+        // If permission was granted and we have a pending section, enable it
+        if (pendingSectionEnable == SearchSection.FILES && filesGranted) {
+            viewModel.setSectionEnabled(SearchSection.FILES, true)
+            pendingSectionEnable = null
+        }
+    }
+    
+    // Handle section toggle with permission check
+    val onToggleSection: (SearchSection, Boolean) -> Unit = { section, enabled ->
+        if (enabled) {
+            // Check if section can be enabled (has permissions)
+            if (viewModel.canEnableSection(section)) {
+                viewModel.setSectionEnabled(section, true)
+            } else {
+                // Request permissions based on section
+                when (section) {
+                    SearchSection.CONTACTS -> {
+                        pendingSectionEnable = section
+                        runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
+                    }
+                    SearchSection.FILES -> {
+                        pendingSectionEnable = section
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                            runCatching {
+                                allFilesAccessLauncher.launch(manageIntent)
+                            }.onFailure {
+                                val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                                allFilesAccessLauncher.launch(fallback)
+                            }
+                        } else {
+                            runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+                        }
+                    }
+                    SearchSection.APPS -> {
+                        // Apps section doesn't require permissions
+                        viewModel.setSectionEnabled(section, true)
+                    }
+                }
+            }
+        } else {
+            viewModel.setSectionEnabled(section, false)
+        }
+    }
+    
     SettingsScreen(
         modifier = modifier,
         onBack = onBack,
@@ -73,7 +187,7 @@ fun SettingsRoute(
         onToggleShowSectionTitles = viewModel::setShowSectionTitles,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
-        onToggleSection = viewModel::setSectionEnabled,
+        onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,

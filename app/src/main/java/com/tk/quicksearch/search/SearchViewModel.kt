@@ -835,9 +835,30 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadDisabledSections(): Set<SearchSection> {
         val disabledNames = userPreferences.getDisabledSections()
-        return disabledNames.mapNotNull { name ->
+        val userDisabledSections = disabledNames.mapNotNull { name ->
             SearchSection.values().find { it.name == name }
         }.toSet()
+        
+        // Check permissions and disable Contacts/Files sections by default if permissions are not granted
+        // This ensures sections are disabled when permissions are missing, regardless of user preference
+        val hasContactsPermission = contactRepository.hasPermission()
+        val hasFilesPermission = fileRepository.hasPermission()
+        
+        val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
+        
+        // Disable Contacts section if permission is not granted
+        if (!hasContactsPermission) {
+            permissionBasedDisabledSections.add(SearchSection.CONTACTS)
+        }
+        
+        // Disable Files section if permission is not granted
+        if (!hasFilesPermission) {
+            permissionBasedDisabledSections.add(SearchSection.FILES)
+        }
+        
+        // Merge user preferences with permission-based disabled sections
+        // Permission-based disabling takes precedence (sections can't work without permissions)
+        return userDisabledSections + permissionBasedDisabledSections
     }
 
     fun reorderSections(newOrder: List<SearchSection>) {
@@ -852,20 +873,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            val disabled = disabledSections.toMutableSet()
             if (enabled) {
-                disabled.remove(section)
                 // When enabling, ensure permissions are still valid
                 when (section) {
                     SearchSection.CONTACTS -> {
                         if (!contactRepository.hasPermission()) {
-                            // Permission was revoked, don't enable
+                            // Permission not granted - don't enable, permission should be requested from UI
                             return@launch
                         }
                     }
                     SearchSection.FILES -> {
                         if (!fileRepository.hasPermission()) {
-                            // Permission was revoked, don't enable
+                            // Permission not granted - don't enable, permission should be requested from UI
                             return@launch
                         }
                     }
@@ -873,25 +892,49 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         // Apps section doesn't require optional permissions
                     }
                 }
-            } else {
-                disabled.add(section)
-                // When disabling, revoke permissions if possible
-                when (section) {
-                    SearchSection.CONTACTS -> {
-                        // Note: We can't programmatically revoke permissions on Android,
-                        // but we can clear any cached permission state
-                        refreshOptionalPermissions()
-                    }
-                    SearchSection.FILES -> {
-                        refreshOptionalPermissions()
-                    }
-                    SearchSection.APPS -> {
-                        // Apps section doesn't have optional permissions
-                    }
+                
+                // Remove from user preferences (user wants it enabled)
+                val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
+                    SearchSection.values().find { it.name == name }
+                }.toMutableSet()
+                userDisabledSections.remove(section)
+                userPreferences.setDisabledSections(userDisabledSections.map { it.name }.toSet())
+                
+                // Recompute effective disabled sections (user preferences + permission-based)
+                val hasContactsPermission = contactRepository.hasPermission()
+                val hasFilesPermission = fileRepository.hasPermission()
+                val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
+                if (!hasContactsPermission) {
+                    permissionBasedDisabledSections.add(SearchSection.CONTACTS)
                 }
+                if (!hasFilesPermission) {
+                    permissionBasedDisabledSections.add(SearchSection.FILES)
+                }
+                disabledSections = userDisabledSections + permissionBasedDisabledSections
+            } else {
+                // User wants to disable - add to user preferences
+                val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
+                    SearchSection.values().find { it.name == name }
+                }.toMutableSet()
+                userDisabledSections.add(section)
+                userPreferences.setDisabledSections(userDisabledSections.map { it.name }.toSet())
+                
+                // Recompute effective disabled sections
+                val hasContactsPermission = contactRepository.hasPermission()
+                val hasFilesPermission = fileRepository.hasPermission()
+                val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
+                if (!hasContactsPermission) {
+                    permissionBasedDisabledSections.add(SearchSection.CONTACTS)
+                }
+                if (!hasFilesPermission) {
+                    permissionBasedDisabledSections.add(SearchSection.FILES)
+                }
+                disabledSections = userDisabledSections + permissionBasedDisabledSections
+                
+                // Refresh permission state
+                refreshOptionalPermissions()
             }
-            disabledSections = disabled
-            userPreferences.setDisabledSections(disabled.map { it.name }.toSet())
+            
             _uiState.update { 
                 it.copy(disabledSections = disabledSections)
             }
@@ -900,6 +943,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             if (query.isNotBlank()) {
                 performSecondarySearches(query)
             }
+        }
+    }
+    
+    /**
+     * Checks if a section can be enabled (i.e., has required permissions).
+     * Returns true if the section can be enabled, false if permissions are missing.
+     */
+    fun canEnableSection(section: SearchSection): Boolean {
+        return when (section) {
+            SearchSection.CONTACTS -> contactRepository.hasPermission()
+            SearchSection.FILES -> fileRepository.hasPermission()
+            SearchSection.APPS -> true // Apps section doesn't require optional permissions
         }
     }
 
@@ -1113,12 +1168,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             previousState.hasContactPermission != hasContacts || previousState.hasFilePermission != hasFiles
 
         if (changed) {
+            // Reload disabled sections to account for permission changes
+            // This will automatically disable sections if permissions are revoked
+            val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
+                SearchSection.values().find { it.name == name }
+            }.toSet()
+            
+            val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
+            if (!hasContacts) {
+                permissionBasedDisabledSections.add(SearchSection.CONTACTS)
+            }
+            if (!hasFiles) {
+                permissionBasedDisabledSections.add(SearchSection.FILES)
+            }
+            
+            disabledSections = userDisabledSections + permissionBasedDisabledSections
+            
             _uiState.update { state ->
                 state.copy(
                     hasContactPermission = hasContacts,
                     hasFilePermission = hasFiles,
                     contactResults = if (hasContacts) state.contactResults else emptyList(),
-                    fileResults = if (hasFiles) state.fileResults else emptyList()
+                    fileResults = if (hasFiles) state.fileResults else emptyList(),
+                    disabledSections = disabledSections
                 )
             }
         }
