@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -329,7 +329,7 @@ private fun ContactResultRow(
             modifier = Modifier.size(40.dp)
         ) {
             Icon(
-                imageVector = Icons.Rounded.Call,
+                imageVector = Icons.Rounded.Person,
                 contentDescription = stringResource(R.string.contacts_action_call),
                 tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)

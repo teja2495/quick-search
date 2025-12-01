@@ -44,6 +44,12 @@ enum class SearchEngine {
     AI_MODE
 }
 
+enum class SearchSection {
+    APPS,
+    CONTACTS,
+    FILES
+}
+
 data class PhoneNumberSelection(
     val contactInfo: ContactInfo,
     val isCall: Boolean // true for call, false for SMS
@@ -78,7 +84,9 @@ data class SearchUiState(
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     val useWhatsAppForMessages: Boolean = false,
-    val showSectionTitles: Boolean = true
+    val showSectionTitles: Boolean = true,
+    val sectionOrder: List<SearchSection> = emptyList(),
+    val disabledSections: Set<SearchSection> = emptySet()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -107,6 +115,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     private var useWhatsAppForMessages: Boolean = userPreferences.useWhatsAppForMessages()
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
+    private var sectionOrder: List<SearchSection> = loadSectionOrder()
+    private var disabledSections: Set<SearchSection> = loadDisabledSections()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -125,7 +135,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 shortcutCodes = shortcutCodes,
                 shortcutEnabled = shortcutEnabled,
                 useWhatsAppForMessages = useWhatsAppForMessages,
-                showSectionTitles = showSectionTitles
+                showSectionTitles = showSectionTitles,
+                sectionOrder = sectionOrder,
+                disabledSections = disabledSections
             )
         }
         refreshUsageAccess()
@@ -791,6 +803,93 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }.toSet()
     }
 
+    private fun loadSectionOrder(): List<SearchSection> {
+        val savedOrder = userPreferences.getSectionOrder()
+        val defaultOrder = listOf(SearchSection.APPS, SearchSection.CONTACTS, SearchSection.FILES)
+        
+        if (savedOrder.isEmpty()) {
+            // First time - use default order: Apps, Contacts, Files
+            return defaultOrder
+        }
+        
+        // Merge saved order with any new sections that might have been added
+        val savedSections = savedOrder.mapNotNull { name ->
+            SearchSection.values().find { it.name == name }
+        }
+        val newSections = SearchSection.values().filter { it !in savedSections }
+        return savedSections + newSections
+    }
+
+    private fun loadDisabledSections(): Set<SearchSection> {
+        val disabledNames = userPreferences.getDisabledSections()
+        return disabledNames.mapNotNull { name ->
+            SearchSection.values().find { it.name == name }
+        }.toSet()
+    }
+
+    fun reorderSections(newOrder: List<SearchSection>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sectionOrder = newOrder
+            userPreferences.setSectionOrder(newOrder.map { it.name })
+            _uiState.update { 
+                it.copy(sectionOrder = sectionOrder)
+            }
+        }
+    }
+
+    fun setSectionEnabled(section: SearchSection, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val disabled = disabledSections.toMutableSet()
+            if (enabled) {
+                disabled.remove(section)
+                // When enabling, ensure permissions are still valid
+                when (section) {
+                    SearchSection.CONTACTS -> {
+                        if (!contactRepository.hasPermission()) {
+                            // Permission was revoked, don't enable
+                            return@launch
+                        }
+                    }
+                    SearchSection.FILES -> {
+                        if (!fileRepository.hasPermission()) {
+                            // Permission was revoked, don't enable
+                            return@launch
+                        }
+                    }
+                    SearchSection.APPS -> {
+                        // Apps section doesn't require optional permissions
+                    }
+                }
+            } else {
+                disabled.add(section)
+                // When disabling, revoke permissions if possible
+                when (section) {
+                    SearchSection.CONTACTS -> {
+                        // Note: We can't programmatically revoke permissions on Android,
+                        // but we can clear any cached permission state
+                        refreshOptionalPermissions()
+                    }
+                    SearchSection.FILES -> {
+                        refreshOptionalPermissions()
+                    }
+                    SearchSection.APPS -> {
+                        // Apps section doesn't have optional permissions
+                    }
+                }
+            }
+            disabledSections = disabled
+            userPreferences.setDisabledSections(disabled.map { it.name }.toSet())
+            _uiState.update { 
+                it.copy(disabledSections = disabledSections)
+            }
+            // Re-run search if there's an active query to reflect the change
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                performSecondarySearches(query)
+            }
+        }
+    }
+
     private fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
         val encodedQuery = Uri.encode(query)
         return when (searchEngine) {
@@ -923,8 +1022,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
 
-        val canSearchContacts = _uiState.value.hasContactPermission
-        val canSearchFiles = _uiState.value.hasFilePermission
+        val canSearchContacts = _uiState.value.hasContactPermission && 
+            SearchSection.CONTACTS !in disabledSections
+        val canSearchFiles = _uiState.value.hasFilePermission && 
+            SearchSection.FILES !in disabledSections
         val currentVersion = ++queryVersion
 
         searchJob = viewModelScope.launch(Dispatchers.IO) {

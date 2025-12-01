@@ -40,7 +40,6 @@ import androidx.compose.foundation.border
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.ExpandLess
@@ -120,6 +119,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.search.SearchSection
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -132,6 +132,9 @@ private enum class ExpandedSection {
 }
 
 private const val INITIAL_RESULT_COUNT = 1
+private const val ROW_COUNT = 2
+private const val SEARCH_ROW_COUNT = 1
+private const val COLUMNS = 5
 
 @Composable
 fun SearchRoute(
@@ -250,6 +253,18 @@ fun SearchScreen(
     val autoExpandContacts = hasContactResults && !hasFileResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
+    
+    // Get ordered sections, filtering out disabled ones
+    val orderedSections = remember(state.sectionOrder, state.disabledSections) {
+        state.sectionOrder.filter { it !in state.disabledSections }
+    }
+    
+    // Check if sections should be shown (considering disabled state)
+    val shouldShowApps = SearchSection.APPS !in state.disabledSections && hasAppResults
+    val shouldShowContacts = SearchSection.CONTACTS !in state.disabledSections && 
+        (!state.hasContactPermission || hasContactResults || hasPinnedContacts)
+    val shouldShowFiles = SearchSection.FILES !in state.disabledSections && 
+        (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
     
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
@@ -415,8 +430,8 @@ fun SearchScreen(
                     if (state.query.isNotBlank()) {
                         val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
                         val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowFilesSection = !state.hasFilePermission || hasFileResults
-                        val shouldShowContactsSection = !state.hasContactPermission || hasContactResults
+                        val shouldShowFilesSection = shouldShowFiles && (!state.hasFilePermission || hasFileResults)
+                        val shouldShowContactsSection = shouldShowContacts && (!state.hasContactPermission || hasContactResults)
 
                         // When using bottom-aligned layout, reverse the order only when a section
                         // is showing all results (expanded or auto-expanded). This keeps the
@@ -433,7 +448,12 @@ fun SearchScreen(
                             state.fileResults
                         }
 
-                        if (shouldShowFilesSection && !isContactsExpanded) {
+                        // Render sections in order (reversed for bottom-aligned layout)
+                        val sectionsToRender = orderedSections.reversed() // Reverse for bottom-aligned
+                        sectionsToRender.forEach { section ->
+                            when (section) {
+                                SearchSection.FILES -> {
+                                    if (shouldShowFilesSection && !isContactsExpanded) {
                             FileResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasFilePermission,
@@ -471,10 +491,11 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
-
-                        if (shouldShowContactsSection && !isFilesExpanded) {
-                            ContactResultsSection(
+                                    }
+                                }
+                                SearchSection.CONTACTS -> {
+                                    if (shouldShowContactsSection && !isFilesExpanded) {
+                                        ContactResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasContactPermission,
                                 contacts = collapsedContacts,
@@ -514,12 +535,39 @@ fun SearchScreen(
                                     )
                                 }
                             )
+                                    }
+                                }
+                                SearchSection.APPS -> {
+                                    if (hasAppResults && shouldShowApps) {
+                                        val shouldShowAppLabels = state.showAppLabels || isSearching
+                                        AppGridSection(
+                                            apps = displayApps,
+                                            isSearching = isSearching,
+                                            hasAppResults = hasAppResults,
+                                            onAppClick = onAppClick,
+                                            onAppInfoClick = onAppInfoClick,
+                                            onUninstallClick = onUninstallClick,
+                                            onHideApp = onHideApp,
+                                            onPinApp = onPinApp,
+                                            onUnpinApp = onUnpinApp,
+                                            pinnedPackageNames = pinnedPackageNames,
+                                            showAppLabels = shouldShowAppLabels,
+                                            rowCount = visibleRowCount,
+                                            resultSectionTitle = resultSectionTitleLambda
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 
                     if (expandedSection == ExpandedSection.NONE) {
-                        // For keyboard-aligned layout, order should be Files → Contacts → Apps (bottom to top)
-                        if (!isSearching && hasPinnedFiles) {
+                        // For keyboard-aligned layout, render pinned items and apps in order (reversed for bottom-aligned)
+                        val sectionsForPinned = orderedSections.reversed()
+                        sectionsForPinned.forEach { section ->
+                            when (section) {
+                                SearchSection.FILES -> {
+                                    if (!isSearching && hasPinnedFiles && shouldShowFiles) {
                             FileResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasFilePermission,
@@ -549,10 +597,11 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
-
-                        if (!isSearching && hasPinnedContacts) {
-                            ContactResultsSection(
+                                    }
+                                }
+                                SearchSection.CONTACTS -> {
+                                    if (!isSearching && hasPinnedContacts && shouldShowContacts) {
+                                        ContactResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasContactPermission,
                                 contacts = state.pinnedContacts,
@@ -584,12 +633,13 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
+                                    }
+                                }
+                                SearchSection.APPS -> {
+                                    if (!isSearching && hasAppResults && shouldShowApps) {
+                                        val shouldShowAppLabels = state.showAppLabels
 
-                        if (hasAppResults) {
-                            val shouldShowAppLabels = state.showAppLabels || isSearching
-
-                            AppGridSection(
+                                        AppGridSection(
                                 apps = displayApps,
                                 isSearching = isSearching,
                                 hasAppResults = hasAppResults,
@@ -604,12 +654,14 @@ fun SearchScreen(
                                 rowCount = visibleRowCount,
                                 resultSectionTitle = resultSectionTitleLambda
                             )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                // Top-aligned layout: Apps, Contacts, Files at top; Search Engines always at bottom
-                // Top section: Apps → Contacts → Files
+                // Top-aligned layout: render sections in order
                 // Also used when keyboardAlignedLayout is true but contacts/files are expanded
                 Column(
                     modifier = Modifier
@@ -630,26 +682,32 @@ fun SearchScreen(
                     }
 
                     if (expandedSection == ExpandedSection.NONE) {
-                        val shouldShowAppLabels = state.showAppLabels || isSearching
+                        // Render sections in order for top-aligned layout
+                        orderedSections.forEach { section ->
+                            when (section) {
+                                SearchSection.APPS -> {
+                                    if (!isSearching && hasAppResults && shouldShowApps) {
+                                        val shouldShowAppLabels = state.showAppLabels
 
-                        AppGridSection(
-                            apps = displayApps,
-                            isSearching = isSearching,
-                            hasAppResults = hasAppResults,
-                            onAppClick = onAppClick,
-                            onAppInfoClick = onAppInfoClick,
-                            onUninstallClick = onUninstallClick,
-                            onHideApp = onHideApp,
-                            onPinApp = onPinApp,
-                            onUnpinApp = onUnpinApp,
-                            pinnedPackageNames = pinnedPackageNames,
-                            showAppLabels = shouldShowAppLabels,
-                            rowCount = visibleRowCount,
-                            resultSectionTitle = { text -> ResultSectionTitle(text = text) }
-                        )
-                    }
-
-                        if (!isSearching && hasPinnedContacts) {
+                                        AppGridSection(
+                                            apps = displayApps,
+                                            isSearching = isSearching,
+                                            hasAppResults = hasAppResults,
+                                            onAppClick = onAppClick,
+                                            onAppInfoClick = onAppInfoClick,
+                                            onUninstallClick = onUninstallClick,
+                                            onHideApp = onHideApp,
+                                            onPinApp = onPinApp,
+                                            onUnpinApp = onUnpinApp,
+                                            pinnedPackageNames = pinnedPackageNames,
+                                            showAppLabels = shouldShowAppLabels,
+                                            rowCount = visibleRowCount,
+                                            resultSectionTitle = { text -> ResultSectionTitle(text = text) }
+                                        )
+                                    }
+                                }
+                                SearchSection.CONTACTS -> {
+                                    if (!isSearching && hasPinnedContacts && shouldShowContacts) {
                             ContactResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasContactPermission,
@@ -682,10 +740,11 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
-
-                        if (!isSearching && hasPinnedFiles) {
-                            FileResultsSection(
+                                    }
+                                }
+                                SearchSection.FILES -> {
+                                    if (!isSearching && hasPinnedFiles && shouldShowFiles) {
+                                        FileResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasFilePermission,
                                 files = state.pinnedFiles,
@@ -714,16 +773,23 @@ fun SearchScreen(
                                     )
                                 }
                             )
+                                    }
+                                }
+                            }
                         }
 
                     if (state.query.isNotBlank()) {
                         val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
                         val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowContactsSection = !state.hasContactPermission || hasContactResults
-                        val shouldShowFilesSection = !state.hasFilePermission || hasFileResults
+                        val shouldShowContactsSection = shouldShowContacts && (!state.hasContactPermission || hasContactResults)
+                        val shouldShowFilesSection = shouldShowFiles && (!state.hasFilePermission || hasFileResults)
 
-                        if (shouldShowContactsSection && !isFilesExpanded) {
-                            ContactResultsSection(
+                        // Render sections in order for search results
+                        orderedSections.forEach { section ->
+                            when (section) {
+                                SearchSection.CONTACTS -> {
+                                    if (shouldShowContactsSection && !isFilesExpanded) {
+                                        ContactResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasContactPermission,
                                 contacts = state.contactResults,
@@ -763,10 +829,11 @@ fun SearchScreen(
                                     )
                                 }
                             )
-                        }
-
-                        if (shouldShowFilesSection && !isContactsExpanded) {
-                            FileResultsSection(
+                                    }
+                                }
+                                SearchSection.FILES -> {
+                                    if (shouldShowFilesSection && !isContactsExpanded) {
+                                        FileResultsSection(
                                 modifier = Modifier,
                                 hasPermission = state.hasFilePermission,
                                 files = state.fileResults,
@@ -803,10 +870,34 @@ fun SearchScreen(
                                     )
                                 }
                             )
+                                    }
+                                }
+                                SearchSection.APPS -> {
+                                    if (hasAppResults && shouldShowApps) {
+                                        val shouldShowAppLabels = state.showAppLabels || isSearching
+                                        AppGridSection(
+                                            apps = displayApps,
+                                            isSearching = isSearching,
+                                            hasAppResults = hasAppResults,
+                                            onAppClick = onAppClick,
+                                            onAppInfoClick = onAppInfoClick,
+                                            onUninstallClick = onUninstallClick,
+                                            onHideApp = onHideApp,
+                                            onPinApp = onPinApp,
+                                            onUnpinApp = onUnpinApp,
+                                            pinnedPackageNames = pinnedPackageNames,
+                                            showAppLabels = shouldShowAppLabels,
+                                            rowCount = visibleRowCount,
+                                            resultSectionTitle = resultSectionTitleLambda
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
         }
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
@@ -832,7 +923,6 @@ fun SearchScreen(
         )
     }
 }
-
 
 @Composable
 private fun ResultSectionTitle(
@@ -1097,8 +1187,4 @@ private fun EmptyState() {
         )
     }
 }
-
-private const val ROW_COUNT = 2
-private const val SEARCH_ROW_COUNT = 1
-private const val COLUMNS = 5
 

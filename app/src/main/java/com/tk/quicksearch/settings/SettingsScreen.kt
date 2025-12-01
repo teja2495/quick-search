@@ -33,6 +33,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.SearchEngine
+import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
 
 @Composable
@@ -69,7 +70,11 @@ fun SettingsRoute(
         useWhatsAppForMessages = uiState.useWhatsAppForMessages,
         onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages,
         showSectionTitles = uiState.showSectionTitles,
-        onToggleShowSectionTitles = viewModel::setShowSectionTitles
+        onToggleShowSectionTitles = viewModel::setShowSectionTitles,
+        sectionOrder = uiState.sectionOrder,
+        disabledSections = uiState.disabledSections,
+        onToggleSection = viewModel::setSectionEnabled,
+        onReorderSections = viewModel::reorderSections
     )
 }
 
@@ -101,7 +106,11 @@ private fun SettingsScreen(
     useWhatsAppForMessages: Boolean,
     onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
     showSectionTitles: Boolean,
-    onToggleShowSectionTitles: (Boolean) -> Unit
+    onToggleShowSectionTitles: (Boolean) -> Unit,
+    sectionOrder: List<SearchSection>,
+    disabledSections: Set<SearchSection>,
+    onToggleSection: (SearchSection, Boolean) -> Unit,
+    onReorderSections: (List<SearchSection>) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -148,6 +157,14 @@ private fun SettingsScreen(
                 onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
                 showSectionTitles = showSectionTitles,
                 onToggleShowSectionTitles = onToggleShowSectionTitles
+            )
+
+            // Search Sections Section
+            SectionSettingsSection(
+                sectionOrder = sectionOrder,
+                disabledSections = disabledSections,
+                onToggleSection = onToggleSection,
+                onReorderSections = onReorderSections
             )
 
             // Contacts Section

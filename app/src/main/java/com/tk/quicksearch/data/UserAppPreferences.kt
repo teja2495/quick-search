@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.SearchEngine
+import com.tk.quicksearch.search.SearchSection
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -226,6 +227,25 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_SHOW_SECTION_TITLES, showTitles).apply()
     }
 
+    fun getSectionOrder(): List<String> {
+        val orderString = prefs.getString(KEY_SECTION_ORDER, null)
+        return if (orderString.isNullOrBlank()) {
+            emptyList()
+        } else {
+            orderString.split(",").filter { it.isNotBlank() }
+        }
+    }
+
+    fun setSectionOrder(order: List<String>) {
+        prefs.edit().putString(KEY_SECTION_ORDER, order.joinToString(",")).apply()
+    }
+
+    fun getDisabledSections(): Set<String> = prefs.getStringSet(KEY_DISABLED_SECTIONS, emptySet()).orEmpty().toSet()
+
+    fun setDisabledSections(disabled: Set<String>) {
+        prefs.edit().putStringSet(KEY_DISABLED_SECTIONS, disabled).apply()
+    }
+
     private fun getDefaultShortcutCode(engine: SearchEngine): String {
         return when (engine) {
             SearchEngine.GOOGLE -> "ggl"
@@ -272,6 +292,8 @@ class UserAppPreferences(context: Context) {
         private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages"
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
+        private const val KEY_SECTION_ORDER = "section_order"
+        private const val KEY_DISABLED_SECTIONS = "disabled_sections"
     }
 }
 
