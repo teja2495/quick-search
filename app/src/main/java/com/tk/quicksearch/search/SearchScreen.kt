@@ -326,6 +326,7 @@ fun SearchScreen(
         Box(
             modifier = Modifier
                 .weight(1f)
+                .padding(top = 12.dp)
                 .verticalScroll(scrollState)
         ) {
             // When contacts or files are expanded, use top-aligned layout (towards search bar)
