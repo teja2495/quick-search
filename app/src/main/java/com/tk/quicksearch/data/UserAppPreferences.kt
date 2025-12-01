@@ -17,6 +17,22 @@ class UserAppPreferences(context: Context) {
 
     fun getPinnedPackages(): Set<String> = prefs.getStringSet(KEY_PINNED, emptySet()).orEmpty().toSet()
 
+    fun getPinnedContactIds(): Set<Long> =
+        prefs.getStringSet(KEY_PINNED_CONTACT_IDS, emptySet()).orEmpty()
+            .mapNotNull { it.toLongOrNull() }
+            .toSet()
+
+    fun getExcludedContactIds(): Set<Long> =
+        prefs.getStringSet(KEY_EXCLUDED_CONTACT_IDS, emptySet()).orEmpty()
+            .mapNotNull { it.toLongOrNull() }
+            .toSet()
+
+    fun getPinnedFileUris(): Set<String> =
+        prefs.getStringSet(KEY_PINNED_FILE_URIS, emptySet()).orEmpty().toSet()
+
+    fun getExcludedFileUris(): Set<String> =
+        prefs.getStringSet(KEY_EXCLUDED_FILE_URIS, emptySet()).orEmpty().toSet()
+
     fun shouldShowAppLabels(): Boolean = prefs.getBoolean(KEY_SHOW_APP_LABELS, true)
 
     fun setShowAppLabels(showLabels: Boolean) {
@@ -38,6 +54,46 @@ class UserAppPreferences(context: Context) {
     fun unpinPackage(packageName: String): Set<String> = updateStringSet(KEY_PINNED) {
         it.remove(packageName)
     }
+
+    fun pinContact(contactId: Long): Set<Long> =
+        updateStringSet(KEY_PINNED_CONTACT_IDS) { set ->
+            set.add(contactId.toString())
+        }.mapNotNull { it.toLongOrNull() }.toSet()
+
+    fun unpinContact(contactId: Long): Set<Long> =
+        updateStringSet(KEY_PINNED_CONTACT_IDS) { set ->
+            set.remove(contactId.toString())
+        }.mapNotNull { it.toLongOrNull() }.toSet()
+
+    fun excludeContact(contactId: Long): Set<Long> =
+        updateStringSet(KEY_EXCLUDED_CONTACT_IDS) { set ->
+            set.add(contactId.toString())
+        }.mapNotNull { it.toLongOrNull() }.toSet()
+
+    fun removeExcludedContact(contactId: Long): Set<Long> =
+        updateStringSet(KEY_EXCLUDED_CONTACT_IDS) { set ->
+            set.remove(contactId.toString())
+        }.mapNotNull { it.toLongOrNull() }.toSet()
+
+    fun pinFile(uri: String): Set<String> =
+        updateStringSet(KEY_PINNED_FILE_URIS) { set ->
+            set.add(uri)
+        }
+
+    fun unpinFile(uri: String): Set<String> =
+        updateStringSet(KEY_PINNED_FILE_URIS) { set ->
+            set.remove(uri)
+        }
+
+    fun excludeFile(uri: String): Set<String> =
+        updateStringSet(KEY_EXCLUDED_FILE_URIS) { set ->
+            set.add(uri)
+        }
+
+    fun removeExcludedFile(uri: String): Set<String> =
+        updateStringSet(KEY_EXCLUDED_FILE_URIS) { set ->
+            set.remove(uri)
+        }
 
     fun getDisabledSearchEngines(): Set<String> = prefs.getStringSet(KEY_DISABLED_SEARCH_ENGINES, emptySet()).orEmpty().toSet()
 
@@ -185,6 +241,10 @@ class UserAppPreferences(context: Context) {
         private const val PREFS_NAME = "user_app_preferences"
         private const val KEY_HIDDEN = "hidden_packages"
         private const val KEY_PINNED = "pinned_packages"
+        private const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"
+        private const val KEY_EXCLUDED_CONTACT_IDS = "excluded_contact_ids"
+        private const val KEY_PINNED_FILE_URIS = "pinned_file_uris"
+        private const val KEY_EXCLUDED_FILE_URIS = "excluded_file_uris"
         private const val KEY_SHOW_APP_LABELS = "show_app_labels"
         private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"

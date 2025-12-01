@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -21,12 +24,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 
@@ -40,6 +49,9 @@ fun FileResultsSection(
     isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
     onRequestPermission: () -> Unit,
+    pinnedFileUris: Set<String> = emptySet(),
+    onTogglePin: (DeviceFile) -> Unit = {},
+    onExclude: (DeviceFile) -> Unit = {},
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
@@ -71,6 +83,9 @@ fun FileResultsSection(
                     allFiles = orderedFiles,
                     isExpanded = displayAsExpanded,
                     onFileClick = onFileClick,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
                     onExpandClick = expandHandler,
                     onCollapseClick = collapseHandler
                 )
@@ -94,6 +109,9 @@ private fun FilesResultCard(
     allFiles: List<DeviceFile>,
     isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
+    pinnedFileUris: Set<String>,
+    onTogglePin: (DeviceFile) -> Unit,
+    onExclude: (DeviceFile) -> Unit,
     onExpandClick: (() -> Unit)?,
     onCollapseClick: (() -> Unit)?
 ) {
@@ -115,7 +133,10 @@ private fun FilesResultCard(
                     FileResultRow(
                         deviceFile = file,
                         onClick = onFileClick,
-                        isExpanded = isExpanded
+                        isExpanded = isExpanded,
+                        isPinned = pinnedFileUris.contains(file.uri.toString()),
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude
                     )
                     if (index != files.lastIndex) {
                         HorizontalDivider(
@@ -173,13 +194,20 @@ private fun FilesResultCard(
 private fun FileResultRow(
     deviceFile: DeviceFile,
     onClick: (DeviceFile) -> Unit,
-    isExpanded: Boolean = false
+    isExpanded: Boolean = false,
+    isPinned: Boolean = false,
+    onTogglePin: (DeviceFile) -> Unit = {},
+    onExclude: (DeviceFile) -> Unit = {}
 ) {
+    val (showOptions, setShowOptions) = remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = if (isExpanded) 0.dp else 52.dp)
-            .clickable { onClick(deviceFile) }
+            .combinedClickable(
+                onClick = { onClick(deviceFile) },
+                onLongClick = { setShowOptions(true) }
+            )
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -200,6 +228,40 @@ private fun FileResultRow(
             maxLines = if (isExpanded) Int.MAX_VALUE else 2,
             overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis
         )
+        DropdownMenu(
+            expanded = showOptions,
+            onDismissRequest = { setShowOptions(false) },
+            shape = RoundedCornerShape(24.dp),
+            properties = PopupProperties(focusable = false)
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = stringResource(if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.PushPin,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    setShowOptions(false)
+                    onTogglePin(deviceFile)
+                }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    setShowOptions(false)
+                    onExclude(deviceFile)
+                }
+            )
+        }
     }
 }
 

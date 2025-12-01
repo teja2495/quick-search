@@ -28,6 +28,60 @@ class FileSearchRepository(
         }
     }
 
+    fun getFilesByUris(uris: Set<String>): List<DeviceFile> {
+        if (uris.isEmpty() || !hasPermission()) return emptyList()
+
+        val results = mutableListOf<DeviceFile>()
+
+        for (uriString in uris) {
+            val parsed = runCatching { android.net.Uri.parse(uriString) }.getOrNull() ?: continue
+            val projection = arrayOf(
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATE_MODIFIED
+            )
+
+            val cursor = contentResolver.query(
+                parsed,
+                projection,
+                null,
+                null,
+                null
+            ) ?: continue
+
+            cursor.use { c ->
+                if (!c.moveToFirst()) return@use
+                val idIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+                val nameIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val mimeIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                val modifiedIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+
+                val id = c.getLong(idIndex)
+                val name = c.getString(nameIndex) ?: return@use
+                val mimeType = c.getString(mimeIndex)
+                val modified = if (!c.isNull(modifiedIndex)) c.getLong(modifiedIndex) else 0L
+                // Use the original stored URI to ensure consistency with what was pinned
+                val fileUri = parsed
+
+                results.add(
+                    DeviceFile(
+                        uri = fileUri,
+                        displayName = name,
+                        mimeType = mimeType,
+                        lastModified = modified
+                    )
+                )
+            }
+        }
+
+        return results.sortedWith(
+            compareBy(
+                { it.displayName.lowercase(Locale.getDefault()) }
+            )
+        )
+    }
+
     fun searchFiles(query: String, limit: Int): List<DeviceFile> {
         if (query.isBlank() || !hasPermission()) return emptyList()
 

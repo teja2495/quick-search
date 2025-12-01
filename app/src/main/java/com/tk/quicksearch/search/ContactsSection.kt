@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,17 +16,22 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Sms
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tk.quicksearch.R
@@ -72,6 +79,9 @@ fun ContactResultsSection(
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    pinnedContactIds: Set<Long> = emptySet(),
+    onTogglePin: (ContactInfo) -> Unit = {},
+    onExclude: (ContactInfo) -> Unit = {},
     onOpenAppSettings: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
@@ -107,6 +117,9 @@ fun ContactResultsSection(
                     onContactClick = onContactClick,
                     onCallContact = onCallContact,
                     onSmsContact = onSmsContact,
+                    pinnedContactIds = pinnedContactIds,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
                     onExpandClick = expandHandler,
                     onCollapseClick = collapseHandler
                 )
@@ -133,6 +146,9 @@ private fun ContactsResultCard(
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    pinnedContactIds: Set<Long>,
+    onTogglePin: (ContactInfo) -> Unit,
+    onExclude: (ContactInfo) -> Unit,
     onExpandClick: (() -> Unit)?,
     onCollapseClick: (() -> Unit)?
 ) {
@@ -157,7 +173,10 @@ private fun ContactsResultCard(
                             useWhatsAppForMessages = useWhatsAppForMessages,
                             onContactClick = onContactClick,
                             onCallContact = onCallContact,
-                            onSmsContact = onSmsContact
+                            onSmsContact = onSmsContact,
+                            isPinned = pinnedContactIds.contains(contactInfo.contactId),
+                            onTogglePin = onTogglePin,
+                            onExclude = onExclude
                         )
                     }
                     if (index != contacts.lastIndex) {
@@ -218,7 +237,10 @@ private fun ContactResultRow(
     useWhatsAppForMessages: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit
+    onSmsContact: (ContactInfo) -> Unit,
+    isPinned: Boolean = false,
+    onTogglePin: (ContactInfo) -> Unit = {},
+    onExclude: (ContactInfo) -> Unit = {}
 ) {
     val context = LocalContext.current
     val hasNumber = contactInfo.primaryNumber != null
@@ -250,11 +272,16 @@ private fun ContactResultRow(
             .take(2).joinToString("")
     }
     
+    var showOptions by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 52.dp)
-            .clickable { onContactClick(contactInfo) }
+            .combinedClickable(
+                onClick = { onContactClick(contactInfo) },
+                onLongClick = { showOptions = true }
+            )
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -327,6 +354,41 @@ private fun ContactResultRow(
                     modifier = Modifier.size(24.dp)
                 )
             }
+        }
+
+        DropdownMenu(
+            expanded = showOptions,
+            onDismissRequest = { showOptions = false },
+            shape = RoundedCornerShape(24.dp),
+            properties = PopupProperties(focusable = false)
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = stringResource(if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.PushPin,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showOptions = false
+                    onTogglePin(contactInfo)
+                }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    showOptions = false
+                    onExclude(contactInfo)
+                }
+            )
         }
     }
 }

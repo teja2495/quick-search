@@ -61,6 +61,8 @@ data class SearchUiState(
     val hiddenApps: List<AppInfo> = emptyList(),
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
+    val pinnedContacts: List<ContactInfo> = emptyList(),
+    val pinnedFiles: List<DeviceFile> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
@@ -87,6 +89,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var noMatchPrefix: String? = null
     private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
     private var pinnedPackages: Set<String> = userPreferences.getPinnedPackages()
+    private var pinnedContactIds: Set<Long> = userPreferences.getPinnedContactIds()
+    private var excludedContactIds: Set<Long> = userPreferences.getExcludedContactIds()
+    private var pinnedFileUris: Set<String> = userPreferences.getPinnedFileUris()
+    private var excludedFileUris: Set<String> = userPreferences.getExcludedFileUris()
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
@@ -123,6 +129,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         refreshUsageAccess()
         refreshOptionalPermissions()
         loadApps()
+        loadPinnedContactsAndFiles()
     }
 
     /**
@@ -281,6 +288,34 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         onQueryChange("")
     }
 
+    private fun loadPinnedContactsAndFiles() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val hasContactsPermission = contactRepository.hasPermission()
+            val hasFilesPermission = fileRepository.hasPermission()
+
+            val pinnedContacts = if (hasContactsPermission && pinnedContactIds.isNotEmpty()) {
+                contactRepository.getContactsByIds(pinnedContactIds)
+                    .filterNot { excludedContactIds.contains(it.contactId) }
+            } else {
+                emptyList()
+            }
+
+            val pinnedFiles = if (hasFilesPermission && pinnedFileUris.isNotEmpty()) {
+                fileRepository.getFilesByUris(pinnedFileUris)
+                    .filterNot { excludedFileUris.contains(it.uri.toString()) }
+            } else {
+                emptyList()
+            }
+
+            _uiState.update { state ->
+                state.copy(
+                    pinnedContacts = pinnedContacts,
+                    pinnedFiles = pinnedFiles
+                )
+            }
+        }
+    }
+
     fun handleOnResume() {
         val previous = _uiState.value.hasUsagePermission
         val latest = repository.hasUsageAccess()
@@ -291,6 +326,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             refreshApps()
         }
         handleOptionalPermissionChange()
+        loadPinnedContactsAndFiles()
     }
 
     fun openUsageAccessSettings() {
@@ -413,6 +449,92 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 ).show()
             }
             refreshApps()
+        }
+    }
+
+    fun pinContact(contactInfo: ContactInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedContactIds = userPreferences.pinContact(contactInfo.contactId)
+            loadPinnedContactsAndFiles()
+        }
+    }
+
+    fun unpinContact(contactInfo: ContactInfo) {
+        // Update UI immediately
+        _uiState.update { state ->
+            state.copy(
+                pinnedContacts = state.pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedContactIds = userPreferences.unpinContact(contactInfo.contactId)
+            loadPinnedContactsAndFiles()
+        }
+    }
+
+    fun excludeContact(contactInfo: ContactInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedContactIds = userPreferences.excludeContact(contactInfo.contactId)
+            // Removing from pinned if present
+            if (pinnedContactIds.contains(contactInfo.contactId)) {
+                pinnedContactIds = userPreferences.unpinContact(contactInfo.contactId)
+            }
+
+            // Update current state to reflect exclusion immediately
+            _uiState.update { state ->
+                state.copy(
+                    contactResults = state.contactResults.filterNot { it.contactId == contactInfo.contactId },
+                    pinnedContacts = state.pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+                )
+            }
+        }
+    }
+
+    fun pinFile(deviceFile: DeviceFile) {
+        val uriString = deviceFile.uri.toString()
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedFileUris = userPreferences.pinFile(uriString)
+            loadPinnedContactsAndFiles()
+        }
+    }
+
+    fun unpinFile(deviceFile: DeviceFile) {
+        val uriString = deviceFile.uri.toString()
+        // Update UI immediately
+        _uiState.update { state ->
+            state.copy(
+                pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            // Try to find and remove the stored URI that matches this file
+            // The file's URI might differ slightly from what's stored, so we need to find the match
+            val storedUriToRemove = pinnedFileUris.firstOrNull { stored ->
+                // Normalize both URIs for comparison
+                val storedNormalized = android.net.Uri.parse(stored)?.toString() ?: stored
+                val fileNormalized = android.net.Uri.parse(uriString)?.toString() ?: uriString
+                storedNormalized == fileNormalized || stored == uriString
+            } ?: uriString
+            
+            pinnedFileUris = userPreferences.unpinFile(storedUriToRemove)
+            loadPinnedContactsAndFiles()
+        }
+    }
+
+    fun excludeFile(deviceFile: DeviceFile) {
+        val uriString = deviceFile.uri.toString()
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedFileUris = userPreferences.excludeFile(uriString)
+            if (pinnedFileUris.contains(uriString)) {
+                pinnedFileUris = userPreferences.unpinFile(uriString)
+            }
+
+            _uiState.update { state ->
+                state.copy(
+                    fileResults = state.fileResults.filterNot { it.uri.toString() == uriString },
+                    pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
+                )
+            }
         }
     }
 
@@ -729,6 +851,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 if (canSearchContacts) {
                     // Start with a small, UI-friendly limit
                     contactRepository.searchContacts(query, CONTACT_RESULT_LIMIT)
+                        .filterNot { excludedContactIds.contains(it.contactId) }
                 } else {
                     emptyList()
                 }
@@ -740,7 +863,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     // Filter files based on enabled file types and keep only top N initially
                     allFiles.filter { file ->
                         val fileType = FileTypeUtils.getFileType(file)
-                        fileType in enabledFileTypes
+                        fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
                     }.take(FILE_RESULT_LIMIT)
                 } else {
                     emptyList()
@@ -753,11 +876,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // If only one type has results, fetch all results for that type
             if (canSearchContacts && contactResults.isNotEmpty() && !canSearchFiles) {
                 contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
+                    .filterNot { excludedContactIds.contains(it.contactId) }
             } else if (canSearchFiles && fileResults.isNotEmpty() && !canSearchContacts) {
                 val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
                 fileResults = allFiles.filter { file ->
                     val fileType = FileTypeUtils.getFileType(file)
-                    fileType in enabledFileTypes
+                    fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
                 }
             } else if (canSearchContacts && canSearchFiles) {
                 // Both searches are enabled; widen the one that is present if the other is empty

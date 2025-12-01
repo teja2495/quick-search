@@ -169,6 +169,12 @@ fun SearchRoute(
         onCallContact = viewModel::callContact,
         onSmsContact = viewModel::smsContact,
         onFileClick = viewModel::openFile,
+        onPinContact = viewModel::pinContact,
+        onUnpinContact = viewModel::unpinContact,
+        onExcludeContact = viewModel::excludeContact,
+        onPinFile = viewModel::pinFile,
+        onUnpinFile = viewModel::unpinFile,
+        onExcludeFile = viewModel::excludeFile,
         onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
@@ -195,6 +201,12 @@ fun SearchScreen(
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
     onFileClick: (DeviceFile) -> Unit,
+    onPinContact: (ContactInfo) -> Unit,
+    onUnpinContact: (ContactInfo) -> Unit,
+    onExcludeContact: (ContactInfo) -> Unit,
+    onPinFile: (DeviceFile) -> Unit,
+    onUnpinFile: (DeviceFile) -> Unit,
+    onExcludeFile: (DeviceFile) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
@@ -203,7 +215,9 @@ fun SearchScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isSearching = state.query.isNotBlank()
-    val visibleRowCount = if (isSearching) SEARCH_ROW_COUNT else ROW_COUNT
+    val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
+    val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
+    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles) SEARCH_ROW_COUNT else ROW_COUNT
     val visibleAppLimit = visibleRowCount * COLUMNS
     val displayApps = remember(
         state.query,
@@ -226,6 +240,12 @@ fun SearchScreen(
     val hasAppResults = displayApps.isNotEmpty()
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
+    val pinnedContactIds = remember(state.pinnedContacts) {
+        state.pinnedContacts.map { it.contactId }.toSet()
+    }
+    val pinnedFileUris = remember(state.pinnedFiles) {
+        state.pinnedFiles.map { it.uri.toString() }.toSet()
+    }
     val autoExpandFiles = hasFileResults && !hasContactResults
     val autoExpandContacts = hasContactResults && !hasFileResults
     val hasBothContactsAndFiles = hasContactResults && hasFileResults
@@ -259,20 +279,62 @@ fun SearchScreen(
         displayApps.size,
         state.contactResults.size,
         state.fileResults.size,
+        state.pinnedContacts.size,
+        state.pinnedFiles.size,
         state.hasUsagePermission,
         state.errorMessage,
         expandedSection,
         state.keyboardAlignedLayout
     ) {
         if (state.keyboardAlignedLayout) {
-            // Wait for layout to be complete before animating
-            delay(150)
+            // Wait for layout to be complete before scrolling
+            delay(300)
+            // Wait for content to be laid out and maxValue to stabilize
+            var attempts = 0
+            var lastMaxValue = 0
+            var stableCount = 0
+            while (attempts < 25) {
+                delay(50)
+                val currentMaxValue = scrollState.maxValue
+                if (currentMaxValue > 0) {
+                    if (currentMaxValue == lastMaxValue) {
+                        stableCount++
+                        // Content is stable if maxValue hasn't changed for 4 checks
+                        if (stableCount >= 4) {
+                            break
+                        }
+                    } else {
+                        stableCount = 0
+                        lastMaxValue = currentMaxValue
+                    }
+                }
+                attempts++
+            }
+            // Additional delay to ensure everything is fully rendered (images, etc.)
+            delay(200)
             if (expandedSection == ExpandedSection.NONE) {
-                // Smoothly scroll to bottom when showing the bottom-aligned layout
-                scrollState.animateScrollTo(scrollState.maxValue)
+                // Scroll to bottom when showing the bottom-aligned layout
+                // Get the latest maxValue after all delays
+                val targetScroll = scrollState.maxValue
+                if (targetScroll > 0) {
+                    // Use animateScrollTo for smooth scrolling to the bottom
+                    scrollState.animateScrollTo(
+                        value = targetScroll,
+                        animationSpec = spring(
+                            dampingRatio = 0.8f,
+                            stiffness = 300f
+                        )
+                    )
+                }
             } else {
                 // When expanded, smoothly scroll back to top (towards search bar)
-                scrollState.animateScrollTo(0)
+                scrollState.animateScrollTo(
+                    value = 0,
+                    animationSpec = spring(
+                        dampingRatio = 0.8f,
+                        stiffness = 300f
+                    )
+                )
             }
         }
     }
@@ -321,12 +383,10 @@ fun SearchScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
         // Scrollable content between search bar and search engines
         Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(top = 12.dp)
                 .verticalScroll(scrollState)
         ) {
             // When contacts or files are expanded, use top-aligned layout (towards search bar)
@@ -338,7 +398,7 @@ fun SearchScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp),
+                        .padding(bottom = 12.dp, top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     if (!state.hasUsagePermission) {
@@ -381,6 +441,15 @@ fun SearchScreen(
                                 isExpanded = isFilesExpanded,
                                 onFileClick = onFileClick,
                                 onRequestPermission = onOpenStorageAccessSettings,
+                                pinnedFileUris = pinnedFileUris,
+                                onTogglePin = { file ->
+                                    if (pinnedFileUris.contains(file.uri.toString())) {
+                                        onUnpinFile(file)
+                                    } else {
+                                        onPinFile(file)
+                                    }
+                                },
+                                onExclude = onExcludeFile,
                                 showAllResults = autoExpandFiles,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {
@@ -414,6 +483,15 @@ fun SearchScreen(
                                 onContactClick = onContactClick,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
+                                pinnedContactIds = pinnedContactIds,
+                                onTogglePin = { contact ->
+                                    if (pinnedContactIds.contains(contact.contactId)) {
+                                        onUnpinContact(contact)
+                                    } else {
+                                        onPinContact(contact)
+                                    }
+                                },
+                                onExclude = onExcludeContact,
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
@@ -440,6 +518,74 @@ fun SearchScreen(
                     }
 
                     if (expandedSection == ExpandedSection.NONE) {
+                        // For keyboard-aligned layout, order should be Files → Contacts → Apps (bottom to top)
+                        if (!isSearching && hasPinnedFiles) {
+                            FileResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasFilePermission,
+                                files = state.pinnedFiles,
+                                isExpanded = true,
+                                onFileClick = onFileClick,
+                                onRequestPermission = onOpenStorageAccessSettings,
+                                pinnedFileUris = pinnedFileUris,
+                                onTogglePin = { file ->
+                                    if (pinnedFileUris.contains(file.uri.toString())) {
+                                        onUnpinFile(file)
+                                    } else {
+                                        onPinFile(file)
+                                    }
+                                },
+                                onExclude = onExcludeFile,
+                                showAllResults = true,
+                                showExpandControls = false,
+                                onExpandClick = {},
+                                resultSectionTitle = resultSectionTitleLambda,
+                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+                                    PermissionDisabledCard(
+                                        title = title,
+                                        message = message,
+                                        actionLabel = actionLabel,
+                                        onActionClick = onActionClick
+                                    )
+                                }
+                            )
+                        }
+
+                        if (!isSearching && hasPinnedContacts) {
+                            ContactResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasContactPermission,
+                                contacts = state.pinnedContacts,
+                                isExpanded = true,
+                                useWhatsAppForMessages = state.useWhatsAppForMessages,
+                                onContactClick = onContactClick,
+                                onCallContact = onCallContact,
+                                onSmsContact = onSmsContact,
+                                pinnedContactIds = pinnedContactIds,
+                                onTogglePin = { contact ->
+                                    if (pinnedContactIds.contains(contact.contactId)) {
+                                        onUnpinContact(contact)
+                                    } else {
+                                        onPinContact(contact)
+                                    }
+                                },
+                                onExclude = onExcludeContact,
+                                onOpenAppSettings = onOpenAppSettings,
+                                showAllResults = true,
+                                showExpandControls = false,
+                                onExpandClick = {},
+                                resultSectionTitle = resultSectionTitleLambda,
+                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+                                    PermissionDisabledCard(
+                                        title = title,
+                                        message = message,
+                                        actionLabel = actionLabel,
+                                        onActionClick = onActionClick
+                                    )
+                                }
+                            )
+                        }
+
                         if (hasAppResults) {
                             val shouldShowAppLabels = state.showAppLabels || isSearching
 
@@ -469,7 +615,7 @@ fun SearchScreen(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .fillMaxWidth()
-                        .padding(bottom = 12.dp),
+                        .padding(bottom = 12.dp, top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     if (!state.hasUsagePermission) {
@@ -503,6 +649,73 @@ fun SearchScreen(
                         )
                     }
 
+                        if (!isSearching && hasPinnedContacts) {
+                            ContactResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasContactPermission,
+                                contacts = state.pinnedContacts,
+                                isExpanded = true,
+                                useWhatsAppForMessages = state.useWhatsAppForMessages,
+                                onContactClick = onContactClick,
+                                onCallContact = onCallContact,
+                                onSmsContact = onSmsContact,
+                                pinnedContactIds = pinnedContactIds,
+                                onTogglePin = { contact ->
+                                    if (pinnedContactIds.contains(contact.contactId)) {
+                                        onUnpinContact(contact)
+                                    } else {
+                                        onPinContact(contact)
+                                    }
+                                },
+                                onExclude = onExcludeContact,
+                                onOpenAppSettings = onOpenAppSettings,
+                                showAllResults = true,
+                                showExpandControls = false,
+                                onExpandClick = {},
+                                resultSectionTitle = resultSectionTitleLambda,
+                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+                                    PermissionDisabledCard(
+                                        title = title,
+                                        message = message,
+                                        actionLabel = actionLabel,
+                                        onActionClick = onActionClick
+                                    )
+                                }
+                            )
+                        }
+
+                        if (!isSearching && hasPinnedFiles) {
+                            FileResultsSection(
+                                modifier = Modifier,
+                                hasPermission = state.hasFilePermission,
+                                files = state.pinnedFiles,
+                                isExpanded = true,
+                                onFileClick = onFileClick,
+                                onRequestPermission = onOpenStorageAccessSettings,
+                                pinnedFileUris = pinnedFileUris,
+                                onTogglePin = { file ->
+                                    if (pinnedFileUris.contains(file.uri.toString())) {
+                                        onUnpinFile(file)
+                                    } else {
+                                        onPinFile(file)
+                                    }
+                                },
+                                onExclude = onExcludeFile,
+                                showAllResults = true,
+                                showExpandControls = false,
+                                onExpandClick = {},
+                                resultSectionTitle = resultSectionTitleLambda,
+                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+                                    PermissionDisabledCard(
+                                        title = title,
+                                        message = message,
+                                        actionLabel = actionLabel,
+                                        onActionClick = onActionClick
+                                    )
+                                }
+                            )
+                        }
+
                     if (state.query.isNotBlank()) {
                         val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
                         val isFilesExpanded = expandedSection == ExpandedSection.FILES
@@ -519,6 +732,15 @@ fun SearchScreen(
                                 onContactClick = onContactClick,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
+                                pinnedContactIds = pinnedContactIds,
+                                onTogglePin = { contact ->
+                                    if (pinnedContactIds.contains(contact.contactId)) {
+                                        onUnpinContact(contact)
+                                    } else {
+                                        onPinContact(contact)
+                                    }
+                                },
+                                onExclude = onExcludeContact,
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = autoExpandContacts,
                                 showExpandControls = hasBothContactsAndFiles,
@@ -551,6 +773,15 @@ fun SearchScreen(
                                 isExpanded = isFilesExpanded,
                                 onFileClick = onFileClick,
                                 onRequestPermission = onOpenStorageAccessSettings,
+                                pinnedFileUris = pinnedFileUris,
+                                onTogglePin = { file ->
+                                    if (pinnedFileUris.contains(file.uri.toString())) {
+                                        onUnpinFile(file)
+                                    } else {
+                                        onPinFile(file)
+                                    }
+                                },
+                                onExclude = onExcludeFile,
                                 showAllResults = autoExpandFiles,
                                 showExpandControls = hasBothContactsAndFiles,
                                 onExpandClick = {

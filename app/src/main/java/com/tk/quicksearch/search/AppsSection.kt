@@ -99,7 +99,7 @@ fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (hasAppResults && isSearching) {
+        if (hasAppResults) {
             resultSectionTitle(stringResource(R.string.apps_section_title))
         }
         Crossfade(targetState = apps, label = "grid") { items ->
