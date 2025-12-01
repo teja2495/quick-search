@@ -78,6 +78,7 @@
     <string name="settings_section_titles_toggle">Section Titles</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
+    <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_shortcuts_hint">Hint: Adding the shortcut at the end of your query will trigger search instantly.</string>
     <string name="settings_action_move_up">Move up</string>
     <string name="settings_action_move_down">Move down</string>

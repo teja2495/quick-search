@@ -71,6 +71,10 @@ fun SearchEnginesSection(
     setShortcutCode: ((SearchEngine, String) -> Unit)? = null,
     shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)? = null,
+    searchEngineSectionEnabled: Boolean = true,
+    onToggleSearchEngineSectionEnabled: ((Boolean) -> Unit)? = null,
+    shortcutsEnabled: Boolean = true,
+    onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Text(
@@ -86,11 +90,77 @@ fun SearchEnginesSection(
         modifier = Modifier.padding(bottom = 16.dp)
     )
     Spacer(modifier = Modifier.height(16.dp))
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column {
+    
+    // Combined toggle card for enabling/disabling search engine section and shortcuts
+    if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column {
+                // Show Search Engines toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_search_engines_show_toggle),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Switch(
+                        checked = searchEngineSectionEnabled,
+                        onCheckedChange = onToggleSearchEngineSectionEnabled
+                    )
+                }
+                
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                
+                // Shortcuts toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_shortcuts_toggle),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Switch(
+                        checked = shortcutsEnabled,
+                        onCheckedChange = onToggleShortcutsEnabled
+                    )
+                }
+            }
+        }
+    }
+    
+    // Hide search engine list when both toggles are disabled
+    val bothDisabled = !searchEngineSectionEnabled && !shortcutsEnabled
+    if (!bothDisabled) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column {
             
             val draggedIndex = remember { mutableIntStateOf(-1) }
             val dragOffset = remember { mutableFloatStateOf(0f) }
@@ -187,44 +257,56 @@ fun SearchEnginesSection(
                     engine = engine,
                     isEnabled = engine !in disabledSearchEngines,
                     onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                    onDragStart = {
-                        draggedIndex.intValue = index
-                        dragOffset.floatValue = 0f
+                    onDragStart = if (searchEngineSectionEnabled) {
+                        {
+                            draggedIndex.intValue = index
+                            dragOffset.floatValue = 0f
+                        }
+                    } else {
+                        {}
                     },
-                    onDrag = { change, dragAmount ->
-                        dragOffset.floatValue += dragAmount.y
-                        change.consume()
+                    onDrag = if (searchEngineSectionEnabled) {
+                        { change, dragAmount ->
+                            dragOffset.floatValue += dragAmount.y
+                            change.consume()
+                        }
+                    } else {
+                        { _, _ -> }
                     },
-                    onDragEnd = {
-                        val newOrder = searchEngineOrder.toMutableList()
-                        val currentIndex = draggedIndex.intValue
-                        if (currentIndex >= 0) {
-                            val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                            val dragProgress = offsetInDp.value / itemHeight.value
-                            // Calculate how many positions to move based on total drag distance
-                            val positionsMoved = when {
-                                dragProgress > 0.5f -> dragProgress.roundToInt()
-                                dragProgress < -0.5f -> dragProgress.roundToInt()
-                                else -> 0
-                            }
-                            val newIndex = (currentIndex + positionsMoved).coerceIn(0, searchEngineOrder.lastIndex)
-                            
-                            if (newIndex != currentIndex) {
-                                val item = newOrder.removeAt(currentIndex)
-                                newOrder.add(newIndex, item)
-                                // Immediately reset drag state - items will snap to 0 offset
-                                // The list reorder will put them in their new positions
-                                draggedIndex.intValue = -1
-                                dragOffset.floatValue = 0f
-                                pendingReorder.value = true
-                                onReorderSearchEngines(newOrder)
-                            } else {
-                                // No reorder needed, reset immediately
-                                draggedIndex.intValue = -1
-                                dragOffset.floatValue = 0f
-                                pendingReorder.value = false
+                    onDragEnd = if (searchEngineSectionEnabled) {
+                        {
+                            val newOrder = searchEngineOrder.toMutableList()
+                            val currentIndex = draggedIndex.intValue
+                            if (currentIndex >= 0) {
+                                val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                val dragProgress = offsetInDp.value / itemHeight.value
+                                // Calculate how many positions to move based on total drag distance
+                                val positionsMoved = when {
+                                    dragProgress > 0.5f -> dragProgress.roundToInt()
+                                    dragProgress < -0.5f -> dragProgress.roundToInt()
+                                    else -> 0
+                                }
+                                val newIndex = (currentIndex + positionsMoved).coerceIn(0, searchEngineOrder.lastIndex)
+                                
+                                if (newIndex != currentIndex) {
+                                    val item = newOrder.removeAt(currentIndex)
+                                    newOrder.add(newIndex, item)
+                                    // Immediately reset drag state - items will snap to 0 offset
+                                    // The list reorder will put them in their new positions
+                                    draggedIndex.intValue = -1
+                                    dragOffset.floatValue = 0f
+                                    pendingReorder.value = true
+                                    onReorderSearchEngines(newOrder)
+                                } else {
+                                    // No reorder needed, reset immediately
+                                    draggedIndex.intValue = -1
+                                    dragOffset.floatValue = 0f
+                                    pendingReorder.value = false
+                                }
                             }
                         }
+                    } else {
+                        {}
                     },
                     isDragging = isDragging,
                     dragOffset = animatedOffset,
@@ -232,7 +314,8 @@ fun SearchEnginesSection(
                     shortcutCode = shortcutCodes[engine] ?: "",
                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
-                    onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                    onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
+                    showToggle = searchEngineSectionEnabled
                 )
                 if (index != searchEngineOrder.lastIndex) {
                     HorizontalDivider(
@@ -241,6 +324,7 @@ fun SearchEnginesSection(
                 }
             }
         }
+    }
     }
 }
 
@@ -258,7 +342,8 @@ private fun SearchEngineRow(
     shortcutCode: String = "",
     shortcutEnabled: Boolean = true,
     onShortcutCodeChange: ((String) -> Unit)? = null,
-    onShortcutToggle: ((Boolean) -> Unit)? = null
+    onShortcutToggle: ((Boolean) -> Unit)? = null,
+    showToggle: Boolean = true
 ) {
     val engineName = when (engine) {
         SearchEngine.GOOGLE -> stringResource(R.string.search_engine_google)
@@ -292,22 +377,30 @@ private fun SearchEngineRow(
             .offset(y = dragOffset)
             .alpha(if (isDragging) 0.8f else 1f)
             .padding(horizontal = 16.dp, vertical = 12.dp)
-            .pointerInput(Unit) {
-                detectDragGesturesAfterLongPress(
-                    onDragStart = { onDragStart() },
-                    onDrag = onDrag,
-                    onDragEnd = { onDragEnd() }
-                )
-            },
+            .then(
+                if (showToggle) {
+                    Modifier.pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { onDragStart() },
+                            onDrag = onDrag,
+                            onDragEnd = { onDragEnd() }
+                        )
+                    }
+                } else {
+                    Modifier
+                }
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(
-            imageVector = Icons.Rounded.DragHandle,
-            contentDescription = stringResource(R.string.settings_action_reorder),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
+        if (showToggle) {
+            Icon(
+                imageVector = Icons.Rounded.DragHandle,
+                contentDescription = stringResource(R.string.settings_action_reorder),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
+        }
         
         Image(
             painter = painterResource(id = drawableId),
@@ -336,10 +429,12 @@ private fun SearchEngineRow(
             }
         }
         
-        Switch(
-            checked = isEnabled,
-            onCheckedChange = onToggle
-        )
+        if (showToggle) {
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = onToggle
+            )
+        }
     }
 }
 

@@ -246,6 +246,12 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putStringSet(KEY_DISABLED_SECTIONS, disabled).apply()
     }
 
+    fun isSearchEngineSectionEnabled(): Boolean = prefs.getBoolean(KEY_SEARCH_ENGINE_SECTION_ENABLED, true)
+
+    fun setSearchEngineSectionEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SEARCH_ENGINE_SECTION_ENABLED, enabled).apply()
+    }
+
     private fun getDefaultShortcutCode(engine: SearchEngine): String {
         return when (engine) {
             SearchEngine.GOOGLE -> "ggl"
@@ -294,6 +300,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
         private const val KEY_SECTION_ORDER = "section_order"
         private const val KEY_DISABLED_SECTIONS = "disabled_sections"
+        private const val KEY_SEARCH_ENGINE_SECTION_ENABLED = "search_engine_section_enabled"
     }
 }
 

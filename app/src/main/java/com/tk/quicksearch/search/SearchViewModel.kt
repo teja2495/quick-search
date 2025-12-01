@@ -86,7 +86,8 @@ data class SearchUiState(
     val useWhatsAppForMessages: Boolean = false,
     val showSectionTitles: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
-    val disabledSections: Set<SearchSection> = emptySet()
+    val disabledSections: Set<SearchSection> = emptySet(),
+    val searchEngineSectionEnabled: Boolean = true
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -117,6 +118,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = loadDisabledSections()
+    private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -137,7 +139,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 useWhatsAppForMessages = useWhatsAppForMessages,
                 showSectionTitles = showSectionTitles,
                 sectionOrder = sectionOrder,
-                disabledSections = disabledSections
+                disabledSections = disabledSections,
+                searchEngineSectionEnabled = searchEngineSectionEnabled
             )
         }
         refreshUsageAccess()
@@ -227,7 +230,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         // Check for shortcuts if enabled
-        if (userPreferences.areShortcutsEnabled()) {
+        if (shortcutsEnabled) {
             val shortcutMatch = detectShortcut(newQuery)
             if (shortcutMatch != null) {
                 val (queryWithoutShortcut, engine) = shortcutMatch
@@ -702,6 +705,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setSearchEngineOrder(newOrder.map { it.name })
             _uiState.update { 
                 it.copy(searchEngineOrder = searchEngineOrder)
+            }
+        }
+    }
+
+    fun setSearchEngineSectionEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchEngineSectionEnabled = enabled
+            userPreferences.setSearchEngineSectionEnabled(enabled)
+            _uiState.update { 
+                it.copy(searchEngineSectionEnabled = searchEngineSectionEnabled)
             }
         }
     }

@@ -901,8 +901,8 @@ fun SearchScreen(
         }
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
-        // Hide when files or contacts are expanded
-        if (expandedSection == ExpandedSection.NONE) {
+        // Hide when files or contacts are expanded, or when search engine section is disabled
+        if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled) {
             SearchEnginesSection(
                 query = state.query,
                 hasAppResults = hasAppResults,
@@ -910,6 +910,9 @@ fun SearchScreen(
                 onSearchEngineClick = onSearchEngineClick,
                 modifier = Modifier.imePadding()
             )
+        } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {
+            // Add padding when search engine section is disabled to prevent keyboard from covering content
+            Spacer(modifier = Modifier.imePadding())
         }
     }
     

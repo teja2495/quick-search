@@ -74,7 +74,11 @@ fun SettingsRoute(
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         onToggleSection = viewModel::setSectionEnabled,
-        onReorderSections = viewModel::reorderSections
+        onReorderSections = viewModel::reorderSections,
+        searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
+        onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
+        shortcutsEnabled = uiState.shortcutsEnabled,
+        onToggleShortcutsEnabled = viewModel::setShortcutsEnabled
     )
 }
 
@@ -110,7 +114,11 @@ private fun SettingsScreen(
     sectionOrder: List<SearchSection>,
     disabledSections: Set<SearchSection>,
     onToggleSection: (SearchSection, Boolean) -> Unit,
-    onReorderSections: (List<SearchSection>) -> Unit
+    onReorderSections: (List<SearchSection>) -> Unit,
+    searchEngineSectionEnabled: Boolean,
+    onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
+    shortcutsEnabled: Boolean,
+    onToggleShortcutsEnabled: (Boolean) -> Unit
 ) {
     BackHandler(onBack = onBack)
     val scrollState = rememberScrollState()
@@ -188,7 +196,11 @@ private fun SettingsScreen(
                 shortcutCodes = shortcutCodes,
                 setShortcutCode = setShortcutCode,
                 shortcutEnabled = shortcutEnabled,
-                setShortcutEnabled = setShortcutEnabled
+                setShortcutEnabled = setShortcutEnabled,
+                searchEngineSectionEnabled = searchEngineSectionEnabled,
+                onToggleSearchEngineSectionEnabled = onToggleSearchEngineSectionEnabled,
+                shortcutsEnabled = shortcutsEnabled,
+                onToggleShortcutsEnabled = onToggleShortcutsEnabled
             )
             
             // Excluded Items Section (at the bottom)
