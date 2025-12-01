@@ -130,7 +130,6 @@
     <string name="widget_section_text">Text</string>
     <string name="widget_slider_radius">Corner radius</string>
     <string name="widget_slider_border">Border thickness</string>
-    <string name="widget_slider_transparency">Background transparency</string>
     <string name="widget_toggle_show_label">Show “Quick Search” text</string>
     <string name="widget_action_save">Save widget</string>
     <string name="widget_action_cancel">Cancel</string>
@@ -140,6 +139,10 @@
     <string name="widget_preset_ember">Deep Ember</string>
     <string name="widget_preset_midnight">Midnight Neon</string>
     <string name="widget_preset_void">Carbon Mist</string>
+    <string name="widget_slider_transparency">Transparency</string>
+    <string name="widget_background_color">Background color</string>
+    <string name="widget_background_white">White</string>
+    <string name="widget_background_black">Black</string>
     <string name="permissions_screen_title">Welcome to Quick Search</string>
     <string name="permissions_screen_subtitle">To provide the best search experience, we need a few permissions.</string>
     <string name="permissions_usage_title">Usage Access</string>
