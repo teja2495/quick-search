@@ -302,20 +302,20 @@ fun SearchScreen(
         state.keyboardAlignedLayout
     ) {
         if (state.keyboardAlignedLayout) {
-            // Wait for layout to be complete before scrolling
-            delay(300)
+            // Wait briefly for layout to start
+            delay(50)
             // Wait for content to be laid out and maxValue to stabilize
             var attempts = 0
             var lastMaxValue = 0
             var stableCount = 0
-            while (attempts < 25) {
-                delay(50)
+            while (attempts < 10) {
+                delay(20)
                 val currentMaxValue = scrollState.maxValue
                 if (currentMaxValue > 0) {
                     if (currentMaxValue == lastMaxValue) {
                         stableCount++
-                        // Content is stable if maxValue hasn't changed for 4 checks
-                        if (stableCount >= 4) {
+                        // Content is stable if maxValue hasn't changed for 2 checks
+                        if (stableCount >= 2) {
                             break
                         }
                     } else {
@@ -325,19 +325,17 @@ fun SearchScreen(
                 }
                 attempts++
             }
-            // Additional delay to ensure everything is fully rendered (images, etc.)
-            delay(200)
             if (expandedSection == ExpandedSection.NONE) {
                 // Scroll to bottom when showing the bottom-aligned layout
-                // Get the latest maxValue after all delays
+                // Get the latest maxValue after checks
                 val targetScroll = scrollState.maxValue
                 if (targetScroll > 0) {
-                    // Use animateScrollTo for smooth scrolling to the bottom
+                    // Use faster animation for responsive scrolling
                     scrollState.animateScrollTo(
                         value = targetScroll,
                         animationSpec = spring(
-                            dampingRatio = 0.8f,
-                            stiffness = 300f
+                            dampingRatio = 0.9f,
+                            stiffness = 500f
                         )
                     )
                 }
@@ -346,8 +344,8 @@ fun SearchScreen(
                 scrollState.animateScrollTo(
                     value = 0,
                     animationSpec = spring(
-                        dampingRatio = 0.8f,
-                        stiffness = 300f
+                        dampingRatio = 0.9f,
+                        stiffness = 500f
                     )
                 )
             }

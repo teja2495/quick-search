@@ -310,7 +310,7 @@ fun SearchEnginesSection(
                     },
                     isDragging = isDragging,
                     dragOffset = animatedOffset,
-                    shortcutsEnabled = true,
+                    shortcutsEnabled = shortcutsEnabled,
                     shortcutCode = shortcutCodes[engine] ?: "",
                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },

@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
-import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material3.ElevatedCard
@@ -228,7 +228,7 @@ private fun SectionRow(
     
     val icon = when (section) {
         SearchSection.APPS -> Icons.Rounded.Apps
-        SearchSection.CONTACTS -> Icons.Rounded.Phone
+        SearchSection.CONTACTS -> Icons.Rounded.Contacts
         SearchSection.FILES -> Icons.Rounded.InsertDriveFile
     }
     

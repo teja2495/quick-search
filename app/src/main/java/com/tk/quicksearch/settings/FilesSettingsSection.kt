@@ -24,8 +24,13 @@ import com.tk.quicksearch.model.FileType
 fun FileTypesSection(
     enabledFileTypes: Set<FileType>,
     onToggleFileType: (FileType, Boolean) -> Unit,
+    filesSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    if (!filesSectionEnabled) {
+        return
+    }
+    
     Text(
         text = stringResource(R.string.settings_file_types_title),
         style = MaterialTheme.typography.titleMedium,

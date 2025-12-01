@@ -24,8 +24,13 @@ import com.tk.quicksearch.R
 fun MessagingSection(
     useWhatsAppForMessages: Boolean,
     onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
+    contactsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    if (!contactsSectionEnabled) {
+        return
+    }
+    
     Text(
         text = stringResource(R.string.settings_messaging_title),
         style = MaterialTheme.typography.titleMedium,

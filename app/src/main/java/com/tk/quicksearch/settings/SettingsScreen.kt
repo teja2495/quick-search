@@ -41,6 +41,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.FileType
@@ -153,7 +154,18 @@ fun SettingsRoute(
                 }
             }
         } else {
-            viewModel.setSectionEnabled(section, false)
+            // Check if disabling this section would leave no sections enabled
+            val enabledSectionsCount = SearchSection.values().count { it !in uiState.disabledSections }
+            if (enabledSectionsCount <= 1 && section !in uiState.disabledSections) {
+                // This is the last enabled section, prevent disabling
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.settings_sections_at_least_one_required),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                viewModel.setSectionEnabled(section, false)
+            }
         }
     }
     
@@ -271,16 +283,6 @@ private fun SettingsScreen(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp)
         ) {
-            // Appearance Section
-            AppLabelsSection(
-                showAppLabels = showAppLabels,
-                onToggleAppLabels = onToggleAppLabels,
-                keyboardAlignedLayout = keyboardAlignedLayout,
-                onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
-                showSectionTitles = showSectionTitles,
-                onToggleShowSectionTitles = onToggleShowSectionTitles
-            )
-
             // Search Sections Section
             SectionSettingsSection(
                 sectionOrder = sectionOrder,
@@ -289,16 +291,30 @@ private fun SettingsScreen(
                 onReorderSections = onReorderSections
             )
 
+            // Appearance Section
+            AppLabelsSection(
+                showAppLabels = showAppLabels,
+                onToggleAppLabels = onToggleAppLabels,
+                keyboardAlignedLayout = keyboardAlignedLayout,
+                onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
+                showSectionTitles = showSectionTitles,
+                onToggleShowSectionTitles = onToggleShowSectionTitles,
+                appsSectionEnabled = SearchSection.APPS !in disabledSections,
+                modifier = Modifier.padding(top = 24.dp)
+            )
+
             // Contacts Section
             MessagingSection(
                 useWhatsAppForMessages = useWhatsAppForMessages,
-                onToggleUseWhatsAppForMessages = onToggleUseWhatsAppForMessages
+                onToggleUseWhatsAppForMessages = onToggleUseWhatsAppForMessages,
+                contactsSectionEnabled = SearchSection.CONTACTS !in disabledSections
             )
 
             // Files Section
             FileTypesSection(
                 enabledFileTypes = enabledFileTypes,
-                onToggleFileType = onToggleFileType
+                onToggleFileType = onToggleFileType,
+                filesSectionEnabled = SearchSection.FILES !in disabledSections
             )
 
             // Search Engine Section (includes shortcuts)

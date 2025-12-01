@@ -33,20 +33,12 @@ fun AppLabelsSection(
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     showSectionTitles: Boolean,
     onToggleShowSectionTitles: (Boolean) -> Unit,
+    appsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    // Appearance Title
-    Text(
-        text = stringResource(R.string.settings_layout_toggle),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = 8.dp)
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
     // Combined Appearance Card (all toggles)
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
@@ -70,26 +62,28 @@ fun AppLabelsSection(
                 )
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            if (appsSectionEnabled) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-            // App labels toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_app_labels_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = showAppLabels,
-                    onCheckedChange = onToggleAppLabels
-                )
+                // App labels toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_app_labels_toggle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = showAppLabels,
+                        onCheckedChange = onToggleAppLabels
+                    )
+                }
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
