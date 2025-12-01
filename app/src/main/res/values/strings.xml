@@ -18,7 +18,7 @@
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="action_app_info">App info</string>
     <string name="action_uninstall_app">Uninstall</string>
-    <string name="action_hide_app">Hide</string>
+    <string name="action_hide_app">Exclude</string>
     <string name="action_pin_app">Pin</string>
     <string name="action_unpin_app">Unpin</string>
     <string name="action_pin_generic">Pin</string>
@@ -151,4 +151,12 @@
     <string name="permissions_action_continue">Continue</string>
     <string name="permissions_action_skip">Skip for now</string>
     <string name="permissions_granted">Granted</string>
+    <string name="settings_excluded_items_title">Excluded Items</string>
+    <string name="settings_excluded_items_desc">View and manage items excluded from search results.</string>
+    <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
+    <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
+    <string name="settings_excluded_items_more">More</string>
+    <string name="settings_excluded_items_show_less">Show Less</string>
+    <string name="settings_action_clear_all">Clear All</string>
+    <string name="settings_action_remove">Remove</string>
 </resources>

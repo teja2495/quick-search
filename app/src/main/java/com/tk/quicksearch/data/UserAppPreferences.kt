@@ -95,6 +95,21 @@ class UserAppPreferences(context: Context) {
             set.remove(uri)
         }
 
+    fun clearAllExcludedContacts(): Set<Long> {
+        prefs.edit().putStringSet(KEY_EXCLUDED_CONTACT_IDS, emptySet()).apply()
+        return emptySet()
+    }
+
+    fun clearAllExcludedFiles(): Set<String> {
+        prefs.edit().putStringSet(KEY_EXCLUDED_FILE_URIS, emptySet()).apply()
+        return emptySet()
+    }
+
+    fun clearAllHiddenApps(): Set<String> {
+        prefs.edit().putStringSet(KEY_HIDDEN, emptySet()).apply()
+        return emptySet()
+    }
+
     fun getDisabledSearchEngines(): Set<String> = prefs.getStringSet(KEY_DISABLED_SEARCH_ENGINES, emptySet()).orEmpty().toSet()
 
     fun setDisabledSearchEngines(disabled: Set<String>) {

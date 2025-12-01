@@ -46,7 +46,12 @@ fun SettingsRoute(
         modifier = modifier,
         onBack = onBack,
         hiddenApps = uiState.hiddenApps,
-        onUnhideApp = viewModel::unhideApp,
+        excludedContacts = uiState.excludedContacts,
+        excludedFiles = uiState.excludedFiles,
+        onRemoveExcludedApp = viewModel::unhideApp,
+        onRemoveExcludedContact = viewModel::removeExcludedContact,
+        onRemoveExcludedFile = viewModel::removeExcludedFile,
+        onClearAllExclusions = viewModel::clearAllExclusions,
         showAppLabels = uiState.showAppLabels,
         onToggleAppLabels = viewModel::setShowAppLabels,
         searchEngineOrder = uiState.searchEngineOrder,
@@ -73,7 +78,12 @@ private fun SettingsScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     hiddenApps: List<AppInfo>,
-    onUnhideApp: (AppInfo) -> Unit,
+    excludedContacts: List<com.tk.quicksearch.model.ContactInfo>,
+    excludedFiles: List<com.tk.quicksearch.model.DeviceFile>,
+    onRemoveExcludedApp: (AppInfo) -> Unit,
+    onRemoveExcludedContact: (com.tk.quicksearch.model.ContactInfo) -> Unit,
+    onRemoveExcludedFile: (com.tk.quicksearch.model.DeviceFile) -> Unit,
+    onClearAllExclusions: () -> Unit,
     showAppLabels: Boolean,
     onToggleAppLabels: (Boolean) -> Unit,
     searchEngineOrder: List<SearchEngine>,
@@ -140,13 +150,6 @@ private fun SettingsScreen(
                 onToggleShowSectionTitles = onToggleShowSectionTitles
             )
 
-            if (hiddenApps.isNotEmpty()) {
-                HiddenAppsSection(
-                    hiddenApps = hiddenApps,
-                    onUnhideApp = onUnhideApp
-                )
-            }
-
             // Contacts Section
             MessagingSection(
                 useWhatsAppForMessages = useWhatsAppForMessages,
@@ -171,6 +174,17 @@ private fun SettingsScreen(
                 setShortcutEnabled = setShortcutEnabled
             )
             
+            // Excluded Items Section (at the bottom)
+            ExcludedItemsSection(
+                hiddenApps = hiddenApps,
+                excludedContacts = excludedContacts,
+                excludedFiles = excludedFiles,
+                onRemoveExcludedApp = onRemoveExcludedApp,
+                onRemoveExcludedContact = onRemoveExcludedContact,
+                onRemoveExcludedFile = onRemoveExcludedFile,
+                onClearAll = onClearAllExclusions
+            )
+
             // App Version
             Spacer(modifier = Modifier.height(32.dp))
             val context = LocalContext.current

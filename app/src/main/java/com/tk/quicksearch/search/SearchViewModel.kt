@@ -63,6 +63,8 @@ data class SearchUiState(
     val fileResults: List<DeviceFile> = emptyList(),
     val pinnedContacts: List<ContactInfo> = emptyList(),
     val pinnedFiles: List<DeviceFile> = emptyList(),
+    val excludedContacts: List<ContactInfo> = emptyList(),
+    val excludedFiles: List<DeviceFile> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
@@ -130,6 +132,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         refreshOptionalPermissions()
         loadApps()
         loadPinnedContactsAndFiles()
+        loadExcludedContactsAndFiles()
     }
 
     /**
@@ -316,6 +319,32 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private fun loadExcludedContactsAndFiles() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val hasContactsPermission = contactRepository.hasPermission()
+            val hasFilesPermission = fileRepository.hasPermission()
+
+            val excludedContacts = if (hasContactsPermission && excludedContactIds.isNotEmpty()) {
+                contactRepository.getContactsByIds(excludedContactIds)
+            } else {
+                emptyList()
+            }
+
+            val excludedFiles = if (hasFilesPermission && excludedFileUris.isNotEmpty()) {
+                fileRepository.getFilesByUris(excludedFileUris)
+            } else {
+                emptyList()
+            }
+
+            _uiState.update { state ->
+                state.copy(
+                    excludedContacts = excludedContacts,
+                    excludedFiles = excludedFiles
+                )
+            }
+        }
+    }
+
     fun handleOnResume() {
         val previous = _uiState.value.hasUsagePermission
         val latest = repository.hasUsageAccess()
@@ -327,6 +356,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
         handleOptionalPermissionChange()
         loadPinnedContactsAndFiles()
+        loadExcludedContactsAndFiles()
     }
 
     fun openUsageAccessSettings() {
@@ -487,6 +517,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     pinnedContacts = state.pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
                 )
             }
+            loadExcludedContactsAndFiles()
         }
     }
 
@@ -535,6 +566,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
                 )
             }
+            loadExcludedContactsAndFiles()
         }
     }
 
@@ -551,6 +583,52 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun unhideApp(appInfo: AppInfo) {
         viewModelScope.launch(Dispatchers.IO) {
             hiddenPackages = userPreferences.unhidePackage(appInfo.packageName)
+            refreshDerivedState()
+        }
+    }
+
+    fun removeExcludedContact(contactInfo: ContactInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedContactIds = userPreferences.removeExcludedContact(contactInfo.contactId)
+            loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun removeExcludedFile(deviceFile: DeviceFile) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val uriString = deviceFile.uri.toString()
+            excludedFileUris = userPreferences.removeExcludedFile(uriString)
+            loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun clearAllExcludedContacts() {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedContactIds = userPreferences.clearAllExcludedContacts()
+            loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun clearAllExcludedFiles() {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedFileUris = userPreferences.clearAllExcludedFiles()
+            loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun clearAllHiddenApps() {
+        viewModelScope.launch(Dispatchers.IO) {
+            hiddenPackages = userPreferences.clearAllHiddenApps()
+            refreshDerivedState()
+        }
+    }
+
+    fun clearAllExclusions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedContactIds = userPreferences.clearAllExcludedContacts()
+            excludedFileUris = userPreferences.clearAllExcludedFiles()
+            hiddenPackages = userPreferences.clearAllHiddenApps()
+            loadExcludedContactsAndFiles()
             refreshDerivedState()
         }
     }
