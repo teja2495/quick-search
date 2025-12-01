@@ -7,3 +7,4 @@ class QuickSearchWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = QuickSearchWidget()
 }
 
+

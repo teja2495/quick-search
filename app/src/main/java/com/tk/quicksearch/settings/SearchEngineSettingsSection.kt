@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,10 +28,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.snap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,7 +50,6 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -64,8 +67,6 @@ fun SearchEnginesSection(
     disabledSearchEngines: Set<SearchEngine>,
     onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
     onReorderSearchEngines: (List<SearchEngine>) -> Unit,
-    shortcutsEnabled: Boolean = false,
-    onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
     shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     setShortcutCode: ((SearchEngine, String) -> Unit)? = null,
     shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
@@ -78,111 +79,107 @@ fun SearchEnginesSection(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
     )
+    Text(
+        text = stringResource(R.string.settings_shortcuts_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
     Spacer(modifier = Modifier.height(16.dp))
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            // Enable/disable shortcuts toggle (if shortcuts functionality is provided)
-            if (onToggleShortcutsEnabled != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings_shortcuts_toggle),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_shortcuts_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = shortcutsEnabled,
-                        onCheckedChange = onToggleShortcutsEnabled
-                    )
-                }
-                
-                if (shortcutsEnabled) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                }
-            }
             
             val draggedIndex = remember { mutableIntStateOf(-1) }
             val dragOffset = remember { mutableFloatStateOf(0f) }
+            val pendingReorder = remember { mutableStateOf(false) }
             val density = LocalDensity.current
             val itemHeight = 60.dp // Approximate row height with padding
+            
+            // Clear pending reorder flag after order updates
+            LaunchedEffect(searchEngineOrder) {
+                if (pendingReorder.value) {
+                    // Order has updated, clear the flag
+                    pendingReorder.value = false
+                }
+            }
             
             searchEngineOrder.forEachIndexed { index, engine ->
                 val isDragging = draggedIndex.intValue == index
                 
-                // Calculate the target offset for this item - only adjacent items move
+                // Calculate the target offset for this item - handles multi-position drags
                 val targetOffset = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
                     if (draggedIndex.intValue < 0) {
                         0.dp
                     } else {
                         val draggedIdx = draggedIndex.intValue
                         val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                        val dragProgress = offsetInDp.value / itemHeight.value
                         
                         when {
                             isDragging -> {
                                 // Dragged item follows the drag directly
                                 offsetInDp
                             }
-                            index == draggedIdx + 1 -> {
-                                // Item is directly below the dragged item
-                                val dragProgress = offsetInDp.value / itemHeight.value
-                                when {
-                                    // Dragged item has moved past this item
-                                    dragProgress > 1f -> -itemHeight
-                                    // Dragged item is approaching this item - interpolate
-                                    dragProgress > 0.5f -> {
-                                        val progress = ((dragProgress - 0.5f) * 2f).coerceIn(0f, 1f)
-                                        -itemHeight * progress
-                                    }
-                                    else -> 0.dp
-                                }
-                            }
-                            index == draggedIdx - 1 -> {
-                                // Item is directly above the dragged item
-                                val dragProgress = offsetInDp.value / itemHeight.value
-                                when {
-                                    // Dragged item has moved past this item
-                                    dragProgress < -1f -> itemHeight
-                                    // Dragged item is approaching this item - interpolate
-                                    dragProgress < -0.5f -> {
-                                        val progress = ((-dragProgress - 0.5f) * 2f).coerceIn(0f, 1f)
-                                        itemHeight * progress
-                                    }
-                                    else -> 0.dp
-                                }
-                            }
                             else -> {
-                                // Not an adjacent item, don't move
-                                0.dp
+                                // Calculate the relative position of this item to the dragged item
+                                val relativeIndex = index - draggedIdx
+                                
+                                when {
+                                    // Item is below the dragged item (dragging down)
+                                    relativeIndex > 0 -> {
+                                        // Threshold is when we've moved halfway past the previous item
+                                        // For item at draggedIdx + 1, threshold is 0.5
+                                        // For item at draggedIdx + 2, threshold is 1.5, etc.
+                                        val threshold = relativeIndex - 0.5f
+                                        when {
+                                            // We've fully passed this item (moved more than one item height past it)
+                                            dragProgress >= relativeIndex -> -itemHeight
+                                            // We're crossing the threshold for this item
+                                            dragProgress > threshold -> {
+                                                val progress = ((dragProgress - threshold) * 2f).coerceIn(0f, 1f)
+                                                -itemHeight * progress
+                                            }
+                                            else -> 0.dp
+                                        }
+                                    }
+                                    // Item is above the dragged item (dragging up)
+                                    relativeIndex < 0 -> {
+                                        // Threshold is when we've moved halfway past the previous item
+                                        // For item at draggedIdx - 1, threshold is -0.5
+                                        // For item at draggedIdx - 2, threshold is -1.5, etc.
+                                        val threshold = relativeIndex + 0.5f
+                                        when {
+                                            // We've fully passed this item (moved more than one item height past it)
+                                            dragProgress <= relativeIndex -> itemHeight
+                                            // We're crossing the threshold for this item
+                                            dragProgress < threshold -> {
+                                                val progress = ((threshold - dragProgress) * 2f).coerceIn(0f, 1f)
+                                                itemHeight * progress
+                                            }
+                                            else -> 0.dp
+                                        }
+                                    }
+                                    else -> 0.dp
+                                }
                             }
                         }
                     }
                 }
                 
-                // Animate the offset smoothly
+                // Animate the offset smoothly, but snap when pending reorder
                 val animatedOffset by animateDpAsState(
                     targetValue = targetOffset,
-                    animationSpec = spring(
-                        dampingRatio = 0.8f,
-                        stiffness = 300f
-                    ),
+                    animationSpec = if (pendingReorder.value) {
+                        snap()
+                    } else {
+                        spring(
+                            dampingRatio = 0.8f,
+                            stiffness = 300f
+                        )
+                    },
                     label = "rowOffset"
                 )
                 
@@ -203,25 +200,35 @@ fun SearchEnginesSection(
                         val currentIndex = draggedIndex.intValue
                         if (currentIndex >= 0) {
                             val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                            val threshold = itemHeight / 2
-                            val newIndex = when {
-                                offsetInDp > threshold -> (currentIndex + 1).coerceAtMost(searchEngineOrder.lastIndex)
-                                offsetInDp < -threshold -> (currentIndex - 1).coerceAtLeast(0)
-                                else -> currentIndex
+                            val dragProgress = offsetInDp.value / itemHeight.value
+                            // Calculate how many positions to move based on total drag distance
+                            val positionsMoved = when {
+                                dragProgress > 0.5f -> dragProgress.roundToInt()
+                                dragProgress < -0.5f -> dragProgress.roundToInt()
+                                else -> 0
                             }
+                            val newIndex = (currentIndex + positionsMoved).coerceIn(0, searchEngineOrder.lastIndex)
                             
                             if (newIndex != currentIndex) {
                                 val item = newOrder.removeAt(currentIndex)
                                 newOrder.add(newIndex, item)
+                                // Immediately reset drag state - items will snap to 0 offset
+                                // The list reorder will put them in their new positions
+                                draggedIndex.intValue = -1
+                                dragOffset.floatValue = 0f
+                                pendingReorder.value = true
                                 onReorderSearchEngines(newOrder)
+                            } else {
+                                // No reorder needed, reset immediately
+                                draggedIndex.intValue = -1
+                                dragOffset.floatValue = 0f
+                                pendingReorder.value = false
                             }
                         }
-                        draggedIndex.intValue = -1
-                        dragOffset.floatValue = 0f
                     },
                     isDragging = isDragging,
                     dragOffset = animatedOffset,
-                    shortcutsEnabled = shortcutsEnabled && onToggleShortcutsEnabled != null,
+                    shortcutsEnabled = true,
                     shortcutCode = shortcutCodes[engine] ?: "",
                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
@@ -318,12 +325,13 @@ private fun SearchEngineRow(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            if (shortcutsEnabled && shortcutCode.isNotEmpty() && shortcutEnabled) {
+            if (shortcutsEnabled && shortcutCode.isNotEmpty()) {
                 ShortcutCodeDisplay(
                     shortcutCode = shortcutCode,
                     isEnabled = shortcutEnabled,
                     onCodeChange = onShortcutCodeChange,
-                    onToggle = onShortcutToggle
+                    onToggle = onShortcutToggle,
+                    engineName = engineName
                 )
             }
         }
@@ -415,93 +423,132 @@ fun ShortcutsSection(
 }
 
 @Composable
-private fun ShortcutCodeDisplay(
-    shortcutCode: String,
+private fun EditShortcutDialog(
+    engineName: String,
+    currentCode: String,
     isEnabled: Boolean,
-    onCodeChange: ((String) -> Unit)?,
-    onToggle: ((Boolean) -> Unit)?
+    onSave: (String) -> Unit,
+    onToggle: ((Boolean) -> Unit)?,
+    onDismiss: () -> Unit
 ) {
-    var isEditing by remember { mutableStateOf(false) }
-    var editingCode by remember(shortcutCode) { mutableStateOf(shortcutCode) }
-    var hasFocus by remember { mutableStateOf(false) }
+    var editingCode by remember(currentCode) { mutableStateOf(currentCode) }
+    var enabledState by remember(isEnabled) { mutableStateOf(isEnabled) }
     val focusRequester = remember { FocusRequester() }
     
-    // Update editingCode when shortcutCode changes externally (when not editing)
-    LaunchedEffect(shortcutCode) {
-        if (!isEditing) {
-            editingCode = shortcutCode
-        }
-    }
-    
-    // Auto-focus when editing starts
-    LaunchedEffect(isEditing) {
-        if (isEditing) {
+    LaunchedEffect(Unit) {
+        if (enabledState) {
             focusRequester.requestFocus()
         }
     }
     
-    // Save when focus is lost while editing
-    LaunchedEffect(hasFocus, isEditing) {
-        if (isEditing && !hasFocus) {
-            // Focus was lost, save the value
-            if (editingCode.isNotBlank()) {
-                onCodeChange?.invoke(editingCode)
-            } else {
-                editingCode = shortcutCode
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.dialog_edit_shortcut_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.dialog_edit_shortcut_message, engineName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TextField(
+                    value = editingCode,
+                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    enabled = enabledState,
+                    singleLine = true,
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (editingCode.isNotBlank()) {
+                                onSave(editingCode)
+                            }
+                            onDismiss()
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                )
+                if (onToggle != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Checkbox(
+                            checked = enabledState,
+                            onCheckedChange = { 
+                                enabledState = it
+                                onToggle(it)
+                            }
+                        )
+                        Text(
+                            text = stringResource(R.string.dialog_enable_shortcut),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
             }
-            isEditing = false
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (editingCode.isNotBlank()) {
+                        onSave(editingCode)
+                    }
+                    onDismiss()
+                },
+                enabled = editingCode.isNotBlank()
+            ) {
+                Text(text = stringResource(R.string.dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
         }
+    )
+}
+
+@Composable
+private fun ShortcutCodeDisplay(
+    shortcutCode: String,
+    isEnabled: Boolean,
+    onCodeChange: ((String) -> Unit)?,
+    onToggle: ((Boolean) -> Unit)?,
+    engineName: String = ""
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    
+    if (showDialog && onCodeChange != null) {
+        EditShortcutDialog(
+            engineName = engineName,
+            currentCode = shortcutCode,
+            isEnabled = isEnabled,
+            onSave = { code -> onCodeChange(code) },
+            onToggle = onToggle,
+            onDismiss = { showDialog = false }
+        )
     }
     
-    if (isEditing) {
-        TextField(
-            value = editingCode,
-            onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    hasFocus = focusState.isFocused
-                },
-            singleLine = true,
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    if (editingCode.isNotBlank()) {
-                        onCodeChange?.invoke(editingCode)
-                    } else {
-                        editingCode = shortcutCode
-                    }
-                    isEditing = false
-                }
-            ),
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        if (editingCode.isNotBlank()) {
-                            onCodeChange?.invoke(editingCode)
-                        }
-                        isEditing = false
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Check,
-                        contentDescription = stringResource(R.string.settings_action_edit_shortcut),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
-        )
-    } else {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        if (isEnabled) {
             Text(
                 text = stringResource(R.string.settings_shortcut_label),
                 style = MaterialTheme.typography.bodyMedium,
@@ -511,15 +558,14 @@ private fun ShortcutCodeDisplay(
                 text = shortcutCode,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { isEditing = true }
+                modifier = Modifier.clickable { showDialog = true }
             )
-            Icon(
-                imageVector = Icons.Rounded.Edit,
-                contentDescription = stringResource(R.string.settings_action_edit_shortcut),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .size(16.dp)
-                    .clickable { isEditing = true }
+        } else {
+            Text(
+                text = stringResource(R.string.settings_add_shortcut),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { showDialog = true }
             )
         }
     }
@@ -533,37 +579,7 @@ private fun ShortcutRow(
     onCodeChange: (String) -> Unit,
     onToggle: (Boolean) -> Unit
 ) {
-    var isEditing by remember { mutableStateOf(false) }
-    var editingCode by remember(shortcutCode) { mutableStateOf(shortcutCode) }
-    var hasFocus by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
-    
-    // Update editingCode when shortcutCode changes externally (when not editing)
-    LaunchedEffect(shortcutCode) {
-        if (!isEditing) {
-            editingCode = shortcutCode
-        }
-    }
-    
-    // Auto-focus when editing starts
-    LaunchedEffect(isEditing) {
-        if (isEditing) {
-            focusRequester.requestFocus()
-        }
-    }
-    
-    // Save when focus is lost while editing
-    LaunchedEffect(hasFocus, isEditing) {
-        if (isEditing && !hasFocus) {
-            // Focus was lost, save the value
-            if (editingCode.isNotBlank()) {
-                onCodeChange(editingCode)
-            } else {
-                editingCode = shortcutCode
-            }
-            isEditing = false
-        }
-    }
+    var showDialog by remember { mutableStateOf(false) }
     
     val engineName = when (engine) {
         SearchEngine.GOOGLE -> stringResource(R.string.search_engine_google)
@@ -591,6 +607,17 @@ private fun ShortcutRow(
         SearchEngine.AI_MODE -> R.drawable.ai_mode
     }
     
+    if (showDialog) {
+        EditShortcutDialog(
+            engineName = engineName,
+            currentCode = shortcutCode,
+            isEnabled = isEnabled,
+            onSave = { code -> onCodeChange(code) },
+            onToggle = { enabled -> onToggle(enabled) },
+            onDismiss = { showDialog = false }
+        )
+    }
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -614,68 +641,23 @@ private fun ShortcutRow(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            if (isEditing) {
-                TextField(
-                    value = editingCode,
-                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            hasFocus = focusState.isFocused
-                        },
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (editingCode.isNotBlank()) {
-                                onCodeChange(editingCode)
-                            } else {
-                                editingCode = shortcutCode
-                            }
-                            isEditing = false
-                        }
-                    ),
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                if (editingCode.isNotBlank()) {
-                                    onCodeChange(editingCode)
-                                }
-                                isEditing = false
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Check,
-                                contentDescription = stringResource(R.string.settings_action_edit_shortcut),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                    )
-                )
-            } else {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                if (isEnabled) {
                     Text(
                         text = shortcutCode,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { isEditing = true }
+                        modifier = Modifier.clickable { showDialog = true }
                     )
-                    Icon(
-                        imageVector = Icons.Rounded.Edit,
-                        contentDescription = stringResource(R.string.settings_action_edit_shortcut),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clickable { isEditing = true }
+                } else {
+                    Text(
+                        text = stringResource(R.string.settings_add_shortcut),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { showDialog = true }
                     )
                 }
             }

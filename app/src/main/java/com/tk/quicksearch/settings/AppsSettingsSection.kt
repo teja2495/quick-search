@@ -1,6 +1,5 @@
 package com.tk.quicksearch.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,51 +47,23 @@ fun AppLabelsSection(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column {
-            // Top option
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onToggleKeyboardAlignedLayout(false) }
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_layout_option_top),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                RadioButton(
-                    selected = !keyboardAlignedLayout,
-                    onClick = { onToggleKeyboardAlignedLayout(false) }
-                )
-            }
-            
-            // Divider
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.settings_layout_option_bottom),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
             )
-            
-            // Bottom option
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onToggleKeyboardAlignedLayout(true) }
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_layout_option_bottom),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                RadioButton(
-                    selected = keyboardAlignedLayout,
-                    onClick = { onToggleKeyboardAlignedLayout(true) }
-                )
-            }
+            Switch(
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout
+            )
         }
     }
     

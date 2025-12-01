@@ -32,6 +32,11 @@ fun MessagingSection(
         color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
     )
+    Text(
+        text = stringResource(R.string.settings_messaging_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
     Spacer(modifier = Modifier.height(16.dp))
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
