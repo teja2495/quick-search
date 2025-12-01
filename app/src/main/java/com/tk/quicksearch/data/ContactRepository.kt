@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.provider.ContactsContract
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.util.PhoneNumberUtils
 import java.util.Locale
 
 class ContactRepository(
@@ -64,8 +65,8 @@ class ContactRepository(
                         displayName = displayName,
                         numbers = mutableListOf(phoneNumber)
                     )
-                } else if (!existing.numbers.contains(phoneNumber)) {
-                    existing.numbers.add(phoneNumber)
+                } else {
+                    addOrUpdatePhoneNumber(existing.numbers, phoneNumber)
                 }
             }
         }
@@ -164,8 +165,8 @@ class ContactRepository(
                     if (contacts.size >= limit) {
                         break
                     }
-                } else if (!existing.numbers.contains(phoneNumber)) {
-                    existing.numbers.add(phoneNumber)
+                } else {
+                    addOrUpdatePhoneNumber(existing.numbers, phoneNumber)
                 }
             }
         }
@@ -226,6 +227,40 @@ class ContactRepository(
                 { it.first.displayName.lowercase(Locale.getDefault()) }
             ))
             .map { it.first }
+    }
+
+    /**
+     * Adds or updates a phone number in the list, prioritizing numbers with country codes.
+     * If a duplicate is found (same number, one with country code, one without),
+     * the number with country code is kept and the one without is removed.
+     */
+    private fun addOrUpdatePhoneNumber(existingNumbers: MutableList<String>, newNumber: String) {
+        // Check for exact match first
+        if (existingNumbers.contains(newNumber)) {
+            return
+        }
+        
+        // Check for duplicate (same number but different format)
+        val duplicateIndex = existingNumbers.indexOfFirst { 
+            PhoneNumberUtils.isSameNumber(it, newNumber) 
+        }
+        
+        if (duplicateIndex >= 0) {
+            val existingNumber = existingNumbers[duplicateIndex]
+            val newHasCountryCode = PhoneNumberUtils.hasCountryCode(newNumber)
+            val existingHasCountryCode = PhoneNumberUtils.hasCountryCode(existingNumber)
+            
+            // Prioritize number with country code
+            if (newHasCountryCode && !existingHasCountryCode) {
+                // Replace existing number without country code with new one that has it
+                existingNumbers[duplicateIndex] = newNumber
+            }
+            // If existing has country code and new doesn't, ignore the new number
+            // If both have or both don't have country codes, keep the existing one
+        } else {
+            // No duplicate found, add the new number
+            existingNumbers.add(newNumber)
+        }
     }
 
     private data class MutableContact(
