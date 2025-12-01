@@ -871,7 +871,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val searchResults = if (query.isBlank()) {
             emptyList()
         } else {
-            deriveMatches(query, searchSourceApps(apps))
+            // Include both pinned and non-pinned apps in search, let ranking determine order
+            val nonPinnedApps = searchSourceApps(apps)
+            val allSearchableApps = (pinnedAppList + nonPinnedApps).distinctBy { it.packageName }
+            deriveMatches(query, allSearchableApps)
         }
         val hiddenAppList = apps
             .filter { hiddenPackages.contains(it.packageName) }
@@ -967,10 +970,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
                     fileResults = allFiles.filter { file ->
                         val fileType = FileTypeUtils.getFileType(file)
-                        fileType in enabledFileTypes
+                        fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
                     }
                 } else if (fileResults.isEmpty() && contactResults.isNotEmpty()) {
                     contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
+                        .filterNot { excludedContactIds.contains(it.contactId) }
                 }
             }
 

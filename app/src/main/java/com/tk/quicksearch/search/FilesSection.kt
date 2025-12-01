@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.InsertDriveFile
@@ -238,7 +239,7 @@ private fun FileResultRow(
                 text = { Text(text = stringResource(if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic)) },
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Rounded.PushPin,
+                        imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
                         contentDescription = null
                     )
                 },
