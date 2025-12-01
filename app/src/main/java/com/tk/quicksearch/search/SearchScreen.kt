@@ -265,14 +265,14 @@ fun SearchScreen(
         state.keyboardAlignedLayout
     ) {
         if (state.keyboardAlignedLayout) {
-            // Wait for layout to be complete
+            // Wait for layout to be complete before animating
             delay(150)
             if (expandedSection == ExpandedSection.NONE) {
-                // Jump to bottom instantly (no animation)
-                scrollState.scrollTo(scrollState.maxValue)
+                // Smoothly scroll to bottom when showing the bottom-aligned layout
+                scrollState.animateScrollTo(scrollState.maxValue)
             } else {
-                // When expanded, scroll to top (towards search bar)
-                scrollState.scrollTo(0)
+                // When expanded, smoothly scroll back to top (towards search bar)
+                scrollState.animateScrollTo(0)
             }
         }
     }
