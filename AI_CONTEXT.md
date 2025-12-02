@@ -1,33 +1,80 @@
 **Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, and web** from a single screen.
 
 **Structure**:
-- `MainActivity.kt` - Entry point, edge-to-edge setup, in-app nav between Search and Settings, optional permission flows
+- `MainActivity.kt` - Entry point, edge-to-edge setup, in-app nav between Search and Settings, first-launch permissions screen
 - `model/AppInfo.kt` - App data model with `matches()` for search
 - `model/ContactInfo.kt`, `model/DeviceFile.kt`, `model/FileType.kt` - Models for contacts and device files, plus file-type categorisation
 - `data/AppUsageRepository.kt` - Loads launchable apps, usage stats, and maintains an on-disk cache (`AppCache`)
+- `data/AppCache.kt` - Persistent caching of app list using SharedPreferences (JSON serialization) for instant loading on startup
 - `data/ContactRepository.kt` - Contact search (by name), aggregates numbers per contact
 - `data/FileSearchRepository.kt` - Device file search via `MediaStore`, respects enabled file types
-- `data/UserAppPreferences.kt` - Persists hidden/pinned apps, UI settings, search engine order/disabled engines, file-type filters, preferred contact numbers
-- `search/SearchScreen.kt` - Main UI composables (`SearchRoute`, `SearchScreen`), app grid, contacts/files sections, search-engine row, permission banners
+- `data/UserAppPreferences.kt` - Persists hidden/pinned apps, UI settings, search engine order/disabled engines, file-type filters, preferred contact numbers, section ordering, keyboard-aligned layout, shortcuts, messaging preferences
+- `permissions/PermissionsScreen.kt` - First-launch permissions screen with cards for usage/contacts/files permissions
+- `permissions/PermissionCard.kt` - Reusable permission card component with toggle and status
+- `permissions/PermissionRequestHandler.kt` - Handles permission request intents and state checks
+- `permissions/PermissionState.kt` - Data class for permission state (granted, enabled, denied)
+- `search/SearchScreen.kt` - Main UI composables (`SearchRoute`, `SearchScreen`), search field, layout orchestration
+- `search/SearchScreenLayout.kt` - Layout logic for scrollable content area, section ordering, keyboard-aligned vs normal layout
+- `search/SearchScreenScroll.kt` - Scroll state management and behavior
+- `search/SearchScreenBanners.kt` - Permission banners and error messages
+- `search/SearchScreenHelpers.kt` - Helper functions for search screen state calculations
+- `search/SectionRenderingHelpers.kt` - Utilities for rendering sections (apps, contacts, files)
+- `search/AppsSection.kt` - App grid rendering (2 rows × 5 columns, 10 apps max)
+- `search/ContactsSection.kt` - Contacts section with inline result cards, multi-number picker, call/SMS/open actions
+- `search/FilesSection.kt` - Files section with inline result cards, filtered by enabled file types
+- `search/SearchEngineSection.kt` - Search engine row rendering
+- `search/SearchEngineLayout.kt` - Layout utilities for search engine icons
+- `search/SearchEngineIconItem.kt` - Individual search engine icon component
+- `search/SearchEngineUtils.kt` - Search engine URL building and utilities
+- `search/AppIconLoader.kt` - Async app icon loading
+- `search/AppItemMenu.kt` - App item context menu (pin/unpin, hide)
 - `search/SearchViewModel.kt` - State management (StateFlow), app launching, contact/file actions, permissions, search ranking, search engine URL building
-- `settings/SettingsScreen.kt` - Settings screen for app labels toggle, search engine enable/reorder, file-type filters, hidden apps management
+- `search/SearchViewModelHelpers.kt` - Helper functions for ViewModel operations
+- `search/SearchViewModelPermissionManager.kt` - Permission handling logic for ViewModel
+- `search/SearchViewModelSearchOperations.kt` - Search operations and ranking logic
+- `settings/SettingsScreen.kt` - Settings screen orchestration (`SettingsRoute`, `SettingsScreen`)
+- `settings/SettingsScreenHelpers.kt` - Settings state and callback data classes, helper functions
+- `settings/SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files)
+- `settings/AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
+- `settings/ContactsSettingsSection.kt` - Messaging app preference (Messages vs WhatsApp)
+- `settings/FilesSettingsSection.kt` - File type filters (Images, Videos, Audio, Documents, APKs, Other)
+- `settings/SearchEngineSettingsSection.kt` - Search engine order/reorder, enable/disable, shortcuts configuration, search engine section enable/disable
+- `settings/SearchEngineSettingsComponents.kt` - Reusable search engine UI components
+- `settings/SearchEngineDialogs.kt` - Dialogs for search engine configuration
+- `settings/ExcludedItemsSection.kt` - Management of hidden apps, excluded contacts, excluded files
+- `widget/QuickSearchWidget.kt` - Glance App Widget implementation, customizable appearance (colors, border, label)
+- `widget/QuickSearchWidgetConfigureActivity.kt` - Widget configuration activity when widget is added
+- `widget/QuickSearchWidgetConfigScreen.kt` - Compose UI for widget configuration
+- `widget/QuickSearchWidgetPreferences.kt` - Widget preferences data class and persistence
+- `widget/QuickSearchWidgetReceiver.kt` - Widget update receiver
+- `widget/WidgetBitmapUtils.kt` - Bitmap generation for widget background with border and rounded corners
+- `widget/WidgetColorUtils.kt` - Color calculation utilities for widget theming
+- `widget/WidgetLayoutUtils.kt` - Layout dimension utilities for widget sizing
+- `widget/WidgetPreviewCard.kt` - Preview card component for widget configuration
+- `widget/WidgetConfigConstants.kt` - Constants for widget configuration
 - `util/SearchRankingUtils.kt` - Centralised ranking for apps/contacts/files (exact/starts-with/second-word/contains)
-- `ui/theme/` - Material 3 theme (Color, Theme, Type)
+- `util/PhoneNumberUtils.kt` - Phone number normalization, duplicate detection, country code handling
+- `ui/theme/` - Material 3 theme (Color.kt, Theme.kt, Type.kt)
 
 **Key Details**:
 - Grid: 2 rows × 5 columns (10 apps max)
 - Apps: **recent apps + pinned apps** when query is empty (pinned first, then recents), filtered search results when typing
-- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact
+- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact, supports WhatsApp messaging option
 - Files: inline result card (opens with appropriate app), filtered by **enabled file types** in settings
 - Search ranking: app search uses `AppInfo.matches()` + `SearchRankingUtils` for priority ordering
+- Sections: Apps, Contacts, Files - can be reordered and individually enabled/disabled
+- Layout modes: Normal layout (pinned items first) vs keyboard-aligned layout (search results first)
 - Permissions:
-  - Mandatory: `PACKAGE_USAGE_STATS` (usage access)
-  - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE`
-  - Manifest also declares `QUERY_ALL_PACKAGES` and `REQUEST_DELETE_PACKAGES`
-- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon
+  - Mandatory: `PACKAGE_USAGE_STATS` (usage access) - required to continue
+  - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE` (R+)
+  - Manifest also declares `QUERY_ALL_PACKAGES`, `REQUEST_DELETE_PACKAGES`, `REQUEST_INSTALL_PACKAGES`
+- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode
+- Search engine shortcuts: Customizable shortcut codes per engine (e.g., "g" for Google)
+- Widget: Home screen widget using Glance App Widget framework, customizable colors/border/label, launches MainActivity on tap
 - Auto-focus multi-line search field, keyboard forced visible on start/resume
-- Edge-to-edge display with system bar padding and bottom search-engine row behaviour depending on whether app results exist
+- Edge-to-edge display with system bar padding and bottom search-engine row behavior depending on whether app results exist
+- Section expansion: Contacts and Files sections can expand to show more results
+- Excluded items: Apps, contacts, and files can be hidden/excluded from search results
+- App caching: App list cached to SharedPreferences for instant loading on startup
 
-**Config**: Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`. Min SDK 24, Target/Compile SDK 36.
-
-
+**Config**: Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`. Min SDK 24, Target/Compile SDK 36. Uses Jetpack Glance for widgets, Compose BOM 2024.09.00, Material 3.
