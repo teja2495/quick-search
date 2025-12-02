@@ -183,7 +183,9 @@ private fun SearchResultsSections(
         showAllFilesResults = renderingState.autoExpandFiles,
         showAllContactsResults = renderingState.autoExpandContacts,
         showFilesExpandControls = renderingState.hasBothContactsAndFiles,
-        showContactsExpandControls = renderingState.hasBothContactsAndFiles
+        showContactsExpandControls = renderingState.hasBothContactsAndFiles,
+        filesExpandClick = filesParams.onExpandClick,
+        contactsExpandClick = contactsParams.onExpandClick
     )
 
     val params = SectionRenderParams(
