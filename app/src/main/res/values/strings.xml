@@ -79,7 +79,7 @@
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
-    <string name="settings_shortcuts_hint">Hint: Adding the shortcut at the end of your query will trigger search instantly.</string>
+    <string name="settings_shortcuts_hint">Adding shortcut at the end of the query will trigger search instantly.</string>
     <string name="settings_action_move_up">Move up</string>
     <string name="settings_action_move_down">Move down</string>
     <string name="settings_action_reorder">Drag to reorder</string>
@@ -103,7 +103,7 @@
     <string name="settings_layout_option_top">Top</string>
     <string name="settings_layout_option_bottom">Align results towards the bottom of the screen</string>
     <string name="settings_shortcuts_title">Shortcuts</string>
-    <string name="settings_shortcuts_desc"> Add shortcuts at the end of your query to trigger search instantly.</string>
+    <string name="settings_shortcuts_desc"> Add shortcuts at the end of your query will start search instantly.</string>
     <string name="settings_shortcuts_toggle">Shortcuts</string>
     <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
@@ -120,7 +120,7 @@
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="widget_label_text">Quick Search</string>
-    <string name="widget_settings_title">Quick Search widget</string>
+    <string name="widget_settings_title">Quick Search Widget</string>
     <string name="widget_preview_title">Live preview</string>
     <string name="widget_loading_state">Loading widget settings…</string>
     <string name="widget_section_colors">Color presets</string>
@@ -163,8 +163,7 @@
     <string name="settings_excluded_items_show_less">Show Less</string>
     <string name="settings_action_clear_all">Clear All</string>
     <string name="settings_action_remove">Remove</string>
-    <string name="settings_sections_title">Search Sections</string>
-    <string name="settings_sections_desc">Reorder and enable or disable search sections.</string>
+    <string name="settings_sections_title">Search Results</string>
     <string name="section_apps">Apps</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>

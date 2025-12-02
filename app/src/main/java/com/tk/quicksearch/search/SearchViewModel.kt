@@ -798,7 +798,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         if (savedOrder.isEmpty()) {
             // First time - use default order
-            return allEngines
+            return listOf(
+                SearchEngine.GOOGLE,
+                SearchEngine.CHATGPT,
+                SearchEngine.PERPLEXITY,
+                SearchEngine.YOUTUBE,
+                SearchEngine.GOOGLE_PLAY,
+                SearchEngine.AMAZON,
+                SearchEngine.GROK,
+                SearchEngine.AI_MODE,
+                SearchEngine.GOOGLE_MAPS,
+                SearchEngine.REDDIT
+            )
         }
         
         // Merge saved order with any new engines that might have been added

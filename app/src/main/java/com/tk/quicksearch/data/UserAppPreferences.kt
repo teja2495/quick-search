@@ -181,12 +181,16 @@ class UserAppPreferences(context: Context) {
     fun getShortcutCode(engine: SearchEngine): String {
         val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
         val defaultCode = getDefaultShortcutCode(engine)
-        return prefs.getString(key, defaultCode) ?: defaultCode
+        val savedCode = prefs.getString(key, defaultCode) ?: defaultCode
+        // Remove spaces for existing shortcuts
+        return savedCode.filter { char -> char.isLetterOrDigit() && char != ' ' }
     }
 
     fun setShortcutCode(engine: SearchEngine, code: String) {
         val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
-        prefs.edit().putString(key, code.lowercase()).apply()
+        // Remove spaces
+        val filteredCode = code.lowercase().filter { char -> char.isLetterOrDigit() && char != ' ' }
+        prefs.edit().putString(key, filteredCode).apply()
     }
 
     fun isShortcutEnabled(engine: SearchEngine): Boolean {

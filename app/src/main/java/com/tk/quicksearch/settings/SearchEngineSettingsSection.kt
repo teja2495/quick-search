@@ -81,13 +81,7 @@ fun SearchEnginesSection(
         text = stringResource(R.string.settings_search_engines_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
-    )
-    Text(
-        text = stringResource(R.string.settings_shortcuts_hint),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = modifier.padding(top = 24.dp, bottom = 16.dp)
     )
     
     // Combined toggle card for enabling/disabling search engine section and shortcuts
@@ -129,7 +123,7 @@ fun SearchEnginesSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .padding(horizontal = 20.dp, vertical = 22.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -141,6 +135,11 @@ fun SearchEnginesSection(
                             text = stringResource(R.string.settings_shortcuts_toggle),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_shortcuts_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Switch(
@@ -404,7 +403,7 @@ private fun SearchEngineRow(
         Image(
             painter = painterResource(id = drawableId),
             contentDescription = engineName,
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(24.dp),
             contentScale = ContentScale.Fit
         )
         
@@ -552,7 +551,7 @@ private fun EditShortcutDialog(
                 )
                 TextField(
                     value = editingCode,
-                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() }.take(5) },
+                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() && char != ' ' } },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -722,7 +721,7 @@ private fun ShortcutRow(
         Image(
             painter = painterResource(id = drawableId),
             contentDescription = engineName,
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(24.dp),
             contentScale = ContentScale.Fit
         )
         

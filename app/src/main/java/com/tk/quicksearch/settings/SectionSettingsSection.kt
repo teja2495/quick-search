@@ -58,13 +58,7 @@ fun SectionSettingsSection(
         text = stringResource(R.string.settings_sections_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = 8.dp)
-    )
-    Text(
-        text = stringResource(R.string.settings_sections_desc),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = modifier.padding(bottom = 16.dp)
     )
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -258,7 +252,7 @@ private fun SectionRow(
             imageVector = icon,
             contentDescription = sectionName,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(24.dp)
         )
         
         Text(

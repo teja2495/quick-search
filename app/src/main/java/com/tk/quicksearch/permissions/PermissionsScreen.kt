@@ -338,7 +338,7 @@ private fun PermissionToggleCard(
                     tint = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green color
                     modifier = Modifier
                         .padding(start = 16.dp)
-                        .size(28.dp)
+                        .size(24.dp)
                 )
             } else {
                 // Show toggle when permission is not granted
