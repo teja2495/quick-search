@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
@@ -231,6 +232,7 @@ private fun ContactsResultCard(
 // Contact Row
 // ============================================================================
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ContactResultRow(
     contactInfo: ContactInfo,
