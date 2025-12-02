@@ -4,11 +4,14 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.util.SearchRankingUtils
 import java.util.Locale
 
 class FileSearchRepository(
@@ -17,6 +20,20 @@ class FileSearchRepository(
 
     private val contentResolver = context.contentResolver
 
+    companion object {
+        private val FILE_PROJECTION = arrayOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.MIME_TYPE,
+            MediaStore.Files.FileColumns.DATE_MODIFIED
+        )
+
+        private const val DATE_MODIFIED_SORT = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+    }
+
+    /**
+     * Checks if the app has permission to access external storage.
+     */
     fun hasPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
@@ -28,121 +45,164 @@ class FileSearchRepository(
         }
     }
 
+    /**
+     * Retrieves files by their URIs. Used for pinned/excluded files.
+     * Returns files sorted alphabetically by display name.
+     */
     fun getFilesByUris(uris: Set<String>): List<DeviceFile> {
         if (uris.isEmpty() || !hasPermission()) return emptyList()
 
         val results = mutableListOf<DeviceFile>()
 
         for (uriString in uris) {
-            val parsed = runCatching { android.net.Uri.parse(uriString) }.getOrNull() ?: continue
-            val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.MIME_TYPE,
-                MediaStore.Files.FileColumns.DATE_MODIFIED
-            )
-
-            val cursor = contentResolver.query(
-                parsed,
-                projection,
+            val parsedUri = parseUri(uriString) ?: continue
+            
+            contentResolver.query(
+                parsedUri,
+                FILE_PROJECTION,
                 null,
                 null,
                 null
-            ) ?: continue
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val columnIndices = getColumnIndices(cursor)
+                    val file = createDeviceFileFromCursor(cursor, parsedUri, columnIndices, useUriDirectly = true)
+                    if (file != null) {
+                        results.add(file)
+                    }
+                }
+            }
+        }
 
-            cursor.use { c ->
-                if (!c.moveToFirst()) return@use
-                val idIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
-                val nameIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
-                val mimeIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
-                val modifiedIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+        return results.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
+    }
 
-                val id = c.getLong(idIndex)
-                val name = c.getString(nameIndex) ?: return@use
-                val mimeType = c.getString(mimeIndex)
-                val modified = if (!c.isNull(modifiedIndex)) c.getLong(modifiedIndex) else 0L
-                // Use the original stored URI to ensure consistency with what was pinned
-                val fileUri = parsed
+    /**
+     * Searches for files matching the query string.
+     * Returns files sorted by match priority and then alphabetically.
+     */
+    fun searchFiles(query: String, limit: Int): List<DeviceFile> {
+        if (query.isBlank() || !hasPermission()) return emptyList()
 
-                results.add(
-                    DeviceFile(
-                        uri = fileUri,
-                        displayName = name,
-                        mimeType = mimeType,
-                        lastModified = modified
-                    )
-                )
+        val normalizedQuery = normalizeQuery(query)
+        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ?"
+        val selectionArgs = arrayOf("%$normalizedQuery%")
+        val uri = getFilesContentUri()
+
+        val results = mutableListOf<DeviceFile>()
+
+        contentResolver.query(
+            uri,
+            FILE_PROJECTION,
+            selection,
+            selectionArgs,
+            DATE_MODIFIED_SORT
+        )?.use { cursor ->
+            val columnIndices = getColumnIndices(cursor)
+            
+            while (cursor.moveToNext() && results.size < limit) {
+                val file = createDeviceFileFromCursor(cursor, uri, columnIndices)
+                if (file != null) {
+                    results.add(file)
+                }
             }
         }
 
         return results.sortedWith(
             compareBy(
+                { SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
                 { it.displayName.lowercase(Locale.getDefault()) }
             )
         )
     }
 
-    fun searchFiles(query: String, limit: Int): List<DeviceFile> {
-        if (query.isBlank() || !hasPermission()) return emptyList()
-
-        val normalizedQuery = query
+    /**
+     * Normalizes a search query by trimming, lowercasing, and escaping special SQL characters.
+     */
+    private fun normalizeQuery(query: String): String {
+        return query
             .trim()
             .lowercase(Locale.getDefault())
             .replace("%", "")
             .replace("_", "")
+    }
 
-        val projection = arrayOf(
-            MediaStore.Files.FileColumns._ID,
-            MediaStore.Files.FileColumns.DISPLAY_NAME,
-            MediaStore.Files.FileColumns.MIME_TYPE,
-            MediaStore.Files.FileColumns.DATE_MODIFIED
-        )
-
-        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ?"
-        val selectionArgs = arrayOf("%$normalizedQuery%")
-
-        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    /**
+     * Gets the appropriate MediaStore Files content URI based on Android version.
+     */
+    private fun getFilesContentUri(): Uri {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
         } else {
             MediaStore.Files.getContentUri("external")
         }
-        val cursor = contentResolver.query(
-            uri,
-            projection,
-            selection,
-            selectionArgs,
-            "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
-        ) ?: return emptyList()
+    }
 
-        val results = mutableListOf<DeviceFile>()
+    /**
+     * Parses a URI string safely, returning null if parsing fails.
+     */
+    private fun parseUri(uriString: String): Uri? {
+        return runCatching { Uri.parse(uriString) }.getOrNull()
+    }
 
-        cursor.use { c ->
-            val idIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
-            val nameIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
-            val mimeIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
-            val modifiedIndex = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+    /**
+     * Data class to hold column indices for efficient cursor access.
+     */
+    private data class ColumnIndices(
+        val idIndex: Int,
+        val nameIndex: Int,
+        val mimeIndex: Int,
+        val modifiedIndex: Int
+    )
 
-            while (c.moveToNext() && results.size < limit) {
-                val id = c.getLong(idIndex)
-                val name = c.getString(nameIndex) ?: continue
-                val mimeType = c.getString(mimeIndex)
-                val modified = if (!c.isNull(modifiedIndex)) c.getLong(modifiedIndex) else 0L
-                val fileUri = ContentUris.withAppendedId(uri, id)
-                results.add(
-                    DeviceFile(
-                        uri = fileUri,
-                        displayName = name,
-                        mimeType = mimeType,
-                        lastModified = modified
-                    )
-                )
-            }
+    /**
+     * Retrieves column indices from a cursor.
+     */
+    private fun getColumnIndices(cursor: Cursor): ColumnIndices {
+        return ColumnIndices(
+            idIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID),
+            nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME),
+            mimeIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE),
+            modifiedIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+        )
+    }
+
+    /**
+     * Creates a DeviceFile from a cursor row.
+     * @param cursor The cursor positioned at the row to read
+     * @param baseUri The base URI for building the file URI
+     * @param columnIndices Pre-computed column indices for efficiency
+     * @param useUriDirectly If true, uses baseUri directly; if false, builds URI from file ID
+     */
+    private fun createDeviceFileFromCursor(
+        cursor: Cursor,
+        baseUri: Uri,
+        columnIndices: ColumnIndices,
+        useUriDirectly: Boolean = false
+    ): DeviceFile? {
+        val name = cursor.getString(columnIndices.nameIndex) ?: return null
+        val mimeType = cursor.getString(columnIndices.mimeIndex)
+        val modified = if (cursor.isNull(columnIndices.modifiedIndex)) {
+            0L
+        } else {
+            cursor.getLong(columnIndices.modifiedIndex)
         }
 
-        return results.sortedWith(compareBy(
-            { com.tk.quicksearch.util.SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
-            { it.displayName.lowercase(Locale.getDefault()) }
-        ))
+        // For URI-based queries, use the original URI to maintain consistency with pinned files.
+        // For search queries, build the URI from the file ID.
+        val fileUri = if (useUriDirectly) {
+            baseUri
+        } else {
+            val id = cursor.getLong(columnIndices.idIndex)
+            ContentUris.withAppendedId(baseUri, id)
+        }
+
+        return DeviceFile(
+            uri = fileUri,
+            displayName = name,
+            mimeType = mimeType,
+            lastModified = modified
+        )
     }
 }
 

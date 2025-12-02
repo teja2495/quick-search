@@ -2,7 +2,6 @@ package com.tk.quicksearch.settings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,32 +19,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import android.Manifest
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.Settings
-import androidx.core.content.ContextCompat
-import android.widget.Toast
 import com.tk.quicksearch.R
-import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
 
@@ -56,313 +39,200 @@ fun SettingsRoute(
     viewModel: SearchViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    
-    // Track pending section enablement after permission grant
-    var pendingSectionEnable by remember { mutableStateOf<SearchSection?>(null) }
-    
-    // Launcher for runtime permissions (contacts, files on pre-R)
-    val runtimePermissionsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
-        val filesGranted = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
-        } else {
-            false
-        }
-        
-        // Refresh permission state
-        viewModel.handleOptionalPermissionChange()
-        
-        // If permission was granted and we have a pending section, enable it
-        if (pendingSectionEnable != null) {
-            val section = pendingSectionEnable!!
-            when (section) {
-                SearchSection.CONTACTS -> {
-                    if (contactsGranted) {
-                        viewModel.setSectionEnabled(section, true)
-                    }
-                }
-                SearchSection.FILES -> {
-                    if (filesGranted || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager())) {
-                        viewModel.setSectionEnabled(section, true)
-                    }
-                }
-                else -> {}
-            }
-            pendingSectionEnable = null
-        }
-    }
-    
-    // Launcher for all files access (Android R+)
-    val allFilesAccessLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        val filesGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        }
-        
-        // Refresh permission state
-        viewModel.handleOptionalPermissionChange()
-        
-        // If permission was granted and we have a pending section, enable it
-        if (pendingSectionEnable == SearchSection.FILES && filesGranted) {
-            viewModel.setSectionEnabled(SearchSection.FILES, true)
-            pendingSectionEnable = null
-        }
-    }
     
     // Handle section toggle with permission check
-    val onToggleSection: (SearchSection, Boolean) -> Unit = { section, enabled ->
-        if (enabled) {
-            // Check if section can be enabled (has permissions)
-            if (viewModel.canEnableSection(section)) {
-                viewModel.setSectionEnabled(section, true)
-            } else {
-                // Request permissions based on section
-                when (section) {
-                    SearchSection.CONTACTS -> {
-                        pendingSectionEnable = section
-                        runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
-                    }
-                    SearchSection.FILES -> {
-                        pendingSectionEnable = section
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                                data = Uri.parse("package:${context.packageName}")
-                            }
-                            runCatching {
-                                allFilesAccessLauncher.launch(manageIntent)
-                            }.onFailure {
-                                val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                                allFilesAccessLauncher.launch(fallback)
-                            }
-                        } else {
-                            runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
-                        }
-                    }
-                    SearchSection.APPS -> {
-                        // Apps section doesn't require permissions
-                        viewModel.setSectionEnabled(section, true)
-                    }
-                }
-            }
-        } else {
-            // Check if disabling this section would leave no sections enabled
-            val enabledSectionsCount = SearchSection.values().count { it !in uiState.disabledSections }
-            if (enabledSectionsCount <= 1 && section !in uiState.disabledSections) {
-                // This is the last enabled section, prevent disabling
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.settings_sections_at_least_one_required),
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                viewModel.setSectionEnabled(section, false)
-            }
-        }
-    }
+    val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
     
-    SettingsScreen(
-        modifier = modifier,
-        onBack = onBack,
+    val state = SettingsScreenState(
         hiddenApps = uiState.hiddenApps,
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
+        showAppLabels = uiState.showAppLabels,
+        searchEngineOrder = uiState.searchEngineOrder,
+        disabledSearchEngines = uiState.disabledSearchEngines,
+        enabledFileTypes = uiState.enabledFileTypes,
+        keyboardAlignedLayout = uiState.keyboardAlignedLayout,
+        shortcutCodes = uiState.shortcutCodes,
+        shortcutEnabled = uiState.shortcutEnabled,
+        useWhatsAppForMessages = uiState.useWhatsAppForMessages,
+        showSectionTitles = uiState.showSectionTitles,
+        sectionOrder = uiState.sectionOrder,
+        disabledSections = uiState.disabledSections,
+        searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
+        shortcutsEnabled = uiState.shortcutsEnabled
+    )
+    
+    val callbacks = SettingsScreenCallbacks(
+        onBack = onBack,
         onRemoveExcludedApp = viewModel::unhideApp,
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
         onClearAllExclusions = viewModel::clearAllExclusions,
-        showAppLabels = uiState.showAppLabels,
         onToggleAppLabels = viewModel::setShowAppLabels,
-        searchEngineOrder = uiState.searchEngineOrder,
-        disabledSearchEngines = uiState.disabledSearchEngines,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
-        enabledFileTypes = uiState.enabledFileTypes,
         onToggleFileType = viewModel::setFileTypeEnabled,
-        keyboardAlignedLayout = uiState.keyboardAlignedLayout,
         onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout,
-        shortcutCodes = uiState.shortcutCodes,
         setShortcutCode = viewModel::setShortcutCode,
-        shortcutEnabled = uiState.shortcutEnabled,
         setShortcutEnabled = viewModel::setShortcutEnabled,
-        useWhatsAppForMessages = uiState.useWhatsAppForMessages,
         onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages,
-        showSectionTitles = uiState.showSectionTitles,
         onToggleShowSectionTitles = viewModel::setShowSectionTitles,
-        sectionOrder = uiState.sectionOrder,
-        disabledSections = uiState.disabledSections,
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
-        searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
-        shortcutsEnabled = uiState.shortcutsEnabled,
         onToggleShortcutsEnabled = viewModel::setShortcutsEnabled
+    )
+    
+    SettingsScreen(
+        modifier = modifier,
+        state = state,
+        callbacks = callbacks
     )
 }
 
 @Composable
 private fun SettingsScreen(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit,
-    hiddenApps: List<AppInfo>,
-    excludedContacts: List<com.tk.quicksearch.model.ContactInfo>,
-    excludedFiles: List<com.tk.quicksearch.model.DeviceFile>,
-    onRemoveExcludedApp: (AppInfo) -> Unit,
-    onRemoveExcludedContact: (com.tk.quicksearch.model.ContactInfo) -> Unit,
-    onRemoveExcludedFile: (com.tk.quicksearch.model.DeviceFile) -> Unit,
-    onClearAllExclusions: () -> Unit,
-    showAppLabels: Boolean,
-    onToggleAppLabels: (Boolean) -> Unit,
-    searchEngineOrder: List<SearchEngine>,
-    disabledSearchEngines: Set<SearchEngine>,
-    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
-    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
-    enabledFileTypes: Set<FileType>,
-    onToggleFileType: (FileType, Boolean) -> Unit,
-    keyboardAlignedLayout: Boolean,
-    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
-    shortcutCodes: Map<SearchEngine, String>,
-    setShortcutCode: (SearchEngine, String) -> Unit,
-    shortcutEnabled: Map<SearchEngine, Boolean>,
-    setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
-    useWhatsAppForMessages: Boolean,
-    onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
-    showSectionTitles: Boolean,
-    onToggleShowSectionTitles: (Boolean) -> Unit,
-    sectionOrder: List<SearchSection>,
-    disabledSections: Set<SearchSection>,
-    onToggleSection: (SearchSection, Boolean) -> Unit,
-    onReorderSections: (List<SearchSection>) -> Unit,
-    searchEngineSectionEnabled: Boolean,
-    onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
-    shortcutsEnabled: Boolean,
-    onToggleShortcutsEnabled: (Boolean) -> Unit
+    state: SettingsScreenState,
+    callbacks: SettingsScreenCallbacks
 ) {
-    BackHandler(onBack = onBack)
+    BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
+    
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
     ) {
-        // Fixed Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Rounded.ArrowBack,
-                    contentDescription = stringResource(R.string.desc_navigate_back),
-                    tint = Color.White
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.settings_title),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+        SettingsHeader(onBack = callbacks.onBack)
 
         // Scrollable Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = SettingsSpacing.contentHorizontalPadding)
         ) {
             // Search Sections Section
             SectionSettingsSection(
-                sectionOrder = sectionOrder,
-                disabledSections = disabledSections,
-                onToggleSection = onToggleSection,
-                onReorderSections = onReorderSections
+                sectionOrder = state.sectionOrder,
+                disabledSections = state.disabledSections,
+                onToggleSection = callbacks.onToggleSection,
+                onReorderSections = callbacks.onReorderSections
             )
 
             // Appearance Section
             AppLabelsSection(
-                showAppLabels = showAppLabels,
-                onToggleAppLabels = onToggleAppLabels,
-                keyboardAlignedLayout = keyboardAlignedLayout,
-                onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
-                showSectionTitles = showSectionTitles,
-                onToggleShowSectionTitles = onToggleShowSectionTitles,
-                appsSectionEnabled = SearchSection.APPS !in disabledSections,
-                modifier = Modifier.padding(top = 24.dp)
+                showAppLabels = state.showAppLabels,
+                onToggleAppLabels = callbacks.onToggleAppLabels,
+                keyboardAlignedLayout = state.keyboardAlignedLayout,
+                onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
+                showSectionTitles = state.showSectionTitles,
+                onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
+                appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
             // Contacts Section
             MessagingSection(
-                useWhatsAppForMessages = useWhatsAppForMessages,
-                onToggleUseWhatsAppForMessages = onToggleUseWhatsAppForMessages,
-                contactsSectionEnabled = SearchSection.CONTACTS !in disabledSections
+                useWhatsAppForMessages = state.useWhatsAppForMessages,
+                onToggleUseWhatsAppForMessages = callbacks.onToggleUseWhatsAppForMessages,
+                contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
             // Files Section
             FileTypesSection(
-                enabledFileTypes = enabledFileTypes,
-                onToggleFileType = onToggleFileType,
-                filesSectionEnabled = SearchSection.FILES !in disabledSections
+                enabledFileTypes = state.enabledFileTypes,
+                onToggleFileType = callbacks.onToggleFileType,
+                filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
             // Search Engine Section (includes shortcuts)
             SearchEnginesSection(
-                searchEngineOrder = searchEngineOrder,
-                disabledSearchEngines = disabledSearchEngines,
-                onToggleSearchEngine = onToggleSearchEngine,
-                onReorderSearchEngines = onReorderSearchEngines,
-                shortcutCodes = shortcutCodes,
-                setShortcutCode = setShortcutCode,
-                shortcutEnabled = shortcutEnabled,
-                setShortcutEnabled = setShortcutEnabled,
-                searchEngineSectionEnabled = searchEngineSectionEnabled,
-                onToggleSearchEngineSectionEnabled = onToggleSearchEngineSectionEnabled,
-                shortcutsEnabled = shortcutsEnabled,
-                onToggleShortcutsEnabled = onToggleShortcutsEnabled
+                searchEngineOrder = state.searchEngineOrder,
+                disabledSearchEngines = state.disabledSearchEngines,
+                onToggleSearchEngine = callbacks.onToggleSearchEngine,
+                onReorderSearchEngines = callbacks.onReorderSearchEngines,
+                shortcutCodes = state.shortcutCodes,
+                setShortcutCode = callbacks.setShortcutCode,
+                shortcutEnabled = state.shortcutEnabled,
+                setShortcutEnabled = callbacks.setShortcutEnabled,
+                searchEngineSectionEnabled = state.searchEngineSectionEnabled,
+                onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
+                shortcutsEnabled = state.shortcutsEnabled,
+                onToggleShortcutsEnabled = callbacks.onToggleShortcutsEnabled,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             
             // Excluded Items Section (at the bottom)
             ExcludedItemsSection(
-                hiddenApps = hiddenApps,
-                excludedContacts = excludedContacts,
-                excludedFiles = excludedFiles,
-                onRemoveExcludedApp = onRemoveExcludedApp,
-                onRemoveExcludedContact = onRemoveExcludedContact,
-                onRemoveExcludedFile = onRemoveExcludedFile,
-                onClearAll = onClearAllExclusions
+                hiddenApps = state.hiddenApps,
+                excludedContacts = state.excludedContacts,
+                excludedFiles = state.excludedFiles,
+                onRemoveExcludedApp = callbacks.onRemoveExcludedApp,
+                onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
+                onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
+                onClearAll = callbacks.onClearAllExclusions
             )
 
             // App Version
-            Spacer(modifier = Modifier.height(32.dp))
-            val context = LocalContext.current
-            val versionName = try {
-                context.packageManager.getPackageInfo(context.packageName, 0).versionName
-            } catch (e: Exception) {
-                null
-            }
-            Text(
-                text = stringResource(R.string.settings_app_version, versionName ?: "Unknown"),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 100.dp, top = 45.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+            SettingsVersionDisplay()
         }
     }
+}
+
+/**
+ * Header component for the settings screen.
+ */
+@Composable
+private fun SettingsHeader(onBack: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = SettingsSpacing.headerHorizontalPadding,
+                vertical = SettingsSpacing.headerVerticalPadding
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowBack,
+                contentDescription = stringResource(R.string.desc_navigate_back),
+                tint = Color.White
+            )
+        }
+        Spacer(modifier = Modifier.width(SettingsSpacing.headerIconSpacing))
+        Text(
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Displays the app version at the bottom of the settings screen.
+ */
+@Composable
+private fun SettingsVersionDisplay() {
+    Spacer(modifier = Modifier.height(32.dp))
+    val versionName = getAppVersionName()
+    Text(
+        text = stringResource(R.string.settings_app_version, versionName ?: "Unknown"),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                bottom = SettingsSpacing.versionBottomPadding,
+                top = SettingsSpacing.versionTopPadding
+            ),
+        textAlign = TextAlign.Center
+    )
 }
 
 

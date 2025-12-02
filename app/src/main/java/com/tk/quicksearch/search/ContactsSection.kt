@@ -69,7 +69,18 @@ import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+// Constants
 private const val INITIAL_RESULT_COUNT = 1
+private const val CONTACT_ROW_MIN_HEIGHT = 52
+private const val CONTACT_AVATAR_SIZE = 40
+private const val ACTION_BUTTON_SIZE = 40
+private const val ACTION_ICON_SIZE = 24
+private const val EXPAND_BUTTON_HEIGHT = 28
+private const val EXPAND_ICON_SIZE = 18
+
+// ============================================================================
+// Public API
+// ============================================================================
 
 @Composable
 fun ContactResultsSection(
@@ -93,28 +104,20 @@ fun ContactResultsSection(
 ) {
     val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
-    val orderedContacts = contacts
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         resultSectionTitle(stringResource(R.string.contacts_section_title))
+        
         when {
             hasPermission && contacts.isNotEmpty() -> {
-                val displayAsExpanded = isExpanded || showAllResults
-                val canShowExpand = showExpandControls && orderedContacts.size > INITIAL_RESULT_COUNT
-                val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
-                val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
-                val displayContacts = if (displayAsExpanded) {
-                    orderedContacts
-                } else {
-                    orderedContacts.take(INITIAL_RESULT_COUNT)
-                }
                 ContactsResultCard(
-                    contacts = displayContacts,
-                    allContacts = orderedContacts,
-                    isExpanded = displayAsExpanded,
+                    contacts = contacts,
+                    isExpanded = isExpanded,
+                    showAllResults = showAllResults,
+                    showExpandControls = showExpandControls,
                     useWhatsAppForMessages = useWhatsAppForMessages,
                     onContactClick = onContactClick,
                     onCallContact = onCallContact,
@@ -122,8 +125,7 @@ fun ContactResultsSection(
                     pinnedContactIds = pinnedContactIds,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
-                    onExpandClick = expandHandler,
-                    onCollapseClick = collapseHandler
+                    onExpandClick = onExpandClick
                 )
             }
 
@@ -139,11 +141,16 @@ fun ContactResultsSection(
     }
 }
 
+// ============================================================================
+// Result Card
+// ============================================================================
+
 @Composable
 private fun ContactsResultCard(
     contacts: List<ContactInfo>,
-    allContacts: List<ContactInfo>,
     isExpanded: Boolean,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
     useWhatsAppForMessages: Boolean,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
@@ -151,9 +158,19 @@ private fun ContactsResultCard(
     pinnedContactIds: Set<Long>,
     onTogglePin: (ContactInfo) -> Unit,
     onExclude: (ContactInfo) -> Unit,
-    onExpandClick: (() -> Unit)?,
-    onCollapseClick: (() -> Unit)?
+    onExpandClick: () -> Unit
 ) {
+    val displayAsExpanded = isExpanded || showAllResults
+    val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
+    val shouldShowCollapseButton = isExpanded && showExpandControls
+    
+    val displayContacts = if (displayAsExpanded) {
+        contacts
+    } else {
+        contacts.take(INITIAL_RESULT_COUNT)
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -168,7 +185,7 @@ private fun ContactsResultCard(
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                contacts.forEachIndexed { index, contactInfo ->
+                displayContacts.forEachIndexed { index, contactInfo ->
                     key(contactInfo.contactId) {
                         ContactResultRow(
                             contactInfo = contactInfo,
@@ -181,57 +198,38 @@ private fun ContactsResultCard(
                             onExclude = onExclude
                         )
                     }
-                    if (index != contacts.lastIndex) {
+                    if (index != displayContacts.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
                 }
-                if (onExpandClick != null && !isExpanded) {
-                    TextButton(
-                        onClick = { onExpandClick() },
+                
+                if (shouldShowExpandButton) {
+                    ExpandButton(
+                        onClick = onExpandClick,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
-                            .height(28.dp)
-                            .padding(top = 2.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                    ) {
-                        Text(
-                            text = "More",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = "Expand",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                            .height(EXPAND_BUTTON_HEIGHT.dp)
+                            .padding(top = 2.dp)
+                    )
                 }
             }
         }
-        if (onCollapseClick != null && isExpanded) {
-            TextButton(
-                onClick = { onCollapseClick() },
+        
+        if (shouldShowCollapseButton) {
+            CollapseButton(
+                onClick = onExpandClick,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Collapse",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandLess,
-                    contentDescription = "Collapse",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+            )
         }
     }
 }
+
+// ============================================================================
+// Contact Row
+// ============================================================================
 
 @Composable
 private fun ContactResultRow(
@@ -244,42 +242,13 @@ private fun ContactResultRow(
     onTogglePin: (ContactInfo) -> Unit = {},
     onExclude: (ContactInfo) -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val hasNumber = contactInfo.primaryNumber != null
-    
-    // Load contact photo
-    val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = contactInfo.photoUri) {
-        val photoUri = contactInfo.photoUri
-        if (photoUri != null) {
-            // Reset to avoid showing stale images while loading a new one
-            value = null
-            val bitmap = withContext(Dispatchers.IO) {
-                runCatching {
-                    val uri = Uri.parse(photoUri)
-                    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                    inputStream?.use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
-                    }
-                }.getOrNull()
-            }
-            value = bitmap
-        } else {
-            // Ensure we don't keep an old bitmap when this contact has no photo
-            value = null
-        }
-    }
-    
-    val placeholderInitials = remember(contactInfo.displayName) {
-        contactInfo.displayName.split(" ").mapNotNull { it.firstOrNull()?.uppercaseChar() }
-            .take(2).joinToString("")
-    }
-    
     var showOptions by remember { mutableStateOf(false) }
+    val hasNumber = contactInfo.primaryNumber != null
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 52.dp)
+            .heightIn(min = CONTACT_ROW_MIN_HEIGHT.dp)
             .combinedClickable(
                 onClick = { onContactClick(contactInfo) },
                 onLongClick = { showOptions = true }
@@ -288,33 +257,10 @@ private fun ContactResultRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Contact photo/avatar
-        Surface(
-            modifier = Modifier.size(40.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                if (contactPhoto != null) {
-                    Image(
-                        bitmap = contactPhoto!!,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Text(
-                        text = placeholderInitials,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
+        ContactAvatar(
+            photoUri = contactInfo.photoUri,
+            displayName = contactInfo.displayName
+        )
         
         Text(
             text = contactInfo.displayName,
@@ -324,76 +270,249 @@ private fun ContactResultRow(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        IconButton(
-            onClick = { onCallContact(contactInfo) },
-            enabled = hasNumber,
-            modifier = Modifier.size(40.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Call,
-                contentDescription = stringResource(R.string.contacts_action_call),
-                tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp)
-            )
+        
+        ContactActionButtons(
+            hasNumber = hasNumber,
+            useWhatsAppForMessages = useWhatsAppForMessages,
+            onCallClick = { onCallContact(contactInfo) },
+            onSmsClick = { onSmsContact(contactInfo) }
+        )
+
+        ContactDropdownMenu(
+            expanded = showOptions,
+            onDismissRequest = { showOptions = false },
+            isPinned = isPinned,
+            onTogglePin = { onTogglePin(contactInfo) },
+            onExclude = { onExclude(contactInfo) }
+        )
+    }
+}
+
+// ============================================================================
+// Contact Avatar
+// ============================================================================
+
+@Composable
+private fun ContactAvatar(
+    photoUri: String?,
+    displayName: String
+) {
+    val context = LocalContext.current
+    val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
+        value = photoUri?.let { uri ->
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val parsedUri = Uri.parse(uri)
+                    context.contentResolver.openInputStream(parsedUri)?.use { stream ->
+                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                    }
+                }.getOrNull()
+            }
         }
-        IconButton(
-            onClick = { onSmsContact(contactInfo) },
-            enabled = hasNumber,
-            modifier = Modifier.size(40.dp)
+    }
+    
+    val placeholderInitials = remember(displayName) {
+        displayName.split(" ")
+            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+            .take(2)
+            .joinToString("")
+    }
+
+    Surface(
+        modifier = Modifier.size(CONTACT_AVATAR_SIZE.dp),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            if (useWhatsAppForMessages) {
-                Icon(
-                    painter = painterResource(id = R.drawable.whatsapp),
-                    contentDescription = stringResource(R.string.contacts_action_whatsapp),
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(24.dp)
+            contactPhoto?.let { photo ->
+                Image(
+                    bitmap = photo,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.Sms,
-                    contentDescription = stringResource(R.string.contacts_action_sms),
-                    tint = if (hasNumber) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(24.dp)
+            } ?: run {
+                Text(
+                    text = placeholderInitials,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
+    }
+}
 
-        DropdownMenu(
-            expanded = showOptions,
-            onDismissRequest = { showOptions = false },
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false)
-        ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    showOptions = false
-                    onTogglePin(contactInfo)
-                }
+// ============================================================================
+// Action Buttons
+// ============================================================================
+
+@Composable
+private fun ContactActionButtons(
+    hasNumber: Boolean,
+    useWhatsAppForMessages: Boolean,
+    onCallClick: () -> Unit,
+    onSmsClick: () -> Unit
+) {
+    IconButton(
+        onClick = onCallClick,
+        enabled = hasNumber,
+        modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Call,
+            contentDescription = stringResource(R.string.contacts_action_call),
+            tint = if (hasNumber) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+        )
+    }
+    
+    IconButton(
+        onClick = onSmsClick,
+        enabled = hasNumber,
+        modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
+    ) {
+        if (useWhatsAppForMessages) {
+            Icon(
+                painter = painterResource(id = R.drawable.whatsapp),
+                contentDescription = stringResource(R.string.contacts_action_whatsapp),
+                tint = Color.Unspecified,
+                modifier = Modifier.size(ACTION_ICON_SIZE.dp)
             )
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = null
-                    )
+        } else {
+            Icon(
+                imageVector = Icons.Rounded.Sms,
+                contentDescription = stringResource(R.string.contacts_action_sms),
+                tint = if (hasNumber) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
                 },
-                onClick = {
-                    showOptions = false
-                    onExclude(contactInfo)
-                }
+                modifier = Modifier.size(ACTION_ICON_SIZE.dp)
             )
         }
     }
 }
+
+// ============================================================================
+// Dropdown Menu
+// ============================================================================
+
+@Composable
+private fun ContactDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    isPinned: Boolean,
+    onTogglePin: () -> Unit,
+    onExclude: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(24.dp),
+        properties = PopupProperties(focusable = false)
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(
+                        if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onTogglePin()
+            }
+        )
+        
+        HorizontalDivider()
+        
+        DropdownMenuItem(
+            text = {
+                Text(text = stringResource(R.string.action_exclude_generic))
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.VisibilityOff,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onExclude()
+            }
+        )
+    }
+}
+
+// ============================================================================
+// Expand/Collapse Buttons
+// ============================================================================
+
+@Composable
+private fun ExpandButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.action_expand_more),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(R.string.desc_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+        )
+    }
+}
+
+@Composable
+private fun CollapseButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.action_collapse),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandLess,
+            contentDescription = stringResource(R.string.desc_collapse),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+        )
+    }
+}
+
+// ============================================================================
+// Phone Number Selection Dialog
+// ============================================================================
 
 @Composable
 fun PhoneNumberSelectionDialog(
@@ -416,7 +535,10 @@ fun PhoneNumberSelectionDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.dialog_select_phone_number_message, contactInfo.displayName),
+                    text = stringResource(
+                        R.string.dialog_select_phone_number_message,
+                        contactInfo.displayName
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -475,7 +597,13 @@ fun PhoneNumberSelectionDialog(
                 },
                 enabled = selectedNumber != null
             ) {
-                Text(text = if (isCall) stringResource(R.string.dialog_call) else stringResource(R.string.dialog_sms))
+                Text(
+                    text = if (isCall) {
+                        stringResource(R.string.dialog_call)
+                    } else {
+                        stringResource(R.string.dialog_sms)
+                    }
+                )
             }
         },
         dismissButton = {
@@ -485,4 +613,3 @@ fun PhoneNumberSelectionDialog(
         }
     )
 }
-

@@ -19,18 +19,19 @@ import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,7 +41,23 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 private const val INITIAL_RESULT_COUNT = 1
+private const val FILE_ROW_MIN_HEIGHT = 52
+private const val FILE_ICON_SIZE = 24
+private const val FILE_ICON_START_PADDING = 4
+private const val EXPAND_BUTTON_HEIGHT = 28
+private const val EXPAND_BUTTON_TOP_PADDING = 2
+private const val EXPAND_ICON_SIZE = 18
+private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
+private const val DROPDOWN_CORNER_RADIUS = 24
+
+// ============================================================================
+// Public API
+// ============================================================================
 
 @Composable
 fun FileResultsSection(
@@ -61,34 +78,25 @@ fun FileResultsSection(
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
-    val orderedFiles = files
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         resultSectionTitle(stringResource(R.string.files_section_title))
+        
         when {
             hasPermission && files.isNotEmpty() -> {
-                val displayAsExpanded = isExpanded || showAllResults
-                val canShowExpand = showExpandControls && orderedFiles.size > INITIAL_RESULT_COUNT
-                val expandHandler = if (!displayAsExpanded && canShowExpand) onExpandClick else null
-                val collapseHandler = if (isExpanded && showExpandControls) onExpandClick else null
-                val displayFiles = if (displayAsExpanded) {
-                    orderedFiles
-                } else {
-                    orderedFiles.take(INITIAL_RESULT_COUNT)
-                }
                 FilesResultCard(
-                    files = displayFiles,
-                    allFiles = orderedFiles,
-                    isExpanded = displayAsExpanded,
+                    files = files,
+                    isExpanded = isExpanded,
+                    showAllResults = showAllResults,
+                    showExpandControls = showExpandControls,
                     onFileClick = onFileClick,
                     pinnedFileUris = pinnedFileUris,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
-                    onExpandClick = expandHandler,
-                    onCollapseClick = collapseHandler
+                    onExpandClick = onExpandClick
                 )
             }
 
@@ -104,18 +112,33 @@ fun FileResultsSection(
     }
 }
 
+// ============================================================================
+// Result Card
+// ============================================================================
+
 @Composable
 private fun FilesResultCard(
     files: List<DeviceFile>,
-    allFiles: List<DeviceFile>,
     isExpanded: Boolean,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
     onFileClick: (DeviceFile) -> Unit,
     pinnedFileUris: Set<String>,
     onTogglePin: (DeviceFile) -> Unit,
     onExclude: (DeviceFile) -> Unit,
-    onExpandClick: (() -> Unit)?,
-    onCollapseClick: (() -> Unit)?
+    onExpandClick: () -> Unit
 ) {
+    val displayAsExpanded = isExpanded || showAllResults
+    val canShowExpand = showExpandControls && files.size > INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
+    val shouldShowCollapseButton = isExpanded && showExpandControls
+    
+    val displayFiles = if (displayAsExpanded) {
+        files
+    } else {
+        files.take(INITIAL_RESULT_COUNT)
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -130,66 +153,47 @@ private fun FilesResultCard(
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
-                files.forEachIndexed { index, file ->
+                displayFiles.forEachIndexed { index, file ->
                     FileResultRow(
                         deviceFile = file,
                         onClick = onFileClick,
-                        isExpanded = isExpanded,
+                        isExpanded = displayAsExpanded,
                         isPinned = pinnedFileUris.contains(file.uri.toString()),
                         onTogglePin = onTogglePin,
                         onExclude = onExclude
                     )
-                    if (index != files.lastIndex) {
+                    if (index != displayFiles.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             color = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
                 }
-                if (onExpandClick != null && !isExpanded) {
-                    TextButton(
-                        onClick = { onExpandClick() },
+                
+                if (shouldShowExpandButton) {
+                    ExpandButton(
+                        onClick = onExpandClick,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
-                            .height(28.dp)
-                            .padding(top = 2.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                    ) {
-                        Text(
-                            text = "More",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = "Expand",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                            .height(EXPAND_BUTTON_HEIGHT.dp)
+                            .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
+                    )
                 }
             }
         }
-        if (onCollapseClick != null && isExpanded) {
-            TextButton(
-                onClick = { onCollapseClick() },
+        
+        if (shouldShowCollapseButton) {
+            CollapseButton(
+                onClick = onExpandClick,
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Collapse",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ExpandLess,
-                    contentDescription = "Collapse",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+            )
         }
     }
 }
+
+// ============================================================================
+// File Row
+// ============================================================================
 
 @Composable
 private fun FileResultRow(
@@ -200,14 +204,15 @@ private fun FileResultRow(
     onTogglePin: (DeviceFile) -> Unit = {},
     onExclude: (DeviceFile) -> Unit = {}
 ) {
-    val (showOptions, setShowOptions) = remember { mutableStateOf(false) }
+    var showOptions by remember { mutableStateOf(false) }
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = if (isExpanded) 0.dp else 52.dp)
+            .heightIn(min = if (isExpanded) 0.dp else FILE_ROW_MIN_HEIGHT.dp)
             .combinedClickable(
                 onClick = { onClick(deviceFile) },
-                onLongClick = { setShowOptions(true) }
+                onLongClick = { showOptions = true }
             )
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -218,9 +223,10 @@ private fun FileResultRow(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
-                .size(24.dp)
-                .padding(start = 4.dp)
+                .size(FILE_ICON_SIZE.dp)
+                .padding(start = FILE_ICON_START_PADDING.dp)
         )
+        
         Text(
             text = deviceFile.displayName,
             modifier = Modifier.weight(1f),
@@ -229,40 +235,125 @@ private fun FileResultRow(
             maxLines = if (isExpanded) Int.MAX_VALUE else 2,
             overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis
         )
-        DropdownMenu(
+        
+        FileDropdownMenu(
             expanded = showOptions,
-            onDismissRequest = { setShowOptions(false) },
-            shape = RoundedCornerShape(24.dp),
-            properties = PopupProperties(focusable = false)
-        ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    setShowOptions(false)
-                    onTogglePin(deviceFile)
-                }
-            )
-            HorizontalDivider()
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_exclude_generic)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    setShowOptions(false)
-                    onExclude(deviceFile)
-                }
-            )
-        }
+            onDismissRequest = { showOptions = false },
+            isPinned = isPinned,
+            onTogglePin = { onTogglePin(deviceFile) },
+            onExclude = { onExclude(deviceFile) }
+        )
     }
 }
 
+// ============================================================================
+// Dropdown Menu
+// ============================================================================
+
+@Composable
+private fun FileDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    isPinned: Boolean,
+    onTogglePin: () -> Unit,
+    onExclude: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(DROPDOWN_CORNER_RADIUS.dp),
+        properties = PopupProperties(focusable = false)
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(
+                        if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onTogglePin()
+            }
+        )
+        
+        HorizontalDivider()
+        
+        DropdownMenuItem(
+            text = {
+                Text(text = stringResource(R.string.action_exclude_generic))
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.VisibilityOff,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onExclude()
+            }
+        )
+    }
+}
+
+// ============================================================================
+// Expand/Collapse Buttons
+// ============================================================================
+
+@Composable
+private fun ExpandButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
+            vertical = 0.dp
+        )
+    ) {
+        Text(
+            text = stringResource(R.string.action_expand_more),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(R.string.desc_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+        )
+    }
+}
+
+@Composable
+private fun CollapseButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.action_collapse),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandLess,
+            contentDescription = stringResource(R.string.desc_collapse),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+        )
+    }
+}

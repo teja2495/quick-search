@@ -3,12 +3,8 @@ package com.tk.quicksearch.widget
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,105 +53,137 @@ class QuickSearchWidget : GlanceAppWidget() {
         val prefs = currentState<Preferences>()
         val config = prefs.toWidgetPreferences()
         val context = LocalContext.current
-        val borderColor = Color(config.borderColor).copy(alpha = config.backgroundAlpha)
-        val defaultHeight = 64.dp
-        val cornerRadius = config.borderRadiusDp.dp
-        val displayMetrics = context.resources.displayMetrics
-        val borderWidthPx = (config.borderWidthDp * displayMetrics.density).roundToInt()
-        val cornerRadiusPx = config.borderRadiusDp * displayMetrics.density
         val widgetSize = LocalSize.current
-        fun Dp.resolveOr(default: Dp): Dp = if (this == Dp.Unspecified || this.value <= 0f) default else this
-        val widthDp = widgetSize.width.resolveOr(defaultHeight)
-        val heightDp = widgetSize.height.resolveOr(defaultHeight)
-        val widthPx = (widthDp.value * displayMetrics.density).roundToInt().coerceAtLeast(1)
-        val heightPx = (heightDp.value * displayMetrics.density).roundToInt().coerceAtLeast(1)
-        val outlineBitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(outlineBitmap)
         
-        // Draw background color with transparency
-        val backgroundColor = if (config.backgroundColorIsWhite) Color.White else Color.Black
-        val backgroundWithAlpha = backgroundColor.copy(alpha = config.backgroundAlpha)
-        val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = backgroundWithAlpha.toArgb()
-        }
-        val backgroundRect = RectF(0f, 0f, widthPx.toFloat(), heightPx.toFloat())
-        if (cornerRadiusPx > 0f) {
-            canvas.drawRoundRect(backgroundRect, cornerRadiusPx, cornerRadiusPx, backgroundPaint)
-        } else {
-            canvas.drawRect(backgroundRect, backgroundPaint)
-        }
+        // Calculate dimensions
+        val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
+        val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultHeight)
+        val heightDp = WidgetLayoutUtils.resolveOr(widgetSize.height, defaultHeight)
+        val cornerRadius = config.borderRadiusDp.dp
         
-        // Draw border on top if border width is greater than 0
-        if (borderWidthPx > 0) {
-            val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                strokeWidth = borderWidthPx.toFloat()
-                color = borderColor.toArgb()
-            }
-            val inset = borderWidthPx / 2f
-            val borderRect = RectF(inset, inset, widthPx - inset, heightPx - inset)
-            if (cornerRadiusPx > 0f) {
-                canvas.drawRoundRect(borderRect, cornerRadiusPx, cornerRadiusPx, borderPaint)
-            } else {
-                canvas.drawRect(borderRect, borderPaint)
-            }
-        }
+        val density = context.resources.displayMetrics.density
+        val widthPx = (widthDp.value * density).roundToInt().coerceAtLeast(1)
+        val heightPx = (heightDp.value * density).roundToInt().coerceAtLeast(1)
+        val borderWidthPx = (config.borderWidthDp * density).roundToInt()
+        val cornerRadiusPx = config.borderRadiusDp * density
+        
+        // Calculate colors
+        val colors = calculateColors(config, borderWidthPx)
+        
+        // Create bitmap background
+        val backgroundBitmap = WidgetBitmapUtils.createWidgetBitmap(
+            widthPx = widthPx,
+            heightPx = heightPx,
+            backgroundColor = colors.backgroundColor,
+            borderColor = colors.borderColor,
+            borderWidthPx = borderWidthPx,
+            cornerRadiusPx = cornerRadiusPx
+        )
+        
+        // Create launch intent
+        val launchIntent = createLaunchIntent(context)
 
-        // Determine text and icon color based on background and transparency
-        // Text and icon should remain fully opaque (no transparency)
-        val baseBorderColor = Color(config.borderColor)
-        val textIconColor = if (config.backgroundAlpha > 0.6f && config.backgroundColorIsWhite) {
-            Color(0xFF424242) // Dark grey
+        WidgetContent(
+            heightDp = heightDp,
+            cornerRadius = cornerRadius,
+            backgroundBitmap = backgroundBitmap,
+            textIconColor = colors.textIconColor,
+            showLabel = config.showLabel,
+            launchIntent = launchIntent
+        )
+    }
+
+    private data class WidgetColors(
+        val backgroundColor: Color,
+        val borderColor: Color?,
+        val textIconColor: Color
+    )
+
+    @Composable
+    private fun calculateColors(
+        config: QuickSearchWidgetPreferences,
+        borderWidthPx: Int
+    ): WidgetColors {
+        val backgroundColor = WidgetColorUtils.getBackgroundColor(
+            config.backgroundColorIsWhite,
+            config.backgroundAlpha
+        )
+        val borderColor = if (borderWidthPx > 0) {
+            WidgetColorUtils.getBorderColor(config.borderColor, config.backgroundAlpha)
         } else {
-            baseBorderColor // Fully opaque border color
+            null
         }
+        val textIconColor = WidgetColorUtils.getTextIconColor(
+            config.borderColor,
+            config.backgroundColorIsWhite,
+            config.backgroundAlpha
+        )
+        
+        return WidgetColors(
+            backgroundColor = backgroundColor,
+            borderColor = borderColor,
+            textIconColor = textIconColor
+        )
+    }
 
-        val launchIntent = Intent(context, MainActivity::class.java).apply {
+    private fun createLaunchIntent(context: Context): Intent {
+        return Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+    }
+}
 
+@Composable
+private fun WidgetContent(
+    heightDp: Dp,
+    cornerRadius: Dp,
+    backgroundBitmap: Bitmap,
+    textIconColor: Color,
+    showLabel: Boolean,
+    launchIntent: Intent
+) {
+    val context = LocalContext.current
+    
+    Box(
+        modifier = GlanceModifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Box(
-            modifier = GlanceModifier.fillMaxSize(),
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .clickable(actionStartActivity(launchIntent)),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .clickable(actionStartActivity(launchIntent)),
-                contentAlignment = Alignment.Center
-            ) {
-                val widgetModifier = GlanceModifier
-                    .fillMaxWidth()
-                    .height(heightDp)
-                    .cornerRadius(cornerRadius)
-                    .background(ImageProvider(outlineBitmap))
-                    .padding(horizontal = 16.dp)
+            val widgetModifier = GlanceModifier
+                .fillMaxWidth()
+                .height(heightDp)
+                .cornerRadius(cornerRadius)
+                .background(ImageProvider(backgroundBitmap))
+                .padding(horizontal = 16.dp)
 
-                Row(
-                    modifier = widgetModifier,
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        provider = ImageProvider(R.drawable.ic_widget_search),
-                        contentDescription = context.getString(R.string.desc_search_icon),
-                        modifier = GlanceModifier.size(20.dp),
-                        colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+            Row(
+                modifier = widgetModifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    provider = ImageProvider(R.drawable.ic_widget_search),
+                    contentDescription = context.getString(R.string.desc_search_icon),
+                    modifier = GlanceModifier.size(20.dp),
+                    colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+                )
+                if (showLabel) {
+                    Text(
+                        text = context.getString(R.string.widget_label_text),
+                        modifier = GlanceModifier.padding(start = 8.dp),
+                        style = TextStyle(
+                            color = ColorProvider(textIconColor),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        maxLines = 1
                     )
-                    if (config.showLabel) {
-                        Text(
-                            text = context.getString(R.string.widget_label_text),
-                            modifier = GlanceModifier.padding(start = 8.dp),
-                            style = TextStyle(
-                                color = ColorProvider(textIconColor),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            ),
-                            maxLines = 1
-                        )
-                    }
                 }
             }
         }

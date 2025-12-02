@@ -1,21 +1,66 @@
 <resources>
+    <!-- ============================================================================
+         App Basics
+         ============================================================================ -->
     <string name="app_name">Quick Search</string>
-    <string name="search_hint">Search Anything...</string>
+    <string name="search_hint">Search Anything…</string>
+
+    <!-- ============================================================================
+         Accessibility & Descriptions
+         ============================================================================ -->
     <string name="desc_search_icon">Search</string>
     <string name="desc_clear_search">Clear search text</string>
     <string name="desc_open_settings">Open Quick Search settings</string>
-    <string name="usage_permission_title">Grant usage access</string>
-    <string name="usage_permission_subtitle">Quick Search needs Usage Access and visibility to every installed app so it can surface your most recent launches instantly.</string>
-    <string name="action_open_settings">Open settings</string>
+    <string name="desc_launch_app">Open %1$s</string>
+    <string name="desc_navigate_back">Navigate back</string>
+    <string name="desc_expand">Expand</string>
+    <string name="desc_collapse">Collapse</string>
+
+    <!-- ============================================================================
+         Search Screen
+         ============================================================================ -->
     <string name="recent_apps_title">Recently used</string>
     <string name="recent_apps_subtitle">Your latest launches stay pinned here for two quick rows.</string>
     <string name="search_results_title">Matching apps</string>
     <string name="search_results_subtitle">Matches for "%1$s"</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
-    <string name="desc_launch_app">Open %1$s</string>
-    <string name="error_launch_app">Unable to open %1$s</string>
+
+    <!-- ============================================================================
+         Apps Section
+         ============================================================================ -->
+    <string name="apps_section_title">Apps</string>
+    <string name="usage_permission_title">Grant usage access</string>
+    <string name="usage_permission_subtitle">Quick Search needs Usage Access and visibility to every installed app so it can surface your most recent launches instantly.</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
+    <string name="error_launch_app">Unable to open %1$s</string>
+    <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
+
+    <!-- ============================================================================
+         Contacts Section
+         ============================================================================ -->
+    <string name="contacts_section_title">Contacts</string>
+    <string name="contacts_permission_title">Contacts search disabled</string>
+    <string name="contacts_permission_subtitle">Grant Contacts permission to quickly search and act on people.</string>
+    <string name="contacts_action_call">Call contact</string>
+    <string name="contacts_action_sms">Message contact</string>
+    <string name="contacts_action_whatsapp">WhatsApp contact</string>
+    <string name="error_open_contact">Unable to open that contact</string>
+    <string name="error_missing_phone_number">No phone number available</string>
+
+    <!-- ============================================================================
+         Files Section
+         ============================================================================ -->
+    <string name="files_section_title">Files</string>
+    <string name="files_permission_title">File search disabled</string>
+    <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
+    <string name="files_action_open">Open file</string>
+    <string name="error_open_file">Unable to open %1$s</string>
+
+    <!-- ============================================================================
+         Common Actions
+         ============================================================================ -->
+    <string name="action_open_settings">Open settings</string>
     <string name="action_app_info">App info</string>
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_hide_app">Exclude</string>
@@ -24,101 +69,149 @@
     <string name="action_pin_generic">Pin</string>
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
-    <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
-    <string name="apps_section_title">Apps</string>
-    <string name="contacts_section_title">Contacts</string>
-    <string name="contacts_permission_title">Contacts search disabled</string>
-    <string name="contacts_permission_subtitle">Grant Contacts permission to quickly search and act on people.</string>
-    <string name="contacts_action_call">Call contact</string>
-    <string name="contacts_action_sms">Message contact</string>
-    <string name="contacts_action_whatsapp">WhatsApp contact</string>
-    <string name="files_section_title">Files</string>
-    <string name="files_permission_title">File search disabled</string>
-    <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
-    <string name="files_action_open">Open file</string>
+    <string name="action_expand_more">More</string>
+    <string name="action_collapse">Collapse</string>
     <string name="permission_action_manage_android">Manage in Android settings</string>
-    <string name="error_open_contact">Unable to open that contact</string>
-    <string name="error_missing_phone_number">No phone number available</string>
-    <string name="error_open_file">Unable to open %1$s</string>
+
+    <!-- ============================================================================
+         Dialogs
+         ============================================================================ -->
     <string name="dialog_select_phone_number_title">Select phone number</string>
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_remember_choice">Remember this choice</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">SMS</string>
+    <string name="dialog_edit_shortcut_title">Edit shortcut</string>
+    <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_enable_shortcut">Enable shortcut</string>
+
+    <!-- ============================================================================
+         Settings - General
+         ============================================================================ -->
     <string name="settings_title">Settings</string>
+    <string name="settings_action_manage">Manage</string>
+    <string name="settings_action_refresh_now">Refresh now</string>
+    <string name="settings_action_clear_cache">Clear cache</string>
+    <string name="settings_action_open_system_settings">Open Android app settings</string>
+    <string name="settings_action_move_up">Move up</string>
+    <string name="settings_action_move_down">Move down</string>
+    <string name="settings_action_reorder">Drag to reorder</string>
+    <string name="settings_action_unhide_app">Unhide</string>
+    <string name="settings_action_edit_shortcut">Edit shortcut code</string>
+    <string name="settings_action_clear_all">Clear All</string>
+    <string name="settings_action_remove">Remove</string>
+
+    <!-- ============================================================================
+         Settings - Permissions
+         ============================================================================ -->
     <string name="settings_section_permissions">Permissions</string>
     <string name="settings_section_permissions_desc">Grant Android permissions to keep the index up to date.</string>
     <string name="settings_usage_access_title">Usage access</string>
     <string name="settings_usage_access_granted">Granted</string>
     <string name="settings_usage_access_missing">Not granted</string>
-    <string name="settings_action_manage">Manage</string>
+
+    <!-- ============================================================================
+         Settings - App Index
+         ============================================================================ -->
     <string name="settings_section_index">App index</string>
     <string name="settings_section_index_desc">The indexed list powers instant search results.</string>
     <string name="settings_indexed_count">Indexed apps: %1$d</string>
     <string name="settings_cache_last_updated">Last updated %1$s</string>
     <string name="settings_cache_never_updated">Cache not created yet</string>
-    <string name="settings_action_refresh_now">Refresh now</string>
-    <string name="settings_action_clear_cache">Clear cache</string>
+    <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
+
+    <!-- ============================================================================
+         Settings - About
+         ============================================================================ -->
     <string name="settings_section_about">About</string>
     <string name="settings_section_about_desc">Version details and Android controls.</string>
     <string name="settings_app_version">Version %1$s</string>
-    <string name="settings_action_open_system_settings">Open Android app settings</string>
-    <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
-    <string name="desc_navigate_back">Navigate back</string>
+
+    <!-- ============================================================================
+         Settings - Hidden Apps
+         ============================================================================ -->
     <string name="settings_hidden_apps_title">Hidden apps</string>
     <string name="settings_hidden_apps_desc">These apps stay out of Quick Search until you restore them.</string>
     <string name="settings_hidden_apps_empty">No hidden apps yet.</string>
-    <string name="settings_action_unhide_app">Unhide</string>
+
+    <!-- ============================================================================
+         Settings - Appearance
+         ============================================================================ -->
     <string name="settings_app_labels_title">Appearance</string>
     <string name="settings_app_labels_desc">Choose whether app names show under icons.</string>
     <string name="settings_app_labels_toggle">App Labels</string>
     <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
     <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
     <string name="settings_section_titles_toggle">Section Titles</string>
+    <string name="settings_layout_toggle">Appearance</string>
+    <string name="settings_layout_option_top">Top</string>
+    <string name="settings_layout_option_bottom">Align results towards the bottom of the screen</string>
+
+    <!-- ============================================================================
+         Settings - Search Engines
+         ============================================================================ -->
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
-    <string name="settings_shortcuts_hint">Adding shortcut at the end of the query will trigger search instantly.</string>
-    <string name="settings_action_move_up">Move up</string>
-    <string name="settings_action_move_down">Move down</string>
-    <string name="settings_action_reorder">Drag to reorder</string>
-    <string name="search_engine_google">Google</string>
-    <string name="search_engine_chatgpt">ChatGPT</string>
-    <string name="search_engine_perplexity">Perplexity</string>
-    <string name="search_engine_grok">Grok</string>
-    <string name="search_engine_google_maps">Google Maps</string>
-    <string name="search_engine_google_play">Google Play</string>
-    <string name="search_engine_reddit">Reddit</string>
-    <string name="search_engine_youtube">YouTube</string>
-    <string name="search_engine_amazon">Amazon</string>
-    <string name="search_engine_ai_mode">AI mode</string>
+
+    <!-- ============================================================================
+         Settings - Shortcuts
+         ============================================================================ -->
+    <string name="settings_shortcuts_title">Shortcuts</string>
+    <string name="settings_shortcuts_desc">Adding shortcuts at the end of your query will start search instantly.</string>
+    <string name="settings_shortcuts_toggle">Shortcuts</string>
+    <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
+    <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
+    <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
+    <string name="settings_shortcut_label">Shortcut:</string>
+    <string name="settings_shortcut_disabled">Shortcut disabled</string>
+    <string name="settings_add_shortcut">Add Shortcut</string>
+
+    <!-- ============================================================================
+         Settings - File Types
+         ============================================================================ -->
     <string name="settings_file_types_title">File Types</string>
     <string name="settings_file_types_desc">Choose which file types appear in search results.</string>
     <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
     <string name="file_type_documents">Documents</string>
     <string name="file_type_apk">APKs</string>
     <string name="file_type_other">Other</string>
-    <string name="settings_layout_toggle">Appearance</string>
-    <string name="settings_layout_option_top">Top</string>
-    <string name="settings_layout_option_bottom">Align results towards the bottom of the screen</string>
-    <string name="settings_shortcuts_title">Shortcuts</string>
-    <string name="settings_shortcuts_desc"> Add shortcuts at the end of your query will start search instantly.</string>
-    <string name="settings_shortcuts_toggle">Shortcuts</string>
-    <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
-    <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
-    <string name="settings_action_edit_shortcut">Edit shortcut code</string>
-    <string name="settings_shortcut_label">Shortcut:</string>
-    <string name="settings_shortcut_disabled">Shortcut disabled</string>
-    <string name="settings_add_shortcut">Add Shortcut</string>
-    <string name="dialog_edit_shortcut_title">Edit shortcut</string>
-    <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
-    <string name="dialog_save">Save</string>
-    <string name="dialog_enable_shortcut">Enable shortcut</string>
+
+    <!-- ============================================================================
+         Settings - Messaging
+         ============================================================================ -->
     <string name="settings_messaging_title">Default Messaging App</string>
     <string name="settings_messaging_desc">Choose which app to use when messaging contacts.</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
+
+    <!-- ============================================================================
+         Settings - Sections
+         ============================================================================ -->
+    <string name="settings_sections_title">Search Results</string>
+    <string name="section_apps">Apps</string>
+    <string name="section_contacts">Contacts</string>
+    <string name="section_files">Files</string>
+    <string name="settings_sections_at_least_one_required">At least one section must be enabled</string>
+
+    <!-- ============================================================================
+         Settings - Excluded Items
+         ============================================================================ -->
+    <string name="settings_excluded_items_title">Excluded Items</string>
+    <string name="settings_excluded_items_desc">View and manage items excluded from search results.</string>
+    <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
+    <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
+    <string name="settings_excluded_items_more">More</string>
+    <string name="settings_excluded_items_show_less">Show Less</string>
+    <string name="excluded_item_type_app">App</string>
+    <string name="excluded_item_type_contact">Contact</string>
+    <string name="excluded_item_type_file">File</string>
+
+    <!-- ============================================================================
+         Widget
+         ============================================================================ -->
     <string name="widget_label_text">Quick Search</string>
     <string name="widget_settings_title">Quick Search Widget</string>
     <string name="widget_preview_title">Live preview</string>
@@ -130,7 +223,11 @@
     <string name="widget_section_text">Text</string>
     <string name="widget_slider_radius">Corner radius</string>
     <string name="widget_slider_border">Border thickness</string>
-    <string name="widget_toggle_show_label">Show “Quick Search” text</string>
+    <string name="widget_slider_transparency">Transparency</string>
+    <string name="widget_toggle_show_label">Show "Quick Search" text</string>
+    <string name="widget_background_color">Background color</string>
+    <string name="widget_background_white">White</string>
+    <string name="widget_background_black">Black</string>
     <string name="widget_action_save">Save widget</string>
     <string name="widget_action_cancel">Cancel</string>
     <string name="widget_preset_dawn">Dawn Frost</string>
@@ -139,10 +236,10 @@
     <string name="widget_preset_ember">Deep Ember</string>
     <string name="widget_preset_midnight">Midnight Neon</string>
     <string name="widget_preset_void">Carbon Mist</string>
-    <string name="widget_slider_transparency">Transparency</string>
-    <string name="widget_background_color">Background color</string>
-    <string name="widget_background_white">White</string>
-    <string name="widget_background_black">Black</string>
+
+    <!-- ============================================================================
+         Permissions Screen
+         ============================================================================ -->
     <string name="permissions_screen_title">Welcome to Quick Search</string>
     <string name="permissions_screen_subtitle">To provide the best search experience, we need a few permissions.</string>
     <string name="permissions_usage_title">Usage Access</string>
@@ -155,17 +252,18 @@
     <string name="permissions_action_continue">Continue</string>
     <string name="permissions_action_skip">Skip for now</string>
     <string name="permissions_granted">Granted</string>
-    <string name="settings_excluded_items_title">Excluded Items</string>
-    <string name="settings_excluded_items_desc">View and manage items excluded from search results.</string>
-    <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
-    <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
-    <string name="settings_excluded_items_more">More</string>
-    <string name="settings_excluded_items_show_less">Show Less</string>
-    <string name="settings_action_clear_all">Clear All</string>
-    <string name="settings_action_remove">Remove</string>
-    <string name="settings_sections_title">Search Results</string>
-    <string name="section_apps">Apps</string>
-    <string name="section_contacts">Contacts</string>
-    <string name="section_files">Files</string>
-    <string name="settings_sections_at_least_one_required">At least one section must be enabled</string>
+
+    <!-- ============================================================================
+         Search Engine Names
+         ============================================================================ -->
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_chatgpt">ChatGPT</string>
+    <string name="search_engine_perplexity">Perplexity</string>
+    <string name="search_engine_grok">Grok</string>
+    <string name="search_engine_google_maps">Google Maps</string>
+    <string name="search_engine_google_play">Google Play</string>
+    <string name="search_engine_reddit">Reddit</string>
+    <string name="search_engine_youtube">YouTube</string>
+    <string name="search_engine_amazon">Amazon</string>
+    <string name="search_engine_ai_mode">AI mode</string>
 </resources>

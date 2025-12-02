@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -25,6 +24,55 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 
+// Constants for consistent spacing
+private object Spacing {
+    val cardHorizontalPadding = 20.dp
+    val cardVerticalPadding = 12.dp
+    val cardTopPadding = 20.dp
+    val cardBottomPadding = 20.dp
+}
+
+/**
+ * Reusable toggle row component for settings cards.
+ * Provides consistent styling and layout across all toggle rows.
+ */
+@Composable
+private fun SettingsToggleRow(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    isFirstItem: Boolean = false,
+    isLastItem: Boolean = false
+) {
+    val topPadding = if (isFirstItem) Spacing.cardTopPadding else Spacing.cardVerticalPadding
+    val bottomPadding = if (isLastItem) Spacing.cardBottomPadding else Spacing.cardVerticalPadding
+    
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = Spacing.cardHorizontalPadding,
+                top = topPadding,
+                end = Spacing.cardHorizontalPadding,
+                bottom = bottomPadding
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
+
 @Composable
 fun AppLabelsSection(
     showAppLabels: Boolean,
@@ -36,77 +84,38 @@ fun AppLabelsSection(
     appsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    // Combined Appearance Card (all toggles)
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            // Results alignment toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_layout_option_bottom),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = keyboardAlignedLayout,
-                    onCheckedChange = onToggleKeyboardAlignedLayout
-                )
-            }
+            // Results alignment toggle (always shown)
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_layout_option_bottom),
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout,
+                isFirstItem = true,
+                isLastItem = !appsSectionEnabled
+            )
 
+            // App labels toggle (conditional)
             if (appsSectionEnabled) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                // App labels toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_app_labels_toggle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Switch(
-                        checked = showAppLabels,
-                        onCheckedChange = onToggleAppLabels
-                    )
-                }
+                SettingsToggleRow(
+                    text = stringResource(R.string.settings_app_labels_toggle),
+                    checked = showAppLabels,
+                    onCheckedChange = onToggleAppLabels
+                )
             }
 
+            // Section titles toggle (always shown)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Section titles toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_section_titles_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = showSectionTitles,
-                    onCheckedChange = onToggleShowSectionTitles
-                )
-            }
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_section_titles_toggle),
+                checked = showSectionTitles,
+                onCheckedChange = onToggleShowSectionTitles,
+                isLastItem = true
+            )
         }
     }
 }
@@ -137,7 +146,7 @@ fun HiddenAppsSection(
                 text = stringResource(R.string.settings_hidden_apps_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(Spacing.cardHorizontalPadding)
             )
         } else {
             Column {
@@ -165,7 +174,10 @@ private fun HiddenAppRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(
+                horizontal = Spacing.cardHorizontalPadding,
+                vertical = Spacing.cardVerticalPadding
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {

@@ -1,116 +1,61 @@
 package com.tk.quicksearch.search
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.gestures.scrollBy
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.border
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.shape.CircleShape
-import android.net.Uri
-import android.graphics.BitmapFactory
-import java.io.InputStream
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.window.PopupProperties
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -119,22 +64,140 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.search.SearchSection
-import java.util.concurrent.ConcurrentHashMap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
-private enum class ExpandedSection {
+/**
+ * Enum representing which section is currently expanded.
+ */
+enum class ExpandedSection {
     NONE,
     CONTACTS,
     FILES
 }
 
-private const val INITIAL_RESULT_COUNT = 1
-private const val ROW_COUNT = 2
-private const val SEARCH_ROW_COUNT = 1
-private const val COLUMNS = 5
+/**
+ * Constants for search screen layout.
+ */
+private object SearchScreenConstants {
+    const val INITIAL_RESULT_COUNT = 1
+    const val ROW_COUNT = 2
+    const val SEARCH_ROW_COUNT = 1
+    const val COLUMNS = 5
+}
+
+/**
+ * Data class holding all derived state calculations.
+ */
+private data class DerivedState(
+    val isSearching: Boolean,
+    val hasPinnedContacts: Boolean,
+    val hasPinnedFiles: Boolean,
+    val visibleRowCount: Int,
+    val visibleAppLimit: Int,
+    val displayApps: List<AppInfo>,
+    val pinnedPackageNames: Set<String>,
+    val hasAppResults: Boolean,
+    val hasContactResults: Boolean,
+    val hasFileResults: Boolean,
+    val pinnedContactIds: Set<Long>,
+    val pinnedFileUris: Set<String>,
+    val autoExpandFiles: Boolean,
+    val autoExpandContacts: Boolean,
+    val hasBothContactsAndFiles: Boolean,
+    val orderedSections: List<SearchSection>,
+    val shouldShowApps: Boolean,
+    val shouldShowContacts: Boolean,
+    val shouldShowFiles: Boolean,
+    val resultSectionTitle: @Composable (String) -> Unit
+)
+
+/**
+ * Calculates all derived state from SearchUiState.
+ */
+@Composable
+private fun rememberDerivedState(
+    state: SearchUiState
+): DerivedState {
+    val isSearching = state.query.isNotBlank()
+    val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
+    val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
+    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles) {
+        SearchScreenConstants.SEARCH_ROW_COUNT
+    } else {
+        SearchScreenConstants.ROW_COUNT
+    }
+    val visibleAppLimit = visibleRowCount * SearchScreenConstants.COLUMNS
+    
+    val displayApps = remember(
+        state.query,
+        state.recentApps,
+        state.searchResults,
+        state.pinnedApps,
+        visibleAppLimit
+    ) {
+        if (!isSearching) {
+            val pinnedPackages = state.pinnedApps.map { it.packageName }.toSet()
+            (state.pinnedApps + state.recentApps.filterNot { pinnedPackages.contains(it.packageName) })
+                .take(visibleAppLimit)
+        } else {
+            state.searchResults.take(visibleAppLimit)
+        }
+    }
+    
+    val pinnedPackageNames = remember(state.pinnedApps) {
+        state.pinnedApps.map { it.packageName }.toSet()
+    }
+    val hasAppResults = displayApps.isNotEmpty()
+    val hasContactResults = state.contactResults.isNotEmpty()
+    val hasFileResults = state.fileResults.isNotEmpty()
+    val pinnedContactIds = remember(state.pinnedContacts) {
+        state.pinnedContacts.map { it.contactId }.toSet()
+    }
+    val pinnedFileUris = remember(state.pinnedFiles) {
+        state.pinnedFiles.map { it.uri.toString() }.toSet()
+    }
+    val autoExpandFiles = hasFileResults && !hasContactResults
+    val autoExpandContacts = hasContactResults && !hasFileResults
+    val hasBothContactsAndFiles = hasContactResults && hasFileResults
+    
+    val orderedSections = remember(state.sectionOrder, state.disabledSections) {
+        state.sectionOrder.filter { it !in state.disabledSections }
+    }
+    
+    val shouldShowApps = SearchSection.APPS !in state.disabledSections && hasAppResults
+    val shouldShowContacts = SearchSection.CONTACTS !in state.disabledSections && 
+        (!state.hasContactPermission || hasContactResults || hasPinnedContacts)
+    val shouldShowFiles = SearchSection.FILES !in state.disabledSections && 
+        (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
+    
+    val resultSectionTitle: @Composable (String) -> Unit = { text ->
+        if (state.showSectionTitles) {
+            ResultSectionTitle(text = text)
+        }
+    }
+    
+    return DerivedState(
+        isSearching = isSearching,
+        hasPinnedContacts = hasPinnedContacts,
+        hasPinnedFiles = hasPinnedFiles,
+        visibleRowCount = visibleRowCount,
+        visibleAppLimit = visibleAppLimit,
+        displayApps = displayApps,
+        pinnedPackageNames = pinnedPackageNames,
+        hasAppResults = hasAppResults,
+        hasContactResults = hasContactResults,
+        hasFileResults = hasFileResults,
+        pinnedContactIds = pinnedContactIds,
+        pinnedFileUris = pinnedFileUris,
+        autoExpandFiles = autoExpandFiles,
+        autoExpandContacts = autoExpandContacts,
+        hasBothContactsAndFiles = hasBothContactsAndFiles,
+        orderedSections = orderedSections,
+        shouldShowApps = shouldShowApps,
+        shouldShowContacts = shouldShowContacts,
+        shouldShowFiles = shouldShowFiles,
+        resultSectionTitle = resultSectionTitle
+    )
+}
 
 @Composable
 fun SearchRoute(
@@ -216,146 +279,161 @@ fun SearchScreen(
     onPhoneNumberSelected: (String, Boolean) -> Unit,
     onDismissPhoneNumberSelection: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val isSearching = state.query.isNotBlank()
-    val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
-    val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
-    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles) SEARCH_ROW_COUNT else ROW_COUNT
-    val visibleAppLimit = visibleRowCount * COLUMNS
-    val displayApps = remember(
-        state.query,
-        state.recentApps,
-        state.searchResults,
-        state.pinnedApps,
-        visibleAppLimit
-    ) {
-        if (!isSearching) {
-            val pinnedPackages = state.pinnedApps.map { it.packageName }.toSet()
-            (state.pinnedApps + state.recentApps.filterNot { pinnedPackages.contains(it.packageName) })
-                .take(visibleAppLimit)
-        } else {
-            state.searchResults.take(visibleAppLimit)
-        }
-    }
-    val pinnedPackageNames = remember(state.pinnedApps) {
-        state.pinnedApps.map { it.packageName }.toSet()
-    }
-    val hasAppResults = displayApps.isNotEmpty()
-    val hasContactResults = state.contactResults.isNotEmpty()
-    val hasFileResults = state.fileResults.isNotEmpty()
-    val pinnedContactIds = remember(state.pinnedContacts) {
-        state.pinnedContacts.map { it.contactId }.toSet()
-    }
-    val pinnedFileUris = remember(state.pinnedFiles) {
-        state.pinnedFiles.map { it.uri.toString() }.toSet()
-    }
-    val autoExpandFiles = hasFileResults && !hasContactResults
-    val autoExpandContacts = hasContactResults && !hasFileResults
-    val hasBothContactsAndFiles = hasContactResults && hasFileResults
     val keyboardController = LocalSoftwareKeyboardController.current
     
-    // Get ordered sections, filtering out disabled ones
-    val orderedSections = remember(state.sectionOrder, state.disabledSections) {
-        state.sectionOrder.filter { it !in state.disabledSections }
-    }
+    // Calculate derived state
+    val derivedState = rememberDerivedState(state)
     
-    // Check if sections should be shown (considering disabled state)
-    val shouldShowApps = SearchSection.APPS !in state.disabledSections && hasAppResults
-    val shouldShowContacts = SearchSection.CONTACTS !in state.disabledSections && 
-        (!state.hasContactPermission || hasContactResults || hasPinnedContacts)
-    val shouldShowFiles = SearchSection.FILES !in state.disabledSections && 
-        (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
-    
+    // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
-    
-    // Helper lambda for conditionally showing section titles
-    val resultSectionTitleLambda: @Composable (String) -> Unit = { text ->
-        if (state.showSectionTitles) {
-            ResultSectionTitle(text = text)
-        }
-    }
     
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
         expandedSection = ExpandedSection.NONE
     }
     
+    // Handle back button when section is expanded
     BackHandler(enabled = expandedSection != ExpandedSection.NONE) {
         keyboardController?.show()
         expandedSection = ExpandedSection.NONE
     }
+    
+    // Handle scroll behavior for keyboard-aligned layout
+    KeyboardAlignedScrollBehavior(
+        scrollState = scrollState,
+        expandedSection = expandedSection,
+        keyboardAlignedLayout = state.keyboardAlignedLayout,
+        query = state.query,
+        displayAppsSize = derivedState.displayApps.size,
+        contactResultsSize = state.contactResults.size,
+        fileResultsSize = state.fileResults.size,
+        pinnedContactsSize = state.pinnedContacts.size,
+        pinnedFilesSize = state.pinnedFiles.size,
+        hasUsagePermission = state.hasUsagePermission,
+        errorMessage = state.errorMessage
+    )
 
-    // Scroll behavior:
-    // - For keyboard-aligned layout when not expanded: scroll to bottom
-    // - For keyboard-aligned layout when expanded: scroll to top (towards search bar)
-    LaunchedEffect(
-        state.query,
-        displayApps.size,
-        state.contactResults.size,
-        state.fileResults.size,
-        state.pinnedContacts.size,
-        state.pinnedFiles.size,
-        state.hasUsagePermission,
-        state.errorMessage,
-        expandedSection,
-        state.keyboardAlignedLayout
-    ) {
-        if (state.keyboardAlignedLayout) {
-            // Wait briefly for layout to start
-            delay(50)
-            // Wait for content to be laid out and maxValue to stabilize
-            var attempts = 0
-            var lastMaxValue = 0
-            var stableCount = 0
-            while (attempts < 10) {
-                delay(20)
-                val currentMaxValue = scrollState.maxValue
-                if (currentMaxValue > 0) {
-                    if (currentMaxValue == lastMaxValue) {
-                        stableCount++
-                        // Content is stable if maxValue hasn't changed for 2 checks
-                        if (stableCount >= 2) {
-                            break
-                        }
-                    } else {
-                        stableCount = 0
-                        lastMaxValue = currentMaxValue
-                    }
-                }
-                attempts++
-            }
-            if (expandedSection == ExpandedSection.NONE) {
-                // Scroll to bottom when showing the bottom-aligned layout
-                // Get the latest maxValue after checks
-                val targetScroll = scrollState.maxValue
-                if (targetScroll > 0) {
-                    // Use faster animation for responsive scrolling
-                    scrollState.animateScrollTo(
-                        value = targetScroll,
-                        animationSpec = spring(
-                            dampingRatio = 0.9f,
-                            stiffness = 500f
-                        )
-                    )
-                }
+    // Prepare section parameters
+    val contactsParams = ContactsSectionParams(
+        contacts = state.contactResults,
+        hasPermission = state.hasContactPermission,
+        isExpanded = expandedSection == ExpandedSection.CONTACTS,
+        useWhatsAppForMessages = state.useWhatsAppForMessages,
+        pinnedContactIds = derivedState.pinnedContactIds,
+        onContactClick = onContactClick,
+        onCallContact = onCallContact,
+        onSmsContact = onSmsContact,
+        onTogglePin = { contact ->
+            if (derivedState.pinnedContactIds.contains(contact.contactId)) {
+                onUnpinContact(contact)
             } else {
-                // When expanded, smoothly scroll back to top (towards search bar)
-                scrollState.animateScrollTo(
-                    value = 0,
-                    animationSpec = spring(
-                        dampingRatio = 0.9f,
-                        stiffness = 500f
-                    )
-                )
+                onPinContact(contact)
             }
+        },
+        onExclude = onExcludeContact,
+        onOpenAppSettings = onOpenAppSettings,
+        showAllResults = derivedState.autoExpandContacts,
+        showExpandControls = derivedState.hasBothContactsAndFiles,
+        onExpandClick = {
+            if (expandedSection == ExpandedSection.CONTACTS) {
+                keyboardController?.show()
+                expandedSection = ExpandedSection.NONE
+            } else {
+                keyboardController?.hide()
+                expandedSection = ExpandedSection.CONTACTS
+            }
+        },
+        resultSectionTitle = derivedState.resultSectionTitle,
+        permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+            PermissionDisabledCard(
+                title = title,
+                message = message,
+                actionLabel = actionLabel,
+                onActionClick = onActionClick
+            )
         }
-    }
+    )
+    
+    val filesParams = FilesSectionParams(
+        files = state.fileResults,
+        hasPermission = state.hasFilePermission,
+        isExpanded = expandedSection == ExpandedSection.FILES,
+        pinnedFileUris = derivedState.pinnedFileUris,
+        onFileClick = onFileClick,
+        onRequestPermission = onOpenStorageAccessSettings,
+        onTogglePin = { file ->
+            if (derivedState.pinnedFileUris.contains(file.uri.toString())) {
+                onUnpinFile(file)
+            } else {
+                onPinFile(file)
+            }
+        },
+        onExclude = onExcludeFile,
+        showAllResults = derivedState.autoExpandFiles,
+        showExpandControls = derivedState.hasBothContactsAndFiles,
+        onExpandClick = {
+            if (expandedSection == ExpandedSection.FILES) {
+                keyboardController?.show()
+                expandedSection = ExpandedSection.NONE
+            } else {
+                keyboardController?.hide()
+                expandedSection = ExpandedSection.FILES
+            }
+        },
+        resultSectionTitle = derivedState.resultSectionTitle,
+        permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+            PermissionDisabledCard(
+                title = title,
+                message = message,
+                actionLabel = actionLabel,
+                onActionClick = onActionClick
+            )
+        }
+    )
+    
+    val appsParams = AppsSectionParams(
+        apps = derivedState.displayApps,
+        isSearching = derivedState.isSearching,
+        hasAppResults = derivedState.hasAppResults,
+        pinnedPackageNames = derivedState.pinnedPackageNames,
+        onAppClick = onAppClick,
+        onAppInfoClick = onAppInfoClick,
+        onUninstallClick = onUninstallClick,
+        onHideApp = onHideApp,
+        onPinApp = onPinApp,
+        onUnpinApp = onUnpinApp,
+        showAppLabels = state.showAppLabels || derivedState.isSearching,
+        rowCount = derivedState.visibleRowCount,
+        resultSectionTitle = derivedState.resultSectionTitle
+    )
+    
+    val renderingState = SectionRenderingState(
+        isSearching = derivedState.isSearching,
+        expandedSection = expandedSection,
+        hasAppResults = derivedState.hasAppResults,
+        hasContactResults = derivedState.hasContactResults,
+        hasFileResults = derivedState.hasFileResults,
+        hasPinnedContacts = derivedState.hasPinnedContacts,
+        hasPinnedFiles = derivedState.hasPinnedFiles,
+        shouldShowApps = derivedState.shouldShowApps,
+        shouldShowContacts = derivedState.shouldShowContacts,
+        shouldShowFiles = derivedState.shouldShowFiles,
+        autoExpandFiles = derivedState.autoExpandFiles,
+        autoExpandContacts = derivedState.autoExpandContacts,
+        hasBothContactsAndFiles = derivedState.hasBothContactsAndFiles,
+        displayApps = derivedState.displayApps,
+        contactResults = state.contactResults,
+        fileResults = state.fileResults,
+        pinnedContacts = state.pinnedContacts,
+        pinnedFiles = state.pinnedFiles,
+        orderedSections = derivedState.orderedSections
+    )
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .navigationBarsPadding()
             .padding(
@@ -370,9 +448,7 @@ fun SearchScreen(
             state.searchEngineOrder,
             state.disabledSearchEngines
         ) {
-            val order: List<SearchEngine> = state.searchEngineOrder
-            val disabled: Set<SearchEngine> = state.disabledSearchEngines
-            order.filter { engine -> engine !in disabled }
+            state.searchEngineOrder.filter { it !in state.disabledSearchEngines }
         }
 
         // Fixed search bar at the top
@@ -384,7 +460,7 @@ fun SearchScreen(
             onSearchAction = {
                 if (state.query.isBlank()) return@PersistentSearchField
 
-                val firstApp = displayApps.firstOrNull()
+                val firstApp = derivedState.displayApps.firstOrNull()
                 if (firstApp != null) {
                     onAppClick(firstApp)
                 } else {
@@ -397,600 +473,23 @@ fun SearchScreen(
         )
 
         // Scrollable content between search bar and search engines
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(scrollState)
-        ) {
-            // When contacts or files are expanded, use top-aligned layout (towards search bar)
-            // even if keyboardAlignedLayout is enabled
-            if (state.keyboardAlignedLayout && expandedSection == ExpandedSection.NONE) {
-                // Keyboard-aligned layout: reverse priority order (bottom to top)
-                // Files → Contacts → Search Engines → Apps
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp, top = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    if (!state.hasUsagePermission) {
-                        UsagePermissionCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            onRequestPermission = onRequestUsagePermission
-                        )
-                    }
-
-                    state.errorMessage?.takeIf { it.isNotBlank() }?.let { errorMessage ->
-                        InfoBanner(message = errorMessage)
-                    }
-
-                    if (state.query.isNotBlank()) {
-                        val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
-                        val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowFilesSection = shouldShowFiles && (!state.hasFilePermission || hasFileResults)
-                        val shouldShowContactsSection = shouldShowContacts && (!state.hasContactPermission || hasContactResults)
-
-                        // When using bottom-aligned layout, reverse the order only when a section
-                        // is showing all results (expanded or auto-expanded). This keeps the
-                        // single collapsed row (with a "More" button) on the top result, while
-                        // full lists are shown bottom-to-top.
-                        val collapsedContacts = if (isContactsExpanded || autoExpandContacts) {
-                            state.contactResults.asReversed()
-                        } else {
-                            state.contactResults
-                        }
-                        val collapsedFiles = if (isFilesExpanded || autoExpandFiles) {
-                            state.fileResults.asReversed()
-                        } else {
-                            state.fileResults
-                        }
-
-                        // Render sections in order (reversed for bottom-aligned layout)
-                        val sectionsToRender = orderedSections.reversed() // Reverse for bottom-aligned
-                        sectionsToRender.forEach { section ->
-                            when (section) {
-                                SearchSection.FILES -> {
-                                    if (shouldShowFilesSection && !isContactsExpanded) {
-                            FileResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasFilePermission,
-                                files = collapsedFiles,
-                                isExpanded = isFilesExpanded,
-                                onFileClick = onFileClick,
-                                onRequestPermission = onOpenStorageAccessSettings,
-                                pinnedFileUris = pinnedFileUris,
-                                onTogglePin = { file ->
-                                    if (pinnedFileUris.contains(file.uri.toString())) {
-                                        onUnpinFile(file)
-                                    } else {
-                                        onPinFile(file)
-                                    }
-                                },
-                                onExclude = onExcludeFile,
-                                showAllResults = autoExpandFiles,
-                                showExpandControls = hasBothContactsAndFiles,
-                                onExpandClick = {
-                                    if (isFilesExpanded) {
-                                        keyboardController?.show()
-                                        expandedSection = ExpandedSection.NONE
-                                    } else {
-                                        keyboardController?.hide()
-                                        expandedSection = ExpandedSection.FILES
-                                    }
-                                },
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.CONTACTS -> {
-                                    if (shouldShowContactsSection && !isFilesExpanded) {
-                                        ContactResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasContactPermission,
-                                contacts = collapsedContacts,
-                                isExpanded = isContactsExpanded,
-                                useWhatsAppForMessages = state.useWhatsAppForMessages,
-                                onContactClick = onContactClick,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                pinnedContactIds = pinnedContactIds,
-                                onTogglePin = { contact ->
-                                    if (pinnedContactIds.contains(contact.contactId)) {
-                                        onUnpinContact(contact)
-                                    } else {
-                                        onPinContact(contact)
-                                    }
-                                },
-                                onExclude = onExcludeContact,
-                                onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = autoExpandContacts,
-                                showExpandControls = hasBothContactsAndFiles,
-                                onExpandClick = {
-                                    if (isContactsExpanded) {
-                                        keyboardController?.show()
-                                        expandedSection = ExpandedSection.NONE
-                                    } else {
-                                        keyboardController?.hide()
-                                        expandedSection = ExpandedSection.CONTACTS
-                                    }
-                                },
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.APPS -> {
-                                    if (hasAppResults && shouldShowApps && expandedSection == ExpandedSection.NONE) {
-                                        val shouldShowAppLabels = state.showAppLabels || isSearching
-                                        AppGridSection(
-                                            apps = displayApps,
-                                            isSearching = isSearching,
-                                            hasAppResults = hasAppResults,
-                                            onAppClick = onAppClick,
-                                            onAppInfoClick = onAppInfoClick,
-                                            onUninstallClick = onUninstallClick,
-                                            onHideApp = onHideApp,
-                                            onPinApp = onPinApp,
-                                            onUnpinApp = onUnpinApp,
-                                            pinnedPackageNames = pinnedPackageNames,
-                                            showAppLabels = shouldShowAppLabels,
-                                            rowCount = visibleRowCount,
-                                            resultSectionTitle = resultSectionTitleLambda
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (expandedSection == ExpandedSection.NONE) {
-                        // For keyboard-aligned layout, render pinned items and apps in order (reversed for bottom-aligned)
-                        val sectionsForPinned = orderedSections.reversed()
-                        sectionsForPinned.forEach { section ->
-                            when (section) {
-                                SearchSection.FILES -> {
-                                    if (!isSearching && hasPinnedFiles && shouldShowFiles) {
-                            FileResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasFilePermission,
-                                files = state.pinnedFiles,
-                                isExpanded = true,
-                                onFileClick = onFileClick,
-                                onRequestPermission = onOpenStorageAccessSettings,
-                                pinnedFileUris = pinnedFileUris,
-                                onTogglePin = { file ->
-                                    if (pinnedFileUris.contains(file.uri.toString())) {
-                                        onUnpinFile(file)
-                                    } else {
-                                        onPinFile(file)
-                                    }
-                                },
-                                onExclude = onExcludeFile,
-                                showAllResults = true,
-                                showExpandControls = false,
-                                onExpandClick = {},
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.CONTACTS -> {
-                                    if (!isSearching && hasPinnedContacts && shouldShowContacts) {
-                                        ContactResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasContactPermission,
-                                contacts = state.pinnedContacts,
-                                isExpanded = true,
-                                useWhatsAppForMessages = state.useWhatsAppForMessages,
-                                onContactClick = onContactClick,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                pinnedContactIds = pinnedContactIds,
-                                onTogglePin = { contact ->
-                                    if (pinnedContactIds.contains(contact.contactId)) {
-                                        onUnpinContact(contact)
-                                    } else {
-                                        onPinContact(contact)
-                                    }
-                                },
-                                onExclude = onExcludeContact,
-                                onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = true,
-                                showExpandControls = false,
-                                onExpandClick = {},
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.APPS -> {
-                                    if (!isSearching && hasAppResults && shouldShowApps && expandedSection == ExpandedSection.NONE) {
-                                        val shouldShowAppLabels = state.showAppLabels
-
-                                        AppGridSection(
-                                apps = displayApps,
-                                isSearching = isSearching,
-                                hasAppResults = hasAppResults,
-                                onAppClick = onAppClick,
-                                onAppInfoClick = onAppInfoClick,
-                                onUninstallClick = onUninstallClick,
-                                onHideApp = onHideApp,
-                                onPinApp = onPinApp,
-                                onUnpinApp = onUnpinApp,
-                                pinnedPackageNames = pinnedPackageNames,
-                                showAppLabels = shouldShowAppLabels,
-                                rowCount = visibleRowCount,
-                                resultSectionTitle = resultSectionTitleLambda
-                            )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Top-aligned layout: render sections in order
-                // Also used when keyboardAlignedLayout is true but contacts/files are expanded
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp, top = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    if (!state.hasUsagePermission) {
-                        UsagePermissionCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            onRequestPermission = onRequestUsagePermission
-                        )
-                    }
-
-                    state.errorMessage?.takeIf { it.isNotBlank() }?.let { errorMessage ->
-                        InfoBanner(message = errorMessage)
-                    }
-
-                    if (expandedSection == ExpandedSection.NONE) {
-                        // Render sections in order for top-aligned layout
-                        orderedSections.forEach { section ->
-                            when (section) {
-                                SearchSection.APPS -> {
-                                    if (!isSearching && hasAppResults && shouldShowApps && expandedSection == ExpandedSection.NONE) {
-                                        val shouldShowAppLabels = state.showAppLabels
-
-                                        AppGridSection(
-                                            apps = displayApps,
-                                            isSearching = isSearching,
-                                            hasAppResults = hasAppResults,
-                                            onAppClick = onAppClick,
-                                            onAppInfoClick = onAppInfoClick,
-                                            onUninstallClick = onUninstallClick,
-                                            onHideApp = onHideApp,
-                                            onPinApp = onPinApp,
-                                            onUnpinApp = onUnpinApp,
-                                            pinnedPackageNames = pinnedPackageNames,
-                                            showAppLabels = shouldShowAppLabels,
-                                            rowCount = visibleRowCount,
-                                            resultSectionTitle = { text -> ResultSectionTitle(text = text) }
-                                        )
-                                    }
-                                }
-                                SearchSection.CONTACTS -> {
-                                    if (!isSearching && hasPinnedContacts && shouldShowContacts) {
-                            ContactResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasContactPermission,
-                                contacts = state.pinnedContacts,
-                                isExpanded = true,
-                                useWhatsAppForMessages = state.useWhatsAppForMessages,
-                                onContactClick = onContactClick,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                pinnedContactIds = pinnedContactIds,
-                                onTogglePin = { contact ->
-                                    if (pinnedContactIds.contains(contact.contactId)) {
-                                        onUnpinContact(contact)
-                                    } else {
-                                        onPinContact(contact)
-                                    }
-                                },
-                                onExclude = onExcludeContact,
-                                onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = true,
-                                showExpandControls = false,
-                                onExpandClick = {},
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.FILES -> {
-                                    if (!isSearching && hasPinnedFiles && shouldShowFiles) {
-                                        FileResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasFilePermission,
-                                files = state.pinnedFiles,
-                                isExpanded = true,
-                                onFileClick = onFileClick,
-                                onRequestPermission = onOpenStorageAccessSettings,
-                                pinnedFileUris = pinnedFileUris,
-                                onTogglePin = { file ->
-                                    if (pinnedFileUris.contains(file.uri.toString())) {
-                                        onUnpinFile(file)
-                                    } else {
-                                        onPinFile(file)
-                                    }
-                                },
-                                onExclude = onExcludeFile,
-                                showAllResults = true,
-                                showExpandControls = false,
-                                onExpandClick = {},
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                            }
-                        }
-                    } else if (state.query.isBlank()) {
-                        // Handle expanded sections when there's no query (pinned items)
-                        val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
-                        val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        
-                        orderedSections.forEach { section ->
-                            when (section) {
-                                SearchSection.CONTACTS -> {
-                                    if (isContactsExpanded && hasPinnedContacts && shouldShowContacts) {
-                                        ContactResultsSection(
-                                            modifier = Modifier,
-                                            hasPermission = state.hasContactPermission,
-                                            contacts = state.pinnedContacts,
-                                            isExpanded = true,
-                                            useWhatsAppForMessages = state.useWhatsAppForMessages,
-                                            onContactClick = onContactClick,
-                                            onCallContact = onCallContact,
-                                            onSmsContact = onSmsContact,
-                                            pinnedContactIds = pinnedContactIds,
-                                            onTogglePin = { contact ->
-                                                if (pinnedContactIds.contains(contact.contactId)) {
-                                                    onUnpinContact(contact)
-                                                } else {
-                                                    onPinContact(contact)
-                                                }
-                                            },
-                                            onExclude = onExcludeContact,
-                                            onOpenAppSettings = onOpenAppSettings,
-                                            showAllResults = true,
-                                            showExpandControls = false,
-                                            onExpandClick = {
-                                                keyboardController?.show()
-                                                expandedSection = ExpandedSection.NONE
-                                            },
-                                            resultSectionTitle = resultSectionTitleLambda,
-                                            permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                                PermissionDisabledCard(
-                                                    title = title,
-                                                    message = message,
-                                                    actionLabel = actionLabel,
-                                                    onActionClick = onActionClick
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                                SearchSection.FILES -> {
-                                    if (isFilesExpanded && hasPinnedFiles && shouldShowFiles) {
-                                        FileResultsSection(
-                                            modifier = Modifier,
-                                            hasPermission = state.hasFilePermission,
-                                            files = state.pinnedFiles,
-                                            isExpanded = true,
-                                            onFileClick = onFileClick,
-                                            onRequestPermission = onOpenStorageAccessSettings,
-                                            pinnedFileUris = pinnedFileUris,
-                                            onTogglePin = { file ->
-                                                if (pinnedFileUris.contains(file.uri.toString())) {
-                                                    onUnpinFile(file)
-                                                } else {
-                                                    onPinFile(file)
-                                                }
-                                            },
-                                            onExclude = onExcludeFile,
-                                            showAllResults = true,
-                                            showExpandControls = false,
-                                            onExpandClick = {
-                                                keyboardController?.show()
-                                                expandedSection = ExpandedSection.NONE
-                                            },
-                                            resultSectionTitle = resultSectionTitleLambda,
-                                            permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                                PermissionDisabledCard(
-                                                    title = title,
-                                                    message = message,
-                                                    actionLabel = actionLabel,
-                                                    onActionClick = onActionClick
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                                SearchSection.APPS -> {
-                                    // Apps section doesn't need expansion handling
-                                }
-                            }
-                        }
-                    }
-
-                    if (state.query.isNotBlank()) {
-                        val isContactsExpanded = expandedSection == ExpandedSection.CONTACTS
-                        val isFilesExpanded = expandedSection == ExpandedSection.FILES
-                        val shouldShowContactsSection = shouldShowContacts && (!state.hasContactPermission || hasContactResults)
-                        val shouldShowFilesSection = shouldShowFiles && (!state.hasFilePermission || hasFileResults)
-
-                        // Render sections in order for search results
-                        orderedSections.forEach { section ->
-                            when (section) {
-                                SearchSection.CONTACTS -> {
-                                    if (shouldShowContactsSection && !isFilesExpanded) {
-                                        ContactResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasContactPermission,
-                                contacts = state.contactResults,
-                                isExpanded = isContactsExpanded,
-                                useWhatsAppForMessages = state.useWhatsAppForMessages,
-                                onContactClick = onContactClick,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                pinnedContactIds = pinnedContactIds,
-                                onTogglePin = { contact ->
-                                    if (pinnedContactIds.contains(contact.contactId)) {
-                                        onUnpinContact(contact)
-                                    } else {
-                                        onPinContact(contact)
-                                    }
-                                },
-                                onExclude = onExcludeContact,
-                                onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = autoExpandContacts,
-                                showExpandControls = hasBothContactsAndFiles,
-                                onExpandClick = {
-                                    if (isContactsExpanded) {
-                                        keyboardController?.show()
-                                        expandedSection = ExpandedSection.NONE
-                                    } else {
-                                        keyboardController?.hide()
-                                        expandedSection = ExpandedSection.CONTACTS
-                                    }
-                                },
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.FILES -> {
-                                    if (shouldShowFilesSection && !isContactsExpanded) {
-                                        FileResultsSection(
-                                modifier = Modifier,
-                                hasPermission = state.hasFilePermission,
-                                files = state.fileResults,
-                                isExpanded = isFilesExpanded,
-                                onFileClick = onFileClick,
-                                onRequestPermission = onOpenStorageAccessSettings,
-                                pinnedFileUris = pinnedFileUris,
-                                onTogglePin = { file ->
-                                    if (pinnedFileUris.contains(file.uri.toString())) {
-                                        onUnpinFile(file)
-                                    } else {
-                                        onPinFile(file)
-                                    }
-                                },
-                                onExclude = onExcludeFile,
-                                showAllResults = autoExpandFiles,
-                                showExpandControls = hasBothContactsAndFiles,
-                                onExpandClick = {
-                                    if (isFilesExpanded) {
-                                        keyboardController?.show()
-                                        expandedSection = ExpandedSection.NONE
-                                    } else {
-                                        keyboardController?.hide()
-                                        expandedSection = ExpandedSection.FILES
-                                    }
-                                },
-                                resultSectionTitle = resultSectionTitleLambda,
-                                permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-                                    PermissionDisabledCard(
-                                        title = title,
-                                        message = message,
-                                        actionLabel = actionLabel,
-                                        onActionClick = onActionClick
-                                    )
-                                }
-                            )
-                                    }
-                                }
-                                SearchSection.APPS -> {
-                                    if (hasAppResults && shouldShowApps && expandedSection == ExpandedSection.NONE) {
-                                        val shouldShowAppLabels = state.showAppLabels || isSearching
-                                        AppGridSection(
-                                            apps = displayApps,
-                                            isSearching = isSearching,
-                                            hasAppResults = hasAppResults,
-                                            onAppClick = onAppClick,
-                                            onAppInfoClick = onAppInfoClick,
-                                            onUninstallClick = onUninstallClick,
-                                            onHideApp = onHideApp,
-                                            onPinApp = onPinApp,
-                                            onUnpinApp = onUnpinApp,
-                                            pinnedPackageNames = pinnedPackageNames,
-                                            showAppLabels = shouldShowAppLabels,
-                                            rowCount = visibleRowCount,
-                                            resultSectionTitle = resultSectionTitleLambda
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        SearchContentArea(
+            modifier = Modifier.weight(1f),
+            state = state,
+            renderingState = renderingState,
+            contactsParams = contactsParams,
+            filesParams = filesParams,
+            appsParams = appsParams,
+            onRequestUsagePermission = onRequestUsagePermission,
+            scrollState = scrollState
+        )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded, or when search engine section is disabled
         if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled) {
             SearchEnginesSection(
                 query = state.query,
-                hasAppResults = hasAppResults,
+                hasAppResults = derivedState.hasAppResults,
                 enabledEngines = enabledEngines,
                 onSearchEngineClick = onSearchEngineClick,
                 modifier = Modifier.imePadding()
@@ -1205,7 +704,7 @@ private fun PersistentSearchField(
 }
 
 @Composable
-private fun UsagePermissionCard(
+internal fun UsagePermissionCard(
     modifier: Modifier = Modifier,
     onRequestPermission: () -> Unit
 ) {
@@ -1240,7 +739,7 @@ private fun UsagePermissionCard(
 }
 
 @Composable
-private fun InfoBanner(message: String) {
+internal fun InfoBanner(message: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.errorContainer,

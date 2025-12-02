@@ -1,0 +1,110 @@
+package com.tk.quicksearch.permissions
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.R
+
+/**
+ * A card component that displays a permission with its title, description, and toggle/status.
+ */
+@Composable
+fun PermissionCard(
+    title: String,
+    description: String,
+    permissionState: PermissionState,
+    isMandatory: Boolean,
+    onToggleChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (isMandatory) {
+                        Text(
+                            text = "*",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            if (permissionState.isGranted) {
+                // Show green checkmark when permission is granted
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = stringResource(R.string.permissions_granted),
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .size(24.dp)
+                )
+            } else {
+                // Show toggle when permission is not granted
+                Switch(
+                    checked = permissionState.isEnabled,
+                    onCheckedChange = { newValue ->
+                        if (newValue) {
+                            // User wants to enable - request permission
+                            onToggleChange(true)
+                        } else if (!isMandatory) {
+                            // User wants to disable optional permission (just update UI state)
+                            onToggleChange(false)
+                        }
+                    },
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        }
+    }
+}

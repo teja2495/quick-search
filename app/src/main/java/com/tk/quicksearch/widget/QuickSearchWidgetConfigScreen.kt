@@ -1,7 +1,5 @@
 package com.tk.quicksearch.widget
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,14 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,11 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -70,12 +61,16 @@ fun QuickSearchWidgetConfigScreen(
             )
         },
         bottomBar = {
-            Surface(shadowElevation = 8.dp) {
+            Surface(shadowElevation = WidgetConfigConstants.SURFACE_ELEVATION) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .padding(bottom = 24.dp),
+                        .padding(
+                            start = WidgetConfigConstants.BOTTOM_BAR_HORIZONTAL_PADDING,
+                            end = WidgetConfigConstants.BOTTOM_BAR_HORIZONTAL_PADDING,
+                            top = WidgetConfigConstants.BOTTOM_BAR_VERTICAL_PADDING,
+                            bottom = WidgetConfigConstants.BOTTOM_BAR_BOTTOM_PADDING
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
@@ -83,7 +78,7 @@ fun QuickSearchWidgetConfigScreen(
                         enabled = isLoaded,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
+                            .height(WidgetConfigConstants.BOTTOM_BUTTON_HEIGHT)
                     ) {
                         Text(
                             text = stringResource(R.string.dialog_save),
@@ -95,18 +90,7 @@ fun QuickSearchWidgetConfigScreen(
         }
     ) { innerPadding ->
         if (!isLoaded) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = stringResource(R.string.widget_loading_state))
-                }
-            }
+            WidgetLoadingState(innerPadding = innerPadding)
             return@Scaffold
         }
 
@@ -119,9 +103,11 @@ fun QuickSearchWidgetConfigScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(
+                        horizontal = WidgetConfigConstants.HORIZONTAL_PADDING,
+                        vertical = WidgetConfigConstants.TOP_SECTION_PADDING
+                    ),
+                verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.PREVIEW_SECTION_SPACING)
             ) {
                 WidgetPreviewCard(state = state)
             }
@@ -132,82 +118,37 @@ fun QuickSearchWidgetConfigScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 72.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                    .padding(
+                        start = WidgetConfigConstants.HORIZONTAL_PADDING,
+                        end = WidgetConfigConstants.HORIZONTAL_PADDING,
+                        bottom = WidgetConfigConstants.SCROLLABLE_SECTION_BOTTOM_PADDING
+                    ),
+                verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(WidgetConfigConstants.SCROLLABLE_SECTION_TOP_SPACING))
                 WidgetBackgroundColorSection(state = state, onStateChange = onStateChange)
-                
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
-
                 WidgetToggleSection(state = state, onStateChange = onStateChange)
             }
         }
     }
 }
 
+/**
+ * Loading state displayed while widget preferences are being loaded.
+ */
 @Composable
-private fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
-    val borderShape = RoundedCornerShape(state.borderRadiusDp.dp)
-    val borderColor = Color(state.borderColor).copy(alpha = state.backgroundAlpha)
-    val backgroundColor = if (state.backgroundColorIsWhite) Color.White else Color.Black
-    val backgroundWithAlpha = backgroundColor.copy(alpha = state.backgroundAlpha)
-    
-    // Determine text and icon color based on background and transparency
-    // Text and icon should remain fully opaque (no transparency)
-    val baseBorderColor = Color(state.borderColor)
-    val textIconColor = if (state.backgroundAlpha > 0.6f && state.backgroundColorIsWhite) {
-        Color(0xFF424242) // Dark grey
-    } else {
-        baseBorderColor // Fully opaque border color
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+private fun WidgetLoadingState(innerPadding: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .background(backgroundWithAlpha, shape = borderShape)
-                    .then(
-                        if (state.borderWidthDp >= 0.05f) {
-                            Modifier.border(
-                                width = state.borderWidthDp.dp,
-                                color = borderColor,
-                                shape = borderShape
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_widget_search),
-                    contentDescription = stringResource(R.string.desc_search_icon),
-                    tint = textIconColor,
-                    modifier = Modifier.size(20.dp)
-                )
-                if (state.showLabel) {
-                    Text(
-                        text = stringResource(R.string.widget_label_text),
-                        modifier = Modifier.padding(start = 8.dp),
-                        color = textIconColor,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(WidgetConfigConstants.LOADING_STATE_SPACING))
+            Text(text = stringResource(R.string.widget_loading_state))
         }
     }
 }
@@ -217,7 +158,7 @@ private fun WidgetSlidersSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING)) {
         SliderRow(
             label = stringResource(R.string.widget_slider_radius),
             value = state.borderRadiusDp,
@@ -229,7 +170,7 @@ private fun WidgetSlidersSection(
             label = stringResource(R.string.widget_slider_border),
             value = state.borderWidthDp,
             valueRange = 0f..4f,
-            valueFormatter = { if (it == 0f) "0 dp" else String.format(Locale.US, "%.1f dp", it) },
+            valueFormatter = { formatBorderWidth(it) },
             onValueChange = { onStateChange(state.copy(borderWidthDp = it)) }
         )
         SliderRow(
@@ -239,6 +180,17 @@ private fun WidgetSlidersSection(
             valueFormatter = { "${(it * 100).roundToInt()}%" },
             onValueChange = { onStateChange(state.copy(backgroundAlpha = it)) }
         )
+    }
+}
+
+/**
+ * Formats border width value for display.
+ */
+private fun formatBorderWidth(value: Float): String {
+    return if (value == 0f) {
+        "0 dp"
+    } else {
+        String.format(Locale.US, "%.1f dp", value)
     }
 }
 
@@ -276,7 +228,7 @@ private fun WidgetBackgroundColorSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
         Text(text = stringResource(R.string.widget_background_color))
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier.fillMaxWidth()

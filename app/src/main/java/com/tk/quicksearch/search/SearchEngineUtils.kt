@@ -1,0 +1,154 @@
+package com.tk.quicksearch.search
+
+import android.net.Uri
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.R
+
+/**
+ * Utility functions for SearchEngine-related mappings and conversions.
+ * Centralizes duplicate code across the codebase.
+ */
+
+/**
+ * Data class holding metadata for a search engine.
+ * This centralizes all engine-specific information in one place.
+ */
+private data class SearchEngineMetadata(
+    @DrawableRes val drawableResId: Int,
+    val contentDescription: String,
+    val urlTemplate: String,
+    val defaultShortcutCode: String
+)
+
+/**
+ * Centralized mapping of SearchEngine enum to its metadata.
+ * Adding a new engine only requires updating this map.
+ */
+private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = mapOf(
+    SearchEngine.GOOGLE to SearchEngineMetadata(
+        drawableResId = R.drawable.google,
+        contentDescription = "Google",
+        urlTemplate = "https://www.google.com/search?q=%s",
+        defaultShortcutCode = "ggl"
+    ),
+    SearchEngine.CHATGPT to SearchEngineMetadata(
+        drawableResId = R.drawable.chatgpt,
+        contentDescription = "ChatGPT",
+        urlTemplate = "https://chatgpt.com/?prompt=%s",
+        defaultShortcutCode = "cgpt"
+    ),
+    SearchEngine.PERPLEXITY to SearchEngineMetadata(
+        drawableResId = R.drawable.perplexity,
+        contentDescription = "Perplexity",
+        urlTemplate = "https://www.perplexity.ai/search?q=%s",
+        defaultShortcutCode = "ppx"
+    ),
+    SearchEngine.GROK to SearchEngineMetadata(
+        drawableResId = R.drawable.grok,
+        contentDescription = "Grok",
+        urlTemplate = "https://grok.com/?q=%s",
+        defaultShortcutCode = "grk"
+    ),
+    SearchEngine.GOOGLE_MAPS to SearchEngineMetadata(
+        drawableResId = R.drawable.google_maps,
+        contentDescription = "Google Maps",
+        urlTemplate = "http://maps.google.com/?q=%s",
+        defaultShortcutCode = "mps"
+    ),
+    SearchEngine.GOOGLE_PLAY to SearchEngineMetadata(
+        drawableResId = R.drawable.google_play,
+        contentDescription = "Google Play",
+        urlTemplate = "https://play.google.com/store/search?q=%s&c=apps",
+        defaultShortcutCode = "gplay"
+    ),
+    SearchEngine.REDDIT to SearchEngineMetadata(
+        drawableResId = R.drawable.reddit,
+        contentDescription = "Reddit",
+        urlTemplate = "https://www.reddit.com/search/?q=%s",
+        defaultShortcutCode = "rdt"
+    ),
+    SearchEngine.YOUTUBE to SearchEngineMetadata(
+        drawableResId = R.drawable.youtube,
+        contentDescription = "YouTube",
+        urlTemplate = "https://www.youtube.com/results?search_query=%s",
+        defaultShortcutCode = "ytb"
+    ),
+    SearchEngine.AMAZON to SearchEngineMetadata(
+        drawableResId = R.drawable.amazon,
+        contentDescription = "Amazon",
+        urlTemplate = "https://www.amazon.com/s?k=%s",
+        defaultShortcutCode = "amz"
+    ),
+    SearchEngine.AI_MODE to SearchEngineMetadata(
+        drawableResId = R.drawable.ai_mode,
+        contentDescription = "AI mode",
+        urlTemplate = "https://www.google.com/search?q=%s&udm=50",
+        defaultShortcutCode = "gai"
+    )
+)
+
+/**
+ * Maps SearchEngine enum to its corresponding drawable resource ID.
+ */
+@DrawableRes
+fun SearchEngine.getDrawableResId(): Int =
+    SEARCH_ENGINE_METADATA[this]?.drawableResId
+        ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
+
+/**
+ * Maps SearchEngine enum to its content description string.
+ */
+fun SearchEngine.getContentDescription(): String =
+    SEARCH_ENGINE_METADATA[this]?.contentDescription
+        ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
+
+/**
+ * Builds a search URL for the given query and search engine.
+ * 
+ * @param query The search query to encode and insert into the URL
+ * @param searchEngine The search engine to build the URL for
+ * @return The complete search URL with the encoded query
+ */
+fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
+    val metadata = SEARCH_ENGINE_METADATA[searchEngine]
+        ?: throw IllegalArgumentException("Unknown SearchEngine: $searchEngine")
+    
+    val encodedQuery = Uri.encode(query)
+    return metadata.urlTemplate.replace("%s", encodedQuery)
+}
+
+/**
+ * Gets the default shortcut code for a search engine.
+ * 
+ * @return The default shortcut code string, or null if not found
+ */
+fun SearchEngine.getDefaultShortcutCode(): String =
+    SEARCH_ENGINE_METADATA[this]?.defaultShortcutCode
+        ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
+
+/**
+ * Maps SearchEngine enum to its string resource ID for display name.
+ */
+@StringRes
+fun SearchEngine.getDisplayNameResId(): Int = when (this) {
+    SearchEngine.GOOGLE -> R.string.search_engine_google
+    SearchEngine.CHATGPT -> R.string.search_engine_chatgpt
+    SearchEngine.PERPLEXITY -> R.string.search_engine_perplexity
+    SearchEngine.GROK -> R.string.search_engine_grok
+    SearchEngine.GOOGLE_MAPS -> R.string.search_engine_google_maps
+    SearchEngine.GOOGLE_PLAY -> R.string.search_engine_google_play
+    SearchEngine.REDDIT -> R.string.search_engine_reddit
+    SearchEngine.YOUTUBE -> R.string.search_engine_youtube
+    SearchEngine.AMAZON -> R.string.search_engine_amazon
+    SearchEngine.AI_MODE -> R.string.search_engine_ai_mode
+}
+
+/**
+ * Gets the display name for a search engine.
+ * This is a Composable function that requires string resources.
+ */
+@Composable
+fun SearchEngine.getDisplayName(): String = stringResource(getDisplayNameResId())

@@ -11,6 +11,3 @@ data class DeviceFile(
     val mimeType: String?,
     val lastModified: Long
 )
-
-
-

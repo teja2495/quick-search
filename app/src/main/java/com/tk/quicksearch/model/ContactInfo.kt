@@ -12,6 +12,3 @@ data class ContactInfo(
 ) {
     val primaryNumber: String? = phoneNumbers.firstOrNull()
 }
-
-
-

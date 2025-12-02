@@ -3,40 +3,27 @@ package com.tk.quicksearch.permissions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,8 +35,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -67,75 +52,60 @@ fun PermissionsScreen(
     val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
 
-    var hasUsagePermission by remember { mutableStateOf(appUsageRepository.hasUsageAccess()) }
-    var hasContactsPermission by remember { mutableStateOf(contactRepository.hasPermission()) }
-    var hasFilesPermission by remember { mutableStateOf(fileRepository.hasPermission()) }
-    var hasRequestedAllFilesAccess by remember { mutableStateOf(false) }
-    var filesPermissionDenied by remember { mutableStateOf(false) }
-    
-    // Toggle states - all disabled (OFF) by default
-    // Usage toggle only enabled when permission is actually granted
-    var usageToggleEnabled by remember { mutableStateOf(appUsageRepository.hasUsageAccess()) }
-    var contactsToggleEnabled by remember { mutableStateOf(false) }
-    var filesToggleEnabled by remember { mutableStateOf(false) }
+    // Permission states
+    var usagePermissionState by remember {
+        mutableStateOf(createInitialPermissionState(appUsageRepository.hasUsageAccess()))
+    }
+    var contactsPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(contactRepository.hasPermission()))
+    }
+    var filesPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
+    }
 
+    // Runtime permissions launcher (for contacts and files on pre-R)
     val runtimePermissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
-        hasContactsPermission = contactsGranted
-        contactsToggleEnabled = contactsGranted
+        contactsPermissionState = updatePermissionState(contactsGranted, contactsGranted)
         
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        // Handle files permission for pre-R Android
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
             val filesGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
-            hasFilesPermission = filesGranted
-            filesToggleEnabled = filesGranted
-            // Track if permission was denied
-            if (!filesGranted) {
-                filesPermissionDenied = true
-            } else {
-                filesPermissionDenied = false
-            }
+            filesPermissionState = updatePermissionState(
+                filesGranted,
+                filesGranted,
+                wasDenied = !filesGranted
+            )
         }
     }
 
+    // All files access launcher (for Android R+)
     val allFilesAccessLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
-        val filesGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        }
-        hasFilesPermission = filesGranted
-        filesToggleEnabled = filesGranted
+        val filesGranted = PermissionRequestHandler.checkFilesPermission(context)
+        filesPermissionState = updatePermissionState(filesGranted, filesGranted)
     }
 
+    // Refresh permissions when activity resumes
     val lifecycleOwner = LocalLifecycleOwner.current
-    
-    // Refresh permissions when activity resumes (e.g., user returns from settings)
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 val newUsagePermission = appUsageRepository.hasUsageAccess()
                 val newContactsPermission = contactRepository.hasPermission()
                 val newFilesPermission = fileRepository.hasPermission()
+
+                usagePermissionState = updatePermissionState(newUsagePermission, newUsagePermission)
                 
-                // Update permission states
-                hasUsagePermission = newUsagePermission
-                hasContactsPermission = newContactsPermission
-                hasFilesPermission = newFilesPermission
+                if (newContactsPermission) {
+                    contactsPermissionState = updatePermissionState(newContactsPermission, true)
+                }
                 
-                // Update toggle states to match actual permissions
-                // Usage toggle only enabled when permission is actually granted
-                usageToggleEnabled = newUsagePermission
-                if (newContactsPermission) contactsToggleEnabled = true
                 if (newFilesPermission) {
-                    filesToggleEnabled = true
-                    filesPermissionDenied = false // Reset denied flag if granted
+                    filesPermissionState = updatePermissionState(newFilesPermission, true, wasDenied = false)
                 }
             }
         }
@@ -174,86 +144,54 @@ fun PermissionsScreen(
             )
 
             // Usage Permission Card (Mandatory)
-            PermissionToggleCard(
+            PermissionCard(
                 title = stringResource(R.string.permissions_usage_title),
                 description = stringResource(R.string.permissions_usage_desc),
-                isGranted = hasUsagePermission,
-                isEnabled = usageToggleEnabled,
+                permissionState = usagePermissionState,
                 isMandatory = true,
                 onToggleChange = { enabled ->
-                    if (enabled && !hasUsagePermission) {
-                        // Request usage permission - toggle will be updated when permission is granted
-                        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-                            data = Uri.parse("package:${context.packageName}")
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent)
+                    if (enabled && !usagePermissionState.isGranted) {
+                        context.startActivity(
+                            PermissionRequestHandler.createUsageAccessIntent(context)
+                        )
                     }
-                    // Toggle state is controlled by actual permission, not user action
                 }
             )
 
             // Contacts Permission Card (Optional)
-            PermissionToggleCard(
+            PermissionCard(
                 title = stringResource(R.string.permissions_contacts_title),
                 description = stringResource(R.string.permissions_contacts_desc),
-                isGranted = hasContactsPermission,
-                isEnabled = contactsToggleEnabled,
+                permissionState = contactsPermissionState,
                 isMandatory = false,
                 onToggleChange = { enabled ->
-                    contactsToggleEnabled = enabled
-                    if (enabled && !hasContactsPermission) {
-                        // Request contacts permission
-                        runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_CONTACTS))
+                    contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
+                    if (enabled && !contactsPermissionState.isGranted) {
+                        runtimePermissionsLauncher.launch(
+                            arrayOf(Manifest.permission.READ_CONTACTS)
+                        )
                     }
                 }
             )
 
             // Files Permission Card (Optional)
-            PermissionToggleCard(
+            PermissionCard(
                 title = stringResource(R.string.permissions_files_title),
                 description = stringResource(R.string.permissions_files_desc),
-                isGranted = hasFilesPermission,
-                isEnabled = filesToggleEnabled,
+                permissionState = filesPermissionState,
                 isMandatory = false,
                 onToggleChange = { enabled ->
-                    filesToggleEnabled = enabled
-                    if (enabled && !hasFilesPermission) {
-                        // Request files permission
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            // Always open settings for Android R+
-                            val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                                data = Uri.parse("package:${context.packageName}")
+                    filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
+                    if (enabled && !filesPermissionState.isGranted) {
+                        handleFilesPermissionRequest(
+                            context = context,
+                            permissionState = filesPermissionState,
+                            runtimeLauncher = runtimePermissionsLauncher,
+                            allFilesLauncher = allFilesAccessLauncher,
+                            onStateUpdate = { newState ->
+                                filesPermissionState = newState
                             }
-                            runCatching {
-                                allFilesAccessLauncher.launch(manageIntent)
-                            }.onFailure {
-                                val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                                allFilesAccessLauncher.launch(fallback)
-                            }
-                        } else {
-                            // For pre-R, check if permission was previously denied
-                            val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
-                                context as android.app.Activity,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            )
-                            val permissionDenied = ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.READ_EXTERNAL_STORAGE
-                            ) != android.content.pm.PackageManager.PERMISSION_GRANTED
-                            
-                            // If permission was denied and we can't show rationale, open settings
-                            if (filesPermissionDenied || (permissionDenied && !shouldShowRationale)) {
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.parse("package:${context.packageName}")
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                                context.startActivity(intent)
-                            } else {
-                                // First time or can show rationale - request permission
-                                runtimePermissionsLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
-                            }
-                        }
+                        )
                     }
                 }
             )
@@ -263,7 +201,7 @@ fun PermissionsScreen(
             // Continue button - only enabled when usage permission is granted
             Button(
                 onClick = onPermissionsComplete,
-                enabled = hasUsagePermission,
+                enabled = usagePermissionState.isGranted,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 48.dp),
@@ -278,85 +216,59 @@ fun PermissionsScreen(
     }
 }
 
-@Composable
-private fun PermissionToggleCard(
-    title: String,
-    description: String,
-    isGranted: Boolean,
-    isEnabled: Boolean,
-    isMandatory: Boolean,
-    onToggleChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (isMandatory) {
-                        Text(
-                            text = "*",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            if (isGranted) {
-                // Show green checkmark when permission is granted
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = stringResource(R.string.permissions_granted),
-                    tint = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green color
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .size(24.dp)
-                )
-            } else {
-                // Show toggle when permission is not granted
-                Switch(
-                    checked = isEnabled,
-                    onCheckedChange = { newValue ->
-                        if (newValue) {
-                            // User wants to enable - request permission
-                            onToggleChange(true)
-                        } else if (!isMandatory) {
-                            // User wants to disable optional permission (just update UI state)
-                            onToggleChange(false)
-                        }
-                    },
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-        }
+/**
+ * Creates initial permission state based on whether permission is granted.
+ */
+private fun createInitialPermissionState(isGranted: Boolean): PermissionState {
+    return if (isGranted) {
+        PermissionState.granted()
+    } else {
+        PermissionState.initial()
     }
 }
 
+/**
+ * Updates permission state based on grant status and enabled flag.
+ */
+private fun updatePermissionState(
+    isGranted: Boolean,
+    isEnabled: Boolean,
+    wasDenied: Boolean = false
+): PermissionState {
+    return PermissionState(
+        isGranted = isGranted,
+        isEnabled = isEnabled,
+        wasDenied = wasDenied
+    )
+}
+
+
+/**
+ * Handles files permission request based on Android version and current state.
+ */
+private fun handleFilesPermissionRequest(
+    context: Context,
+    permissionState: PermissionState,
+    runtimeLauncher: androidx.activity.result.ActivityResultLauncher<Array<String>>,
+    allFilesLauncher: androidx.activity.result.ActivityResultLauncher<Intent>,
+    onStateUpdate: (PermissionState) -> Unit
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Android R+ - always open settings
+        PermissionRequestHandler.launchAllFilesAccessRequest(allFilesLauncher, context)
+    } else {
+        // Pre-R Android - check if we should open settings or request permission
+        if (PermissionRequestHandler.shouldOpenSettingsForFiles(
+                context,
+                permissionState.wasDenied
+            )
+        ) {
+            context.startActivity(
+                PermissionRequestHandler.createAppSettingsIntent(context)
+            )
+        } else {
+            // First time or can show rationale - request permission
+            runtimeLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        }
+    }
+}

@@ -1,9 +1,6 @@
 package com.tk.quicksearch.search
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,13 +22,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.R
 
+/**
+ * Constants for search engine section layout.
+ */
+private object SearchEngineSectionConstants {
+    const val ITEMS_PER_ROW = 6
+    val ICON_SIZE = 24.dp
+    val SPACING = 20.dp
+    val SEARCH_ICON_SIZE = 20.dp
+    val HORIZONTAL_PADDING = 16.dp
+    val VERTICAL_PADDING = 16.dp
+    val SEARCH_ICON_SPACING = 20.dp
+}
+
+/**
+ * Composable section displaying search engine icons in a scrollable row.
+ * 
+ * The section extends to screen edges by compensating for parent padding.
+ * Displays a fixed search icon followed by scrollable engine icons.
+ * 
+ * @param modifier Modifier for the section
+ * @param query The current search query
+ * @param hasAppResults Whether app results are displayed (unused but kept for API compatibility)
+ * @param enabledEngines List of enabled search engines to display
+ * @param onSearchEngineClick Callback when a search engine is clicked
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchEnginesSection(
@@ -44,111 +61,109 @@ fun SearchEnginesSection(
     if (enabledEngines.isEmpty()) return
 
     val scrollState = rememberLazyListState()
-    val density = LocalDensity.current
 
     Surface(
-        modifier = modifier
-            .layout { measurable, constraints ->
-                // Parent has 20dp padding on each side
-                // Extend width by 40dp (20dp on each side) to reach screen edges
-                val parentPadding = with(density) { 20.dp.roundToPx() }
-                val extendedWidth = constraints.maxWidth + (parentPadding * 2)
-                val extendedConstraints = constraints.copy(
-                    minWidth = extendedWidth,
-                    maxWidth = extendedWidth
-                )
-                val placeable = measurable.measure(extendedConstraints)
-                layout(
-                    width = constraints.maxWidth, // Report parent width to avoid overflow
-                    height = placeable.height
-                ) {
-                    // Place 20dp to the left so it extends to screen edges
-                    placeable.placeRelative(x = -parentPadding, y = 0)
-                }
-            },
+        modifier = modifier.extendToScreenEdges(),
         color = Color.Black,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+        SearchEngineContent(
+            query = query,
+            enabledEngines = enabledEngines,
+            scrollState = scrollState,
+            onSearchEngineClick = onSearchEngineClick
+        )
+    }
+}
+
+/**
+ * Internal composable for the search engine section content.
+ */
+@Composable
+private fun SearchEngineContent(
+    query: String,
+    enabledEngines: List<SearchEngine>,
+    scrollState: androidx.compose.foundation.lazy.LazyListState,
+    onSearchEngineClick: (String, SearchEngine) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
+                vertical = SearchEngineSectionConstants.VERTICAL_PADDING
+            ),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SearchIcon()
+        
+        Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
+        
+        ScrollableEngineIcons(
+            query = query,
+            enabledEngines = enabledEngines,
+            scrollState = scrollState,
+            onSearchEngineClick = onSearchEngineClick
+        )
+    }
+}
+
+/**
+ * Fixed search icon displayed at the start of the section.
+ */
+@Composable
+private fun SearchIcon() {
+    Icon(
+        imageVector = Icons.Rounded.Search,
+        contentDescription = "Search",
+        modifier = Modifier.size(SearchEngineSectionConstants.SEARCH_ICON_SIZE),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+/**
+ * Scrollable row of search engine icons.
+ * Calculates item width to fit 6 items per visible row.
+ */
+@Composable
+private fun ScrollableEngineIcons(
+    query: String,
+    enabledEngines: List<SearchEngine>,
+    scrollState: androidx.compose.foundation.lazy.LazyListState,
+    onSearchEngineClick: (String, SearchEngine) -> Unit
+) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val itemWidthDp = calculateItemWidth(maxWidth)
+        
+        LazyRow(
+            state = scrollState,
+            horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            // Fixed search icon
-            Icon(
-                imageVector = Icons.Rounded.Search,
-                contentDescription = "Search",
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            Spacer(modifier = Modifier.width(20.dp))
-            
-            // Scrollable search engine icons with pagination (6 items at a time)
-            BoxWithConstraints(
-                modifier = Modifier.weight(1f)
-            ) {
-                val iconSize = 24.dp
-                val spacing = 20.dp
-                // Calculate item width: (available width - 5 spacings) / 6 items
-                // maxWidth is already in Dp, so we can do arithmetic directly
-                val totalSpacing = spacing * 5 // 5 spacings between 6 items
-                val itemWidthDp = (maxWidth - totalSpacing) / 6 // 6 items with 5 spacings
-                
-                LazyRow(
-                    state = scrollState,
-                    horizontalArrangement = Arrangement.spacedBy(spacing),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    itemsIndexed(enabledEngines) { index, engine ->
-                        val drawableId = when (engine) {
-                            SearchEngine.GOOGLE -> R.drawable.google
-                            SearchEngine.CHATGPT -> R.drawable.chatgpt
-                            SearchEngine.PERPLEXITY -> R.drawable.perplexity
-                            SearchEngine.GROK -> R.drawable.grok
-                            SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
-                            SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
-                            SearchEngine.REDDIT -> R.drawable.reddit
-                            SearchEngine.YOUTUBE -> R.drawable.youtube
-                            SearchEngine.AMAZON -> R.drawable.amazon
-                            SearchEngine.AI_MODE -> R.drawable.ai_mode
-                        }
-                        
-                        val contentDescription = when (engine) {
-                            SearchEngine.GOOGLE -> "Google"
-                            SearchEngine.CHATGPT -> "ChatGPT"
-                            SearchEngine.PERPLEXITY -> "Perplexity"
-                            SearchEngine.GROK -> "Grok"
-                            SearchEngine.GOOGLE_MAPS -> "Google Maps"
-                            SearchEngine.GOOGLE_PLAY -> "Google Play"
-                            SearchEngine.REDDIT -> "Reddit"
-                            SearchEngine.YOUTUBE -> "YouTube"
-                            SearchEngine.AMAZON -> "Amazon"
-                            SearchEngine.AI_MODE -> "AI mode"
-                        }
-                        
-                        Box(
-                            modifier = Modifier
-                                .width(itemWidthDp)
-                                .clickable {
-                                    onSearchEngineClick(query, engine)
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = drawableId),
-                                contentDescription = contentDescription,
-                                modifier = Modifier
-                                    .size(iconSize),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                    }
-                }
+            items(enabledEngines) { engine ->
+                SearchEngineIconItem(
+                    engine = engine,
+                    query = query,
+                    iconSize = SearchEngineSectionConstants.ICON_SIZE,
+                    itemWidth = itemWidthDp,
+                    onSearchEngineClick = onSearchEngineClick
+                )
             }
         }
     }
+}
+
+/**
+ * Calculates the width for each search engine icon item.
+ * Formula: (available width - total spacing) / number of items
+ */
+@Composable
+private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.compose.ui.unit.Dp {
+    val totalSpacing = SearchEngineSectionConstants.SPACING * 
+        (SearchEngineSectionConstants.ITEMS_PER_ROW - 1)
+    return (maxWidth - totalSpacing) / SearchEngineSectionConstants.ITEMS_PER_ROW
 }
 

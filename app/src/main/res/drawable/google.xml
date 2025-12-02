@@ -1,15 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="268.1522"
     android:viewportHeight="273.8827">
-    
-    <group android:scaleX="0.957922"
+
+    <group
+        android:scaleX="0.957922"
         android:scaleY="0.985255"
         android:translateX="-90.17436"
         android:translateY="-78.85577">
-        
+
         <!-- Yellow/Green section -->
         <path android:pathData="M92.07563 219.9585c.14844 22.14 6.5014 44.983 16.11767 63.4234v.1269c6.9482 13.3919 16.4444 23.9704 27.2604 34.4518l65.326-23.67c-12.3593-6.2344-14.2452-10.0546-23.1048-17.0253-9.0537-9.0658-15.8015-19.4735-20.0038-31.677h-.1693l.1693-.1269c-2.7646-8.0587-3.0373-16.6129-3.1393-25.5029Z">
             <aapt:attr name="android:fillColor">
@@ -180,6 +182,6 @@
                 </gradient>
             </aapt:attr>
         </path>
-        
+
     </group>
 </vector>

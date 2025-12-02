@@ -3,9 +3,7 @@ package com.tk.quicksearch.settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -20,6 +18,70 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.FileType
 
+// Constants for consistent spacing
+private object FileTypesSpacing {
+    val cardHorizontalPadding = 20.dp
+    val cardVerticalPadding = 12.dp
+    val sectionTitleTopPadding = 24.dp
+    val sectionTitleBottomPadding = 8.dp
+    val sectionDescriptionBottomPadding = 16.dp
+}
+
+/**
+ * Gets the display name for a file type.
+ */
+@Composable
+private fun getFileTypeDisplayName(fileType: FileType): String {
+    return when (fileType) {
+        FileType.PHOTOS_AND_VIDEOS -> stringResource(R.string.file_type_photos_and_videos)
+        FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
+        FileType.APK -> stringResource(R.string.file_type_apk)
+        FileType.OTHER -> stringResource(R.string.file_type_other)
+    }
+}
+
+/**
+ * Reusable toggle row component for file type settings.
+ * Provides consistent styling and layout.
+ */
+@Composable
+private fun FileTypeToggleRow(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = FileTypesSpacing.cardHorizontalPadding,
+                vertical = FileTypesSpacing.cardVerticalPadding
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
+
+/**
+ * Settings section for configuring which file types are included in search results.
+ *
+ * @param enabledFileTypes Set of currently enabled file types
+ * @param onToggleFileType Callback when a file type toggle is changed
+ * @param filesSectionEnabled Whether the files section is enabled. If false, this section is not displayed.
+ * @param modifier Modifier to be applied to the section title
+ */
 @Composable
 fun FileTypesSection(
     enabledFileTypes: Set<FileType>,
@@ -31,68 +93,50 @@ fun FileTypesSection(
         return
     }
     
+    // Section title
     Text(
         text = stringResource(R.string.settings_file_types_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+        modifier = modifier.padding(
+            top = FileTypesSpacing.sectionTitleTopPadding,
+            bottom = FileTypesSpacing.sectionTitleBottomPadding
+        )
     )
+    
+    // Section description
     Text(
         text = stringResource(R.string.settings_file_types_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = FileTypesSpacing.sectionDescriptionBottomPadding)
     )
+    
+    // File types card
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            FileType.values().forEachIndexed { index, fileType ->
-                FileTypeRow(
-                    fileType = fileType,
-                    isEnabled = fileType in enabledFileTypes,
-                    onToggle = { enabled -> onToggleFileType(fileType, enabled) }
+            // Cache FileType.values() to avoid multiple calls
+            val fileTypes = FileType.values()
+            val lastIndex = fileTypes.lastIndex
+            
+            fileTypes.forEachIndexed { index, fileType ->
+                FileTypeToggleRow(
+                    text = getFileTypeDisplayName(fileType),
+                    checked = fileType in enabledFileTypes,
+                    onCheckedChange = { enabled -> onToggleFileType(fileType, enabled) }
                 )
-                if (index != FileType.values().lastIndex) {
+                
+                // Add divider between items (not after the last one)
+                if (index < lastIndex) {
                     HorizontalDivider(
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun FileTypeRow(
-    fileType: FileType,
-    isEnabled: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    val fileTypeName = when (fileType) {
-        FileType.PHOTOS_AND_VIDEOS -> stringResource(R.string.file_type_photos_and_videos)
-        FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
-        FileType.APK -> stringResource(R.string.file_type_apk)
-        FileType.OTHER -> stringResource(R.string.file_type_other)
-    }
-    
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = fileTypeName,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Switch(
-            checked = isEnabled,
-            onCheckedChange = onToggle
-        )
     }
 }
 

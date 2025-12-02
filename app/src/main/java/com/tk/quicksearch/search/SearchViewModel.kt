@@ -1,11 +1,6 @@
 package com.tk.quicksearch.search
 
 import android.app.Application
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,11 +13,10 @@ import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.model.FileTypeUtils
 import com.tk.quicksearch.model.matches
+import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,6 +90,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val contactRepository = ContactRepository(application.applicationContext)
     private val fileRepository = FileSearchRepository(application.applicationContext)
     private val userPreferences = UserAppPreferences(application.applicationContext)
+    private val permissionManager = PermissionManager(contactRepository, fileRepository, userPreferences)
+    private val searchOperations = SearchOperations(contactRepository, fileRepository)
     private var cachedApps: List<AppInfo> = emptyList()
     private var noMatchPrefix: String? = null
     private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
@@ -117,7 +113,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var useWhatsAppForMessages: Boolean = userPreferences.useWhatsAppForMessages()
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
-    private var disabledSections: Set<SearchSection> = loadDisabledSections()
+    private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
@@ -308,8 +304,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadPinnedContactsAndFiles() {
         viewModelScope.launch(Dispatchers.IO) {
-            val hasContactsPermission = contactRepository.hasPermission()
-            val hasFilesPermission = fileRepository.hasPermission()
+            val hasContactsPermission = permissionManager.hasContactPermission()
+            val hasFilesPermission = permissionManager.hasFilePermission()
 
             val pinnedContacts = if (hasContactsPermission && pinnedContactIds.isNotEmpty()) {
                 contactRepository.getContactsByIds(pinnedContactIds)
@@ -336,8 +332,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadExcludedContactsAndFiles() {
         viewModelScope.launch(Dispatchers.IO) {
-            val hasContactsPermission = contactRepository.hasPermission()
-            val hasFilesPermission = fileRepository.hasPermission()
+            val hasContactsPermission = permissionManager.hasContactPermission()
+            val hasFilesPermission = permissionManager.hasFilePermission()
 
             val excludedContacts = if (hasContactsPermission && excludedContactIds.isNotEmpty()) {
                 contactRepository.getContactsByIds(excludedContactIds)
@@ -375,99 +371,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun openUsageAccessSettings() {
-        val context = getApplication<Application>()
-        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-            data = Uri.parse("package:${context.packageName}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.openUsageAccessSettings(getApplication())
     }
 
     fun openAppSettings() {
-        val context = getApplication<Application>()
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.parse("package:${context.packageName}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.openAppSettings(getApplication())
     }
 
     fun openAllFilesAccessSettings() {
-        val context = getApplication<Application>()
-        val manageIntent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-            data = Uri.parse("package:${context.packageName}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        runCatching {
-            context.startActivity(manageIntent)
-        }.onFailure {
-            val fallback = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(fallback)
-        }
+        IntentHelpers.openAllFilesAccessSettings(getApplication())
     }
 
     fun launchApp(appInfo: AppInfo) {
-        val context = getApplication<Application>()
-        val launchIntent = context.packageManager
-            .getLaunchIntentForPackage(appInfo.packageName)
-
-        if (launchIntent == null) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_launch_app, appInfo.appName),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-
-        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        context.startActivity(launchIntent)
+        IntentHelpers.launchApp(getApplication(), appInfo)
     }
 
     fun openAppInfo(appInfo: AppInfo) {
-        val context = getApplication<Application>()
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.parse("package:${appInfo.packageName}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.openAppInfo(getApplication(), appInfo.packageName)
     }
 
     fun requestUninstall(appInfo: AppInfo) {
-        val context = getApplication<Application>()
-        val packageName = appInfo.packageName
-        if (packageName == context.packageName) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_uninstall_self),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        try {
-            val intent = Intent(Intent.ACTION_DELETE).apply {
-                data = Uri.parse("package:$packageName")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                "Unable to uninstall ${appInfo.appName}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        IntentHelpers.requestUninstall(getApplication(), appInfo)
     }
 
     fun openSearchUrl(query: String, searchEngine: SearchEngine) {
-        val context = getApplication<Application>()
-        val searchUrl = buildSearchUrl(query, searchEngine)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.openSearchUrl(getApplication(), query, searchEngine)
     }
 
     fun clearCachedApps() {
@@ -844,33 +772,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return savedSections + newSections
     }
 
-    private fun loadDisabledSections(): Set<SearchSection> {
-        val disabledNames = userPreferences.getDisabledSections()
-        val userDisabledSections = disabledNames.mapNotNull { name ->
-            SearchSection.values().find { it.name == name }
-        }.toSet()
-        
-        // Check permissions and disable Contacts/Files sections by default if permissions are not granted
-        // This ensures sections are disabled when permissions are missing, regardless of user preference
-        val hasContactsPermission = contactRepository.hasPermission()
-        val hasFilesPermission = fileRepository.hasPermission()
-        
-        val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
-        
-        // Disable Contacts section if permission is not granted
-        if (!hasContactsPermission) {
-            permissionBasedDisabledSections.add(SearchSection.CONTACTS)
-        }
-        
-        // Disable Files section if permission is not granted
-        if (!hasFilesPermission) {
-            permissionBasedDisabledSections.add(SearchSection.FILES)
-        }
-        
-        // Merge user preferences with permission-based disabled sections
-        // Permission-based disabling takes precedence (sections can't work without permissions)
-        return userDisabledSections + permissionBasedDisabledSections
-    }
+    // Removed loadDisabledSections - now using permissionManager.computeDisabledSections()
 
     fun reorderSections(newOrder: List<SearchSection>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -884,71 +786,25 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (enabled) {
-                // When enabling, ensure permissions are still valid
-                when (section) {
-                    SearchSection.CONTACTS -> {
-                        if (!contactRepository.hasPermission()) {
-                            // Permission not granted - don't enable, permission should be requested from UI
-                            return@launch
-                        }
-                    }
-                    SearchSection.FILES -> {
-                        if (!fileRepository.hasPermission()) {
-                            // Permission not granted - don't enable, permission should be requested from UI
-                            return@launch
-                        }
-                    }
-                    SearchSection.APPS -> {
-                        // Apps section doesn't require optional permissions
-                    }
-                }
-                
-                // Remove from user preferences (user wants it enabled)
-                val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
-                    SearchSection.values().find { it.name == name }
-                }.toMutableSet()
-                userDisabledSections.remove(section)
-                userPreferences.setDisabledSections(userDisabledSections.map { it.name }.toSet())
-                
-                // Recompute effective disabled sections (user preferences + permission-based)
-                val hasContactsPermission = contactRepository.hasPermission()
-                val hasFilesPermission = fileRepository.hasPermission()
-                val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
-                if (!hasContactsPermission) {
-                    permissionBasedDisabledSections.add(SearchSection.CONTACTS)
-                }
-                if (!hasFilesPermission) {
-                    permissionBasedDisabledSections.add(SearchSection.FILES)
-                }
-                disabledSections = userDisabledSections + permissionBasedDisabledSections
+            if (enabled && !permissionManager.canEnableSection(section)) {
+                // Permission not granted - don't enable, permission should be requested from UI
+                return@launch
+            }
+            
+            disabledSections = if (enabled) {
+                permissionManager.enableSection(section, disabledSections)
             } else {
-                // User wants to disable - add to user preferences
-                val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
-                    SearchSection.values().find { it.name == name }
-                }.toMutableSet()
-                userDisabledSections.add(section)
-                userPreferences.setDisabledSections(userDisabledSections.map { it.name }.toSet())
-                
-                // Recompute effective disabled sections
-                val hasContactsPermission = contactRepository.hasPermission()
-                val hasFilesPermission = fileRepository.hasPermission()
-                val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
-                if (!hasContactsPermission) {
-                    permissionBasedDisabledSections.add(SearchSection.CONTACTS)
-                }
-                if (!hasFilesPermission) {
-                    permissionBasedDisabledSections.add(SearchSection.FILES)
-                }
-                disabledSections = userDisabledSections + permissionBasedDisabledSections
-                
-                // Refresh permission state
+                permissionManager.disableSection(section, disabledSections)
+            }
+            
+            if (!enabled) {
                 refreshOptionalPermissions()
             }
             
             _uiState.update { 
                 it.copy(disabledSections = disabledSections)
             }
+            
             // Re-run search if there's an active query to reflect the change
             val query = _uiState.value.query
             if (query.isNotBlank()) {
@@ -959,31 +815,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     
     /**
      * Checks if a section can be enabled (i.e., has required permissions).
-     * Returns true if the section can be enabled, false if permissions are missing.
      */
     fun canEnableSection(section: SearchSection): Boolean {
-        return when (section) {
-            SearchSection.CONTACTS -> contactRepository.hasPermission()
-            SearchSection.FILES -> fileRepository.hasPermission()
-            SearchSection.APPS -> true // Apps section doesn't require optional permissions
-        }
+        return permissionManager.canEnableSection(section)
     }
 
-    private fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
-        val encodedQuery = Uri.encode(query)
-        return when (searchEngine) {
-            SearchEngine.GOOGLE -> "https://www.google.com/search?q=$encodedQuery"
-            SearchEngine.CHATGPT -> "https://chatgpt.com/?prompt=$encodedQuery"
-            SearchEngine.PERPLEXITY -> "https://www.perplexity.ai/search?q=$encodedQuery"
-            SearchEngine.GROK -> "https://grok.com/?q=$encodedQuery"
-            SearchEngine.GOOGLE_MAPS -> "http://maps.google.com/?q=$encodedQuery"
-            SearchEngine.GOOGLE_PLAY -> "https://play.google.com/store/search?q=$encodedQuery&c=apps"
-            SearchEngine.REDDIT -> "https://www.reddit.com/search/?q=$encodedQuery"
-            SearchEngine.YOUTUBE -> "https://www.youtube.com/results?search_query=$encodedQuery"
-            SearchEngine.AMAZON -> "https://www.amazon.com/s?k=$encodedQuery"
-            SearchEngine.AI_MODE -> "https://www.google.com/search?q=$encodedQuery&udm=50"
-        }
-    }
 
 
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
@@ -992,12 +828,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             .asSequence()
             .filter { it.matches(query) }
             .mapNotNull { app ->
-                val priority = com.tk.quicksearch.util.SearchRankingUtils.getBestMatchPriority(
+                val priority = SearchRankingUtils.getBestMatchPriority(
                     query,
                     app.appName,
                     app.packageName
                 )
-                if (com.tk.quicksearch.util.SearchRankingUtils.isOtherMatch(priority)) {
+                if (SearchRankingUtils.isOtherMatch(priority)) {
                     null
                 } else {
                     app to priority
@@ -1011,8 +847,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     companion object {
         private const val GRID_ITEM_COUNT = 10
-        private const val CONTACT_RESULT_LIMIT = 5
-        private const val FILE_RESULT_LIMIT = 5
     }
 
     private fun availableApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
@@ -1080,18 +914,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun performSecondarySearches(query: String) {
         searchJob?.cancel()
-        if (query.isBlank()) {
-            _uiState.update {
-                it.copy(
-                    contactResults = emptyList(),
-                    fileResults = emptyList()
-                )
-            }
-            return
-        }
-
-        // Avoid running contact/file searches for single-character queries
-        if (query.length == 1) {
+        if (query.isBlank() || query.length == 1) {
             _uiState.update {
                 it.copy(
                     contactResults = emptyList(),
@@ -1108,62 +931,22 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val currentVersion = ++queryVersion
 
         searchJob = viewModelScope.launch(Dispatchers.IO) {
-            val contactsDeferred = async {
-                if (canSearchContacts) {
-                    // Start with a small, UI-friendly limit
-                    contactRepository.searchContacts(query, CONTACT_RESULT_LIMIT)
-                        .filterNot { excludedContactIds.contains(it.contactId) }
-                } else {
-                    emptyList()
-                }
-            }
-            val filesDeferred = async {
-                if (canSearchFiles) {
-                    // Start with a small limit, we may widen it later
-                    val allFiles = fileRepository.searchFiles(query, FILE_RESULT_LIMIT * 2)
-                    // Filter files based on enabled file types and keep only top N initially
-                    allFiles.filter { file ->
-                        val fileType = FileTypeUtils.getFileType(file)
-                        fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
-                    }.take(FILE_RESULT_LIMIT)
-                } else {
-                    emptyList()
-                }
-            }
-
-            var contactResults = contactsDeferred.await()
-            var fileResults = filesDeferred.await()
-
-            // If only one type has results, fetch all results for that type
-            if (canSearchContacts && contactResults.isNotEmpty() && !canSearchFiles) {
-                contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
-                    .filterNot { excludedContactIds.contains(it.contactId) }
-            } else if (canSearchFiles && fileResults.isNotEmpty() && !canSearchContacts) {
-                val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
-                fileResults = allFiles.filter { file ->
-                    val fileType = FileTypeUtils.getFileType(file)
-                    fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
-                }
-            } else if (canSearchContacts && canSearchFiles) {
-                // Both searches are enabled; widen the one that is present if the other is empty
-                if (contactResults.isEmpty() && fileResults.isNotEmpty()) {
-                    val allFiles = fileRepository.searchFiles(query, Int.MAX_VALUE)
-                    fileResults = allFiles.filter { file ->
-                        val fileType = FileTypeUtils.getFileType(file)
-                        fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
-                    }
-                } else if (fileResults.isEmpty() && contactResults.isNotEmpty()) {
-                    contactResults = contactRepository.searchContacts(query, Int.MAX_VALUE)
-                        .filterNot { excludedContactIds.contains(it.contactId) }
-                }
-            }
+            val result = searchOperations.performSearches(
+                query = query,
+                canSearchContacts = canSearchContacts,
+                canSearchFiles = canSearchFiles,
+                enabledFileTypes = enabledFileTypes,
+                excludedContactIds = excludedContactIds,
+                excludedFileUris = excludedFileUris,
+                scope = this
+            )
 
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
                     _uiState.update { state ->
                         state.copy(
-                            contactResults = contactResults,
-                            fileResults = fileResults
+                            contactResults = result.contacts,
+                            fileResults = result.files
                         )
                     }
                 }
@@ -1172,28 +955,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun refreshOptionalPermissions(): Boolean {
-        val hasContacts = contactRepository.hasPermission()
-        val hasFiles = fileRepository.hasPermission()
+        val hasContacts = permissionManager.hasContactPermission()
+        val hasFiles = permissionManager.hasFilePermission()
         val previousState = _uiState.value
         val changed =
             previousState.hasContactPermission != hasContacts || previousState.hasFilePermission != hasFiles
 
         if (changed) {
-            // Reload disabled sections to account for permission changes
-            // This will automatically disable sections if permissions are revoked
-            val userDisabledSections = userPreferences.getDisabledSections().mapNotNull { name ->
-                SearchSection.values().find { it.name == name }
-            }.toSet()
-            
-            val permissionBasedDisabledSections = mutableSetOf<SearchSection>()
-            if (!hasContacts) {
-                permissionBasedDisabledSections.add(SearchSection.CONTACTS)
-            }
-            if (!hasFiles) {
-                permissionBasedDisabledSections.add(SearchSection.FILES)
-            }
-            
-            disabledSections = userDisabledSections + permissionBasedDisabledSections
+            disabledSections = permissionManager.computeDisabledSections()
             
             _uiState.update { state ->
                 state.copy(
@@ -1209,20 +978,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun openContact(contactInfo: ContactInfo) {
-        val context = getApplication<Application>()
-        val lookupUri = ContactsContract.Contacts.getLookupUri(contactInfo.contactId, contactInfo.lookupKey)
-        if (lookupUri == null) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_contact),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        val intent = Intent(Intent.ACTION_VIEW, lookupUri).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.openContact(getApplication(), contactInfo)
     }
 
     fun callContact(contactInfo: ContactInfo) {
@@ -1308,124 +1064,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     
     private fun performCall(number: String) {
-        val context = getApplication<Application>()
-        val intent = Intent(Intent.ACTION_DIAL).apply {
-            data = Uri.parse("tel:${Uri.encode(number)}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.performCall(getApplication(), number)
     }
     
     private fun performSms(number: String) {
-        val context = getApplication<Application>()
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("smsto:${Uri.encode(number)}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
+        IntentHelpers.performSms(getApplication(), number)
     }
 
     private fun performMessaging(number: String) {
         if (useWhatsAppForMessages) {
-            openWhatsAppChat(number)
+            IntentHelpers.openWhatsAppChat(getApplication(), number)
         } else {
             performSms(number)
         }
     }
 
-    private fun openWhatsAppChat(phoneNumber: String) {
-        if (phoneNumber.isBlank()) return
-
-        val context = getApplication<Application>()
-        val uri = Uri.parse("https://wa.me/${Uri.encode(phoneNumber)}")
-        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-            // Prefer the standard WhatsApp package if available
-            setPackage("com.whatsapp")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
-        try {
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            // Fallback: try without explicit package (e.g. WhatsApp Business or browser)
-            val fallbackIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            try {
-                context.startActivity(fallbackIntent)
-            } catch (inner: Exception) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_missing_phone_number),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
     fun openFile(deviceFile: DeviceFile) {
-        val context = getApplication<Application>()
-
-        // Normalise APK handling so installers can recognise the file correctly
-        val isApk = isApkFile(deviceFile)
-        val mimeType = if (isApk) {
-            // Always force the canonical APK MIME type
-            "application/vnd.android.package-archive"
-        } else {
-            deviceFile.mimeType ?: "*/*"
-        }
-
-        // Primary intent: generic VIEW, which most installers handle
-        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(deviceFile.uri, mimeType)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        try {
-            context.startActivity(viewIntent)
-        } catch (exception: ActivityNotFoundException) {
-            // If no VIEW handler is found for APKs, explicitly try the package installer
-            if (isApk) {
-                val installIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                    setDataAndType(deviceFile.uri, mimeType)
-                    addFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                }
-                try {
-                    context.startActivity(installIntent)
-                    return
-                } catch (_: Exception) {
-                    // Fall through to generic error toast below
-                }
-            }
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_file, deviceFile.displayName),
-                Toast.LENGTH_SHORT
-            ).show()
-        } catch (exception: SecurityException) {
-            // Covers cases where the system blocks installing APKs from this app
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_file, deviceFile.displayName),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    /**
-     * Best-effort detection of APK files, even when MIME type is missing or incorrect.
-     */
-    private fun isApkFile(deviceFile: DeviceFile): Boolean {
-        val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
-        if (mime == "application/vnd.android.package-archive") {
-            return true
-        }
-
-        val name = deviceFile.displayName.lowercase(Locale.getDefault())
-        return name.endsWith(".apk")
+        IntentHelpers.openFile(getApplication(), deviceFile)
     }
 }
 

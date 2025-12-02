@@ -1,6 +1,5 @@
 package com.tk.quicksearch.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +10,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+// ============================================================================
+// Color Schemes
+// ============================================================================
+
+/**
+ * Dark theme color scheme following Material Design 3 specifications.
+ */
 private val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
@@ -35,6 +41,9 @@ private val DarkColorScheme = darkColorScheme(
     outline = md_theme_dark_outline
 )
 
+/**
+ * Light theme color scheme following Material Design 3 specifications.
+ */
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -59,19 +68,38 @@ private val LightColorScheme = lightColorScheme(
     outline = md_theme_light_outline
 )
 
+// ============================================================================
+// Theme Composable
+// ============================================================================
+
+/**
+ * QuickSearch application theme composable.
+ *
+ * Provides Material 3 theming with support for:
+ * - Light and dark themes based on system preference
+ * - Dynamic color (Material You) on Android 12+ when enabled
+ * - Custom typography
+ *
+ * @param darkTheme Whether to use dark theme. Defaults to system preference.
+ * @param dynamicColor Whether to use dynamic color (Material You). Only applies on Android 12+.
+ *                     Defaults to false.
+ * @param content The composable content to be themed.
+ */
 @Composable
 fun QuickSearchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

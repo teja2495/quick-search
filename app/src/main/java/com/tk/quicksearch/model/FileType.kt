@@ -14,6 +14,29 @@ enum class FileType {
  * Utility functions for categorizing files by MIME type.
  */
 object FileTypeUtils {
+    
+    // MIME type prefixes for media files
+    private val MEDIA_PREFIXES = setOf("image/", "video/")
+    
+    // MIME type prefixes for document files
+    private val DOCUMENT_PREFIXES = setOf(
+        "application/pdf",
+        "application/msword",
+        "application/vnd.ms-word",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml",
+        "application/vnd.oasis.opendocument",
+        "application/rtf",
+        "application/x-rtf",
+        "text/"
+    )
+    
+    // MIME type prefix for APK files
+    private const val APK_PREFIX = "application/vnd.android.package-archive"
+    
     /**
      * Determines the file type category based on MIME type.
      * Returns OTHER if MIME type is null or doesn't match known categories.
@@ -24,23 +47,25 @@ object FileTypeUtils {
         val normalizedMime = mimeType.lowercase()
         
         return when {
-            normalizedMime.startsWith("image/") -> FileType.PHOTOS_AND_VIDEOS
-            normalizedMime.startsWith("video/") -> FileType.PHOTOS_AND_VIDEOS
-            normalizedMime.startsWith("application/vnd.android.package-archive") -> FileType.APK
-            normalizedMime.startsWith("application/pdf") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/msword") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.ms-word") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.openxmlformats-officedocument.wordprocessingml") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.ms-excel") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.openxmlformats-officedocument.spreadsheetml") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.ms-powerpoint") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.openxmlformats-officedocument.presentationml") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/vnd.oasis.opendocument") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("text/") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/rtf") -> FileType.DOCUMENTS
-            normalizedMime.startsWith("application/x-rtf") -> FileType.DOCUMENTS
+            isMediaType(normalizedMime) -> FileType.PHOTOS_AND_VIDEOS
+            normalizedMime.startsWith(APK_PREFIX) -> FileType.APK
+            isDocumentType(normalizedMime) -> FileType.DOCUMENTS
             else -> FileType.OTHER
         }
+    }
+    
+    /**
+     * Checks if the MIME type represents a media file (image or video).
+     */
+    private fun isMediaType(normalizedMime: String): Boolean {
+        return MEDIA_PREFIXES.any { normalizedMime.startsWith(it) }
+    }
+    
+    /**
+     * Checks if the MIME type represents a document file.
+     */
+    private fun isDocumentType(normalizedMime: String): Boolean {
+        return DOCUMENT_PREFIXES.any { normalizedMime.startsWith(it) }
     }
     
     /**
@@ -50,4 +75,3 @@ object FileTypeUtils {
         return getFileType(file.mimeType)
     }
 }
-

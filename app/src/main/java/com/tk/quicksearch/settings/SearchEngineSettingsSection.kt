@@ -1,39 +1,25 @@
 package com.tk.quicksearch.settings
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DragHandle
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,19 +34,23 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.SearchEngine
+import com.tk.quicksearch.search.getDrawableResId
+import com.tk.quicksearch.search.getDisplayName
+import com.tk.quicksearch.settings.EditShortcutDialog
 
+/**
+ * Main section for configuring search engines.
+ * Allows reordering, enabling/disabling, and managing shortcuts.
+ */
 @Composable
 fun SearchEnginesSection(
     searchEngineOrder: List<SearchEngine>,
@@ -86,90 +76,99 @@ fun SearchEnginesSection(
     
     // Combined toggle card for enabling/disabling search engine section and shortcuts
     if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            Column {
-                // Show Search Engines toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings_search_engines_show_toggle),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Switch(
-                        checked = searchEngineSectionEnabled,
-                        onCheckedChange = onToggleSearchEngineSectionEnabled
-                    )
-                }
-                
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                
-                // Shortcuts toggle
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 22.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.settings_shortcuts_toggle),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_shortcuts_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = shortcutsEnabled,
-                        onCheckedChange = onToggleShortcutsEnabled
-                    )
-                }
-            }
-        }
+        SearchEngineToggleCard(
+            searchEngineSectionEnabled = searchEngineSectionEnabled,
+            onToggleSearchEngineSectionEnabled = onToggleSearchEngineSectionEnabled,
+            shortcutsEnabled = shortcutsEnabled,
+            onToggleShortcutsEnabled = onToggleShortcutsEnabled
+        )
     }
     
     // Hide search engine list when both toggles are disabled
     val bothDisabled = !searchEngineSectionEnabled && !shortcutsEnabled
     if (!bothDisabled) {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            Column {
+        SearchEngineListCard(
+            searchEngineOrder = searchEngineOrder,
+            disabledSearchEngines = disabledSearchEngines,
+            onToggleSearchEngine = onToggleSearchEngine,
+            onReorderSearchEngines = onReorderSearchEngines,
+            shortcutCodes = shortcutCodes,
+            setShortcutCode = setShortcutCode,
+            shortcutEnabled = shortcutEnabled,
+            setShortcutEnabled = setShortcutEnabled,
+            shortcutsEnabled = shortcutsEnabled,
+            searchEngineSectionEnabled = searchEngineSectionEnabled
+        )
+    }
+}
+
+/**
+ * Toggle card for enabling/disabling search engine section and shortcuts.
+ */
+@Composable
+private fun SearchEngineToggleCard(
+    searchEngineSectionEnabled: Boolean,
+    onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
+    shortcutsEnabled: Boolean,
+    onToggleShortcutsEnabled: (Boolean) -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            SearchEngineToggleRow(
+                title = stringResource(R.string.settings_search_engines_show_toggle),
+                checked = searchEngineSectionEnabled,
+                onCheckedChange = onToggleSearchEngineSectionEnabled,
+                isFirstItem = true
+            )
             
+            SearchEngineDivider()
+            
+            SearchEngineToggleRow(
+                title = stringResource(R.string.settings_shortcuts_toggle),
+                checked = shortcutsEnabled,
+                onCheckedChange = onToggleShortcutsEnabled,
+                subtitle = stringResource(R.string.settings_shortcuts_hint),
+                isLastItem = true
+            )
+        }
+    }
+}
+
+/**
+ * Card containing the list of search engines with drag-and-drop reordering.
+ */
+@Composable
+private fun SearchEngineListCard(
+    searchEngineOrder: List<SearchEngine>,
+    disabledSearchEngines: Set<SearchEngine>,
+    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
+    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
+    shortcutCodes: Map<SearchEngine, String>,
+    setShortcutCode: ((SearchEngine, String) -> Unit)?,
+    shortcutEnabled: Map<SearchEngine, Boolean>,
+    setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
+    shortcutsEnabled: Boolean,
+    searchEngineSectionEnabled: Boolean
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
             val draggedIndex = remember { mutableIntStateOf(-1) }
             val dragOffset = remember { mutableFloatStateOf(0f) }
             val pendingReorder = remember { mutableStateOf(false) }
             val density = LocalDensity.current
-            val itemHeight = 60.dp // Approximate row height with padding
+            val itemHeight = SearchEngineSettingsSpacing.itemHeight
             
             // Clear pending reorder flag after order updates
             LaunchedEffect(searchEngineOrder) {
                 if (pendingReorder.value) {
-                    // Order has updated, clear the flag
                     pendingReorder.value = false
                 }
             }
@@ -177,61 +176,23 @@ fun SearchEnginesSection(
             searchEngineOrder.forEachIndexed { index, engine ->
                 val isDragging = draggedIndex.intValue == index
                 
-                // Calculate the target offset for this item - handles multi-position drags
+                // Calculate the target offset for this item
                 val targetOffset = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
                     if (draggedIndex.intValue < 0) {
                         0.dp
                     } else {
-                        val draggedIdx = draggedIndex.intValue
                         val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
                         val dragProgress = offsetInDp.value / itemHeight.value
                         
                         when {
-                            isDragging -> {
+                            index == draggedIndex.intValue -> {
                                 // Dragged item follows the drag directly
                                 offsetInDp
                             }
                             else -> {
                                 // Calculate the relative position of this item to the dragged item
-                                val relativeIndex = index - draggedIdx
-                                
-                                when {
-                                    // Item is below the dragged item (dragging down)
-                                    relativeIndex > 0 -> {
-                                        // Threshold is when we've moved halfway past the previous item
-                                        // For item at draggedIdx + 1, threshold is 0.5
-                                        // For item at draggedIdx + 2, threshold is 1.5, etc.
-                                        val threshold = relativeIndex - 0.5f
-                                        when {
-                                            // We've fully passed this item (moved more than one item height past it)
-                                            dragProgress >= relativeIndex -> -itemHeight
-                                            // We're crossing the threshold for this item
-                                            dragProgress > threshold -> {
-                                                val progress = ((dragProgress - threshold) * 2f).coerceIn(0f, 1f)
-                                                -itemHeight * progress
-                                            }
-                                            else -> 0.dp
-                                        }
-                                    }
-                                    // Item is above the dragged item (dragging up)
-                                    relativeIndex < 0 -> {
-                                        // Threshold is when we've moved halfway past the previous item
-                                        // For item at draggedIdx - 1, threshold is -0.5
-                                        // For item at draggedIdx - 2, threshold is -1.5, etc.
-                                        val threshold = relativeIndex + 0.5f
-                                        when {
-                                            // We've fully passed this item (moved more than one item height past it)
-                                            dragProgress <= relativeIndex -> itemHeight
-                                            // We're crossing the threshold for this item
-                                            dragProgress < threshold -> {
-                                                val progress = ((threshold - dragProgress) * 2f).coerceIn(0f, 1f)
-                                                itemHeight * progress
-                                            }
-                                            else -> 0.dp
-                                        }
-                                    }
-                                    else -> 0.dp
-                                }
+                                val relativeIndex = index - draggedIndex.intValue
+                                calculateOffsetForRelativeItem(relativeIndex, dragProgress, itemHeight)
                             }
                         }
                     }
@@ -273,30 +234,27 @@ fun SearchEnginesSection(
                     },
                     onDragEnd = if (searchEngineSectionEnabled) {
                         {
-                            val newOrder = searchEngineOrder.toMutableList()
                             val currentIndex = draggedIndex.intValue
                             if (currentIndex >= 0) {
                                 val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
                                 val dragProgress = offsetInDp.value / itemHeight.value
-                                // Calculate how many positions to move based on total drag distance
                                 val positionsMoved = when {
                                     dragProgress > 0.5f -> dragProgress.roundToInt()
                                     dragProgress < -0.5f -> dragProgress.roundToInt()
                                     else -> 0
                                 }
-                                val newIndex = (currentIndex + positionsMoved).coerceIn(0, searchEngineOrder.lastIndex)
+                                val newIndex = (currentIndex + positionsMoved)
+                                    .coerceIn(0, searchEngineOrder.lastIndex)
                                 
                                 if (newIndex != currentIndex) {
+                                    val newOrder = searchEngineOrder.toMutableList()
                                     val item = newOrder.removeAt(currentIndex)
                                     newOrder.add(newIndex, item)
-                                    // Immediately reset drag state - items will snap to 0 offset
-                                    // The list reorder will put them in their new positions
                                     draggedIndex.intValue = -1
                                     dragOffset.floatValue = 0f
                                     pendingReorder.value = true
                                     onReorderSearchEngines(newOrder)
                                 } else {
-                                    // No reorder needed, reset immediately
                                     draggedIndex.intValue = -1
                                     dragOffset.floatValue = 0f
                                     pendingReorder.value = false
@@ -315,17 +273,18 @@ fun SearchEnginesSection(
                     onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
                     showToggle = searchEngineSectionEnabled
                 )
+                
                 if (index != searchEngineOrder.lastIndex) {
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    SearchEngineDivider()
                 }
             }
         }
     }
-    }
 }
 
+/**
+ * Individual row for a search engine in the list.
+ */
 @Composable
 private fun SearchEngineRow(
     engine: SearchEngine,
@@ -343,38 +302,18 @@ private fun SearchEngineRow(
     onShortcutToggle: ((Boolean) -> Unit)? = null,
     showToggle: Boolean = true
 ) {
-    val engineName = when (engine) {
-        SearchEngine.GOOGLE -> stringResource(R.string.search_engine_google)
-        SearchEngine.CHATGPT -> stringResource(R.string.search_engine_chatgpt)
-        SearchEngine.PERPLEXITY -> stringResource(R.string.search_engine_perplexity)
-        SearchEngine.GROK -> stringResource(R.string.search_engine_grok)
-        SearchEngine.GOOGLE_MAPS -> stringResource(R.string.search_engine_google_maps)
-        SearchEngine.GOOGLE_PLAY -> stringResource(R.string.search_engine_google_play)
-        SearchEngine.REDDIT -> stringResource(R.string.search_engine_reddit)
-        SearchEngine.YOUTUBE -> stringResource(R.string.search_engine_youtube)
-        SearchEngine.AMAZON -> stringResource(R.string.search_engine_amazon)
-        SearchEngine.AI_MODE -> stringResource(R.string.search_engine_ai_mode)
-    }
-    
-    val drawableId = when (engine) {
-        SearchEngine.GOOGLE -> R.drawable.google
-        SearchEngine.CHATGPT -> R.drawable.chatgpt
-        SearchEngine.PERPLEXITY -> R.drawable.perplexity
-        SearchEngine.GROK -> R.drawable.grok
-        SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
-        SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
-        SearchEngine.REDDIT -> R.drawable.reddit
-        SearchEngine.YOUTUBE -> R.drawable.youtube
-        SearchEngine.AMAZON -> R.drawable.amazon
-        SearchEngine.AI_MODE -> R.drawable.ai_mode
-    }
+    val engineName = engine.getDisplayName()
+    val drawableId = engine.getDrawableResId()
     
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .offset(y = dragOffset)
             .alpha(if (isDragging) 0.8f else 1f)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(
+                horizontal = SearchEngineSettingsSpacing.rowHorizontalPadding,
+                vertical = SearchEngineSettingsSpacing.rowVerticalPadding
+            )
             .then(
                 if (showToggle) {
                     Modifier.pointerInput(Unit) {
@@ -436,6 +375,9 @@ private fun SearchEngineRow(
     }
 }
 
+/**
+ * Section for managing shortcuts separately.
+ */
 @Composable
 fun ShortcutsSection(
     shortcutsEnabled: Boolean,
@@ -464,36 +406,17 @@ fun ShortcutsSection(
     ) {
         Column {
             // Enable/disable shortcuts toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_shortcuts_toggle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_shortcuts_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
-                    checked = shortcutsEnabled,
-                    onCheckedChange = onToggleShortcutsEnabled
-                )
-            }
+            SearchEngineToggleRow(
+                title = stringResource(R.string.settings_shortcuts_toggle),
+                checked = shortcutsEnabled,
+                onCheckedChange = onToggleShortcutsEnabled,
+                subtitle = stringResource(R.string.settings_shortcuts_desc),
+                isFirstItem = true,
+                isLastItem = !shortcutsEnabled
+            )
             
             if (shortcutsEnabled) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                SearchEngineDivider()
                 
                 // List of shortcuts
                 SearchEngine.values().forEachIndexed { index, engine ->
@@ -505,9 +428,7 @@ fun ShortcutsSection(
                         onToggle = { enabled -> setShortcutEnabled(engine, enabled) }
                     )
                     if (index != SearchEngine.values().lastIndex) {
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
+                        SearchEngineDivider()
                     }
                 }
             }
@@ -515,107 +436,9 @@ fun ShortcutsSection(
     }
 }
 
-@Composable
-private fun EditShortcutDialog(
-    engineName: String,
-    currentCode: String,
-    isEnabled: Boolean,
-    onSave: (String) -> Unit,
-    onToggle: ((Boolean) -> Unit)?,
-    onDismiss: () -> Unit
-) {
-    var editingCode by remember(currentCode) { mutableStateOf(currentCode) }
-    var enabledState by remember(isEnabled) { mutableStateOf(isEnabled) }
-    val focusRequester = remember { FocusRequester() }
-    
-    LaunchedEffect(Unit) {
-        if (enabledState) {
-            focusRequester.requestFocus()
-        }
-    }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.dialog_edit_shortcut_title))
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.dialog_edit_shortcut_message, engineName),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                TextField(
-                    value = editingCode,
-                    onValueChange = { editingCode = it.lowercase().filter { char -> char.isLetterOrDigit() && char != ' ' } },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    enabled = enabledState,
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (editingCode.isNotBlank()) {
-                                onSave(editingCode)
-                            }
-                            onDismiss()
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                    )
-                )
-                if (onToggle != null) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Checkbox(
-                            checked = enabledState,
-                            onCheckedChange = { 
-                                enabledState = it
-                                onToggle(it)
-                            }
-                        )
-                        Text(
-                            text = stringResource(R.string.dialog_enable_shortcut),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (editingCode.isNotBlank()) {
-                        onSave(editingCode)
-                    }
-                    onDismiss()
-                },
-                enabled = editingCode.isNotBlank()
-            ) {
-                Text(text = stringResource(R.string.dialog_save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
-        }
-    )
-}
-
+/**
+ * Display component for shortcut code with edit dialog.
+ */
 @Composable
 private fun ShortcutCodeDisplay(
     shortcutCode: String,
@@ -664,6 +487,9 @@ private fun ShortcutCodeDisplay(
     }
 }
 
+/**
+ * Row component for displaying and editing a shortcut.
+ */
 @Composable
 private fun ShortcutRow(
     engine: SearchEngine,
@@ -674,31 +500,8 @@ private fun ShortcutRow(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     
-    val engineName = when (engine) {
-        SearchEngine.GOOGLE -> stringResource(R.string.search_engine_google)
-        SearchEngine.CHATGPT -> stringResource(R.string.search_engine_chatgpt)
-        SearchEngine.PERPLEXITY -> stringResource(R.string.search_engine_perplexity)
-        SearchEngine.GROK -> stringResource(R.string.search_engine_grok)
-        SearchEngine.GOOGLE_MAPS -> stringResource(R.string.search_engine_google_maps)
-        SearchEngine.GOOGLE_PLAY -> stringResource(R.string.search_engine_google_play)
-        SearchEngine.REDDIT -> stringResource(R.string.search_engine_reddit)
-        SearchEngine.YOUTUBE -> stringResource(R.string.search_engine_youtube)
-        SearchEngine.AMAZON -> stringResource(R.string.search_engine_amazon)
-        SearchEngine.AI_MODE -> stringResource(R.string.search_engine_ai_mode)
-    }
-    
-    val drawableId = when (engine) {
-        SearchEngine.GOOGLE -> R.drawable.google
-        SearchEngine.CHATGPT -> R.drawable.chatgpt
-        SearchEngine.PERPLEXITY -> R.drawable.perplexity
-        SearchEngine.GROK -> R.drawable.grok
-        SearchEngine.GOOGLE_MAPS -> R.drawable.google_maps
-        SearchEngine.GOOGLE_PLAY -> R.drawable.google_play
-        SearchEngine.REDDIT -> R.drawable.reddit
-        SearchEngine.YOUTUBE -> R.drawable.youtube
-        SearchEngine.AMAZON -> R.drawable.amazon
-        SearchEngine.AI_MODE -> R.drawable.ai_mode
-    }
+    val engineName = engine.getDisplayName()
+    val drawableId = engine.getDrawableResId()
     
     if (showDialog) {
         EditShortcutDialog(
@@ -714,7 +517,10 @@ private fun ShortcutRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(
+                horizontal = SearchEngineSettingsSpacing.rowHorizontalPadding,
+                vertical = SearchEngineSettingsSpacing.rowVerticalPadding
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -763,3 +569,39 @@ private fun ShortcutRow(
     }
 }
 
+/**
+ * Calculates the offset for an item relative to the dragged item.
+ */
+private fun calculateOffsetForRelativeItem(
+    relativeIndex: Int,
+    dragProgress: Float,
+    itemHeight: Dp
+): Dp {
+    return when {
+        // Item is below the dragged item (dragging down)
+        relativeIndex > 0 -> {
+            val threshold = relativeIndex - 0.5f
+            when {
+                dragProgress >= relativeIndex -> -itemHeight
+                dragProgress > threshold -> {
+                    val progress = ((dragProgress - threshold) * 2f).coerceIn(0f, 1f)
+                    -itemHeight * progress
+                }
+                else -> 0.dp
+            }
+        }
+        // Item is above the dragged item (dragging up)
+        relativeIndex < 0 -> {
+            val threshold = relativeIndex + 0.5f
+            when {
+                dragProgress <= relativeIndex -> itemHeight
+                dragProgress < threshold -> {
+                    val progress = ((threshold - dragProgress) * 2f).coerceIn(0f, 1f)
+                    itemHeight * progress
+                }
+                else -> 0.dp
+            }
+        }
+        else -> 0.dp
+    }
+}
