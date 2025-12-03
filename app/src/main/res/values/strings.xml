@@ -148,6 +148,11 @@
     <string name="settings_layout_toggle">Appearance</string>
     <string name="settings_layout_option_top">Top</string>
     <string name="settings_layout_option_bottom">Align results towards the bottom of the screen</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_desc">Choose your preferred color theme.</string>
+    <string name="settings_theme_option_system">System default</string>
+    <string name="settings_theme_option_light">Light</string>
+    <string name="settings_theme_option_dark">Dark</string>
 
     <!-- ============================================================================
          Settings - Search Engines

@@ -76,21 +76,27 @@ private val LightColorScheme = lightColorScheme(
  * QuickSearch application theme composable.
  *
  * Provides Material 3 theming with support for:
- * - Light and dark themes based on system preference
+ * - Light and dark themes based on user preference or system preference
  * - Dynamic color (Material You) on Android 12+ when enabled
  * - Custom typography
  *
- * @param darkTheme Whether to use dark theme. Defaults to system preference.
+ * @param themeMode The theme mode preference (System, Light, or Dark). Defaults to System.
  * @param dynamicColor Whether to use dynamic color (Material You). Only applies on Android 12+.
  *                     Defaults to false.
  * @param content The composable content to be themed.
  */
 @Composable
 fun QuickSearchTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+    
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

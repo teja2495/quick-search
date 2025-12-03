@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -46,6 +48,53 @@ import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDrawableResId
 import com.tk.quicksearch.search.getDisplayName
 import com.tk.quicksearch.settings.EditShortcutDialog
+
+/**
+ * Helper function to get color filter for search engine icons based on theme.
+ * Applies filters to convert white icons to black in light mode.
+ */
+@Composable
+private fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
+    val needsColorChange = engine in setOf(
+        SearchEngine.CHATGPT,
+        SearchEngine.GROK,
+        SearchEngine.AMAZON
+    )
+    
+    // Check if we're in light mode by checking the background color brightness
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val isLightMode = backgroundColor.red > 0.9f && backgroundColor.green > 0.9f && backgroundColor.blue > 0.9f
+    
+    return if (needsColorChange && isLightMode) {
+        if (engine == SearchEngine.AMAZON) {
+            // For Amazon: Use a darker scaling that preserves orange better
+            ColorFilter.colorMatrix(
+                ColorMatrix(
+                    floatArrayOf(
+                        0.3f, 0f, 0f, 0f, 0f,     // Red: scale to 30% (preserves orange better)
+                        0f, 0.3f, 0f, 0f, 0f,     // Green: scale to 30%
+                        0f, 0f, 0.3f, 0f, 0f,     // Blue: scale to 30%
+                        0f, 0f, 0f, 1f, 0f        // Alpha: keep
+                    )
+                )
+            )
+        } else {
+            // For ChatGPT and Grok: simple inversion (all white → all black)
+            ColorFilter.colorMatrix(
+                ColorMatrix(
+                    floatArrayOf(
+                        -1f, 0f, 0f, 0f, 255f,  // Red: invert
+                        0f, -1f, 0f, 0f, 255f,   // Green: invert
+                        0f, 0f, -1f, 0f, 255f,   // Blue: invert
+                        0f, 0f, 0f, 1f, 0f       // Alpha: keep
+                    )
+                )
+            )
+        }
+    } else {
+        null
+    }
+}
 
 /**
  * Main section for configuring search engines.
@@ -343,7 +392,8 @@ private fun SearchEngineRow(
             painter = painterResource(id = drawableId),
             contentDescription = engineName,
             modifier = Modifier.size(24.dp),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Fit,
+            colorFilter = getSearchEngineIconColorFilter(engine)
         )
         
         Column(
@@ -528,7 +578,8 @@ private fun ShortcutRow(
             painter = painterResource(id = drawableId),
             contentDescription = engineName,
             modifier = Modifier.size(24.dp),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Fit,
+            colorFilter = getSearchEngineIconColorFilter(engine)
         )
         
         Column(

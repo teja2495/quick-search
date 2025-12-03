@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
+import com.tk.quicksearch.ui.theme.ThemeMode
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -208,6 +209,14 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_SHOW_SECTION_TITLES, showTitles)
     }
 
+    fun getThemeMode(): String {
+        return prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.value) ?: ThemeMode.SYSTEM.value
+    }
+
+    fun setThemeMode(themeMode: String) {
+        prefs.edit().putString(KEY_THEME_MODE, themeMode).apply()
+    }
+
     // ============================================================================
     // Section Preferences
     // ============================================================================
@@ -350,6 +359,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages"
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
+        private const val KEY_THEME_MODE = "theme_mode"
 
         // Section preferences keys
         private const val KEY_SECTION_ORDER = "section_order"

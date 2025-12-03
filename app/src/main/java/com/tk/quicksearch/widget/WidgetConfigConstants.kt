@@ -36,3 +36,4 @@ object WidgetConfigConstants {
     val LOADING_STATE_SPACING = 16.dp
     val SURFACE_ELEVATION = 8.dp
 }
+

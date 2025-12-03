@@ -21,22 +21,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.ui.theme.ThemeMode
 
 @Composable
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
-    viewModel: SearchViewModel
+    viewModel: SearchViewModel,
+    onThemeModeChange: (ThemeMode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -83,10 +88,20 @@ fun SettingsRoute(
         onToggleShortcutsEnabled = viewModel::setShortcutsEnabled
     )
     
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val userPreferences = remember { UserAppPreferences(context) }
+    var currentThemeMode by remember { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
+    
     SettingsScreen(
         modifier = modifier,
         state = state,
-        callbacks = callbacks
+        callbacks = callbacks,
+        currentThemeMode = currentThemeMode,
+        onThemeModeChange = { themeMode ->
+            userPreferences.setThemeMode(themeMode.value)
+            currentThemeMode = themeMode
+            onThemeModeChange(themeMode)
+        }
     )
 }
 
@@ -94,7 +109,9 @@ fun SettingsRoute(
 private fun SettingsScreen(
     modifier: Modifier = Modifier,
     state: SettingsScreenState,
-    callbacks: SettingsScreenCallbacks
+    callbacks: SettingsScreenCallbacks,
+    currentThemeMode: ThemeMode,
+    onThemeModeChange: (ThemeMode) -> Unit
 ) {
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
@@ -131,6 +148,13 @@ private fun SettingsScreen(
                 showSectionTitles = state.showSectionTitles,
                 onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
                 appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+            )
+
+            // Theme Section
+            ThemeSection(
+                themeMode = currentThemeMode,
+                onThemeModeChange = onThemeModeChange,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
@@ -202,7 +226,7 @@ private fun SettingsHeader(onBack: () -> Unit) {
             Icon(
                 imageVector = Icons.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.desc_navigate_back),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
         Spacer(modifier = Modifier.width(SettingsSpacing.headerIconSpacing))

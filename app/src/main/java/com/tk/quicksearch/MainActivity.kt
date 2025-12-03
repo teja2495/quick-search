@@ -1,22 +1,28 @@
 package com.tk.quicksearch
 
+import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.SearchRoute
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.ui.theme.ThemeMode
 
 class MainActivity : ComponentActivity() {
 
@@ -46,14 +52,67 @@ class MainActivity : ComponentActivity() {
 
     private fun setupContent() {
         setContent {
-            QuickSearchTheme {
-                MainContent()
+            var themeMode by rememberSaveable { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
+            
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
+            
+            // Update status bar appearance based on theme
+            SetStatusBarAppearance(darkTheme = darkTheme)
+            
+            QuickSearchTheme(themeMode = themeMode) {
+                MainContent(themeMode) { newThemeMode ->
+                    themeMode = newThemeMode
+                }
+            }
+        }
+    }
+    
+    @Composable
+    private fun SetStatusBarAppearance(darkTheme: Boolean) {
+        val view = LocalView.current
+        
+        DisposableEffect(darkTheme) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+ (API 30+)
+                // APPEARANCE_LIGHT_STATUS_BARS means dark icons (for light backgrounds)
+                // Without it means light icons (for dark backgrounds)
+                val windowInsetsController = view.windowInsetsController
+                windowInsetsController?.setSystemBarsAppearance(
+                    if (darkTheme) 
+                        0  // Dark theme: use light icons (no flag)
+                    else 
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,  // Light theme: use dark icons
+                    android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Android 6.0+ (API 23+)
+                // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR means dark icons (for light backgrounds)
+                // Without it means light icons (for dark backgrounds)
+                @Suppress("DEPRECATION")
+                var flags = view.systemUiVisibility
+                flags = if (darkTheme) {
+                    // Dark theme: use light status bar icons (remove the flag)
+                    flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                } else {
+                    // Light theme: use dark status bar icons (add the flag)
+                    flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                }
+                view.systemUiVisibility = flags
+            }
+            
+            onDispose { }
         }
     }
 
     @Composable
-    private fun MainContent() {
+    private fun MainContent(
+        currentThemeMode: ThemeMode,
+        onThemeModeChange: (ThemeMode) -> Unit
+    ) {
         val isFirstLaunch = userPreferences.isFirstLaunch()
         var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
@@ -70,7 +129,11 @@ class MainActivity : ComponentActivity() {
             NavigationContent(
                 destination = destination,
                 onDestinationChange = { destination = it },
-                viewModel = searchViewModel
+                viewModel = searchViewModel,
+                onThemeModeChange = {
+                    userPreferences.setThemeMode(it.value)
+                    onThemeModeChange(it)
+                }
             )
         }
     }
@@ -79,7 +142,8 @@ class MainActivity : ComponentActivity() {
     private fun NavigationContent(
         destination: RootDestination,
         onDestinationChange: (RootDestination) -> Unit,
-        viewModel: SearchViewModel
+        viewModel: SearchViewModel,
+        onThemeModeChange: (ThemeMode) -> Unit
     ) {
         when (destination) {
             RootDestination.Search -> SearchRoute(
@@ -89,7 +153,8 @@ class MainActivity : ComponentActivity() {
 
             RootDestination.Settings -> SettingsRoute(
                 onBack = { onDestinationChange(RootDestination.Search) },
-                viewModel = viewModel
+                viewModel = viewModel,
+                onThemeModeChange = onThemeModeChange
             )
         }
     }

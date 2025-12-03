@@ -13,11 +13,17 @@ import androidx.compose.ui.graphics.Color
 // Shared Color Constants
 // ============================================================================
 
-/** Dark background color used by both themes */
+/** Dark background color used by dark theme */
 private const val BACKGROUND_DARK = 0xFF121212L
+
+/** Light background color used by light theme */
+private const val BACKGROUND_LIGHT = 0xFFFFFBFEL
 
 /** White color used for on-surface elements */
 private const val WHITE = 0xFFFFFFFFL
+
+/** Dark color used for on-surface elements in light theme */
+private const val ON_SURFACE_LIGHT = 0xFF1C1B1FL
 
 /** Shared primary container colors */
 private const val PRIMARY_CONTAINER_LIGHT = 0xFFEADDFFL
@@ -50,12 +56,12 @@ val md_theme_light_onTertiaryContainer = Color(0xFF31101D)
 val md_theme_light_error = Color(0xFFBA1A1A)
 val md_theme_light_onError = Color(WHITE)
 
-// Surface colors (shared dark background for both themes)
-val md_theme_light_background = Color(BACKGROUND_DARK)
-val md_theme_light_onBackground = Color(WHITE)
-val md_theme_light_surface = Color(BACKGROUND_DARK)
-val md_theme_light_onSurface = Color(WHITE)
-val md_theme_light_surfaceVariant = Color(BACKGROUND_DARK)
+// Surface colors (light theme uses light colors)
+val md_theme_light_background = Color(BACKGROUND_LIGHT)
+val md_theme_light_onBackground = Color(ON_SURFACE_LIGHT)
+val md_theme_light_surface = Color(BACKGROUND_LIGHT)
+val md_theme_light_onSurface = Color(ON_SURFACE_LIGHT)
+val md_theme_light_surfaceVariant = Color(0xFFE7E0EC)
 val md_theme_light_onSurfaceVariant = Color(0xFF49454F)
 
 // Outline color

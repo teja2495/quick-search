@@ -61,10 +61,22 @@ fun SearchEnginesSection(
     if (enabledEngines.isEmpty()) return
 
     val scrollState = rememberLazyListState()
+    
+    // Use black background in dark mode, otherwise use theme surface color
+    val backgroundColor = if (MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
+        MaterialTheme.colorScheme.background.red < 0.1f &&
+        MaterialTheme.colorScheme.background.green < 0.1f &&
+        MaterialTheme.colorScheme.background.blue < 0.1f) {
+        // Dark mode detected - use pure black
+        Color.Black
+    } else {
+        // Light mode - use theme surface color
+        MaterialTheme.colorScheme.surface
+    }
 
     Surface(
         modifier = modifier.extendToScreenEdges(),
-        color = Color.Black,
+        color = backgroundColor,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         SearchEngineContent(

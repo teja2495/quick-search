@@ -114,3 +114,4 @@ private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): Preview
         textIcon = textIcon
     )
 }
+
