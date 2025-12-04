@@ -7,11 +7,13 @@ import android.net.Uri
 import android.provider.Settings
 import android.provider.ContactsContract
 import android.widget.Toast
+import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.buildSearchUrl
+import com.tk.quicksearch.util.PhoneNumberUtils
 
 /**
  * Helper functions for creating and launching intents.
@@ -169,31 +171,54 @@ object IntentHelpers {
     }
     
     /**
-     * Opens WhatsApp chat for a phone number with fallback.
+     * Opens WhatsApp chat for a phone number with multiple fallback methods.
      */
     fun openWhatsAppChat(context: Application, phoneNumber: String) {
-        if (phoneNumber.isBlank()) return
+        if (!PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) {
+            Log.w("MessagingService", "Invalid phone number for WhatsApp: $phoneNumber")
+            return
+        }
         
-        val uri = Uri.parse("https://wa.me/${Uri.encode(phoneNumber)}")
-        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-            setPackage("com.whatsapp")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val cleanNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
+        if (cleanNumber == null) {
+            Log.w("MessagingService", "Could not clean phone number for WhatsApp: $phoneNumber")
+            return
         }
         
         try {
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            val fallbackIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+            // Method 1: Use ACTION_SENDTO with smsto scheme for direct chat
+            val smsIntent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("smsto:$cleanNumber")
+                setPackage("com.whatsapp")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            context.startActivity(smsIntent)
+        } catch (e: Exception) {
+            Log.w("MessagingService", "WhatsApp method 1 failed", e)
             try {
-                context.startActivity(fallbackIntent)
-            } catch (inner: Exception) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_missing_phone_number),
-                    Toast.LENGTH_SHORT
-                ).show()
+                // Method 2: Use ACTION_SEND with WhatsApp package
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra("jid", "$cleanNumber@s.whatsapp.net")
+                    setPackage("com.whatsapp")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(sendIntent)
+            } catch (e2: Exception) {
+                Log.w("MessagingService", "WhatsApp method 2 failed", e2)
+                try {
+                    // Method 3: Try standard messaging intent
+                    val messageIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse("sms:$cleanNumber")
+                        setPackage("com.whatsapp")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(messageIntent)
+                } catch (e3: Exception) {
+                    Log.w("MessagingService", "WhatsApp method 3 failed", e3)
+                    // Final fallback to SMS
+                    performSms(context, phoneNumber)
+                }
             }
         }
     }

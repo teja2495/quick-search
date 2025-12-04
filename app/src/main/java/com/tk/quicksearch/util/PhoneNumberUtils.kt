@@ -79,5 +79,32 @@ object PhoneNumberUtils {
     fun findDuplicate(existingNumbers: List<String>, newNumber: String): String? {
         return existingNumbers.firstOrNull { isSameNumber(it, newNumber) }
     }
+    
+    /**
+     * Validates if a phone number is valid (non-empty and contains digits).
+     */
+    fun isValidPhoneNumber(phoneNumber: String): Boolean {
+        if (phoneNumber.isBlank()) return false
+        val digits = extractDigits(phoneNumber)
+        return digits.isNotEmpty() && digits.length >= 7 // Minimum reasonable phone number length
+    }
+    
+    /**
+     * Cleans a phone number by removing non-digit characters except the leading +.
+     * Returns null if the cleaned number is invalid.
+     */
+    fun cleanPhoneNumber(phoneNumber: String): String? {
+        if (phoneNumber.isBlank()) return null
+        
+        val trimmed = phoneNumber.trim()
+        val hasPlus = trimmed.startsWith("+")
+        
+        // Extract digits
+        val digits = extractDigits(trimmed)
+        if (digits.isEmpty() || digits.length < 7) return null
+        
+        // Return with + prefix if original had it, otherwise return digits only
+        return if (hasPlus) "+$digits" else digits
+    }
 }
 
