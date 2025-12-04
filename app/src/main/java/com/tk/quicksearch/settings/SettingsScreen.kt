@@ -1,6 +1,8 @@
 package com.tk.quicksearch.settings
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -212,6 +215,7 @@ private fun SettingsScreen(
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     
     Column(
         modifier = modifier
@@ -327,7 +331,58 @@ private fun SettingsScreen(
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
+            // Feedback button
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = SettingsSpacing.sectionTopPadding * 2),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TextButton(
+                    onClick = {
+                        val versionName = try {
+                            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                            packageInfo.versionName ?: "Unknown"
+                        } catch (e: Exception) {
+                            "Unknown"
+                        }
+                        
+                        val androidVersion = android.os.Build.VERSION.RELEASE
+                        val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+                        
+                        val emailBody = """
+                            
+
+                            
+                            ---
+                            App Version: $versionName
+                            Android Version: $androidVersion
+                            Device: $deviceModel
+                        """.trimIndent()
+
+                        val subject = "Quick Search Feedback"
+
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}&body=${Uri.encode(emailBody)}")
+                        }
+
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Handle case where no email app is installed
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "Send Feedback & Bug Reports",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
             // App Version
+            Spacer(modifier = Modifier.height(16.dp))
             SettingsVersionDisplay()
         }
     }
@@ -368,7 +423,6 @@ private fun SettingsHeader(onBack: () -> Unit) {
  */
 @Composable
 private fun SettingsVersionDisplay() {
-    Spacer(modifier = Modifier.height(32.dp))
     val versionName = getAppVersionName()
     Text(
         text = stringResource(R.string.settings_app_version, versionName ?: "Unknown"),
@@ -378,7 +432,7 @@ private fun SettingsVersionDisplay() {
             .fillMaxWidth()
             .padding(
                 bottom = SettingsSpacing.versionBottomPadding,
-                top = SettingsSpacing.versionTopPadding
+                top = 0.dp
             ),
         textAlign = TextAlign.Center
     )
