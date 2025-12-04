@@ -902,7 +902,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ?.lowercase(Locale.getDefault())
                     ?.contains(normalizedQuery) == true
             }
-            .mapNotNull { app ->
+            .map { app ->
                 val nickname = userPreferences.getAppNickname(app.packageName)
                 val priority = when {
                     nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> {
@@ -917,11 +917,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         )
                     }
                 }
-                if (SearchRankingUtils.isOtherMatch(priority)) {
-                    null
-                } else {
-                    app to priority
-                }
+                app to priority
             }
             .sortedWith(compareBy({ it.second }, { it.first.appName.lowercase(Locale.getDefault()) }))
             .map { it.first }
