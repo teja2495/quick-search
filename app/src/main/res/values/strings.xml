@@ -275,7 +275,7 @@
     <string name="permissions_action_skip">Skip for now</string>
     <string name="permissions_granted">Granted</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
-    <string name="permissions_reminder_dialog_message">If you change your mind about %1$s permission, you can grant the permission later from app settings.</string>
+    <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
 
     <!-- ============================================================================
          Search Engine Names
