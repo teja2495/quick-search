@@ -88,7 +88,7 @@
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_remember_choice">Remember this choice</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_ok">Okay</string>
+    <string name="dialog_ok">Okay, continue</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">SMS</string>
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
