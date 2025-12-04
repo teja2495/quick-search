@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -30,11 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -62,6 +69,9 @@ fun PermissionsScreen(
     var filesPermissionState by remember {
         mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
     }
+    
+    // Dialog state
+    var showPermissionReminderDialog by remember { mutableStateOf(false) }
 
     // Runtime permissions launcher (for contacts and files on pre-R)
     val runtimePermissionsLauncher = rememberLauncherForActivityResult(
@@ -196,7 +206,18 @@ fun PermissionsScreen(
 
         // Continue button - always enabled
         Button(
-            onClick = onPermissionsComplete,
+            onClick = {
+                // Check if any permissions are not granted
+                val hasUngrantedPermissions = !usagePermissionState.isGranted || 
+                    !contactsPermissionState.isGranted || 
+                    !filesPermissionState.isGranted
+                
+                if (hasUngrantedPermissions) {
+                    showPermissionReminderDialog = true
+                } else {
+                    onPermissionsComplete()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 32.dp),
@@ -210,6 +231,92 @@ fun PermissionsScreen(
         }
         
         Spacer(modifier = Modifier.height(8.dp))
+    }
+    
+    // Permission reminder dialog
+    if (showPermissionReminderDialog) {
+        PermissionReminderDialog(
+            usagePermissionState = usagePermissionState,
+            contactsPermissionState = contactsPermissionState,
+            filesPermissionState = filesPermissionState,
+            onDismiss = { showPermissionReminderDialog = false },
+            onContinue = {
+                showPermissionReminderDialog = false
+                onPermissionsComplete()
+            }
+        )
+    }
+}
+
+/**
+ * Dialog that reminds users they can grant permissions later from app settings.
+ */
+@Composable
+private fun PermissionReminderDialog(
+    usagePermissionState: PermissionState,
+    contactsPermissionState: PermissionState,
+    filesPermissionState: PermissionState,
+    onDismiss: () -> Unit,
+    onContinue: () -> Unit
+) {
+    // Build list of ungranted permissions
+    val ungrantedPermissions = mutableListOf<String>()
+    if (!usagePermissionState.isGranted) {
+        ungrantedPermissions.add(stringResource(R.string.permissions_usage_title))
+    }
+    if (!contactsPermissionState.isGranted) {
+        ungrantedPermissions.add(stringResource(R.string.permissions_contacts_title))
+    }
+    if (!filesPermissionState.isGranted) {
+        ungrantedPermissions.add(stringResource(R.string.permissions_files_title))
+    }
+    
+    val permissionsList = ungrantedPermissions.joinToString(", ")
+    
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.75f))
+                .blur(radius = 20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            AlertDialog(
+                onDismissRequest = onDismiss,
+                title = {
+                    Text(
+                        text = stringResource(R.string.permissions_reminder_dialog_title),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            R.string.permissions_reminder_dialog_message,
+                            permissionsList
+                        ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = onContinue) {
+                        Text(stringResource(R.string.dialog_ok))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
+        }
     }
 }
 

@@ -228,12 +228,9 @@ private fun SettingsScreen(
                 .padding(horizontal = SettingsSpacing.contentHorizontalPadding)
         ) {
             // Usage Permission Banner (at the top)
-            // Show banner if any permission is missing and user hasn't dismissed it twice
-            if ((!hasUsagePermission || !hasContactPermission || !hasFilePermission) && shouldShowBanner) {
+            // Show banner only if usage access permission is missing and user hasn't dismissed it twice
+            if (!hasUsagePermission && shouldShowBanner) {
                 UsagePermissionBanner(
-                    hasUsagePermission = hasUsagePermission,
-                    hasContactPermission = hasContactPermission,
-                    hasFilePermission = hasFilePermission,
                     onRequestPermission = onRequestUsagePermission,
                     onDismiss = onDismissBanner,
                     onCardClick = {

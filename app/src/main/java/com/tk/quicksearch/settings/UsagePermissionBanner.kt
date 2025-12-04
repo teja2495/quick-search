@@ -23,9 +23,6 @@ import com.tk.quicksearch.R
 
 @Composable
 fun UsagePermissionBanner(
-    hasUsagePermission: Boolean,
-    hasContactPermission: Boolean,
-    hasFilePermission: Boolean,
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
     onCardClick: () -> Unit,
@@ -48,32 +45,12 @@ fun UsagePermissionBanner(
                     .clickable(onClick = onCardClick)
                     .padding(16.dp)
             ) {
-                if (!hasUsagePermission) {
-                    Text(
-                        text = "• ${stringResource(R.string.settings_usage_permission_banner_message)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-                
-                if (!hasContactPermission) {
-                    Text(
-                        text = "• ${stringResource(R.string.settings_contacts_permission_banner_message)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
-                
-                if (!hasFilePermission) {
-                    Text(
-                        text = "• ${stringResource(R.string.settings_files_permission_banner_message)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
+                // Banner only shows for usage access permission
+                Text(
+                    text = "${stringResource(R.string.settings_usage_permission_banner_message)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
             
             // Close button - separate from content area to prevent click conflicts

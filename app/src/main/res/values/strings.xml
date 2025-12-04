@@ -85,6 +85,7 @@
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_remember_choice">Remember this choice</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_ok">Okay</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">SMS</string>
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
@@ -273,6 +274,8 @@
     <string name="permissions_action_continue">Continue</string>
     <string name="permissions_action_skip">Skip for now</string>
     <string name="permissions_granted">Granted</string>
+    <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
+    <string name="permissions_reminder_dialog_message">If you change your mind about %1$s permission, you can grant the permission later from app settings.</string>
 
     <!-- ============================================================================
          Search Engine Names
