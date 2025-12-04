@@ -256,8 +256,21 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
     }
 
+    fun isUsagePermissionBannerSessionDismissed(): Boolean {
+        return prefs.getBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
+    }
+
+    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
+        prefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed).apply()
+    }
+
+    fun resetUsagePermissionBannerSessionDismissed() {
+        prefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false).apply()
+    }
+
     fun shouldShowUsagePermissionBanner(): Boolean {
-        return getUsagePermissionBannerDismissCount() < 2
+        // Show banner if: total dismiss count < 2 AND session not dismissed
+        return getUsagePermissionBannerDismissCount() < 2 && !isUsagePermissionBannerSessionDismissed()
     }
 
     // ============================================================================
@@ -413,5 +426,6 @@ class UserAppPreferences(context: Context) {
 
         // Usage permission banner preferences keys
         private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
+        private const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED = "usage_permission_banner_session_dismissed"
     }
 }

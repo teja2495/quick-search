@@ -1,6 +1,10 @@
 package com.tk.quicksearch.settings
 
+import android.Manifest
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,11 +38,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.ui.theme.ThemeMode
@@ -96,17 +103,62 @@ fun SettingsRoute(
         onSetAmazonDomain = viewModel::setAmazonDomain
     )
     
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val userPreferences = remember { UserAppPreferences(context) }
     var currentThemeMode by remember { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
     var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
     val lifecycleOwner = LocalLifecycleOwner.current
     
-    // Refresh permission state when returning to settings screen
+    // Launcher for contacts permission request
+    val contactsPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Refresh permission state after request
+        viewModel.handleOptionalPermissionChange()
+        
+        // If permission was not granted, check if we should open settings as fallback
+        // This handles the case where permission was permanently denied
+        if (!isGranted && context is android.app.Activity) {
+            val shouldShowRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+                context,
+                Manifest.permission.READ_CONTACTS
+            )
+            // If we can't show rationale and permission is still denied,
+            // it means permission was permanently denied, so open settings
+            if (!shouldShowRationale && !PermissionRequestHandler.checkContactsPermission(context)) {
+                viewModel.openContactPermissionSettings()
+            }
+        }
+    }
+    
+    // Handler for contacts permission request - tries popup first, then settings
+    val onRequestContactPermission = {
+        // If context is not an Activity, we can't request permission via popup, so open settings
+        if (context !is android.app.Activity) {
+            viewModel.openContactPermissionSettings()
+        } else {
+            // Try to show permission popup first
+            // If permission was permanently denied, Android will handle it gracefully
+            // and we'll open settings in the launcher callback if needed
+            contactsPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+        }
+    }
+    
+    // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.handleOnResume()
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    // Reset session dismissed flag on app launch (when activity starts)
+                    userPreferences.resetUsagePermissionBannerSessionDismissed()
+                    shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    viewModel.handleOnResume()
+                    // Also refresh banner state on resume
+                    shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+                }
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -115,6 +167,7 @@ fun SettingsRoute(
     
     val onDismissBanner = {
         userPreferences.incrementUsagePermissionBannerDismissCount()
+        userPreferences.setUsagePermissionBannerSessionDismissed(true)
         shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
     }
     
@@ -128,7 +181,7 @@ fun SettingsRoute(
         hasFilePermission = uiState.hasFilePermission,
         shouldShowBanner = shouldShowBanner,
         onRequestUsagePermission = viewModel::openUsageAccessSettings,
-        onRequestContactPermission = viewModel::openContactPermissionSettings,
+        onRequestContactPermission = onRequestContactPermission,
         onRequestFilePermission = viewModel::openFilesPermissionSettings,
         onDismissBanner = onDismissBanner,
         onThemeModeChange = { themeMode ->

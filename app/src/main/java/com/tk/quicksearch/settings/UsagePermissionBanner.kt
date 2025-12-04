@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -31,31 +32,21 @@ fun UsagePermissionBanner(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onCardClick),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
         shape = MaterialTheme.shapes.medium
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_close),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-            
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Content area - clickable for scrolling to permissions
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable(onClick = onCardClick)
                     .padding(16.dp)
-                    .padding(end = 48.dp) // Add padding to avoid overlap with close button
             ) {
                 if (!hasUsagePermission) {
                     Text(
@@ -83,6 +74,18 @@ fun UsagePermissionBanner(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
+            }
+            
+            // Close button - separate from content area to prevent click conflicts
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.Top)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_close),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
         }
     }
