@@ -1017,6 +1017,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val currentVersion = ++queryVersion
 
         searchJob = viewModelScope.launch(Dispatchers.IO) {
+            val normalizedQuery = query.lowercase(Locale.getDefault())
+            
+            // Search by display name (existing behavior)
             val result = searchOperations.performSearches(
                 query = query,
                 canSearchContacts = canSearchContacts,
@@ -1027,9 +1030,56 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 scope = this
             )
 
+            // Also search for contacts/files with matching nicknames
+            val nicknameMatchingContactIds = if (canSearchContacts) {
+                userPreferences.findContactsWithMatchingNickname(query)
+                    .filterNot { excludedContactIds.contains(it) }
+            } else {
+                emptySet()
+            }
+            
+            val nicknameMatchingFileUris = if (canSearchFiles) {
+                userPreferences.findFilesWithMatchingNickname(query)
+                    .filterNot { excludedFileUris.contains(it) }
+            } else {
+                emptySet()
+            }
+
+            // Fetch contacts/files that match by nickname but not by display name
+            val nicknameOnlyContacts = if (nicknameMatchingContactIds.isNotEmpty()) {
+                val displayNameMatchedIds = result.contacts.map { it.contactId }.toSet()
+                val nicknameOnlyIds = nicknameMatchingContactIds.filterNot { displayNameMatchedIds.contains(it) }
+                if (nicknameOnlyIds.isNotEmpty()) {
+                    contactRepository.getContactsByIds(nicknameOnlyIds.toSet())
+                } else {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+
+            val nicknameOnlyFiles = if (nicknameMatchingFileUris.isNotEmpty()) {
+                val displayNameMatchedUris = result.files.map { it.uri.toString() }.toSet()
+                val nicknameOnlyUris = nicknameMatchingFileUris.filterNot { displayNameMatchedUris.contains(it) }
+                if (nicknameOnlyUris.isNotEmpty()) {
+                    fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
+                        .filter { file ->
+                            val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
+                            fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
+                        }
+                } else {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+
+            // Combine display name matches and nickname-only matches
+            val allContacts = (result.contacts + nicknameOnlyContacts).distinctBy { it.contactId }
+            val allFiles = (result.files + nicknameOnlyFiles).distinctBy { it.uri.toString() }
+
             // Filter and rank by nickname matches
-            val normalizedQuery = query.lowercase(Locale.getDefault())
-            val filteredContacts = result.contacts.filter { contact ->
+            val filteredContacts = allContacts.filter { contact ->
                 val nickname = userPreferences.getContactNickname(contact.contactId)
                 contact.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
                     nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
@@ -1044,7 +1094,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
             )
 
-            val filteredFiles = result.files.filter { file ->
+            val filteredFiles = allFiles.filter { file ->
                 val nickname = userPreferences.getFileNickname(file.uri.toString())
                 file.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
                     nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true

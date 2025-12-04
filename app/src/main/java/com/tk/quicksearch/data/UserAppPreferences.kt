@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
 import com.tk.quicksearch.search.isValidAmazonDomain
 import com.tk.quicksearch.ui.theme.ThemeMode
+import java.util.Locale
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -151,6 +152,52 @@ class UserAppPreferences(context: Context) {
         } else {
             prefs.edit().putString(key, nickname.trim()).apply()
         }
+    }
+
+    /**
+     * Finds contact IDs that have nicknames matching the query.
+     */
+    fun findContactsWithMatchingNickname(query: String): Set<Long> {
+        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        if (normalizedQuery.isBlank()) return emptySet()
+
+        val matchingContactIds = mutableSetOf<Long>()
+        val allPrefs = prefs.all
+        
+        for ((key, value) in allPrefs) {
+            if (key.startsWith(KEY_NICKNAME_CONTACT_PREFIX) && value is String) {
+                val nickname = value.lowercase(Locale.getDefault())
+                if (nickname.contains(normalizedQuery)) {
+                    val contactIdStr = key.removePrefix(KEY_NICKNAME_CONTACT_PREFIX)
+                    contactIdStr.toLongOrNull()?.let { matchingContactIds.add(it) }
+                }
+            }
+        }
+        
+        return matchingContactIds
+    }
+
+    /**
+     * Finds file URIs that have nicknames matching the query.
+     */
+    fun findFilesWithMatchingNickname(query: String): Set<String> {
+        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        if (normalizedQuery.isBlank()) return emptySet()
+
+        val matchingFileUris = mutableSetOf<String>()
+        val allPrefs = prefs.all
+        
+        for ((key, value) in allPrefs) {
+            if (key.startsWith(KEY_NICKNAME_FILE_PREFIX) && value is String) {
+                val nickname = value.lowercase(Locale.getDefault())
+                if (nickname.contains(normalizedQuery)) {
+                    val fileUri = key.removePrefix(KEY_NICKNAME_FILE_PREFIX)
+                    matchingFileUris.add(fileUri)
+                }
+            }
+        }
+        
+        return matchingFileUris
     }
 
     fun getEnabledFileTypes(): Set<FileType> {
