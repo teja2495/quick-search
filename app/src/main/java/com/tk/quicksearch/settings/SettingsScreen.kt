@@ -301,13 +301,18 @@ private fun SettingsScreen(
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             
-            // Excluded Items Section - Navigation Card
-            SettingsNavigationCard(
-                title = stringResource(R.string.settings_excluded_items_title),
-                description = stringResource(R.string.settings_excluded_items_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
+            // Excluded Items Section - Navigation Card (only shown when there are excluded items)
+            val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
+                                   state.excludedContacts.isNotEmpty() || 
+                                   state.excludedFiles.isNotEmpty()
+            if (hasExcludedItems) {
+                SettingsNavigationCard(
+                    title = stringResource(R.string.settings_excluded_items_title),
+                    description = stringResource(R.string.settings_excluded_items_desc),
+                    onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
+                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+                )
+            }
 
             // Permissions Section (at the bottom)
             PermissionsSection(

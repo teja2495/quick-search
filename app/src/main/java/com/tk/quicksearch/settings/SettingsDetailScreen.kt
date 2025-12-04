@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -109,6 +110,16 @@ private fun SettingsDetailScreen(
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
     var showClearAllConfirmation by remember { mutableStateOf(false) }
+    
+    // Navigate back to settings when all excluded items are cleared
+    val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
+                           state.excludedContacts.isNotEmpty() || 
+                           state.excludedFiles.isNotEmpty()
+    LaunchedEffect(hasExcludedItems) {
+        if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
+            callbacks.onBack()
+        }
+    }
     
     Box(
         modifier = modifier
