@@ -209,7 +209,7 @@
     <string name="section_files">Files</string>
     <string name="settings_sections_at_least_one_required">At least one section must be enabled</string>
 
-    <!-- ============================================================================
+    <!-- ========================================&====================================
          Settings - Excluded Items
          ============================================================================ -->
     <string name="settings_excluded_items_title">Excluded Items</string>
@@ -254,12 +254,12 @@
          Permissions Screen
          ============================================================================ -->
     <string name="permissions_screen_title">Welcome to Quick Search</string>
-    <string name="permissions_screen_subtitle">To provide the best search experience, we need a few permissions.</string>
+    <string name="permissions_screen_subtitle">The app need a few permissions to function properly.</string>
     <string name="permissions_usage_title">Usage Access</string>
-    <string name="permissions_usage_desc">Required to show your recently used apps.</string>
-    <string name="permissions_contacts_title">Contacts (optional)</string>
-    <string name="permissions_contacts_desc">Search and quickly call or message your contacts.</string>
-    <string name="permissions_files_title">File Access (optional)</string>
+    <string name="permissions_usage_desc">Show your recently used apps &amp; search through your apps.</string>
+    <string name="permissions_contacts_title">Contacts</string>
+    <string name="permissions_contacts_desc">Search and quickly call or text your contacts.</string>
+    <string name="permissions_files_title">File Access</string>
     <string name="permissions_files_desc">Search through your documents, photos, videos, and other files.</string>
     <string name="permissions_action_grant">Grant Permission</string>
     <string name="permissions_action_continue">Continue</string>
