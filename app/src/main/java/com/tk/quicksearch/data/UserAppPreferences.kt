@@ -109,6 +109,49 @@ class UserAppPreferences(context: Context) {
 
     fun clearAllExcludedFiles(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_URIS)
 
+    // ============================================================================
+    // Nickname Preferences
+    // ============================================================================
+
+    fun getAppNickname(packageName: String): String? {
+        return prefs.getString("$KEY_NICKNAME_APP_PREFIX$packageName", null)
+    }
+
+    fun setAppNickname(packageName: String, nickname: String?) {
+        val key = "$KEY_NICKNAME_APP_PREFIX$packageName"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+        } else {
+            prefs.edit().putString(key, nickname.trim()).apply()
+        }
+    }
+
+    fun getContactNickname(contactId: Long): String? {
+        return prefs.getString("$KEY_NICKNAME_CONTACT_PREFIX$contactId", null)
+    }
+
+    fun setContactNickname(contactId: Long, nickname: String?) {
+        val key = "$KEY_NICKNAME_CONTACT_PREFIX$contactId"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+        } else {
+            prefs.edit().putString(key, nickname.trim()).apply()
+        }
+    }
+
+    fun getFileNickname(uri: String): String? {
+        return prefs.getString("$KEY_NICKNAME_FILE_PREFIX$uri", null)
+    }
+
+    fun setFileNickname(uri: String, nickname: String?) {
+        val key = "$KEY_NICKNAME_FILE_PREFIX$uri"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+        } else {
+            prefs.edit().putString(key, nickname.trim()).apply()
+        }
+    }
+
     fun getEnabledFileTypes(): Set<FileType> {
         val enabledNames = prefs.getStringSet(KEY_ENABLED_FILE_TYPES, null)
         return if (enabledNames == null) {
@@ -427,5 +470,10 @@ class UserAppPreferences(context: Context) {
         // Usage permission banner preferences keys
         private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
         private const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED = "usage_permission_banner_session_dismissed"
+
+        // Nickname preferences keys
+        private const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
+        private const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
+        private const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
     }
 }

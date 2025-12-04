@@ -3,6 +3,7 @@ package com.tk.quicksearch.search
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -38,11 +39,13 @@ fun AppItemDropdownMenu(
     onDismiss: () -> Unit,
     isPinned: Boolean,
     showUninstall: Boolean,
+    hasNickname: Boolean,
     onAppInfoClick: () -> Unit,
     onHideApp: () -> Unit,
     onPinApp: () -> Unit,
     onUnpinApp: () -> Unit,
-    onUninstallClick: () -> Unit
+    onUninstallClick: () -> Unit,
+    onNicknameClick: () -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -82,6 +85,16 @@ fun AppItemDropdownMenu(
                         } else {
                             onPinApp()
                         }
+                    }
+                )
+            )
+            add(
+                AppMenuItem(
+                    textResId = if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname,
+                    icon = Icons.Rounded.Edit,
+                    onClick = {
+                        onDismiss()
+                        onNicknameClick()
                     }
                 )
             )

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -71,6 +72,8 @@ fun FileResultsSection(
     pinnedFileUris: Set<String> = emptySet(),
     onTogglePin: (DeviceFile) -> Unit = {},
     onExclude: (DeviceFile) -> Unit = {},
+    onNicknameClick: (DeviceFile) -> Unit = {},
+    getFileNickname: (String) -> String? = { null },
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
@@ -97,6 +100,8 @@ fun FileResultsSection(
                     pinnedFileUris = pinnedFileUris,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
                     onExpandClick = onExpandClick
                 )
             }
@@ -127,6 +132,8 @@ private fun FilesResultCard(
     pinnedFileUris: Set<String>,
     onTogglePin: (DeviceFile) -> Unit,
     onExclude: (DeviceFile) -> Unit,
+    onNicknameClick: (DeviceFile) -> Unit,
+    getFileNickname: (String) -> String?,
     onExpandClick: () -> Unit
 ) {
     val displayAsExpanded = isExpanded || showAllResults
@@ -161,7 +168,9 @@ private fun FilesResultCard(
                         isExpanded = displayAsExpanded,
                         isPinned = pinnedFileUris.contains(file.uri.toString()),
                         onTogglePin = onTogglePin,
-                        onExclude = onExclude
+                        onExclude = onExclude,
+                        onNicknameClick = onNicknameClick,
+                        hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
                     )
                     if (index != displayFiles.lastIndex) {
                         HorizontalDivider(
@@ -204,7 +213,9 @@ private fun FileResultRow(
     isExpanded: Boolean = false,
     isPinned: Boolean = false,
     onTogglePin: (DeviceFile) -> Unit = {},
-    onExclude: (DeviceFile) -> Unit = {}
+    onExclude: (DeviceFile) -> Unit = {},
+    onNicknameClick: (DeviceFile) -> Unit = {},
+    hasNickname: Boolean = false
 ) {
     var showOptions by remember { mutableStateOf(false) }
     
@@ -242,8 +253,10 @@ private fun FileResultRow(
             expanded = showOptions,
             onDismissRequest = { showOptions = false },
             isPinned = isPinned,
+            hasNickname = hasNickname,
             onTogglePin = { onTogglePin(deviceFile) },
-            onExclude = { onExclude(deviceFile) }
+            onExclude = { onExclude(deviceFile) },
+            onNicknameClick = { onNicknameClick(deviceFile) }
         )
     }
 }
@@ -257,8 +270,10 @@ private fun FileDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     isPinned: Boolean,
+    hasNickname: Boolean,
     onTogglePin: () -> Unit,
-    onExclude: () -> Unit
+    onExclude: () -> Unit,
+    onNicknameClick: () -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -283,6 +298,28 @@ private fun FileDropdownMenu(
             onClick = {
                 onDismissRequest()
                 onTogglePin()
+            }
+        )
+        
+        HorizontalDivider()
+        
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(
+                        if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onNicknameClick()
             }
         )
         

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -96,6 +97,8 @@ fun ContactResultsSection(
     pinnedContactIds: Set<Long> = emptySet(),
     onTogglePin: (ContactInfo) -> Unit = {},
     onExclude: (ContactInfo) -> Unit = {},
+    onNicknameClick: (ContactInfo) -> Unit = {},
+    getContactNickname: (Long) -> String? = { null },
     onOpenAppSettings: () -> Unit,
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
@@ -126,6 +129,8 @@ fun ContactResultsSection(
                     pinnedContactIds = pinnedContactIds,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    getContactNickname = getContactNickname,
                     onExpandClick = onExpandClick
                 )
             }
@@ -159,6 +164,8 @@ private fun ContactsResultCard(
     pinnedContactIds: Set<Long>,
     onTogglePin: (ContactInfo) -> Unit,
     onExclude: (ContactInfo) -> Unit,
+    onNicknameClick: (ContactInfo) -> Unit,
+    getContactNickname: (Long) -> String?,
     onExpandClick: () -> Unit
 ) {
     val displayAsExpanded = isExpanded || showAllResults
@@ -196,7 +203,9 @@ private fun ContactsResultCard(
                             onSmsContact = onSmsContact,
                             isPinned = pinnedContactIds.contains(contactInfo.contactId),
                             onTogglePin = onTogglePin,
-                            onExclude = onExclude
+                            onExclude = onExclude,
+                            onNicknameClick = onNicknameClick,
+                            hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
                         )
                     }
                     if (index != displayContacts.lastIndex) {
@@ -242,7 +251,9 @@ private fun ContactResultRow(
     onSmsContact: (ContactInfo) -> Unit,
     isPinned: Boolean = false,
     onTogglePin: (ContactInfo) -> Unit = {},
-    onExclude: (ContactInfo) -> Unit = {}
+    onExclude: (ContactInfo) -> Unit = {},
+    onNicknameClick: (ContactInfo) -> Unit = {},
+    hasNickname: Boolean = false
 ) {
     var showOptions by remember { mutableStateOf(false) }
     val hasNumber = contactInfo.primaryNumber != null
@@ -284,8 +295,10 @@ private fun ContactResultRow(
             expanded = showOptions,
             onDismissRequest = { showOptions = false },
             isPinned = isPinned,
+            hasNickname = hasNickname,
             onTogglePin = { onTogglePin(contactInfo) },
-            onExclude = { onExclude(contactInfo) }
+            onExclude = { onExclude(contactInfo) },
+            onNicknameClick = { onNicknameClick(contactInfo) }
         )
     }
 }
@@ -412,8 +425,10 @@ private fun ContactDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     isPinned: Boolean,
+    hasNickname: Boolean,
     onTogglePin: () -> Unit,
-    onExclude: () -> Unit
+    onExclude: () -> Unit,
+    onNicknameClick: () -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -438,6 +453,28 @@ private fun ContactDropdownMenu(
             onClick = {
                 onDismissRequest()
                 onTogglePin()
+            }
+        )
+        
+        HorizontalDivider()
+        
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(
+                        if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onNicknameClick()
             }
         )
         

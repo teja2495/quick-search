@@ -616,6 +616,43 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setAppNickname(appInfo: AppInfo, nickname: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setAppNickname(appInfo.packageName, nickname)
+            refreshDerivedState()
+        }
+    }
+
+    fun getAppNickname(packageName: String): String? {
+        return userPreferences.getAppNickname(packageName)
+    }
+
+    fun setContactNickname(contactInfo: ContactInfo, nickname: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setContactNickname(contactInfo.contactId, nickname)
+            if (_uiState.value.query.isNotBlank()) {
+                performSecondarySearches(_uiState.value.query)
+            }
+        }
+    }
+
+    fun getContactNickname(contactId: Long): String? {
+        return userPreferences.getContactNickname(contactId)
+    }
+
+    fun setFileNickname(deviceFile: DeviceFile, nickname: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setFileNickname(deviceFile.uri.toString(), nickname)
+            if (_uiState.value.query.isNotBlank()) {
+                performSecondarySearches(_uiState.value.query)
+            }
+        }
+    }
+
+    fun getFileNickname(uri: String): String? {
+        return userPreferences.getFileNickname(uri)
+    }
+
     fun setShowAppLabels(showLabels: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setShowAppLabels(showLabels)
@@ -857,15 +894,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
+        val normalizedQuery = query.lowercase(Locale.getDefault())
         return source
             .asSequence()
-            .filter { it.matches(query) }
+            .filter { app ->
+                app.matches(query) || userPreferences.getAppNickname(app.packageName)
+                    ?.lowercase(Locale.getDefault())
+                    ?.contains(normalizedQuery) == true
+            }
             .mapNotNull { app ->
-                val priority = SearchRankingUtils.getBestMatchPriority(
-                    query,
-                    app.appName,
-                    app.packageName
-                )
+                val nickname = userPreferences.getAppNickname(app.packageName)
+                val priority = when {
+                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> {
+                        // Nickname match gets highest priority (1 = EXACT_MATCH)
+                        1
+                    }
+                    else -> {
+                        SearchRankingUtils.getBestMatchPriority(
+                            query,
+                            app.appName,
+                            app.packageName
+                        )
+                    }
+                }
                 if (SearchRankingUtils.isOtherMatch(priority)) {
                     null
                 } else {
@@ -974,12 +1025,44 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 scope = this
             )
 
+            // Filter and rank by nickname matches
+            val normalizedQuery = query.lowercase(Locale.getDefault())
+            val filteredContacts = result.contacts.filter { contact ->
+                val nickname = userPreferences.getContactNickname(contact.contactId)
+                contact.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+            }.sortedWith(
+                compareBy<ContactInfo> { contact ->
+                    val nickname = userPreferences.getContactNickname(contact.contactId)
+                    when {
+                        nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> 0
+                        contact.displayName.lowercase(Locale.getDefault()).startsWith(normalizedQuery) -> 1
+                        else -> 2
+                    }
+                }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
+            )
+
+            val filteredFiles = result.files.filter { file ->
+                val nickname = userPreferences.getFileNickname(file.uri.toString())
+                file.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+            }.sortedWith(
+                compareBy<DeviceFile> { file ->
+                    val nickname = userPreferences.getFileNickname(file.uri.toString())
+                    when {
+                        nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> 0
+                        file.displayName.lowercase(Locale.getDefault()).startsWith(normalizedQuery) -> 1
+                        else -> 2
+                    }
+                }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
+            )
+
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
                     _uiState.update { state ->
                         state.copy(
-                            contactResults = result.contacts,
-                            fileResults = result.files
+                            contactResults = filteredContacts,
+                            fileResults = filteredFiles
                         )
                     }
                 }

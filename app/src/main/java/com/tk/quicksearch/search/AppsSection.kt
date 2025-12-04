@@ -50,6 +50,8 @@ fun AppGridSection(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
+    onNicknameClick: (AppInfo) -> Unit,
+    getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
     modifier: Modifier = Modifier,
@@ -83,6 +85,8 @@ fun AppGridSection(
                     onHideApp = onHideApp,
                     onPinApp = onPinApp,
                     onUnpinApp = onUnpinApp,
+                    onNicknameClick = onNicknameClick,
+                    getAppNickname = getAppNickname,
                     pinnedPackageNames = pinnedPackageNames,
                     showAppLabels = showAppLabels,
                     rowCount = rowCount
@@ -101,6 +105,8 @@ private fun AppGrid(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
+    onNicknameClick: (AppInfo) -> Unit,
+    getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
     rowCount: Int = ROW_COUNT
@@ -123,6 +129,8 @@ private fun AppGrid(
                 onHideApp = onHideApp,
                 onPinApp = onPinApp,
                 onUnpinApp = onUnpinApp,
+                onNicknameClick = onNicknameClick,
+                getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
                 showAppLabels = showAppLabels
             )
@@ -139,6 +147,8 @@ private fun AppGridRow(
     onHideApp: (AppInfo) -> Unit,
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
+    onNicknameClick: (AppInfo) -> Unit,
+    getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean
 ) {
@@ -158,6 +168,8 @@ private fun AppGridRow(
                     onHideApp = { onHideApp(app) },
                     onPinApp = { onPinApp(app) },
                     onUnpinApp = { onUnpinApp(app) },
+                    onNicknameClick = { onNicknameClick(app) },
+                    hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
                     isPinned = pinnedPackageNames.contains(app.packageName),
                     showUninstall = !app.isSystemApp,
                     showAppLabel = showAppLabels
@@ -180,6 +192,8 @@ private fun AppGridItem(
     onHideApp: () -> Unit,
     onPinApp: () -> Unit,
     onUnpinApp: () -> Unit,
+    onNicknameClick: () -> Unit,
+    hasNickname: Boolean,
     isPinned: Boolean,
     showUninstall: Boolean,
     showAppLabel: Boolean
@@ -215,11 +229,13 @@ private fun AppGridItem(
             onDismiss = { showOptions = false },
             isPinned = isPinned,
             showUninstall = showUninstall,
+            hasNickname = hasNickname,
             onAppInfoClick = onAppInfoClick,
             onHideApp = onHideApp,
             onPinApp = onPinApp,
             onUnpinApp = onUnpinApp,
-            onUninstallClick = onUninstallClick
+            onUninstallClick = onUninstallClick,
+            onNicknameClick = onNicknameClick
         )
     }
 }

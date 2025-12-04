@@ -245,7 +245,22 @@ fun SearchRoute(
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
         onOpenAppSettings = viewModel::openAppSettings,
-        onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings
+        onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
+        onAppNicknameClick = { app ->
+            // This will be handled by the dialog state in SearchScreen
+        },
+        onContactNicknameClick = { contact ->
+            // This will be handled by the dialog state in SearchScreen
+        },
+        onFileNicknameClick = { file ->
+            // This will be handled by the dialog state in SearchScreen
+        },
+        getAppNickname = viewModel::getAppNickname,
+        getContactNickname = viewModel::getContactNickname,
+        getFileNickname = viewModel::getFileNickname,
+        onSaveAppNickname = viewModel::setAppNickname,
+        onSaveContactNickname = viewModel::setContactNickname,
+        onSaveFileNickname = viewModel::setFileNickname
     )
 }
 
@@ -277,7 +292,16 @@ fun SearchScreen(
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
-    onDismissPhoneNumberSelection: () -> Unit
+    onDismissPhoneNumberSelection: () -> Unit,
+    onAppNicknameClick: (AppInfo) -> Unit,
+    onContactNicknameClick: (ContactInfo) -> Unit,
+    onFileNicknameClick: (DeviceFile) -> Unit,
+    getAppNickname: (String) -> String?,
+    getContactNickname: (Long) -> String?,
+    getFileNickname: (String) -> String?,
+    onSaveAppNickname: (AppInfo, String?) -> Unit,
+    onSaveContactNickname: (ContactInfo, String?) -> Unit,
+    onSaveFileNickname: (DeviceFile, String?) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     
@@ -287,6 +311,9 @@ fun SearchScreen(
     // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
+    
+    // Nickname dialog state
+    var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
     
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
@@ -332,6 +359,14 @@ fun SearchScreen(
             }
         },
         onExclude = onExcludeContact,
+        onNicknameClick = { contact ->
+            nicknameDialogState = NicknameDialogState.Contact(
+                contact = contact,
+                currentNickname = getContactNickname(contact.contactId),
+                itemName = contact.displayName
+            )
+        },
+        getContactNickname = getContactNickname,
         onOpenAppSettings = onOpenAppSettings,
         showAllResults = derivedState.autoExpandContacts,
         showExpandControls = derivedState.hasBothContactsAndFiles,
@@ -370,6 +405,14 @@ fun SearchScreen(
             }
         },
         onExclude = onExcludeFile,
+        onNicknameClick = { file ->
+            nicknameDialogState = NicknameDialogState.File(
+                file = file,
+                currentNickname = getFileNickname(file.uri.toString()),
+                itemName = file.displayName
+            )
+        },
+        getFileNickname = getFileNickname,
         showAllResults = derivedState.autoExpandFiles,
         showExpandControls = derivedState.hasBothContactsAndFiles,
         onExpandClick = {
@@ -403,6 +446,14 @@ fun SearchScreen(
         onHideApp = onHideApp,
         onPinApp = onPinApp,
         onUnpinApp = onUnpinApp,
+        onNicknameClick = { app ->
+            nicknameDialogState = NicknameDialogState.App(
+                app = app,
+                currentNickname = getAppNickname(app.packageName),
+                itemName = app.appName
+            )
+        },
+        getAppNickname = getAppNickname,
         showAppLabels = state.showAppLabels || derivedState.isSearching,
         rowCount = derivedState.visibleRowCount,
         resultSectionTitle = derivedState.resultSectionTitle
@@ -509,6 +560,65 @@ fun SearchScreen(
             onDismiss = onDismissPhoneNumberSelection
         )
     }
+    
+    // Nickname dialog
+    nicknameDialogState?.let { dialogState ->
+        when (dialogState) {
+            is NicknameDialogState.App -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveAppNickname(dialogState.app, nickname)
+                        nicknameDialogState = null
+                    },
+                    onDismiss = { nicknameDialogState = null }
+                )
+            }
+            is NicknameDialogState.Contact -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveContactNickname(dialogState.contact, nickname)
+                        nicknameDialogState = null
+                    },
+                    onDismiss = { nicknameDialogState = null }
+                )
+            }
+            is NicknameDialogState.File -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveFileNickname(dialogState.file, nickname)
+                        nicknameDialogState = null
+                    },
+                    onDismiss = { nicknameDialogState = null }
+                )
+            }
+        }
+    }
+}
+
+sealed class NicknameDialogState {
+    data class App(
+        val app: AppInfo,
+        val currentNickname: String?,
+        val itemName: String
+    ) : NicknameDialogState()
+    
+    data class Contact(
+        val contact: ContactInfo,
+        val currentNickname: String?,
+        val itemName: String
+    ) : NicknameDialogState()
+    
+    data class File(
+        val file: DeviceFile,
+        val currentNickname: String?,
+        val itemName: String
+    ) : NicknameDialogState()
 }
 
 @Composable
