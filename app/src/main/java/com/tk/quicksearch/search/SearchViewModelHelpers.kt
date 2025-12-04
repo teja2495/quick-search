@@ -119,8 +119,8 @@ object IntentHelpers {
     /**
      * Opens a search URL with the specified search engine.
      */
-    fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine) {
-        val searchUrl = buildSearchUrl(query, searchEngine)
+    fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine, amazonDomain: String? = null) {
+        val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

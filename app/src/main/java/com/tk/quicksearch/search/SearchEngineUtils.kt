@@ -110,17 +110,29 @@ fun SearchEngine.getContentDescription(): String =
  * 
  * @param query The search query to encode and insert into the URL
  * @param searchEngine The search engine to build the URL for
+ * @param amazonDomain Optional custom Amazon domain (e.g., "amazon.co.uk" instead of "amazon.com")
  * @return The complete search URL with the encoded query, or base URL without query params if query is empty
  */
-fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
+fun buildSearchUrl(query: String, searchEngine: SearchEngine, amazonDomain: String? = null): String {
     val metadata = SEARCH_ENGINE_METADATA[searchEngine]
         ?: throw IllegalArgumentException("Unknown SearchEngine: $searchEngine")
+    
+    // Build Amazon URL template with custom domain if provided
+    val amazonUrlTemplate = if (searchEngine == SearchEngine.AMAZON) {
+        val domain = amazonDomain ?: "amazon.com"
+        "https://www.$domain/s?k=%s"
+    } else {
+        metadata.urlTemplate
+    }
     
     // If query is blank, return home URL for specific engines that need it
     if (query.isBlank()) {
         // Special handling for engines that should go to home page instead of search page
         val homeUrl = when (searchEngine) {
-            SearchEngine.AMAZON -> "https://www.amazon.com"
+            SearchEngine.AMAZON -> {
+                val domain = amazonDomain ?: "amazon.com"
+                "https://www.$domain"
+            }
             SearchEngine.YOUTUBE -> "https://www.youtube.com"
             SearchEngine.REDDIT -> "https://www.reddit.com"
             else -> null
@@ -160,7 +172,12 @@ fun buildSearchUrl(query: String, searchEngine: SearchEngine): String {
     }
     
     val encodedQuery = Uri.encode(query)
-    return metadata.urlTemplate.replace("%s", encodedQuery)
+    val templateToUse = if (searchEngine == SearchEngine.AMAZON) {
+        amazonUrlTemplate
+    } else {
+        metadata.urlTemplate
+    }
+    return templateToUse.replace("%s", encodedQuery)
 }
 
 /**

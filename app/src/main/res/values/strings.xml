@@ -86,6 +86,9 @@
     <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
+    <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
+    <string name="dialog_edit_amazon_domain_message">Enter a custom Amazon domain for your country (e.g., amazon.co.uk, amazon.de). Leave empty for default (amazon.com).</string>
+    <string name="dialog_edit_amazon_domain_hint">Examples: amazon.co.uk, amazon.de, amazon.fr</string>
 
     <!-- ============================================================================
          Settings - General
@@ -160,6 +163,10 @@
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Enable or disable search engines and reorder them.</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
+    <string name="settings_amazon_domain_title">Amazon Domain</string>
+    <string name="settings_amazon_domain_label">Domain:</string>
+    <string name="settings_amazon_domain_default">amazon.com</string>
+    <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
 
     <!-- ============================================================================
          Settings - Shortcuts

@@ -45,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.SearchEngine
+import com.tk.quicksearch.search.getContentDescription
 import com.tk.quicksearch.search.getDrawableResId
 import com.tk.quicksearch.search.getDisplayName
 import com.tk.quicksearch.settings.EditShortcutDialog
+import com.tk.quicksearch.settings.EditAmazonDomainDialog
 
 /**
  * Helper function to get color filter for search engine icons based on theme.
@@ -114,6 +116,8 @@ fun SearchEnginesSection(
     onToggleSearchEngineSectionEnabled: ((Boolean) -> Unit)? = null,
     shortcutsEnabled: Boolean = true,
     onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
+    amazonDomain: String? = null,
+    onSetAmazonDomain: ((String?) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Text(
@@ -146,7 +150,9 @@ fun SearchEnginesSection(
             shortcutEnabled = shortcutEnabled,
             setShortcutEnabled = setShortcutEnabled,
             shortcutsEnabled = shortcutsEnabled,
-            searchEngineSectionEnabled = searchEngineSectionEnabled
+            searchEngineSectionEnabled = searchEngineSectionEnabled,
+            amazonDomain = amazonDomain,
+            onSetAmazonDomain = onSetAmazonDomain
         )
     }
 }
@@ -202,7 +208,9 @@ private fun SearchEngineListCard(
     shortcutEnabled: Map<SearchEngine, Boolean>,
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
     shortcutsEnabled: Boolean,
-    searchEngineSectionEnabled: Boolean
+    searchEngineSectionEnabled: Boolean,
+    amazonDomain: String? = null,
+    onSetAmazonDomain: ((String?) -> Unit)? = null
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -320,7 +328,9 @@ private fun SearchEngineListCard(
                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
                     onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
-                    showToggle = searchEngineSectionEnabled
+                    showToggle = searchEngineSectionEnabled,
+                    amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
+                    onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null
                 )
                 
                 if (index != searchEngineOrder.lastIndex) {
@@ -349,7 +359,9 @@ private fun SearchEngineRow(
     shortcutEnabled: Boolean = true,
     onShortcutCodeChange: ((String) -> Unit)? = null,
     onShortcutToggle: ((Boolean) -> Unit)? = null,
-    showToggle: Boolean = true
+    showToggle: Boolean = true,
+    amazonDomain: String? = null,
+    onSetAmazonDomain: ((String?) -> Unit)? = null
 ) {
     val engineName = engine.getDisplayName()
     val drawableId = engine.getDrawableResId()
@@ -412,6 +424,13 @@ private fun SearchEngineRow(
                     onCodeChange = onShortcutCodeChange,
                     onToggle = onShortcutToggle,
                     engineName = engineName
+                )
+            }
+            // Show Amazon domain configuration link
+            if (engine == SearchEngine.AMAZON && onSetAmazonDomain != null) {
+                AmazonDomainLink(
+                    amazonDomain = amazonDomain,
+                    onSetAmazonDomain = onSetAmazonDomain
                 )
             }
         }
@@ -654,5 +673,41 @@ private fun calculateOffsetForRelativeItem(
             }
         }
         else -> 0.dp
+    }
+}
+
+/**
+ * Clickable link for configuring Amazon domain, shown in the Amazon search engine row.
+ */
+@Composable
+private fun AmazonDomainLink(
+    amazonDomain: String?,
+    onSetAmazonDomain: (String?) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    
+    if (showDialog) {
+        EditAmazonDomainDialog(
+            currentDomain = amazonDomain,
+            onSave = onSetAmazonDomain,
+            onDismiss = { showDialog = false }
+        )
+    }
+    
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.settings_amazon_domain_label),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { showDialog = true }
+        )
     }
 }

@@ -81,7 +81,8 @@ data class SearchUiState(
     val showSectionTitles: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
-    val searchEngineSectionEnabled: Boolean = true
+    val searchEngineSectionEnabled: Boolean = true,
+    val amazonDomain: String? = null
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -115,6 +116,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
+    private var amazonDomain: String? = userPreferences.getAmazonDomain()
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -136,7 +138,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 showSectionTitles = showSectionTitles,
                 sectionOrder = sectionOrder,
                 disabledSections = disabledSections,
-                searchEngineSectionEnabled = searchEngineSectionEnabled
+                searchEngineSectionEnabled = searchEngineSectionEnabled,
+                amazonDomain = amazonDomain
             )
         }
         refreshUsageAccess()
@@ -395,7 +398,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun openSearchUrl(query: String, searchEngine: SearchEngine) {
-        IntentHelpers.openSearchUrl(getApplication(), query, searchEngine)
+        val amazonDomain = if (searchEngine == SearchEngine.AMAZON) {
+            userPreferences.getAmazonDomain()
+        } else {
+            null
+        }
+        IntentHelpers.openSearchUrl(getApplication(), query, searchEngine, amazonDomain)
     }
 
     fun clearCachedApps() {
@@ -675,6 +683,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update { 
                 it.copy(keyboardAlignedLayout = keyboardAlignedLayout)
             }
+        }
+    }
+
+    fun setAmazonDomain(domain: String?) {
+        amazonDomain = domain
+        userPreferences.setAmazonDomain(domain)
+        _uiState.update { state ->
+            state.copy(amazonDomain = amazonDomain)
         }
     }
 

@@ -43,7 +43,8 @@ data class SettingsScreenState(
     val sectionOrder: List<SearchSection>,
     val disabledSections: Set<SearchSection>,
     val searchEngineSectionEnabled: Boolean,
-    val shortcutsEnabled: Boolean
+    val shortcutsEnabled: Boolean,
+    val amazonDomain: String? = null
 )
 
 /**
@@ -67,7 +68,8 @@ data class SettingsScreenCallbacks(
     val onToggleSection: (SearchSection, Boolean) -> Unit,
     val onReorderSections: (List<SearchSection>) -> Unit,
     val onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
-    val onToggleShortcutsEnabled: (Boolean) -> Unit
+    val onToggleShortcutsEnabled: (Boolean) -> Unit,
+    val onSetAmazonDomain: (String?) -> Unit
 )
 
 /**

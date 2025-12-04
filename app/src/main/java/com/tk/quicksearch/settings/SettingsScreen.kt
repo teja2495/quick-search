@@ -64,7 +64,8 @@ fun SettingsRoute(
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
-        shortcutsEnabled = uiState.shortcutsEnabled
+        shortcutsEnabled = uiState.shortcutsEnabled,
+        amazonDomain = uiState.amazonDomain
     )
     
     val callbacks = SettingsScreenCallbacks(
@@ -85,7 +86,8 @@ fun SettingsRoute(
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
-        onToggleShortcutsEnabled = viewModel::setShortcutsEnabled
+        onToggleShortcutsEnabled = viewModel::setShortcutsEnabled,
+        onSetAmazonDomain = viewModel::setAmazonDomain
     )
     
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -188,6 +190,8 @@ private fun SettingsScreen(
                 onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
                 shortcutsEnabled = state.shortcutsEnabled,
                 onToggleShortcutsEnabled = callbacks.onToggleShortcutsEnabled,
+                amazonDomain = state.amazonDomain,
+                onSetAmazonDomain = callbacks.onSetAmazonDomain,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             

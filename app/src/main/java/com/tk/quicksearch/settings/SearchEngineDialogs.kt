@@ -142,3 +142,97 @@ fun EditShortcutDialog(
         }
     )
 }
+
+/**
+ * Dialog for editing Amazon domain.
+ * 
+ * @param currentDomain The current Amazon domain (e.g., "amazon.co.uk" or null for default "amazon.com")
+ * @param onSave Callback when the domain is saved
+ * @param onDismiss Callback when the dialog is dismissed
+ */
+@Composable
+fun EditAmazonDomainDialog(
+    currentDomain: String?,
+    onSave: (String?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val defaultDomain = "amazon.com"
+    var editingDomain by remember(currentDomain) { mutableStateOf(currentDomain ?: "") }
+    val focusRequester = remember { FocusRequester() }
+    
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.dialog_edit_amazon_domain_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.dialog_edit_amazon_domain_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TextField(
+                    value = editingDomain,
+                    onValueChange = { editingDomain = it.replace(" ", "") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    singleLine = true,
+                    maxLines = 1,
+                    placeholder = {
+                        Text(text = defaultDomain)
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                                null
+                            } else {
+                                editingDomain.trim()
+                            }
+                            onSave(domainToSave)
+                            onDismiss()
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.dialog_edit_amazon_domain_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                        null
+                    } else {
+                        editingDomain.trim()
+                    }
+                    onSave(domainToSave)
+                    onDismiss()
+                }
+            ) {
+                Text(text = stringResource(R.string.dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
+}

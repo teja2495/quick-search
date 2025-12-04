@@ -182,6 +182,28 @@ class UserAppPreferences(context: Context) {
     }
 
     // ============================================================================
+    // Amazon Domain Preferences
+    // ============================================================================
+
+    fun getAmazonDomain(): String? {
+        return prefs.getString(KEY_AMAZON_DOMAIN, null)
+    }
+
+    fun setAmazonDomain(domain: String?) {
+        if (domain.isNullOrBlank()) {
+            prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
+        } else {
+            // Normalize domain (remove protocol, www, trailing slashes)
+            val normalizedDomain = domain.trim()
+                .removePrefix("https://")
+                .removePrefix("http://")
+                .removePrefix("www.")
+                .removeSuffix("/")
+            prefs.edit().putString(KEY_AMAZON_DOMAIN, normalizedDomain).apply()
+        }
+    }
+
+    // ============================================================================
     // UI Preferences
     // ============================================================================
 
@@ -364,5 +386,8 @@ class UserAppPreferences(context: Context) {
         // Section preferences keys
         private const val KEY_SECTION_ORDER = "section_order"
         private const val KEY_DISABLED_SECTIONS = "disabled_sections"
+
+        // Amazon domain preferences keys
+        private const val KEY_AMAZON_DOMAIN = "amazon_domain"
     }
 }
