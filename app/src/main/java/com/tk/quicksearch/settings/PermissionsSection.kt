@@ -1,10 +1,13 @@
 package com.tk.quicksearch.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Contacts
@@ -119,19 +122,26 @@ private fun PermissionRow(
             modifier = Modifier.weight(1f)
         )
         
-        if (permission.isGranted) {
-            Icon(
-                imageVector = Icons.Rounded.CheckCircle,
-                contentDescription = stringResource(R.string.settings_usage_access_granted),
-                tint = Color(0xFF4CAF50),
-                modifier = Modifier.size(24.dp)
-            )
-        } else {
-            TextButton(onClick = permission.onRequest) {
-                Text(
-                    text = stringResource(R.string.settings_permission_grant),
-                    color = MaterialTheme.colorScheme.primary
+        Box(
+            modifier = Modifier
+                .widthIn(min = 80.dp)
+                .heightIn(min = 40.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            if (permission.isGranted) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = stringResource(R.string.settings_usage_access_granted),
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(24.dp)
                 )
+            } else {
+                TextButton(onClick = permission.onRequest) {
+                    Text(
+                        text = stringResource(R.string.settings_permission_grant),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
