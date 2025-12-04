@@ -212,3 +212,49 @@ fun SearchEngine.getDisplayNameResId(): Int = when (this) {
  */
 @Composable
 fun SearchEngine.getDisplayName(): String = stringResource(getDisplayNameResId())
+
+/**
+ * Validates an Amazon domain format.
+ * 
+ * @param domain The domain to validate (should already be normalized - no protocol, www, trailing slashes)
+ * @return true if the domain is valid, false otherwise
+ */
+fun isValidAmazonDomain(domain: String): Boolean {
+    if (domain.isBlank()) {
+        return false
+    }
+    
+    val trimmed = domain.trim()
+    
+    // Must start with "amazon."
+    if (!trimmed.startsWith("amazon.", ignoreCase = true)) {
+        return false
+    }
+    
+    // Extract the part after "amazon."
+    val afterAmazon = trimmed.substringAfter("amazon.", missingDelimiterValue = "")
+    if (afterAmazon.isEmpty()) {
+        return false
+    }
+    
+    // Check for valid domain format: should have at least one dot followed by TLD (min 2 chars)
+    // Examples: co.uk, de, fr, com, co.jp
+    val parts = afterAmazon.split(".")
+    if (parts.isEmpty() || parts.any { it.isEmpty() }) {
+        return false
+    }
+    
+    // Last part (TLD) should be at least 2 characters
+    val tld = parts.last()
+    if (tld.length < 2) {
+        return false
+    }
+    
+    // Check that all parts contain only valid domain characters (letters, digits, hyphens)
+    val domainPattern = Regex("^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$")
+    if (!parts.all { it.matches(domainPattern) }) {
+        return false
+    }
+    
+    return true
+}

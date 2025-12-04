@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
+import com.tk.quicksearch.search.isValidAmazonDomain
 import com.tk.quicksearch.ui.theme.ThemeMode
 
 /**
@@ -199,7 +200,14 @@ class UserAppPreferences(context: Context) {
                 .removePrefix("http://")
                 .removePrefix("www.")
                 .removeSuffix("/")
-            prefs.edit().putString(KEY_AMAZON_DOMAIN, normalizedDomain).apply()
+            
+            // Validate domain before saving
+            if (isValidAmazonDomain(normalizedDomain)) {
+                prefs.edit().putString(KEY_AMAZON_DOMAIN, normalizedDomain).apply()
+            } else {
+                // Invalid domain - don't save, just remove the existing one
+                prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
+            }
         }
     }
 

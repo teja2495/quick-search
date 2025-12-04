@@ -87,8 +87,9 @@
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
-    <string name="dialog_edit_amazon_domain_message">Enter a custom Amazon domain for your country (e.g., amazon.co.uk, amazon.de). Leave empty for default (amazon.com).</string>
-    <string name="dialog_edit_amazon_domain_hint">Examples: amazon.co.uk, amazon.de, amazon.fr</string>
+    <string name="dialog_edit_amazon_domain_message">Update Amazon domain for your country.</string>
+    <string name="dialog_edit_amazon_domain_hint">Examples: amazon.com, amazon.in, amazon.ca, etc.</string>
+    <string name="dialog_edit_amazon_domain_error">Invalid domain</string>
 
     <!-- ============================================================================
          Settings - General

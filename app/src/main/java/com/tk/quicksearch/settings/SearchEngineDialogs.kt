@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.isValidAmazonDomain
 
 /**
  * Dialog for editing a search engine shortcut code.
@@ -157,8 +158,22 @@ fun EditAmazonDomainDialog(
     onDismiss: () -> Unit
 ) {
     val defaultDomain = "amazon.com"
-    var editingDomain by remember(currentDomain) { mutableStateOf(currentDomain ?: "") }
+    var editingDomain by remember(currentDomain) { mutableStateOf(currentDomain ?: defaultDomain) }
     val focusRequester = remember { FocusRequester() }
+    
+    // Normalize domain for validation (remove protocol, www, trailing slashes)
+    val normalizedDomain = remember(editingDomain) {
+        editingDomain.trim()
+            .removePrefix("https://")
+            .removePrefix("http://")
+            .removePrefix("www.")
+            .removeSuffix("/")
+    }
+    
+    // Validate domain (default domain is valid)
+    val isValid = remember(normalizedDomain) {
+        normalizedDomain.isBlank() || normalizedDomain == defaultDomain || isValidAmazonDomain(normalizedDomain)
+    }
     
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -187,19 +202,19 @@ fun EditAmazonDomainDialog(
                         .focusRequester(focusRequester),
                     singleLine = true,
                     maxLines = 1,
-                    placeholder = {
-                        Text(text = defaultDomain)
-                    },
+                    isError = !isValid && normalizedDomain.isNotBlank() && normalizedDomain != defaultDomain,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
-                                null
-                            } else {
-                                editingDomain.trim()
+                            if (isValid) {
+                                val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                                    null
+                                } else {
+                                    normalizedDomain
+                                }
+                                onSave(domainToSave)
+                                onDismiss()
                             }
-                            onSave(domainToSave)
-                            onDismiss()
                         }
                     ),
                     colors = TextFieldDefaults.colors(
@@ -207,24 +222,35 @@ fun EditAmazonDomainDialog(
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
                 )
-                Text(
-                    text = stringResource(R.string.dialog_edit_amazon_domain_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (!isValid && normalizedDomain.isNotBlank() && normalizedDomain != defaultDomain) {
+                    Text(
+                        text = stringResource(R.string.dialog_edit_amazon_domain_error),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.dialog_edit_amazon_domain_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
-                        null
-                    } else {
-                        editingDomain.trim()
+                    if (isValid) {
+                        val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                            null
+                        } else {
+                            normalizedDomain
+                        }
+                        onSave(domainToSave)
+                        onDismiss()
                     }
-                    onSave(domainToSave)
-                    onDismiss()
-                }
+                },
+                enabled = isValid
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }

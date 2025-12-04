@@ -235,8 +235,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val (queryWithoutShortcut, engine) = shortcutMatch
                 // Automatically perform search with the detected engine
                 openSearchUrl(queryWithoutShortcut.trim(), engine)
-                // Clear the query after performing search
-                clearQuery()
+                // Update query to remove shortcut but keep the remaining query
+                if (queryWithoutShortcut.isBlank()) {
+                    clearQuery()
+                } else {
+                    onQueryChange(queryWithoutShortcut)
+                }
                 return
             }
         }
