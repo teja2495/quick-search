@@ -247,6 +247,19 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putString(KEY_THEME_MODE, themeMode).apply()
     }
 
+    fun getUsagePermissionBannerDismissCount(): Int {
+        return prefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
+    }
+
+    fun incrementUsagePermissionBannerDismissCount() {
+        val currentCount = getUsagePermissionBannerDismissCount()
+        prefs.edit().putInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
+    }
+
+    fun shouldShowUsagePermissionBanner(): Boolean {
+        return getUsagePermissionBannerDismissCount() < 2
+    }
+
     // ============================================================================
     // Section Preferences
     // ============================================================================
@@ -397,5 +410,8 @@ class UserAppPreferences(context: Context) {
 
         // Amazon domain preferences keys
         private const val KEY_AMAZON_DOMAIN = "amazon_domain"
+
+        // Usage permission banner preferences keys
+        private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
     }
 }

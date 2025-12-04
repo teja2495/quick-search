@@ -115,115 +115,101 @@ fun PermissionsScreen(
         }
     }
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .systemBarsPadding()
             .navigationBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Column(
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = stringResource(R.string.permissions_screen_title),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Text(
+            text = stringResource(R.string.permissions_screen_subtitle),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+        // Usage Permission Card
+        PermissionCard(
+            title = stringResource(R.string.permissions_usage_title),
+            description = stringResource(R.string.permissions_usage_desc),
+            permissionState = usagePermissionState,
+            isMandatory = false,
+            onToggleChange = { enabled ->
+                if (enabled && !usagePermissionState.isGranted) {
+                    context.startActivity(
+                        PermissionRequestHandler.createUsageAccessIntent(context)
+                    )
+                }
+            }
+        )
+
+        // Contacts Permission Card (Optional)
+        PermissionCard(
+            title = stringResource(R.string.permissions_contacts_title),
+            description = stringResource(R.string.permissions_contacts_desc),
+            permissionState = contactsPermissionState,
+            isMandatory = false,
+            onToggleChange = { enabled ->
+                contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
+                if (enabled && !contactsPermissionState.isGranted) {
+                    runtimePermissionsLauncher.launch(
+                        arrayOf(Manifest.permission.READ_CONTACTS)
+                    )
+                }
+            }
+        )
+
+        // Files Permission Card (Optional)
+        PermissionCard(
+            title = stringResource(R.string.permissions_files_title),
+            description = stringResource(R.string.permissions_files_desc),
+            permissionState = filesPermissionState,
+            isMandatory = false,
+            onToggleChange = { enabled ->
+                filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
+                if (enabled && !filesPermissionState.isGranted) {
+                    handleFilesPermissionRequest(
+                        context = context,
+                        permissionState = filesPermissionState,
+                        runtimeLauncher = runtimePermissionsLauncher,
+                        allFilesLauncher = allFilesAccessLauncher,
+                        onStateUpdate = { newState ->
+                            filesPermissionState = newState
+                        }
+                    )
+                }
+            }
+        )
+
+        // Continue button - always enabled
+        Button(
+            onClick = onPermissionsComplete,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 32.dp),
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(R.string.permissions_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Text(
-                    text = stringResource(R.string.permissions_screen_subtitle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-
-                Spacer(modifier = Modifier.height(1.dp))
-
-                // Usage Permission Card
-                PermissionCard(
-                    title = stringResource(R.string.permissions_usage_title),
-                    description = stringResource(R.string.permissions_usage_desc),
-                    permissionState = usagePermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        if (enabled && !usagePermissionState.isGranted) {
-                            context.startActivity(
-                                PermissionRequestHandler.createUsageAccessIntent(context)
-                            )
-                        }
-                    }
-                )
-
-                // Contacts Permission Card (Optional)
-                PermissionCard(
-                    title = stringResource(R.string.permissions_contacts_title),
-                    description = stringResource(R.string.permissions_contacts_desc),
-                    permissionState = contactsPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !contactsPermissionState.isGranted) {
-                            runtimePermissionsLauncher.launch(
-                                arrayOf(Manifest.permission.READ_CONTACTS)
-                            )
-                        }
-                    }
-                )
-
-                // Files Permission Card (Optional)
-                PermissionCard(
-                    title = stringResource(R.string.permissions_files_title),
-                    description = stringResource(R.string.permissions_files_desc),
-                    permissionState = filesPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !filesPermissionState.isGranted) {
-                            handleFilesPermissionRequest(
-                                context = context,
-                                permissionState = filesPermissionState,
-                                runtimeLauncher = runtimePermissionsLauncher,
-                                allFilesLauncher = allFilesAccessLauncher,
-                                onStateUpdate = { newState ->
-                                    filesPermissionState = newState
-                                }
-                            )
-                        }
-                    }
-                )
-            }
-
-            // Continue button - enabled when at least one permission is granted
-            Button(
-                onClick = onPermissionsComplete,
-                enabled = usagePermissionState.isGranted || 
-                         contactsPermissionState.isGranted || 
-                         filesPermissionState.isGranted,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 32.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.permissions_action_continue),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text(
+                text = stringResource(R.string.permissions_action_continue),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
         }
+        
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

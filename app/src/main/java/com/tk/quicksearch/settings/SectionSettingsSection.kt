@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings
 
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -218,42 +219,48 @@ fun SectionSettingsSection(
                     label = "rowOffset"
                 )
                 
-                SectionRow(
-                    section = section,
-                    isEnabled = section !in disabledSections,
-                    onToggle = { enabled -> onToggleSection(section, enabled) },
-                    onDragStart = {
-                        draggedIndex.intValue = index
-                        dragOffset.floatValue = 0f
-                    },
-                    onDrag = { change, dragAmount ->
-                        dragOffset.floatValue += dragAmount.y
-                        change.consume()
-                    },
-                    onDragEnd = {
-                        val currentIndex = draggedIndex.intValue
-                        if (currentIndex >= 0) {
-                            val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                            val dragProgress = offsetInDp.value / DragConstants.itemHeight.value
-                            val positionsMoved = calculatePositionsMoved(dragProgress)
-                            val newIndex = (currentIndex + positionsMoved).coerceIn(0, sectionOrder.lastIndex)
-                            
-                            if (newIndex != currentIndex) {
-                                val newOrder = sectionOrder.toMutableList()
-                                val item = newOrder.removeAt(currentIndex)
-                                newOrder.add(newIndex, item)
-                                resetDragState(draggedIndex, dragOffset)
-                                pendingReorder.value = true
-                                onReorderSections(newOrder)
-                            } else {
-                                resetDragState(draggedIndex, dragOffset)
-                                pendingReorder.value = false
+                Column(
+                    modifier = Modifier
+                        .offset(y = animatedOffset)
+                        .alpha(if (isDragging) DragConstants.dragAlpha else 1f)
+                ) {
+                    SectionRow(
+                        section = section,
+                        isEnabled = section !in disabledSections,
+                        onToggle = { enabled -> onToggleSection(section, enabled) },
+                        onDragStart = {
+                            draggedIndex.intValue = index
+                            dragOffset.floatValue = 0f
+                        },
+                        onDrag = { change, dragAmount ->
+                            dragOffset.floatValue += dragAmount.y
+                            change.consume()
+                        },
+                        onDragEnd = {
+                            val currentIndex = draggedIndex.intValue
+                            if (currentIndex >= 0) {
+                                val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                val dragProgress = offsetInDp.value / DragConstants.itemHeight.value
+                                val positionsMoved = calculatePositionsMoved(dragProgress)
+                                val newIndex = (currentIndex + positionsMoved).coerceIn(0, sectionOrder.lastIndex)
+                                
+                                if (newIndex != currentIndex) {
+                                    val newOrder = sectionOrder.toMutableList()
+                                    val item = newOrder.removeAt(currentIndex)
+                                    newOrder.add(newIndex, item)
+                                    resetDragState(draggedIndex, dragOffset)
+                                    pendingReorder.value = true
+                                    onReorderSections(newOrder)
+                                } else {
+                                    resetDragState(draggedIndex, dragOffset)
+                                    pendingReorder.value = false
+                                }
                             }
-                        }
-                    },
-                    isDragging = isDragging,
-                    dragOffset = animatedOffset
-                )
+                        },
+                        isDragging = isDragging,
+                        dragOffset = 0.dp
+                    )
+                }
                 
                 if (index != sectionOrder.lastIndex) {
                     HorizontalDivider(
@@ -274,7 +281,8 @@ private fun SectionRow(
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
     onDragEnd: () -> Unit,
     isDragging: Boolean = false,
-    dragOffset: Dp = 0.dp
+    dragOffset: Dp = 0.dp,
+    bottomPadding: Dp = DragConstants.rowVerticalPadding
 ) {
     val metadata = getSectionMetadata(section)
     
@@ -284,8 +292,10 @@ private fun SectionRow(
             .offset(y = dragOffset)
             .alpha(if (isDragging) DragConstants.dragAlpha else 1f)
             .padding(
-                horizontal = DragConstants.rowHorizontalPadding,
-                vertical = DragConstants.rowVerticalPadding
+                start = DragConstants.rowHorizontalPadding,
+                end = DragConstants.rowHorizontalPadding,
+                top = DragConstants.rowVerticalPadding,
+                bottom = bottomPadding
             )
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(

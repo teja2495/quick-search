@@ -389,6 +389,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         IntentHelpers.openAllFilesAccessSettings(getApplication())
     }
 
+    fun openFilesPermissionSettings() {
+        val context: Application = getApplication()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            IntentHelpers.openAllFilesAccessSettings(context)
+        } else {
+            IntentHelpers.openAppSettings(context)
+        }
+    }
+
+    fun openContactPermissionSettings() {
+        IntentHelpers.openAppSettings(getApplication())
+    }
+
     fun launchApp(appInfo: AppInfo) {
         IntentHelpers.launchApp(getApplication(), appInfo)
     }

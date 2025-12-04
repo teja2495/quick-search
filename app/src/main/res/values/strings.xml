@@ -15,6 +15,7 @@
     <string name="desc_navigate_back">Navigate back</string>
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
+    <string name="desc_close">Close</string>
 
     <!-- ============================================================================
          Search Screen
@@ -31,7 +32,10 @@
          ============================================================================ -->
     <string name="apps_section_title">Apps</string>
     <string name="usage_permission_title">Grant usage access</string>
-    <string name="usage_permission_subtitle">Quick Search needs Usage Access and visibility to every installed app so it can surface your most recent launches instantly.</string>
+    <string name="usage_permission_subtitle">If you want to see your recently used apps in suggestions, grant usage access.</string>
+    <string name="settings_usage_permission_banner_message">Grant usage access to see app suggestions</string>
+    <string name="settings_contacts_permission_banner_message">Allow contacts permission to search through your contacts</string>
+    <string name="settings_files_permission_banner_message">Allow files permission to search through your documents and media</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="error_launch_app">Unable to open %1$s</string>
     <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
@@ -61,6 +65,7 @@
          Common Actions
          ============================================================================ -->
     <string name="action_open_settings">Open settings</string>
+    <string name="action_grant_usage_access">Grant usage access permission to show recently used apps in suggestions</string>
     <string name="action_app_info">App info</string>
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_hide_app">Exclude</string>
@@ -113,8 +118,11 @@
     <string name="settings_section_permissions">Permissions</string>
     <string name="settings_section_permissions_desc">Grant Android permissions to keep the index up to date.</string>
     <string name="settings_usage_access_title">Usage access</string>
+    <string name="settings_contacts_permission_title">Contacts</string>
+    <string name="settings_files_permission_title">Files</string>
     <string name="settings_usage_access_granted">Granted</string>
     <string name="settings_usage_access_missing">Not granted</string>
+    <string name="settings_permission_grant">Grant</string>
 
     <!-- ============================================================================
          Settings - App Index
@@ -254,9 +262,9 @@
          Permissions Screen
          ============================================================================ -->
     <string name="permissions_screen_title">Welcome to Quick Search</string>
-    <string name="permissions_screen_subtitle">The app need a few permissions to function properly.</string>
+    <string name="permissions_screen_subtitle">These permissions are optional, but they unlock extra features if you allow them.</string>
     <string name="permissions_usage_title">Usage Access</string>
-    <string name="permissions_usage_desc">Show your recently used apps &amp; search through your apps.</string>
+    <string name="permissions_usage_desc">Show your recently used apps in suggestions.</string>
     <string name="permissions_contacts_title">Contacts</string>
     <string name="permissions_contacts_desc">Search and quickly call or text your contacts.</string>
     <string name="permissions_files_title">File Access</string>

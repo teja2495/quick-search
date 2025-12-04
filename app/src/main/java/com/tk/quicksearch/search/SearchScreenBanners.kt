@@ -2,6 +2,10 @@ package com.tk.quicksearch.search
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 /**
@@ -13,10 +17,13 @@ fun PermissionAndErrorBanners(
     errorMessage: String?,
     onRequestPermission: () -> Unit
 ) {
-    if (!hasUsagePermission) {
+    var isBannerDismissed by remember { mutableStateOf(false) }
+    
+    if (!hasUsagePermission && !isBannerDismissed) {
         UsagePermissionCard(
             modifier = Modifier.fillMaxWidth(),
-            onRequestPermission = onRequestPermission
+            onRequestPermission = onRequestPermission,
+            onDismiss = { isBannerDismissed = true }
         )
     }
 

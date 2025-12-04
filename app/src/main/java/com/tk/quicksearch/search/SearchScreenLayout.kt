@@ -93,11 +93,10 @@ private fun ContentLayout(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        PermissionAndErrorBanners(
-            hasUsagePermission = state.hasUsagePermission,
-            errorMessage = state.errorMessage,
-            onRequestPermission = onRequestUsagePermission
-        )
+        // Show error banner if there's an error message
+        state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
+            InfoBanner(message = message)
+        }
 
         val hasQuery = state.query.isNotBlank()
         val isExpanded = renderingState.expandedSection != ExpandedSection.NONE

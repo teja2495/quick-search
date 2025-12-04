@@ -20,11 +20,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -93,12 +99,38 @@ fun SettingsRoute(
     val context = androidx.compose.ui.platform.LocalContext.current
     val userPreferences = remember { UserAppPreferences(context) }
     var currentThemeMode by remember { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
+    var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    
+    // Refresh permission state when returning to settings screen
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.handleOnResume()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    
+    val onDismissBanner = {
+        userPreferences.incrementUsagePermissionBannerDismissCount()
+        shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+    }
     
     SettingsScreen(
         modifier = modifier,
         state = state,
         callbacks = callbacks,
         currentThemeMode = currentThemeMode,
+        hasUsagePermission = uiState.hasUsagePermission,
+        hasContactPermission = uiState.hasContactPermission,
+        hasFilePermission = uiState.hasFilePermission,
+        shouldShowBanner = shouldShowBanner,
+        onRequestUsagePermission = viewModel::openUsageAccessSettings,
+        onRequestContactPermission = viewModel::openContactPermissionSettings,
+        onRequestFilePermission = viewModel::openFilesPermissionSettings,
+        onDismissBanner = onDismissBanner,
         onThemeModeChange = { themeMode ->
             userPreferences.setThemeMode(themeMode.value)
             currentThemeMode = themeMode
@@ -113,10 +145,19 @@ private fun SettingsScreen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     currentThemeMode: ThemeMode,
+    hasUsagePermission: Boolean,
+    hasContactPermission: Boolean,
+    hasFilePermission: Boolean,
+    shouldShowBanner: Boolean,
+    onRequestUsagePermission: () -> Unit,
+    onRequestContactPermission: () -> Unit,
+    onRequestFilePermission: () -> Unit,
+    onDismissBanner: () -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit
 ) {
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     
     Column(
         modifier = modifier
@@ -133,6 +174,24 @@ private fun SettingsScreen(
                 .verticalScroll(scrollState)
                 .padding(horizontal = SettingsSpacing.contentHorizontalPadding)
         ) {
+            // Usage Permission Banner (at the top)
+            // Show banner if any permission is missing and user hasn't dismissed it twice
+            if ((!hasUsagePermission || !hasContactPermission || !hasFilePermission) && shouldShowBanner) {
+                UsagePermissionBanner(
+                    hasUsagePermission = hasUsagePermission,
+                    hasContactPermission = hasContactPermission,
+                    hasFilePermission = hasFilePermission,
+                    onRequestPermission = onRequestUsagePermission,
+                    onDismiss = onDismissBanner,
+                    onCardClick = {
+                        coroutineScope.launch {
+                            scrollState.animateScrollTo(scrollState.maxValue)
+                        }
+                    },
+                    modifier = Modifier.padding(bottom = SettingsSpacing.sectionTopPadding)
+                )
+            }
+
             // Search Sections Section
             SectionSettingsSection(
                 sectionOrder = state.sectionOrder,
@@ -195,7 +254,7 @@ private fun SettingsScreen(
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             
-            // Excluded Items Section (at the bottom)
+            // Excluded Items Section
             ExcludedItemsSection(
                 hiddenApps = state.hiddenApps,
                 excludedContacts = state.excludedContacts,
@@ -204,6 +263,17 @@ private fun SettingsScreen(
                 onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                 onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
                 onClearAll = callbacks.onClearAllExclusions
+            )
+
+            // Permissions Section (at the bottom)
+            PermissionsSection(
+                hasUsagePermission = hasUsagePermission,
+                hasContactPermission = hasContactPermission,
+                hasFilePermission = hasFilePermission,
+                onRequestUsagePermission = onRequestUsagePermission,
+                onRequestContactPermission = onRequestContactPermission,
+                onRequestFilePermission = onRequestFilePermission,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
             // App Version
