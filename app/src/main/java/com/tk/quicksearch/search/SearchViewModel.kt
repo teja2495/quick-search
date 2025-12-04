@@ -44,6 +44,12 @@ enum class SearchSection {
     FILES
 }
 
+enum class MessagingApp {
+    MESSAGES,
+    WHATSAPP,
+    TELEGRAM
+}
+
 data class PhoneNumberSelection(
     val contactInfo: ContactInfo,
     val isCall: Boolean // true for call, false for SMS
@@ -77,7 +83,7 @@ data class SearchUiState(
     val shortcutsEnabled: Boolean = true,
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
-    val useWhatsAppForMessages: Boolean = false,
+    val messagingApp: MessagingApp = MessagingApp.MESSAGES,
     val showSectionTitles: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
@@ -111,7 +117,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var shortcutEnabled: Map<SearchEngine, Boolean> = SearchEngine.values().associateWith { 
         userPreferences.isShortcutEnabled(it) 
     }
-    private var useWhatsAppForMessages: Boolean = userPreferences.useWhatsAppForMessages()
+    private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
@@ -134,7 +140,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 shortcutsEnabled = shortcutsEnabled,
                 shortcutCodes = shortcutCodes,
                 shortcutEnabled = shortcutEnabled,
-                useWhatsAppForMessages = useWhatsAppForMessages,
+                messagingApp = messagingApp,
                 showSectionTitles = showSectionTitles,
                 sectionOrder = sectionOrder,
                 disabledSections = disabledSections,
@@ -205,11 +211,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
-        useWhatsAppForMessages = useWhatsApp
-        userPreferences.setUseWhatsAppForMessages(useWhatsApp)
+    fun setMessagingApp(app: MessagingApp) {
+        messagingApp = app
+        userPreferences.setMessagingApp(app)
         _uiState.update { state ->
-            state.copy(useWhatsAppForMessages = useWhatsAppForMessages)
+            state.copy(messagingApp = messagingApp)
         }
     }
 
@@ -1184,10 +1190,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun performMessaging(number: String) {
-        if (useWhatsAppForMessages) {
-            IntentHelpers.openWhatsAppChat(getApplication(), number)
-        } else {
-            performSms(number)
+        when (messagingApp) {
+            MessagingApp.MESSAGES -> performSms(number)
+            MessagingApp.WHATSAPP -> IntentHelpers.openWhatsAppChat(getApplication(), number)
+            MessagingApp.TELEGRAM -> IntentHelpers.openTelegramChat(getApplication(), number)
         }
     }
 

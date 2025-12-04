@@ -199,6 +199,46 @@ object IntentHelpers {
     }
     
     /**
+     * Opens Telegram chat for a phone number with fallback.
+     * Uses tg://resolve?phone= format for direct phone number resolution.
+     */
+    fun openTelegramChat(context: Application, phoneNumber: String) {
+        if (phoneNumber.isBlank()) return
+        
+        // Normalize phone number: remove spaces, dashes, and ensure it starts with +
+        val normalizedNumber = phoneNumber.trim()
+            .replace(" ", "")
+            .replace("-", "")
+            .let { if (it.startsWith("+")) it else "+$it" }
+        
+        // Try tg:// scheme first (preferred for Android app)
+        val tgUri = Uri.parse("tg://resolve?phone=${Uri.encode(normalizedNumber)}")
+        val intent = Intent(Intent.ACTION_VIEW, tgUri).apply {
+            setPackage("org.telegram.messenger")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // Fallback to https://t.me/+ format
+            val webUri = Uri.parse("https://t.me/${Uri.encode(normalizedNumber)}")
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, webUri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            try {
+                context.startActivity(fallbackIntent)
+            } catch (inner: Exception) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_missing_phone_number),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+    
+    /**
      * Opens a file with appropriate app.
      */
     fun openFile(context: Application, deviceFile: DeviceFile) {

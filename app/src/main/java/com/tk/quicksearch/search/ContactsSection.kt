@@ -90,7 +90,7 @@ fun ContactResultsSection(
     hasPermission: Boolean,
     contacts: List<ContactInfo>,
     isExpanded: Boolean,
-    useWhatsAppForMessages: Boolean,
+    messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
@@ -122,7 +122,7 @@ fun ContactResultsSection(
                     isExpanded = isExpanded,
                     showAllResults = showAllResults,
                     showExpandControls = showExpandControls,
-                    useWhatsAppForMessages = useWhatsAppForMessages,
+                    messagingApp = messagingApp,
                     onContactClick = onContactClick,
                     onCallContact = onCallContact,
                     onSmsContact = onSmsContact,
@@ -157,7 +157,7 @@ private fun ContactsResultCard(
     isExpanded: Boolean,
     showAllResults: Boolean,
     showExpandControls: Boolean,
-    useWhatsAppForMessages: Boolean,
+    messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
@@ -197,7 +197,7 @@ private fun ContactsResultCard(
                     key(contactInfo.contactId) {
                         ContactResultRow(
                             contactInfo = contactInfo,
-                            useWhatsAppForMessages = useWhatsAppForMessages,
+                            messagingApp = messagingApp,
                             onContactClick = onContactClick,
                             onCallContact = onCallContact,
                             onSmsContact = onSmsContact,
@@ -245,7 +245,7 @@ private fun ContactsResultCard(
 @Composable
 private fun ContactResultRow(
     contactInfo: ContactInfo,
-    useWhatsAppForMessages: Boolean,
+    messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
@@ -286,7 +286,7 @@ private fun ContactResultRow(
         
         ContactActionButtons(
             hasNumber = hasNumber,
-            useWhatsAppForMessages = useWhatsAppForMessages,
+            messagingApp = messagingApp,
             onCallClick = { onCallContact(contactInfo) },
             onSmsClick = { onSmsContact(contactInfo) }
         )
@@ -368,7 +368,7 @@ private fun ContactAvatar(
 @Composable
 private fun ContactActionButtons(
     hasNumber: Boolean,
-    useWhatsAppForMessages: Boolean,
+    messagingApp: MessagingApp,
     onCallClick: () -> Unit,
     onSmsClick: () -> Unit
 ) {
@@ -394,24 +394,35 @@ private fun ContactActionButtons(
         enabled = hasNumber,
         modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
     ) {
-        if (useWhatsAppForMessages) {
-            Icon(
-                painter = painterResource(id = R.drawable.whatsapp),
-                contentDescription = stringResource(R.string.contacts_action_whatsapp),
-                tint = Color.Unspecified,
-                modifier = Modifier.size(ACTION_ICON_SIZE.dp)
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Rounded.Sms,
-                contentDescription = stringResource(R.string.contacts_action_sms),
-                tint = if (hasNumber) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                modifier = Modifier.size(ACTION_ICON_SIZE.dp)
-            )
+        when (messagingApp) {
+            MessagingApp.MESSAGES -> {
+                Icon(
+                    imageVector = Icons.Rounded.Sms,
+                    contentDescription = stringResource(R.string.contacts_action_sms),
+                    tint = if (hasNumber) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                )
+            }
+            MessagingApp.WHATSAPP -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.whatsapp),
+                    contentDescription = stringResource(R.string.contacts_action_whatsapp),
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                )
+            }
+            MessagingApp.TELEGRAM -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.telegram),
+                    contentDescription = stringResource(R.string.contacts_action_telegram),
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                )
+            }
         }
     }
 }

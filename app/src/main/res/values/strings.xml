@@ -49,6 +49,7 @@
     <string name="contacts_action_call">Call contact</string>
     <string name="contacts_action_sms">Message contact</string>
     <string name="contacts_action_whatsapp">WhatsApp contact</string>
+    <string name="contacts_action_telegram">Telegram contact</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
 
@@ -216,6 +217,7 @@
     <string name="settings_messaging_desc">Choose which app to use when messaging contacts.</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
+    <string name="settings_messaging_option_telegram">Telegram</string>
 
     <!-- ============================================================================
          Settings - Sections

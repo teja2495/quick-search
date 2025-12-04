@@ -19,6 +19,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
@@ -38,7 +39,7 @@ data class SettingsScreenState(
     val keyboardAlignedLayout: Boolean,
     val shortcutCodes: Map<SearchEngine, String>,
     val shortcutEnabled: Map<SearchEngine, Boolean>,
-    val useWhatsAppForMessages: Boolean,
+    val messagingApp: MessagingApp,
     val showSectionTitles: Boolean,
     val sectionOrder: List<SearchSection>,
     val disabledSections: Set<SearchSection>,
@@ -63,7 +64,7 @@ data class SettingsScreenCallbacks(
     val onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     val setShortcutCode: (SearchEngine, String) -> Unit,
     val setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
-    val onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
+    val onSetMessagingApp: (MessagingApp) -> Unit,
     val onToggleShowSectionTitles: (Boolean) -> Unit,
     val onToggleSection: (SearchSection, Boolean) -> Unit,
     val onReorderSections: (List<SearchSection>) -> Unit,

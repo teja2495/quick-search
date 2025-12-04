@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.ui.theme.ThemeMode
@@ -72,7 +73,7 @@ fun SettingsRoute(
         keyboardAlignedLayout = uiState.keyboardAlignedLayout,
         shortcutCodes = uiState.shortcutCodes,
         shortcutEnabled = uiState.shortcutEnabled,
-        useWhatsAppForMessages = uiState.useWhatsAppForMessages,
+        messagingApp = uiState.messagingApp,
         showSectionTitles = uiState.showSectionTitles,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -94,7 +95,7 @@ fun SettingsRoute(
         onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout,
         setShortcutCode = viewModel::setShortcutCode,
         setShortcutEnabled = viewModel::setShortcutEnabled,
-        onToggleUseWhatsAppForMessages = viewModel::setUseWhatsAppForMessages,
+        onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowSectionTitles = viewModel::setShowSectionTitles,
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
@@ -271,8 +272,8 @@ private fun SettingsScreen(
 
             // Contacts Section
             MessagingSection(
-                useWhatsAppForMessages = state.useWhatsAppForMessages,
-                onToggleUseWhatsAppForMessages = callbacks.onToggleUseWhatsAppForMessages,
+                messagingApp = state.messagingApp,
+                onSetMessagingApp = callbacks.onSetMessagingApp,
                 contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )

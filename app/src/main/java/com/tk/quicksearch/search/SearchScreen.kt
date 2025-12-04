@@ -346,7 +346,7 @@ fun SearchScreen(
         contacts = state.contactResults,
         hasPermission = state.hasContactPermission,
         isExpanded = expandedSection == ExpandedSection.CONTACTS,
-        useWhatsAppForMessages = state.useWhatsAppForMessages,
+        messagingApp = state.messagingApp,
         pinnedContactIds = derivedState.pinnedContactIds,
         onContactClick = onContactClick,
         onCallContact = onCallContact,

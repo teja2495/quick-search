@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.MessagingApp
 
 // Constants for consistent spacing
 private object MessagingSpacing {
@@ -64,17 +65,17 @@ private fun SettingsRadioRow(
 
 /**
  * Messaging section for contacts settings.
- * Allows users to choose between standard messages and WhatsApp for contact actions.
+ * Allows users to choose between Messages, WhatsApp, and Telegram for contact actions.
  *
- * @param useWhatsAppForMessages Whether WhatsApp is currently selected for messaging
- * @param onToggleUseWhatsAppForMessages Callback when the messaging option changes
+ * @param messagingApp Currently selected messaging app
+ * @param onSetMessagingApp Callback when the messaging option changes
  * @param contactsSectionEnabled Whether the contacts section is enabled. If false, this section is not displayed.
  * @param modifier Modifier to be applied to the section title
  */
 @Composable
 fun MessagingSection(
-    useWhatsAppForMessages: Boolean,
-    onToggleUseWhatsAppForMessages: (Boolean) -> Unit,
+    messagingApp: MessagingApp,
+    onSetMessagingApp: (MessagingApp) -> Unit,
     contactsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -110,8 +111,8 @@ fun MessagingSection(
             // Messages option
             SettingsRadioRow(
                 text = stringResource(R.string.settings_messaging_option_messages),
-                selected = !useWhatsAppForMessages,
-                onClick = { onToggleUseWhatsAppForMessages(false) }
+                selected = messagingApp == MessagingApp.MESSAGES,
+                onClick = { onSetMessagingApp(MessagingApp.MESSAGES) }
             )
             
             // Divider
@@ -122,8 +123,20 @@ fun MessagingSection(
             // WhatsApp option
             SettingsRadioRow(
                 text = stringResource(R.string.settings_messaging_option_whatsapp),
-                selected = useWhatsAppForMessages,
-                onClick = { onToggleUseWhatsAppForMessages(true) }
+                selected = messagingApp == MessagingApp.WHATSAPP,
+                onClick = { onSetMessagingApp(MessagingApp.WHATSAPP) }
+            )
+            
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+            
+            // Telegram option
+            SettingsRadioRow(
+                text = stringResource(R.string.settings_messaging_option_telegram),
+                selected = messagingApp == MessagingApp.TELEGRAM,
+                onClick = { onSetMessagingApp(MessagingApp.TELEGRAM) }
             )
         }
     }

@@ -3,6 +3,7 @@ package com.tk.quicksearch.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
 import com.tk.quicksearch.search.isValidAmazonDomain
@@ -264,10 +265,43 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_KEYBOARD_ALIGNED_LAYOUT, enabled)
     }
 
-    fun useWhatsAppForMessages(): Boolean = getBooleanPref(KEY_USE_WHATSAPP_FOR_MESSAGES, false)
+    fun getMessagingApp(): MessagingApp {
+        // Migrate from old boolean preference if it exists
+        val oldKeyExists = prefs.contains(KEY_USE_WHATSAPP_FOR_MESSAGES)
+        if (oldKeyExists) {
+            val useWhatsApp = getBooleanPref(KEY_USE_WHATSAPP_FOR_MESSAGES, false)
+            val migratedApp = if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES
+            // Save migrated value and remove old key
+            setMessagingApp(migratedApp)
+            prefs.edit().remove(KEY_USE_WHATSAPP_FOR_MESSAGES).apply()
+            return migratedApp
+        }
+        
+        // Read new enum preference
+        val appName = prefs.getString(KEY_MESSAGING_APP, null)
+        return if (appName != null) {
+            try {
+                MessagingApp.valueOf(appName)
+            } catch (e: IllegalArgumentException) {
+                MessagingApp.MESSAGES
+            }
+        } else {
+            MessagingApp.MESSAGES
+        }
+    }
 
+    fun setMessagingApp(app: MessagingApp) {
+        prefs.edit().putString(KEY_MESSAGING_APP, app.name).apply()
+    }
+    
+    @Deprecated("Use getMessagingApp() instead", ReplaceWith("getMessagingApp()"))
+    fun useWhatsAppForMessages(): Boolean {
+        return getMessagingApp() == MessagingApp.WHATSAPP
+    }
+    
+    @Deprecated("Use setMessagingApp() instead", ReplaceWith("setMessagingApp(MessagingApp.WHATSAPP)"))
     fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
-        setBooleanPref(KEY_USE_WHATSAPP_FOR_MESSAGES, useWhatsApp)
+        setMessagingApp(if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES)
     }
 
     fun isFirstLaunch(): Boolean = getBooleanPref(KEY_FIRST_LAUNCH, true)
@@ -455,7 +489,8 @@ class UserAppPreferences(context: Context) {
 
         // UI preferences keys
         private const val KEY_KEYBOARD_ALIGNED_LAYOUT = "keyboard_aligned_layout"
-        private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages"
+        private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
+        private const val KEY_MESSAGING_APP = "messaging_app"
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
         private const val KEY_THEME_MODE = "theme_mode"
