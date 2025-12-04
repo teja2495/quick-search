@@ -55,6 +55,7 @@ fun ExcludedItemsSection(
     onRemoveExcludedContact: (ContactInfo) -> Unit,
     onRemoveExcludedFile: (DeviceFile) -> Unit,
     onClearAll: () -> Unit,
+    showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val allItems = remember(hiddenApps, excludedContacts, excludedFiles) {
@@ -72,36 +73,39 @@ fun ExcludedItemsSection(
     var showClearAllConfirmation by remember { mutableStateOf(false) }
 
     Column {
-        // Header with title and clear all button
+        // Header with title and description
         Column(modifier = modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_excluded_items_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                TextButton(onClick = { showClearAllConfirmation = true }) {
+            if (showTitle) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = stringResource(R.string.settings_action_clear_all),
-                        color = MaterialTheme.colorScheme.primary
+                        text = stringResource(R.string.settings_excluded_items_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
+                
+                Text(
+                    text = stringResource(R.string.settings_excluded_items_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(
+                            top = SettingsSpacing.sectionTitleBottomPadding,
+                            bottom = SettingsSpacing.sectionDescriptionBottomPadding
+                        )
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.settings_excluded_items_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+                )
             }
-            
-            Text(
-                text = stringResource(R.string.settings_excluded_items_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(
-                        top = SettingsSpacing.sectionTitleBottomPadding,
-                        bottom = SettingsSpacing.sectionDescriptionBottomPadding
-                    )
-            )
         }
         
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
@@ -283,7 +287,7 @@ private fun AppIconPlaceholder(appInfo: AppInfo) {
 }
 
 @Composable
-private fun ClearAllConfirmationDialog(
+fun ClearAllConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {

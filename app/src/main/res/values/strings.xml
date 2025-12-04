@@ -13,6 +13,7 @@
     <string name="desc_open_settings">Open Quick Search settings</string>
     <string name="desc_launch_app">Open %1$s</string>
     <string name="desc_navigate_back">Navigate back</string>
+    <string name="desc_navigate_forward">Navigate forward</string>
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
     <string name="desc_close">Close</string>

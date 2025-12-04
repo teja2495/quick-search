@@ -119,21 +119,31 @@ fun SearchEnginesSection(
     onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
+    showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(R.string.settings_search_engines_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
-    )
-    
-    Text(
-        text = stringResource(R.string.settings_search_engines_desc),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-    )
+    if (showTitle) {
+        Text(
+            text = stringResource(R.string.settings_search_engines_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        )
+        
+        Text(
+            text = stringResource(R.string.settings_search_engines_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+        )
+    } else {
+        Text(
+            text = stringResource(R.string.settings_search_engines_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+        )
+    }
     
     // Combined toggle card for enabling/disabling search engine section and shortcuts
     if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {

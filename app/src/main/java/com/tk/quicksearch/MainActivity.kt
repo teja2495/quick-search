@@ -21,6 +21,8 @@ import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.SearchRoute
 import com.tk.quicksearch.search.SearchViewModel
 import com.tk.quicksearch.settings.SettingsRoute
+import com.tk.quicksearch.settings.SettingsDetailRoute
+import com.tk.quicksearch.settings.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.ui.theme.ThemeMode
 
@@ -116,6 +118,7 @@ class MainActivity : ComponentActivity() {
         val isFirstLaunch = userPreferences.isFirstLaunch()
         var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
+        var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
 
         if (showPermissions && isFirstLaunch) {
             PermissionsScreen(
@@ -129,6 +132,8 @@ class MainActivity : ComponentActivity() {
             NavigationContent(
                 destination = destination,
                 onDestinationChange = { destination = it },
+                settingsDetailType = settingsDetailType,
+                onSettingsDetailTypeChange = { settingsDetailType = it },
                 viewModel = searchViewModel,
                 onThemeModeChange = {
                     userPreferences.setThemeMode(it.value)
@@ -142,20 +147,35 @@ class MainActivity : ComponentActivity() {
     private fun NavigationContent(
         destination: RootDestination,
         onDestinationChange: (RootDestination) -> Unit,
+        settingsDetailType: SettingsDetailType?,
+        onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
         viewModel: SearchViewModel,
         onThemeModeChange: (ThemeMode) -> Unit
     ) {
-        when (destination) {
-            RootDestination.Search -> SearchRoute(
-                viewModel = viewModel,
-                onSettingsClick = { onDestinationChange(RootDestination.Settings) }
-            )
-
-            RootDestination.Settings -> SettingsRoute(
-                onBack = { onDestinationChange(RootDestination.Search) },
-                viewModel = viewModel,
-                onThemeModeChange = onThemeModeChange
-            )
+        when {
+            destination == RootDestination.Settings && settingsDetailType != null -> {
+                SettingsDetailRoute(
+                    onBack = { onSettingsDetailTypeChange(null) },
+                    viewModel = viewModel,
+                    detailType = settingsDetailType
+                )
+            }
+            destination == RootDestination.Settings -> {
+                SettingsRoute(
+                    onBack = { onDestinationChange(RootDestination.Search) },
+                    viewModel = viewModel,
+                    onThemeModeChange = onThemeModeChange,
+                    onNavigateToDetail = { detailType ->
+                        onSettingsDetailTypeChange(detailType)
+                    }
+                )
+            }
+            else -> {
+                SearchRoute(
+                    viewModel = viewModel,
+                    onSettingsClick = { onDestinationChange(RootDestination.Settings) }
+                )
+            }
         }
     }
 

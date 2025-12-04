@@ -58,7 +58,8 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     viewModel: SearchViewModel,
-    onThemeModeChange: (ThemeMode) -> Unit = {}
+    onThemeModeChange: (ThemeMode) -> Unit = {},
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -192,7 +193,8 @@ fun SettingsRoute(
             userPreferences.setThemeMode(themeMode.value)
             currentThemeMode = themeMode
             onThemeModeChange(themeMode)
-        }
+        },
+        onNavigateToDetail = onNavigateToDetail
     )
 }
 
@@ -210,7 +212,8 @@ private fun SettingsScreen(
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onDismissBanner: () -> Unit,
-    onThemeModeChange: (ThemeMode) -> Unit
+    onThemeModeChange: (ThemeMode) -> Unit,
+    onNavigateToDetail: (SettingsDetailType) -> Unit
 ) {
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
@@ -290,34 +293,19 @@ private fun SettingsScreen(
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
-            // Search Engine Section (includes shortcuts)
-            SearchEnginesSection(
-                searchEngineOrder = state.searchEngineOrder,
-                disabledSearchEngines = state.disabledSearchEngines,
-                onToggleSearchEngine = callbacks.onToggleSearchEngine,
-                onReorderSearchEngines = callbacks.onReorderSearchEngines,
-                shortcutCodes = state.shortcutCodes,
-                setShortcutCode = callbacks.setShortcutCode,
-                shortcutEnabled = state.shortcutEnabled,
-                setShortcutEnabled = callbacks.setShortcutEnabled,
-                searchEngineSectionEnabled = state.searchEngineSectionEnabled,
-                onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
-                shortcutsEnabled = state.shortcutsEnabled,
-                onToggleShortcutsEnabled = callbacks.onToggleShortcutsEnabled,
-                amazonDomain = state.amazonDomain,
-                onSetAmazonDomain = callbacks.onSetAmazonDomain,
+            // Search Engine Section - Navigation Card
+            SettingsNavigationCard(
+                title = stringResource(R.string.settings_search_engines_title),
+                description = stringResource(R.string.settings_search_engines_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             
-            // Excluded Items Section
-            ExcludedItemsSection(
-                hiddenApps = state.hiddenApps,
-                excludedContacts = state.excludedContacts,
-                excludedFiles = state.excludedFiles,
-                onRemoveExcludedApp = callbacks.onRemoveExcludedApp,
-                onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                onClearAll = callbacks.onClearAllExclusions,
+            // Excluded Items Section - Navigation Card
+            SettingsNavigationCard(
+                title = stringResource(R.string.settings_excluded_items_title),
+                description = stringResource(R.string.settings_excluded_items_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
