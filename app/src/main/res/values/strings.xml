@@ -223,6 +223,7 @@
          Settings - Sections
          ============================================================================ -->
     <string name="settings_sections_title">Search Results</string>
+    <string name="settings_sections_desc">Customize which sections appear in search results and their order.</string>
     <string name="section_apps">Apps</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>

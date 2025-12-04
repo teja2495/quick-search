@@ -20,9 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.settings.SettingsSpacing
 
 // Constants for consistent spacing
 private object Spacing {
@@ -43,7 +45,9 @@ private fun SettingsToggleRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isFirstItem: Boolean = false,
-    isLastItem: Boolean = false
+    isLastItem: Boolean = false,
+    extraVerticalPadding: Dp = 0.dp,
+    extraBottomPadding: Dp = 0.dp
 ) {
     val topPadding = if (isFirstItem) Spacing.cardTopPadding else Spacing.cardVerticalPadding
     val bottomPadding = if (isLastItem) Spacing.cardBottomPadding else Spacing.cardVerticalPadding
@@ -53,9 +57,9 @@ private fun SettingsToggleRow(
             .fillMaxWidth()
             .padding(
                 start = Spacing.cardHorizontalPadding,
-                top = topPadding,
+                top = topPadding + extraVerticalPadding,
                 end = Spacing.cardHorizontalPadding,
-                bottom = bottomPadding
+                bottom = bottomPadding + extraVerticalPadding + extraBottomPadding
             ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -95,7 +99,9 @@ fun AppLabelsSection(
                 checked = keyboardAlignedLayout,
                 onCheckedChange = onToggleKeyboardAlignedLayout,
                 isFirstItem = true,
-                isLastItem = !appsSectionEnabled
+                isLastItem = !appsSectionEnabled,
+                extraVerticalPadding = 8.dp,
+                extraBottomPadding = 8.dp
             )
 
             // App labels toggle (conditional)
@@ -129,13 +135,13 @@ fun HiddenAppsSection(
         text = stringResource(R.string.settings_hidden_apps_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
     )
     Text(
         text = stringResource(R.string.settings_hidden_apps_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
     )
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),

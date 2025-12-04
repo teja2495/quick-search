@@ -37,14 +37,13 @@ import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.rememberAppIcon
+import com.tk.quicksearch.settings.SettingsSpacing
 
 // Constants
 private const val INITIAL_ITEMS_TO_SHOW = 3
 private val DEFAULT_ICON_SIZE = 24.dp
 private val ITEM_ROW_PADDING_HORIZONTAL = 16.dp
 private val ITEM_ROW_PADDING_VERTICAL = 12.dp
-private val SECTION_TOP_PADDING = 24.dp
-private val SECTION_BOTTOM_PADDING = 8.dp
 private val SECTION_SPACER_HEIGHT = 16.dp
 
 @Composable
@@ -55,7 +54,8 @@ fun ExcludedItemsSection(
     onRemoveExcludedApp: (AppInfo) -> Unit,
     onRemoveExcludedContact: (ContactInfo) -> Unit,
     onRemoveExcludedFile: (DeviceFile) -> Unit,
-    onClearAll: () -> Unit
+    onClearAll: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val allItems = remember(hiddenApps, excludedContacts, excludedFiles) {
         (hiddenApps.map { ExcludedItem.App(it) } +
@@ -73,24 +73,35 @@ fun ExcludedItemsSection(
 
     Column {
         // Header with title and clear all button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = SECTION_TOP_PADDING, bottom = SECTION_BOTTOM_PADDING),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.settings_excluded_items_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            TextButton(onClick = { showClearAllConfirmation = true }) {
+        Column(modifier = modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = stringResource(R.string.settings_action_clear_all),
-                    color = MaterialTheme.colorScheme.primary
+                    text = stringResource(R.string.settings_excluded_items_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                TextButton(onClick = { showClearAllConfirmation = true }) {
+                    Text(
+                        text = stringResource(R.string.settings_action_clear_all),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
+            
+            Text(
+                text = stringResource(R.string.settings_excluded_items_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(
+                        top = SettingsSpacing.sectionTitleBottomPadding,
+                        bottom = SettingsSpacing.sectionDescriptionBottomPadding
+                    )
+            )
         }
         
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))

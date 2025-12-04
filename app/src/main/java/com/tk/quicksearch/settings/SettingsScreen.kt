@@ -317,7 +317,8 @@ private fun SettingsScreen(
                 onRemoveExcludedApp = callbacks.onRemoveExcludedApp,
                 onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                 onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                onClearAll = callbacks.onClearAllExclusions
+                onClearAll = callbacks.onClearAllExclusions,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
             // Permissions Section (at the bottom)

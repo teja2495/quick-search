@@ -82,6 +82,8 @@ object SettingsSpacing {
     val headerIconSpacing = 8.dp
     val contentHorizontalPadding = 20.dp
     val sectionTopPadding = 24.dp
+    val sectionTitleBottomPadding = 8.dp
+    val sectionDescriptionBottomPadding = 16.dp
     val versionTopPadding = 45.dp
     val versionBottomPadding = 100.dp
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.SearchSection
+import com.tk.quicksearch.settings.SettingsSpacing
 
 /**
  * Constants for drag and drop behavior and animations.
@@ -59,7 +60,6 @@ private object DragConstants {
     val rowVerticalPadding: Dp = 12.dp
     val iconSize: Dp = 24.dp
     val rowSpacing: Dp = 12.dp
-    val titleBottomPadding: Dp = 16.dp
 }
 
 /**
@@ -162,7 +162,14 @@ fun SectionSettingsSection(
         text = stringResource(R.string.settings_sections_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = DragConstants.titleBottomPadding)
+        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+    )
+    
+    Text(
+        text = stringResource(R.string.settings_sections_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
     )
     
     ElevatedCard(

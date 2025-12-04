@@ -50,6 +50,7 @@ import com.tk.quicksearch.search.getDrawableResId
 import com.tk.quicksearch.search.getDisplayName
 import com.tk.quicksearch.settings.EditShortcutDialog
 import com.tk.quicksearch.settings.EditAmazonDomainDialog
+import com.tk.quicksearch.settings.SettingsSpacing
 
 /**
  * Helper function to get color filter for search engine icons based on theme.
@@ -124,7 +125,14 @@ fun SearchEnginesSection(
         text = stringResource(R.string.settings_search_engines_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 16.dp)
+        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+    )
+    
+    Text(
+        text = stringResource(R.string.settings_search_engines_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
     )
     
     // Combined toggle card for enabling/disabling search engine section and shortcuts
@@ -461,13 +469,13 @@ fun ShortcutsSection(
         text = stringResource(R.string.settings_shortcuts_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = 24.dp, bottom = 8.dp)
+        modifier = modifier.padding(top = SettingsSpacing.sectionTopPadding, bottom = SettingsSpacing.sectionTitleBottomPadding)
     )
     Text(
         text = stringResource(R.string.settings_shortcuts_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
     )
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),

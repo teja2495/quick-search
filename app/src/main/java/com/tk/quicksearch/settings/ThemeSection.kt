@@ -18,14 +18,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.ui.theme.ThemeMode
+import com.tk.quicksearch.settings.SettingsSpacing
 
 // Constants for consistent spacing
 private object ThemeSpacing {
     val cardHorizontalPadding = 20.dp
     val cardVerticalPadding = 12.dp
-    val sectionTitleTopPadding = 24.dp
-    val sectionTitleBottomPadding = 8.dp
-    val sectionDescriptionBottomPadding = 16.dp
 }
 
 /**
@@ -81,10 +79,7 @@ fun ThemeSection(
         text = stringResource(R.string.settings_theme_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(
-            top = ThemeSpacing.sectionTitleTopPadding,
-            bottom = ThemeSpacing.sectionTitleBottomPadding
-        )
+        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
     )
     
     // Section description
@@ -92,7 +87,7 @@ fun ThemeSection(
         text = stringResource(R.string.settings_theme_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = ThemeSpacing.sectionDescriptionBottomPadding)
+        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
     )
     
     // Options card

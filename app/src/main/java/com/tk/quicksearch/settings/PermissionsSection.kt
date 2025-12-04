@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.SettingsSpacing
 
 /**
  * Data class representing a permission item.
@@ -52,7 +53,14 @@ fun PermissionsSection(
             text = stringResource(R.string.settings_section_permissions),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        )
+        
+        Text(
+            text = stringResource(R.string.settings_section_permissions_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
         )
         
         ElevatedCard(
