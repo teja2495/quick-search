@@ -20,6 +20,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -78,7 +80,8 @@ fun FileResultsSection(
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
     resultSectionTitle: @Composable (String) -> Unit,
-    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit
+    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    showWallpaperBackground: Boolean = false
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -102,7 +105,8 @@ fun FileResultsSection(
                     onExclude = onExclude,
                     onNicknameClick = onNicknameClick,
                     getFileNickname = getFileNickname,
-                    onExpandClick = onExpandClick
+                    onExpandClick = onExpandClick,
+                    showWallpaperBackground = showWallpaperBackground
                 )
             }
 
@@ -134,7 +138,8 @@ private fun FilesResultCard(
     onExclude: (DeviceFile) -> Unit,
     onNicknameClick: (DeviceFile) -> Unit,
     getFileNickname: (String) -> String?,
-    onExpandClick: () -> Unit
+    onExpandClick: () -> Unit,
+    showWallpaperBackground: Boolean = false
 ) {
     val displayAsExpanded = isExpanded || showAllResults
     val canShowExpand = showExpandControls && files.size > INITIAL_RESULT_COUNT
@@ -151,43 +156,87 @@ private fun FilesResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            ),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+        if (showWallpaperBackground) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black.copy(alpha = 0.4f)
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                displayFiles.forEachIndexed { index, file ->
-                    FileResultRow(
-                        deviceFile = file,
-                        onClick = onFileClick,
-                        isExpanded = displayAsExpanded,
-                        isPinned = pinnedFileUris.contains(file.uri.toString()),
-                        onTogglePin = onTogglePin,
-                        onExclude = onExclude,
-                        onNicknameClick = onNicknameClick,
-                        hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
-                    )
-                    if (index != displayFiles.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.outlineVariant
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    displayFiles.forEachIndexed { index, file ->
+                        FileResultRow(
+                            deviceFile = file,
+                            onClick = onFileClick,
+                            isExpanded = displayAsExpanded,
+                            isPinned = pinnedFileUris.contains(file.uri.toString()),
+                            onTogglePin = onTogglePin,
+                            onExclude = onExclude,
+                            onNicknameClick = onNicknameClick,
+                            hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
+                        )
+                        if (index != displayFiles.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                    
+                    if (shouldShowExpandButton) {
+                        ExpandButton(
+                            onClick = onExpandClick,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .height(EXPAND_BUTTON_HEIGHT.dp)
+                                .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
                         )
                     }
                 }
-                
-                if (shouldShowExpandButton) {
-                    ExpandButton(
-                        onClick = onExpandClick,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .height(EXPAND_BUTTON_HEIGHT.dp)
-                            .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
-                    )
+            }
+        } else {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    displayFiles.forEachIndexed { index, file ->
+                        FileResultRow(
+                            deviceFile = file,
+                            onClick = onFileClick,
+                            isExpanded = displayAsExpanded,
+                            isPinned = pinnedFileUris.contains(file.uri.toString()),
+                            onTogglePin = onTogglePin,
+                            onExclude = onExclude,
+                            onNicknameClick = onNicknameClick,
+                            hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
+                        )
+                        if (index != displayFiles.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                    
+                    if (shouldShowExpandButton) {
+                        ExpandButton(
+                            onClick = onExpandClick,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .height(EXPAND_BUTTON_HEIGHT.dp)
+                                .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
+                        )
+                    }
                 }
             }
         }

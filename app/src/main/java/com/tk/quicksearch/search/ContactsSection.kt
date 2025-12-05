@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
@@ -104,7 +105,8 @@ fun ContactResultsSection(
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
     resultSectionTitle: @Composable (String) -> Unit,
-    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit
+    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    showWallpaperBackground: Boolean = false
 ) {
     val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -131,7 +133,8 @@ fun ContactResultsSection(
                     onExclude = onExclude,
                     onNicknameClick = onNicknameClick,
                     getContactNickname = getContactNickname,
-                    onExpandClick = onExpandClick
+                    onExpandClick = onExpandClick,
+                    showWallpaperBackground = showWallpaperBackground
                 )
             }
 
@@ -166,7 +169,8 @@ private fun ContactsResultCard(
     onExclude: (ContactInfo) -> Unit,
     onNicknameClick: (ContactInfo) -> Unit,
     getContactNickname: (Long) -> String?,
-    onExpandClick: () -> Unit
+    onExpandClick: () -> Unit,
+    showWallpaperBackground: Boolean = false
 ) {
     val displayAsExpanded = isExpanded || showAllResults
     val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
@@ -183,13 +187,15 @@ private fun ContactsResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            ),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
+        if (showWallpaperBackground) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black.copy(alpha = 0.4f)
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
@@ -224,6 +230,52 @@ private fun ContactsResultCard(
                             .height(EXPAND_BUTTON_HEIGHT.dp)
                             .padding(top = 2.dp)
                     )
+                }
+            }
+            }
+        } else {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    displayContacts.forEachIndexed { index, contactInfo ->
+                        key(contactInfo.contactId) {
+                            ContactResultRow(
+                                contactInfo = contactInfo,
+                                messagingApp = messagingApp,
+                                onContactClick = onContactClick,
+                                onCallContact = onCallContact,
+                                onSmsContact = onSmsContact,
+                                isPinned = pinnedContactIds.contains(contactInfo.contactId),
+                                onTogglePin = onTogglePin,
+                                onExclude = onExclude,
+                                onNicknameClick = onNicknameClick,
+                                hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
+                            )
+                        }
+                        if (index != displayContacts.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                    
+                    if (shouldShowExpandButton) {
+                        ExpandButton(
+                            onClick = onExpandClick,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .height(EXPAND_BUTTON_HEIGHT.dp)
+                                .padding(top = 2.dp)
+                        )
+                    }
                 }
             }
         }

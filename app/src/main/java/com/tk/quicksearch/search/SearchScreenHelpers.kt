@@ -48,7 +48,8 @@ data class ContactsSectionParams(
     override val showExpandControls: Boolean,
     override val onExpandClick: () -> Unit,
     override val resultSectionTitle: @Composable (String) -> Unit,
-    override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit
+    override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    val showWallpaperBackground: Boolean = false
 ) : ExpandableSectionParams
 
 /**
@@ -69,7 +70,8 @@ data class FilesSectionParams(
     override val showExpandControls: Boolean,
     override val onExpandClick: () -> Unit,
     override val resultSectionTitle: @Composable (String) -> Unit,
-    override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit
+    override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    val showWallpaperBackground: Boolean = false
 ) : ExpandableSectionParams
 
 /**
@@ -127,7 +129,8 @@ fun RenderContactsSection(
         showExpandControls = params.showExpandControls,
         onExpandClick = params.onExpandClick,
         resultSectionTitle = params.resultSectionTitle,
-        permissionDisabledCard = params.permissionDisabledCard
+        permissionDisabledCard = params.permissionDisabledCard,
+        showWallpaperBackground = params.showWallpaperBackground
     )
 }
 
@@ -158,7 +161,8 @@ fun RenderFilesSection(
         showExpandControls = params.showExpandControls,
         onExpandClick = params.onExpandClick,
         resultSectionTitle = params.resultSectionTitle,
-        permissionDisabledCard = params.permissionDisabledCard
+        permissionDisabledCard = params.permissionDisabledCard,
+        showWallpaperBackground = params.showWallpaperBackground
     )
 }
 

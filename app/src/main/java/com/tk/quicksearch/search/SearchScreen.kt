@@ -415,7 +415,8 @@ fun SearchScreen(
                 actionLabel = actionLabel,
                 onActionClick = onActionClick
             )
-        }
+        },
+        showWallpaperBackground = state.showWallpaperBackground
     )
     
     val filesParams = FilesSectionParams(
@@ -460,7 +461,8 @@ fun SearchScreen(
                 actionLabel = actionLabel,
                 onActionClick = onActionClick
             )
-        }
+        },
+        showWallpaperBackground = state.showWallpaperBackground
     )
     
     val appsParams = AppsSectionParams(
