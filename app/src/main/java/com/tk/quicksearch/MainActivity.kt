@@ -35,9 +35,12 @@ class MainActivity : ComponentActivity() {
         
         initializePreferences()
         setupWindow()
-        // Preload wallpaper early so it's ready when navigating to search screen
-        WallpaperUtils.preloadWallpaper(this)
+        // Initialize ViewModel early to start loading cached data immediately
+        // This ensures cached apps are ready when UI renders
+        searchViewModel
         setupContent()
+        // Preload wallpaper in background (already non-blocking)
+        WallpaperUtils.preloadWallpaper(this)
         refreshPermissionStateIfNeeded()
     }
 

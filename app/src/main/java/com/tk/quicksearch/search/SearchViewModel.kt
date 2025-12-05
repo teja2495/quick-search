@@ -132,51 +132,85 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { 
-            it.copy(
-                showAppLabels = showAppLabels,
-                searchEngineOrder = searchEngineOrder,
-                disabledSearchEngines = disabledSearchEngines,
-                enabledFileTypes = enabledFileTypes,
-                keyboardAlignedLayout = keyboardAlignedLayout,
-                shortcutsEnabled = shortcutsEnabled,
-                shortcutCodes = shortcutCodes,
-                shortcutEnabled = shortcutEnabled,
-                messagingApp = messagingApp,
-                showSectionTitles = showSectionTitles,
-                showWallpaperBackground = showWallpaperBackground,
-                sectionOrder = sectionOrder,
-                disabledSections = disabledSections,
-                searchEngineSectionEnabled = searchEngineSectionEnabled,
-                amazonDomain = amazonDomain
-            )
+        // Load cached apps synchronously for instant UI display
+        val cachedAppsList = runCatching {
+            repository.loadCachedApps()
+        }.getOrNull()
+        
+        if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
+            // Set cached apps immediately
+            cachedApps = cachedAppsList
+            val lastUpdated = repository.cacheLastUpdatedMillis()
+            
+            // Initialize UI state with cached data - UI appears instantly
+            _uiState.update { 
+                it.copy(
+                    isLoading = false,
+                    showAppLabels = showAppLabels,
+                    searchEngineOrder = searchEngineOrder,
+                    disabledSearchEngines = disabledSearchEngines,
+                    enabledFileTypes = enabledFileTypes,
+                    keyboardAlignedLayout = keyboardAlignedLayout,
+                    shortcutsEnabled = shortcutsEnabled,
+                    shortcutCodes = shortcutCodes,
+                    shortcutEnabled = shortcutEnabled,
+                    messagingApp = messagingApp,
+                    showSectionTitles = showSectionTitles,
+                    showWallpaperBackground = showWallpaperBackground,
+                    sectionOrder = sectionOrder,
+                    disabledSections = disabledSections,
+                    searchEngineSectionEnabled = searchEngineSectionEnabled,
+                    amazonDomain = amazonDomain,
+                    cacheLastUpdatedMillis = lastUpdated
+                )
+            }
+            // Update derived state immediately with cached apps
+            refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
+        } else {
+            // No cache - initialize with defaults
+            _uiState.update { 
+                it.copy(
+                    showAppLabels = showAppLabels,
+                    searchEngineOrder = searchEngineOrder,
+                    disabledSearchEngines = disabledSearchEngines,
+                    enabledFileTypes = enabledFileTypes,
+                    keyboardAlignedLayout = keyboardAlignedLayout,
+                    shortcutsEnabled = shortcutsEnabled,
+                    shortcutCodes = shortcutCodes,
+                    shortcutEnabled = shortcutEnabled,
+                    messagingApp = messagingApp,
+                    showSectionTitles = showSectionTitles,
+                    showWallpaperBackground = showWallpaperBackground,
+                    sectionOrder = sectionOrder,
+                    disabledSections = disabledSections,
+                    searchEngineSectionEnabled = searchEngineSectionEnabled,
+                    amazonDomain = amazonDomain
+                )
+            }
         }
+        
+        // Refresh permissions (fast operations)
         refreshUsageAccess()
         refreshOptionalPermissions()
+        
+        // Load apps in background (refresh cache if needed)
         loadApps()
-        loadPinnedContactsAndFiles()
-        loadExcludedContactsAndFiles()
+        
+        // Defer non-critical loads until after UI is visible
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(100) // Small delay to let UI render first
+            loadPinnedContactsAndFiles()
+            loadExcludedContactsAndFiles()
+        }
     }
 
     /**
      * Loads apps from cache first for instant display, then refreshes in background.
+     * Note: Cache is already loaded synchronously in init, so this just refreshes.
      */
     private fun loadApps() {
         viewModelScope.launch(Dispatchers.IO) {
-            // Try to load from cache first
-            val cachedApps = repository.loadCachedApps()
-            if (cachedApps != null && cachedApps.isNotEmpty()) {
-                // Show cached apps immediately
-                this@SearchViewModel.cachedApps = cachedApps
-                noMatchPrefix = null
-                val lastUpdated = repository.cacheLastUpdatedMillis()
-                refreshDerivedState(
-                    lastUpdated = lastUpdated,
-                    isLoading = false
-                )
-            }
-            
-            // Then refresh in background
+            // Cache was already loaded synchronously in init, so just refresh in background
             refreshApps()
         }
     }

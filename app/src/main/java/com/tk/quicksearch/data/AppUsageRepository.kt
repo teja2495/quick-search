@@ -63,10 +63,11 @@ class AppUsageRepository(
 
     /**
      * Loads app list from cache if available.
+     * This is synchronous for instant loading during ViewModel initialization.
      * 
      * @return Cached list of apps, or null if no cache exists
      */
-    suspend fun loadCachedApps(): List<AppInfo>? {
+    fun loadCachedApps(): List<AppInfo>? {
         return appCache.loadCachedApps()
     }
 
