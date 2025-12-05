@@ -1,8 +1,11 @@
 package com.tk.quicksearch.search
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,8 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -64,6 +72,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.util.WallpaperUtils
 
 /**
  * Enum representing which section is currently expanded.
@@ -304,6 +313,15 @@ fun SearchScreen(
     onSaveFileNickname: (DeviceFile, String?) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    
+    // Load wallpaper bitmap
+    var wallpaperBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    LaunchedEffect(Unit) {
+        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
+        wallpaperBitmap = bitmap?.asImageBitmap()
+    }
     
     // Calculate derived state
     val derivedState = rememberDerivedState(state)
@@ -481,19 +499,68 @@ fun SearchScreen(
         orderedSections = derivedState.orderedSections
     )
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .systemBarsPadding()
-            .navigationBarsPadding()
-            .padding(
-                start = 20.dp,
-                top = 16.dp,
-                end = 20.dp
-            ),
-        verticalArrangement = Arrangement.Top
+    // Check if we're in dark mode by checking the background color luminance
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val isDarkMode = remember(backgroundColor) {
+        // Calculate relative luminance (0 = black, 1 = white)
+        // Using the standard formula: 0.299*R + 0.587*G + 0.114*B
+        val luminance = backgroundColor.red * 0.299f + backgroundColor.green * 0.587f + backgroundColor.blue * 0.114f
+        luminance < 0.5f
+    }
+    
+    Box(
+        modifier = modifier.fillMaxSize()
     ) {
+        // Blurred wallpaper background
+        wallpaperBitmap?.let { bitmap ->
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(radius = 30.dp),
+                contentScale = ContentScale.Crop
+            )
+            
+            // Dark overlay in dark mode
+            if (isDarkMode) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                )
+            } else {
+                // Light overlay in light mode
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = 0.3f))
+                )
+            }
+        }
+        
+        // Fallback background if wallpaper is not available
+        if (wallpaperBitmap == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            )
+        }
+        
+        // Content on top
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+                .navigationBarsPadding()
+                .padding(
+                    start = 20.dp,
+                    top = 16.dp,
+                    end = 20.dp
+                ),
+            verticalArrangement = Arrangement.Top
+        ) {
         // Calculate enabled engines
         val enabledEngines: List<SearchEngine> = remember(
             state.searchEngineOrder,
@@ -548,6 +615,7 @@ fun SearchScreen(
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {
             // Add padding when search engine section is disabled to prevent keyboard from covering content
             Spacer(modifier = Modifier.imePadding())
+        }
         }
     }
     
@@ -689,6 +757,62 @@ private fun PersistentSearchField(
     val keyboardController = LocalSoftwareKeyboardController.current
     val lifecycleOwner = LocalLifecycleOwner.current
     
+    // Get color scheme values
+    val colorScheme = MaterialTheme.colorScheme
+    
+    // Check if we're in dark mode
+    val backgroundColor = colorScheme.background
+    val isDarkMode = remember(backgroundColor) {
+        val luminance = backgroundColor.red * 0.299f + backgroundColor.green * 0.587f + backgroundColor.blue * 0.114f
+        luminance < 0.5f
+    }
+    
+    // Use darker colors in dark mode
+    val searchBarBackground = remember(isDarkMode, colorScheme.surface) {
+        if (isDarkMode) {
+            // Blend surface with black to make it darker
+            val surface = colorScheme.surface
+            Color(
+                red = surface.red * 0.6f,
+                green = surface.green * 0.6f,
+                blue = surface.blue * 0.6f,
+                alpha = surface.alpha
+            )
+        } else {
+            colorScheme.surface
+        }
+    }
+    
+    val focusedContainerColor = remember(isDarkMode, colorScheme.surfaceContainerHigh) {
+        if (isDarkMode) {
+            // Blend surfaceContainerHigh with black to make it darker
+            val container = colorScheme.surfaceContainerHigh
+            Color(
+                red = container.red * 0.6f,
+                green = container.green * 0.6f,
+                blue = container.blue * 0.6f,
+                alpha = container.alpha
+            )
+        } else {
+            colorScheme.surfaceContainerHigh
+        }
+    }
+    
+    val unfocusedContainerColor = remember(isDarkMode, colorScheme.surfaceContainer) {
+        if (isDarkMode) {
+            // Blend surfaceContainer with black to make it darker
+            val container = colorScheme.surfaceContainer
+            Color(
+                red = container.red * 0.6f,
+                green = container.green * 0.6f,
+                blue = container.blue * 0.6f,
+                alpha = container.alpha
+            )
+        } else {
+            colorScheme.surfaceContainer
+        }
+    }
+    
     // Track if text is multi-line to adjust text size
     var isMultiLine by remember { mutableStateOf(false) }
 
@@ -748,7 +872,7 @@ private fun PersistentSearchField(
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
                 .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface),
+                .background(searchBarBackground),
         placeholder = {
             Text(
                 text = stringResource(R.string.search_hint),
@@ -806,8 +930,8 @@ private fun PersistentSearchField(
             unfocusedIndicatorColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+            focusedContainerColor = focusedContainerColor,
+            unfocusedContainerColor = unfocusedContainerColor
         )
     )
     }
