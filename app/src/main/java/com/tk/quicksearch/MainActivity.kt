@@ -23,6 +23,7 @@ import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.settings.SettingsDetailRoute
 import com.tk.quicksearch.settings.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.util.WallpaperUtils
 
 class MainActivity : ComponentActivity() {
 
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
         
         initializePreferences()
         setupWindow()
+        // Preload wallpaper early so it's ready when navigating to search screen
+        WallpaperUtils.preloadWallpaper(this)
         setupContent()
         refreshPermissionStateIfNeeded()
     }

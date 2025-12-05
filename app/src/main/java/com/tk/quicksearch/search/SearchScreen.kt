@@ -318,12 +318,19 @@ fun SearchScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     
-    // Load wallpaper bitmap
-    var wallpaperBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    // Load wallpaper bitmap - check cache first for instant display
+    var wallpaperBitmap by remember { 
+        mutableStateOf<ImageBitmap?>(
+            WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+        )
+    }
     
     LaunchedEffect(Unit) {
-        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
-        wallpaperBitmap = bitmap?.asImageBitmap()
+        // Only load if not already cached
+        if (wallpaperBitmap == null) {
+            val bitmap = WallpaperUtils.getWallpaperBitmap(context)
+            wallpaperBitmap = bitmap?.asImageBitmap()
+        }
     }
     
     // Calculate derived state
