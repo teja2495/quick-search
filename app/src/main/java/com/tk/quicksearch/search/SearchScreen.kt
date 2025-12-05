@@ -3,6 +3,7 @@ package com.tk.quicksearch.search
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -511,36 +514,38 @@ fun SearchScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        // Blurred wallpaper background
-        wallpaperBitmap?.let { bitmap ->
-            Image(
-                bitmap = bitmap,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(radius = 30.dp),
-                contentScale = ContentScale.Crop
-            )
-            
-            // Dark overlay in dark mode
-            if (isDarkMode) {
-                Box(
+        // Blurred wallpaper background (only if enabled)
+        if (state.showWallpaperBackground) {
+            wallpaperBitmap?.let { bitmap ->
+                Image(
+                    bitmap = bitmap,
+                    contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f))
+                        .blur(radius = 20.dp),
+                    contentScale = ContentScale.FillBounds
                 )
-            } else {
-                // Light overlay in light mode
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.White.copy(alpha = 0.3f))
-                )
+                
+                // Dark overlay in dark mode
+                if (isDarkMode) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                    )
+                } else {
+                    // Light overlay in light mode
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White.copy(alpha = 0.3f))
+                    )
+                }
             }
         }
         
-        // Fallback background if wallpaper is not available
-        if (wallpaperBitmap == null) {
+        // Fallback background if wallpaper is disabled or not available
+        if (!state.showWallpaperBackground || wallpaperBitmap == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -757,61 +762,12 @@ private fun PersistentSearchField(
     val keyboardController = LocalSoftwareKeyboardController.current
     val lifecycleOwner = LocalLifecycleOwner.current
     
-    // Get color scheme values
-    val colorScheme = MaterialTheme.colorScheme
-    
-    // Check if we're in dark mode
-    val backgroundColor = colorScheme.background
-    val isDarkMode = remember(backgroundColor) {
-        val luminance = backgroundColor.red * 0.299f + backgroundColor.green * 0.587f + backgroundColor.blue * 0.114f
-        luminance < 0.5f
-    }
-    
-    // Use darker colors in dark mode
-    val searchBarBackground = remember(isDarkMode, colorScheme.surface) {
-        if (isDarkMode) {
-            // Blend surface with black to make it darker
-            val surface = colorScheme.surface
-            Color(
-                red = surface.red * 0.6f,
-                green = surface.green * 0.6f,
-                blue = surface.blue * 0.6f,
-                alpha = surface.alpha
-            )
-        } else {
-            colorScheme.surface
-        }
-    }
-    
-    val focusedContainerColor = remember(isDarkMode, colorScheme.surfaceContainerHigh) {
-        if (isDarkMode) {
-            // Blend surfaceContainerHigh with black to make it darker
-            val container = colorScheme.surfaceContainerHigh
-            Color(
-                red = container.red * 0.6f,
-                green = container.green * 0.6f,
-                blue = container.blue * 0.6f,
-                alpha = container.alpha
-            )
-        } else {
-            colorScheme.surfaceContainerHigh
-        }
-    }
-    
-    val unfocusedContainerColor = remember(isDarkMode, colorScheme.surfaceContainer) {
-        if (isDarkMode) {
-            // Blend surfaceContainer with black to make it darker
-            val container = colorScheme.surfaceContainer
-            Color(
-                red = container.red * 0.6f,
-                green = container.green * 0.6f,
-                blue = container.blue * 0.6f,
-                alpha = container.alpha
-            )
-        } else {
-            colorScheme.surfaceContainer
-        }
-    }
+    // Set search bar background to black with slight transparency
+    val searchBarBackground = Color.Black.copy(alpha = 0.3f)
+    val focusedContainerColor = Color.Black.copy(alpha = 0.3f)
+    val unfocusedContainerColor = Color.Black.copy(alpha = 0.3f)
+    // Light color for icons and text on dark grey background
+    val iconAndTextColor = Color(0xFFE0E0E0)
     
     // Track if text is multi-line to adjust text size
     var isMultiLine by remember { mutableStateOf(false) }
@@ -865,75 +821,89 @@ private fun PersistentSearchField(
             MaterialTheme.typography.titleLarge
         }
 
-        TextField(
-            value = query,
-            onValueChange = onQueryChange,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester)
+                .border(
+                    width = 2.dp,
+                    color = Color.White.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(28.dp)
+                )
                 .clip(RoundedCornerShape(28.dp))
-                .background(searchBarBackground),
-        placeholder = {
-            Text(
-                text = stringResource(R.string.search_hint),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        textStyle = textStyle,
-        singleLine = false,
-        maxLines = 3,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Rounded.Search,
-                contentDescription = stringResource(R.string.desc_search_icon),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        },
-        trailingIcon = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(end = 4.dp)
-            ) {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = onClearQuery) {
-                        Icon(
-                            imageVector = Icons.Rounded.Close,
-                            contentDescription = stringResource(R.string.desc_clear_search),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                .background(searchBarBackground)
+        ) {
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                shape = RoundedCornerShape(28.dp),
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.search_hint),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = iconAndTextColor.copy(alpha = 0.6f)
+                    )
+                },
+                textStyle = textStyle,
+                singleLine = false,
+                maxLines = 3,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(R.string.desc_search_icon),
+                        tint = iconAndTextColor,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                },
+                trailingIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.padding(end = 4.dp)
+                    ) {
+                        if (query.isNotEmpty()) {
+                            IconButton(onClick = onClearQuery) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription = stringResource(R.string.desc_clear_search),
+                                    tint = iconAndTextColor
+                                )
+                            }
+                        }
+                        if (query.isEmpty()) {
+                            IconButton(onClick = onSettingsClick) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Settings,
+                                    contentDescription = stringResource(R.string.desc_open_settings),
+                                    tint = iconAndTextColor
+                                )
+                            }
+                        }
                     }
-                }
-                if (query.isEmpty()) {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = Icons.Rounded.Settings,
-                            contentDescription = stringResource(R.string.desc_open_settings),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        if (query.isNotBlank()) {
+                            onSearchAction()
+                        }
+                        keyboardController?.hide()
                     }
-                }
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                if (query.isNotBlank()) {
-                    onSearchAction()
-                }
-                keyboardController?.hide()
-            }
-        ),
-        colors = TextFieldDefaults.colors(
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            focusedContainerColor = focusedContainerColor,
-            unfocusedContainerColor = unfocusedContainerColor
-        )
-    )
+                ),
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedTextColor = iconAndTextColor,
+                    unfocusedTextColor = iconAndTextColor
+                )
+            )
+        }
     }
 }
 

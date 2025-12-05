@@ -168,6 +168,7 @@
     <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
     <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
     <string name="settings_section_titles_toggle">Section Titles</string>
+    <string name="settings_wallpaper_background_toggle">Wallpaper Background</string>
     <string name="settings_layout_toggle">Appearance</string>
     <string name="settings_layout_option_top">Top</string>
     <string name="settings_layout_option_bottom">Align results towards the bottom of the screen</string>

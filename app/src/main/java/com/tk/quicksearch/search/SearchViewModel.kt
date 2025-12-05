@@ -85,6 +85,7 @@ data class SearchUiState(
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     val messagingApp: MessagingApp = MessagingApp.MESSAGES,
     val showSectionTitles: Boolean = true,
+    val showWallpaperBackground: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
@@ -119,6 +120,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
+    private var showWallpaperBackground: Boolean = userPreferences.shouldShowWallpaperBackground()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
@@ -142,6 +144,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 shortcutEnabled = shortcutEnabled,
                 messagingApp = messagingApp,
                 showSectionTitles = showSectionTitles,
+                showWallpaperBackground = showWallpaperBackground,
                 sectionOrder = sectionOrder,
                 disabledSections = disabledSections,
                 searchEngineSectionEnabled = searchEngineSectionEnabled,
@@ -672,6 +675,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowSectionTitles(showTitles)
             showSectionTitles = showTitles
             _uiState.update { it.copy(showSectionTitles = showTitles) }
+        }
+    }
+
+    fun setShowWallpaperBackground(showWallpaper: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowWallpaperBackground(showWallpaper)
+            showWallpaperBackground = showWallpaper
+            _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
         }
     }
 

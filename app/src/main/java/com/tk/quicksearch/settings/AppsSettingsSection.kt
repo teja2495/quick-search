@@ -85,6 +85,8 @@ fun AppLabelsSection(
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     showSectionTitles: Boolean,
     onToggleShowSectionTitles: (Boolean) -> Unit,
+    showWallpaperBackground: Boolean,
+    onToggleShowWallpaperBackground: (Boolean) -> Unit,
     appsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -119,7 +121,15 @@ fun AppLabelsSection(
             SettingsToggleRow(
                 text = stringResource(R.string.settings_section_titles_toggle),
                 checked = showSectionTitles,
-                onCheckedChange = onToggleShowSectionTitles,
+                onCheckedChange = onToggleShowSectionTitles
+            )
+
+            // Wallpaper background toggle (always shown)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_wallpaper_background_toggle),
+                checked = showWallpaperBackground,
+                onCheckedChange = onToggleShowWallpaperBackground,
                 isLastItem = true
             )
         }

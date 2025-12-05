@@ -77,6 +77,7 @@ fun SettingsRoute(
         shortcutEnabled = uiState.shortcutEnabled,
         messagingApp = uiState.messagingApp,
         showSectionTitles = uiState.showSectionTitles,
+        showWallpaperBackground = uiState.showWallpaperBackground,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
@@ -99,6 +100,7 @@ fun SettingsRoute(
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowSectionTitles = viewModel::setShowSectionTitles,
+        onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
@@ -255,6 +257,8 @@ private fun SettingsScreen(
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
                 showSectionTitles = state.showSectionTitles,
                 onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
+                showWallpaperBackground = state.showWallpaperBackground,
+                onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
                 appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
