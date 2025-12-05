@@ -40,11 +40,11 @@ import com.tk.quicksearch.search.rememberAppIcon
 import com.tk.quicksearch.settings.SettingsSpacing
 
 // Constants
-private const val INITIAL_ITEMS_TO_SHOW = 3
 private val DEFAULT_ICON_SIZE = 24.dp
 private val ITEM_ROW_PADDING_HORIZONTAL = 16.dp
 private val ITEM_ROW_PADDING_VERTICAL = 12.dp
-private val SECTION_SPACER_HEIGHT = 16.dp
+private val SECTION_SPACER_HEIGHT = 4.dp
+private val LIST_BOTTOM_PADDING = 80.dp
 
 @Composable
 fun ExcludedItemsSection(
@@ -69,7 +69,6 @@ fun ExcludedItemsSection(
         return
     }
 
-    var isExpanded by remember { mutableStateOf(false) }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
 
     Column {
@@ -112,13 +111,13 @@ fun ExcludedItemsSection(
         
         // Items card
         ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = LIST_BOTTOM_PADDING),
             shape = MaterialTheme.shapes.extraLarge
         ) {
             ExcludedItemsList(
                 allItems = allItems,
-                isExpanded = isExpanded,
-                onToggleExpanded = { isExpanded = !isExpanded },
                 onRemoveItem = { item ->
                     when (item) {
                         is ExcludedItem.App -> onRemoveExcludedApp(item.appInfo)
@@ -145,46 +144,16 @@ fun ExcludedItemsSection(
 @Composable
 private fun ExcludedItemsList(
     allItems: List<ExcludedItem>,
-    isExpanded: Boolean,
-    onToggleExpanded: () -> Unit,
     onRemoveItem: (ExcludedItem) -> Unit
 ) {
-    val itemsToShow = remember(allItems, isExpanded) {
-        if (isExpanded) allItems else allItems.take(INITIAL_ITEMS_TO_SHOW)
-    }
-    val showExpandButton = allItems.size > INITIAL_ITEMS_TO_SHOW
-    
     Column {
-        itemsToShow.forEachIndexed { index, item ->
+        allItems.forEachIndexed { index, item ->
             ExcludedItemRow(
                 item = item,
-                showFullText = isExpanded,
                 onRemove = { onRemoveItem(item) }
             )
-            if (index < itemsToShow.lastIndex) {
+            if (index < allItems.lastIndex) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            }
-        }
-
-        if (showExpandButton) {
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            TextButton(
-                onClick = onToggleExpanded,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = ITEM_ROW_PADDING_HORIZONTAL,
-                        vertical = ITEM_ROW_PADDING_VERTICAL
-                    )
-            ) {
-                Text(
-                    text = if (isExpanded) {
-                        stringResource(R.string.settings_excluded_items_show_less)
-                    } else {
-                        stringResource(R.string.settings_excluded_items_more)
-                    },
-                    color = MaterialTheme.colorScheme.primary
-                )
             }
         }
     }
@@ -193,7 +162,6 @@ private fun ExcludedItemsList(
 @Composable
 private fun ExcludedItemRow(
     item: ExcludedItem,
-    showFullText: Boolean,
     onRemove: () -> Unit
 ) {
     Row(
@@ -218,8 +186,8 @@ private fun ExcludedItemRow(
                     text = item.displayName,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = if (showFullText) Int.MAX_VALUE else 1,
-                    overflow = if (showFullText) TextOverflow.Visible else TextOverflow.Ellipsis
+                    maxLines = Int.MAX_VALUE,
+                    overflow = TextOverflow.Visible
                 )
                 Text(
                     text = stringResource(item.typeLabelRes),
