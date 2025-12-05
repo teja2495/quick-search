@@ -77,6 +77,16 @@ object PermissionRequestHandler {
     }
     
     /**
+     * Checks if call phone permission is granted.
+     */
+    fun checkCallPermission(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    }
+    
+    /**
      * Determines if files permission request should open settings or request runtime permission.
      */
     fun shouldOpenSettingsForFiles(

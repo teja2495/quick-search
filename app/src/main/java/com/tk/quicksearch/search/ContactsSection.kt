@@ -76,8 +76,8 @@ import kotlinx.coroutines.withContext
 private const val INITIAL_RESULT_COUNT = 1
 private const val CONTACT_ROW_MIN_HEIGHT = 52
 private const val CONTACT_AVATAR_SIZE = 40
-private const val ACTION_BUTTON_SIZE = 40
-private const val ACTION_ICON_SIZE = 24
+private const val ACTION_BUTTON_SIZE = 44
+private const val ACTION_ICON_SIZE = 28
 private const val EXPAND_BUTTON_HEIGHT = 28
 private const val EXPAND_ICON_SIZE = 18
 
@@ -310,6 +310,9 @@ private fun ContactResultRow(
     var showOptions by remember { mutableStateOf(false) }
     val hasNumber = contactInfo.primaryNumber != null
 
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -342,6 +345,7 @@ private fun ContactResultRow(
             onCallClick = { onCallContact(contactInfo) },
             onSmsClick = { onSmsContact(contactInfo) }
         )
+        }
 
         ContactDropdownMenu(
             expanded = showOptions,
@@ -433,7 +437,7 @@ private fun ContactActionButtons(
             imageVector = Icons.Rounded.Call,
             contentDescription = stringResource(R.string.contacts_action_call),
             tint = if (hasNumber) {
-                MaterialTheme.colorScheme.primary
+                Color.White
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             },
@@ -452,7 +456,7 @@ private fun ContactActionButtons(
                     imageVector = Icons.Rounded.Sms,
                     contentDescription = stringResource(R.string.contacts_action_sms),
                     tint = if (hasNumber) {
-                        MaterialTheme.colorScheme.primary
+                        Color.White
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -463,7 +467,11 @@ private fun ContactActionButtons(
                 Icon(
                     painter = painterResource(id = R.drawable.whatsapp),
                     contentDescription = stringResource(R.string.contacts_action_whatsapp),
-                    tint = Color.Unspecified,
+                    tint = if (hasNumber) {
+                        Color.White
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                     modifier = Modifier.size(ACTION_ICON_SIZE.dp)
                 )
             }
@@ -471,7 +479,11 @@ private fun ContactActionButtons(
                 Icon(
                     painter = painterResource(id = R.drawable.telegram),
                     contentDescription = stringResource(R.string.contacts_action_telegram),
-                    tint = Color.Unspecified,
+                    tint = if (hasNumber) {
+                        Color.White
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                     modifier = Modifier.size(ACTION_ICON_SIZE.dp)
                 )
             }

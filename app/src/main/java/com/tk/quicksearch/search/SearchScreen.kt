@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -67,6 +70,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -219,6 +223,12 @@ fun SearchRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    
+    // Wrapper function that calls directly - performCall will handle permission check and fallback to dialer
+    val callContactWithPermission: (ContactInfo) -> Unit = { contact ->
+        viewModel.callContact(contact)
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -244,7 +254,7 @@ fun SearchRoute(
         onPinApp = viewModel::pinApp,
         onUnpinApp = viewModel::unpinApp,
         onContactClick = viewModel::openContact,
-        onCallContact = viewModel::callContact,
+        onCallContact = callContactWithPermission,
         onSmsContact = viewModel::smsContact,
         onFileClick = viewModel::openFile,
         onPinContact = viewModel::pinContact,

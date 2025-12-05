@@ -1,27 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="32"
-    android:viewportHeight="32">
+    android:viewportWidth="24"
+    android:viewportHeight="24">
     
-    <!-- Circle background with gradient -->
-    <path android:pathData="M16,2C8.268,2 2,8.268 2,16C2,23.732 8.268,30 16,30C23.732,30 30,23.732 30,16C30,8.268 23.732,2 16,2Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startY="2"
-                android:endY="30"
-                android:type="linear">
-                <item android:offset="0" android:color="#37BBFE"/>
-                <item android:offset="1" android:color="#007DBB"/>
-            </gradient>
-        </aapt:attr>
-    </path>
-    
-    <!-- Telegram paper plane icon (white) -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22.9866,10.2088C23.1112,9.40332 22.3454,8.76755 21.6292,9.082L7.36482,15.3448C6.85123,15.5703 6.8888,16.3483 7.42147,16.5179L10.3631,17.4547C10.9246,17.6335 11.5325,17.541 12.0228,17.2023L18.655,12.6203C18.855,12.4821 19.073,12.7665 18.9021,12.9426L14.1281,17.8646C13.665,18.3421 13.7569,19.1512 14.314,19.5005L19.659,22.8523C20.2585,23.2282 21.0297,22.8506 21.1418,22.1261L22.9866,10.2088Z"/>
+        android:fillColor="#0088CC"
+        android:fillType="evenOdd"
+        android:pathData="M18.384,22.779c0.322,0.228 0.737,0.285 1.107,0.145c0.37,-0.141 0.642,-0.457 0.724,-0.84c0.869,-4.084 2.977,-14.421 3.768,-18.136c0.06,-0.28 -0.04,-0.571 -0.26,-0.758c-0.22,-0.187 -0.525,-0.241 -0.797,-0.14c-4.193,1.552 -17.106,6.397 -22.384,8.35c-0.335,0.124 -0.553,0.446 -0.542,0.799c0.012,0.354 0.25,0.661 0.593,0.764c2.367,0.708 5.474,1.693 5.474,1.693c0,0 1.452,4.385 2.209,6.615c0.095,0.28 0.314,0.5 0.603,0.576c0.288,0.075 0.596,-0.004 0.811,-0.207c1.216,-1.148 3.096,-2.923 3.096,-2.923c0,0 3.572,2.619 5.598,4.062Zm-11.01,-8.677l1.679,5.538l0.373,-3.507c0,0 6.487,-5.851 10.185,-9.186c0.108,-0.098 0.123,-0.262 0.033,-0.377c-0.089,-0.115 -0.253,-0.142 -0.376,-0.064c-4.286,2.737 -11.894,7.596 -11.894,7.596Z"/>
 </vector>
-

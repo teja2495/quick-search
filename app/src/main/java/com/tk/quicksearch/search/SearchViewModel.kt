@@ -60,6 +60,7 @@ data class SearchUiState(
     val hasUsagePermission: Boolean = false,
     val hasContactPermission: Boolean = false,
     val hasFilePermission: Boolean = false,
+    val hasCallPermission: Boolean = false,
     val isLoading: Boolean = true,
     val recentApps: List<AppInfo> = emptyList(),
     val searchResults: List<AppInfo> = emptyList(),
@@ -1170,9 +1171,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun refreshOptionalPermissions(): Boolean {
         val hasContacts = permissionManager.hasContactPermission()
         val hasFiles = permissionManager.hasFilePermission()
+        val hasCall = com.tk.quicksearch.permissions.PermissionRequestHandler.checkCallPermission(getApplication())
         val previousState = _uiState.value
         val changed =
-            previousState.hasContactPermission != hasContacts || previousState.hasFilePermission != hasFiles
+            previousState.hasContactPermission != hasContacts || 
+            previousState.hasFilePermission != hasFiles ||
+            previousState.hasCallPermission != hasCall
 
         if (changed) {
             disabledSections = permissionManager.computeDisabledSections()
@@ -1181,6 +1185,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 state.copy(
                     hasContactPermission = hasContacts,
                     hasFilePermission = hasFiles,
+                    hasCallPermission = hasCall,
                     contactResults = if (hasContacts) state.contactResults else emptyList(),
                     fileResults = if (hasFiles) state.fileResults else emptyList(),
                     disabledSections = disabledSections

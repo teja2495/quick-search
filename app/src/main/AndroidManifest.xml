@@ -17,6 +17,7 @@
 
     <!-- Contact Permissions -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <!-- Storage Permissions -->
     <uses-permission

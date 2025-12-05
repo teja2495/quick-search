@@ -61,40 +61,45 @@ private fun shouldShowSectionWithPermission(
 
 /**
  * Gets the appropriate contact list based on expansion state.
- * Returns reversed list when expanded, original order otherwise.
+ * Returns reversed list when expanded AND keyboard-aligned layout is enabled, original order otherwise.
  */
 fun getContactListForRendering(
     renderingState: SectionRenderingState,
-    isContactsExpanded: Boolean
+    isContactsExpanded: Boolean,
+    keyboardAlignedLayout: Boolean
 ): List<ContactInfo> = getListForRendering(
     list = renderingState.contactResults,
     isExpanded = isContactsExpanded,
-    autoExpand = renderingState.autoExpandContacts
+    autoExpand = renderingState.autoExpandContacts,
+    keyboardAlignedLayout = keyboardAlignedLayout
 )
 
 /**
  * Gets the appropriate file list based on expansion state.
- * Returns reversed list when expanded, original order otherwise.
+ * Returns reversed list when expanded AND keyboard-aligned layout is enabled, original order otherwise.
  */
 fun getFileListForRendering(
     renderingState: SectionRenderingState,
-    isFilesExpanded: Boolean
+    isFilesExpanded: Boolean,
+    keyboardAlignedLayout: Boolean
 ): List<DeviceFile> = getListForRendering(
     list = renderingState.fileResults,
     isExpanded = isFilesExpanded,
-    autoExpand = renderingState.autoExpandFiles
+    autoExpand = renderingState.autoExpandFiles,
+    keyboardAlignedLayout = keyboardAlignedLayout
 )
 
 /**
  * Generic helper for getting list in correct order based on expansion state.
- * Returns reversed view when expanded, original list otherwise.
+ * Returns reversed view when expanded AND keyboard-aligned layout is enabled, original list otherwise.
  */
 private fun <T> getListForRendering(
     list: List<T>,
     isExpanded: Boolean,
-    autoExpand: Boolean
+    autoExpand: Boolean,
+    keyboardAlignedLayout: Boolean
 ): List<T> {
-    return if (isExpanded || autoExpand) {
+    return if ((isExpanded || autoExpand) && keyboardAlignedLayout) {
         list.reversed() // Returns a reversed view, more efficient than asReversed()
     } else {
         list

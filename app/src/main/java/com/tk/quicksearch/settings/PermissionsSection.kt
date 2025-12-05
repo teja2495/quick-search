@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,9 +44,11 @@ fun PermissionsSection(
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,
+    hasCallPermission: Boolean,
     onRequestUsagePermission: () -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
+    onRequestCallPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -86,6 +89,12 @@ fun PermissionsSection(
                         icon = Icons.Rounded.InsertDriveFile,
                         isGranted = hasFilePermission,
                         onRequest = onRequestFilePermission
+                    ),
+                    PermissionItem(
+                        name = stringResource(R.string.settings_call_permission_title),
+                        icon = Icons.Rounded.Call,
+                        isGranted = hasCallPermission,
+                        onRequest = onRequestCallPermission
                     )
                 )
                 

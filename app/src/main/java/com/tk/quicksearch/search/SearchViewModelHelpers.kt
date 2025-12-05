@@ -1,13 +1,16 @@
 package com.tk.quicksearch.search
 
+import android.Manifest
 import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.provider.ContactsContract
 import android.widget.Toast
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
@@ -150,9 +153,21 @@ object IntentHelpers {
     
     /**
      * Initiates a phone call.
+     * Uses ACTION_CALL if CALL_PHONE permission is granted, otherwise falls back to ACTION_DIAL.
      */
     fun performCall(context: Application, number: String) {
-        val intent = Intent(Intent.ACTION_DIAL).apply {
+        val hasCallPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+        
+        val action = if (hasCallPermission) {
+            Intent.ACTION_CALL
+        } else {
+            Intent.ACTION_DIAL
+        }
+        
+        val intent = Intent(action).apply {
             data = Uri.parse("tel:${Uri.encode(number)}")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }

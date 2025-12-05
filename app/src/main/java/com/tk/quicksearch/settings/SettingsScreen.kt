@@ -148,6 +148,38 @@ fun SettingsRoute(
         }
     }
     
+    // Launcher for call permission request
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Refresh permission state after request
+        viewModel.handleOptionalPermissionChange()
+        
+        // If permission was not granted, check if we should open settings as fallback
+        if (!isGranted && context is android.app.Activity) {
+            val shouldShowRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+                context,
+                Manifest.permission.CALL_PHONE
+            )
+            // If we can't show rationale and permission is still denied,
+            // it means permission was permanently denied, so open settings
+            if (!shouldShowRationale && !com.tk.quicksearch.permissions.PermissionRequestHandler.checkCallPermission(context)) {
+                viewModel.openAppSettings()
+            }
+        }
+    }
+    
+    // Handler for call permission request - tries popup first, then settings
+    val onRequestCallPermission = {
+        // If context is not an Activity, we can't request permission via popup, so open settings
+        if (context !is android.app.Activity) {
+            viewModel.openAppSettings()
+        } else {
+            // Try to show permission popup first
+            callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+        }
+    }
+    
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -182,10 +214,12 @@ fun SettingsRoute(
         hasUsagePermission = uiState.hasUsagePermission,
         hasContactPermission = uiState.hasContactPermission,
         hasFilePermission = uiState.hasFilePermission,
+        hasCallPermission = uiState.hasCallPermission,
         shouldShowBanner = shouldShowBanner,
         onRequestUsagePermission = viewModel::openUsageAccessSettings,
         onRequestContactPermission = onRequestContactPermission,
         onRequestFilePermission = viewModel::openFilesPermissionSettings,
+        onRequestCallPermission = onRequestCallPermission,
         onDismissBanner = onDismissBanner,
         onNavigateToDetail = onNavigateToDetail
     )
@@ -199,10 +233,12 @@ private fun SettingsScreen(
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,
+    hasCallPermission: Boolean,
     shouldShowBanner: Boolean,
     onRequestUsagePermission: () -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
+    onRequestCallPermission: () -> Unit,
     onDismissBanner: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit
 ) {
@@ -305,9 +341,11 @@ private fun SettingsScreen(
                 hasUsagePermission = hasUsagePermission,
                 hasContactPermission = hasContactPermission,
                 hasFilePermission = hasFilePermission,
+                hasCallPermission = hasCallPermission,
                 onRequestUsagePermission = onRequestUsagePermission,
                 onRequestContactPermission = onRequestContactPermission,
                 onRequestFilePermission = onRequestFilePermission,
+                onRequestCallPermission = onRequestCallPermission,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 

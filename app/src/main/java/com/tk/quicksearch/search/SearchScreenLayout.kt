@@ -110,7 +110,8 @@ private fun ContentLayout(
                         contactsParams = contactsParams,
                         filesParams = filesParams,
                         appsParams = appsParams,
-                        isReversed = true
+                        isReversed = true,
+                        keyboardAlignedLayout = state.keyboardAlignedLayout
                     )
                 }
                 if (!isExpanded) {
@@ -149,7 +150,8 @@ private fun ContentLayout(
                         contactsParams = contactsParams,
                         filesParams = filesParams,
                         appsParams = appsParams,
-                        isReversed = false
+                        isReversed = false,
+                        keyboardAlignedLayout = state.keyboardAlignedLayout
                     )
                 }
             }
@@ -166,7 +168,8 @@ private fun SearchResultsSections(
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
     appsParams: AppsSectionParams,
-    isReversed: Boolean
+    isReversed: Boolean,
+    keyboardAlignedLayout: Boolean
 ) {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
@@ -177,8 +180,8 @@ private fun SearchResultsSections(
         shouldRenderApps = shouldShowAppsSection(renderingState),
         isFilesExpanded = isFilesExpanded,
         isContactsExpanded = isContactsExpanded,
-        filesList = getFileListForRendering(renderingState, isFilesExpanded),
-        contactsList = getContactListForRendering(renderingState, isContactsExpanded),
+        filesList = getFileListForRendering(renderingState, isFilesExpanded, keyboardAlignedLayout),
+        contactsList = getContactListForRendering(renderingState, isContactsExpanded, keyboardAlignedLayout),
         showAllFilesResults = renderingState.autoExpandFiles,
         showAllContactsResults = renderingState.autoExpandContacts,
         showFilesExpandControls = renderingState.hasBothContactsAndFiles,

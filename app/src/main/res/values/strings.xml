@@ -92,7 +92,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_ok">Okay, continue</string>
     <string name="dialog_call">Call</string>
-    <string name="dialog_sms">SMS</string>
+    <string name="dialog_sms">Message</string>
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
     <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
     <string name="dialog_save">Save</string>
@@ -131,6 +131,7 @@
     <string name="settings_usage_access_title">Usage access</string>
     <string name="settings_contacts_permission_title">Contacts</string>
     <string name="settings_files_permission_title">Files</string>
+    <string name="settings_call_permission_title">Calling</string>
     <string name="settings_usage_access_granted">Granted</string>
     <string name="settings_usage_access_missing">Not granted</string>
     <string name="settings_permission_grant">Grant</string>
