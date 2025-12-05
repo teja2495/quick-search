@@ -127,7 +127,7 @@
          Settings - Permissions
          ============================================================================ -->
     <string name="settings_section_permissions">Permissions</string>
-    <string name="settings_section_permissions_desc">Grant Android permissions to keep the index up to date.</string>
+    <string name="settings_section_permissions_desc">Permissions that are required to unlock additional features.</string>
     <string name="settings_usage_access_title">Usage access</string>
     <string name="settings_contacts_permission_title">Contacts</string>
     <string name="settings_files_permission_title">Files</string>
