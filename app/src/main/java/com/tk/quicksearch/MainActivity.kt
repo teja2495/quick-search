@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +23,6 @@ import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.settings.SettingsDetailRoute
 import com.tk.quicksearch.settings.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
-import com.tk.quicksearch.ui.theme.ThemeMode
 
 class MainActivity : ComponentActivity() {
 
@@ -54,21 +52,11 @@ class MainActivity : ComponentActivity() {
 
     private fun setupContent() {
         setContent {
-            var themeMode by rememberSaveable { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
+            // Always use dark mode
+            SetStatusBarAppearance(darkTheme = true)
             
-            val darkTheme = when (themeMode) {
-                ThemeMode.LIGHT -> false
-                ThemeMode.DARK -> true
-                ThemeMode.SYSTEM -> isSystemInDarkTheme()
-            }
-            
-            // Update status bar appearance based on theme
-            SetStatusBarAppearance(darkTheme = darkTheme)
-            
-            QuickSearchTheme(themeMode = themeMode) {
-                MainContent(themeMode) { newThemeMode ->
-                    themeMode = newThemeMode
-                }
+            QuickSearchTheme {
+                MainContent()
             }
         }
     }
@@ -111,10 +99,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun MainContent(
-        currentThemeMode: ThemeMode,
-        onThemeModeChange: (ThemeMode) -> Unit
-    ) {
+    private fun MainContent() {
         val isFirstLaunch = userPreferences.isFirstLaunch()
         var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
@@ -134,11 +119,7 @@ class MainActivity : ComponentActivity() {
                 onDestinationChange = { destination = it },
                 settingsDetailType = settingsDetailType,
                 onSettingsDetailTypeChange = { settingsDetailType = it },
-                viewModel = searchViewModel,
-                onThemeModeChange = {
-                    userPreferences.setThemeMode(it.value)
-                    onThemeModeChange(it)
-                }
+                viewModel = searchViewModel
             )
         }
     }
@@ -149,8 +130,7 @@ class MainActivity : ComponentActivity() {
         onDestinationChange: (RootDestination) -> Unit,
         settingsDetailType: SettingsDetailType?,
         onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
-        viewModel: SearchViewModel,
-        onThemeModeChange: (ThemeMode) -> Unit
+        viewModel: SearchViewModel
     ) {
         when {
             destination == RootDestination.Settings && settingsDetailType != null -> {
@@ -164,7 +144,6 @@ class MainActivity : ComponentActivity() {
                 SettingsRoute(
                     onBack = { onDestinationChange(RootDestination.Search) },
                     viewModel = viewModel,
-                    onThemeModeChange = onThemeModeChange,
                     onNavigateToDetail = { detailType ->
                         onSettingsDetailTypeChange(detailType)
                     }

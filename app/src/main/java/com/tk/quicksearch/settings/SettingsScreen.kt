@@ -51,14 +51,12 @@ import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
-import com.tk.quicksearch.ui.theme.ThemeMode
 
 @Composable
 fun SettingsRoute(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     viewModel: SearchViewModel,
-    onThemeModeChange: (ThemeMode) -> Unit = {},
     onNavigateToDetail: (SettingsDetailType) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -110,7 +108,6 @@ fun SettingsRoute(
     
     val context = LocalContext.current
     val userPreferences = remember { UserAppPreferences(context) }
-    var currentThemeMode by remember { mutableStateOf(ThemeMode.fromString(userPreferences.getThemeMode())) }
     var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
     val lifecycleOwner = LocalLifecycleOwner.current
     
@@ -180,7 +177,6 @@ fun SettingsRoute(
         modifier = modifier,
         state = state,
         callbacks = callbacks,
-        currentThemeMode = currentThemeMode,
         hasUsagePermission = uiState.hasUsagePermission,
         hasContactPermission = uiState.hasContactPermission,
         hasFilePermission = uiState.hasFilePermission,
@@ -189,11 +185,6 @@ fun SettingsRoute(
         onRequestContactPermission = onRequestContactPermission,
         onRequestFilePermission = viewModel::openFilesPermissionSettings,
         onDismissBanner = onDismissBanner,
-        onThemeModeChange = { themeMode ->
-            userPreferences.setThemeMode(themeMode.value)
-            currentThemeMode = themeMode
-            onThemeModeChange(themeMode)
-        },
         onNavigateToDetail = onNavigateToDetail
     )
 }
@@ -203,7 +194,6 @@ private fun SettingsScreen(
     modifier: Modifier = Modifier,
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
-    currentThemeMode: ThemeMode,
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,
@@ -212,7 +202,6 @@ private fun SettingsScreen(
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onDismissBanner: () -> Unit,
-    onThemeModeChange: (ThemeMode) -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit
 ) {
     BackHandler(onBack = callbacks.onBack)
@@ -267,13 +256,6 @@ private fun SettingsScreen(
                 showSectionTitles = state.showSectionTitles,
                 onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
                 appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
-            // Theme Section
-            ThemeSection(
-                themeMode = currentThemeMode,
-                onThemeModeChange = onThemeModeChange,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 

@@ -7,7 +7,6 @@ import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
 import com.tk.quicksearch.search.isValidAmazonDomain
-import com.tk.quicksearch.ui.theme.ThemeMode
 import java.util.Locale
 
 /**
@@ -363,14 +362,6 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_SHOW_SECTION_TITLES, showTitles)
     }
 
-    fun getThemeMode(): String {
-        return prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.value) ?: ThemeMode.SYSTEM.value
-    }
-
-    fun setThemeMode(themeMode: String) {
-        prefs.edit().putString(KEY_THEME_MODE, themeMode).apply()
-    }
-
     fun getUsagePermissionBannerDismissCount(): Int {
         return prefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
     }
@@ -540,7 +531,6 @@ class UserAppPreferences(context: Context) {
         private const val KEY_MESSAGING_APP = "messaging_app"
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
-        private const val KEY_THEME_MODE = "theme_mode"
 
         // Section preferences keys
         private const val KEY_SECTION_ORDER = "section_order"
