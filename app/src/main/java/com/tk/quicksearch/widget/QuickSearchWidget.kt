@@ -26,6 +26,7 @@ import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -57,13 +58,19 @@ class QuickSearchWidget : GlanceAppWidget() {
         
         // Calculate dimensions
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
+        val widgetPadding = 8.dp
         val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultHeight)
         val heightDp = WidgetLayoutUtils.resolveOr(widgetSize.height, defaultHeight)
         val cornerRadius = config.borderRadiusDp.dp
         
+        // Calculate displayed dimensions (widget size minus padding)
+        // The bitmap should match the displayed size to avoid stretching
+        val displayedWidthDp = widthDp - (widgetPadding * 2)
+        val displayedHeightDp = heightDp - (widgetPadding * 2)
+        
         val density = context.resources.displayMetrics.density
-        val widthPx = (widthDp.value * density).roundToInt().coerceAtLeast(1)
-        val heightPx = (heightDp.value * density).roundToInt().coerceAtLeast(1)
+        val widthPx = (displayedWidthDp.value * density).roundToInt().coerceAtLeast(1)
+        val heightPx = (displayedHeightDp.value * density).roundToInt().coerceAtLeast(1)
         val borderWidthPx = (config.borderWidthDp * density).roundToInt()
         val cornerRadiusPx = config.borderRadiusDp * density
         
@@ -84,6 +91,7 @@ class QuickSearchWidget : GlanceAppWidget() {
         val launchIntent = createLaunchIntent(context)
 
         WidgetContent(
+            widthDp = widthDp,
             heightDp = heightDp,
             cornerRadius = cornerRadius,
             backgroundBitmap = backgroundBitmap,
@@ -135,6 +143,7 @@ class QuickSearchWidget : GlanceAppWidget() {
 
 @Composable
 private fun WidgetContent(
+    widthDp: Dp,
     heightDp: Dp,
     cornerRadius: Dp,
     backgroundBitmap: Bitmap,
@@ -151,13 +160,13 @@ private fun WidgetContent(
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .padding(8.dp)
                 .clickable(actionStartActivity(launchIntent)),
             contentAlignment = Alignment.Center
         ) {
             val widgetModifier = GlanceModifier
                 .fillMaxWidth()
-                .height(heightDp)
+                .fillMaxHeight()
                 .cornerRadius(cornerRadius)
                 .background(ImageProvider(backgroundBitmap))
                 .padding(horizontal = 16.dp)
