@@ -364,6 +364,22 @@ class UserAppPreferences(context: Context) {
     }
 
     // ============================================================================
+    // Gemini API Preferences
+    // ============================================================================
+
+    fun getGeminiApiKey(): String? {
+        return prefs.getString(KEY_GEMINI_API_KEY, null)
+    }
+
+    fun setGeminiApiKey(key: String?) {
+        if (key.isNullOrBlank()) {
+            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
+        } else {
+            prefs.edit().putString(KEY_GEMINI_API_KEY, key.trim()).apply()
+        }
+    }
+
+    // ============================================================================
     // UI Preferences
     // ============================================================================
 
@@ -611,6 +627,7 @@ class UserAppPreferences(context: Context) {
 
         // Amazon domain preferences keys
         private const val KEY_AMAZON_DOMAIN = "amazon_domain"
+        private const val KEY_GEMINI_API_KEY = "gemini_api_key"
 
         // Usage permission banner preferences keys
         private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"

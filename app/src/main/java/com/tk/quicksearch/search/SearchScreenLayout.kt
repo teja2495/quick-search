@@ -3,13 +3,22 @@ package com.tk.quicksearch.search
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
@@ -59,7 +68,8 @@ fun SearchContentArea(
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
-    scrollState: androidx.compose.foundation.ScrollState
+    scrollState: androidx.compose.foundation.ScrollState,
+    onRetryDirectAnswer: () -> Unit
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout && 
         renderingState.expandedSection == ExpandedSection.NONE
@@ -79,7 +89,8 @@ fun SearchContentArea(
             settingsParams = settingsParams,
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
-            isReversed = useKeyboardAlignedLayout
+            isReversed = useKeyboardAlignedLayout,
+            onRetryDirectAnswer = onRetryDirectAnswer
         )
     }
 }
@@ -97,12 +108,17 @@ private fun ContentLayout(
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
-    isReversed: Boolean
+    isReversed: Boolean,
+    onRetryDirectAnswer: () -> Unit
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        DirectAnswerResult(
+            directAnswerState = state.directAnswerState,
+            onRetry = onRetryDirectAnswer
+        )
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
             InfoBanner(message = message)
@@ -169,6 +185,74 @@ private fun ContentLayout(
                         keyboardAlignedLayout = state.keyboardAlignedLayout
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DirectAnswerResult(
+    directAnswerState: DirectAnswerState,
+    onRetry: () -> Unit
+) {
+    if (directAnswerState.status == DirectAnswerStatus.Idle) return
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.direct_answer_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            when (directAnswerState.status) {
+                DirectAnswerStatus.Loading -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Text(
+                            text = stringResource(R.string.direct_answer_loading),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                DirectAnswerStatus.Success -> {
+                    directAnswerState.answer?.let { answer ->
+                        Text(
+                            text = answer,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                DirectAnswerStatus.Error -> {
+                    Text(
+                        text = directAnswerState.errorMessage
+                            ?: stringResource(R.string.direct_answer_error_generic),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    if (directAnswerState.activeQuery != null) {
+                        TextButton(onClick = onRetry) {
+                            Text(text = stringResource(R.string.direct_answer_action_retry))
+                        }
+                    }
+                }
+                DirectAnswerStatus.Idle -> {}
             }
         }
     }

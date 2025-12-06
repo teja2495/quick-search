@@ -46,7 +46,8 @@ fun SearchEngineIconItem(
         val needsColorChange = engine in setOf(
             SearchEngine.CHATGPT,
             SearchEngine.GROK,
-            SearchEngine.AMAZON
+            SearchEngine.AMAZON,
+            SearchEngine.DIRECT_ANSWER
         )
         
         // Check if we're in light mode by checking the background color brightness

@@ -290,6 +290,7 @@ fun SearchRoute(
         onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
+        onRetryDirectAnswer = viewModel::retryDirectAnswer,
         onOpenAppSettings = viewModel::openAppSettings,
         onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
         onAppNicknameClick = { app ->
@@ -341,6 +342,7 @@ fun SearchScreen(
     onUnpinSetting: (SettingShortcut) -> Unit,
     onExcludeSetting: (SettingShortcut) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onRetryDirectAnswer: () -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -700,7 +702,8 @@ fun SearchScreen(
             settingsParams = settingsParams,
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
-            scrollState = scrollState
+            scrollState = scrollState,
+            onRetryDirectAnswer = onRetryDirectAnswer
         )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)

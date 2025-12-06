@@ -83,7 +83,8 @@ fun SettingsRoute(
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         shortcutsEnabled = uiState.shortcutsEnabled,
-        amazonDomain = uiState.amazonDomain
+        amazonDomain = uiState.amazonDomain,
+        hasGeminiApiKey = uiState.hasGeminiApiKey
     )
     
     val callbacks = SettingsScreenCallbacks(
@@ -107,7 +108,8 @@ fun SettingsRoute(
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onToggleShortcutsEnabled = viewModel::setShortcutsEnabled,
-        onSetAmazonDomain = viewModel::setAmazonDomain
+        onSetAmazonDomain = viewModel::setAmazonDomain,
+        onSetGeminiApiKey = viewModel::setGeminiApiKey
     )
     
     val context = LocalContext.current

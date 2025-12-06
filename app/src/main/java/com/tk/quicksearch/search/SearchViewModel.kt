@@ -17,6 +17,7 @@ import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.util.SearchRankingUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 enum class SearchEngine {
+    DIRECT_ANSWER,
     GOOGLE,
     CHATGPT,
     PERPLEXITY,
@@ -52,6 +54,20 @@ enum class MessagingApp {
     WHATSAPP,
     TELEGRAM
 }
+
+enum class DirectAnswerStatus {
+    Idle,
+    Loading,
+    Success,
+    Error
+}
+
+data class DirectAnswerState(
+    val status: DirectAnswerStatus = DirectAnswerStatus.Idle,
+    val answer: String? = null,
+    val errorMessage: String? = null,
+    val activeQuery: String? = null
+)
 
 data class PhoneNumberSelection(
     val contactInfo: ContactInfo,
@@ -96,7 +112,9 @@ data class SearchUiState(
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
-    val amazonDomain: String? = null
+    val amazonDomain: String? = null,
+    val directAnswerState: DirectAnswerState = DirectAnswerState(),
+    val hasGeminiApiKey: Boolean = false
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -120,6 +138,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var pinnedSettingIds: Set<String> = userPreferences.getPinnedSettingIds()
     private var excludedSettingIds: Set<String> = userPreferences.getExcludedSettingIds()
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
+    private var geminiApiKey: String? = userPreferences.getGeminiApiKey()
+    private var geminiClient: DirectAnswerClient? = geminiApiKey?.let { DirectAnswerClient(it) }
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
@@ -137,6 +157,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
     private var amazonDomain: String? = userPreferences.getAmazonDomain()
     private var searchJob: Job? = null
+    private var directAnswerJob: Job? = null
     private var queryVersion: Long = 0L
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -172,6 +193,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
+                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
                     cacheLastUpdatedMillis = lastUpdated
                 )
             }
@@ -195,7 +217,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
-                    amazonDomain = amazonDomain
+                    amazonDomain = amazonDomain,
+                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank()
                 )
             }
         }
@@ -302,6 +325,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun onQueryChange(newQuery: String) {
         val trimmedQuery = newQuery.trim()
+        val directAnswerState = _uiState.value.directAnswerState
+        if (directAnswerState.activeQuery != null && directAnswerState.activeQuery != trimmedQuery) {
+            clearDirectAnswerState()
+        }
+
         if (trimmedQuery.isBlank()) {
             noMatchPrefix = null
             searchJob?.cancel()
@@ -311,7 +339,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     searchResults = emptyList(),
                     contactResults = emptyList(),
                     fileResults = emptyList(),
-                    settingResults = emptyList()
+                    settingResults = emptyList(),
+                    directAnswerState = DirectAnswerState()
                 ) 
             }
             return
@@ -370,6 +399,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         // Check each enabled search engine for matching shortcut
         for (engine in SearchEngine.values()) {
+            if (engine == SearchEngine.DIRECT_ANSWER && geminiApiKey.isNullOrBlank()) continue
             if (!userPreferences.isShortcutEnabled(engine)) continue
             val shortcutCode = userPreferences.getShortcutCode(engine).lowercase(Locale.getDefault())
             if (lastWord == shortcutCode) {
@@ -506,6 +536,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun openSearchUrl(query: String, searchEngine: SearchEngine) {
         val trimmedQuery = query.trim()
+        if (searchEngine == SearchEngine.DIRECT_ANSWER) {
+            requestDirectAnswer(trimmedQuery)
+            return
+        }
         val amazonDomain = if (searchEngine == SearchEngine.AMAZON) {
             userPreferences.getAmazonDomain()
         } else {
@@ -910,6 +944,93 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setGeminiApiKey(apiKey: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val hadGemini = _uiState.value.hasGeminiApiKey
+            val normalized = apiKey?.trim().takeUnless { it.isNullOrBlank() }
+            if (normalized == geminiApiKey) return@launch
+
+            geminiApiKey = normalized
+            geminiClient = normalized?.let { DirectAnswerClient(it) }
+            userPreferences.setGeminiApiKey(normalized)
+
+            val hasGemini = !normalized.isNullOrBlank()
+            if (!hasGemini) {
+                clearDirectAnswerState()
+            }
+            updateSearchEnginesForGemini(hasGemini)
+            if (hasGemini && !hadGemini) {
+                clearDirectAnswerState()
+            }
+        }
+    }
+
+    fun requestDirectAnswer(query: String) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) {
+            clearDirectAnswerState()
+            return
+        }
+
+        val client = geminiClient
+        if (client == null || geminiApiKey.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(
+                    directAnswerState = DirectAnswerState(
+                        status = DirectAnswerStatus.Error,
+                        errorMessage = getApplication<Application>().getString(R.string.direct_answer_error_no_key),
+                        activeQuery = trimmedQuery
+                    )
+                )
+            }
+            return
+        }
+
+        directAnswerJob?.cancel()
+        directAnswerJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    directAnswerState = DirectAnswerState(
+                        status = DirectAnswerStatus.Loading,
+                        activeQuery = trimmedQuery
+                    )
+                )
+            }
+
+            val result = client.fetchAnswer(trimmedQuery)
+            result.onSuccess { answer ->
+                _uiState.update { state ->
+                    state.copy(
+                        directAnswerState = DirectAnswerState(
+                            status = DirectAnswerStatus.Success,
+                            answer = answer,
+                            activeQuery = trimmedQuery
+                        )
+                    )
+                }
+            }.onFailure { error ->
+                if (error is CancellationException) return@onFailure
+                val message = error.message
+                    ?: getApplication<Application>().getString(R.string.direct_answer_error_generic)
+                _uiState.update { state ->
+                    state.copy(
+                        directAnswerState = DirectAnswerState(
+                            status = DirectAnswerStatus.Error,
+                            errorMessage = message,
+                            activeQuery = trimmedQuery
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun retryDirectAnswer() {
+        val lastQuery = _uiState.value.directAnswerState.activeQuery ?: _uiState.value.query
+        if (lastQuery.isNullOrBlank()) return
+        requestDirectAnswer(lastQuery)
+    }
+
     fun setShortcutsEnabled(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setShortcutsEnabled(enabled)
@@ -954,11 +1075,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadSearchEngineOrder(): List<SearchEngine> {
         val savedOrder = userPreferences.getSearchEngineOrder()
-        val allEngines = SearchEngine.values().toList()
+        val hasGemini = !geminiApiKey.isNullOrBlank()
+        val allEngines = if (hasGemini) {
+            SearchEngine.values().toList()
+        } else {
+            SearchEngine.values().filterNot { it == SearchEngine.DIRECT_ANSWER }
+        }
         
         if (savedOrder.isEmpty()) {
             // First time - use default order
-            return listOf(
+            val defaultOrder = listOf(
                 SearchEngine.GOOGLE,
                 SearchEngine.CHATGPT,
                 SearchEngine.PERPLEXITY,
@@ -970,21 +1096,68 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 SearchEngine.GOOGLE_MAPS,
                 SearchEngine.REDDIT
             )
+            return applyDirectAnswerAvailability(defaultOrder, hasGemini)
         }
         
         // Merge saved order with any new engines that might have been added
         val savedEngines = savedOrder.mapNotNull { name ->
             SearchEngine.values().find { it.name == name }
         }
-        val newEngines = allEngines.filter { it !in savedEngines }
-        return savedEngines + newEngines
+        val mergedSaved = applyDirectAnswerAvailability(savedEngines, hasGemini)
+        val newEngines = allEngines.filter { it !in mergedSaved }
+        return mergedSaved + newEngines
     }
 
     private fun loadDisabledSearchEngines(): Set<SearchEngine> {
         val disabledNames = userPreferences.getDisabledSearchEngines()
-        return disabledNames.mapNotNull { name ->
+        val hasGemini = !geminiApiKey.isNullOrBlank()
+        val disabled = disabledNames.mapNotNull { name ->
             SearchEngine.values().find { it.name == name }
         }.toSet()
+        return if (hasGemini) {
+            disabled
+        } else {
+            disabled.filterNot { it == SearchEngine.DIRECT_ANSWER }.toSet()
+        }
+    }
+
+    private fun applyDirectAnswerAvailability(
+        order: List<SearchEngine>,
+        hasGemini: Boolean
+    ): List<SearchEngine> {
+        val hasDirect = order.contains(SearchEngine.DIRECT_ANSWER)
+        val withoutDirect = order.filterNot { it == SearchEngine.DIRECT_ANSWER }
+        return when {
+            hasGemini && hasDirect -> order
+            hasGemini -> listOf(SearchEngine.DIRECT_ANSWER) + withoutDirect
+            else -> withoutDirect
+        }
+    }
+
+    private fun updateSearchEnginesForGemini(hasGemini: Boolean) {
+        val updatedOrder = applyDirectAnswerAvailability(searchEngineOrder, hasGemini)
+        searchEngineOrder = updatedOrder
+        if (!hasGemini) {
+            disabledSearchEngines = disabledSearchEngines.filterNot { it == SearchEngine.DIRECT_ANSWER }.toSet()
+        }
+        userPreferences.setSearchEngineOrder(searchEngineOrder.map { it.name })
+        userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
+        _uiState.update { state ->
+            state.copy(
+                searchEngineOrder = searchEngineOrder,
+                disabledSearchEngines = disabledSearchEngines,
+                hasGeminiApiKey = hasGemini,
+                directAnswerState = if (hasGemini) state.directAnswerState else DirectAnswerState()
+            )
+        }
+    }
+
+    private fun clearDirectAnswerState() {
+        directAnswerJob?.cancel()
+        directAnswerJob = null
+        _uiState.update {
+            it.copy(directAnswerState = DirectAnswerState())
+        }
     }
 
     private fun loadSectionOrder(): List<SearchSection> {
@@ -1460,6 +1633,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             MessagingApp.WHATSAPP -> IntentHelpers.openWhatsAppChat(getApplication(), number)
             MessagingApp.TELEGRAM -> IntentHelpers.openTelegramChat(getApplication(), number)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        searchJob?.cancel()
+        directAnswerJob?.cancel()
     }
 
     fun openSetting(setting: SettingShortcut) {

@@ -1,0 +1,113 @@
+package com.tk.quicksearch.search
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+
+/**
+ * Lightweight client for fetching direct answers from the Gemini API.
+ * Uses the public Gemini endpoint so it can be proxied via Firebase AI Logic.
+ */
+class DirectAnswerClient(private val apiKey: String) {
+
+    companion object {
+        private const val MODEL = "gemini-2.5-flash"
+        private const val BASE_URL =
+            "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
+    }
+
+    suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
+        var connection: HttpURLConnection? = null
+        try {
+            val url = URL("$BASE_URL?key=$apiKey")
+            connection = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json")
+                doOutput = true
+                connectTimeout = 15000
+                readTimeout = 20000
+            }
+
+            val payload = buildRequestBody(query)
+            connection.outputStream.use { output ->
+                output.write(payload.toByteArray(Charsets.UTF_8))
+                output.flush()
+            }
+
+            val responseCode = connection.responseCode
+            val rawResponse = readResponseBody(connection, responseCode)
+
+            if (responseCode in 200..299) {
+                val answer = extractAnswer(rawResponse)
+                    ?: return@withContext Result.failure(
+                        IllegalStateException("Empty response from Gemini")
+                    )
+                Result.success(answer)
+            } else {
+                val message = parseError(rawResponse) ?: "Request failed ($responseCode)"
+                Result.failure(IllegalStateException(message))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        } finally {
+            connection?.disconnect()
+        }
+    }
+
+    private fun buildRequestBody(query: String): String {
+        val content = JSONObject().apply {
+            put("parts", JSONArray().put(JSONObject().put("text", query)))
+        }
+        val root = JSONObject()
+        root.put("contents", JSONArray().put(content))
+        return root.toString()
+    }
+
+    private fun readResponseBody(connection: HttpURLConnection, responseCode: Int): String {
+        val stream = if (responseCode in 200..299) {
+            connection.inputStream
+        } else {
+            connection.errorStream
+        } ?: return ""
+
+        return BufferedReader(InputStreamReader(stream)).use { reader ->
+            buildString {
+                var line = reader.readLine()
+                while (line != null) {
+                    append(line)
+                    line = reader.readLine()
+                }
+            }
+        }
+    }
+
+    private fun extractAnswer(rawResponse: String): String? {
+        if (rawResponse.isBlank()) return null
+        return runCatching {
+            val root = JSONObject(rawResponse)
+            val candidates = root.optJSONArray("candidates") ?: return null
+            if (candidates.length() == 0) return null
+            val firstCandidate = candidates.getJSONObject(0)
+            val content = firstCandidate.optJSONObject("content") ?: return null
+            val parts = content.optJSONArray("parts") ?: return null
+            if (parts.length() == 0) return null
+            val firstPart = parts.getJSONObject(0)
+            firstPart.optString("text").takeIf { it.isNotBlank() }
+        }.getOrNull()
+    }
+
+    private fun parseError(rawResponse: String): String? {
+        if (rawResponse.isBlank()) return null
+        return runCatching {
+            val root = JSONObject(rawResponse)
+            val error = root.optJSONObject("error") ?: return null
+            error.optString("message").takeIf { it.isNotBlank() }
+        }.getOrNull()
+    }
+}
+

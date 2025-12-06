@@ -15,11 +15,15 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +44,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -61,7 +67,8 @@ private fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
     val needsColorChange = engine in setOf(
         SearchEngine.CHATGPT,
         SearchEngine.GROK,
-        SearchEngine.AMAZON
+        SearchEngine.AMAZON,
+        SearchEngine.DIRECT_ANSWER
     )
     
     // Check if we're in light mode by checking the background color brightness
@@ -119,7 +126,9 @@ fun SearchEnginesSection(
     onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
+    onSetGeminiApiKey: ((String?) -> Unit)? = null,
     showTitle: Boolean = true,
+    directAnswerAvailable: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
@@ -145,6 +154,14 @@ fun SearchEnginesSection(
         )
     }
     
+    if (onSetGeminiApiKey != null) {
+        GeminiApiKeyCard(
+            hasSavedKey = directAnswerAvailable,
+            onSetGeminiApiKey = onSetGeminiApiKey,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+    }
+    
     // Combined toggle card for enabling/disabling search engine section and shortcuts
     if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
         SearchEngineToggleCard(
@@ -157,9 +174,14 @@ fun SearchEnginesSection(
     
     // Hide search engine list when both toggles are disabled
     val bothDisabled = !searchEngineSectionEnabled && !shortcutsEnabled
+    val enginesToDisplay = if (directAnswerAvailable) {
+        searchEngineOrder
+    } else {
+        searchEngineOrder.filterNot { it == SearchEngine.DIRECT_ANSWER }
+    }
     if (!bothDisabled) {
         SearchEngineListCard(
-            searchEngineOrder = searchEngineOrder,
+            searchEngineOrder = enginesToDisplay,
             disabledSearchEngines = disabledSearchEngines,
             onToggleSearchEngine = onToggleSearchEngine,
             onReorderSearchEngines = onReorderSearchEngines,
@@ -727,5 +749,95 @@ private fun AmazonDomainLink(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { showDialog = true }
         )
+    }
+}
+
+@Composable
+private fun GeminiApiKeyCard(
+    hasSavedKey: Boolean,
+    onSetGeminiApiKey: (String?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var apiKeyInput by remember(hasSavedKey) { mutableStateOf("") }
+    var isObscured by remember { mutableStateOf(true) }
+    val isValid = apiKeyInput.isNotBlank()
+
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_gemini_api_key_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = stringResource(R.string.settings_gemini_api_key_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            androidx.compose.material3.TextField(
+                value = apiKeyInput,
+                onValueChange = { apiKeyInput = it },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.settings_gemini_api_key_placeholder),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                visualTransformation = if (isObscured) PasswordVisualTransformation() else VisualTransformation.None,
+                trailingIcon = {
+                    val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clickable { isObscured = !isObscured },
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1,
+                colors = androidx.compose.material3.TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { onSetGeminiApiKey(apiKeyInput.trim()) },
+                    enabled = isValid
+                ) {
+                    Text(text = stringResource(R.string.settings_gemini_api_key_save))
+                }
+                TextButton(
+                    onClick = {
+                        apiKeyInput = ""
+                        onSetGeminiApiKey(null)
+                    },
+                    enabled = hasSavedKey
+                ) {
+                    Text(text = stringResource(R.string.settings_gemini_api_key_remove))
+                }
+                if (hasSavedKey) {
+                    Text(
+                        text = stringResource(R.string.settings_gemini_api_key_saved),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+        }
     }
 }

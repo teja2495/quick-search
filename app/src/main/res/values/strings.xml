@@ -27,6 +27,11 @@
     <string name="search_results_subtitle">Matches for "%1$s"</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
+    <string name="direct_answer_title">Direct Answer</string>
+    <string name="direct_answer_loading">Getting answer\u2026</string>
+    <string name="direct_answer_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
+    <string name="direct_answer_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
+    <string name="direct_answer_action_retry">Retry</string>
 
     <!-- ============================================================================
          Apps Section
@@ -231,6 +236,12 @@
     <string name="settings_amazon_domain_label">Domain:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
+    <string name="settings_gemini_api_key_title">Gemini API key</string>
+    <string name="settings_gemini_api_key_desc">Stored locally and used via Firebase AI Logic to power Direct Answer.</string>
+    <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
+    <string name="settings_gemini_api_key_save">Save key</string>
+    <string name="settings_gemini_api_key_remove">Remove key</string>
+    <string name="settings_gemini_api_key_saved">Key saved</string>
 
     <!-- ============================================================================
          Settings - Shortcuts
@@ -348,4 +359,5 @@
     <string name="search_engine_youtube">YouTube</string>
     <string name="search_engine_amazon">Amazon</string>
     <string name="search_engine_ai_mode">AI mode</string>
+    <string name="search_engine_direct_answer">Direct Answer</string>
 </resources>
