@@ -68,6 +68,7 @@ fun SettingsRoute(
         hiddenApps = uiState.hiddenApps,
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
+        excludedSettings = uiState.excludedSettings,
         showAppLabels = uiState.showAppLabels,
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
@@ -90,6 +91,7 @@ fun SettingsRoute(
         onRemoveExcludedApp = viewModel::unhideApp,
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
+        onRemoveExcludedSetting = viewModel::removeExcludedSetting,
         onClearAllExclusions = viewModel::clearAllExclusions,
         onToggleAppLabels = viewModel::setShowAppLabels,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
@@ -326,7 +328,8 @@ private fun SettingsScreen(
             // Excluded Items Section - Navigation Card (only shown when there are excluded items)
             val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
                                    state.excludedContacts.isNotEmpty() || 
-                                   state.excludedFiles.isNotEmpty()
+                                   state.excludedFiles.isNotEmpty() ||
+                                   state.excludedSettings.isNotEmpty()
             if (hasExcludedItems) {
                 SettingsNavigationCard(
                     title = stringResource(R.string.settings_excluded_items_title),

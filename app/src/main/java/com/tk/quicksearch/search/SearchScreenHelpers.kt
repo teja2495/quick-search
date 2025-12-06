@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.SettingShortcut
 
 // ============================================================================
 // Common Parameter Interfaces
@@ -73,6 +74,25 @@ data class FilesSectionParams(
     override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     val showWallpaperBackground: Boolean = false
 ) : ExpandableSectionParams
+
+/**
+ * Parameters for rendering the settings section.
+ */
+data class SettingsSectionParams(
+    val settings: List<SettingShortcut>,
+    val isExpanded: Boolean,
+    val pinnedSettingIds: Set<String>,
+    val onSettingClick: (SettingShortcut) -> Unit,
+    val onTogglePin: (SettingShortcut) -> Unit,
+    val onExclude: (SettingShortcut) -> Unit,
+    val onNicknameClick: (SettingShortcut) -> Unit,
+    val getSettingNickname: (String) -> String?,
+    val showAllResults: Boolean,
+    val showExpandControls: Boolean,
+    val onExpandClick: () -> Unit,
+    val resultSectionTitle: @Composable (String) -> Unit,
+    val showWallpaperBackground: Boolean = false
+)
 
 /**
  * Parameters for rendering the apps section.

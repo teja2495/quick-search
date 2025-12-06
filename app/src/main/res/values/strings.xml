@@ -62,6 +62,49 @@
     <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
     <string name="files_action_open">Open file</string>
     <string name="error_open_file">Unable to open %1$s</string>
+    <string name="error_open_setting">Unable to open %1$s</string>
+
+    <!-- ============================================================================
+         Settings Shortcuts
+         ============================================================================ -->
+    <string name="settings_shortcuts_section_title">Settings</string>
+    <string name="settings_shortcut_system">System settings</string>
+    <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
+    <string name="settings_shortcut_bluetooth">Bluetooth</string>
+    <string name="settings_shortcut_network">Network &amp; internet</string>
+    <string name="settings_shortcut_mobile_data">Mobile data</string>
+    <string name="settings_shortcut_airplane">Airplane mode</string>
+    <string name="settings_shortcut_nfc">NFC</string>
+    <string name="settings_shortcut_vpn">VPN</string>
+    <string name="settings_shortcut_location">Location</string>
+    <string name="settings_shortcut_privacy">Privacy</string>
+    <string name="settings_shortcut_security">Security</string>
+    <string name="settings_shortcut_notifications">Notifications</string>
+    <string name="settings_shortcut_app_notifications">App notifications</string>
+    <string name="settings_shortcut_apps_list">Apps</string>
+    <string name="settings_shortcut_app_info">App info</string>
+    <string name="settings_shortcut_display">Display</string>
+    <string name="settings_shortcut_sound">Sound &amp; vibration</string>
+    <string name="settings_shortcut_storage">Storage</string>
+    <string name="settings_shortcut_battery_saver">Battery saver</string>
+    <string name="settings_shortcut_battery_optimization">Battery optimization</string>
+    <string name="settings_shortcut_date_time">Date &amp; time</string>
+    <string name="settings_shortcut_language_input">Language &amp; input</string>
+    <string name="settings_shortcut_locale">Language</string>
+    <string name="settings_shortcut_developer_options">Developer options</string>
+    <string name="settings_shortcut_about_phone">About phone</string>
+    <string name="settings_shortcut_accessibility">Accessibility</string>
+    <string name="settings_shortcut_overlay_permission">Display over other apps</string>
+    <string name="settings_shortcut_write_settings">Modify system settings</string>
+    <string name="settings_shortcut_all_files">All files access</string>
+    <string name="settings_shortcut_manage_app_files">All files access (app)</string>
+    <string name="settings_shortcut_unknown_sources">Install unknown apps</string>
+    <string name="settings_shortcut_notification_listener">Notification listener access</string>
+    <string name="settings_shortcut_usage_access">Usage access</string>
+    <string name="settings_shortcut_home">Default launcher</string>
+    <string name="settings_shortcut_cast">Cast</string>
+    <string name="settings_shortcut_biometric">Biometric setup</string>
+    <string name="settings_shortcut_voice_input">Voice input</string>
 
     <!-- ============================================================================
          Common Actions
@@ -230,6 +273,7 @@
     <string name="section_apps">Apps</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
+    <string name="section_settings">Settings</string>
     <string name="settings_sections_at_least_one_required">At least one section must be enabled</string>
 
     <!-- ========================================&====================================
@@ -244,6 +288,7 @@
     <string name="excluded_item_type_app">App</string>
     <string name="excluded_item_type_contact">Contact</string>
     <string name="excluded_item_type_file">File</string>
+    <string name="excluded_item_type_setting">Setting</string>
 
     <!-- ============================================================================
          Widget

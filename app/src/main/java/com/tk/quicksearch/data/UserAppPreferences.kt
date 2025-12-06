@@ -111,6 +111,32 @@ class UserAppPreferences(context: Context) {
     fun clearAllExcludedFiles(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_URIS)
 
     // ============================================================================
+    // Settings Preferences
+    // ============================================================================
+
+    fun getPinnedSettingIds(): Set<String> = getStringSet(KEY_PINNED_SETTINGS)
+
+    fun getExcludedSettingIds(): Set<String> = getStringSet(KEY_EXCLUDED_SETTINGS)
+
+    fun pinSetting(id: String): Set<String> = updateStringSet(KEY_PINNED_SETTINGS) {
+        it.add(id)
+    }
+
+    fun unpinSetting(id: String): Set<String> = updateStringSet(KEY_PINNED_SETTINGS) {
+        it.remove(id)
+    }
+
+    fun excludeSetting(id: String): Set<String> = updateStringSet(KEY_EXCLUDED_SETTINGS) {
+        it.add(id)
+    }
+
+    fun removeExcludedSetting(id: String): Set<String> = updateStringSet(KEY_EXCLUDED_SETTINGS) {
+        it.remove(id)
+    }
+
+    fun clearAllExcludedSettings(): Set<String> = clearStringSet(KEY_EXCLUDED_SETTINGS)
+
+    // ============================================================================
     // Nickname Preferences
     // ============================================================================
 
@@ -146,6 +172,19 @@ class UserAppPreferences(context: Context) {
 
     fun setFileNickname(uri: String, nickname: String?) {
         val key = "$KEY_NICKNAME_FILE_PREFIX$uri"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+        } else {
+            prefs.edit().putString(key, nickname.trim()).apply()
+        }
+    }
+
+    fun getSettingNickname(id: String): String? {
+        return prefs.getString("$KEY_NICKNAME_SETTING_PREFIX$id", null)
+    }
+
+    fun setSettingNickname(id: String, nickname: String?) {
+        val key = "$KEY_NICKNAME_SETTING_PREFIX$id"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
         } else {
@@ -197,6 +236,29 @@ class UserAppPreferences(context: Context) {
         }
         
         return matchingFileUris
+    }
+
+    /**
+     * Finds settings that have nicknames matching the query.
+     */
+    fun findSettingsWithMatchingNickname(query: String): Set<String> {
+        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        if (normalizedQuery.isBlank()) return emptySet()
+
+        val matchingSettingIds = mutableSetOf<String>()
+        val allPrefs = prefs.all
+
+        for ((key, value) in allPrefs) {
+            if (key.startsWith(KEY_NICKNAME_SETTING_PREFIX) && value is String) {
+                val nickname = value.lowercase(Locale.getDefault())
+                if (nickname.contains(normalizedQuery)) {
+                    val id = key.removePrefix(KEY_NICKNAME_SETTING_PREFIX)
+                    matchingSettingIds.add(id)
+                }
+            }
+        }
+
+        return matchingSettingIds
     }
 
     fun getEnabledFileTypes(): Set<FileType> {
@@ -521,6 +583,10 @@ class UserAppPreferences(context: Context) {
         private const val KEY_EXCLUDED_FILE_URIS = "excluded_file_uris"
         private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
 
+        // Settings preferences keys
+        private const val KEY_PINNED_SETTINGS = "pinned_settings"
+        private const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
+
         // Search engine preferences keys
         private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
@@ -554,5 +620,6 @@ class UserAppPreferences(context: Context) {
         private const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
         private const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
         private const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
+        private const val KEY_NICKNAME_SETTING_PREFIX = "nickname_setting_"
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.rememberAppIcon
 import com.tk.quicksearch.settings.SettingsSpacing
 
@@ -54,14 +56,17 @@ fun ExcludedItemsSection(
     onRemoveExcludedApp: (AppInfo) -> Unit,
     onRemoveExcludedContact: (ContactInfo) -> Unit,
     onRemoveExcludedFile: (DeviceFile) -> Unit,
+    excludedSettings: List<SettingShortcut>,
+    onRemoveExcludedSetting: (SettingShortcut) -> Unit,
     onClearAll: () -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val allItems = remember(hiddenApps, excludedContacts, excludedFiles) {
+    val allItems = remember(hiddenApps, excludedContacts, excludedFiles, excludedSettings) {
         (hiddenApps.map { ExcludedItem.App(it) } +
          excludedContacts.map { ExcludedItem.Contact(it) } +
-         excludedFiles.map { ExcludedItem.File(it) })
+         excludedFiles.map { ExcludedItem.File(it) } +
+         excludedSettings.map { ExcludedItem.Setting(it) })
             .sortedBy { it.displayName.lowercase() }
     }
     
@@ -123,6 +128,7 @@ fun ExcludedItemsSection(
                         is ExcludedItem.App -> onRemoveExcludedApp(item.appInfo)
                         is ExcludedItem.Contact -> onRemoveExcludedContact(item.contactInfo)
                         is ExcludedItem.File -> onRemoveExcludedFile(item.deviceFile)
+                        is ExcludedItem.Setting -> onRemoveExcludedSetting(item.setting)
                     }
                 }
             )
@@ -226,6 +232,14 @@ private fun ExcludedItemIcon(item: ExcludedItem) {
                 modifier = Modifier.size(DEFAULT_ICON_SIZE)
             )
         }
+        is ExcludedItem.Setting -> {
+            Icon(
+                imageVector = Icons.Rounded.Settings,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DEFAULT_ICON_SIZE)
+            )
+        }
         is ExcludedItem.App -> {
             AppIconPlaceholder(appInfo = item.appInfo)
         }
@@ -301,5 +315,10 @@ private sealed class ExcludedItem {
     data class File(val deviceFile: DeviceFile) : ExcludedItem() {
         override val displayName: String = deviceFile.displayName
         override val typeLabelRes: Int = R.string.excluded_item_type_file
+    }
+
+    data class Setting(val setting: SettingShortcut) : ExcludedItem() {
+        override val displayName: String = setting.title
+        override val typeLabelRes: Int = R.string.excluded_item_type_setting
     }
 }

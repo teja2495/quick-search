@@ -18,6 +18,7 @@ import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
@@ -32,6 +33,7 @@ data class SettingsScreenState(
     val hiddenApps: List<AppInfo>,
     val excludedContacts: List<ContactInfo>,
     val excludedFiles: List<DeviceFile>,
+    val excludedSettings: List<SettingShortcut>,
     val showAppLabels: Boolean,
     val searchEngineOrder: List<SearchEngine>,
     val disabledSearchEngines: Set<SearchEngine>,
@@ -57,6 +59,7 @@ data class SettingsScreenCallbacks(
     val onRemoveExcludedApp: (AppInfo) -> Unit,
     val onRemoveExcludedContact: (ContactInfo) -> Unit,
     val onRemoveExcludedFile: (DeviceFile) -> Unit,
+    val onRemoveExcludedSetting: (SettingShortcut) -> Unit,
     val onClearAllExclusions: () -> Unit,
     val onToggleAppLabels: (Boolean) -> Unit,
     val onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
@@ -193,6 +196,9 @@ fun rememberSectionToggleHandler(
                         }
                         SearchSection.APPS -> {
                             // Apps section doesn't require permissions
+                            viewModel.setSectionEnabled(section, true)
+                        }
+                        SearchSection.SETTINGS -> {
                             viewModel.setSectionEnabled(section, true)
                         }
                     }

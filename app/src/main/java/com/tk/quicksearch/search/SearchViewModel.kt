@@ -8,11 +8,13 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.ContactRepository
 import com.tk.quicksearch.data.FileSearchRepository
+import com.tk.quicksearch.data.SettingsShortcutRepository
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +43,8 @@ enum class SearchEngine {
 enum class SearchSection {
     APPS,
     CONTACTS,
-    FILES
+    FILES,
+    SETTINGS
 }
 
 enum class MessagingApp {
@@ -68,10 +71,13 @@ data class SearchUiState(
     val hiddenApps: List<AppInfo> = emptyList(),
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
+    val settingResults: List<SettingShortcut> = emptyList(),
     val pinnedContacts: List<ContactInfo> = emptyList(),
     val pinnedFiles: List<DeviceFile> = emptyList(),
+    val pinnedSettings: List<SettingShortcut> = emptyList(),
     val excludedContacts: List<ContactInfo> = emptyList(),
     val excludedFiles: List<DeviceFile> = emptyList(),
+    val excludedSettings: List<SettingShortcut> = emptyList(),
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
@@ -98,6 +104,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val repository = AppUsageRepository(application.applicationContext)
     private val contactRepository = ContactRepository(application.applicationContext)
     private val fileRepository = FileSearchRepository(application.applicationContext)
+    private val settingsShortcutRepository = SettingsShortcutRepository(application.applicationContext)
     private val userPreferences = UserAppPreferences(application.applicationContext)
     private val permissionManager = PermissionManager(contactRepository, fileRepository, userPreferences)
     private val searchOperations = SearchOperations(contactRepository, fileRepository)
@@ -109,6 +116,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var excludedContactIds: Set<Long> = userPreferences.getExcludedContactIds()
     private var pinnedFileUris: Set<String> = userPreferences.getPinnedFileUris()
     private var excludedFileUris: Set<String> = userPreferences.getExcludedFileUris()
+    private var availableSettings: List<SettingShortcut> = emptyList()
+    private var pinnedSettingIds: Set<String> = userPreferences.getPinnedSettingIds()
+    private var excludedSettingIds: Set<String> = userPreferences.getExcludedSettingIds()
     private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
@@ -196,6 +206,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         // Load apps in background (refresh cache if needed)
         loadApps()
+        loadSettingsShortcuts()
         
         // Defer non-critical loads until after UI is visible
         viewModelScope.launch {
@@ -213,6 +224,38 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             // Cache was already loaded synchronously in init, so just refresh in background
             refreshApps()
+        }
+    }
+
+    private fun loadSettingsShortcuts() {
+        viewModelScope.launch(Dispatchers.IO) {
+            availableSettings = settingsShortcutRepository.loadShortcuts()
+            refreshSettingsState()
+        }
+    }
+
+    private fun refreshSettingsState(updateResults: Boolean = true) {
+        val pinned = availableSettings
+            .filter { pinnedSettingIds.contains(it.id) && !excludedSettingIds.contains(it.id) }
+            .sortedBy { it.title.lowercase(Locale.getDefault()) }
+        val excluded = availableSettings
+            .filter { excludedSettingIds.contains(it.id) }
+            .sortedBy { it.title.lowercase(Locale.getDefault()) }
+        val currentQuery = _uiState.value.query
+        val results = if (updateResults && currentQuery.isNotBlank() && SearchSection.SETTINGS !in disabledSections) {
+            searchSettings(currentQuery)
+        } else if (currentQuery.isBlank() || SearchSection.SETTINGS in disabledSections) {
+            emptyList()
+        } else {
+            _uiState.value.settingResults
+        }
+
+        _uiState.update { state ->
+            state.copy(
+                pinnedSettings = pinned,
+                excludedSettings = excluded,
+                settingResults = results
+            )
         }
     }
 
@@ -267,7 +310,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     query = "",
                     searchResults = emptyList(),
                     contactResults = emptyList(),
-                    fileResults = emptyList()
+                    fileResults = emptyList(),
+                    settingResults = emptyList()
                 ) 
             }
             return
@@ -420,6 +464,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         handleOptionalPermissionChange()
         loadPinnedContactsAndFiles()
         loadExcludedContactsAndFiles()
+        refreshSettingsState()
     }
 
     fun openUsageAccessSettings() {
@@ -584,6 +629,53 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun pinSetting(setting: SettingShortcut) {
+        if (excludedSettingIds.contains(setting.id)) return
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedSettingIds = userPreferences.pinSetting(setting.id)
+            refreshSettingsState()
+        }
+    }
+
+    fun unpinSetting(setting: SettingShortcut) {
+        viewModelScope.launch(Dispatchers.IO) {
+            pinnedSettingIds = userPreferences.unpinSetting(setting.id)
+            refreshSettingsState()
+        }
+    }
+
+    fun excludeSetting(setting: SettingShortcut) {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedSettingIds = userPreferences.excludeSetting(setting.id)
+            if (pinnedSettingIds.contains(setting.id)) {
+                pinnedSettingIds = userPreferences.unpinSetting(setting.id)
+            }
+            _uiState.update { state ->
+                state.copy(
+                    settingResults = state.settingResults.filterNot { it.id == setting.id },
+                    pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id }
+                )
+            }
+            refreshSettingsState()
+        }
+    }
+
+    fun setSettingNickname(setting: SettingShortcut, nickname: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setSettingNickname(setting.id, nickname)
+            val currentQuery = _uiState.value.query
+            if (currentQuery.isNotBlank()) {
+                _uiState.update { it.copy(settingResults = searchSettings(currentQuery)) }
+            } else {
+                refreshSettingsState(updateResults = false)
+            }
+        }
+    }
+
+    fun getSettingNickname(id: String): String? {
+        return userPreferences.getSettingNickname(id)
+    }
+
     fun hideApp(appInfo: AppInfo) {
         viewModelScope.launch(Dispatchers.IO) {
             hiddenPackages = userPreferences.hidePackage(appInfo.packageName)
@@ -616,6 +708,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun removeExcludedSetting(setting: SettingShortcut) {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedSettingIds = userPreferences.removeExcludedSetting(setting.id)
+            refreshSettingsState()
+        }
+    }
+
     fun clearAllExcludedContacts() {
         viewModelScope.launch(Dispatchers.IO) {
             excludedContactIds = userPreferences.clearAllExcludedContacts()
@@ -627,6 +726,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             excludedFileUris = userPreferences.clearAllExcludedFiles()
             loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun clearAllExcludedSettings() {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedSettingIds = userPreferences.clearAllExcludedSettings()
+            refreshSettingsState()
         }
     }
 
@@ -642,7 +748,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             excludedContactIds = userPreferences.clearAllExcludedContacts()
             excludedFileUris = userPreferences.clearAllExcludedFiles()
             hiddenPackages = userPreferences.clearAllHiddenApps()
+            excludedSettingIds = userPreferences.clearAllExcludedSettings()
             loadExcludedContactsAndFiles()
+            refreshSettingsState()
             refreshDerivedState()
         }
     }
@@ -881,7 +989,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun loadSectionOrder(): List<SearchSection> {
         val savedOrder = userPreferences.getSectionOrder()
-        val defaultOrder = listOf(SearchSection.APPS, SearchSection.CONTACTS, SearchSection.FILES)
+        val defaultOrder = listOf(
+            SearchSection.APPS,
+            SearchSection.CONTACTS,
+            SearchSection.FILES,
+            SearchSection.SETTINGS
+        )
         
         if (savedOrder.isEmpty()) {
             // First time - use default order: Apps, Contacts, Files
@@ -944,8 +1057,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return permissionManager.canEnableSection(section)
     }
 
-
-
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
         val normalizedQuery = query.lowercase(Locale.getDefault())
@@ -976,6 +1087,47 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             .sortedWith(compareBy({ it.second }, { it.first.appName.lowercase(Locale.getDefault()) }))
             .map { it.first }
             .take(GRID_ITEM_COUNT)
+            .toList()
+    }
+
+    private fun searchSettings(query: String): List<SettingShortcut> {
+        if (availableSettings.isEmpty()) return emptyList()
+        val trimmed = query.trim()
+        if (trimmed.length < 2) return emptyList()
+
+        val normalizedQuery = trimmed.lowercase(Locale.getDefault())
+        val nicknameMatches = userPreferences.findSettingsWithMatchingNickname(trimmed)
+            .filterNot { excludedSettingIds.contains(it) }
+            .toSet()
+
+        return availableSettings
+            .asSequence()
+            .filterNot { excludedSettingIds.contains(it.id) }
+            .mapNotNull { shortcut ->
+                val nickname = userPreferences.getSettingNickname(shortcut.id)
+                val hasNicknameMatch = nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+                val keywordText = shortcut.keywords.joinToString(" ")
+                val hasFieldMatch = shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+                    (shortcut.description?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true) ||
+                    keywordText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+                    nicknameMatches.contains(shortcut.id)
+
+                if (!hasFieldMatch && !hasNicknameMatch) return@mapNotNull null
+
+                val priority = when {
+                    hasNicknameMatch || nicknameMatches.contains(shortcut.id) -> 0
+                    else -> SearchRankingUtils.getBestMatchPriority(
+                        trimmed,
+                        shortcut.title,
+                        shortcut.description ?: "",
+                        keywordText
+                    )
+                }
+                shortcut to priority
+            }
+            .sortedWith(compareBy({ it.second }, { it.first.title.lowercase(Locale.getDefault()) }))
+            .take(6)
+            .map { it.first }
             .toList()
     }
 
@@ -1054,7 +1206,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update {
                 it.copy(
                     contactResults = emptyList(),
-                    fileResults = emptyList()
+                    fileResults = emptyList(),
+                    settingResults = emptyList()
                 )
             }
             return
@@ -1159,12 +1312,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
             )
 
+            val shouldSearchSettings = SearchSection.SETTINGS !in disabledSections
+            val settingsMatches = if (shouldSearchSettings) {
+                searchSettings(trimmedQuery)
+            } else {
+                emptyList()
+            }
+
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
                     _uiState.update { state ->
                         state.copy(
                             contactResults = filteredContacts,
-                            fileResults = filteredFiles
+                            fileResults = filteredFiles,
+                            settingResults = settingsMatches
                         )
                     }
                 }
@@ -1298,6 +1459,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             MessagingApp.MESSAGES -> performSms(number)
             MessagingApp.WHATSAPP -> IntentHelpers.openWhatsAppChat(getApplication(), number)
             MessagingApp.TELEGRAM -> IntentHelpers.openTelegramChat(getApplication(), number)
+        }
+    }
+
+    fun openSetting(setting: SettingShortcut) {
+        val context = getApplication<Application>()
+        runCatching {
+            val intent = settingsShortcutRepository.buildIntent(setting)
+            context.startActivity(intent)
+        }.onFailure {
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_open_setting, setting.title),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,6 +88,10 @@ private fun getSectionMetadata(section: SearchSection): SectionMetadata {
         SearchSection.FILES -> SectionMetadata(
             name = stringResource(R.string.section_files),
             icon = Icons.Rounded.InsertDriveFile
+        )
+        SearchSection.SETTINGS -> SectionMetadata(
+            name = stringResource(R.string.section_settings),
+            icon = Icons.Rounded.Settings
         )
     }
 }

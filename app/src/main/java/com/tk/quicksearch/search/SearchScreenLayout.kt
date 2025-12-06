@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.SettingShortcut
 
 /**
  * Data class holding all the state needed for section rendering.
@@ -23,19 +24,25 @@ data class SectionRenderingState(
     val hasAppResults: Boolean,
     val hasContactResults: Boolean,
     val hasFileResults: Boolean,
+    val hasSettingResults: Boolean,
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
+    val hasPinnedSettings: Boolean,
     val shouldShowApps: Boolean,
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
+    val shouldShowSettings: Boolean,
     val autoExpandFiles: Boolean,
     val autoExpandContacts: Boolean,
-    val hasBothContactsAndFiles: Boolean,
+    val autoExpandSettings: Boolean,
+    val hasMultipleExpandableSections: Boolean,
     val displayApps: List<AppInfo>,
     val contactResults: List<ContactInfo>,
     val fileResults: List<DeviceFile>,
+    val settingResults: List<SettingShortcut>,
     val pinnedContacts: List<ContactInfo>,
     val pinnedFiles: List<DeviceFile>,
+    val pinnedSettings: List<SettingShortcut>,
     val orderedSections: List<SearchSection>
 )
 
@@ -49,6 +56,7 @@ fun SearchContentArea(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState
@@ -68,6 +76,7 @@ fun SearchContentArea(
             renderingState = renderingState,
             contactsParams = contactsParams,
             filesParams = filesParams,
+            settingsParams = settingsParams,
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             isReversed = useKeyboardAlignedLayout
@@ -85,6 +94,7 @@ private fun ContentLayout(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     isReversed: Boolean
@@ -109,6 +119,7 @@ private fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                        settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = true,
                         keyboardAlignedLayout = state.keyboardAlignedLayout
@@ -119,6 +130,7 @@ private fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                        settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = true
                     )
@@ -132,6 +144,7 @@ private fun ContentLayout(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
+                        settingsParams = settingsParams,
                             appsParams = appsParams,
                             isReversed = false
                         )
@@ -140,7 +153,8 @@ private fun ContentLayout(
                         ExpandedPinnedSections(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
-                            filesParams = filesParams
+                        filesParams = filesParams,
+                        settingsParams = settingsParams
                         )
                     }
                 }
@@ -149,6 +163,7 @@ private fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                    settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = false,
                         keyboardAlignedLayout = state.keyboardAlignedLayout
@@ -168,32 +183,41 @@ private fun SearchResultsSections(
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
     appsParams: AppsSectionParams,
+    settingsParams: SettingsSectionParams,
     isReversed: Boolean,
     keyboardAlignedLayout: Boolean
 ) {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
+    val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
 
     val context = SectionRenderContext(
         shouldRenderFiles = shouldShowFilesSection(renderingState, filesParams) && !isContactsExpanded,
         shouldRenderContacts = shouldShowContactsSection(renderingState, contactsParams) && !isFilesExpanded,
         shouldRenderApps = shouldShowAppsSection(renderingState),
+        shouldRenderSettings = shouldShowSettingsSection(renderingState) && !isFilesExpanded && !isContactsExpanded,
         isFilesExpanded = isFilesExpanded,
         isContactsExpanded = isContactsExpanded,
+        isSettingsExpanded = isSettingsExpanded,
         filesList = getFileListForRendering(renderingState, isFilesExpanded, keyboardAlignedLayout),
         contactsList = getContactListForRendering(renderingState, isContactsExpanded, keyboardAlignedLayout),
+        settingsList = getSettingsListForRendering(renderingState, isSettingsExpanded, keyboardAlignedLayout),
         showAllFilesResults = renderingState.autoExpandFiles,
         showAllContactsResults = renderingState.autoExpandContacts,
-        showFilesExpandControls = renderingState.hasBothContactsAndFiles,
-        showContactsExpandControls = renderingState.hasBothContactsAndFiles,
+        showAllSettingsResults = renderingState.autoExpandSettings,
+        showFilesExpandControls = renderingState.hasMultipleExpandableSections,
+        showContactsExpandControls = renderingState.hasMultipleExpandableSections,
+        showSettingsExpandControls = renderingState.hasMultipleExpandableSections,
         filesExpandClick = filesParams.onExpandClick,
-        contactsExpandClick = contactsParams.onExpandClick
+        contactsExpandClick = contactsParams.onExpandClick,
+        settingsExpandClick = settingsParams.onExpandClick
     )
 
     val params = SectionRenderParams(
         renderingState = renderingState,
         contactsParams = contactsParams,
         filesParams = filesParams,
+        settingsParams = settingsParams,
         appsParams = appsParams,
         isReversed = isReversed
     )
@@ -212,6 +236,7 @@ private fun PinnedItemsSections(
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
     appsParams: AppsSectionParams,
+    settingsParams: SettingsSectionParams,
     isReversed: Boolean
 ) {
     val shouldShowPinned = !renderingState.isSearching
@@ -220,22 +245,29 @@ private fun PinnedItemsSections(
         shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles,
         shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts,
         shouldRenderApps = shouldShowPinned && shouldShowAppsSection(renderingState),
+        shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings,
         isFilesExpanded = true,
         isContactsExpanded = true,
+        isSettingsExpanded = true,
         filesList = renderingState.pinnedFiles,
         contactsList = renderingState.pinnedContacts,
+        settingsList = renderingState.pinnedSettings,
         showAllFilesResults = true,
         showAllContactsResults = true,
+        showAllSettingsResults = true,
         showFilesExpandControls = false,
         showContactsExpandControls = false,
+        showSettingsExpandControls = false,
         filesExpandClick = {},
-        contactsExpandClick = {}
+        contactsExpandClick = {},
+        settingsExpandClick = {}
     )
 
     val params = SectionRenderParams(
         renderingState = renderingState,
         contactsParams = contactsParams,
         filesParams = filesParams,
+        settingsParams = settingsParams,
         appsParams = appsParams,
         isReversed = isReversed
     )
@@ -252,29 +284,37 @@ private fun PinnedItemsSections(
 private fun ExpandedPinnedSections(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
-    filesParams: FilesSectionParams
+    filesParams: FilesSectionParams,
+    settingsParams: SettingsSectionParams
 ) {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
+    val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
 
     val context = SectionRenderContext(
         shouldRenderFiles = isFilesExpanded && renderingState.hasPinnedFiles && renderingState.shouldShowFiles,
         shouldRenderContacts = isContactsExpanded && renderingState.hasPinnedContacts && renderingState.shouldShowContacts,
+        shouldRenderSettings = isSettingsExpanded && renderingState.hasPinnedSettings && renderingState.shouldShowSettings,
         shouldRenderApps = false, // Apps section doesn't need expansion handling
         isFilesExpanded = true,
         isContactsExpanded = true,
+        isSettingsExpanded = true,
         filesList = renderingState.pinnedFiles,
         contactsList = renderingState.pinnedContacts,
+        settingsList = renderingState.pinnedSettings,
         showAllFilesResults = true,
         showAllContactsResults = true,
+        showAllSettingsResults = true,
         showFilesExpandControls = false,
-        showContactsExpandControls = false
+        showContactsExpandControls = false,
+        showSettingsExpandControls = false
     )
 
     val params = SectionRenderParams(
         renderingState = renderingState,
         contactsParams = contactsParams,
         filesParams = filesParams,
+        settingsParams = settingsParams,
         appsParams = null, // Apps section doesn't need expansion handling
         isReversed = false
     )

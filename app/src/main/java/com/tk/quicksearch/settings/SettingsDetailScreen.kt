@@ -54,6 +54,7 @@ fun SettingsDetailRoute(
         hiddenApps = uiState.hiddenApps,
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
+        excludedSettings = uiState.excludedSettings,
         showAppLabels = uiState.showAppLabels,
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
@@ -76,6 +77,7 @@ fun SettingsDetailRoute(
         onRemoveExcludedApp = viewModel::unhideApp,
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
+        onRemoveExcludedSetting = viewModel::removeExcludedSetting,
         onClearAllExclusions = viewModel::clearAllExclusions,
         onToggleAppLabels = viewModel::setShowAppLabels,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
@@ -116,7 +118,8 @@ private fun SettingsDetailScreen(
     // Navigate back to settings when all excluded items are cleared
     val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
                            state.excludedContacts.isNotEmpty() || 
-                           state.excludedFiles.isNotEmpty()
+                           state.excludedFiles.isNotEmpty() ||
+                           state.excludedSettings.isNotEmpty()
     LaunchedEffect(hasExcludedItems) {
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
             callbacks.onBack()
@@ -178,9 +181,11 @@ private fun SettingsDetailScreen(
                             hiddenApps = state.hiddenApps,
                             excludedContacts = state.excludedContacts,
                             excludedFiles = state.excludedFiles,
+                            excludedSettings = state.excludedSettings,
                             onRemoveExcludedApp = callbacks.onRemoveExcludedApp,
                             onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
+                            onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onClearAll = callbacks.onClearAllExclusions,
                             showTitle = false
                         )

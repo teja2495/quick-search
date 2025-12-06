@@ -79,6 +79,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.WallpaperUtils
 
 /**
@@ -87,7 +88,8 @@ import com.tk.quicksearch.util.WallpaperUtils
 enum class ExpandedSection {
     NONE,
     CONTACTS,
-    FILES
+    FILES,
+    SETTINGS
 }
 
 /**
@@ -107,22 +109,27 @@ private data class DerivedState(
     val isSearching: Boolean,
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
+    val hasPinnedSettings: Boolean,
     val visibleRowCount: Int,
     val visibleAppLimit: Int,
     val displayApps: List<AppInfo>,
     val pinnedPackageNames: Set<String>,
+    val pinnedSettingIds: Set<String>,
     val hasAppResults: Boolean,
     val hasContactResults: Boolean,
     val hasFileResults: Boolean,
+    val hasSettingResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
     val autoExpandFiles: Boolean,
     val autoExpandContacts: Boolean,
-    val hasBothContactsAndFiles: Boolean,
+    val autoExpandSettings: Boolean,
+    val hasMultipleExpandableSections: Boolean,
     val orderedSections: List<SearchSection>,
     val shouldShowApps: Boolean,
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
+    val shouldShowSettings: Boolean,
     val resultSectionTitle: @Composable (String) -> Unit
 )
 
@@ -136,7 +143,8 @@ private fun rememberDerivedState(
     val isSearching = state.query.isNotBlank()
     val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
-    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles) {
+    val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
+    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles || hasPinnedSettings) {
         SearchScreenConstants.SEARCH_ROW_COUNT
     } else {
         SearchScreenConstants.ROW_COUNT
@@ -165,15 +173,20 @@ private fun rememberDerivedState(
     val hasAppResults = displayApps.isNotEmpty()
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
+    val hasSettingResults = state.settingResults.isNotEmpty()
     val pinnedContactIds = remember(state.pinnedContacts) {
         state.pinnedContacts.map { it.contactId }.toSet()
     }
     val pinnedFileUris = remember(state.pinnedFiles) {
         state.pinnedFiles.map { it.uri.toString() }.toSet()
     }
+    val pinnedSettingIds = remember(state.pinnedSettings) {
+        state.pinnedSettings.map { it.id }.toSet()
+    }
     val autoExpandFiles = hasFileResults && !hasContactResults
     val autoExpandContacts = hasContactResults && !hasFileResults
-    val hasBothContactsAndFiles = hasContactResults && hasFileResults
+    val autoExpandSettings = hasSettingResults && !hasContactResults && !hasFileResults
+    val hasMultipleExpandableSections = listOf(hasContactResults, hasFileResults, hasSettingResults).count { it } > 1
     
     val orderedSections = remember(state.sectionOrder, state.disabledSections) {
         state.sectionOrder.filter { it !in state.disabledSections }
@@ -184,6 +197,8 @@ private fun rememberDerivedState(
         (!state.hasContactPermission || hasContactResults || hasPinnedContacts)
     val shouldShowFiles = SearchSection.FILES !in state.disabledSections && 
         (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
+    val shouldShowSettings = SearchSection.SETTINGS !in state.disabledSections &&
+        (hasSettingResults || hasPinnedSettings)
     
     val resultSectionTitle: @Composable (String) -> Unit = { text ->
         if (state.showSectionTitles) {
@@ -195,22 +210,27 @@ private fun rememberDerivedState(
         isSearching = isSearching,
         hasPinnedContacts = hasPinnedContacts,
         hasPinnedFiles = hasPinnedFiles,
+        hasPinnedSettings = hasPinnedSettings,
         visibleRowCount = visibleRowCount,
         visibleAppLimit = visibleAppLimit,
         displayApps = displayApps,
         pinnedPackageNames = pinnedPackageNames,
+        pinnedSettingIds = pinnedSettingIds,
         hasAppResults = hasAppResults,
         hasContactResults = hasContactResults,
         hasFileResults = hasFileResults,
+        hasSettingResults = hasSettingResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
         autoExpandFiles = autoExpandFiles,
         autoExpandContacts = autoExpandContacts,
-        hasBothContactsAndFiles = hasBothContactsAndFiles,
+        autoExpandSettings = autoExpandSettings,
+        hasMultipleExpandableSections = hasMultipleExpandableSections,
         orderedSections = orderedSections,
         shouldShowApps = shouldShowApps,
         shouldShowContacts = shouldShowContacts,
         shouldShowFiles = shouldShowFiles,
+        shouldShowSettings = shouldShowSettings,
         resultSectionTitle = resultSectionTitle
     )
 }
@@ -263,6 +283,10 @@ fun SearchRoute(
         onPinFile = viewModel::pinFile,
         onUnpinFile = viewModel::unpinFile,
         onExcludeFile = viewModel::excludeFile,
+        onSettingClick = viewModel::openSetting,
+        onPinSetting = viewModel::pinSetting,
+        onUnpinSetting = viewModel::unpinSetting,
+        onExcludeSetting = viewModel::excludeSetting,
         onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
@@ -282,7 +306,9 @@ fun SearchRoute(
         getFileNickname = viewModel::getFileNickname,
         onSaveAppNickname = viewModel::setAppNickname,
         onSaveContactNickname = viewModel::setContactNickname,
-        onSaveFileNickname = viewModel::setFileNickname
+        onSaveFileNickname = viewModel::setFileNickname,
+        getSettingNickname = viewModel::getSettingNickname,
+        onSaveSettingNickname = viewModel::setSettingNickname
     )
 }
 
@@ -310,6 +336,10 @@ fun SearchScreen(
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
+    onSettingClick: (SettingShortcut) -> Unit,
+    onPinSetting: (SettingShortcut) -> Unit,
+    onUnpinSetting: (SettingShortcut) -> Unit,
+    onExcludeSetting: (SettingShortcut) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
@@ -323,7 +353,9 @@ fun SearchScreen(
     getFileNickname: (String) -> String?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
-    onSaveFileNickname: (DeviceFile, String?) -> Unit
+    onSaveFileNickname: (DeviceFile, String?) -> Unit,
+    getSettingNickname: (String) -> String?,
+    onSaveSettingNickname: (SettingShortcut, String?) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -375,6 +407,8 @@ fun SearchScreen(
         fileResultsSize = state.fileResults.size,
         pinnedContactsSize = state.pinnedContacts.size,
         pinnedFilesSize = state.pinnedFiles.size,
+        settingResultsSize = state.settingResults.size,
+        pinnedSettingsSize = state.pinnedSettings.size,
         hasUsagePermission = state.hasUsagePermission,
         errorMessage = state.errorMessage
     )
@@ -407,7 +441,7 @@ fun SearchScreen(
         getContactNickname = getContactNickname,
         onOpenAppSettings = onOpenAppSettings,
         showAllResults = derivedState.autoExpandContacts,
-        showExpandControls = derivedState.hasBothContactsAndFiles,
+        showExpandControls = derivedState.hasMultipleExpandableSections,
         onExpandClick = {
             if (expandedSection == ExpandedSection.CONTACTS) {
                 keyboardController?.show()
@@ -453,7 +487,7 @@ fun SearchScreen(
         },
         getFileNickname = getFileNickname,
         showAllResults = derivedState.autoExpandFiles,
-        showExpandControls = derivedState.hasBothContactsAndFiles,
+        showExpandControls = derivedState.hasMultipleExpandableSections,
         onExpandClick = {
             if (expandedSection == ExpandedSection.FILES) {
                 keyboardController?.show()
@@ -475,6 +509,42 @@ fun SearchScreen(
         showWallpaperBackground = state.showWallpaperBackground
     )
     
+    val settingsParams = SettingsSectionParams(
+        settings = state.settingResults,
+        isExpanded = expandedSection == ExpandedSection.SETTINGS,
+        pinnedSettingIds = derivedState.pinnedSettingIds,
+        onSettingClick = onSettingClick,
+        onTogglePin = { setting ->
+            if (derivedState.pinnedSettingIds.contains(setting.id)) {
+                onUnpinSetting(setting)
+            } else {
+                onPinSetting(setting)
+            }
+        },
+        onExclude = onExcludeSetting,
+        onNicknameClick = { setting ->
+            nicknameDialogState = NicknameDialogState.Setting(
+                setting = setting,
+                currentNickname = getSettingNickname(setting.id),
+                itemName = setting.title
+            )
+        },
+        getSettingNickname = getSettingNickname,
+        showAllResults = derivedState.autoExpandSettings,
+        showExpandControls = derivedState.hasMultipleExpandableSections,
+        onExpandClick = {
+            if (expandedSection == ExpandedSection.SETTINGS) {
+                keyboardController?.show()
+                expandedSection = ExpandedSection.NONE
+            } else {
+                keyboardController?.hide()
+                expandedSection = ExpandedSection.SETTINGS
+            }
+        },
+        resultSectionTitle = derivedState.resultSectionTitle,
+        showWallpaperBackground = state.showWallpaperBackground
+    )
+
     val appsParams = AppsSectionParams(
         apps = derivedState.displayApps,
         isSearching = derivedState.isSearching,
@@ -505,19 +575,25 @@ fun SearchScreen(
         hasAppResults = derivedState.hasAppResults,
         hasContactResults = derivedState.hasContactResults,
         hasFileResults = derivedState.hasFileResults,
+        hasSettingResults = derivedState.hasSettingResults,
         hasPinnedContacts = derivedState.hasPinnedContacts,
         hasPinnedFiles = derivedState.hasPinnedFiles,
+        hasPinnedSettings = derivedState.hasPinnedSettings,
         shouldShowApps = derivedState.shouldShowApps,
         shouldShowContacts = derivedState.shouldShowContacts,
         shouldShowFiles = derivedState.shouldShowFiles,
+        shouldShowSettings = derivedState.shouldShowSettings,
         autoExpandFiles = derivedState.autoExpandFiles,
         autoExpandContacts = derivedState.autoExpandContacts,
-        hasBothContactsAndFiles = derivedState.hasBothContactsAndFiles,
+        autoExpandSettings = derivedState.autoExpandSettings,
+        hasMultipleExpandableSections = derivedState.hasMultipleExpandableSections,
         displayApps = derivedState.displayApps,
         contactResults = state.contactResults,
         fileResults = state.fileResults,
+        settingResults = state.settingResults,
         pinnedContacts = state.pinnedContacts,
         pinnedFiles = state.pinnedFiles,
+        pinnedSettings = state.pinnedSettings,
         orderedSections = derivedState.orderedSections
     )
 
@@ -621,6 +697,7 @@ fun SearchScreen(
             renderingState = renderingState,
             contactsParams = contactsParams,
             filesParams = filesParams,
+            settingsParams = settingsParams,
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             scrollState = scrollState
@@ -689,6 +766,17 @@ fun SearchScreen(
                     onDismiss = { nicknameDialogState = null }
                 )
             }
+            is NicknameDialogState.Setting -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveSettingNickname(dialogState.setting, nickname)
+                        nicknameDialogState = null
+                    },
+                    onDismiss = { nicknameDialogState = null }
+                )
+            }
         }
     }
 }
@@ -708,6 +796,12 @@ sealed class NicknameDialogState {
     
     data class File(
         val file: DeviceFile,
+        val currentNickname: String?,
+        val itemName: String
+    ) : NicknameDialogState()
+
+    data class Setting(
+        val setting: SettingShortcut,
         val currentNickname: String?,
         val itemName: String
     ) : NicknameDialogState()

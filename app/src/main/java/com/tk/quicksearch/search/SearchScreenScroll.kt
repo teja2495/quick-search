@@ -114,6 +114,8 @@ fun KeyboardAlignedScrollBehavior(
     fileResultsSize: Int,
     pinnedContactsSize: Int,
     pinnedFilesSize: Int,
+    settingResultsSize: Int,
+    pinnedSettingsSize: Int,
     hasUsagePermission: Boolean,
     errorMessage: String?
 ) {
@@ -124,6 +126,8 @@ fun KeyboardAlignedScrollBehavior(
         fileResultsSize,
         pinnedContactsSize,
         pinnedFilesSize,
+        settingResultsSize,
+        pinnedSettingsSize,
         hasUsagePermission,
         errorMessage,
         expandedSection,

@@ -52,6 +52,7 @@ class PermissionManager(
             SearchSection.CONTACTS -> hasContactPermission()
             SearchSection.FILES -> hasFilePermission()
             SearchSection.APPS -> true
+            SearchSection.SETTINGS -> true
         }
     }
     

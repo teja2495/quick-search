@@ -3,6 +3,7 @@ package com.tk.quicksearch.search
 import androidx.compose.runtime.Composable
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.model.SettingShortcut
 
 // ============================================================================
 // Section Visibility Helpers
@@ -31,6 +32,12 @@ fun shouldShowContactsSection(
     hasPermission = contactsParams.hasPermission,
     hasResults = renderingState.hasContactResults
 )
+
+fun shouldShowSettingsSection(renderingState: SectionRenderingState): Boolean {
+    return renderingState.hasSettingResults &&
+        renderingState.shouldShowSettings &&
+        (renderingState.expandedSection == ExpandedSection.NONE || renderingState.expandedSection == ExpandedSection.SETTINGS)
+}
 
 /**
  * Determines if apps section should be shown.
@@ -89,6 +96,17 @@ fun getFileListForRendering(
     keyboardAlignedLayout = keyboardAlignedLayout
 )
 
+fun getSettingsListForRendering(
+    renderingState: SectionRenderingState,
+    isSettingsExpanded: Boolean,
+    keyboardAlignedLayout: Boolean
+): List<SettingShortcut> = getListForRendering(
+    list = renderingState.settingResults,
+    isExpanded = isSettingsExpanded,
+    autoExpand = renderingState.autoExpandSettings,
+    keyboardAlignedLayout = keyboardAlignedLayout
+)
+
 /**
  * Generic helper for getting list in correct order based on expansion state.
  * Returns reversed view when expanded AND keyboard-aligned layout is enabled, original list otherwise.
@@ -132,6 +150,7 @@ data class SectionRenderParams(
     val renderingState: SectionRenderingState,
     val contactsParams: ContactsSectionParams,
     val filesParams: FilesSectionParams,
+    val settingsParams: SettingsSectionParams? = null,
     val appsParams: AppsSectionParams? = null,
     val isReversed: Boolean
 )
@@ -152,7 +171,13 @@ data class SectionRenderContext(
     val showFilesExpandControls: Boolean = false,
     val showContactsExpandControls: Boolean = false,
     val filesExpandClick: () -> Unit = {},
-    val contactsExpandClick: () -> Unit = {}
+    val contactsExpandClick: () -> Unit = {},
+    val shouldRenderSettings: Boolean = false,
+    val isSettingsExpanded: Boolean = false,
+    val settingsList: List<SettingShortcut> = emptyList(),
+    val showAllSettingsResults: Boolean = false,
+    val showSettingsExpandControls: Boolean = false,
+    val settingsExpandClick: () -> Unit = {}
 )
 
 // ============================================================================
@@ -172,6 +197,7 @@ fun renderSection(
         SearchSection.FILES -> renderFilesSection(params, sectionContext)
         SearchSection.CONTACTS -> renderContactsSection(params, sectionContext)
         SearchSection.APPS -> renderAppsSection(params, sectionContext)
+        SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
     }
 }
 
@@ -227,5 +253,32 @@ private fun renderAppsSection(
 ) {
     if (context.shouldRenderApps && params.appsParams != null) {
         RenderAppsSection(params = params.appsParams)
+    }
+}
+
+/**
+ * Renders the settings section if it should be displayed.
+ */
+@Composable
+private fun renderSettingsSection(
+    params: SectionRenderParams,
+    context: SectionRenderContext
+) {
+    if (context.shouldRenderSettings && params.settingsParams != null) {
+        SettingsResultsSection(
+            settings = context.settingsList,
+            isExpanded = context.isSettingsExpanded,
+            pinnedSettingIds = params.settingsParams.pinnedSettingIds,
+            onSettingClick = params.settingsParams.onSettingClick,
+            onTogglePin = params.settingsParams.onTogglePin,
+            onExclude = params.settingsParams.onExclude,
+            onNicknameClick = params.settingsParams.onNicknameClick,
+            getSettingNickname = params.settingsParams.getSettingNickname,
+            showAllResults = context.showAllSettingsResults,
+            showExpandControls = context.showSettingsExpandControls,
+            onExpandClick = context.settingsExpandClick,
+            resultSectionTitle = params.settingsParams.resultSectionTitle,
+            showWallpaperBackground = params.settingsParams.showWallpaperBackground
+        )
     }
 }
