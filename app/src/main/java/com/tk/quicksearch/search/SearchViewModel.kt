@@ -258,7 +258,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onQueryChange(newQuery: String) {
-        if (newQuery.isBlank()) {
+        val trimmedQuery = newQuery.trim()
+        if (trimmedQuery.isBlank()) {
             noMatchPrefix = null
             searchJob?.cancel()
             _uiState.update { 
@@ -274,7 +275,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         // Check for shortcuts if enabled
         if (shortcutsEnabled) {
-            val shortcutMatch = detectShortcut(newQuery)
+            val shortcutMatch = detectShortcut(trimmedQuery)
             if (shortcutMatch != null) {
                 val (queryWithoutShortcut, engine) = shortcutMatch
                 // Automatically perform search with the detected engine
@@ -289,14 +290,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
-        val normalizedQuery = newQuery.lowercase(Locale.getDefault())
+        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
         resetNoMatchPrefixIfNeeded(normalizedQuery)
 
         val shouldSkipSearch = shouldSkipDueToNoMatchPrefix(normalizedQuery)
         val matches = if (shouldSkipSearch) {
             emptyList()
         } else {
-            deriveMatches(newQuery, searchSourceApps()).also { results ->
+            deriveMatches(trimmedQuery, searchSourceApps()).also { results ->
                 if (results.isEmpty()) {
                     noMatchPrefix = normalizedQuery
                 }
@@ -309,7 +310,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 searchResults = matches
             )
         }
-        performSecondarySearches(newQuery.trim())
+        performSecondarySearches(newQuery)
     }
 
     private fun detectShortcut(query: String): Pair<String, SearchEngine>? {
@@ -459,12 +460,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun openSearchUrl(query: String, searchEngine: SearchEngine) {
+        val trimmedQuery = query.trim()
         val amazonDomain = if (searchEngine == SearchEngine.AMAZON) {
             userPreferences.getAmazonDomain()
         } else {
             null
         }
-        IntentHelpers.openSearchUrl(getApplication(), query, searchEngine, amazonDomain)
+        IntentHelpers.openSearchUrl(getApplication(), trimmedQuery, searchEngine, amazonDomain)
     }
 
     fun clearCachedApps() {
@@ -1012,13 +1014,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
-        val searchResults = if (query.isBlank()) {
+        val trimmedQuery = query.trim()
+        val searchResults = if (trimmedQuery.isBlank()) {
             emptyList()
         } else {
             // Include both pinned and non-pinned apps in search, let ranking determine order
             val nonPinnedApps = searchSourceApps(apps)
             val allSearchableApps = (pinnedAppList + nonPinnedApps).distinctBy { it.packageName }
-            deriveMatches(query, allSearchableApps)
+            deriveMatches(trimmedQuery, allSearchableApps)
         }
         val hiddenAppList = apps
             .filter { hiddenPackages.contains(it.packageName) }
@@ -1046,7 +1049,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun performSecondarySearches(query: String) {
         searchJob?.cancel()
-        if (query.isBlank() || query.length == 1) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank() || trimmedQuery.length == 1) {
             _uiState.update {
                 it.copy(
                     contactResults = emptyList(),
@@ -1063,11 +1067,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val currentVersion = ++queryVersion
 
         searchJob = viewModelScope.launch(Dispatchers.IO) {
-            val normalizedQuery = query.lowercase(Locale.getDefault())
+            val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
             
             // Search by display name (existing behavior)
             val result = searchOperations.performSearches(
-                query = query,
+                query = trimmedQuery,
                 canSearchContacts = canSearchContacts,
                 canSearchFiles = canSearchFiles,
                 enabledFileTypes = enabledFileTypes,
@@ -1078,14 +1082,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Also search for contacts/files with matching nicknames
             val nicknameMatchingContactIds = if (canSearchContacts) {
-                userPreferences.findContactsWithMatchingNickname(query)
+                userPreferences.findContactsWithMatchingNickname(trimmedQuery)
                     .filterNot { excludedContactIds.contains(it) }
             } else {
                 emptySet()
             }
             
             val nicknameMatchingFileUris = if (canSearchFiles) {
-                userPreferences.findFilesWithMatchingNickname(query)
+                userPreferences.findFilesWithMatchingNickname(trimmedQuery)
                     .filterNot { excludedFileUris.contains(it) }
             } else {
                 emptySet()

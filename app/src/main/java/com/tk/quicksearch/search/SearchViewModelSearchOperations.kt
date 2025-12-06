@@ -53,14 +53,15 @@ class SearchOperations(
         excludedFileUris: Set<String>,
         scope: CoroutineScope
     ): SearchResult {
-        if (query.length < MIN_QUERY_LENGTH) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.length < MIN_QUERY_LENGTH) {
             return SearchResult(emptyList(), emptyList())
         }
         
         // Perform searches in parallel
         val contactsDeferred = scope.async {
             if (canSearchContacts) {
-                searchContacts(query, excludedContactIds)
+                searchContacts(trimmedQuery, excludedContactIds)
             } else {
                 emptyList()
             }
@@ -68,7 +69,7 @@ class SearchOperations(
         
         val filesDeferred = scope.async {
             if (canSearchFiles) {
-                searchFiles(query, enabledFileTypes, excludedFileUris)
+                searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris)
             } else {
                 emptyList()
             }
@@ -80,10 +81,10 @@ class SearchOperations(
         // Optimize results: if only one type has results, fetch more for that type
         return when {
             contacts.isNotEmpty() && files.isEmpty() && canSearchFiles -> {
-                SearchResult(contacts, searchFiles(query, enabledFileTypes, excludedFileUris, Int.MAX_VALUE))
+                SearchResult(contacts, searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris, Int.MAX_VALUE))
             }
             files.isNotEmpty() && contacts.isEmpty() && canSearchContacts -> {
-                SearchResult(searchContacts(query, excludedContactIds, Int.MAX_VALUE), files)
+                SearchResult(searchContacts(trimmedQuery, excludedContactIds, Int.MAX_VALUE), files)
             }
             else -> SearchResult(contacts, files)
         }
