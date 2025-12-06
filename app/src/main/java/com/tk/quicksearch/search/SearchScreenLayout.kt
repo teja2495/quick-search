@@ -17,6 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
@@ -207,12 +211,6 @@ private fun DirectAnswerResult(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = stringResource(R.string.direct_answer_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
             when (directAnswerState.status) {
                 DirectAnswerStatus.Loading -> {
                     Row(
@@ -233,7 +231,7 @@ private fun DirectAnswerResult(
                 DirectAnswerStatus.Success -> {
                     directAnswerState.answer?.let { answer ->
                         Text(
-                            text = answer,
+                            text = formatWithBold(answer),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -255,6 +253,23 @@ private fun DirectAnswerResult(
                 DirectAnswerStatus.Idle -> {}
             }
         }
+    }
+}
+
+@Composable
+private fun formatWithBold(text: String) = buildAnnotatedString {
+    val pattern = Regex("\\*\\*(.+?)\\*\\*")
+    var lastIndex = 0
+    for (match in pattern.findAll(text)) {
+        append(text.substring(lastIndex, match.range.first))
+        val boldText = match.groupValues[1]
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+            append(boldText)
+        }
+        lastIndex = match.range.last + 1
+    }
+    if (lastIndex < text.length) {
+        append(text.substring(lastIndex))
     }
 }
 

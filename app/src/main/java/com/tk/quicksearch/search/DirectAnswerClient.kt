@@ -16,9 +16,14 @@ import java.net.URL
 class DirectAnswerClient(private val apiKey: String) {
 
     companion object {
-        private const val MODEL = "gemini-2.5-flash"
+        private const val MODEL = "gemini-flash-latest"
         private const val BASE_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
+        private const val SYSTEM_PROMPT =
+            "You are Direct Answer for Quick Search. Use Google Search grounding to stay factual. " +
+            "Keep responses concise (1-2 sentences). Put the main answer in **bold**. " +
+            "If you mention UI elements, also wrap them in **bold**. " +
+            "Do not show any thinking, reasoning steps, or system text. Return plain text only."
     }
 
     suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
@@ -60,12 +65,24 @@ class DirectAnswerClient(private val apiKey: String) {
     }
 
     private fun buildRequestBody(query: String): String {
+        val systemInstruction = JSONObject().apply {
+            put("parts", JSONArray().put(JSONObject().put("text", SYSTEM_PROMPT)))
+        }
         val content = JSONObject().apply {
             put("parts", JSONArray().put(JSONObject().put("text", query)))
         }
-        val root = JSONObject()
-        root.put("contents", JSONArray().put(content))
-        return root.toString()
+        val tools = JSONArray().put(JSONObject().put("google_search", JSONObject()))
+        val generationConfig = JSONObject().apply {
+            put("responseMimeType", "text/plain")
+            put("temperature", 0.2)
+        }
+
+        return JSONObject().apply {
+            put("systemInstruction", systemInstruction)
+            put("contents", JSONArray().put(content))
+            put("tools", tools)
+            put("generationConfig", generationConfig)
+        }.toString()
     }
 
     private fun readResponseBody(connection: HttpURLConnection, responseCode: Int): String {
