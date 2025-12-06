@@ -260,15 +260,6 @@ class SettingsShortcutRepository(private val context: Context) {
                 minSdk = Build.VERSION_CODES.R
             ),
             SettingShortcut(
-                id = "manage_app_files",
-                title = context.getString(R.string.settings_shortcut_manage_app_files),
-                description = "Apps & Permissions",
-                keywords = listOf("files", "storage", "this app"),
-                action = Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                data = packageUri,
-                minSdk = Build.VERSION_CODES.R
-            ),
-            SettingShortcut(
                 id = "unknown_sources",
                 title = context.getString(R.string.settings_shortcut_unknown_sources),
                 description = "Apps & Permissions",

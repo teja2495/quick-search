@@ -97,7 +97,6 @@
     <string name="settings_shortcut_overlay_permission">Display Over Other Apps</string>
     <string name="settings_shortcut_write_settings">Modify System Settings</string>
     <string name="settings_shortcut_all_files">All Files Access</string>
-    <string name="settings_shortcut_manage_app_files">All Files Access (app)</string>
     <string name="settings_shortcut_unknown_sources">Install Unknown Apps</string>
     <string name="settings_shortcut_notification_listener">Notification Access</string>
     <string name="settings_shortcut_usage_access">Usage Access</string>
