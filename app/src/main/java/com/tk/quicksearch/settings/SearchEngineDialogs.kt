@@ -1,14 +1,20 @@
 package com.tk.quicksearch.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,6 +31,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.isValidAmazonDomain
@@ -247,6 +255,104 @@ fun EditAmazonDomainDialog(
                             normalizedDomain
                         }
                         onSave(domainToSave)
+                        onDismiss()
+                    }
+                },
+                enabled = isValid
+            ) {
+                Text(text = stringResource(R.string.dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
+}
+
+/**
+ * Dialog for entering Gemini API key for Direct Search feature.
+ * 
+ * @param onSave Callback when the API key is saved
+ * @param onDismiss Callback when the dialog is dismissed
+ */
+@Composable
+fun GeminiApiKeyDialog(
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var apiKeyInput by remember { mutableStateOf("") }
+    var isObscured by remember { mutableStateOf(true) }
+    val focusRequester = remember { FocusRequester() }
+    val isValid = apiKeyInput.isNotBlank()
+    
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.dialog_gemini_api_key_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.dialog_gemini_api_key_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                TextField(
+                    value = apiKeyInput,
+                    onValueChange = { apiKeyInput = it },
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.settings_gemini_api_key_placeholder),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    visualTransformation = if (isObscured) PasswordVisualTransformation() else VisualTransformation.None,
+                    trailingIcon = {
+                        val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { isObscured = !isObscured },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                    singleLine = true,
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (isValid) {
+                                onSave(apiKeyInput.trim())
+                                onDismiss()
+                            }
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (isValid) {
+                        onSave(apiKeyInput.trim())
                         onDismiss()
                     }
                 },

@@ -692,6 +692,11 @@ fun SearchScreen(
             }
         )
 
+        // Add spacing between search bar and apps list when bottom aligned setting is off
+        if (!state.keyboardAlignedLayout) {
+            Spacer(modifier = Modifier.padding(top = 8.dp))
+        }
+
         // Scrollable content between search bar and search engines
         SearchContentArea(
             modifier = Modifier.weight(1f),

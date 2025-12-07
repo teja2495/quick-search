@@ -298,7 +298,15 @@ private fun SettingsScreen(
                 showSectionTitles = state.showSectionTitles,
                 onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
                 showWallpaperBackground = state.showWallpaperBackground,
-                onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
+                onToggleShowWallpaperBackground = { enabled ->
+                    if (enabled && !hasFilePermission) {
+                        // Request files permission when user tries to enable wallpaper
+                        onRequestFilePermission()
+                    } else {
+                        callbacks.onToggleShowWallpaperBackground(enabled)
+                    }
+                },
+                hasFilePermission = hasFilePermission,
                 appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )

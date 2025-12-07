@@ -72,7 +72,8 @@ private fun SettingsToggleRow(
         )
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            enabled = true // Control enabled state via onCheckedChange callback
         )
     }
 }
@@ -87,6 +88,7 @@ fun AppLabelsSection(
     onToggleShowSectionTitles: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    hasFilePermission: Boolean = true,
     appsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -124,12 +126,15 @@ fun AppLabelsSection(
                 onCheckedChange = onToggleShowSectionTitles
             )
 
-            // Wallpaper background toggle (always shown)
+            // Wallpaper background toggle (always shown, but disabled if files permission not granted)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             SettingsToggleRow(
                 text = stringResource(R.string.settings_wallpaper_background_toggle),
-                checked = showWallpaperBackground,
-                onCheckedChange = onToggleShowWallpaperBackground,
+                checked = showWallpaperBackground && hasFilePermission,
+                onCheckedChange = { enabled ->
+                    // Always call the callback - it will handle permission request if needed
+                    onToggleShowWallpaperBackground(enabled)
+                },
                 isLastItem = true
             )
         }

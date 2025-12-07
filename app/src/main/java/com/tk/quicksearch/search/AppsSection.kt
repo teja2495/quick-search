@@ -117,7 +117,7 @@ private fun AppGrid(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         repeat(rowCount) { rowIndex ->
             val rowApps = rows.getOrNull(rowIndex).orEmpty()

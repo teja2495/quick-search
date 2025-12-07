@@ -151,7 +151,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
     private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
-    private var showWallpaperBackground: Boolean = userPreferences.shouldShowWallpaperBackground()
+    private var showWallpaperBackground: Boolean = run {
+        val prefValue = userPreferences.shouldShowWallpaperBackground()
+        val hasFilesPermission = permissionManager.hasFilePermission()
+        // If files permission is available, use user preference (defaults to true)
+        // If files permission is not available, disable wallpaper (but keep user preference)
+        if (hasFilesPermission) {
+            // Enable by default if user hasn't explicitly disabled it
+            prefValue
+        } else {
+            // Disable if permission is not available
+            false
+        }
+    }
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
@@ -859,6 +871,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            // If trying to enable, check if files permission is granted
+            if (showWallpaper && !permissionManager.hasFilePermission()) {
+                // Don't enable if files permission is not granted
+                // The caller should request permission first
+                return@launch
+            }
+            
+            // Update user preference (this tracks explicit user choice)
             userPreferences.setShowWallpaperBackground(showWallpaper)
             showWallpaperBackground = showWallpaper
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
@@ -1519,6 +1539,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (changed) {
             disabledSections = permissionManager.computeDisabledSections()
             
+            // Handle wallpaper background based on files permission
+            val userPrefValue = userPreferences.shouldShowWallpaperBackground()
+            val shouldUpdateWallpaper = when {
+                // If files permission is revoked, disable wallpaper (but keep user preference unchanged)
+                !hasFiles && showWallpaperBackground -> {
+                    showWallpaperBackground = false
+                    true
+                }
+                // If files permission is granted and user preference says enabled, enable wallpaper
+                hasFiles && !showWallpaperBackground && userPrefValue -> {
+                    showWallpaperBackground = true
+                    true
+                }
+                // If files permission is granted but user explicitly disabled it, keep it disabled
+                hasFiles && !showWallpaperBackground && !userPrefValue -> {
+                    // User explicitly disabled it, keep it disabled
+                    false
+                }
+                // If files permission is granted and wallpaper is enabled, keep it enabled
+                hasFiles && showWallpaperBackground -> {
+                    false // No change needed
+                }
+                else -> false
+            }
+            
             _uiState.update { state ->
                 state.copy(
                     hasContactPermission = hasContacts,
@@ -1526,7 +1571,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     hasCallPermission = hasCall,
                     contactResults = if (hasContacts) state.contactResults else emptyList(),
                     fileResults = if (hasFiles) state.fileResults else emptyList(),
-                    disabledSections = disabledSections
+                    disabledSections = disabledSections,
+                    showWallpaperBackground = if (shouldUpdateWallpaper) showWallpaperBackground else state.showWallpaperBackground
                 )
             }
         }

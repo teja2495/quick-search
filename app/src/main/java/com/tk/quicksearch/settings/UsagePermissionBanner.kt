@@ -31,7 +31,7 @@ fun UsagePermissionBanner(
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         shape = MaterialTheme.shapes.medium
     ) {
@@ -49,7 +49,7 @@ fun UsagePermissionBanner(
                 Text(
                     text = "${stringResource(R.string.settings_usage_permission_banner_message)}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
             
@@ -61,7 +61,7 @@ fun UsagePermissionBanner(
                 Icon(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.desc_close),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         }

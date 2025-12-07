@@ -41,6 +41,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +58,7 @@ import com.tk.quicksearch.search.getDisplayName
 import com.tk.quicksearch.settings.EditShortcutDialog
 import com.tk.quicksearch.settings.EditAmazonDomainDialog
 import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.data.UserAppPreferences
 
 /**
  * Helper function to get color filter for search engine icons based on theme.
@@ -153,21 +155,15 @@ fun SearchEnginesSection(
         )
     }
     
-    if (onSetGeminiApiKey != null) {
-        GeminiApiKeyCard(
-            hasSavedKey = directAnswerAvailable,
-            onSetGeminiApiKey = onSetGeminiApiKey,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-    }
-    
     // Combined toggle card for enabling/disabling search engine section and shortcuts
     if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
         SearchEngineToggleCard(
             searchEngineSectionEnabled = searchEngineSectionEnabled,
             onToggleSearchEngineSectionEnabled = onToggleSearchEngineSectionEnabled,
             shortcutsEnabled = shortcutsEnabled,
-            onToggleShortcutsEnabled = onToggleShortcutsEnabled
+            onToggleShortcutsEnabled = onToggleShortcutsEnabled,
+            directSearchEnabled = directAnswerAvailable,
+            onSetGeminiApiKey = onSetGeminiApiKey
         )
     }
     
@@ -194,6 +190,7 @@ fun SearchEnginesSection(
             onSetAmazonDomain = onSetAmazonDomain
         )
     }
+    
 }
 
 /**
@@ -204,8 +201,21 @@ private fun SearchEngineToggleCard(
     searchEngineSectionEnabled: Boolean,
     onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
     shortcutsEnabled: Boolean,
-    onToggleShortcutsEnabled: (Boolean) -> Unit
+    onToggleShortcutsEnabled: (Boolean) -> Unit,
+    directSearchEnabled: Boolean,
+    onSetGeminiApiKey: ((String?) -> Unit)?
 ) {
+    var showGeminiDialog by remember { mutableStateOf(false) }
+    
+    if (showGeminiDialog && onSetGeminiApiKey != null) {
+        GeminiApiKeyDialog(
+            onSave = { apiKey ->
+                onSetGeminiApiKey(apiKey)
+            },
+            onDismiss = { showGeminiDialog = false }
+        )
+    }
+    
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,9 +236,28 @@ private fun SearchEngineToggleCard(
                 title = stringResource(R.string.settings_shortcuts_toggle),
                 checked = shortcutsEnabled,
                 onCheckedChange = onToggleShortcutsEnabled,
-                subtitle = stringResource(R.string.settings_shortcuts_hint),
-                isLastItem = true
+                subtitle = stringResource(R.string.settings_shortcuts_hint)
             )
+            
+            if (onSetGeminiApiKey != null) {
+                SearchEngineDivider()
+                
+                SearchEngineToggleRow(
+                    title = stringResource(R.string.settings_direct_search_toggle),
+                    checked = directSearchEnabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled && !directSearchEnabled) {
+                            // Show dialog to enter API key
+                            showGeminiDialog = true
+                        } else if (!enabled) {
+                            // Disable and remove API key
+                            onSetGeminiApiKey(null)
+                        }
+                    },
+                    subtitle = stringResource(R.string.settings_direct_search_desc),
+                    isLastItem = true
+                )
+            }
         }
     }
 }
@@ -751,92 +780,3 @@ private fun AmazonDomainLink(
     }
 }
 
-@Composable
-private fun GeminiApiKeyCard(
-    hasSavedKey: Boolean,
-    onSetGeminiApiKey: (String?) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var apiKeyInput by remember(hasSavedKey) { mutableStateOf("") }
-    var isObscured by remember { mutableStateOf(true) }
-    val isValid = apiKeyInput.isNotBlank()
-
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_gemini_api_key_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.settings_gemini_api_key_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            androidx.compose.material3.TextField(
-                value = apiKeyInput,
-                onValueChange = { apiKeyInput = it },
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.settings_gemini_api_key_placeholder),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                visualTransformation = if (isObscured) PasswordVisualTransformation() else VisualTransformation.None,
-                trailingIcon = {
-                    val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable { isObscured = !isObscured },
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                maxLines = 1,
-                colors = androidx.compose.material3.TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { onSetGeminiApiKey(apiKeyInput.trim()) },
-                    enabled = isValid
-                ) {
-                    Text(text = stringResource(R.string.settings_gemini_api_key_save))
-                }
-                TextButton(
-                    onClick = {
-                        apiKeyInput = ""
-                        onSetGeminiApiKey(null)
-                    },
-                    enabled = hasSavedKey
-                ) {
-                    Text(text = stringResource(R.string.settings_gemini_api_key_remove))
-                }
-                if (hasSavedKey) {
-                    Text(
-                        text = stringResource(R.string.settings_gemini_api_key_saved),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-            }
-        }
-    }
-}

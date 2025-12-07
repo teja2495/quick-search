@@ -2,6 +2,9 @@ package com.tk.quicksearch.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
@@ -17,6 +20,28 @@ class UserAppPreferences(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    
+    // Encrypted SharedPreferences for sensitive data like API keys
+    // Falls back to regular SharedPreferences if encryption fails
+    private val encryptedPrefs: SharedPreferences = run {
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            
+            EncryptedSharedPreferences.create(
+                context,
+                ENCRYPTED_PREFS_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences", e)
+            // Fallback to regular SharedPreferences if encryption fails
+            context.getSharedPreferences(ENCRYPTED_PREFS_NAME, Context.MODE_PRIVATE)
+        }
+    }
 
     // ============================================================================
     // App Preferences
@@ -368,14 +393,35 @@ class UserAppPreferences(context: Context) {
     // ============================================================================
 
     fun getGeminiApiKey(): String? {
-        return prefs.getString(KEY_GEMINI_API_KEY, null)
+        // First try to get from encrypted storage
+        val encryptedKey = encryptedPrefs.getString(KEY_GEMINI_API_KEY, null)
+        if (encryptedKey != null) {
+            return encryptedKey
+        }
+        
+        // Migration: If not in encrypted storage, check plain text storage and migrate
+        val plainTextKey = prefs.getString(KEY_GEMINI_API_KEY, null)
+        if (plainTextKey != null) {
+            // Migrate to encrypted storage
+            encryptedPrefs.edit().putString(KEY_GEMINI_API_KEY, plainTextKey).apply()
+            // Remove from plain text storage
+            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
+            return plainTextKey
+        }
+        
+        return null
     }
 
     fun setGeminiApiKey(key: String?) {
         if (key.isNullOrBlank()) {
+            // Remove from both encrypted and plain text (for migration safety)
+            encryptedPrefs.edit().remove(KEY_GEMINI_API_KEY).apply()
             prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
         } else {
-            prefs.edit().putString(KEY_GEMINI_API_KEY, key.trim()).apply()
+            // Save to encrypted storage
+            encryptedPrefs.edit().putString(KEY_GEMINI_API_KEY, key.trim()).apply()
+            // Also remove from plain text storage if it exists (cleanup)
+            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
         }
     }
 
@@ -581,8 +627,11 @@ class UserAppPreferences(context: Context) {
     }
 
     private companion object {
+        private const val TAG = "UserAppPreferences"
+        
         // SharedPreferences name
         private const val PREFS_NAME = "user_app_preferences"
+        private const val ENCRYPTED_PREFS_NAME = "encrypted_user_preferences"
 
         // App preferences keys
         private const val KEY_HIDDEN = "hidden_packages"

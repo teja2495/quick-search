@@ -153,6 +153,8 @@
     <string name="dialog_nickname_message">Enter a nickname for this item. You can search for it using this nickname.</string>
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_remove">Remove</string>
+    <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>
+    <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Answer feature.</string>
 
     <!-- ============================================================================
          Settings - General
@@ -237,10 +239,11 @@
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
     <string name="settings_gemini_api_key_title">Gemini API key</string>
-    <string name="settings_gemini_api_key_desc">Stored locally and used via Firebase AI Logic to power Direct Answer.</string>
+    <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Answers.</string>
     <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
     <string name="settings_gemini_api_key_save">Save key</string>
     <string name="settings_gemini_api_key_remove">Remove key</string>
+    <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saved">Key saved</string>
 
     <!-- ============================================================================
@@ -255,6 +258,8 @@
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
     <string name="settings_add_shortcut">Add Shortcut</string>
+    <string name="settings_direct_search_toggle">Direct Search</string>
+    <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
 
     <!-- ============================================================================
          Settings - File Types

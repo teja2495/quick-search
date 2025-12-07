@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,7 +124,8 @@ private fun ContentLayout(
     ) {
         DirectAnswerResult(
             directAnswerState = state.directAnswerState,
-            onRetry = onRetryDirectAnswer
+            onRetry = onRetryDirectAnswer,
+            showWallpaperBackground = state.showWallpaperBackground
         )
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
@@ -197,14 +201,12 @@ private fun ContentLayout(
 @Composable
 private fun DirectAnswerResult(
     directAnswerState: DirectAnswerState,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    showWallpaperBackground: Boolean = false
 ) {
     if (directAnswerState.status == DirectAnswerStatus.Idle) return
 
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
+    val content: @Composable () -> Unit = {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -252,6 +254,26 @@ private fun DirectAnswerResult(
                 }
                 DirectAnswerStatus.Idle -> {}
             }
+        }
+    }
+
+    if (showWallpaperBackground) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Black.copy(alpha = 0.4f)
+            ),
+            shape = MaterialTheme.shapes.extraLarge,
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            content()
+        }
+    } else {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            content()
         }
     }
 }
