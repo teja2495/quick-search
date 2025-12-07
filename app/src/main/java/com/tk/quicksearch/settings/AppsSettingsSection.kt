@@ -84,8 +84,6 @@ fun AppLabelsSection(
     onToggleAppLabels: (Boolean) -> Unit,
     keyboardAlignedLayout: Boolean,
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
-    showSectionTitles: Boolean,
-    onToggleShowSectionTitles: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     hasFilePermission: Boolean = true,
@@ -117,14 +115,6 @@ fun AppLabelsSection(
                     onCheckedChange = onToggleAppLabels
                 )
             }
-
-            // Section titles toggle (always shown)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            SettingsToggleRow(
-                text = stringResource(R.string.settings_section_titles_toggle),
-                checked = showSectionTitles,
-                onCheckedChange = onToggleShowSectionTitles
-            )
 
             // Wallpaper background toggle (always shown, but disabled if files permission not granted)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

@@ -480,12 +480,6 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_FIRST_LAUNCH, false)
     }
 
-    fun shouldShowSectionTitles(): Boolean = getBooleanPref(KEY_SHOW_SECTION_TITLES, true)
-
-    fun setShowSectionTitles(showTitles: Boolean) {
-        setBooleanPref(KEY_SHOW_SECTION_TITLES, showTitles)
-    }
-
     fun shouldShowWallpaperBackground(): Boolean = getBooleanPref(KEY_SHOW_WALLPAPER_BACKGROUND, true)
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
@@ -667,7 +661,6 @@ class UserAppPreferences(context: Context) {
         private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
         private const val KEY_MESSAGING_APP = "messaging_app"
         private const val KEY_FIRST_LAUNCH = "first_launch"
-        private const val KEY_SHOW_SECTION_TITLES = "show_section_titles"
         private const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
 
         // Section preferences keys

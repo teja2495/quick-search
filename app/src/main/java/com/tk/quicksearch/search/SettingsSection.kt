@@ -65,7 +65,6 @@ fun SettingsResultsSection(
     showAllResults: Boolean,
     showExpandControls: Boolean,
     onExpandClick: () -> Unit,
-    resultSectionTitle: @Composable (String) -> Unit,
     showWallpaperBackground: Boolean = false
 ) {
     if (settings.isEmpty()) return
@@ -84,8 +83,6 @@ fun SettingsResultsSection(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        resultSectionTitle(stringResource(R.string.settings_shortcuts_section_title))
-
         val cardColors = CardDefaults.cardColors(
             containerColor = if (showWallpaperBackground) {
                 Color.Black.copy(alpha = 0.4f)

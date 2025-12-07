@@ -277,7 +277,6 @@ private fun renderSettingsSection(
             showAllResults = context.showAllSettingsResults,
             showExpandControls = context.showSettingsExpandControls,
             onExpandClick = context.settingsExpandClick,
-            resultSectionTitle = params.settingsParams.resultSectionTitle,
             showWallpaperBackground = params.settingsParams.showWallpaperBackground
         )
     }

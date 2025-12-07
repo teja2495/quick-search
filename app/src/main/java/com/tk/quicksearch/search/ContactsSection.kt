@@ -104,7 +104,6 @@ fun ContactResultsSection(
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
-    resultSectionTitle: @Composable (String) -> Unit,
     permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     showWallpaperBackground: Boolean = false
 ) {
@@ -115,8 +114,6 @@ fun ContactResultsSection(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        resultSectionTitle(stringResource(R.string.contacts_section_title))
-        
         when {
             hasPermission && contacts.isNotEmpty() -> {
                 ContactsResultCard(

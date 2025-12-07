@@ -77,7 +77,6 @@ fun SettingsRoute(
         shortcutCodes = uiState.shortcutCodes,
         shortcutEnabled = uiState.shortcutEnabled,
         messagingApp = uiState.messagingApp,
-        showSectionTitles = uiState.showSectionTitles,
         showWallpaperBackground = uiState.showWallpaperBackground,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -102,7 +101,6 @@ fun SettingsRoute(
         setShortcutCode = viewModel::setShortcutCode,
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
-        onToggleShowSectionTitles = viewModel::setShowSectionTitles,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
@@ -295,8 +293,6 @@ private fun SettingsScreen(
                 onToggleAppLabels = callbacks.onToggleAppLabels,
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
-                showSectionTitles = state.showSectionTitles,
-                onToggleShowSectionTitles = callbacks.onToggleShowSectionTitles,
                 showWallpaperBackground = state.showWallpaperBackground,
                 onToggleShowWallpaperBackground = { enabled ->
                     if (enabled && !hasFilePermission) {

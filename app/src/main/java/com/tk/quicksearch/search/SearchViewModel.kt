@@ -107,7 +107,6 @@ data class SearchUiState(
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     val messagingApp: MessagingApp = MessagingApp.MESSAGES,
-    val showSectionTitles: Boolean = true,
     val showWallpaperBackground: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
@@ -150,7 +149,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.isShortcutEnabled(it) 
     }
     private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
-    private var showSectionTitles: Boolean = userPreferences.shouldShowSectionTitles()
     private var showWallpaperBackground: Boolean = run {
         val prefValue = userPreferences.shouldShowWallpaperBackground()
         val hasFilesPermission = permissionManager.hasFilePermission()
@@ -199,7 +197,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
                     messagingApp = messagingApp,
-                    showSectionTitles = showSectionTitles,
                     showWallpaperBackground = showWallpaperBackground,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
@@ -224,7 +221,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
                     messagingApp = messagingApp,
-                    showSectionTitles = showSectionTitles,
                     showWallpaperBackground = showWallpaperBackground,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
@@ -858,14 +854,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowAppLabels(showLabels)
             showAppLabels = showLabels
             _uiState.update { it.copy(showAppLabels = showLabels) }
-        }
-    }
-
-    fun setShowSectionTitles(showTitles: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setShowSectionTitles(showTitles)
-            showSectionTitles = showTitles
-            _uiState.update { it.copy(showSectionTitles = showTitles) }
         }
     }
 

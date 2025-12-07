@@ -20,7 +20,6 @@ interface ExpandableSectionParams {
     val showAllResults: Boolean
     val showExpandControls: Boolean
     val onExpandClick: () -> Unit
-    val resultSectionTitle: @Composable (String) -> Unit
     val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit
 }
 
@@ -48,7 +47,6 @@ data class ContactsSectionParams(
     override val showAllResults: Boolean,
     override val showExpandControls: Boolean,
     override val onExpandClick: () -> Unit,
-    override val resultSectionTitle: @Composable (String) -> Unit,
     override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     val showWallpaperBackground: Boolean = false
 ) : ExpandableSectionParams
@@ -70,7 +68,6 @@ data class FilesSectionParams(
     override val showAllResults: Boolean,
     override val showExpandControls: Boolean,
     override val onExpandClick: () -> Unit,
-    override val resultSectionTitle: @Composable (String) -> Unit,
     override val permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     val showWallpaperBackground: Boolean = false
 ) : ExpandableSectionParams
@@ -90,7 +87,6 @@ data class SettingsSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
-    val resultSectionTitle: @Composable (String) -> Unit,
     val showWallpaperBackground: Boolean = false
 )
 
@@ -111,8 +107,7 @@ data class AppsSectionParams(
     val onNicknameClick: (AppInfo) -> Unit,
     val getAppNickname: (String) -> String?,
     val showAppLabels: Boolean,
-    val rowCount: Int,
-    val resultSectionTitle: @Composable (String) -> Unit
+    val rowCount: Int
 )
 
 // ============================================================================
@@ -148,7 +143,6 @@ fun RenderContactsSection(
         showAllResults = params.showAllResults,
         showExpandControls = params.showExpandControls,
         onExpandClick = params.onExpandClick,
-        resultSectionTitle = params.resultSectionTitle,
         permissionDisabledCard = params.permissionDisabledCard,
         showWallpaperBackground = params.showWallpaperBackground
     )
@@ -180,7 +174,6 @@ fun RenderFilesSection(
         showAllResults = params.showAllResults,
         showExpandControls = params.showExpandControls,
         onExpandClick = params.onExpandClick,
-        resultSectionTitle = params.resultSectionTitle,
         permissionDisabledCard = params.permissionDisabledCard,
         showWallpaperBackground = params.showWallpaperBackground
     )
@@ -212,7 +205,6 @@ fun RenderAppsSection(
         pinnedPackageNames = params.pinnedPackageNames,
         showAppLabels = params.showAppLabels,
         modifier = modifier,
-        rowCount = params.rowCount,
-        resultSectionTitle = params.resultSectionTitle
+        rowCount = params.rowCount
     )
 }

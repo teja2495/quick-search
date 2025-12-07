@@ -129,8 +129,7 @@ private data class DerivedState(
     val shouldShowApps: Boolean,
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
-    val shouldShowSettings: Boolean,
-    val resultSectionTitle: @Composable (String) -> Unit
+    val shouldShowSettings: Boolean
 )
 
 /**
@@ -200,12 +199,6 @@ private fun rememberDerivedState(
     val shouldShowSettings = SearchSection.SETTINGS !in state.disabledSections &&
         (hasSettingResults || hasPinnedSettings)
     
-    val resultSectionTitle: @Composable (String) -> Unit = { text ->
-        if (state.showSectionTitles) {
-            ResultSectionTitle(text = text)
-        }
-    }
-    
     return DerivedState(
         isSearching = isSearching,
         hasPinnedContacts = hasPinnedContacts,
@@ -230,8 +223,7 @@ private fun rememberDerivedState(
         shouldShowApps = shouldShowApps,
         shouldShowContacts = shouldShowContacts,
         shouldShowFiles = shouldShowFiles,
-        shouldShowSettings = shouldShowSettings,
-        resultSectionTitle = resultSectionTitle
+        shouldShowSettings = shouldShowSettings
     )
 }
 
@@ -453,7 +445,6 @@ fun SearchScreen(
                 expandedSection = ExpandedSection.CONTACTS
             }
         },
-        resultSectionTitle = derivedState.resultSectionTitle,
         permissionDisabledCard = { title, message, actionLabel, onActionClick ->
             PermissionDisabledCard(
                 title = title,
@@ -499,7 +490,6 @@ fun SearchScreen(
                 expandedSection = ExpandedSection.FILES
             }
         },
-        resultSectionTitle = derivedState.resultSectionTitle,
         permissionDisabledCard = { title, message, actionLabel, onActionClick ->
             PermissionDisabledCard(
                 title = title,
@@ -543,7 +533,6 @@ fun SearchScreen(
                 expandedSection = ExpandedSection.SETTINGS
             }
         },
-        resultSectionTitle = derivedState.resultSectionTitle,
         showWallpaperBackground = state.showWallpaperBackground
     )
 
@@ -567,8 +556,7 @@ fun SearchScreen(
         },
         getAppNickname = getAppNickname,
         showAppLabels = state.showAppLabels || derivedState.isSearching,
-        rowCount = derivedState.visibleRowCount,
-        resultSectionTitle = derivedState.resultSectionTitle
+        rowCount = derivedState.visibleRowCount
     )
     
     val renderingState = SectionRenderingState(
@@ -814,22 +802,6 @@ sealed class NicknameDialogState {
         val itemName: String
     ) : NicknameDialogState()
 }
-
-@Composable
-private fun ResultSectionTitle(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 4.dp, end = 4.dp, bottom = 8.dp)
-    )
-}
-
 
 @Composable
 private fun PermissionDisabledCard(

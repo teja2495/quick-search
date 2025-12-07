@@ -55,8 +55,7 @@ fun AppGridSection(
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
     modifier: Modifier = Modifier,
-    rowCount: Int = ROW_COUNT,
-    resultSectionTitle: @Composable (String) -> Unit
+    rowCount: Int = ROW_COUNT
 ) {
     Column(
         modifier = modifier
@@ -70,9 +69,6 @@ fun AppGridSection(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (hasAppResults) {
-            resultSectionTitle(stringResource(R.string.apps_section_title))
-        }
         Crossfade(targetState = apps, label = "grid") { items ->
             if (items.isEmpty()) {
                 Box {}

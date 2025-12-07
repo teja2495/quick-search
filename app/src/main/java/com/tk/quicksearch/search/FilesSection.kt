@@ -79,7 +79,6 @@ fun FileResultsSection(
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
-    resultSectionTitle: @Composable (String) -> Unit,
     permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     showWallpaperBackground: Boolean = false
 ) {
@@ -90,8 +89,6 @@ fun FileResultsSection(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        resultSectionTitle(stringResource(R.string.files_section_title))
-        
         when {
             hasPermission && files.isNotEmpty() -> {
                 FilesResultCard(
