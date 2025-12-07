@@ -6,8 +6,6 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Do not restore first-launch state (keeps onboarding fresh after reinstall) -->
+    <exclude domain="sharedpref" path="first_launch_state.xml"/>
 </full-backup-content>

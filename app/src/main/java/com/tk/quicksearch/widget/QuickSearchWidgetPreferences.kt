@@ -14,11 +14,11 @@ import kotlinx.parcelize.Parcelize
 private object WidgetDefaults {
     val BORDER_COLOR = Color(0xFFE2E5F0)
     val BORDER_COLOR_ARGB = BORDER_COLOR.toArgb()
-    const val BORDER_RADIUS_DP = 24f
+    const val BORDER_RADIUS_DP = 30f
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
     const val BACKGROUND_COLOR_IS_WHITE = true
-    const val BACKGROUND_ALPHA = 1f
+    const val BACKGROUND_ALPHA = 0.35f
 }
 
 // Value ranges for validation

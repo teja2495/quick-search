@@ -40,7 +40,7 @@ fun SettingsNavigationCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = 16.dp,
+                    horizontal = 24.dp,
                     vertical = 16.dp
                 ),
             horizontalArrangement = Arrangement.SpaceBetween,

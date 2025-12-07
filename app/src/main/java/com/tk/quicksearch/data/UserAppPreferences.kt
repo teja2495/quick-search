@@ -2,6 +2,8 @@ package com.tk.quicksearch.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -18,19 +20,23 @@ import java.util.Locale
  */
 class UserAppPreferences(context: Context) {
 
+    private val appContext = context.applicationContext
+
     private val prefs: SharedPreferences =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val firstLaunchPrefs: SharedPreferences =
+        appContext.getSharedPreferences(FIRST_LAUNCH_PREFS_NAME, Context.MODE_PRIVATE)
     
     // Encrypted SharedPreferences for sensitive data like API keys
     // Falls back to regular SharedPreferences if encryption fails
     private val encryptedPrefs: SharedPreferences = run {
         try {
-            val masterKey = MasterKey.Builder(context)
+            val masterKey = MasterKey.Builder(appContext)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build()
             
             EncryptedSharedPreferences.create(
-                context,
+                appContext,
                 ENCRYPTED_PREFS_NAME,
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
@@ -39,7 +45,7 @@ class UserAppPreferences(context: Context) {
         } catch (e: Exception) {
             Log.w(TAG, "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences", e)
             // Fallback to regular SharedPreferences if encryption fails
-            context.getSharedPreferences(ENCRYPTED_PREFS_NAME, Context.MODE_PRIVATE)
+            appContext.getSharedPreferences(ENCRYPTED_PREFS_NAME, Context.MODE_PRIVATE)
         }
     }
 
@@ -474,10 +480,14 @@ class UserAppPreferences(context: Context) {
         setMessagingApp(if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES)
     }
 
-    fun isFirstLaunch(): Boolean = getBooleanPref(KEY_FIRST_LAUNCH, true)
+    fun isFirstLaunch(): Boolean {
+        syncInstallTimeWithBackup()
+        return getFirstLaunchFlag()
+    }
 
     fun setFirstLaunchCompleted() {
-        setBooleanPref(KEY_FIRST_LAUNCH, false)
+        setFirstLaunchFlag(false)
+        recordCurrentInstallTime()
     }
 
     fun shouldShowWallpaperBackground(): Boolean = getBooleanPref(KEY_SHOW_WALLPAPER_BACKGROUND, true)
@@ -620,11 +630,77 @@ class UserAppPreferences(context: Context) {
         return engine.getDefaultShortcutCode()
     }
 
+    private fun syncInstallTimeWithBackup() {
+        val currentInstallTime = getCurrentInstallTime() ?: return
+        val storedInstallTime = prefs.getLong(KEY_INSTALL_TIME, -1L)
+
+        if (storedInstallTime == -1L) {
+            prefs.edit().putLong(KEY_INSTALL_TIME, currentInstallTime).apply()
+            return
+        }
+
+        if (storedInstallTime != currentInstallTime) {
+            // Restored from backup on a fresh install: treat as first launch again
+            prefs.edit()
+                .putLong(KEY_INSTALL_TIME, currentInstallTime)
+                .apply()
+            setFirstLaunchFlag(true)
+        }
+    }
+
+    private fun recordCurrentInstallTime() {
+        val currentInstallTime = getCurrentInstallTime() ?: return
+        prefs.edit().putLong(KEY_INSTALL_TIME, currentInstallTime).apply()
+    }
+
+    private fun getCurrentInstallTime(): Long? {
+        return try {
+            val packageManager = appContext.packageManager
+            val packageName = appContext.packageName
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                ).firstInstallTime
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0).firstInstallTime
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to read install time", e)
+            null
+        }
+    }
+
+    private fun getFirstLaunchFlag(): Boolean {
+        // Prefer the dedicated non-backed-up prefs. If missing, infer a safe value.
+        if (!firstLaunchPrefs.contains(KEY_FIRST_LAUNCH)) {
+            val currentInstallTime = getCurrentInstallTime()
+            val isFreshInstall = currentInstallTime != null &&
+                System.currentTimeMillis() - currentInstallTime < FRESH_INSTALL_THRESHOLD_MS
+
+            // If this looks like a fresh install, default to true even if legacy prefs say otherwise.
+            val legacyValue = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
+            val initialValue = if (isFreshInstall) true else legacyValue
+            setFirstLaunchFlag(initialValue)
+            return initialValue
+        }
+
+        return firstLaunchPrefs.getBoolean(KEY_FIRST_LAUNCH, true)
+    }
+
+    private fun setFirstLaunchFlag(value: Boolean) {
+        firstLaunchPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
+        // Keep legacy location in sync for backward compatibility
+        prefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
+    }
+
     private companion object {
         private const val TAG = "UserAppPreferences"
         
         // SharedPreferences name
         private const val PREFS_NAME = "user_app_preferences"
+        private const val FIRST_LAUNCH_PREFS_NAME = "first_launch_state"
         private const val ENCRYPTED_PREFS_NAME = "encrypted_user_preferences"
 
         // App preferences keys
@@ -661,7 +737,11 @@ class UserAppPreferences(context: Context) {
         private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
         private const val KEY_MESSAGING_APP = "messaging_app"
         private const val KEY_FIRST_LAUNCH = "first_launch"
+        private const val KEY_INSTALL_TIME = "install_time"
         private const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
+
+        // Fresh install detection window (10 minutes)
+        private const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L
 
         // Section preferences keys
         private const val KEY_SECTION_ORDER = "section_order"

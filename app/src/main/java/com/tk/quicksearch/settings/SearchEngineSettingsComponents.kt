@@ -22,7 +22,7 @@ object SearchEngineSettingsSpacing {
     val cardVerticalPadding = 12.dp
     val cardTopPadding = 20.dp
     val cardBottomPadding = 20.dp
-    val rowHorizontalPadding = 16.dp
+    val rowHorizontalPadding = 24.dp
     val rowVerticalPadding = 12.dp
     val itemHeight = 60.dp // Approximate row height with padding
 }

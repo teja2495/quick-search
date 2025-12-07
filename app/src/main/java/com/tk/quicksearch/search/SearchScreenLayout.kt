@@ -74,17 +74,29 @@ fun SearchContentArea(
     scrollState: androidx.compose.foundation.ScrollState,
     onRetryDirectAnswer: () -> Unit
 ) {
-    val useKeyboardAlignedLayout = state.keyboardAlignedLayout && 
+    val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
+    val directAnswerState = state.directAnswerState
+    val showDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
+    val hideResultsForDirectAnswer = directAnswerState.status == DirectAnswerStatus.Success &&
+        !directAnswerState.answer.isNullOrBlank()
 
-    Box(
-        modifier = modifier.verticalScroll(scrollState)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+            .padding(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        if (showDirectAnswer) {
+            DirectAnswerResult(
+                directAnswerState = directAnswerState,
+                onRetry = onRetryDirectAnswer,
+                showWallpaperBackground = state.showWallpaperBackground
+            )
+        }
         ContentLayout(
-            modifier = Modifier
-                .align(if (useKeyboardAlignedLayout) Alignment.BottomCenter else Alignment.TopStart)
-                .fillMaxWidth()
-                .padding(bottom = 12.dp, top = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             state = state,
             renderingState = renderingState,
             contactsParams = contactsParams,
@@ -93,7 +105,7 @@ fun SearchContentArea(
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             isReversed = useKeyboardAlignedLayout,
-            onRetryDirectAnswer = onRetryDirectAnswer
+            hideResults = hideResultsForDirectAnswer
         )
     }
 }
@@ -112,20 +124,19 @@ private fun ContentLayout(
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     isReversed: Boolean,
-    onRetryDirectAnswer: () -> Unit
+    hideResults: Boolean
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        DirectAnswerResult(
-            directAnswerState = state.directAnswerState,
-            onRetry = onRetryDirectAnswer,
-            showWallpaperBackground = state.showWallpaperBackground
-        )
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
             InfoBanner(message = message)
+        }
+
+        if (hideResults) {
+            return
         }
 
         val hasQuery = state.query.isNotBlank()

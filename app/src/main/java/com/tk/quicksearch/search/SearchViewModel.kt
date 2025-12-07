@@ -332,9 +332,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun onQueryChange(newQuery: String) {
+        val previousQuery = _uiState.value.query
         val trimmedQuery = newQuery.trim()
         val directAnswerState = _uiState.value.directAnswerState
-        if (directAnswerState.activeQuery != null && directAnswerState.activeQuery != trimmedQuery) {
+        if (directAnswerState.status != DirectAnswerStatus.Idle && newQuery != previousQuery) {
+            clearDirectAnswerState()
+        } else if (directAnswerState.activeQuery != null && directAnswerState.activeQuery != trimmedQuery) {
             clearDirectAnswerState()
         }
 
