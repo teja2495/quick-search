@@ -706,7 +706,13 @@ fun SearchScreen(
                 query = state.query,
                 hasAppResults = derivedState.hasAppResults,
                 enabledEngines = enabledEngines,
-                onSearchEngineClick = onSearchEngineClick,
+                onSearchEngineClick = { query, engine ->
+                    // Keep keyboard visible when generating direct answer
+                    if (engine == SearchEngine.DIRECT_ANSWER) {
+                        keyboardController?.show()
+                    }
+                    onSearchEngineClick(query, engine)
+                },
                 modifier = Modifier.imePadding()
             )
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {
