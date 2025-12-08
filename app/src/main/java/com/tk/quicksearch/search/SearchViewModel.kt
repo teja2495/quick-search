@@ -107,6 +107,8 @@ data class SearchUiState(
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
     val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     val messagingApp: MessagingApp = MessagingApp.MESSAGES,
+    val isWhatsAppInstalled: Boolean = false,
+    val isTelegramInstalled: Boolean = false,
     val showWallpaperBackground: Boolean = true,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
@@ -183,6 +185,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // Set cached apps immediately
             cachedApps = cachedAppsList
             val lastUpdated = repository.cacheLastUpdatedMillis()
+            val packageNames = cachedAppsList.map { it.packageName }.toSet()
+            val isWhatsAppInstalled = packageNames.contains(WHATSAPP_PACKAGE)
+            val isTelegramInstalled = packageNames.contains(TELEGRAM_PACKAGE)
+            val resolvedMessagingApp = updateMessagingAvailability(
+                isWhatsAppInstalled = isWhatsAppInstalled,
+                isTelegramInstalled = isTelegramInstalled,
+                updateState = false
+            )
             
             // Initialize UI state with cached data - UI appears instantly
             _uiState.update { 
@@ -196,7 +206,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutsEnabled = shortcutsEnabled,
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
-                    messagingApp = messagingApp,
+                    messagingApp = resolvedMessagingApp,
+                    isWhatsAppInstalled = isWhatsAppInstalled,
+                    isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
@@ -210,6 +222,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
         } else {
             // No cache - initialize with defaults
+            val isWhatsAppInstalled = isPackageInstalled(WHATSAPP_PACKAGE)
+            val isTelegramInstalled = isPackageInstalled(TELEGRAM_PACKAGE)
+            val resolvedMessagingApp = updateMessagingAvailability(
+                isWhatsAppInstalled = isWhatsAppInstalled,
+                isTelegramInstalled = isTelegramInstalled,
+                updateState = false
+            )
             _uiState.update { 
                 it.copy(
                     showAppLabels = showAppLabels,
@@ -220,7 +239,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutsEnabled = shortcutsEnabled,
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
-                    messagingApp = messagingApp,
+                    messagingApp = resolvedMessagingApp,
+                    isWhatsAppInstalled = isWhatsAppInstalled,
+                    isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
@@ -323,12 +344,54 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private fun resolveMessagingApp(
+        isWhatsAppInstalled: Boolean,
+        isTelegramInstalled: Boolean
+    ): MessagingApp {
+        return when (messagingApp) {
+            MessagingApp.WHATSAPP -> if (isWhatsAppInstalled) MessagingApp.WHATSAPP else MessagingApp.MESSAGES
+            MessagingApp.TELEGRAM -> if (isTelegramInstalled) MessagingApp.TELEGRAM else MessagingApp.MESSAGES
+            MessagingApp.MESSAGES -> MessagingApp.MESSAGES
+        }
+    }
+
+    private fun updateMessagingAvailability(
+        isWhatsAppInstalled: Boolean,
+        isTelegramInstalled: Boolean,
+        updateState: Boolean = true
+    ): MessagingApp {
+        val resolvedMessagingApp = resolveMessagingApp(isWhatsAppInstalled, isTelegramInstalled)
+        if (resolvedMessagingApp != messagingApp) {
+            messagingApp = resolvedMessagingApp
+            userPreferences.setMessagingApp(resolvedMessagingApp)
+        }
+
+        if (updateState) {
+            _uiState.update { state ->
+                state.copy(
+                    messagingApp = messagingApp,
+                    isWhatsAppInstalled = isWhatsAppInstalled,
+                    isTelegramInstalled = isTelegramInstalled
+                )
+            }
+        }
+
+        return resolvedMessagingApp
+    }
+
+    private fun isPackageInstalled(packageName: String): Boolean {
+        val packageManager = getApplication<Application>().packageManager
+        return packageManager.getLaunchIntentForPackage(packageName) != null
+    }
+
     fun setMessagingApp(app: MessagingApp) {
         messagingApp = app
-        userPreferences.setMessagingApp(app)
-        _uiState.update { state ->
-            state.copy(messagingApp = messagingApp)
-        }
+        val whatsappInstalled = _uiState.value.isWhatsAppInstalled
+        val telegramInstalled = _uiState.value.isTelegramInstalled
+        updateMessagingAvailability(
+            isWhatsAppInstalled = whatsappInstalled,
+            isTelegramInstalled = telegramInstalled
+        )
     }
 
     fun onQueryChange(newQuery: String) {
@@ -1316,6 +1379,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     companion object {
+        private const val WHATSAPP_PACKAGE = "com.whatsapp"
+        private const val TELEGRAM_PACKAGE = "org.telegram.messenger"
         private const val GRID_ITEM_COUNT = 10
     }
 
@@ -1351,6 +1416,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
+        val packageNames = apps.map { it.packageName }.toSet()
+        val isWhatsAppInstalled = packageNames.contains(WHATSAPP_PACKAGE)
+        val isTelegramInstalled = packageNames.contains(TELEGRAM_PACKAGE)
+        val resolvedMessagingApp = updateMessagingAvailability(
+            isWhatsAppInstalled = isWhatsAppInstalled,
+            isTelegramInstalled = isTelegramInstalled,
+            updateState = false
+        )
         val searchResults = if (trimmedQuery.isBlank()) {
             emptyList()
         } else {
@@ -1371,7 +1444,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 hiddenApps = hiddenAppList,
                 indexedAppCount = visibleAppList.size,
                 cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
-                isLoading = isLoading ?: state.isLoading
+                isLoading = isLoading ?: state.isLoading,
+                messagingApp = resolvedMessagingApp,
+                isWhatsAppInstalled = isWhatsAppInstalled,
+                isTelegramInstalled = isTelegramInstalled
             )
         }
     }

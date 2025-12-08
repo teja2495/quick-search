@@ -63,6 +63,8 @@ fun SettingsDetailRoute(
         shortcutCodes = uiState.shortcutCodes,
         shortcutEnabled = uiState.shortcutEnabled,
         messagingApp = uiState.messagingApp,
+        isWhatsAppInstalled = uiState.isWhatsAppInstalled,
+        isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,

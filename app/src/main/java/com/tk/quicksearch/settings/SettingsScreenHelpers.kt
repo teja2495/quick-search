@@ -42,6 +42,8 @@ data class SettingsScreenState(
     val shortcutCodes: Map<SearchEngine, String>,
     val shortcutEnabled: Map<SearchEngine, Boolean>,
     val messagingApp: MessagingApp,
+    val isWhatsAppInstalled: Boolean,
+    val isTelegramInstalled: Boolean,
     val showWallpaperBackground: Boolean,
     val sectionOrder: List<SearchSection>,
     val disabledSections: Set<SearchSection>,

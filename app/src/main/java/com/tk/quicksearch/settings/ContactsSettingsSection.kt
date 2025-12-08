@@ -68,6 +68,8 @@ private fun SettingsRadioRow(
  * @param messagingApp Currently selected messaging app
  * @param onSetMessagingApp Callback when the messaging option changes
  * @param contactsSectionEnabled Whether the contacts section is enabled. If false, this section is not displayed.
+ * @param isWhatsAppInstalled Whether WhatsApp is available on the device
+ * @param isTelegramInstalled Whether Telegram is available on the device
  * @param modifier Modifier to be applied to the section title
  */
 @Composable
@@ -75,10 +77,29 @@ fun MessagingSection(
     messagingApp: MessagingApp,
     onSetMessagingApp: (MessagingApp) -> Unit,
     contactsSectionEnabled: Boolean = true,
+    isWhatsAppInstalled: Boolean = false,
+    isTelegramInstalled: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     if (!contactsSectionEnabled) {
         return
+    }
+
+    // Hide the setting completely if neither optional messaging app is installed
+    if (!isWhatsAppInstalled && !isTelegramInstalled) {
+        return
+    }
+
+    data class MessagingOption(val app: MessagingApp, val labelRes: Int)
+
+    val messagingOptions = buildList {
+        add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
+        if (isWhatsAppInstalled) {
+            add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
+        }
+        if (isTelegramInstalled) {
+            add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
+        }
     }
     
     // Section title
@@ -103,36 +124,19 @@ fun MessagingSection(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            // Messages option
-            SettingsRadioRow(
-                text = stringResource(R.string.settings_messaging_option_messages),
-                selected = messagingApp == MessagingApp.MESSAGES,
-                onClick = { onSetMessagingApp(MessagingApp.MESSAGES) }
-            )
-            
-            // Divider
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-            
-            // WhatsApp option
-            SettingsRadioRow(
-                text = stringResource(R.string.settings_messaging_option_whatsapp),
-                selected = messagingApp == MessagingApp.WHATSAPP,
-                onClick = { onSetMessagingApp(MessagingApp.WHATSAPP) }
-            )
-            
-            // Divider
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-            
-            // Telegram option
-            SettingsRadioRow(
-                text = stringResource(R.string.settings_messaging_option_telegram),
-                selected = messagingApp == MessagingApp.TELEGRAM,
-                onClick = { onSetMessagingApp(MessagingApp.TELEGRAM) }
-            )
+            messagingOptions.forEachIndexed { index, option ->
+                SettingsRadioRow(
+                    text = stringResource(option.labelRes),
+                    selected = messagingApp == option.app,
+                    onClick = { onSetMessagingApp(option.app) }
+                )
+
+                if (index < messagingOptions.lastIndex) {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
         }
     }
 }

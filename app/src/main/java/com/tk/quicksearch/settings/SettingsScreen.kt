@@ -77,6 +77,8 @@ fun SettingsRoute(
         shortcutCodes = uiState.shortcutCodes,
         shortcutEnabled = uiState.shortcutEnabled,
         messagingApp = uiState.messagingApp,
+        isWhatsAppInstalled = uiState.isWhatsAppInstalled,
+        isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -312,6 +314,8 @@ private fun SettingsScreen(
                 messagingApp = state.messagingApp,
                 onSetMessagingApp = callbacks.onSetMessagingApp,
                 contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
+                isWhatsAppInstalled = state.isWhatsAppInstalled,
+                isTelegramInstalled = state.isTelegramInstalled,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
