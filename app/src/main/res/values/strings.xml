@@ -32,6 +32,7 @@
     <string name="direct_answer_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_answer_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
     <string name="direct_answer_action_retry">Retry</string>
+    <string name="error_open_email">No email app found to send mail.</string>
 
     <!-- ============================================================================
          Apps Section

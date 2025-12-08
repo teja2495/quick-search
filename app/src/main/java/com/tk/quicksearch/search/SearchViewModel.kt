@@ -1574,6 +1574,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         IntentHelpers.openContact(getApplication(), contactInfo)
     }
 
+    fun openEmail(email: String) {
+        IntentHelpers.composeEmail(getApplication(), email)
+    }
+
     fun callContact(contactInfo: ContactInfo) {
         val context = getApplication<Application>()
         if (contactInfo.phoneNumbers.isEmpty()) {

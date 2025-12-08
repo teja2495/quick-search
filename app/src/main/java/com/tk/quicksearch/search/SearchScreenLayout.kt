@@ -83,7 +83,8 @@ fun SearchContentArea(
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
     onRetryDirectAnswer: () -> Unit,
-    onPhoneNumberClick: (String) -> Unit = {}
+    onPhoneNumberClick: (String) -> Unit = {},
+    onEmailClick: (String) -> Unit = {}
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
@@ -104,7 +105,8 @@ fun SearchContentArea(
                 directAnswerState = directAnswerState,
                 onRetry = onRetryDirectAnswer,
                 showWallpaperBackground = state.showWallpaperBackground,
-                onPhoneNumberClick = onPhoneNumberClick
+                onPhoneNumberClick = onPhoneNumberClick,
+                onEmailClick = onEmailClick
             )
         }
         ContentLayout(
@@ -222,7 +224,8 @@ private fun DirectAnswerResult(
     directAnswerState: DirectAnswerState,
     onRetry: () -> Unit,
     showWallpaperBackground: Boolean = false,
-    onPhoneNumberClick: (String) -> Unit = {}
+    onPhoneNumberClick: (String) -> Unit = {},
+    onEmailClick: (String) -> Unit = {}
 ) {
     if (directAnswerState.status == DirectAnswerStatus.Idle) return
 
@@ -252,11 +255,12 @@ private fun DirectAnswerResult(
                 }
                 DirectAnswerStatus.Success -> {
                     directAnswerState.answer?.let { answer ->
-                        ClickablePhoneNumberText(
+                        ClickableDirectAnswerText(
                             text = answer,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
-                            onPhoneNumberClick = onPhoneNumberClick
+                            onPhoneNumberClick = onPhoneNumberClick,
+                            onEmailClick = onEmailClick
                         )
                     }
                 }
@@ -450,70 +454,99 @@ private fun ExpandedPinnedSections(
 }
 
 /**
- * Composable that displays text with clickable phone numbers.
+ * Composable that displays text with clickable phone numbers and email IDs.
  */
 @Composable
-private fun ClickablePhoneNumberText(
+private fun ClickableDirectAnswerText(
     text: String,
     style: androidx.compose.ui.text.TextStyle,
     color: Color,
-    onPhoneNumberClick: (String) -> Unit
+    onPhoneNumberClick: (String) -> Unit,
+    onEmailClick: (String) -> Unit
 ) {
-    // Regex pattern to match phone numbers
-    // Matches patterns like: +1234567890, (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890
-    val phonePattern = Regex(
-        """(\+?\d{1,3}[\s.-]?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}"""
+    // Regex patterns to match different entities
+    val phonePattern = Regex("""(\+?\d{1,3}[\s.-]?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}""")
+    val emailPattern = Regex("""[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}""")
+
+    data class ClickableMatch(
+        val range: IntRange,
+        val tag: String,
+        val value: String
     )
-    
+
+    fun rangesOverlap(a: IntRange, b: IntRange): Boolean {
+        return a.first <= b.last && b.first <= a.last
+    }
+
+    val matches = mutableListOf<ClickableMatch>()
+
+    phonePattern.findAll(text).forEach { matchResult ->
+        val phoneNumber = matchResult.value
+        val cleanedNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
+        if (cleanedNumber != null) {
+            matches.add(ClickableMatch(matchResult.range, "PHONE", cleanedNumber))
+        }
+    }
+
+    emailPattern.findAll(text).forEach { matchResult ->
+        matches.add(ClickableMatch(matchResult.range, "EMAIL", matchResult.value))
+    }
+
+    // Remove overlapping matches by keeping the earliest occurrences
+    val dedupedMatches = matches
+        .sortedBy { it.range.first }
+        .fold(mutableListOf<ClickableMatch>()) { acc, match ->
+            if (acc.none { rangesOverlap(it.range, match.range) }) {
+                acc.add(match)
+            }
+            acc
+        }
+
     val annotatedString = buildAnnotatedString {
         var lastIndex = 0
-        
-        phonePattern.findAll(text).forEach { matchResult ->
-            val phoneNumber = matchResult.value
-            val startIndex = matchResult.range.first
-            val endIndex = matchResult.range.last + 1
-            
-            // Validate the phone number
-            val cleanedNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
-            if (cleanedNumber != null) {
-                // Add text before the phone number
+
+        dedupedMatches.forEach { match ->
+            val startIndex = match.range.first
+            val endIndex = match.range.last + 1
+
+            if (startIndex > lastIndex) {
                 append(text.substring(lastIndex, startIndex))
-                
-                // Add clickable phone number with underline
-                pushStringAnnotation(
-                    tag = "PHONE",
-                    annotation = cleanedNumber
-                )
-                withStyle(
-                    style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append(phoneNumber)
-                }
-                pop()
-                
-                lastIndex = endIndex
             }
+
+            pushStringAnnotation(
+                tag = match.tag,
+                annotation = match.value
+            )
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(text.substring(startIndex, endIndex))
+            }
+            pop()
+
+            lastIndex = endIndex
         }
-        
-        // Add remaining text
+
         if (lastIndex < text.length) {
             append(text.substring(lastIndex))
         }
     }
-    
+
     ClickableText(
         text = annotatedString,
         style = style.copy(color = color),
         onClick = { offset ->
             annotatedString.getStringAnnotations(
-                tag = "PHONE",
                 start = offset,
                 end = offset
             ).firstOrNull()?.let { annotation ->
-                onPhoneNumberClick(annotation.item)
+                when (annotation.tag) {
+                    "PHONE" -> onPhoneNumberClick(annotation.item)
+                    "EMAIL" -> onEmailClick(annotation.item)
+                }
             }
         }
     )
