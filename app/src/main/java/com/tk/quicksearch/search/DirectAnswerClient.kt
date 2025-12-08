@@ -20,10 +20,9 @@ class DirectAnswerClient(private val apiKey: String) {
         private const val BASE_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
         private const val SYSTEM_PROMPT =
-            "Always put the direct answer at the start of the first sentence, then follow with brief supporting details. " +
-            "Write in simple words and keep responses concise (2-3 sentences total) in one paragraph with no new lines. " +
-            "Do not use markdown, bullet points, emphasis, or special characters like *, _, `, or ~. " +
-            "Return plain text only."
+            "Return only the direct answer as a single short sentence. " +
+            "Provide additional context ONLY when its really needed. " +
+            "Use plain text with no markdown, bullets, emphasis, or special characters."
     }
 
     suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
