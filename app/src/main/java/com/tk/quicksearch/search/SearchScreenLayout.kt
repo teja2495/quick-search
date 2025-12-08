@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,13 +21,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.util.PhoneNumberUtils
 
 /**
  * Data class holding all the state needed for section rendering.
@@ -72,7 +82,8 @@ fun SearchContentArea(
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
-    onRetryDirectAnswer: () -> Unit
+    onRetryDirectAnswer: () -> Unit,
+    onPhoneNumberClick: (String) -> Unit = {}
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
@@ -92,7 +103,8 @@ fun SearchContentArea(
             DirectAnswerResult(
                 directAnswerState = directAnswerState,
                 onRetry = onRetryDirectAnswer,
-                showWallpaperBackground = state.showWallpaperBackground
+                showWallpaperBackground = state.showWallpaperBackground,
+                onPhoneNumberClick = onPhoneNumberClick
             )
         }
         ContentLayout(
@@ -209,7 +221,8 @@ private fun ContentLayout(
 private fun DirectAnswerResult(
     directAnswerState: DirectAnswerState,
     onRetry: () -> Unit,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
+    onPhoneNumberClick: (String) -> Unit = {}
 ) {
     if (directAnswerState.status == DirectAnswerStatus.Idle) return
 
@@ -239,10 +252,11 @@ private fun DirectAnswerResult(
                 }
                 DirectAnswerStatus.Success -> {
                     directAnswerState.answer?.let { answer ->
-                        Text(
+                        ClickablePhoneNumberText(
                             text = answer,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            onPhoneNumberClick = onPhoneNumberClick
                         )
                     }
                 }
@@ -433,4 +447,74 @@ private fun ExpandedPinnedSections(
     renderingState.orderedSections.forEach { section ->
         renderSection(section, params, context)
     }
+}
+
+/**
+ * Composable that displays text with clickable phone numbers.
+ */
+@Composable
+private fun ClickablePhoneNumberText(
+    text: String,
+    style: androidx.compose.ui.text.TextStyle,
+    color: Color,
+    onPhoneNumberClick: (String) -> Unit
+) {
+    // Regex pattern to match phone numbers
+    // Matches patterns like: +1234567890, (123) 456-7890, 123-456-7890, 123.456.7890, 1234567890
+    val phonePattern = Regex(
+        """(\+?\d{1,3}[\s.-]?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}"""
+    )
+    
+    val annotatedString = buildAnnotatedString {
+        var lastIndex = 0
+        
+        phonePattern.findAll(text).forEach { matchResult ->
+            val phoneNumber = matchResult.value
+            val startIndex = matchResult.range.first
+            val endIndex = matchResult.range.last + 1
+            
+            // Validate the phone number
+            val cleanedNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
+            if (cleanedNumber != null) {
+                // Add text before the phone number
+                append(text.substring(lastIndex, startIndex))
+                
+                // Add clickable phone number with underline
+                pushStringAnnotation(
+                    tag = "PHONE",
+                    annotation = cleanedNumber
+                )
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(phoneNumber)
+                }
+                pop()
+                
+                lastIndex = endIndex
+            }
+        }
+        
+        // Add remaining text
+        if (lastIndex < text.length) {
+            append(text.substring(lastIndex))
+        }
+    }
+    
+    ClickableText(
+        text = annotatedString,
+        style = style.copy(color = color),
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(
+                tag = "PHONE",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                onPhoneNumberClick(annotation.item)
+            }
+        }
+    )
 }

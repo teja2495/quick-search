@@ -701,7 +701,17 @@ fun SearchScreen(
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             scrollState = scrollState,
-            onRetryDirectAnswer = onRetryDirectAnswer
+            onRetryDirectAnswer = onRetryDirectAnswer,
+            onPhoneNumberClick = { phoneNumber ->
+                // Create a temporary ContactInfo to use the call functionality
+                val tempContact = ContactInfo(
+                    contactId = -1L,
+                    lookupKey = "",
+                    displayName = "Direct Answer",
+                    phoneNumbers = listOf(phoneNumber)
+                )
+                onCallContact(tempContact)
+            }
         )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
