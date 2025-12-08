@@ -21,8 +21,8 @@ class DirectAnswerClient(private val apiKey: String) {
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
         private const val SYSTEM_PROMPT =
             "Return only the direct answer as a single short sentence. " +
-            "Provide additional context ONLY when its really needed. " +
-            "Use plain text with no markdown, bullets, emphasis, or special characters."
+            "Provide additional context ONLY when its needed. " +
+            "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~."
     }
 
     suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
@@ -114,7 +114,8 @@ class DirectAnswerClient(private val apiKey: String) {
             if (parts.length() == 0) return null
             val firstPart = parts.getJSONObject(0)
             val rawAnswer = firstPart.optString("text")
-            rawAnswer.takeIf { it.isNotBlank() }
+            val sanitizedAnswer = rawAnswer.replace("*", "").trim()
+            sanitizedAnswer.takeIf { it.isNotBlank() }
         }.getOrNull()
     }
 

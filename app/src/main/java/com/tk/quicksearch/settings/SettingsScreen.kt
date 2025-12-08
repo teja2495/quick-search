@@ -309,6 +309,14 @@ private fun SettingsScreen(
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
+            // Search Engine Section - Navigation Card
+            SettingsNavigationCard(
+                title = stringResource(R.string.settings_search_engines_title),
+                description = stringResource(R.string.settings_search_engines_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+            )
+            
             // Contacts Section
             MessagingSection(
                 messagingApp = state.messagingApp,
@@ -324,14 +332,6 @@ private fun SettingsScreen(
                 enabledFileTypes = state.enabledFileTypes,
                 onToggleFileType = callbacks.onToggleFileType,
                 filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
-            // Search Engine Section - Navigation Card
-            SettingsNavigationCard(
-                title = stringResource(R.string.settings_search_engines_title),
-                description = stringResource(R.string.settings_search_engines_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             
