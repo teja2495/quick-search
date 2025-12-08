@@ -665,6 +665,7 @@ fun SearchScreen(
             onQueryChange = onQueryChanged,
             onClearQuery = onClearQuery,
             onSettingsClick = onSettingsClick,
+            enabledEngines = enabledEngines,
             onSearchAction = {
                 if (state.query.isBlank()) return@PersistentSearchField
 
@@ -674,6 +675,10 @@ fun SearchScreen(
                 } else {
                     val primaryEngine = enabledEngines.firstOrNull()
                     if (primaryEngine != null) {
+                        // Keep keyboard visible when generating direct answer
+                        if (primaryEngine == SearchEngine.DIRECT_ANSWER) {
+                            keyboardController?.show()
+                        }
                         onSearchEngineClick(state.query, primaryEngine)
                     }
                 }
@@ -854,6 +859,7 @@ private fun PersistentSearchField(
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
     onSettingsClick: () -> Unit,
+    enabledEngines: List<SearchEngine>,
     onSearchAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -987,8 +993,12 @@ private fun PersistentSearchField(
                     onSearch = {
                         if (query.isNotBlank()) {
                             onSearchAction()
+                            // Only hide keyboard if the first engine is not DIRECT_ANSWER
+                            val firstEngine = enabledEngines.firstOrNull()
+                            if (firstEngine != SearchEngine.DIRECT_ANSWER) {
+                                keyboardController?.hide()
+                            }
                         }
-                        keyboardController?.hide()
                     }
                 ),
                 colors = TextFieldDefaults.colors(

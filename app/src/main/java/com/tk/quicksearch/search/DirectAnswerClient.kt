@@ -20,10 +20,10 @@ class DirectAnswerClient(private val apiKey: String) {
         private const val BASE_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
         private const val SYSTEM_PROMPT =
-            "You are Direct Answer for Quick Search. Use Google Search grounding to stay factual. " +
-            "Keep responses concise (1-2 sentences). " +
-            "Do not add any formatting, markdown, or special characters. Return plain text only. " +
-            "Do not show any thinking, reasoning steps, or system text."
+            "Always put the direct answer at the start of the first sentence, then follow with brief supporting details. " +
+            "Write in simple words and keep responses concise (2-3 sentences total) in one paragraph with no new lines. " +
+            "Do not use markdown, bullet points, emphasis, or special characters like *, _, `, or ~. " +
+            "Return plain text only."
     }
 
     suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
@@ -114,7 +114,8 @@ class DirectAnswerClient(private val apiKey: String) {
             val parts = content.optJSONArray("parts") ?: return null
             if (parts.length() == 0) return null
             val firstPart = parts.getJSONObject(0)
-            firstPart.optString("text").takeIf { it.isNotBlank() }
+            val rawAnswer = firstPart.optString("text")
+            rawAnswer.takeIf { it.isNotBlank() }
         }.getOrNull()
     }
 
