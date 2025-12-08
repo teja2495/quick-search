@@ -667,7 +667,13 @@ fun SearchScreen(
             onSettingsClick = onSettingsClick,
             enabledEngines = enabledEngines,
             onSearchAction = {
-                if (state.query.isBlank()) return@PersistentSearchField
+                val trimmedQuery = state.query.trim()
+                if (trimmedQuery.isBlank()) return@PersistentSearchField
+
+                // If query has trailing/leading spaces, trim it first
+                if (state.query != trimmedQuery) {
+                    onQueryChanged(trimmedQuery)
+                }
 
                 val firstApp = derivedState.displayApps.firstOrNull()
                 if (firstApp != null) {
@@ -679,7 +685,7 @@ fun SearchScreen(
                         if (primaryEngine == SearchEngine.DIRECT_ANSWER) {
                             keyboardController?.show()
                         }
-                        onSearchEngineClick(state.query, primaryEngine)
+                        onSearchEngineClick(trimmedQuery, primaryEngine)
                     }
                 }
             }
