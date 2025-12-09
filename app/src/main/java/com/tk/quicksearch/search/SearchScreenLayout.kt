@@ -102,7 +102,8 @@ fun SearchContentArea(
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        val verticalArrangement = if (useKeyboardAlignedLayout) {
+        // Ignore bottom alignment when direct answer card is showing
+        val verticalArrangement = if (useKeyboardAlignedLayout && !showDirectAnswer) {
             Arrangement.spacedBy(12.dp, Alignment.Bottom)
         } else {
             Arrangement.spacedBy(12.dp)
@@ -134,7 +135,8 @@ fun SearchContentArea(
                 settingsParams = settingsParams,
                 appsParams = appsParams,
                 onRequestUsagePermission = onRequestUsagePermission,
-                isReversed = useKeyboardAlignedLayout,
+                // Ignore keyboard-aligned layout when direct answer card is showing
+                isReversed = useKeyboardAlignedLayout && !showDirectAnswer,
                 hideResults = hideResultsForDirectAnswer
             )
         }

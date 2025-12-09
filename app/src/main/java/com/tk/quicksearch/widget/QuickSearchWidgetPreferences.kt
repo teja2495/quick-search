@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 
 // Default values
 private object WidgetDefaults {
-    val BORDER_COLOR = Color(0xFFE2E5F0)
+    val BORDER_COLOR = Color.Black
     val BORDER_COLOR_ARGB = BORDER_COLOR.toArgb()
     const val BORDER_RADIUS_DP = 30f
     const val BORDER_WIDTH_DP = 1.5f
