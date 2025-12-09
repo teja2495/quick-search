@@ -22,11 +22,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -358,17 +356,13 @@ private fun SettingsScreen(
                 )
             }
 
-            DirectDialSettingsCard(
-                enabled = state.directDialEnabled,
-                hasCallPermission = hasCallPermission,
-                onToggle = callbacks.onToggleDirectDial,
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
             // Contacts Section
             MessagingSection(
                 messagingApp = state.messagingApp,
                 onSetMessagingApp = callbacks.onSetMessagingApp,
+                directDialEnabled = state.directDialEnabled,
+                onToggleDirectDial = callbacks.onToggleDirectDial,
+                hasCallPermission = hasCallPermission,
                 contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
                 isWhatsAppInstalled = state.isWhatsAppInstalled,
                 isTelegramInstalled = state.isTelegramInstalled,
@@ -449,47 +443,6 @@ private fun SettingsScreen(
             // App Version
             Spacer(modifier = Modifier.height(16.dp))
             SettingsVersionDisplay()
-        }
-    }
-}
-
-@Composable
-private fun DirectDialSettingsCard(
-    enabled: Boolean,
-    hasCallPermission: Boolean,
-    onToggle: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SettingsSpacing.singleCardPadding),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_direct_dial_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.settings_direct_dial_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Switch(
-                checked = enabled && hasCallPermission,
-                onCheckedChange = onToggle
-            )
         }
     }
 }

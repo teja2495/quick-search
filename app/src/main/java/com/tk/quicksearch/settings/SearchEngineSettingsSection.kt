@@ -240,7 +240,7 @@ private fun SearchEngineToggleCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                        .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
@@ -274,7 +274,7 @@ private fun SearchEngineToggleCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                        .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -304,7 +304,7 @@ private fun SearchEngineToggleCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                        .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
                     ) {

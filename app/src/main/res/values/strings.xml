@@ -267,7 +267,7 @@
     <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
-    <string name="settings_add_shortcut">Add Shortcut</string>
+    <string name="settings_add_shortcut">Setup Shortcut</string>
     <string name="settings_direct_search_toggle">Direct Search</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
@@ -287,8 +287,9 @@
     <!-- ============================================================================
          Settings - Messaging
          ============================================================================ -->
-    <string name="settings_messaging_title">Default Messaging App</string>
-    <string name="settings_messaging_desc">Choose which app to use when messaging contacts.</string>
+    <string name="settings_messaging_title">Calls &amp; Texts</string>
+    <string name="settings_messaging_desc">Manage how you place calls and send messages.</string>
+    <string name="settings_messaging_card_title">Default messaging app</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="settings_messaging_option_telegram">Telegram</string>
