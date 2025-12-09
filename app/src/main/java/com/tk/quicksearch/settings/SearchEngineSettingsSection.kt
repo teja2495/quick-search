@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -22,6 +24,8 @@ import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -42,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
@@ -191,6 +196,8 @@ private fun SearchEngineToggleCard(
 ) {
     var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val geminiGuideUrl = "https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311"
     
     ElevatedCard(
         modifier = Modifier
@@ -198,41 +205,45 @@ private fun SearchEngineToggleCard(
             .padding(bottom = 12.dp),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column {
-            Text(
-                text = stringResource(R.string.settings_direct_search_toggle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(
-                    start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                    top = SearchEngineSettingsSpacing.cardTopPadding,
-                    end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                    bottom = 4.dp
-                )
+        Column(
+            modifier = Modifier.padding(
+                horizontal = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                vertical = SearchEngineSettingsSpacing.cardTopPadding
             )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.direct_answer),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = stringResource(R.string.settings_direct_search_toggle),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
             if (directSearchEnabled && geminiApiKeyLast4 != null) {
                 Text(
                     text = "Your Gemini API key:  ****$geminiApiKeyLast4",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(
-                        start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                        end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                        bottom = SearchEngineSettingsSpacing.cardVerticalPadding
-                    )
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
+                
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                            end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                            bottom = SearchEngineSettingsSpacing.cardBottomPadding
-                        ),
-                    horizontalArrangement = Arrangement.Center
+                        .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
+                    Button(
                         onClick = {
                             apiKeyInput = ""
                             showInput = false
@@ -245,37 +256,27 @@ private fun SearchEngineToggleCard(
             } else {
                 Text(
                     text = stringResource(R.string.settings_direct_search_desc),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(
-                        start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                        end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                        bottom = SearchEngineSettingsSpacing.cardVerticalPadding
-                    )
+                    modifier = Modifier.padding(bottom = 20.dp)
                 )
+                
                 if (showInput) {
                     OutlinedTextField(
                         value = apiKeyInput,
                         onValueChange = { apiKeyInput = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                                end = SearchEngineSettingsSpacing.cardHorizontalPadding
-                            ),
+                            .padding(bottom = 16.dp),
                         placeholder = { Text(text = "Paste Gemini API key") },
                         singleLine = true
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                                end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                                bottom = SearchEngineSettingsSpacing.cardBottomPadding,
-                                top = SearchEngineSettingsSpacing.cardVerticalPadding
-                            ),
-                        horizontalArrangement = Arrangement.End
+                            .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(
                             onClick = {
@@ -303,18 +304,28 @@ private fun SearchEngineToggleCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                                end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                                bottom = SearchEngineSettingsSpacing.cardBottomPadding,
-                                top = 0.dp
-                            ),
-                        horizontalArrangement = Arrangement.Center
+                            .padding(bottom = SearchEngineSettingsSpacing.cardBottomPadding),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(
+                            onClick = {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(geminiGuideUrl)
+                                )
+                                runCatching { context.startActivity(intent) }
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.settings_direct_search_how_to))
+                        }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Button(
                             onClick = { showInput = true }
                         ) {
-                            Text(text = "Add Gemini API Key")
+                            Text(text = "Add Key")
                         }
                     }
                 }
