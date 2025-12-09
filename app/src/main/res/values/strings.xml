@@ -32,7 +32,7 @@
     <string name="empty_state_section_contacts">contacts</string>
     <string name="empty_state_section_files">files</string>
     <string name="empty_state_section_settings">settings</string>
-    <string name="direct_answer_title">Direct Search Setup</string>
+    <string name="direct_answer_title">Direct Search</string>
     <string name="direct_answer_loading">Getting answer\u2026</string>
     <string name="direct_answer_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_answer_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
@@ -273,7 +273,7 @@
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
-    <string name="settings_direct_search_toggle">Direct Search</string>
+    <string name="settings_direct_search_toggle">Direct Search Setup</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_direct_dial_title">Direct Dial</string>
