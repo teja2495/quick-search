@@ -22,6 +22,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,9 +70,9 @@ fun SettingsDetailRoute(
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
-        shortcutsEnabled = uiState.shortcutsEnabled,
         amazonDomain = uiState.amazonDomain,
-        hasGeminiApiKey = uiState.hasGeminiApiKey
+        hasGeminiApiKey = uiState.hasGeminiApiKey,
+        geminiApiKeyLast4 = uiState.geminiApiKeyLast4
     )
     
     val callbacks = SettingsScreenCallbacks(
@@ -93,7 +94,6 @@ fun SettingsDetailRoute(
         onToggleSection = { _, _ -> },
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
-        onToggleShortcutsEnabled = viewModel::setShortcutsEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey
     )
@@ -142,7 +142,17 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
                     SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
                 },
-                onBack = callbacks.onBack
+                onBack = callbacks.onBack,
+                trailingContent = if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                    {
+                        Switch(
+                            checked = state.searchEngineSectionEnabled,
+                            onCheckedChange = callbacks.onToggleSearchEngineSectionEnabled
+                        )
+                    }
+                } else {
+                    null
+                }
             )
 
             // Scrollable Content
@@ -169,13 +179,11 @@ private fun SettingsDetailScreen(
                             shortcutEnabled = state.shortcutEnabled,
                             setShortcutEnabled = callbacks.setShortcutEnabled,
                             searchEngineSectionEnabled = state.searchEngineSectionEnabled,
-                            onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
-                            shortcutsEnabled = state.shortcutsEnabled,
-                            onToggleShortcutsEnabled = callbacks.onToggleShortcutsEnabled,
                             amazonDomain = state.amazonDomain,
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
-                        onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
-                        directAnswerAvailable = state.hasGeminiApiKey,
+                            onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
+                            geminiApiKeyLast4 = state.geminiApiKeyLast4,
+                            directAnswerAvailable = state.hasGeminiApiKey,
                             showTitle = false
                         )
                     }
@@ -233,7 +241,8 @@ private fun SettingsDetailScreen(
 @Composable
 private fun SettingsDetailHeader(
     title: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    trailingContent: (@Composable (() -> Unit))? = null
 ) {
     Row(
         modifier = Modifier
@@ -255,8 +264,13 @@ private fun SettingsDetailHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
         )
+        trailingContent?.let {
+            Spacer(modifier = Modifier.width(SettingsSpacing.headerIconSpacing))
+            it()
+        }
     }
 }
 

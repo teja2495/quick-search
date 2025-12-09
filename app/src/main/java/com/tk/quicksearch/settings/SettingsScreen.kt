@@ -83,9 +83,9 @@ fun SettingsRoute(
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
-        shortcutsEnabled = uiState.shortcutsEnabled,
         amazonDomain = uiState.amazonDomain,
-        hasGeminiApiKey = uiState.hasGeminiApiKey
+        hasGeminiApiKey = uiState.hasGeminiApiKey,
+        geminiApiKeyLast4 = uiState.geminiApiKeyLast4
     )
     
     val callbacks = SettingsScreenCallbacks(
@@ -107,7 +107,6 @@ fun SettingsRoute(
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
-        onToggleShortcutsEnabled = viewModel::setShortcutsEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey
     )
@@ -289,6 +288,20 @@ private fun SettingsScreen(
                 onReorderSections = callbacks.onReorderSections
             )
 
+            // Search Engine Section - Navigation Card
+            SettingsNavigationCard(
+                title = stringResource(R.string.settings_search_engines_title),
+                description = stringResource(R.string.settings_search_engines_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    start = 24.dp,
+                    top = 20.dp,
+                    end = 24.dp,
+                    bottom = 24.dp
+                )
+            )
+
             // Appearance Section
             AppLabelsSection(
                 showAppLabels = state.showAppLabels,
@@ -306,14 +319,6 @@ private fun SettingsScreen(
                 },
                 hasFilePermission = hasFilePermission,
                 appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
-            // Search Engine Section - Navigation Card
-            SettingsNavigationCard(
-                title = stringResource(R.string.settings_search_engines_title),
-                description = stringResource(R.string.settings_search_engines_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
             

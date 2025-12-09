@@ -1,11 +1,15 @@
 package com.tk.quicksearch.search
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
@@ -17,12 +21,13 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -229,6 +234,9 @@ private fun DirectAnswerResult(
 ) {
     if (directAnswerState.status == DirectAnswerStatus.Idle) return
 
+    val showAttribution = directAnswerState.status == DirectAnswerStatus.Success &&
+        !directAnswerState.answer.isNullOrBlank()
+
     val content: @Composable () -> Unit = {
         Column(
             modifier = Modifier
@@ -282,24 +290,68 @@ private fun DirectAnswerResult(
         }
     }
 
-    if (showWallpaperBackground) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.4f)
-            ),
-            shape = MaterialTheme.shapes.extraLarge,
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            content()
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val minCardHeight = 140.dp
+
+        if (showWallpaperBackground) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = minCardHeight),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black.copy(alpha = 0.4f)
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                content()
+            }
+        } else {
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = minCardHeight),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                content()
+            }
         }
-    } else {
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            content()
+
+        if (showAttribution) {
+            GeminiAttributionRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+    }
+}
+
+@Composable
+private fun GeminiAttributionRow(
+    modifier: Modifier = Modifier,
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Row(
+        modifier = modifier.padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.direct_answer_powered_by),
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor
+        )
+        Image(
+            painter = painterResource(id = R.drawable.gemini_logo),
+            contentDescription = stringResource(R.string.direct_answer_powered_by),
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .height(12.dp)
+                .aspectRatio(288f / 65f)
+        )
     }
 }
 

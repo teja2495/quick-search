@@ -115,7 +115,8 @@ data class SearchUiState(
     val searchEngineSectionEnabled: Boolean = true,
     val amazonDomain: String? = null,
     val directAnswerState: DirectAnswerState = DirectAnswerState(),
-    val hasGeminiApiKey: Boolean = false
+    val hasGeminiApiKey: Boolean = false,
+    val geminiApiKeyLast4: String? = null
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -145,7 +146,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
     private var keyboardAlignedLayout: Boolean = userPreferences.isKeyboardAlignedLayout()
-    private var shortcutsEnabled: Boolean = userPreferences.areShortcutsEnabled()
+    private var shortcutsEnabled: Boolean = run {
+        val enabled = userPreferences.areShortcutsEnabled()
+        if (!enabled) {
+            // Remove the ability to disable all shortcuts; always keep them on
+            userPreferences.setShortcutsEnabled(true)
+        }
+        true
+    }
     private var shortcutCodes: Map<SearchEngine, String> = userPreferences.getAllShortcutCodes()
     private var shortcutEnabled: Map<SearchEngine, Boolean> = SearchEngine.values().associateWith { 
         userPreferences.isShortcutEnabled(it) 
@@ -215,6 +223,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
                     hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
+                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
                     cacheLastUpdatedMillis = lastUpdated
                 )
             }
@@ -247,7 +256,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
-                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank()
+                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
+                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4)
                 )
             }
         }
@@ -1036,6 +1046,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             if (hasGemini && !hadGemini) {
                 clearDirectAnswerState()
             }
+            _uiState.update {
+                it.copy(
+                    hasGeminiApiKey = hasGemini,
+                    geminiApiKeyLast4 = normalized?.takeLast(4)
+                )
+            }
         }
     }
 
@@ -1107,8 +1123,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setShortcutsEnabled(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setShortcutsEnabled(enabled)
-            shortcutsEnabled = enabled
+            // Keep shortcuts permanently enabled
+            userPreferences.setShortcutsEnabled(true)
+            shortcutsEnabled = true
             _uiState.update { 
                 it.copy(shortcutsEnabled = shortcutsEnabled)
             }
@@ -1221,6 +1238,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 searchEngineOrder = searchEngineOrder,
                 disabledSearchEngines = disabledSearchEngines,
                 hasGeminiApiKey = hasGemini,
+                geminiApiKeyLast4 = if (hasGemini) geminiApiKey?.takeLast(4) else null,
                 directAnswerState = if (hasGemini) state.directAnswerState else DirectAnswerState()
             )
         }

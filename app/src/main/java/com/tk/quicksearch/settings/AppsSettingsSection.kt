@@ -95,29 +95,7 @@ fun AppLabelsSection(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            // Results alignment toggle (always shown)
-            SettingsToggleRow(
-                text = stringResource(R.string.settings_layout_option_bottom),
-                checked = keyboardAlignedLayout,
-                onCheckedChange = onToggleKeyboardAlignedLayout,
-                isFirstItem = true,
-                isLastItem = !appsSectionEnabled,
-                extraVerticalPadding = 8.dp,
-                extraBottomPadding = 8.dp
-            )
-
-            // App labels toggle (conditional)
-            if (appsSectionEnabled) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                SettingsToggleRow(
-                    text = stringResource(R.string.settings_app_labels_toggle),
-                    checked = showAppLabels,
-                    onCheckedChange = onToggleAppLabels
-                )
-            }
-
             // Wallpaper background toggle (always shown, but disabled if files permission not granted)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             SettingsToggleRow(
                 text = stringResource(R.string.settings_wallpaper_background_toggle),
                 checked = showWallpaperBackground && hasFilePermission,
@@ -125,7 +103,29 @@ fun AppLabelsSection(
                     // Always call the callback - it will handle permission request if needed
                     onToggleShowWallpaperBackground(enabled)
                 },
-                isLastItem = true
+                isFirstItem = false,
+                extraVerticalPadding = 0.dp
+            )
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // App labels toggle (conditional)
+            if (appsSectionEnabled) {
+                SettingsToggleRow(
+                    text = stringResource(R.string.settings_app_labels_toggle),
+                    checked = showAppLabels,
+                    onCheckedChange = onToggleAppLabels
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
+
+            // Results alignment toggle (always shown)
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_layout_option_bottom),
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout,
+                isLastItem = true,
+                extraVerticalPadding = 12.dp,
             )
         }
     }

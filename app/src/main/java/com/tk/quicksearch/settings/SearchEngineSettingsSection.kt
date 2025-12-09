@@ -5,11 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
@@ -18,11 +21,12 @@ import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -122,12 +126,10 @@ fun SearchEnginesSection(
     shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)? = null,
     searchEngineSectionEnabled: Boolean = true,
-    onToggleSearchEngineSectionEnabled: ((Boolean) -> Unit)? = null,
-    shortcutsEnabled: Boolean = true,
-    onToggleShortcutsEnabled: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onSetGeminiApiKey: ((String?) -> Unit)? = null,
+    geminiApiKeyLast4: String? = null,
     showTitle: Boolean = true,
     directAnswerAvailable: Boolean = false,
     modifier: Modifier = Modifier
@@ -146,75 +148,49 @@ fun SearchEnginesSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
         )
-    } else {
-        Text(
-            text = stringResource(R.string.settings_search_engines_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-        )
     }
     
-    // Combined toggle card for enabling/disabling search engine section and shortcuts
-    if (onToggleSearchEngineSectionEnabled != null && onToggleShortcutsEnabled != null) {
+    // Direct search controls (Gemini) when available
+    if (onSetGeminiApiKey != null) {
         SearchEngineToggleCard(
-            searchEngineSectionEnabled = searchEngineSectionEnabled,
-            onToggleSearchEngineSectionEnabled = onToggleSearchEngineSectionEnabled,
-            shortcutsEnabled = shortcutsEnabled,
-            onToggleShortcutsEnabled = onToggleShortcutsEnabled,
             directSearchEnabled = directAnswerAvailable,
-            onSetGeminiApiKey = onSetGeminiApiKey
+            onSetGeminiApiKey = onSetGeminiApiKey,
+            geminiApiKeyLast4 = geminiApiKeyLast4
         )
     }
     
-    // Hide search engine list when both toggles are disabled
-    val bothDisabled = !searchEngineSectionEnabled && !shortcutsEnabled
     val enginesToDisplay = if (directAnswerAvailable) {
         searchEngineOrder
     } else {
         searchEngineOrder.filterNot { it == SearchEngine.DIRECT_ANSWER }
     }
-    if (!bothDisabled) {
-        SearchEngineListCard(
-            searchEngineOrder = enginesToDisplay,
-            disabledSearchEngines = disabledSearchEngines,
-            onToggleSearchEngine = onToggleSearchEngine,
-            onReorderSearchEngines = onReorderSearchEngines,
-            shortcutCodes = shortcutCodes,
-            setShortcutCode = setShortcutCode,
-            shortcutEnabled = shortcutEnabled,
-            setShortcutEnabled = setShortcutEnabled,
-            shortcutsEnabled = shortcutsEnabled,
-            searchEngineSectionEnabled = searchEngineSectionEnabled,
-            amazonDomain = amazonDomain,
-            onSetAmazonDomain = onSetAmazonDomain
-        )
-    }
+    SearchEngineListCard(
+        searchEngineOrder = enginesToDisplay,
+        disabledSearchEngines = disabledSearchEngines,
+        onToggleSearchEngine = onToggleSearchEngine,
+        onReorderSearchEngines = onReorderSearchEngines,
+        shortcutCodes = shortcutCodes,
+        setShortcutCode = setShortcutCode,
+        shortcutEnabled = shortcutEnabled,
+        setShortcutEnabled = setShortcutEnabled,
+        searchEngineSectionEnabled = searchEngineSectionEnabled,
+        amazonDomain = amazonDomain,
+        onSetAmazonDomain = onSetAmazonDomain
+    )
     
 }
 
 /**
- * Toggle card for enabling/disabling search engine section and shortcuts.
+ * Toggle card for direct search options.
  */
 @Composable
 private fun SearchEngineToggleCard(
-    searchEngineSectionEnabled: Boolean,
-    onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
-    shortcutsEnabled: Boolean,
-    onToggleShortcutsEnabled: (Boolean) -> Unit,
     directSearchEnabled: Boolean,
-    onSetGeminiApiKey: ((String?) -> Unit)?
+    onSetGeminiApiKey: (String?) -> Unit,
+    geminiApiKeyLast4: String?
 ) {
-    var showGeminiDialog by remember { mutableStateOf(false) }
-    
-    if (showGeminiDialog && onSetGeminiApiKey != null) {
-        GeminiApiKeyDialog(
-            onSave = { apiKey ->
-                onSetGeminiApiKey(apiKey)
-            },
-            onDismiss = { showGeminiDialog = false }
-        )
-    }
+    var showInput by remember { mutableStateOf(false) }
+    var apiKeyInput by remember { mutableStateOf("") }
     
     ElevatedCard(
         modifier = Modifier
@@ -223,40 +199,125 @@ private fun SearchEngineToggleCard(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            SearchEngineToggleRow(
-                title = stringResource(R.string.settings_search_engines_show_toggle),
-                checked = searchEngineSectionEnabled,
-                onCheckedChange = onToggleSearchEngineSectionEnabled,
-                isFirstItem = true
+            Text(
+                text = stringResource(R.string.settings_direct_search_toggle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(
+                    start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                    top = SearchEngineSettingsSpacing.cardTopPadding,
+                    end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                    bottom = 4.dp
+                )
             )
-            
-            SearchEngineDivider()
-            
-            SearchEngineToggleRow(
-                title = stringResource(R.string.settings_shortcuts_toggle),
-                checked = shortcutsEnabled,
-                onCheckedChange = onToggleShortcutsEnabled,
-                subtitle = stringResource(R.string.settings_shortcuts_hint)
-            )
-            
-            if (onSetGeminiApiKey != null) {
-                SearchEngineDivider()
-                
-                SearchEngineToggleRow(
-                    title = stringResource(R.string.settings_direct_search_toggle),
-                    checked = directSearchEnabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled && !directSearchEnabled) {
-                            // Show dialog to enter API key
-                            showGeminiDialog = true
-                        } else if (!enabled) {
-                            // Disable and remove API key
+
+            if (directSearchEnabled && geminiApiKeyLast4 != null) {
+                Text(
+                    text = "Your current Gemini API key ends with $geminiApiKeyLast4",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(
+                        start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                        end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                        bottom = SearchEngineSettingsSpacing.cardVerticalPadding
+                    )
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                            end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                            bottom = SearchEngineSettingsSpacing.cardBottomPadding
+                        ),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TextButton(
+                        onClick = {
+                            apiKeyInput = ""
+                            showInput = false
                             onSetGeminiApiKey(null)
                         }
-                    },
-                    subtitle = stringResource(R.string.settings_direct_search_desc),
-                    isLastItem = true
+                    ) {
+                        Text(text = "Reset Key")
+                    }
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.settings_direct_search_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(
+                        start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                        end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                        bottom = SearchEngineSettingsSpacing.cardVerticalPadding
+                    )
                 )
+                if (showInput) {
+                    OutlinedTextField(
+                        value = apiKeyInput,
+                        onValueChange = { apiKeyInput = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                                end = SearchEngineSettingsSpacing.cardHorizontalPadding
+                            ),
+                        placeholder = { Text(text = "Paste Gemini API key") },
+                        singleLine = true
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                                end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                                bottom = SearchEngineSettingsSpacing.cardBottomPadding,
+                                top = SearchEngineSettingsSpacing.cardVerticalPadding
+                            ),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = {
+                                apiKeyInput = ""
+                                showInput = false
+                            }
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val trimmed = apiKeyInput.trim()
+                                if (trimmed.isNotEmpty()) {
+                                    onSetGeminiApiKey(trimmed)
+                                    apiKeyInput = ""
+                                    showInput = false
+                                }
+                            }
+                        ) {
+                            Text(text = "Save")
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                                end = SearchEngineSettingsSpacing.cardHorizontalPadding,
+                                bottom = SearchEngineSettingsSpacing.cardBottomPadding,
+                                top = 0.dp
+                            ),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(
+                            onClick = { showInput = true }
+                        ) {
+                            Text(text = "Add Gemini API Key")
+                        }
+                    }
+                }
             }
         }
     }
@@ -275,7 +336,6 @@ private fun SearchEngineListCard(
     setShortcutCode: ((SearchEngine, String) -> Unit)?,
     shortcutEnabled: Map<SearchEngine, Boolean>,
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
-    shortcutsEnabled: Boolean,
     searchEngineSectionEnabled: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null
@@ -391,12 +451,13 @@ private fun SearchEngineListCard(
                     },
                     isDragging = isDragging,
                     dragOffset = animatedOffset,
-                    shortcutsEnabled = shortcutsEnabled,
                     shortcutCode = shortcutCodes[engine] ?: "",
                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
                     onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
                     showToggle = searchEngineSectionEnabled,
+                    allowDrag = searchEngineSectionEnabled,
+                    switchEnabled = searchEngineSectionEnabled,
                     amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
                     onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null
                 )
@@ -422,12 +483,13 @@ private fun SearchEngineRow(
     onDragEnd: () -> Unit,
     isDragging: Boolean = false,
     dragOffset: androidx.compose.ui.unit.Dp = 0.dp,
-    shortcutsEnabled: Boolean = false,
     shortcutCode: String = "",
     shortcutEnabled: Boolean = true,
     onShortcutCodeChange: ((String) -> Unit)? = null,
     onShortcutToggle: ((Boolean) -> Unit)? = null,
     showToggle: Boolean = true,
+    allowDrag: Boolean = true,
+    switchEnabled: Boolean = true,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null
 ) {
@@ -444,7 +506,7 @@ private fun SearchEngineRow(
                 vertical = SearchEngineSettingsSpacing.rowVerticalPadding
             )
             .then(
-                if (showToggle) {
+                if (allowDrag) {
                     Modifier.pointerInput(Unit) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { onDragStart() },
@@ -485,7 +547,7 @@ private fun SearchEngineRow(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            if (shortcutsEnabled && shortcutCode.isNotEmpty()) {
+            if (shortcutCode.isNotEmpty()) {
                 ShortcutCodeDisplay(
                     shortcutCode = shortcutCode,
                     isEnabled = shortcutEnabled,
@@ -506,7 +568,8 @@ private fun SearchEngineRow(
         if (showToggle) {
             Switch(
                 checked = isEnabled,
-                onCheckedChange = onToggle
+                onCheckedChange = onToggle,
+                enabled = switchEnabled
             )
         }
     }
@@ -517,8 +580,6 @@ private fun SearchEngineRow(
  */
 @Composable
 fun ShortcutsSection(
-    shortcutsEnabled: Boolean,
-    onToggleShortcutsEnabled: (Boolean) -> Unit,
     shortcutCodes: Map<SearchEngine, String>,
     setShortcutCode: (SearchEngine, String) -> Unit,
     shortcutEnabled: Map<SearchEngine, Boolean>,
@@ -542,31 +603,16 @@ fun ShortcutsSection(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            // Enable/disable shortcuts toggle
-            SearchEngineToggleRow(
-                title = stringResource(R.string.settings_shortcuts_toggle),
-                checked = shortcutsEnabled,
-                onCheckedChange = onToggleShortcutsEnabled,
-                subtitle = stringResource(R.string.settings_shortcuts_desc),
-                isFirstItem = true,
-                isLastItem = !shortcutsEnabled
-            )
-            
-            if (shortcutsEnabled) {
-                SearchEngineDivider()
-                
-                // List of shortcuts
-                SearchEngine.values().forEachIndexed { index, engine ->
-                    ShortcutRow(
-                        engine = engine,
-                        shortcutCode = shortcutCodes[engine] ?: "",
-                        isEnabled = shortcutEnabled[engine] ?: true,
-                        onCodeChange = { code -> setShortcutCode(engine, code) },
-                        onToggle = { enabled -> setShortcutEnabled(engine, enabled) }
-                    )
-                    if (index != SearchEngine.values().lastIndex) {
-                        SearchEngineDivider()
-                    }
+            SearchEngine.values().forEachIndexed { index, engine ->
+                ShortcutRow(
+                    engine = engine,
+                    shortcutCode = shortcutCodes[engine] ?: "",
+                    isEnabled = shortcutEnabled[engine] ?: true,
+                    onCodeChange = { code -> setShortcutCode(engine, code) },
+                    onToggle = { enabled -> setShortcutEnabled(engine, enabled) }
+                )
+                if (index != SearchEngine.values().lastIndex) {
+                    SearchEngineDivider()
                 }
             }
         }

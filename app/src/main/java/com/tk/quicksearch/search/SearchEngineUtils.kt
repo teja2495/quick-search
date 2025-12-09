@@ -30,9 +30,9 @@ private data class SearchEngineMetadata(
 private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = mapOf(
     SearchEngine.DIRECT_ANSWER to SearchEngineMetadata(
         drawableResId = R.drawable.direct_answer,
-        contentDescription = "Direct Answer",
+        contentDescription = "Direct Search",
         urlTemplate = "",
-        defaultShortcutCode = "ans"
+        defaultShortcutCode = "dsh"
     ),
     SearchEngine.GOOGLE to SearchEngineMetadata(
         drawableResId = R.drawable.google,
@@ -68,7 +68,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
         drawableResId = R.drawable.google_play,
         contentDescription = "Google Play",
         urlTemplate = "https://play.google.com/store/search?q=%s&c=apps",
-        defaultShortcutCode = "gplay"
+        defaultShortcutCode = "gpl"
     ),
     SearchEngine.REDDIT to SearchEngineMetadata(
         drawableResId = R.drawable.reddit,
