@@ -395,6 +395,10 @@ fun SearchScreen(
     // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
+    val showDirectAnswer = state.directAnswerState.status != DirectAnswerStatus.Idle
+    val alignResultsToBottom = state.keyboardAlignedLayout &&
+        expandedSection == ExpandedSection.NONE &&
+        !showDirectAnswer
     
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
@@ -424,7 +428,8 @@ fun SearchScreen(
         settingResultsSize = state.settingResults.size,
         pinnedSettingsSize = state.pinnedSettings.size,
         hasUsagePermission = state.hasUsagePermission,
-        errorMessage = state.errorMessage
+        errorMessage = state.errorMessage,
+        reverseScrolling = alignResultsToBottom
     )
 
     // Prepare section parameters

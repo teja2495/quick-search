@@ -1,6 +1,4 @@
 package com.tk.quicksearch.search
-
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,14 +13,7 @@ private object ScrollBehaviorConstants {
     const val POLLING_INTERVAL_MS = 20L
     const val MAX_POLLING_ATTEMPTS = 10
     const val STABLE_COUNT_THRESHOLD = 2
-    const val SPRING_DAMPING_RATIO = 0.9f
-    const val SPRING_STIFFNESS = 500f
 }
-
-private val scrollAnimationSpec = spring<Float>(
-    dampingRatio = ScrollBehaviorConstants.SPRING_DAMPING_RATIO,
-    stiffness = ScrollBehaviorConstants.SPRING_STIFFNESS
-)
 
 // ============================================================================
 // Helper Functions
@@ -67,26 +58,17 @@ private suspend fun waitForContentStabilization(
 }
 
 /**
- * Scrolls to the bottom of the scrollable content.
- */
-private suspend fun scrollToBottom(scrollState: ScrollState) {
-    val targetScroll = scrollState.maxValue
-    if (targetScroll > 0) {
-        scrollState.animateScrollTo(
-            value = targetScroll,
-            animationSpec = scrollAnimationSpec
-        )
-    }
-}
-
-/**
  * Scrolls to the top of the scrollable content.
  */
-private suspend fun scrollToTop(scrollState: ScrollState) {
-    scrollState.animateScrollTo(
-        value = 0,
-        animationSpec = scrollAnimationSpec
-    )
+private suspend fun scrollToTop(scrollState: ScrollState, reverseScrolling: Boolean) {
+    val targetScroll = if (reverseScrolling) {
+        scrollState.maxValue
+    } else {
+        0
+    }
+    if (targetScroll > 0 || !reverseScrolling) {
+        scrollState.scrollTo(targetScroll)
+    }
 }
 
 // ============================================================================
@@ -97,7 +79,7 @@ private suspend fun scrollToTop(scrollState: ScrollState) {
  * Handles scroll behavior for keyboard-aligned layout.
  * 
  * When keyboard-aligned layout is active:
- * - Scrolls to bottom when no section is expanded (showing bottom-aligned content)
+ * - Content is bottom-aligned via reverse scrolling in the layout
  * - Scrolls to top when a section is expanded (showing expanded content near search bar)
  * 
  * The scroll behavior is triggered when content changes (query, results, permissions, etc.)
@@ -108,6 +90,7 @@ fun KeyboardAlignedScrollBehavior(
     scrollState: ScrollState,
     expandedSection: ExpandedSection,
     keyboardAlignedLayout: Boolean,
+    reverseScrolling: Boolean,
     query: String,
     displayAppsSize: Int,
     contactResultsSize: Int,
@@ -131,18 +114,17 @@ fun KeyboardAlignedScrollBehavior(
         hasUsagePermission,
         errorMessage,
         expandedSection,
-        keyboardAlignedLayout
+        keyboardAlignedLayout,
+        reverseScrolling
     ) {
         if (!keyboardAlignedLayout) return@LaunchedEffect
         
         // Wait for content to stabilize before scrolling
         waitForContentStabilization(scrollState)
         
-        // Determine scroll direction based on expansion state
-        if (expandedSection == ExpandedSection.NONE) {
-            scrollToBottom(scrollState)
-        } else {
-            scrollToTop(scrollState)
+        // Only auto-position when a section is expanded to bring it near the search bar
+        if (expandedSection != ExpandedSection.NONE) {
+            scrollToTop(scrollState, reverseScrolling)
         }
     }
 }

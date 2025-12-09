@@ -97,12 +97,13 @@ fun SearchContentArea(
     val directAnswerState = state.directAnswerState
     val showDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
     val hideResultsForDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
+    val alignResultsToBottom = useKeyboardAlignedLayout && !showDirectAnswer
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
         // Ignore bottom alignment when direct answer card is showing
-        val verticalArrangement = if (useKeyboardAlignedLayout && !showDirectAnswer) {
+        val verticalArrangement = if (alignResultsToBottom) {
             Arrangement.spacedBy(12.dp, Alignment.Bottom)
         } else {
             Arrangement.spacedBy(12.dp)
@@ -112,7 +113,10 @@ fun SearchContentArea(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = maxHeight)
-                .verticalScroll(scrollState)
+                .verticalScroll(
+                    scrollState,
+                    reverseScrolling = alignResultsToBottom
+                )
                 .padding(vertical = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
