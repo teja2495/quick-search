@@ -33,8 +33,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
@@ -96,13 +98,22 @@ fun SearchContentArea(
         renderingState.expandedSection == ExpandedSection.NONE
     val directAnswerState = state.directAnswerState
     val showDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
-    val hideResultsForDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
-    val alignResultsToBottom = useKeyboardAlignedLayout && !showDirectAnswer
+    val hideResultsForDirectAnswer = showDirectAnswer
+    val hasQuery = state.query.isNotBlank()
+    val hasAnySearchContent =
+        shouldShowAppsSection(renderingState) ||
+            shouldShowContactsSection(renderingState, contactsParams) ||
+            shouldShowFilesSection(renderingState, filesParams) ||
+            shouldShowSettingsSection(renderingState)
+    val shouldShowEmptyResultsMessage = hasQuery && !hasAnySearchContent
+    val alignResultsToBottom = useKeyboardAlignedLayout &&
+        !showDirectAnswer &&
+        !shouldShowEmptyResultsMessage
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Ignore bottom alignment when direct answer card is showing
+        // Ignore bottom alignment when direct answer card or empty state is showing
         val verticalArrangement = if (alignResultsToBottom) {
             Arrangement.spacedBy(12.dp, Alignment.Bottom)
         } else {
@@ -139,6 +150,7 @@ fun SearchContentArea(
                 appsParams = appsParams,
                 onRequestUsagePermission = onRequestUsagePermission,
                 // Ignore keyboard-aligned layout when direct answer card is showing
+                minContentHeight = this@BoxWithConstraints.maxHeight,
                 isReversed = useKeyboardAlignedLayout && !showDirectAnswer,
                 hideResults = hideResultsForDirectAnswer
             )
@@ -159,6 +171,7 @@ private fun ContentLayout(
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
+    minContentHeight: Dp,
     isReversed: Boolean,
     hideResults: Boolean
 ) {
@@ -177,6 +190,22 @@ private fun ContentLayout(
 
         val hasQuery = state.query.isNotBlank()
         val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
+        val hasAnySearchContent =
+            shouldShowAppsSection(renderingState) ||
+                shouldShowContactsSection(renderingState, contactsParams) ||
+                shouldShowFilesSection(renderingState, filesParams) ||
+                shouldShowSettingsSection(renderingState)
+
+        if (hasQuery && !hasAnySearchContent) {
+            EmptyResultsMessage(
+                enabledSections = renderingState.orderedSections,
+                showWallpaperBackground = state.showWallpaperBackground,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+            )
+            return
+        }
 
         when {
             isReversed -> {
@@ -211,7 +240,7 @@ private fun ContentLayout(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
-                        settingsParams = settingsParams,
+                            settingsParams = settingsParams,
                             appsParams = appsParams,
                             isReversed = false
                         )
@@ -220,8 +249,8 @@ private fun ContentLayout(
                         ExpandedPinnedSections(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
-                        filesParams = filesParams,
-                        settingsParams = settingsParams
+                            filesParams = filesParams,
+                            settingsParams = settingsParams
                         )
                     }
                 }
@@ -230,13 +259,62 @@ private fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
-                    settingsParams = settingsParams,
+                        settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = false,
                         keyboardAlignedLayout = state.keyboardAlignedLayout
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptyResultsMessage(
+    enabledSections: List<SearchSection>,
+    showWallpaperBackground: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val sectionLabels = enabledSections.mapNotNull { section ->
+        when (section) {
+            SearchSection.APPS -> stringResource(R.string.empty_state_section_apps)
+            SearchSection.CONTACTS -> stringResource(R.string.empty_state_section_contacts)
+            SearchSection.FILES -> stringResource(R.string.empty_state_section_files)
+            SearchSection.SETTINGS -> stringResource(R.string.empty_state_section_settings)
+        }
+    }
+
+    if (sectionLabels.isEmpty()) return
+
+    val sectionsText = formatSectionList(sectionLabels)
+    val message = stringResource(R.string.search_empty_state_no_results, sectionsText)
+    val textColor = if (showWallpaperBackground) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopStart
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+private fun formatSectionList(sectionLabels: List<String>): String {
+    return when (sectionLabels.size) {
+        1 -> sectionLabels.first()
+        2 -> sectionLabels.joinToString(separator = " and ")
+        else -> {
+            val last = sectionLabels.last()
+            sectionLabels.dropLast(1).joinToString(separator = ", ") + ", and " + last
         }
     }
 }

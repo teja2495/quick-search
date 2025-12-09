@@ -27,7 +27,12 @@
     <string name="search_results_subtitle">Matches for "%1$s"</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
-    <string name="direct_answer_title">Direct Search</string>
+    <string name="search_empty_state_no_results">No %1$s found for your query.</string>
+    <string name="empty_state_section_apps">apps</string>
+    <string name="empty_state_section_contacts">contacts</string>
+    <string name="empty_state_section_files">files</string>
+    <string name="empty_state_section_settings">settings</string>
+    <string name="direct_answer_title">Direct Search Setup</string>
     <string name="direct_answer_loading">Getting answer\u2026</string>
     <string name="direct_answer_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_answer_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
@@ -117,7 +122,7 @@
          ============================================================================ -->
     <string name="action_open_settings">Open settings</string>
     <string name="action_grant_usage_access">Grant usage access permission to show recently used apps in suggestions</string>
-    <string name="action_app_info">App info</string>
+    <string name="action_app_info">App Info</string>
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_hide_app">Exclude</string>
     <string name="action_pin_app">Pin</string>
@@ -125,8 +130,8 @@
     <string name="action_pin_generic">Pin</string>
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
-    <string name="action_add_nickname">Add nickname</string>
-    <string name="action_edit_nickname">Edit nickname</string>
+    <string name="action_add_nickname">Add Nickname</string>
+    <string name="action_edit_nickname">Edit Nickname</string>
     <string name="action_remove_nickname">Remove nickname</string>
     <string name="action_expand_more">More</string>
     <string name="action_collapse">Collapse</string>
@@ -289,7 +294,7 @@
          ============================================================================ -->
     <string name="settings_messaging_title">Calls &amp; Texts</string>
     <string name="settings_messaging_desc">Manage how you place calls and send messages.</string>
-    <string name="settings_messaging_card_title">Default messaging app</string>
+    <string name="settings_messaging_card_title">Default Messaging App</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="settings_messaging_option_telegram">Telegram</string>
