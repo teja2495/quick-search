@@ -84,7 +84,8 @@ data class SearchUiState(
     val recentApps: List<AppInfo> = emptyList(),
     val searchResults: List<AppInfo> = emptyList(),
     val pinnedApps: List<AppInfo> = emptyList(),
-    val hiddenApps: List<AppInfo> = emptyList(),
+    val suggestionExcludedApps: List<AppInfo> = emptyList(),
+    val resultExcludedApps: List<AppInfo> = emptyList(),
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
     val settingResults: List<SettingShortcut> = emptyList(),
@@ -97,7 +98,6 @@ data class SearchUiState(
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
     val errorMessage: String? = null,
-    val showAppLabels: Boolean = true,
     val searchEngineOrder: List<SearchEngine> = emptyList(),
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
@@ -130,7 +130,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val searchOperations = SearchOperations(contactRepository, fileRepository)
     private var cachedApps: List<AppInfo> = emptyList()
     private var noMatchPrefix: String? = null
-    private var hiddenPackages: Set<String> = userPreferences.getHiddenPackages()
+    private var hiddenSuggestionPackages: Set<String> = userPreferences.getSuggestionHiddenPackages()
+    private var hiddenResultPackages: Set<String> = userPreferences.getResultHiddenPackages()
     private var pinnedPackages: Set<String> = userPreferences.getPinnedPackages()
     private var pinnedContactIds: Set<Long> = userPreferences.getPinnedContactIds()
     private var excludedContactIds: Set<Long> = userPreferences.getExcludedContactIds()
@@ -139,7 +140,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var availableSettings: List<SettingShortcut> = emptyList()
     private var pinnedSettingIds: Set<String> = userPreferences.getPinnedSettingIds()
     private var excludedSettingIds: Set<String> = userPreferences.getExcludedSettingIds()
-    private var showAppLabels: Boolean = userPreferences.shouldShowAppLabels()
     private var geminiApiKey: String? = userPreferences.getGeminiApiKey()
     private var geminiClient: DirectAnswerClient? = geminiApiKey?.let { DirectAnswerClient(it) }
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
@@ -206,7 +206,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update { 
                 it.copy(
                     isLoading = false,
-                    showAppLabels = showAppLabels,
                     searchEngineOrder = searchEngineOrder,
                     disabledSearchEngines = disabledSearchEngines,
                     enabledFileTypes = enabledFileTypes,
@@ -240,7 +239,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
             _uiState.update { 
                 it.copy(
-                    showAppLabels = showAppLabels,
                     searchEngineOrder = searchEngineOrder,
                     disabledSearchEngines = disabledSearchEngines,
                     enabledFileTypes = enabledFileTypes,
@@ -642,7 +640,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     recentApps = emptyList(),
                     searchResults = emptyList(),
                     pinnedApps = emptyList(),
-                    hiddenApps = emptyList(),
+                    suggestionExcludedApps = emptyList(),
+                    resultExcludedApps = emptyList(),
                     indexedAppCount = 0,
                     cacheLastUpdatedMillis = 0L,
                     isLoading = true
@@ -796,17 +795,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun hideApp(appInfo: AppInfo) {
         viewModelScope.launch(Dispatchers.IO) {
-            hiddenPackages = userPreferences.hidePackage(appInfo.packageName)
-            if (pinnedPackages.contains(appInfo.packageName)) {
-                pinnedPackages = userPreferences.unpinPackage(appInfo.packageName)
+            val isSearching = _uiState.value.query.isNotBlank()
+            if (isSearching) {
+                hiddenResultPackages = userPreferences.hidePackageInResults(appInfo.packageName)
+            } else {
+                hiddenSuggestionPackages = userPreferences.hidePackageInSuggestions(appInfo.packageName)
+                if (pinnedPackages.contains(appInfo.packageName)) {
+                    pinnedPackages = userPreferences.unpinPackage(appInfo.packageName)
+                }
             }
             refreshDerivedState()
         }
     }
 
-    fun unhideApp(appInfo: AppInfo) {
+    fun unhideAppFromSuggestions(appInfo: AppInfo) {
         viewModelScope.launch(Dispatchers.IO) {
-            hiddenPackages = userPreferences.unhidePackage(appInfo.packageName)
+            hiddenSuggestionPackages = userPreferences.unhidePackageInSuggestions(appInfo.packageName)
+            refreshDerivedState()
+        }
+    }
+
+    fun unhideAppFromResults(appInfo: AppInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            hiddenResultPackages = userPreferences.unhidePackageInResults(appInfo.packageName)
             refreshDerivedState()
         }
     }
@@ -856,7 +867,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun clearAllHiddenApps() {
         viewModelScope.launch(Dispatchers.IO) {
-            hiddenPackages = userPreferences.clearAllHiddenApps()
+            hiddenSuggestionPackages = userPreferences.clearAllHiddenAppsInSuggestions()
+            hiddenResultPackages = userPreferences.clearAllHiddenAppsInResults()
             refreshDerivedState()
         }
     }
@@ -865,7 +877,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             excludedContactIds = userPreferences.clearAllExcludedContacts()
             excludedFileUris = userPreferences.clearAllExcludedFiles()
-            hiddenPackages = userPreferences.clearAllHiddenApps()
+            hiddenSuggestionPackages = userPreferences.clearAllHiddenAppsInSuggestions()
+            hiddenResultPackages = userPreferences.clearAllHiddenAppsInResults()
             excludedSettingIds = userPreferences.clearAllExcludedSettings()
             loadExcludedContactsAndFiles()
             refreshSettingsState()
@@ -874,7 +887,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun pinApp(appInfo: AppInfo) {
-        if (hiddenPackages.contains(appInfo.packageName)) return
+        if (hiddenSuggestionPackages.contains(appInfo.packageName)) return
         viewModelScope.launch(Dispatchers.IO) {
             pinnedPackages = userPreferences.pinPackage(appInfo.packageName)
             refreshDerivedState()
@@ -923,14 +936,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getFileNickname(uri: String): String? {
         return userPreferences.getFileNickname(uri)
-    }
-
-    fun setShowAppLabels(showLabels: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setShowAppLabels(showLabels)
-            showAppLabels = showLabels
-            _uiState.update { it.copy(showAppLabels = showLabels) }
-        }
     }
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
@@ -1404,21 +1409,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun availableApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
         if (apps.isEmpty()) return emptyList()
-        return apps.filterNot { hiddenPackages.contains(it.packageName) }
+        return apps.filterNot { hiddenSuggestionPackages.contains(it.packageName) }
     }
 
     private fun searchSourceApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
         if (apps.isEmpty()) return emptyList()
         return apps.filterNot {
-            hiddenPackages.contains(it.packageName) || pinnedPackages.contains(it.packageName)
+            hiddenResultPackages.contains(it.packageName) || pinnedPackages.contains(it.packageName)
         }
     }
 
-    private fun computePinnedApps(apps: List<AppInfo>): List<AppInfo> {
+    private fun computePinnedApps(apps: List<AppInfo>, exclusion: Set<String>): List<AppInfo> {
         if (apps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
         return apps
             .asSequence()
-            .filter { pinnedPackages.contains(it.packageName) && !hiddenPackages.contains(it.packageName) }
+            .filter { pinnedPackages.contains(it.packageName) && !exclusion.contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
             .toList()
     }
@@ -1429,7 +1434,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         val apps = cachedApps
         val visibleAppList = availableApps(apps)
-        val pinnedAppList = computePinnedApps(apps)
+        val pinnedAppsForSuggestions = computePinnedApps(apps, hiddenSuggestionPackages)
+        val pinnedAppsForResults = computePinnedApps(apps, hiddenResultPackages)
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
@@ -1447,19 +1453,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         } else {
             // Include both pinned and non-pinned apps in search, let ranking determine order
             val nonPinnedApps = searchSourceApps(apps)
-            val allSearchableApps = (pinnedAppList + nonPinnedApps).distinctBy { it.packageName }
+            val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
             deriveMatches(trimmedQuery, allSearchableApps)
         }
-        val hiddenAppList = apps
-            .filter { hiddenPackages.contains(it.packageName) }
+        val suggestionHiddenAppList = apps
+            .filter { hiddenSuggestionPackages.contains(it.packageName) }
+            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+        val resultHiddenAppList = apps
+            .filter { hiddenResultPackages.contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
 
         _uiState.update { state ->
             state.copy(
                 recentApps = recents,
                 searchResults = searchResults,
-                pinnedApps = pinnedAppList,
-                hiddenApps = hiddenAppList,
+                pinnedApps = pinnedAppsForSuggestions,
+                suggestionExcludedApps = suggestionHiddenAppList,
+                resultExcludedApps = resultHiddenAppList,
                 indexedAppCount = visibleAppList.size,
                 cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
                 isLoading = isLoading ?: state.isLoading,

@@ -50,10 +50,12 @@ private val LIST_BOTTOM_PADDING = 80.dp
 
 @Composable
 fun ExcludedItemsSection(
-    hiddenApps: List<AppInfo>,
+    suggestionExcludedApps: List<AppInfo>,
+    resultExcludedApps: List<AppInfo>,
     excludedContacts: List<ContactInfo>,
     excludedFiles: List<DeviceFile>,
-    onRemoveExcludedApp: (AppInfo) -> Unit,
+    onRemoveSuggestionExcludedApp: (AppInfo) -> Unit,
+    onRemoveResultExcludedApp: (AppInfo) -> Unit,
     onRemoveExcludedContact: (ContactInfo) -> Unit,
     onRemoveExcludedFile: (DeviceFile) -> Unit,
     excludedSettings: List<SettingShortcut>,
@@ -62,8 +64,9 @@ fun ExcludedItemsSection(
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val allItems = remember(hiddenApps, excludedContacts, excludedFiles, excludedSettings) {
-        (hiddenApps.map { ExcludedItem.App(it) } +
+    val allItems = remember(suggestionExcludedApps, resultExcludedApps, excludedContacts, excludedFiles, excludedSettings) {
+        (suggestionExcludedApps.map { ExcludedItem.SuggestionApp(it) } +
+         resultExcludedApps.map { ExcludedItem.ResultApp(it) } +
          excludedContacts.map { ExcludedItem.Contact(it) } +
          excludedFiles.map { ExcludedItem.File(it) } +
          excludedSettings.map { ExcludedItem.Setting(it) })
@@ -125,7 +128,8 @@ fun ExcludedItemsSection(
                 allItems = allItems,
                 onRemoveItem = { item ->
                     when (item) {
-                        is ExcludedItem.App -> onRemoveExcludedApp(item.appInfo)
+                        is ExcludedItem.SuggestionApp -> onRemoveSuggestionExcludedApp(item.appInfo)
+                        is ExcludedItem.ResultApp -> onRemoveResultExcludedApp(item.appInfo)
                         is ExcludedItem.Contact -> onRemoveExcludedContact(item.contactInfo)
                         is ExcludedItem.File -> onRemoveExcludedFile(item.deviceFile)
                         is ExcludedItem.Setting -> onRemoveExcludedSetting(item.setting)
@@ -240,7 +244,10 @@ private fun ExcludedItemIcon(item: ExcludedItem) {
                 modifier = Modifier.size(DEFAULT_ICON_SIZE)
             )
         }
-        is ExcludedItem.App -> {
+        is ExcludedItem.SuggestionApp -> {
+            AppIconPlaceholder(appInfo = item.appInfo)
+        }
+        is ExcludedItem.ResultApp -> {
             AppIconPlaceholder(appInfo = item.appInfo)
         }
     }
@@ -302,9 +309,14 @@ private sealed class ExcludedItem {
     abstract val displayName: String
     abstract val typeLabelRes: Int
 
-    data class App(val appInfo: AppInfo) : ExcludedItem() {
+    data class SuggestionApp(val appInfo: AppInfo) : ExcludedItem() {
         override val displayName: String = appInfo.appName
-        override val typeLabelRes: Int = R.string.excluded_item_type_app
+        override val typeLabelRes: Int = R.string.excluded_item_type_app_suggestions
+    }
+
+    data class ResultApp(val appInfo: AppInfo) : ExcludedItem() {
+        override val displayName: String = appInfo.appName
+        override val typeLabelRes: Int = R.string.excluded_item_type_app_results
     }
 
     data class Contact(val contactInfo: ContactInfo) : ExcludedItem() {

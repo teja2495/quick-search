@@ -557,7 +557,7 @@ fun SearchScreen(
             )
         },
         getAppNickname = getAppNickname,
-        showAppLabels = state.showAppLabels || derivedState.isSearching,
+        showAppLabels = true,
         rowCount = derivedState.visibleRowCount
     )
     

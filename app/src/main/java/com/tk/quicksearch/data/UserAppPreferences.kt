@@ -49,19 +49,33 @@ class UserAppPreferences(context: Context) {
         }
     }
 
+    init {
+        migrateHiddenPackages()
+    }
+
     // ============================================================================
     // App Preferences
     // ============================================================================
 
-    fun getHiddenPackages(): Set<String> = getStringSet(KEY_HIDDEN)
+    fun getSuggestionHiddenPackages(): Set<String> = getStringSet(KEY_HIDDEN_SUGGESTIONS)
+
+    fun getResultHiddenPackages(): Set<String> = getStringSet(KEY_HIDDEN_RESULTS)
 
     fun getPinnedPackages(): Set<String> = getStringSet(KEY_PINNED)
 
-    fun hidePackage(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN) {
+    fun hidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_SUGGESTIONS) {
         it.add(packageName)
     }
 
-    fun unhidePackage(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN) {
+    fun hidePackageInResults(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_RESULTS) {
+        it.add(packageName)
+    }
+
+    fun unhidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_SUGGESTIONS) {
+        it.remove(packageName)
+    }
+
+    fun unhidePackageInResults(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_RESULTS) {
         it.remove(packageName)
     }
 
@@ -73,13 +87,9 @@ class UserAppPreferences(context: Context) {
         it.remove(packageName)
     }
 
-    fun clearAllHiddenApps(): Set<String> = clearStringSet(KEY_HIDDEN)
+    fun clearAllHiddenAppsInSuggestions(): Set<String> = clearStringSet(KEY_HIDDEN_SUGGESTIONS)
 
-    fun shouldShowAppLabels(): Boolean = getBooleanPref(KEY_SHOW_APP_LABELS, true)
-
-    fun setShowAppLabels(showLabels: Boolean) {
-        setBooleanPref(KEY_SHOW_APP_LABELS, showLabels)
-    }
+    fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(KEY_HIDDEN_RESULTS)
 
     // ============================================================================
     // Contact Preferences
@@ -542,6 +552,29 @@ class UserAppPreferences(context: Context) {
     // Private Helper Functions
     // ============================================================================
 
+    private fun migrateHiddenPackages() {
+        val legacyHidden = getStringSet(KEY_HIDDEN_LEGACY)
+        val currentSuggestions = prefs.getStringSet(KEY_HIDDEN_SUGGESTIONS, null)
+        val currentResults = prefs.getStringSet(KEY_HIDDEN_RESULTS, null)
+
+        if (legacyHidden.isEmpty()) {
+            // Nothing to migrate; ensure legacy key is cleaned up if present
+            if (prefs.contains(KEY_HIDDEN_LEGACY)) {
+                prefs.edit().remove(KEY_HIDDEN_LEGACY).apply()
+            }
+            return
+        }
+
+        val editor = prefs.edit()
+        if (currentSuggestions.isNullOrEmpty()) {
+            editor.putStringSet(KEY_HIDDEN_SUGGESTIONS, legacyHidden)
+        }
+        if (currentResults.isNullOrEmpty()) {
+            editor.putStringSet(KEY_HIDDEN_RESULTS, legacyHidden)
+        }
+        editor.remove(KEY_HIDDEN_LEGACY).apply()
+    }
+
     private fun getStringSet(key: String): Set<String> {
         return prefs.getStringSet(key, emptySet()).orEmpty().toSet()
     }
@@ -704,9 +737,10 @@ class UserAppPreferences(context: Context) {
         private const val ENCRYPTED_PREFS_NAME = "encrypted_user_preferences"
 
         // App preferences keys
-        private const val KEY_HIDDEN = "hidden_packages"
+        private const val KEY_HIDDEN_LEGACY = "hidden_packages"
+        private const val KEY_HIDDEN_SUGGESTIONS = "hidden_packages_suggestions"
+        private const val KEY_HIDDEN_RESULTS = "hidden_packages_results"
         private const val KEY_PINNED = "pinned_packages"
-        private const val KEY_SHOW_APP_LABELS = "show_app_labels"
 
         // Contact preferences keys
         private const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"

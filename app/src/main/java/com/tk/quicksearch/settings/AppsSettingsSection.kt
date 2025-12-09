@@ -80,14 +80,11 @@ private fun SettingsToggleRow(
 
 @Composable
 fun AppLabelsSection(
-    showAppLabels: Boolean,
-    onToggleAppLabels: (Boolean) -> Unit,
     keyboardAlignedLayout: Boolean,
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     hasFilePermission: Boolean = true,
-    appsSectionEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -108,16 +105,6 @@ fun AppLabelsSection(
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // App labels toggle (conditional)
-            if (appsSectionEnabled) {
-                SettingsToggleRow(
-                    text = stringResource(R.string.settings_app_labels_toggle),
-                    checked = showAppLabels,
-                    onCheckedChange = onToggleAppLabels
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            }
 
             // Results alignment toggle (always shown)
             SettingsToggleRow(

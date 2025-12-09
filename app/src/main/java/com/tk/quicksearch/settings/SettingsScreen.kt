@@ -65,11 +65,11 @@ fun SettingsRoute(
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
     
     val state = SettingsScreenState(
-        hiddenApps = uiState.hiddenApps,
+        suggestionExcludedApps = uiState.suggestionExcludedApps,
+        resultExcludedApps = uiState.resultExcludedApps,
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
         excludedSettings = uiState.excludedSettings,
-        showAppLabels = uiState.showAppLabels,
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
         enabledFileTypes = uiState.enabledFileTypes,
@@ -90,12 +90,12 @@ fun SettingsRoute(
     
     val callbacks = SettingsScreenCallbacks(
         onBack = onBack,
-        onRemoveExcludedApp = viewModel::unhideApp,
+        onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
+        onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
         onRemoveExcludedSetting = viewModel::removeExcludedSetting,
         onClearAllExclusions = viewModel::clearAllExclusions,
-        onToggleAppLabels = viewModel::setShowAppLabels,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
         onToggleFileType = viewModel::setFileTypeEnabled,
@@ -304,8 +304,6 @@ private fun SettingsScreen(
 
             // Appearance Section
             AppLabelsSection(
-                showAppLabels = state.showAppLabels,
-                onToggleAppLabels = callbacks.onToggleAppLabels,
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
                 showWallpaperBackground = state.showWallpaperBackground,
@@ -318,10 +316,30 @@ private fun SettingsScreen(
                     }
                 },
                 hasFilePermission = hasFilePermission,
-                appsSectionEnabled = SearchSection.APPS !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
-            
+
+            // Excluded Items Section - Navigation Card (only shown when there are excluded items)
+            val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() || 
+                                   state.resultExcludedApps.isNotEmpty() ||
+                                   state.excludedContacts.isNotEmpty() || 
+                                   state.excludedFiles.isNotEmpty() ||
+                                   state.excludedSettings.isNotEmpty()
+            if (hasExcludedItems) {
+                SettingsNavigationCard(
+                    title = stringResource(R.string.settings_excluded_items_title),
+                    description = stringResource(R.string.settings_excluded_items_desc),
+                    onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
+                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        start = 24.dp,
+                        top = 20.dp,
+                        end = 24.dp,
+                        bottom = 24.dp
+                    )
+                )
+            }
+
             // Contacts Section
             MessagingSection(
                 messagingApp = state.messagingApp,
@@ -339,20 +357,6 @@ private fun SettingsScreen(
                 filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
-            
-            // Excluded Items Section - Navigation Card (only shown when there are excluded items)
-            val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
-                                   state.excludedContacts.isNotEmpty() || 
-                                   state.excludedFiles.isNotEmpty() ||
-                                   state.excludedSettings.isNotEmpty()
-            if (hasExcludedItems) {
-                SettingsNavigationCard(
-                    title = stringResource(R.string.settings_excluded_items_title),
-                    description = stringResource(R.string.settings_excluded_items_desc),
-                    onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
-                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-                )
-            }
 
             // Permissions Section (at the bottom)
             PermissionsSection(

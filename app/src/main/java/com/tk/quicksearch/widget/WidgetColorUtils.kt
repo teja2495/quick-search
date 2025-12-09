@@ -30,25 +30,25 @@ object WidgetColorUtils {
 
     /**
      * Calculates the border color with alpha applied.
+     * Border is always white and never fully opaque.
      */
     fun getBorderColor(borderColor: Int, backgroundAlpha: Float): Color {
-        return Color(borderColor).copy(alpha = backgroundAlpha)
+        // Keep some transparency even if the user picks a fully opaque background.
+        val appliedAlpha = backgroundAlpha.coerceAtMost(0.4f)
+        return Color.White.copy(alpha = appliedAlpha)
     }
 
     /**
-     * Calculates the text and icon color based on background and transparency.
-     * Text and icons should remain fully opaque (no transparency).
+     * Calculates the text and icon color based on user selection and transparency.
+     * Text and icons remain fully opaque (no transparency).
      */
     fun getTextIconColor(
-        borderColor: Int,
-        backgroundColorIsWhite: Boolean,
+        textIconColorIsWhite: Boolean,
         backgroundAlpha: Float
     ): Color {
-        val baseBorderColor = Color(borderColor)
-        return if (backgroundAlpha > ALPHA_THRESHOLD && backgroundColorIsWhite) {
-            DARK_GREY
-        } else {
-            baseBorderColor
+        val base = if (textIconColorIsWhite) Color.White else {
+            if (backgroundAlpha > ALPHA_THRESHOLD) DARK_GREY else Color.Black
         }
+        return base
     }
 }

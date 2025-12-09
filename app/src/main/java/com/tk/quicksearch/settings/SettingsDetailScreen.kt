@@ -52,11 +52,11 @@ fun SettingsDetailRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
     val state = SettingsScreenState(
-        hiddenApps = uiState.hiddenApps,
+        suggestionExcludedApps = uiState.suggestionExcludedApps,
+        resultExcludedApps = uiState.resultExcludedApps,
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
         excludedSettings = uiState.excludedSettings,
-        showAppLabels = uiState.showAppLabels,
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
         enabledFileTypes = uiState.enabledFileTypes,
@@ -77,12 +77,12 @@ fun SettingsDetailRoute(
     
     val callbacks = SettingsScreenCallbacks(
         onBack = onBack,
-        onRemoveExcludedApp = viewModel::unhideApp,
+        onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
+        onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
         onRemoveExcludedSetting = viewModel::removeExcludedSetting,
         onClearAllExclusions = viewModel::clearAllExclusions,
-        onToggleAppLabels = viewModel::setShowAppLabels,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
         onToggleFileType = viewModel::setFileTypeEnabled,
@@ -118,7 +118,8 @@ private fun SettingsDetailScreen(
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     
     // Navigate back to settings when all excluded items are cleared
-    val hasExcludedItems = state.hiddenApps.isNotEmpty() || 
+    val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() || 
+                           state.resultExcludedApps.isNotEmpty() ||
                            state.excludedContacts.isNotEmpty() || 
                            state.excludedFiles.isNotEmpty() ||
                            state.excludedSettings.isNotEmpty()
@@ -190,11 +191,13 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.EXCLUDED_ITEMS -> {
                         // Excluded Items Section
                         ExcludedItemsSection(
-                            hiddenApps = state.hiddenApps,
+                            suggestionExcludedApps = state.suggestionExcludedApps,
+                            resultExcludedApps = state.resultExcludedApps,
                             excludedContacts = state.excludedContacts,
                             excludedFiles = state.excludedFiles,
                             excludedSettings = state.excludedSettings,
-                            onRemoveExcludedApp = callbacks.onRemoveExcludedApp,
+                            onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
+                            onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
                             onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,

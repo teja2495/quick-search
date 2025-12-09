@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,50 +32,47 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
     val borderShape = RoundedCornerShape(state.borderRadiusDp.dp)
     val shouldShowBorder = state.borderWidthDp >= WidgetConfigConstants.BORDER_VISIBILITY_THRESHOLD
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                top = WidgetConfigConstants.PREVIEW_TOP_PADDING,
+                bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING
+            )
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(WidgetConfigConstants.PREVIEW_CARD_PADDING)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(WidgetConfigConstants.PREVIEW_HEIGHT)
-                    .background(colors.background, shape = borderShape)
-                    .then(
-                        if (shouldShowBorder) {
-                            Modifier.border(
-                                width = state.borderWidthDp.dp,
-                                color = colors.border,
-                                shape = borderShape
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_widget_search),
-                    contentDescription = stringResource(R.string.desc_search_icon),
-                    tint = colors.textIcon,
-                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                .height(WidgetConfigConstants.PREVIEW_HEIGHT)
+                .background(colors.background, shape = borderShape)
+                .then(
+                    if (shouldShowBorder) {
+                        Modifier.border(
+                            width = state.borderWidthDp.dp,
+                            color = colors.border,
+                            shape = borderShape
+                        )
+                    } else {
+                        Modifier
+                    }
                 )
-                if (state.showLabel) {
-                    Text(
-                        text = stringResource(R.string.widget_label_text),
-                        modifier = Modifier.padding(start = WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING),
-                        color = colors.textIcon,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_widget_search),
+                contentDescription = stringResource(R.string.desc_search_icon),
+                tint = colors.textIcon,
+                modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+            )
+            if (state.showLabel) {
+                Text(
+                    text = stringResource(R.string.widget_label_text),
+                    modifier = Modifier.padding(start = WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING),
+                    color = colors.textIcon,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
@@ -103,8 +98,7 @@ private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): Preview
     )
     val border = WidgetColorUtils.getBorderColor(state.borderColor, state.backgroundAlpha)
     val textIcon = WidgetColorUtils.getTextIconColor(
-        state.borderColor,
-        state.backgroundColorIsWhite,
+        state.textIconColorIsWhite,
         state.backgroundAlpha
     )
     

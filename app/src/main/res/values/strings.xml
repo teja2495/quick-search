@@ -303,6 +303,8 @@
     <string name="settings_excluded_items_more">More</string>
     <string name="settings_excluded_items_show_less">Show Less</string>
     <string name="excluded_item_type_app">App</string>
+    <string name="excluded_item_type_app_suggestions">App (Suggestions)</string>
+    <string name="excluded_item_type_app_results">App (Results)</string>
     <string name="excluded_item_type_contact">Contact</string>
     <string name="excluded_item_type_file">File</string>
     <string name="excluded_item_type_setting">Setting</string>
@@ -319,13 +321,14 @@
     <string name="widget_section_dark_wallpapers">For dark wallpapers</string>
     <string name="widget_section_style">Style</string>
     <string name="widget_section_text">Text</string>
-    <string name="widget_slider_radius">Corner radius</string>
-    <string name="widget_slider_border">Border thickness</string>
+    <string name="widget_slider_radius">Corner Radius</string>
+    <string name="widget_slider_border">Border Thickness</string>
     <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_toggle_show_label">Show "Quick Search" text</string>
-    <string name="widget_background_color">Background color</string>
+    <string name="widget_background_color">Background Color</string>
     <string name="widget_background_white">White</string>
     <string name="widget_background_black">Black</string>
+    <string name="widget_text_icon_color">Text &amp; Icon Color</string>
     <string name="widget_action_save">Save widget</string>
     <string name="widget_action_cancel">Cancel</string>
     <string name="widget_preset_dawn">Dawn Frost</string>

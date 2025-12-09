@@ -122,8 +122,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             null
         }
         val textIconColor = WidgetColorUtils.getTextIconColor(
-            config.borderColor,
-            config.backgroundColorIsWhite,
+            config.textIconColorIsWhite,
             config.backgroundAlpha
         )
         

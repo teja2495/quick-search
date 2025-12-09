@@ -103,10 +103,7 @@ fun QuickSearchWidgetConfigScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        horizontal = WidgetConfigConstants.HORIZONTAL_PADDING,
-                        vertical = WidgetConfigConstants.TOP_SECTION_PADDING
-                    ),
+                    .padding(horizontal = WidgetConfigConstants.HORIZONTAL_PADDING),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.PREVIEW_SECTION_SPACING)
             ) {
                 WidgetPreviewCard(state = state)
@@ -125,7 +122,6 @@ fun QuickSearchWidgetConfigScreen(
                     ),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)
             ) {
-                Spacer(modifier = Modifier.height(WidgetConfigConstants.SCROLLABLE_SECTION_TOP_SPACING))
                 WidgetBackgroundColorSection(state = state, onStateChange = onStateChange)
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
                 WidgetToggleSection(state = state, onStateChange = onStateChange)
@@ -244,6 +240,29 @@ private fun WidgetBackgroundColorSection(
             SegmentedButton(
                 selected = !state.backgroundColorIsWhite,
                 onClick = { onStateChange(state.copy(backgroundColorIsWhite = false)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_background_black))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(WidgetConfigConstants.COLOR_SECTION_SPACING))
+        Text(text = stringResource(R.string.widget_text_icon_color))
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SegmentedButton(
+                selected = state.textIconColorIsWhite,
+                onClick = { onStateChange(state.copy(textIconColorIsWhite = true)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_background_white))
+            }
+            SegmentedButton(
+                selected = !state.textIconColorIsWhite,
+                onClick = { onStateChange(state.copy(textIconColorIsWhite = false)) },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                 icon = {}
             ) {

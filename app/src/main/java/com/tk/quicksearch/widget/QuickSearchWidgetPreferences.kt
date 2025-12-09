@@ -17,8 +17,12 @@ private object WidgetDefaults {
     const val BORDER_RADIUS_DP = 30f
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
-    const val BACKGROUND_COLOR_IS_WHITE = true
+    // Default to black background for higher contrast out of the box.
+    const val BACKGROUND_COLOR_IS_WHITE = false
     const val BACKGROUND_ALPHA = 0.35f
+    // Default text/icon color inverts the background for readability:
+    // white text on dark backgrounds, dark text on light backgrounds.
+    const val TEXT_ICON_COLOR_IS_WHITE = false
 }
 
 // Value ranges for validation
@@ -39,6 +43,7 @@ private object WidgetKeys {
     val SHOW_LABEL = booleanPreferencesKey("quick_search_widget_show_label")
     val BACKGROUND_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_background_color_is_white")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
+    val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
 }
 
 /**
@@ -51,7 +56,8 @@ data class QuickSearchWidgetPreferences(
     val borderWidthDp: Float = WidgetDefaults.BORDER_WIDTH_DP,
     val showLabel: Boolean = WidgetDefaults.SHOW_LABEL,
     val backgroundColorIsWhite: Boolean = WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
-    val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA
+    val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
+    val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE
 ) : Parcelable {
 
     companion object {
@@ -86,14 +92,20 @@ data class QuickSearchWidgetPreferences(
  * Converts Preferences to QuickSearchWidgetPreferences, applying defaults and validation.
  */
 fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
+    val backgroundIsWhite = this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE]
+        ?: WidgetDefaults.BACKGROUND_COLOR_IS_WHITE
+    val textIconIsWhite = this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE]
+        // Sensible default: invert background for readability when no preference saved.
+        ?: !backgroundIsWhite
+
     return QuickSearchWidgetPreferences(
         borderColor = this[WidgetKeys.BORDER_COLOR] ?: WidgetDefaults.BORDER_COLOR_ARGB,
         borderRadiusDp = this[WidgetKeys.BORDER_RADIUS] ?: WidgetDefaults.BORDER_RADIUS_DP,
         borderWidthDp = this[WidgetKeys.BORDER_WIDTH] ?: WidgetDefaults.BORDER_WIDTH_DP,
         showLabel = this[WidgetKeys.SHOW_LABEL] ?: WidgetDefaults.SHOW_LABEL,
-        backgroundColorIsWhite = this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE]
-            ?: WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
-        backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA
+        backgroundColorIsWhite = backgroundIsWhite,
+        backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA,
+        textIconColorIsWhite = textIconIsWhite
     ).coerceToValidRanges()
 }
 
@@ -108,5 +120,6 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.SHOW_LABEL] = validated.showLabel
     this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE] = validated.backgroundColorIsWhite
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
+    this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE] = validated.textIconColorIsWhite
 }
 

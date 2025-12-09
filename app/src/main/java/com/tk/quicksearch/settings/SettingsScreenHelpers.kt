@@ -30,11 +30,11 @@ import com.tk.quicksearch.search.SearchViewModel
  * Reduces parameter count and improves maintainability.
  */
 data class SettingsScreenState(
-    val hiddenApps: List<AppInfo>,
+    val suggestionExcludedApps: List<AppInfo>,
+    val resultExcludedApps: List<AppInfo>,
     val excludedContacts: List<ContactInfo>,
     val excludedFiles: List<DeviceFile>,
     val excludedSettings: List<SettingShortcut>,
-    val showAppLabels: Boolean,
     val searchEngineOrder: List<SearchEngine>,
     val disabledSearchEngines: Set<SearchEngine>,
     val enabledFileTypes: Set<FileType>,
@@ -58,12 +58,12 @@ data class SettingsScreenState(
  */
 data class SettingsScreenCallbacks(
     val onBack: () -> Unit,
-    val onRemoveExcludedApp: (AppInfo) -> Unit,
+    val onRemoveSuggestionExcludedApp: (AppInfo) -> Unit,
+    val onRemoveResultExcludedApp: (AppInfo) -> Unit,
     val onRemoveExcludedContact: (ContactInfo) -> Unit,
     val onRemoveExcludedFile: (DeviceFile) -> Unit,
     val onRemoveExcludedSetting: (SettingShortcut) -> Unit,
     val onClearAllExclusions: () -> Unit,
-    val onToggleAppLabels: (Boolean) -> Unit,
     val onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
     val onReorderSearchEngines: (List<SearchEngine>) -> Unit,
     val onToggleFileType: (FileType, Boolean) -> Unit,
