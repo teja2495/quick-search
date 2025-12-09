@@ -117,7 +117,8 @@ private fun <T> getListForRendering(
     autoExpand: Boolean,
     keyboardAlignedLayout: Boolean
 ): List<T> {
-    return if ((isExpanded || autoExpand) && keyboardAlignedLayout) {
+    // Keep natural order when user expands a section; only reverse for auto-expanded
+    return if (!isExpanded && autoExpand && keyboardAlignedLayout) {
         list.reversed() // Returns a reversed view, more efficient than asReversed()
     } else {
         list

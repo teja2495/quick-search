@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -98,34 +99,45 @@ fun SearchContentArea(
     val hideResultsForDirectAnswer = directAnswerState.status == DirectAnswerStatus.Success &&
         !directAnswerState.answer.isNullOrBlank()
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(scrollState)
-            .padding(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth()
     ) {
-        if (showDirectAnswer) {
-            DirectAnswerResult(
-                directAnswerState = directAnswerState,
-                onRetry = onRetryDirectAnswer,
-                showWallpaperBackground = state.showWallpaperBackground,
-                onPhoneNumberClick = onPhoneNumberClick,
-                onEmailClick = onEmailClick
+        val verticalArrangement = if (useKeyboardAlignedLayout) {
+            Arrangement.spacedBy(12.dp, Alignment.Bottom)
+        } else {
+            Arrangement.spacedBy(12.dp)
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = maxHeight)
+                .verticalScroll(scrollState)
+                .padding(vertical = 12.dp),
+            verticalArrangement = verticalArrangement
+        ) {
+            if (showDirectAnswer) {
+                DirectAnswerResult(
+                    directAnswerState = directAnswerState,
+                    onRetry = onRetryDirectAnswer,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    onPhoneNumberClick = onPhoneNumberClick,
+                    onEmailClick = onEmailClick
+                )
+            }
+            ContentLayout(
+                modifier = Modifier.fillMaxWidth(),
+                state = state,
+                renderingState = renderingState,
+                contactsParams = contactsParams,
+                filesParams = filesParams,
+                settingsParams = settingsParams,
+                appsParams = appsParams,
+                onRequestUsagePermission = onRequestUsagePermission,
+                isReversed = useKeyboardAlignedLayout,
+                hideResults = hideResultsForDirectAnswer
             )
         }
-        ContentLayout(
-            modifier = Modifier.fillMaxWidth(),
-            state = state,
-            renderingState = renderingState,
-            contactsParams = contactsParams,
-            filesParams = filesParams,
-            settingsParams = settingsParams,
-            appsParams = appsParams,
-            onRequestUsagePermission = onRequestUsagePermission,
-            isReversed = useKeyboardAlignedLayout,
-            hideResults = hideResultsForDirectAnswer
-        )
     }
 }
 
