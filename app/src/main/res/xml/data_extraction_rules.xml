@@ -7,10 +7,17 @@
     <cloud-backup>
         <!-- Do not restore first-launch state (keeps onboarding fresh after reinstall) -->
         <exclude domain="sharedpref" path="first_launch_state.xml"/>
+        <!-- Exclude app usage cache to avoid restoring stale usage history -->
+        <exclude domain="sharedpref" path="app_cache.xml"/>
+        <!-- Exclude encrypted prefs that store Gemini API key -->
+        <exclude domain="sharedpref" path="encrypted_user_preferences.xml"/>
     </cloud-backup>
-    <!--
     <device-transfer>
+        <!-- Do not restore first-launch state (keeps onboarding fresh after reinstall) -->
         <exclude domain="sharedpref" path="first_launch_state.xml"/>
+        <!-- Exclude app usage cache to avoid restoring stale usage history -->
+        <exclude domain="sharedpref" path="app_cache.xml"/>
+        <!-- Exclude encrypted prefs that store Gemini API key -->
+        <exclude domain="sharedpref" path="encrypted_user_preferences.xml"/>
     </device-transfer>
-    -->
 </data-extraction-rules>

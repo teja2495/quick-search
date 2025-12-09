@@ -61,7 +61,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
     SearchEngine.GOOGLE_MAPS to SearchEngineMetadata(
         drawableResId = R.drawable.google_maps,
         contentDescription = "Google Maps",
-        urlTemplate = "http://maps.google.com/?q=%s",
+        urlTemplate = "https://maps.google.com/?q=%s",
         defaultShortcutCode = "mps"
     ),
     SearchEngine.GOOGLE_PLAY to SearchEngineMetadata(

@@ -29,14 +29,14 @@ class UserAppPreferences(context: Context) {
     private val firstLaunchPrefs: SharedPreferences =
         appContext.getSharedPreferences(FIRST_LAUNCH_PREFS_NAME, Context.MODE_PRIVATE)
     
-    // Encrypted SharedPreferences for sensitive data like API keys
-    // Falls back to regular SharedPreferences if encryption fails
-    private val encryptedPrefs: SharedPreferences = run {
+    // Encrypted SharedPreferences for sensitive data like API keys.
+    // If encryption cannot be initialized, Gemini keys will not be persisted.
+    private val encryptedPrefs: SharedPreferences? = run {
         try {
             val masterKey = MasterKey.Builder(appContext)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build()
-            
+
             EncryptedSharedPreferences.create(
                 appContext,
                 ENCRYPTED_PREFS_NAME,
@@ -45,9 +45,8 @@ class UserAppPreferences(context: Context) {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to create EncryptedSharedPreferences, falling back to regular SharedPreferences", e)
-            // Fallback to regular SharedPreferences if encryption fails
-            appContext.getSharedPreferences(ENCRYPTED_PREFS_NAME, Context.MODE_PRIVATE)
+            Log.e(TAG, "Failed to create EncryptedSharedPreferences; Gemini API key will not be stored", e)
+            null
         }
     }
 
@@ -431,17 +430,20 @@ class UserAppPreferences(context: Context) {
     // ============================================================================
 
     fun getGeminiApiKey(): String? {
-        // First try to get from encrypted storage
-        val encryptedKey = encryptedPrefs.getString(KEY_GEMINI_API_KEY, null)
-        if (encryptedKey != null) {
-            return encryptedKey
+        val securePrefs = encryptedPrefs ?: run {
+            Log.e(TAG, "EncryptedSharedPreferences unavailable; Gemini API key not loaded")
+            return null
         }
-        
+
+        // First try to get from encrypted storage
+        val encryptedKey = securePrefs.getString(KEY_GEMINI_API_KEY, null)
+        if (!encryptedKey.isNullOrBlank()) return encryptedKey
+
         // Migration: If not in encrypted storage, check plain text storage and migrate
         val plainTextKey = prefs.getString(KEY_GEMINI_API_KEY, null)
-        if (plainTextKey != null) {
+        if (!plainTextKey.isNullOrBlank()) {
             // Migrate to encrypted storage
-            encryptedPrefs.edit().putString(KEY_GEMINI_API_KEY, plainTextKey).apply()
+            securePrefs.edit().putString(KEY_GEMINI_API_KEY, plainTextKey).apply()
             // Remove from plain text storage
             prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
             return plainTextKey
@@ -451,16 +453,23 @@ class UserAppPreferences(context: Context) {
     }
 
     fun setGeminiApiKey(key: String?) {
+        val securePrefs = encryptedPrefs ?: run {
+            Log.e(TAG, "EncryptedSharedPreferences unavailable; Gemini API key not persisted")
+            return
+        }
+
         if (key.isNullOrBlank()) {
             // Remove from both encrypted and plain text (for migration safety)
-            encryptedPrefs.edit().remove(KEY_GEMINI_API_KEY).apply()
+            securePrefs.edit().remove(KEY_GEMINI_API_KEY).apply()
             prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
-        } else {
-            // Save to encrypted storage
-            encryptedPrefs.edit().putString(KEY_GEMINI_API_KEY, key.trim()).apply()
-            // Also remove from plain text storage if it exists (cleanup)
-            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
+            return
         }
+
+        val normalizedKey = key.trim()
+        // Save to encrypted storage
+        securePrefs.edit().putString(KEY_GEMINI_API_KEY, normalizedKey).apply()
+        // Also remove from plain text storage if it exists (cleanup)
+        prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
     }
 
     // ============================================================================
