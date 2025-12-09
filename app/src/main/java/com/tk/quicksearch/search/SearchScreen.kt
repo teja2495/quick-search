@@ -70,7 +70,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -184,7 +183,7 @@ private fun rememberDerivedState(
     }
     val autoExpandFiles = hasFileResults && !hasContactResults
     val autoExpandContacts = hasContactResults && !hasFileResults
-    val autoExpandSettings = hasSettingResults && !hasContactResults && !hasFileResults
+    val autoExpandSettings = !isSearching && hasSettingResults && !hasContactResults && !hasFileResults
     val hasMultipleExpandableSections = listOf(hasContactResults, hasFileResults, hasSettingResults).count { it } > 1
     
     val orderedSections = remember(state.sectionOrder, state.disabledSections) {
@@ -242,6 +241,12 @@ fun SearchRoute(
         viewModel.callContact(contact)
     }
 
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        viewModel.onCallPermissionResult(isGranted)
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -250,6 +255,15 @@ fun SearchRoute(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(uiState.pendingDirectCallNumber) {
+        val pendingNumber = uiState.pendingDirectCallNumber ?: return@LaunchedEffect
+        if (context is android.app.Activity) {
+            callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+        } else {
+            viewModel.onCallPermissionResult(false)
+        }
     }
 
     SearchScreen(
@@ -302,7 +316,9 @@ fun SearchRoute(
         onSaveContactNickname = viewModel::setContactNickname,
         onSaveFileNickname = viewModel::setFileNickname,
         getSettingNickname = viewModel::getSettingNickname,
-        onSaveSettingNickname = viewModel::setSettingNickname
+        onSaveSettingNickname = viewModel::setSettingNickname,
+        onDirectDialChoiceSelected = viewModel::onDirectDialChoiceSelected,
+        onDismissDirectDialChoice = viewModel::dismissDirectDialChoice
     )
 }
 
@@ -351,7 +367,9 @@ fun SearchScreen(
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     getSettingNickname: (String) -> String?,
-    onSaveSettingNickname: (SettingShortcut, String?) -> Unit
+    onSaveSettingNickname: (SettingShortcut, String?) -> Unit,
+    onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
+    onDismissDirectDialChoice: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -753,6 +771,15 @@ fun SearchScreen(
             isCall = selection.isCall,
             onPhoneNumberSelected = onPhoneNumberSelected,
             onDismiss = onDismissPhoneNumberSelection
+        )
+    }
+    
+    state.directDialChoice?.let { choice ->
+        DirectDialChoiceDialog(
+            contactName = choice.contactName,
+            phoneNumber = choice.phoneNumber,
+            onSelectOption = onDirectDialChoiceSelected,
+            onDismiss = onDismissDirectDialChoice
         )
     }
     

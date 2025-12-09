@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,9 +22,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -80,6 +83,7 @@ fun SettingsRoute(
         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
+        directDialEnabled = uiState.directDialEnabled,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
@@ -88,33 +92,11 @@ fun SettingsRoute(
         geminiApiKeyLast4 = uiState.geminiApiKeyLast4
     )
     
-    val callbacks = SettingsScreenCallbacks(
-        onBack = onBack,
-        onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
-        onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
-        onRemoveExcludedContact = viewModel::removeExcludedContact,
-        onRemoveExcludedFile = viewModel::removeExcludedFile,
-        onRemoveExcludedSetting = viewModel::removeExcludedSetting,
-        onClearAllExclusions = viewModel::clearAllExclusions,
-        onToggleSearchEngine = viewModel::setSearchEngineEnabled,
-        onReorderSearchEngines = viewModel::reorderSearchEngines,
-        onToggleFileType = viewModel::setFileTypeEnabled,
-        onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout,
-        setShortcutCode = viewModel::setShortcutCode,
-        setShortcutEnabled = viewModel::setShortcutEnabled,
-        onSetMessagingApp = viewModel::setMessagingApp,
-        onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
-        onToggleSection = onToggleSection,
-        onReorderSections = viewModel::reorderSections,
-        onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
-        onSetAmazonDomain = viewModel::setAmazonDomain,
-        onSetGeminiApiKey = viewModel::setGeminiApiKey
-    )
-    
     val context = LocalContext.current
     val userPreferences = remember { UserAppPreferences(context) }
     var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    var pendingEnableDirectDial by remember { mutableStateOf(false) }
     
     // Launcher for contacts permission request
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
@@ -157,6 +139,10 @@ fun SettingsRoute(
     ) { isGranted ->
         // Refresh permission state after request
         viewModel.handleOptionalPermissionChange()
+
+        if (isGranted && pendingEnableDirectDial) {
+            viewModel.setDirectDialEnabled(true)
+        }
         
         // If permission was not granted, check if we should open settings as fallback
         if (!isGranted && context is android.app.Activity) {
@@ -170,6 +156,8 @@ fun SettingsRoute(
                 viewModel.openAppSettings()
             }
         }
+
+        pendingEnableDirectDial = false
     }
     
     // Handler for call permission request - tries popup first, then settings
@@ -182,6 +170,46 @@ fun SettingsRoute(
             callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
         }
     }
+
+    val onToggleDirectDial: (Boolean) -> Unit = { enabled ->
+        if (enabled) {
+            if (PermissionRequestHandler.checkCallPermission(context)) {
+                viewModel.setDirectDialEnabled(true)
+            } else if (context !is android.app.Activity) {
+                viewModel.openAppSettings()
+            } else {
+                pendingEnableDirectDial = true
+                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+            }
+        } else {
+            pendingEnableDirectDial = false
+            viewModel.setDirectDialEnabled(false)
+        }
+    }
+
+    val callbacks = SettingsScreenCallbacks(
+        onBack = onBack,
+        onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
+        onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
+        onRemoveExcludedContact = viewModel::removeExcludedContact,
+        onRemoveExcludedFile = viewModel::removeExcludedFile,
+        onRemoveExcludedSetting = viewModel::removeExcludedSetting,
+        onClearAllExclusions = viewModel::clearAllExclusions,
+        onToggleSearchEngine = viewModel::setSearchEngineEnabled,
+        onReorderSearchEngines = viewModel::reorderSearchEngines,
+        onToggleFileType = viewModel::setFileTypeEnabled,
+        onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout,
+        setShortcutCode = viewModel::setShortcutCode,
+        setShortcutEnabled = viewModel::setShortcutEnabled,
+        onSetMessagingApp = viewModel::setMessagingApp,
+        onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+        onToggleDirectDial = onToggleDirectDial,
+        onToggleSection = onToggleSection,
+        onReorderSections = viewModel::reorderSections,
+        onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
+        onSetAmazonDomain = viewModel::setAmazonDomain,
+        onSetGeminiApiKey = viewModel::setGeminiApiKey
+    )
     
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
     DisposableEffect(lifecycleOwner) {
@@ -294,12 +322,7 @@ private fun SettingsScreen(
                 description = stringResource(R.string.settings_search_engines_desc),
                 onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    start = 24.dp,
-                    top = 20.dp,
-                    end = 24.dp,
-                    bottom = 24.dp
-                )
+                contentPadding = SettingsSpacing.singleCardPadding
             )
 
             // Appearance Section
@@ -331,14 +354,16 @@ private fun SettingsScreen(
                     description = stringResource(R.string.settings_excluded_items_desc),
                     onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
                     modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                        start = 24.dp,
-                        top = 20.dp,
-                        end = 24.dp,
-                        bottom = 24.dp
-                    )
+                    contentPadding = SettingsSpacing.singleCardPadding
                 )
             }
+
+            DirectDialSettingsCard(
+                enabled = state.directDialEnabled,
+                hasCallPermission = hasCallPermission,
+                onToggle = callbacks.onToggleDirectDial,
+                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+            )
 
             // Contacts Section
             MessagingSection(
@@ -424,6 +449,47 @@ private fun SettingsScreen(
             // App Version
             Spacer(modifier = Modifier.height(16.dp))
             SettingsVersionDisplay()
+        }
+    }
+}
+
+@Composable
+private fun DirectDialSettingsCard(
+    enabled: Boolean,
+    hasCallPermission: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(SettingsSpacing.singleCardPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_direct_dial_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.settings_direct_dial_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = enabled && hasCallPermission,
+                onCheckedChange = onToggle
+            )
         }
     }
 }

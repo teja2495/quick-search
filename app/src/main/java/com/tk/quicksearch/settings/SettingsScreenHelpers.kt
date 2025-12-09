@@ -6,6 +6,7 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ data class SettingsScreenState(
     val isWhatsAppInstalled: Boolean,
     val isTelegramInstalled: Boolean,
     val showWallpaperBackground: Boolean,
+    val directDialEnabled: Boolean,
     val sectionOrder: List<SearchSection>,
     val disabledSections: Set<SearchSection>,
     val searchEngineSectionEnabled: Boolean,
@@ -72,6 +74,7 @@ data class SettingsScreenCallbacks(
     val setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
     val onSetMessagingApp: (MessagingApp) -> Unit,
     val onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    val onToggleDirectDial: (Boolean) -> Unit,
     val onToggleSection: (SearchSection, Boolean) -> Unit,
     val onReorderSections: (List<SearchSection>) -> Unit,
     val onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
@@ -92,6 +95,12 @@ object SettingsSpacing {
     val sectionDescriptionBottomPadding = 16.dp
     val versionTopPadding = 45.dp
     val versionBottomPadding = 100.dp
+    val singleCardPadding = PaddingValues(
+        start = 24.dp,
+        top = 20.dp,
+        end = 24.dp,
+        bottom = 24.dp
+    )
 }
 
 /**

@@ -152,6 +152,28 @@ object IntentHelpers {
     }
     
     /**
+     * Opens the dialer without requiring call permission.
+     */
+    fun performDial(context: Application, number: String) {
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:${Uri.encode(number)}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    /**
+     * Initiates a direct phone call. Requires CALL_PHONE permission.
+     */
+    fun performDirectCall(context: Application, number: String) {
+        val intent = Intent(Intent.ACTION_CALL).apply {
+            data = Uri.parse("tel:${Uri.encode(number)}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    }
+
+    /**
      * Initiates a phone call.
      * Uses ACTION_CALL if CALL_PHONE permission is granted, otherwise falls back to ACTION_DIAL.
      */
@@ -160,18 +182,12 @@ object IntentHelpers {
             context,
             Manifest.permission.CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED
-        
-        val action = if (hasCallPermission) {
-            Intent.ACTION_CALL
+
+        if (hasCallPermission) {
+            performDirectCall(context, number)
         } else {
-            Intent.ACTION_DIAL
+            performDial(context, number)
         }
-        
-        val intent = Intent(action).apply {
-            data = Uri.parse("tel:${Uri.encode(number)}")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
     }
     
     /**

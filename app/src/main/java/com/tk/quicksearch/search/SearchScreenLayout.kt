@@ -96,8 +96,7 @@ fun SearchContentArea(
         renderingState.expandedSection == ExpandedSection.NONE
     val directAnswerState = state.directAnswerState
     val showDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
-    val hideResultsForDirectAnswer = directAnswerState.status == DirectAnswerStatus.Success &&
-        !directAnswerState.answer.isNullOrBlank()
+    val hideResultsForDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
@@ -294,8 +293,13 @@ private fun DirectAnswerResult(
                         color = MaterialTheme.colorScheme.error
                     )
                     if (directAnswerState.activeQuery != null) {
-                        TextButton(onClick = onRetry) {
-                            Text(text = stringResource(R.string.direct_answer_action_retry))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            TextButton(onClick = onRetry) {
+                                Text(text = stringResource(R.string.direct_answer_action_retry))
+                            }
                         }
                     }
                 }
@@ -402,7 +406,7 @@ private fun SearchResultsSections(
         showAllSettingsResults = renderingState.autoExpandSettings,
         showFilesExpandControls = renderingState.hasMultipleExpandableSections,
         showContactsExpandControls = renderingState.hasMultipleExpandableSections,
-        showSettingsExpandControls = renderingState.hasMultipleExpandableSections,
+        showSettingsExpandControls = renderingState.hasMultipleExpandableSections || renderingState.hasSettingResults,
         filesExpandClick = filesParams.onExpandClick,
         contactsExpandClick = contactsParams.onExpandClick,
         settingsExpandClick = settingsParams.onExpandClick

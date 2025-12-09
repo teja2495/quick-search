@@ -139,11 +139,12 @@
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_remember_choice">Remember this choice</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_ok">Okay, continue</string>
+    <string name="dialog_ok">Continue</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">Message</string>
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
     <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
+    <string name="dialog_edit_shortcut_error_length">Shortcut must be at least 2 characters.</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
@@ -157,6 +158,13 @@
     <string name="dialog_nickname_remove">Remove</string>
     <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>
     <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Answer feature.</string>
+    <string name="dialog_direct_dial_title">Choose how to call</string>
+    <string name="dialog_direct_dial_message">How do you want to place calls?</string>
+    <string name="dialog_direct_dial_option_direct">Call Directly</string>
+    <string name="dialog_direct_dial_option_direct_desc">Place the call immediately (requires calling permission).</string>
+    <string name="dialog_direct_dial_option_dialer">Open Dialer</string>
+    <string name="dialog_direct_dial_option_dialer_desc">Review the number in your dialer before calling.</string>
+    <string name="dialog_direct_dial_change_later">You can change this anytime in Settings.</string>
 
     <!-- ============================================================================
          Settings - General
@@ -262,6 +270,8 @@
     <string name="settings_add_shortcut">Add Shortcut</string>
     <string name="settings_direct_search_toggle">Direct Search</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
+    <string name="settings_direct_dial_title">Direct Dial</string>
+    <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
 
     <!-- ============================================================================
          Settings - File Types
@@ -286,7 +296,7 @@
          Settings - Sections
          ============================================================================ -->
     <string name="settings_sections_title">Search Results</string>
-    <string name="settings_sections_desc">Customize which sections appear in search results and their order.</string>
+    <string name="settings_sections_desc">Customize which type of results appear in search results and their order.</string>
     <string name="section_apps">Apps</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>

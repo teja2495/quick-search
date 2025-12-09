@@ -16,6 +16,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
+import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +75,16 @@ data class PhoneNumberSelection(
     val isCall: Boolean // true for call, false for SMS
 )
 
+data class DirectDialChoice(
+    val contactName: String,
+    val phoneNumber: String
+)
+
+enum class DirectDialOption {
+    DIRECT_CALL,
+    DIALER
+}
+
 data class SearchUiState(
     val query: String = "",
     val hasUsagePermission: Boolean = false,
@@ -101,6 +112,9 @@ data class SearchUiState(
     val searchEngineOrder: List<SearchEngine> = emptyList(),
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
+    val directDialChoice: DirectDialChoice? = null,
+    val pendingDirectCallNumber: String? = null,
+    val directDialEnabled: Boolean = false,
     val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
     val keyboardAlignedLayout: Boolean = true,
     val shortcutsEnabled: Boolean = true,
@@ -159,6 +173,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.isShortcutEnabled(it) 
     }
     private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
+    private var directDialEnabled: Boolean = userPreferences.isDirectDialEnabled()
+    private var hasSeenDirectDialChoice: Boolean = userPreferences.hasSeenDirectDialChoice()
     private var showWallpaperBackground: Boolean = run {
         val prefValue = userPreferences.shouldShowWallpaperBackground()
         val hasFilesPermission = permissionManager.hasFilePermission()
@@ -214,6 +230,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
                     messagingApp = resolvedMessagingApp,
+                    directDialEnabled = directDialEnabled,
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
@@ -247,6 +264,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutCodes = shortcutCodes,
                     shortcutEnabled = shortcutEnabled,
                     messagingApp = resolvedMessagingApp,
+                    directDialEnabled = directDialEnabled,
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
@@ -400,6 +418,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             isWhatsAppInstalled = whatsappInstalled,
             isTelegramInstalled = telegramInstalled
         )
+    }
+
+    fun setDirectDialEnabled(enabled: Boolean) {
+        directDialEnabled = enabled
+        hasSeenDirectDialChoice = true
+        userPreferences.setDirectDialEnabled(enabled)
+        userPreferences.setHasSeenDirectDialChoice(true)
+        _uiState.update { it.copy(directDialEnabled = enabled) }
     }
 
     fun onQueryChange(newQuery: String) {
@@ -1139,8 +1165,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setShortcutCode(engine: SearchEngine, code: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setShortcutCode(engine, code)
-            shortcutCodes = shortcutCodes.toMutableMap().apply { put(engine, code) }
+            val normalizedCode = normalizeShortcutCodeInput(code)
+            if (!isValidShortcutCode(normalizedCode)) {
+                return@launch
+            }
+            userPreferences.setShortcutCode(engine, normalizedCode)
+            shortcutCodes = shortcutCodes.toMutableMap().apply { put(engine, normalizedCode) }
             _uiState.update { 
                 it.copy(shortcutCodes = shortcutCodes)
             }
@@ -1697,7 +1727,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
             // Use preferred number directly
-            performCall(preferredNumber)
+            beginCallFlow(contactInfo.displayName, preferredNumber)
             return
         }
         
@@ -1708,7 +1738,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
         
         // Single number, use it directly
-        performCall(contactInfo.phoneNumbers.first())
+        beginCallFlow(contactInfo.displayName, contactInfo.phoneNumbers.first())
     }
 
     fun smsContact(contactInfo: ContactInfo) {
@@ -1751,7 +1781,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         // Perform the action
         if (selection.isCall) {
-            performCall(phoneNumber)
+            beginCallFlow(contactInfo.displayName, phoneNumber)
         } else {
             performMessaging(phoneNumber)
         }
@@ -1764,8 +1794,86 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(phoneNumberSelection = null) }
     }
     
-    private fun performCall(number: String) {
-        IntentHelpers.performCall(getApplication(), number)
+    private fun beginCallFlow(contactName: String, phoneNumber: String) {
+        if (!hasSeenDirectDialChoice) {
+            _uiState.update { state ->
+                state.copy(
+                    directDialChoice = DirectDialChoice(
+                        contactName = contactName,
+                        phoneNumber = phoneNumber
+                    )
+                )
+            }
+            return
+        }
+
+        if (directDialEnabled) {
+            startDirectCallFlow(phoneNumber)
+        } else {
+            openDialer(phoneNumber)
+        }
+    }
+
+    private fun startDirectCallFlow(phoneNumber: String) {
+        val hasPermission = PermissionRequestHandler.checkCallPermission(getApplication())
+        if (hasPermission) {
+            performDirectCall(phoneNumber)
+        } else {
+            _uiState.update { it.copy(pendingDirectCallNumber = phoneNumber) }
+        }
+    }
+
+    fun onDirectDialChoiceSelected(option: DirectDialOption, rememberChoice: Boolean) {
+        val choice = _uiState.value.directDialChoice ?: return
+        val useDirectDial = option == DirectDialOption.DIRECT_CALL
+
+        if (rememberChoice) {
+            directDialEnabled = useDirectDial
+            userPreferences.setDirectDialEnabled(useDirectDial)
+        }
+        hasSeenDirectDialChoice = true
+        userPreferences.setHasSeenDirectDialChoice(true)
+
+        _uiState.update {
+            it.copy(
+                directDialChoice = null,
+                directDialEnabled = directDialEnabled
+            )
+        }
+
+        if (useDirectDial) {
+            startDirectCallFlow(choice.phoneNumber)
+        } else {
+            openDialer(choice.phoneNumber)
+        }
+    }
+
+    fun dismissDirectDialChoice() {
+        _uiState.update { it.copy(directDialChoice = null) }
+    }
+
+    fun onCallPermissionResult(isGranted: Boolean) {
+        val pendingNumber = _uiState.value.pendingDirectCallNumber ?: return
+
+        _uiState.update { it.copy(pendingDirectCallNumber = null) }
+
+        // Refresh permission state after request result
+        handleOptionalPermissionChange()
+
+        if (isGranted) {
+            performDirectCall(pendingNumber)
+        } else {
+            // If permission is denied, fall back to the dialer so the action still works
+            openDialer(pendingNumber)
+        }
+    }
+
+    private fun performDirectCall(number: String) {
+        IntentHelpers.performDirectCall(getApplication(), number)
+    }
+
+    private fun openDialer(number: String) {
+        IntentHelpers.performDial(getApplication(), number)
     }
     
     private fun performSms(number: String) {

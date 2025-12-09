@@ -199,6 +199,18 @@ fun SearchEngine.getDefaultShortcutCode(): String =
         ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
 
 /**
+ * Normalizes shortcut input by lowercasing and stripping invalid characters.
+ */
+fun normalizeShortcutCodeInput(input: String): String =
+    input.lowercase().filter { char -> char.isLetterOrDigit() && char != ' ' }
+
+/**
+ * Validates shortcut input. Must be at least 2 characters after normalization.
+ */
+fun isValidShortcutCode(input: String): Boolean =
+    normalizeShortcutCodeInput(input).length >= 2
+
+/**
  * Maps SearchEngine enum to its string resource ID for display name.
  */
 @StringRes

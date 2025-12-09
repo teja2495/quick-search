@@ -213,7 +213,7 @@ private fun SearchEngineToggleCard(
 
             if (directSearchEnabled && geminiApiKeyLast4 != null) {
                 Text(
-                    text = "Your current Gemini API key ends with $geminiApiKeyLast4",
+                    text = "Your Gemini API key:  ****$geminiApiKeyLast4",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(

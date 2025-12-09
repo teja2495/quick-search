@@ -12,6 +12,8 @@ import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.getDefaultShortcutCode
 import com.tk.quicksearch.search.isValidAmazonDomain
+import com.tk.quicksearch.search.isValidShortcutCode
+import com.tk.quicksearch.search.normalizeShortcutCodeInput
 import java.util.Locale
 
 /**
@@ -123,6 +125,18 @@ class UserAppPreferences(context: Context) {
 
     fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) {
         prefs.edit().putString("$KEY_PREFERRED_PHONE_PREFIX$contactId", phoneNumber).apply()
+    }
+
+    fun isDirectDialEnabled(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_ENABLED, false)
+
+    fun setDirectDialEnabled(enabled: Boolean) {
+        setBooleanPref(KEY_DIRECT_DIAL_ENABLED, enabled)
+    }
+
+    fun hasSeenDirectDialChoice(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_CHOICE_SHOWN, false)
+
+    fun setHasSeenDirectDialChoice(seen: Boolean) {
+        setBooleanPref(KEY_DIRECT_DIAL_CHOICE_SHOWN, seen)
     }
 
     // ============================================================================
@@ -351,14 +365,22 @@ class UserAppPreferences(context: Context) {
     fun getShortcutCode(engine: SearchEngine): String {
         val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
         val defaultCode = getDefaultShortcutCode(engine)
-        // Code is already filtered on write, so no need to filter again
-        return prefs.getString(key, defaultCode) ?: defaultCode
+        val storedCode = prefs.getString(key, defaultCode) ?: defaultCode
+        val normalizedCode = normalizeShortcutCodeInput(storedCode)
+        return if (isValidShortcutCode(normalizedCode)) {
+            normalizedCode
+        } else {
+            defaultCode
+        }
     }
 
     fun setShortcutCode(engine: SearchEngine, code: String) {
         val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
-        val filteredCode = code.lowercase().filter { char -> char.isLetterOrDigit() && char != ' ' }
-        prefs.edit().putString(key, filteredCode).apply()
+        val normalizedCode = normalizeShortcutCodeInput(code)
+        if (!isValidShortcutCode(normalizedCode)) {
+            return
+        }
+        prefs.edit().putString(key, normalizedCode).apply()
     }
 
     fun isShortcutEnabled(engine: SearchEngine): Boolean {
@@ -746,6 +768,8 @@ class UserAppPreferences(context: Context) {
         private const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"
         private const val KEY_EXCLUDED_CONTACT_IDS = "excluded_contact_ids"
         private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
+        private const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
+        private const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
 
         // File preferences keys
         private const val KEY_PINNED_FILE_URIS = "pinned_file_uris"

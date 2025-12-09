@@ -44,7 +44,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.SettingShortcut
 
-private const val INITIAL_RESULT_COUNT = 2
+private const val INITIAL_RESULT_COUNT = 1
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 24
 private const val EXPAND_BUTTON_HEIGHT = 28

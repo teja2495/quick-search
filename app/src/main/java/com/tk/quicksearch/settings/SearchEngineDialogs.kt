@@ -36,6 +36,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.isValidAmazonDomain
+import com.tk.quicksearch.search.isValidShortcutCode
+import com.tk.quicksearch.search.normalizeShortcutCodeInput
 
 /**
  * Dialog for editing a search engine shortcut code.
@@ -56,9 +58,11 @@ fun EditShortcutDialog(
     onToggle: ((Boolean) -> Unit)?,
     onDismiss: () -> Unit
 ) {
-    var editingCode by remember(currentCode) { mutableStateOf(currentCode) }
+    var editingCode by remember(currentCode) { mutableStateOf(normalizeShortcutCodeInput(currentCode)) }
     var enabledState by remember(isEnabled) { mutableStateOf(isEnabled) }
     val focusRequester = remember { FocusRequester() }
+    val isValidShortcut = isValidShortcutCode(editingCode)
+    val showShortcutError = editingCode.isNotEmpty() && !isValidShortcut
     
     LaunchedEffect(Unit) {
         if (enabledState) {
@@ -83,24 +87,21 @@ fun EditShortcutDialog(
                 )
                 TextField(
                     value = editingCode,
-                    onValueChange = { 
-                        editingCode = it.lowercase().filter { char -> 
-                            char.isLetterOrDigit() && char != ' ' 
-                        } 
-                    },
+                    onValueChange = { editingCode = normalizeShortcutCodeInput(it) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     enabled = enabledState,
                     singleLine = true,
                     maxLines = 1,
+                    isError = showShortcutError,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (editingCode.isNotBlank()) {
+                            if (isValidShortcut) {
                                 onSave(editingCode)
+                                onDismiss()
                             }
-                            onDismiss()
                         }
                     ),
                     colors = TextFieldDefaults.colors(
@@ -108,6 +109,13 @@ fun EditShortcutDialog(
                         unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
                     )
                 )
+                if (showShortcutError) {
+                    Text(
+                        text = stringResource(R.string.dialog_edit_shortcut_error_length),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
                 if (onToggle != null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -134,12 +142,12 @@ fun EditShortcutDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (editingCode.isNotBlank()) {
+                    if (isValidShortcut) {
                         onSave(editingCode)
+                        onDismiss()
                     }
-                    onDismiss()
                 },
-                enabled = editingCode.isNotBlank()
+                enabled = isValidShortcut
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }

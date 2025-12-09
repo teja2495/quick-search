@@ -724,3 +724,85 @@ fun PhoneNumberSelectionDialog(
         }
     )
 }
+
+@Composable
+fun DirectDialChoiceDialog(
+    contactName: String,
+    phoneNumber: String,
+    onSelectOption: (DirectDialOption, Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedOption by remember { mutableStateOf(DirectDialOption.DIRECT_CALL) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.dialog_direct_dial_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DirectDialOption.values().forEach { option ->
+                        val title = when (option) {
+                            DirectDialOption.DIRECT_CALL -> stringResource(R.string.dialog_direct_dial_option_direct)
+                            DirectDialOption.DIALER -> stringResource(R.string.dialog_direct_dial_option_dialer)
+                        }
+                        val description = when (option) {
+                            DirectDialOption.DIRECT_CALL -> stringResource(R.string.dialog_direct_dial_option_direct_desc)
+                            DirectDialOption.DIALER -> stringResource(R.string.dialog_direct_dial_option_dialer_desc)
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedOption = option },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            RadioButton(
+                                selected = selectedOption == option,
+                                onClick = { selectedOption = option }
+                            )
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.dialog_direct_dial_change_later),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSelectOption(selectedOption, true) }) {
+                Text(text = stringResource(R.string.dialog_ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
+}
