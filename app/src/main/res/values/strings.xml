@@ -158,7 +158,7 @@
     <string name="dialog_edit_amazon_domain_error">Invalid domain</string>
     <string name="dialog_nickname_title">Add nickname</string>
     <string name="dialog_nickname_title_edit">Edit nickname</string>
-    <string name="dialog_nickname_message">Enter a nickname for this item. You can search for it using this nickname.</string>
+    <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_remove">Remove</string>
     <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>

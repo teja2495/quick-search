@@ -15,14 +15,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun NicknameDialog(
@@ -35,6 +40,15 @@ fun NicknameDialog(
         mutableStateOf(currentNickname ?: "")
     }
     val hasExistingNickname = !currentNickname.isNullOrBlank()
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        // Give the dialog a frame to appear before requesting focus
+        delay(50)
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -50,7 +64,7 @@ fun NicknameDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(R.string.dialog_nickname_message),
+                    text = stringResource(R.string.dialog_nickname_message, itemName),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -61,7 +75,9 @@ fun NicknameDialog(
                     value = nicknameText,
                     onValueChange = { nicknameText = it },
                     label = { Text(stringResource(R.string.dialog_nickname_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     singleLine = true,
                     trailingIcon = {
                         if (nicknameText.isNotEmpty()) {
