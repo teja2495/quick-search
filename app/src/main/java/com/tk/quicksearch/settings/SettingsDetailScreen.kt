@@ -25,17 +25,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
@@ -77,6 +83,43 @@ fun SettingsDetailRoute(
         personalContext = uiState.personalContext
     )
     
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val userPreferences = remember { UserAppPreferences(context) }
+    var shouldShowShortcutHint by remember(detailType) {
+        mutableStateOf(
+            if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                userPreferences.shouldShowShortcutHintBanner()
+            } else {
+                false
+            }
+        )
+    }
+    
+    DisposableEffect(lifecycleOwner, detailType) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (detailType != SettingsDetailType.SEARCH_ENGINES) return@LifecycleEventObserver
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    userPreferences.resetShortcutHintBannerSessionDismissed()
+                    shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    
+    val onDismissShortcutHint = {
+        userPreferences.incrementShortcutHintBannerDismissCount()
+        userPreferences.setShortcutHintBannerSessionDismissed(true)
+        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+    }
+    
     val callbacks = SettingsScreenCallbacks(
         onBack = onBack,
         onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
@@ -106,7 +149,9 @@ fun SettingsDetailRoute(
         modifier = modifier,
         state = state,
         callbacks = callbacks,
-        detailType = detailType
+        detailType = detailType,
+        showShortcutHintBanner = shouldShowShortcutHint,
+        onDismissShortcutHintBanner = onDismissShortcutHint
     )
 }
 
@@ -115,7 +160,9 @@ private fun SettingsDetailScreen(
     modifier: Modifier = Modifier,
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
-    detailType: SettingsDetailType
+    detailType: SettingsDetailType,
+    showShortcutHintBanner: Boolean = false,
+    onDismissShortcutHintBanner: () -> Unit = {}
 ) {
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
@@ -190,8 +237,10 @@ private fun SettingsDetailScreen(
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
                             personalContext = state.personalContext,
                             onSetPersonalContext = callbacks.onSetPersonalContext,
-                            DirectSearchAvailable = state.hasGeminiApiKey,
-                            showTitle = false
+                        DirectSearchAvailable = state.hasGeminiApiKey,
+                        showTitle = false,
+                        showShortcutHintBanner = showShortcutHintBanner,
+                        onDismissShortcutHintBanner = onDismissShortcutHintBanner
                         )
                     }
                     SettingsDetailType.EXCLUDED_ITEMS -> {

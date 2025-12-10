@@ -256,6 +256,7 @@
     <string name="settings_gemini_api_key_title">Gemini API key</string>
     <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Search.</string>
     <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
+    <string name="settings_gemini_api_key_paste">Paste from clipboard</string>
     <string name="settings_gemini_api_key_save">Save key</string>
     <string name="settings_gemini_api_key_remove">Remove key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
@@ -273,6 +274,7 @@
     <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
+    <string name="settings_shortcuts_hint_message">Tip: Add a shortcut code at the end of your query to instantly trigger that search engine.</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>

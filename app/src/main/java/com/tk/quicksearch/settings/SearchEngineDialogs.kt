@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -293,6 +295,7 @@ fun GeminiApiKeyDialog(
     var apiKeyInput by remember { mutableStateOf("") }
     var isObscured by remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
+    val clipboardManager = LocalClipboardManager.current
     val isValid = apiKeyInput.isNotBlank()
     
     LaunchedEffect(Unit) {
@@ -325,15 +328,34 @@ fun GeminiApiKeyDialog(
                     },
                     visualTransformation = if (isObscured) PasswordVisualTransformation() else VisualTransformation.None,
                     trailingIcon = {
-                        val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { isObscured = !isObscured },
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentPaste,
+                                contentDescription = stringResource(R.string.settings_gemini_api_key_paste),
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        clipboardManager.getText()
+                                            ?.text
+                                            ?.trim()
+                                            ?.takeIf { it.isNotEmpty() }
+                                            ?.let { pasted ->
+                                                apiKeyInput = pasted
+                                                focusRequester.requestFocus()
+                                            }
+                                    },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable { isObscured = !isObscured },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

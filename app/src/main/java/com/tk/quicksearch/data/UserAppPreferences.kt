@@ -566,29 +566,54 @@ class UserAppPreferences(context: Context) {
     }
 
     fun getUsagePermissionBannerDismissCount(): Int {
-        return prefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
+        return firstLaunchPrefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
     }
 
     fun incrementUsagePermissionBannerDismissCount() {
         val currentCount = getUsagePermissionBannerDismissCount()
-        prefs.edit().putInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
+        firstLaunchPrefs.edit().putInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
     }
 
     fun isUsagePermissionBannerSessionDismissed(): Boolean {
-        return prefs.getBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
+        return firstLaunchPrefs.getBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
     }
 
     fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        prefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed).apply()
+        firstLaunchPrefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed).apply()
     }
 
     fun resetUsagePermissionBannerSessionDismissed() {
-        prefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false).apply()
+        firstLaunchPrefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false).apply()
     }
 
     fun shouldShowUsagePermissionBanner(): Boolean {
         // Show banner if: total dismiss count < 2 AND session not dismissed
         return getUsagePermissionBannerDismissCount() < 2 && !isUsagePermissionBannerSessionDismissed()
+    }
+
+    fun getShortcutHintBannerDismissCount(): Int {
+        return firstLaunchPrefs.getInt(KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, 0)
+    }
+
+    fun incrementShortcutHintBannerDismissCount() {
+        val currentCount = getShortcutHintBannerDismissCount()
+        firstLaunchPrefs.edit().putInt(KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, currentCount + 1).apply()
+    }
+
+    fun isShortcutHintBannerSessionDismissed(): Boolean {
+        return firstLaunchPrefs.getBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false)
+    }
+
+    fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) {
+        firstLaunchPrefs.edit().putBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, dismissed).apply()
+    }
+
+    fun resetShortcutHintBannerSessionDismissed() {
+        firstLaunchPrefs.edit().putBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false).apply()
+    }
+
+    fun shouldShowShortcutHintBanner(): Boolean {
+        return getShortcutHintBannerDismissCount() < 2 && !isShortcutHintBannerSessionDismissed()
     }
 
     // ============================================================================
@@ -850,6 +875,10 @@ class UserAppPreferences(context: Context) {
         // Usage permission banner preferences keys
         private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
         private const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED = "usage_permission_banner_session_dismissed"
+
+        // Shortcut hint banner preferences keys
+        private const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT = "shortcut_hint_banner_dismiss_count"
+        private const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED = "shortcut_hint_banner_session_dismissed"
 
         // Nickname preferences keys
         private const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"

@@ -20,14 +20,18 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ContentPaste
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -56,6 +60,7 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -147,6 +152,8 @@ fun SearchEnginesSection(
     onSetPersonalContext: ((String?) -> Unit)? = null,
     showTitle: Boolean = true,
     DirectSearchAvailable: Boolean = false,
+    showShortcutHintBanner: Boolean = false,
+    onDismissShortcutHintBanner: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
@@ -175,6 +182,13 @@ fun SearchEnginesSection(
             onSetPersonalContext = onSetPersonalContext
         )
     }
+
+    if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
+        ShortcutHintBanner(
+            onDismiss = onDismissShortcutHintBanner,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+    }
     
     val enginesToDisplay = if (DirectSearchAvailable) {
         searchEngineOrder
@@ -195,6 +209,45 @@ fun SearchEnginesSection(
         onSetAmazonDomain = onSetAmazonDomain
     )
     
+}
+
+@Composable
+private fun ShortcutHintBanner(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_shortcuts_hint_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_close),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -220,6 +273,7 @@ private fun SearchEngineToggleCard(
         )
     }
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val personalContextFocusRequester = remember { FocusRequester() }
     val geminiGuideUrl = "https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311"
@@ -325,13 +379,31 @@ private fun SearchEngineToggleCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
-                        placeholder = { Text(text = "Paste Gemini API key") },
-                        singleLine = true
+                        placeholder = { Text(text = stringResource(R.string.settings_gemini_api_key_placeholder)) },
+                        singleLine = true,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentPaste,
+                                contentDescription = stringResource(R.string.settings_gemini_api_key_paste),
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        clipboardManager.getText()
+                                            ?.text
+                                            ?.trim()
+                                            ?.takeIf { it.isNotEmpty() }
+                                            ?.let { pasted ->
+                                                apiKeyInput = pasted
+                                            }
+                                    },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                        .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
+                            .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
                         horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -405,7 +477,7 @@ private fun SearchEngineToggleCard(
                             placeholder = {
                                 Text(text = stringResource(R.string.settings_direct_search_personal_context_hint))
                             },
-                            shape = MaterialTheme.shapes.extraLarge,
+                            shape = MaterialTheme.shapes.large,
                             singleLine = false,
                             minLines = 5
                         )
