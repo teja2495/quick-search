@@ -52,7 +52,8 @@ data class SettingsScreenState(
     val searchEngineSectionEnabled: Boolean,
     val amazonDomain: String? = null,
     val hasGeminiApiKey: Boolean = false,
-    val geminiApiKeyLast4: String? = null
+    val geminiApiKeyLast4: String? = null,
+    val personalContext: String = ""
 )
 
 /**
@@ -79,7 +80,8 @@ data class SettingsScreenCallbacks(
     val onReorderSections: (List<SearchSection>) -> Unit,
     val onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
     val onSetAmazonDomain: (String?) -> Unit,
-    val onSetGeminiApiKey: (String?) -> Unit
+    val onSetGeminiApiKey: (String?) -> Unit,
+    val onSetPersonalContext: (String?) -> Unit
 )
 
 /**

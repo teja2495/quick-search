@@ -131,7 +131,8 @@ data class SearchUiState(
     val amazonDomain: String? = null,
     val DirectSearchState: DirectSearchState = DirectSearchState(),
     val hasGeminiApiKey: Boolean = false,
-    val geminiApiKeyLast4: String? = null
+    val geminiApiKeyLast4: String? = null,
+    val personalContext: String = ""
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -157,6 +158,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var excludedSettingIds: Set<String> = userPreferences.getExcludedSettingIds()
     private var geminiApiKey: String? = userPreferences.getGeminiApiKey()
     private var geminiClient: DirectSearchClient? = geminiApiKey?.let { DirectSearchClient(it) }
+    private var personalContext: String = userPreferences.getPersonalContext().orEmpty()
     private var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
     private var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
@@ -241,6 +243,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     amazonDomain = amazonDomain,
                     hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
                     geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
+                    personalContext = personalContext,
                     cacheLastUpdatedMillis = lastUpdated
                 )
             }
@@ -274,7 +277,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
                     hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
-                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4)
+                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
+                    personalContext = personalContext
                 )
             }
         }
@@ -1087,6 +1091,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setPersonalContext(context: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val normalized = context?.trim().orEmpty()
+            if (normalized == personalContext) return@launch
+
+            personalContext = normalized
+            userPreferences.setPersonalContext(normalized.takeUnless { it.isBlank() })
+            _uiState.update {
+                it.copy(personalContext = personalContext)
+            }
+        }
+    }
+
     fun requestDirectSearch(query: String) {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
@@ -1119,7 +1136,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 )
             }
 
-            val result = client.fetchAnswer(trimmedQuery)
+            val result = client.fetchAnswer(
+                trimmedQuery,
+                personalContext.takeIf { it.isNotBlank() }
+            )
             result.onSuccess { answer ->
                 _uiState.update { state ->
                     state.copy(

@@ -32,13 +32,13 @@ class DirectSearchClient(private val apiKey: String) {
         private const val INITIAL_RETRY_DELAY_MS = 750L
     }
 
-    suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun fetchAnswer(query: String, personalContext: String? = null): Result<String> = withContext(Dispatchers.IO) {
         var attempt = 1
         var delayMs = INITIAL_RETRY_DELAY_MS
         var lastError: Throwable? = null
 
         while (attempt <= MAX_ATTEMPTS) {
-            val result = executeRequest(query)
+            val result = executeRequest(query, personalContext)
             if (result.isSuccess) return@withContext result
 
             lastError = result.exceptionOrNull()
@@ -54,7 +54,7 @@ class DirectSearchClient(private val apiKey: String) {
         Result.failure(lastError ?: IllegalStateException("Unknown error"))
     }
 
-    private fun executeRequest(query: String): Result<String> {
+    private fun executeRequest(query: String, personalContext: String?): Result<String> {
         var connection: HttpURLConnection? = null
         return try {
             val url = URL("$BASE_URL?key=$apiKey")
@@ -66,8 +66,13 @@ class DirectSearchClient(private val apiKey: String) {
                 readTimeout = 20000
             }
 
-            val payload = buildRequestBody(query)
-            Log.i(LOG_TAG, "Gemini request JSON: $payload")
+            val payload = buildRequestBody(query, personalContext)
+            val payloadForLogging = if (personalContext.isNullOrBlank()) {
+                payload
+            } else {
+                "[payload with personal context hidden]"
+            }
+            Log.i(LOG_TAG, "Gemini request JSON: $payloadForLogging")
             connection.outputStream.use { output ->
                 output.write(payload.toByteArray(Charsets.UTF_8))
                 output.flush()
@@ -94,12 +99,23 @@ class DirectSearchClient(private val apiKey: String) {
         }
     }
 
-    private fun buildRequestBody(query: String): String {
+    private fun buildRequestBody(query: String, personalContext: String?): String {
         val systemInstruction = JSONObject().apply {
             put("parts", JSONArray().put(JSONObject().put("text", SYSTEM_PROMPT)))
         }
+        val contentParts = JSONArray().apply {
+            if (!personalContext.isNullOrBlank()) {
+                put(
+                    JSONObject().put(
+                        "text",
+                        "User personal context:\n${personalContext.trim()}"
+                    )
+                )
+            }
+            put(JSONObject().put("text", query))
+        }
         val content = JSONObject().apply {
-            put("parts", JSONArray().put(JSONObject().put("text", query)))
+            put("parts", contentParts)
         }
         val tools = JSONArray().put(JSONObject().put("google_search", JSONObject()))
         val generationConfig = JSONObject().apply {

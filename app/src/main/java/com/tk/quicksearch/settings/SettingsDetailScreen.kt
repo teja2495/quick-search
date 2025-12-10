@@ -73,7 +73,8 @@ fun SettingsDetailRoute(
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         amazonDomain = uiState.amazonDomain,
         hasGeminiApiKey = uiState.hasGeminiApiKey,
-        geminiApiKeyLast4 = uiState.geminiApiKeyLast4
+        geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
+        personalContext = uiState.personalContext
     )
     
     val callbacks = SettingsScreenCallbacks(
@@ -97,7 +98,8 @@ fun SettingsDetailRoute(
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
-        onSetGeminiApiKey = viewModel::setGeminiApiKey
+        onSetGeminiApiKey = viewModel::setGeminiApiKey,
+        onSetPersonalContext = viewModel::setPersonalContext
     )
     
     SettingsDetailScreen(
@@ -186,6 +188,8 @@ private fun SettingsDetailScreen(
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
                             onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
+                            personalContext = state.personalContext,
+                            onSetPersonalContext = callbacks.onSetPersonalContext,
                             DirectSearchAvailable = state.hasGeminiApiKey,
                             showTitle = false
                         )

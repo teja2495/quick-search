@@ -260,6 +260,9 @@
     <string name="settings_gemini_api_key_remove">Remove key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saved">Key saved</string>
+    <string name="settings_direct_search_personal_context">Personal Context</string>
+    <string name="settings_direct_search_personal_context_title">Personal Context</string>
+    <string name="settings_direct_search_personal_context_hint">Add any context you want Gemini to use when generating answers.</string>
 
     <!-- ============================================================================
          Settings - Shortcuts

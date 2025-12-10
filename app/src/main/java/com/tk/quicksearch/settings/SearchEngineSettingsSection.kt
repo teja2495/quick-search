@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,6 +27,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -44,6 +46,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
@@ -52,9 +56,12 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -68,6 +75,7 @@ import com.tk.quicksearch.settings.EditShortcutDialog
 import com.tk.quicksearch.settings.EditAmazonDomainDialog
 import com.tk.quicksearch.settings.SettingsSpacing
 import com.tk.quicksearch.data.UserAppPreferences
+import kotlinx.coroutines.delay
 
 /**
  * Helper function to get color filter for search engine icons based on theme.
@@ -135,6 +143,8 @@ fun SearchEnginesSection(
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onSetGeminiApiKey: ((String?) -> Unit)? = null,
     geminiApiKeyLast4: String? = null,
+    personalContext: String = "",
+    onSetPersonalContext: ((String?) -> Unit)? = null,
     showTitle: Boolean = true,
     DirectSearchAvailable: Boolean = false,
     modifier: Modifier = Modifier
@@ -160,7 +170,9 @@ fun SearchEnginesSection(
         SearchEngineToggleCard(
             directSearchEnabled = DirectSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
-            geminiApiKeyLast4 = geminiApiKeyLast4
+            geminiApiKeyLast4 = geminiApiKeyLast4,
+            personalContext = personalContext,
+            onSetPersonalContext = onSetPersonalContext
         )
     }
     
@@ -192,12 +204,43 @@ fun SearchEnginesSection(
 private fun SearchEngineToggleCard(
     directSearchEnabled: Boolean,
     onSetGeminiApiKey: (String?) -> Unit,
-    geminiApiKeyLast4: String?
+    geminiApiKeyLast4: String?,
+    personalContext: String,
+    onSetPersonalContext: ((String?) -> Unit)?
 ) {
     var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
+    var showPersonalContextDialog by remember { mutableStateOf(false) }
+    var personalContextInput by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = personalContext,
+                selection = TextRange(personalContext.length)
+            )
+        )
+    }
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val personalContextFocusRequester = remember { FocusRequester() }
     val geminiGuideUrl = "https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311"
+    
+    LaunchedEffect(personalContext) {
+        personalContextInput = TextFieldValue(
+            text = personalContext,
+            selection = TextRange(personalContext.length)
+        )
+    }
+    LaunchedEffect(showPersonalContextDialog) {
+        if (showPersonalContextDialog) {
+            // Slight delay so the field is laid out before requesting focus
+            delay(100)
+            personalContextInput = personalContextInput.copy(
+                selection = TextRange(personalContextInput.text.length)
+            )
+            personalContextFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
     
     ElevatedCard(
         modifier = Modifier
@@ -243,6 +286,20 @@ private fun SearchEngineToggleCard(
                         .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
                     horizontalArrangement = Arrangement.End
                 ) {
+                    if (onSetPersonalContext != null) {
+                        TextButton(
+                            onClick = {
+                                personalContextInput = TextFieldValue(
+                                    text = personalContext,
+                                    selection = TextRange(personalContext.length)
+                                )
+                                showPersonalContextDialog = true
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.settings_direct_search_personal_context))
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                     Button(
                         onClick = {
                             apiKeyInput = ""
@@ -250,7 +307,7 @@ private fun SearchEngineToggleCard(
                             onSetGeminiApiKey(null)
                         }
                     ) {
-                        Text(text = "Reset Key")
+                        Text(text = stringResource(R.string.settings_gemini_api_key_reset))
                     }
                 }
             } else {
@@ -329,6 +386,49 @@ private fun SearchEngineToggleCard(
                         }
                     }
                 }
+            }
+            
+            if (showPersonalContextDialog && onSetPersonalContext != null) {
+                AlertDialog(
+                    onDismissRequest = { showPersonalContextDialog = false },
+                    title = {
+                        Text(text = stringResource(R.string.settings_direct_search_personal_context_title))
+                    },
+                    text = {
+                        OutlinedTextField(
+                            value = personalContextInput,
+                            onValueChange = { personalContextInput = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 180.dp)
+                                .focusRequester(personalContextFocusRequester),
+                            placeholder = {
+                                Text(text = stringResource(R.string.settings_direct_search_personal_context_hint))
+                            },
+                            shape = MaterialTheme.shapes.extraLarge,
+                            singleLine = false,
+                            minLines = 5
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val trimmed = personalContextInput.text.trim()
+                                onSetPersonalContext(trimmed.takeIf { it.isNotEmpty() })
+                                showPersonalContextDialog = false
+                            }
+                        ) {
+                            Text(text = "Save")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showPersonalContextDialog = false }
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                )
             }
         }
     }

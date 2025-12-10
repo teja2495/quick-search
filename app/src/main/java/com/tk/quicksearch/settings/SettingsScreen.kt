@@ -87,7 +87,8 @@ fun SettingsRoute(
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         amazonDomain = uiState.amazonDomain,
         hasGeminiApiKey = uiState.hasGeminiApiKey,
-        geminiApiKeyLast4 = uiState.geminiApiKeyLast4
+        geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
+        personalContext = uiState.personalContext
     )
     
     val context = LocalContext.current
@@ -206,7 +207,8 @@ fun SettingsRoute(
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
-        onSetGeminiApiKey = viewModel::setGeminiApiKey
+        onSetGeminiApiKey = viewModel::setGeminiApiKey,
+        onSetPersonalContext = viewModel::setPersonalContext
     )
     
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes

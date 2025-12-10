@@ -472,6 +472,34 @@ class UserAppPreferences(context: Context) {
         prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
     }
 
+    fun getPersonalContext(): String? {
+        // Prefer encrypted storage when available
+        val securePrefs = encryptedPrefs
+        val encryptedValue = securePrefs?.getString(KEY_GEMINI_PERSONAL_CONTEXT, null)
+        if (!encryptedValue.isNullOrBlank()) return encryptedValue
+
+        return prefs.getString(KEY_GEMINI_PERSONAL_CONTEXT, null)
+    }
+
+    fun setPersonalContext(context: String?) {
+        val trimmed = context?.trim()
+        val securePrefs = encryptedPrefs
+
+        if (trimmed.isNullOrEmpty()) {
+            securePrefs?.edit()?.remove(KEY_GEMINI_PERSONAL_CONTEXT)?.apply()
+            prefs.edit().remove(KEY_GEMINI_PERSONAL_CONTEXT).apply()
+            return
+        }
+
+        if (securePrefs != null) {
+            securePrefs.edit().putString(KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
+            // Keep plain storage clean if we can encrypt
+            prefs.edit().remove(KEY_GEMINI_PERSONAL_CONTEXT).apply()
+        } else {
+            prefs.edit().putString(KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
+        }
+    }
+
     // ============================================================================
     // UI Preferences
     // ============================================================================
@@ -817,6 +845,7 @@ class UserAppPreferences(context: Context) {
         // Amazon domain preferences keys
         private const val KEY_AMAZON_DOMAIN = "amazon_domain"
         private const val KEY_GEMINI_API_KEY = "gemini_api_key"
+        private const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
 
         // Usage permission banner preferences keys
         private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
