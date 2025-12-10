@@ -32,6 +32,7 @@ private object Spacing {
     val cardVerticalPadding = 12.dp
     val cardTopPadding = 20.dp
     val cardBottomPadding = 20.dp
+    val toggleSpacing = 12.dp
 }
 
 /**
@@ -68,7 +69,9 @@ private fun SettingsToggleRow(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = Spacing.toggleSpacing)
         )
         Switch(
             checked = checked,
@@ -111,8 +114,7 @@ fun AppLabelsSection(
                 text = stringResource(R.string.settings_layout_option_bottom),
                 checked = keyboardAlignedLayout,
                 onCheckedChange = onToggleKeyboardAlignedLayout,
-                isLastItem = true,
-                extraVerticalPadding = 12.dp,
+                isLastItem = true
             )
         }
     }

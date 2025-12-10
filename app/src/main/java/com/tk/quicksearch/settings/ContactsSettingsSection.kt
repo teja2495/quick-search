@@ -36,6 +36,7 @@ private object MessagingSpacing {
     val cardTopPadding = 20.dp
     val cardBottomPadding = 26.dp
     val optionSpacing = 12.dp
+    val toggleSpacing = 12.dp
 }
 
 private data class MessagingOption(val app: MessagingApp, val labelRes: Int)
@@ -128,7 +129,9 @@ private fun DirectDialCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = MessagingSpacing.toggleSpacing),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
