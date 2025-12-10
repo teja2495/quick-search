@@ -105,7 +105,7 @@ fun MessagingSection(
             options = messagingOptions,
             selectedApp = messagingApp,
             onSelect = onSetMessagingApp,
-            modifier = Modifier.padding(top = SettingsSpacing.sectionTitleBottomPadding)
+            modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
         )
     }
 }
