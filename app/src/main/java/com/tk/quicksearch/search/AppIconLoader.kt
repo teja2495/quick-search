@@ -3,11 +3,11 @@ package com.tk.quicksearch.search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import android.util.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -15,13 +15,22 @@ import kotlinx.coroutines.withContext
  * In-memory cache for app icons to avoid repeated loading.
  */
 private object AppIconCache {
-    private val cache = ConcurrentHashMap<String, ImageBitmap?>()
+    private const val MAX_CACHE_SIZE_BYTES = 8 * 1024 * 1024 // 8 MB cap to avoid OOM
+    private const val BYTES_PER_PIXEL = 4
 
-    fun get(packageName: String): ImageBitmap? = cache[packageName]
+    private val cache = object : LruCache<String, ImageBitmap>(MAX_CACHE_SIZE_BYTES) {
+        override fun sizeOf(key: String, value: ImageBitmap): Int {
+            val bytes = value.width.toLong() * value.height.toLong() * BYTES_PER_PIXEL
+            // LruCache uses Int units; guard against overflow and zero-sized bitmaps.
+            return bytes.coerceIn(1, Int.MAX_VALUE.toLong()).toInt()
+        }
+    }
+
+    fun get(packageName: String): ImageBitmap? = cache.get(packageName)
 
     fun put(packageName: String, bitmap: ImageBitmap?) {
         if (bitmap != null) {
-            cache[packageName] = bitmap
+            cache.put(packageName, bitmap)
         }
     }
 }

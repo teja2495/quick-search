@@ -296,8 +296,8 @@ fun SearchRoute(
         onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
-        onRetryDirectAnswer = viewModel::retryDirectAnswer,
-        onDirectAnswerEmailClick = viewModel::openEmail,
+        onRetryDirectSearch = viewModel::retryDirectSearch,
+        onDirectSearchEmailClick = viewModel::openEmail,
         onOpenAppSettings = viewModel::openAppSettings,
         onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
         onAppNicknameClick = { app ->
@@ -351,8 +351,8 @@ fun SearchScreen(
     onUnpinSetting: (SettingShortcut) -> Unit,
     onExcludeSetting: (SettingShortcut) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
-    onRetryDirectAnswer: () -> Unit,
-    onDirectAnswerEmailClick: (String) -> Unit,
+    onRetryDirectSearch: () -> Unit,
+    onDirectSearchEmailClick: (String) -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -395,10 +395,10 @@ fun SearchScreen(
     // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
-    val showDirectAnswer = state.directAnswerState.status != DirectAnswerStatus.Idle
+    val showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle
     val alignResultsToBottom = state.keyboardAlignedLayout &&
         expandedSection == ExpandedSection.NONE &&
-        !showDirectAnswer
+        !showDirectSearch
     
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
@@ -707,7 +707,7 @@ fun SearchScreen(
                     val primaryEngine = enabledEngines.firstOrNull()
                     if (primaryEngine != null) {
                         // Keep keyboard visible when generating direct answer
-                        if (primaryEngine == SearchEngine.DIRECT_ANSWER) {
+                        if (primaryEngine == SearchEngine.DIRECT_SEARCH) {
                             keyboardController?.show()
                         }
                         onSearchEngineClick(trimmedQuery, primaryEngine)
@@ -732,7 +732,7 @@ fun SearchScreen(
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             scrollState = scrollState,
-            onRetryDirectAnswer = onRetryDirectAnswer,
+            onRetryDirectSearch = onRetryDirectSearch,
             onPhoneNumberClick = { phoneNumber ->
                 // Create a temporary ContactInfo to use the call functionality
                 val tempContact = ContactInfo(
@@ -743,7 +743,7 @@ fun SearchScreen(
                 )
                 onCallContact(tempContact)
             },
-            onEmailClick = onDirectAnswerEmailClick
+            onEmailClick = onDirectSearchEmailClick
         )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
@@ -755,7 +755,7 @@ fun SearchScreen(
                 enabledEngines = enabledEngines,
                 onSearchEngineClick = { query, engine ->
                     // Keep keyboard visible when generating direct answer
-                    if (engine == SearchEngine.DIRECT_ANSWER) {
+                    if (engine == SearchEngine.DIRECT_SEARCH) {
                         keyboardController?.show()
                     }
                     onSearchEngineClick(query, engine)
@@ -1046,7 +1046,7 @@ private fun PersistentSearchField(
                             onSearchAction()
                             // Only hide keyboard if the first engine is not DIRECT_ANSWER
                             val firstEngine = enabledEngines.firstOrNull()
-                            if (firstEngine != SearchEngine.DIRECT_ANSWER) {
+                            if (firstEngine != SearchEngine.DIRECT_SEARCH) {
                                 keyboardController?.hide()
                             }
                         }

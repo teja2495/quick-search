@@ -28,8 +28,8 @@ private data class SearchEngineMetadata(
  * Adding a new engine only requires updating this map.
  */
 private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = mapOf(
-    SearchEngine.DIRECT_ANSWER to SearchEngineMetadata(
-        drawableResId = R.drawable.direct_answer,
+    SearchEngine.DIRECT_SEARCH to SearchEngineMetadata(
+        drawableResId = R.drawable.direct_search,
         contentDescription = "Direct Search",
         urlTemplate = "",
         defaultShortcutCode = "dsh"
@@ -120,7 +120,7 @@ fun SearchEngine.getContentDescription(): String =
  * @return The complete search URL with the encoded query, or base URL without query params if query is empty
  */
 fun buildSearchUrl(query: String, searchEngine: SearchEngine, amazonDomain: String? = null): String {
-    if (searchEngine == SearchEngine.DIRECT_ANSWER) {
+    if (searchEngine == SearchEngine.DIRECT_SEARCH) {
         throw IllegalArgumentException("Direct Answer does not use a browser URL")
     }
     val metadata = SEARCH_ENGINE_METADATA[searchEngine]
@@ -215,7 +215,7 @@ fun isValidShortcutCode(input: String): Boolean =
  */
 @StringRes
 fun SearchEngine.getDisplayNameResId(): Int = when (this) {
-    SearchEngine.DIRECT_ANSWER -> R.string.search_engine_direct_answer
+    SearchEngine.DIRECT_SEARCH -> R.string.search_engine_direct_search
     SearchEngine.GOOGLE -> R.string.search_engine_google
     SearchEngine.CHATGPT -> R.string.search_engine_chatgpt
     SearchEngine.PERPLEXITY -> R.string.search_engine_perplexity

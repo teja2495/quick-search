@@ -136,7 +136,7 @@ fun SearchEnginesSection(
     onSetGeminiApiKey: ((String?) -> Unit)? = null,
     geminiApiKeyLast4: String? = null,
     showTitle: Boolean = true,
-    directAnswerAvailable: Boolean = false,
+    DirectSearchAvailable: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
@@ -158,16 +158,16 @@ fun SearchEnginesSection(
     // Direct search controls (Gemini) when available
     if (onSetGeminiApiKey != null) {
         SearchEngineToggleCard(
-            directSearchEnabled = directAnswerAvailable,
+            directSearchEnabled = DirectSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4
         )
     }
     
-    val enginesToDisplay = if (directAnswerAvailable) {
+    val enginesToDisplay = if (DirectSearchAvailable) {
         searchEngineOrder
     } else {
-        searchEngineOrder.filterNot { it == SearchEngine.DIRECT_ANSWER }
+        searchEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }
     }
     SearchEngineListCard(
         searchEngineOrder = enginesToDisplay,
@@ -217,7 +217,7 @@ private fun SearchEngineToggleCard(
                 modifier = Modifier.padding(bottom = 12.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.direct_answer),
+                    painter = painterResource(id = R.drawable.direct_search),
                     contentDescription = null,
                     tint = Color.Unspecified,
                     modifier = Modifier.size(24.dp)

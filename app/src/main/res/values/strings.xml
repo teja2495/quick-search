@@ -32,12 +32,12 @@
     <string name="empty_state_section_contacts">contacts</string>
     <string name="empty_state_section_files">files</string>
     <string name="empty_state_section_settings">settings</string>
-    <string name="direct_answer_title">Direct Search</string>
-    <string name="direct_answer_loading">Getting answer\u2026</string>
-    <string name="direct_answer_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
-    <string name="direct_answer_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
-    <string name="direct_answer_action_retry">Retry</string>
-    <string name="direct_answer_powered_by">Powered by </string>
+    <string name="direct_search_title">Direct Search</string>
+    <string name="direct_search_loading">Getting answer\u2026</string>
+    <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
+    <string name="direct_search_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
+    <string name="direct_search_action_retry">Retry</string>
+    <string name="direct_search_powered_by">Powered by </string>
     <string name="error_open_email">No email app found to send mail.</string>
 
     <!-- ============================================================================
@@ -162,7 +162,7 @@
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_nickname_remove">Remove</string>
     <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>
-    <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Answer feature.</string>
+    <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Search feature.</string>
     <string name="dialog_direct_dial_title">Choose how to call</string>
     <string name="dialog_direct_dial_message">How do you want to place calls?</string>
     <string name="dialog_direct_dial_option_direct">Call Directly</string>
@@ -254,7 +254,7 @@
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
     <string name="settings_gemini_api_key_title">Gemini API key</string>
-    <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Answers.</string>
+    <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Search.</string>
     <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
     <string name="settings_gemini_api_key_save">Save key</string>
     <string name="settings_gemini_api_key_remove">Remove key</string>
@@ -386,5 +386,5 @@
     <string name="search_engine_youtube">YouTube</string>
     <string name="search_engine_amazon">Amazon</string>
     <string name="search_engine_ai_mode">AI mode</string>
-    <string name="search_engine_direct_answer">Direct Search</string>
+    <string name="search_engine_direct_search">Direct Search</string>
 </resources>

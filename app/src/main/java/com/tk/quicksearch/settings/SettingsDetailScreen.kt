@@ -186,7 +186,7 @@ private fun SettingsDetailScreen(
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
                             onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
-                            directAnswerAvailable = state.hasGeminiApiKey,
+                            DirectSearchAvailable = state.hasGeminiApiKey,
                             showTitle = false
                         )
                     }

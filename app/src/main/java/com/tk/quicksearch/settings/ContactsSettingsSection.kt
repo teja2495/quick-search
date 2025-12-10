@@ -34,7 +34,7 @@ import com.tk.quicksearch.search.MessagingApp
 private object MessagingSpacing {
     val cardHorizontalPadding = 20.dp
     val cardTopPadding = 20.dp
-    val cardBottomPadding = 16.dp
+    val cardBottomPadding = 26.dp
     val optionSpacing = 12.dp
 }
 

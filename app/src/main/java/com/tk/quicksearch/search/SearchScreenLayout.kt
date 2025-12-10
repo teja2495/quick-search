@@ -90,15 +90,15 @@ fun SearchContentArea(
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
-    onRetryDirectAnswer: () -> Unit,
+    onRetryDirectSearch: () -> Unit,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {}
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
-    val directAnswerState = state.directAnswerState
-    val showDirectAnswer = directAnswerState.status != DirectAnswerStatus.Idle
-    val hideResultsForDirectAnswer = showDirectAnswer
+    val DirectSearchState = state.DirectSearchState
+    val showDirectSearch = DirectSearchState.status != DirectSearchStatus.Idle
+    val hideResultsForDirectSearch = showDirectSearch
     val hasQuery = state.query.isNotBlank()
     val hasAnySearchContent =
         shouldShowAppsSection(renderingState) ||
@@ -107,7 +107,7 @@ fun SearchContentArea(
             shouldShowSettingsSection(renderingState)
     val shouldShowEmptyResultsMessage = hasQuery && !hasAnySearchContent
     val alignResultsToBottom = useKeyboardAlignedLayout &&
-        !showDirectAnswer &&
+        !showDirectSearch &&
         !shouldShowEmptyResultsMessage
 
     BoxWithConstraints(
@@ -131,10 +131,10 @@ fun SearchContentArea(
                 .padding(vertical = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
-            if (showDirectAnswer) {
-                DirectAnswerResult(
-                    directAnswerState = directAnswerState,
-                    onRetry = onRetryDirectAnswer,
+            if (showDirectSearch) {
+                DirectSearchResult(
+                    DirectSearchState = DirectSearchState,
+                    onRetry = onRetryDirectSearch,
                     showWallpaperBackground = state.showWallpaperBackground,
                     onPhoneNumberClick = onPhoneNumberClick,
                     onEmailClick = onEmailClick
@@ -151,8 +151,8 @@ fun SearchContentArea(
                 onRequestUsagePermission = onRequestUsagePermission,
                 // Ignore keyboard-aligned layout when direct answer card is showing
                 minContentHeight = this@BoxWithConstraints.maxHeight,
-                isReversed = useKeyboardAlignedLayout && !showDirectAnswer,
-                hideResults = hideResultsForDirectAnswer
+                isReversed = useKeyboardAlignedLayout && !showDirectSearch,
+                hideResults = hideResultsForDirectSearch
             )
         }
     }
@@ -320,17 +320,17 @@ private fun formatSectionList(sectionLabels: List<String>): String {
 }
 
 @Composable
-private fun DirectAnswerResult(
-    directAnswerState: DirectAnswerState,
+private fun DirectSearchResult(
+    DirectSearchState: DirectSearchState,
     onRetry: () -> Unit,
     showWallpaperBackground: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {}
 ) {
-    if (directAnswerState.status == DirectAnswerStatus.Idle) return
+    if (DirectSearchState.status == DirectSearchStatus.Idle) return
 
-    val showAttribution = directAnswerState.status == DirectAnswerStatus.Success &&
-        !directAnswerState.answer.isNullOrBlank()
+    val showAttribution = DirectSearchState.status == DirectSearchStatus.Success &&
+        !DirectSearchState.answer.isNullOrBlank()
 
     val content: @Composable () -> Unit = {
         Column(
@@ -339,8 +339,8 @@ private fun DirectAnswerResult(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            when (directAnswerState.status) {
-                DirectAnswerStatus.Loading -> {
+            when (DirectSearchState.status) {
+                DirectSearchStatus.Loading -> {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -350,15 +350,15 @@ private fun DirectAnswerResult(
                             strokeWidth = 2.dp
                         )
                         Text(
-                            text = stringResource(R.string.direct_answer_loading),
+                            text = stringResource(R.string.direct_search_loading),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
-                DirectAnswerStatus.Success -> {
-                    directAnswerState.answer?.let { answer ->
-                        ClickableDirectAnswerText(
+                DirectSearchStatus.Success -> {
+                    DirectSearchState.answer?.let { answer ->
+                        ClickableDirectSearchText(
                             text = answer,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -367,25 +367,25 @@ private fun DirectAnswerResult(
                         )
                     }
                 }
-                DirectAnswerStatus.Error -> {
+                DirectSearchStatus.Error -> {
                     Text(
-                        text = directAnswerState.errorMessage
-                            ?: stringResource(R.string.direct_answer_error_generic),
+                        text = DirectSearchState.errorMessage
+                            ?: stringResource(R.string.direct_search_error_generic),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
-                    if (directAnswerState.activeQuery != null) {
+                    if (DirectSearchState.activeQuery != null) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             TextButton(onClick = onRetry) {
-                                Text(text = stringResource(R.string.direct_answer_action_retry))
+                                Text(text = stringResource(R.string.direct_search_action_retry))
                             }
                         }
                     }
                 }
-                DirectAnswerStatus.Idle -> {}
+                DirectSearchStatus.Idle -> {}
             }
         }
     }
@@ -440,13 +440,13 @@ private fun GeminiAttributionRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            text = stringResource(R.string.direct_answer_powered_by),
+            text = stringResource(R.string.direct_search_powered_by),
             style = MaterialTheme.typography.labelSmall,
             color = contentColor
         )
         Image(
             painter = painterResource(id = R.drawable.gemini_logo),
-            contentDescription = stringResource(R.string.direct_answer_powered_by),
+            contentDescription = stringResource(R.string.direct_search_powered_by),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .height(12.dp)
@@ -609,7 +609,7 @@ private fun ExpandedPinnedSections(
  * Composable that displays text with clickable phone numbers and email IDs.
  */
 @Composable
-private fun ClickableDirectAnswerText(
+private fun ClickableDirectSearchText(
     text: String,
     style: androidx.compose.ui.text.TextStyle,
     color: Color,

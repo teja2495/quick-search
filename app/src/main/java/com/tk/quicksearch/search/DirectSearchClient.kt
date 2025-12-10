@@ -1,11 +1,13 @@
 package com.tk.quicksearch.search
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -13,7 +15,7 @@ import java.net.URL
  * Lightweight client for fetching direct answers from the Gemini API.
  * Uses the public Gemini endpoint so it can be proxied via Firebase AI Logic.
  */
-class DirectAnswerClient(private val apiKey: String) {
+class DirectSearchClient(private val apiKey: String) {
 
     companion object {
         private const val MODEL = "gemini-flash-latest"
@@ -23,11 +25,35 @@ class DirectAnswerClient(private val apiKey: String) {
             "Return only the direct answer as a single short sentence. " +
             "Provide additional context ONLY when its needed. " +
             "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~."
+        private const val MAX_ATTEMPTS = 2
+        private const val INITIAL_RETRY_DELAY_MS = 750L
     }
 
     suspend fun fetchAnswer(query: String): Result<String> = withContext(Dispatchers.IO) {
+        var attempt = 1
+        var delayMs = INITIAL_RETRY_DELAY_MS
+        var lastError: Throwable? = null
+
+        while (attempt <= MAX_ATTEMPTS) {
+            val result = executeRequest(query)
+            if (result.isSuccess) return@withContext result
+
+            lastError = result.exceptionOrNull()
+            if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
+                return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+            }
+
+            delay(delayMs)
+            delayMs *= 2
+            attempt++
+        }
+
+        Result.failure(lastError ?: IllegalStateException("Unknown error"))
+    }
+
+    private fun executeRequest(query: String): Result<String> {
         var connection: HttpURLConnection? = null
-        try {
+        return try {
             val url = URL("$BASE_URL?key=$apiKey")
             connection = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -47,14 +73,13 @@ class DirectAnswerClient(private val apiKey: String) {
             val rawResponse = readResponseBody(connection, responseCode)
 
             if (responseCode in 200..299) {
-                val answer = extractAnswer(rawResponse)
-                    ?: return@withContext Result.failure(
-                        IllegalStateException("Empty response from Gemini")
-                    )
+                val answer = extractAnswer(rawResponse) ?: return Result.failure(
+                    IllegalStateException("Empty response from Gemini")
+                )
                 Result.success(answer)
             } else {
                 val message = parseError(rawResponse) ?: "Request failed ($responseCode)"
-                Result.failure(IllegalStateException(message))
+                Result.failure(ResponseException(responseCode, message))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -127,5 +152,16 @@ class DirectAnswerClient(private val apiKey: String) {
             error.optString("message").takeIf { it.isNotBlank() }
         }.getOrNull()
     }
+
+    private fun shouldRetry(error: Throwable?): Boolean {
+        return when (error) {
+            is ResponseException -> error.code == 429 || error.code >= 500
+            is IOException -> true
+            else -> false
+        }
+    }
+
+    private data class ResponseException(val code: Int, override val message: String) :
+        Exception(message)
 }
 
