@@ -616,8 +616,8 @@ private fun ClickableDirectSearchText(
     onPhoneNumberClick: (String) -> Unit,
     onEmailClick: (String) -> Unit
 ) {
-    // Regex patterns to match different entities
-    val phonePattern = Regex("""(\+?\d{1,3}[\s.-]?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}""")
+    // Regex patterns to match phone numbers (E.164 or grouped digits) and email addresses
+    val phonePattern = Regex("""\+?\d[\d\s().-]{6,}""")
     val emailPattern = Regex("""[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}""")
 
     data class ClickableMatch(

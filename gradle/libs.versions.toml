@@ -10,7 +10,7 @@ activityCompose = "1.11.0"
 composeBom = "2024.09.00"
 material = "1.12.0"
 glance = "1.1.0"
-securityCrypto = "1.1.0-alpha06"
+ securityCrypto = "1.1.0-alpha06"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

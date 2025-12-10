@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -18,13 +19,15 @@ import java.net.URL
 class DirectSearchClient(private val apiKey: String) {
 
     companion object {
+        private const val LOG_TAG = "DirectSearchClient"
         private const val MODEL = "gemini-flash-latest"
         private const val BASE_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
         private const val SYSTEM_PROMPT =
             "Return only the direct answer as a single short sentence. " +
             "Provide additional context ONLY when its needed. " +
-            "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~."
+            "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~. " +
+            "Whenever a phone number is included, format it in E.164 with country code so it can be dialed directly."
         private const val MAX_ATTEMPTS = 2
         private const val INITIAL_RETRY_DELAY_MS = 750L
     }
@@ -64,6 +67,7 @@ class DirectSearchClient(private val apiKey: String) {
             }
 
             val payload = buildRequestBody(query)
+            Log.i(LOG_TAG, "Gemini request JSON: $payload")
             connection.outputStream.use { output ->
                 output.write(payload.toByteArray(Charsets.UTF_8))
                 output.flush()
@@ -71,6 +75,7 @@ class DirectSearchClient(private val apiKey: String) {
 
             val responseCode = connection.responseCode
             val rawResponse = readResponseBody(connection, responseCode)
+            Log.i(LOG_TAG, "Gemini response JSON: $rawResponse")
 
             if (responseCode in 200..299) {
                 val answer = extractAnswer(rawResponse) ?: return Result.failure(
@@ -82,6 +87,7 @@ class DirectSearchClient(private val apiKey: String) {
                 Result.failure(ResponseException(responseCode, message))
             }
         } catch (e: Exception) {
+            Log.e(LOG_TAG, "Gemini request failed", e)
             Result.failure(e)
         } finally {
             connection?.disconnect()
