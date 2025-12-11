@@ -417,6 +417,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setMessagingApp(app: MessagingApp) {
         messagingApp = app
+        // Persist the user's explicit choice before resolving availability
+        userPreferences.setMessagingApp(app)
         val whatsappInstalled = _uiState.value.isWhatsAppInstalled
         val telegramInstalled = _uiState.value.isTelegramInstalled
         updateMessagingAvailability(
