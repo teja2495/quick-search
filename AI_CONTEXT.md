@@ -1,14 +1,15 @@
-**Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, and web** from a single screen.
+**Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, device settings, and web** from a single screen.
 
 **Structure**:
-- `MainActivity.kt` - Entry point, edge-to-edge setup, in-app nav between Search and Settings, first-launch permissions screen
-- `model/AppInfo.kt` - App data model with `matches()` for search
-- `model/ContactInfo.kt`, `model/DeviceFile.kt`, `model/FileType.kt` - Models for contacts and device files, plus file-type categorisation
+- `MainActivity.kt` - Entry point, edge-to-edge setup, dark theme status bar, in-app nav between Search and Settings, first-launch permissions screen
+- `model/AppInfo.kt` - App data model with `matches()` for search, supports nicknames
+- `model/ContactInfo.kt`, `model/DeviceFile.kt`, `model/FileType.kt`, `model/SettingShortcut.kt` - Models for contacts, device files, file types, and Android settings shortcuts
 - `data/AppUsageRepository.kt` - Loads launchable apps, usage stats, and maintains an on-disk cache (`AppCache`)
 - `data/AppCache.kt` - Persistent caching of app list using SharedPreferences (JSON serialization) for instant loading on startup
-- `data/ContactRepository.kt` - Contact search (by name), aggregates numbers per contact
+- `data/ContactRepository.kt` - Contact search (by name), aggregates numbers per contact, supports preferred numbers and exclusions
 - `data/FileSearchRepository.kt` - Device file search via `MediaStore`, respects enabled file types
-- `data/UserAppPreferences.kt` - Persists hidden/pinned apps, UI settings, search engine order/disabled engines, file-type filters, preferred contact numbers, section ordering, keyboard-aligned layout, shortcuts, messaging preferences
+- `data/SettingsShortcutRepository.kt` - Provides curated Android settings shortcuts (WiFi, Bluetooth, Display, etc.)
+- `data/UserAppPreferences.kt` - Persists hidden/pinned apps, UI settings, search engine order/disabled engines, file-type filters, preferred contact numbers, section ordering, keyboard-aligned layout, shortcuts, messaging preferences, nicknames, personal context, direct dial settings, excluded settings
 - `permissions/PermissionsScreen.kt` - First-launch permissions screen with cards for usage/contacts/files permissions
 - `permissions/PermissionCard.kt` - Reusable permission card component with toggle and status
 - `permissions/PermissionRequestHandler.kt` - Handles permission request intents and state checks
@@ -18,30 +19,37 @@
 - `search/SearchScreenScroll.kt` - Scroll state management and behavior
 - `search/SearchScreenBanners.kt` - Permission banners and error messages
 - `search/SearchScreenHelpers.kt` - Helper functions for search screen state calculations
-- `search/SectionRenderingHelpers.kt` - Utilities for rendering sections (apps, contacts, files)
-- `search/AppsSection.kt` - App grid rendering (2 rows × 5 columns, 10 apps max)
-- `search/ContactsSection.kt` - Contacts section with inline result cards, multi-number picker, call/SMS/open actions
+- `search/SectionRenderingHelpers.kt` - Utilities for rendering sections (apps, contacts, files, settings)
+- `search/AppsSection.kt` - App grid rendering (2 rows × 5 columns, 10 apps max), supports nicknames
+- `search/ContactsSection.kt` - Contacts section with inline result cards, multi-number picker, call/SMS/open actions, WhatsApp/Telegram support
 - `search/FilesSection.kt` - Files section with inline result cards, filtered by enabled file types
-- `search/SearchEngineSection.kt` - Search engine row rendering
+- `search/SettingsSection.kt` - Device settings shortcuts section with categorized shortcuts
+- `search/SearchEngineSection.kt` - Search engine row rendering with Direct Search support
 - `search/SearchEngineLayout.kt` - Layout utilities for search engine icons
 - `search/SearchEngineIconItem.kt` - Individual search engine icon component
 - `search/SearchEngineUtils.kt` - Search engine URL building and utilities
+- `search/DirectSearchClient.kt` - Gemini API client for direct answers with personal context support
 - `search/AppIconLoader.kt` - Async app icon loading
-- `search/AppItemMenu.kt` - App item context menu (pin/unpin, hide)
-- `search/SearchViewModel.kt` - State management (StateFlow), app launching, contact/file actions, permissions, search ranking, search engine URL building
+- `search/AppItemMenu.kt` - App item context menu (pin/unpin, hide, add nickname)
+- `search/NicknameDialog.kt` - Dialog for adding/editing app nicknames
+- `search/SearchViewModel.kt` - State management (StateFlow), app launching, contact/file actions, permissions, search ranking, search engine URL building, Direct Search
 - `search/SearchViewModelHelpers.kt` - Helper functions for ViewModel operations
 - `search/SearchViewModelPermissionManager.kt` - Permission handling logic for ViewModel
 - `search/SearchViewModelSearchOperations.kt` - Search operations and ranking logic
 - `settings/SettingsScreen.kt` - Settings screen orchestration (`SettingsRoute`, `SettingsScreen`)
 - `settings/SettingsScreenHelpers.kt` - Settings state and callback data classes, helper functions
-- `settings/SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files)
+- `settings/SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files, Settings)
 - `settings/AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
-- `settings/ContactsSettingsSection.kt` - Messaging app preference (Messages vs WhatsApp)
+- `settings/ContactsSettingsSection.kt` - Messaging app preference (Messages/WhatsApp/Telegram), direct dial settings
 - `settings/FilesSettingsSection.kt` - File type filters (Images, Videos, Audio, Documents, APKs, Other)
-- `settings/SearchEngineSettingsSection.kt` - Search engine order/reorder, enable/disable, shortcuts configuration, search engine section enable/disable
+- `settings/SearchEngineSettingsSection.kt` - Search engine order/reorder, enable/disable, shortcuts configuration, Direct Search setup, personal context
 - `settings/SearchEngineSettingsComponents.kt` - Reusable search engine UI components
 - `settings/SearchEngineDialogs.kt` - Dialogs for search engine configuration
-- `settings/ExcludedItemsSection.kt` - Management of hidden apps, excluded contacts, excluded files
+- `settings/ExcludedItemsSection.kt` - Management of hidden apps, excluded contacts, excluded files, excluded settings
+- `settings/SettingsDetailScreen.kt` - Detail screens for search engines and excluded items
+- `settings/SettingsNavigationCard.kt` - Navigation cards for settings sections
+- `settings/PermissionsSection.kt` - Permission status and management
+- `settings/UsagePermissionBanner.kt` - Banner for usage permission hints
 - `widget/QuickSearchWidget.kt` - Glance App Widget implementation, customizable appearance (colors, border, label)
 - `widget/QuickSearchWidgetConfigureActivity.kt` - Widget configuration activity when widget is added
 - `widget/QuickSearchWidgetConfigScreen.kt` - Compose UI for widget configuration
@@ -52,29 +60,36 @@
 - `widget/WidgetLayoutUtils.kt` - Layout dimension utilities for widget sizing
 - `widget/WidgetPreviewCard.kt` - Preview card component for widget configuration
 - `widget/WidgetConfigConstants.kt` - Constants for widget configuration
-- `util/SearchRankingUtils.kt` - Centralised ranking for apps/contacts/files (exact/starts-with/second-word/contains)
+- `util/SearchRankingUtils.kt` - Centralised ranking for apps/contacts/files/settings (exact/starts-with/second-word/contains)
 - `util/PhoneNumberUtils.kt` - Phone number normalization, duplicate detection, country code handling
+- `util/WallpaperUtils.kt` - Wallpaper loading utilities for background effects
 - `ui/theme/` - Material 3 theme (Color.kt, Theme.kt, Type.kt)
 
 **Key Details**:
 - Grid: 2 rows × 5 columns (10 apps max)
-- Apps: **recent apps + pinned apps** when query is empty (pinned first, then recents), filtered search results when typing
-- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact, supports WhatsApp messaging option
+- Apps: **recent apps + pinned apps** when query is empty (pinned first, then recents), filtered search results when typing, supports nicknames for custom search terms
+- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact, supports WhatsApp/Telegram messaging, direct dial option
 - Files: inline result card (opens with appropriate app), filtered by **enabled file types** in settings
-- Search ranking: app search uses `AppInfo.matches()` + `SearchRankingUtils` for priority ordering
-- Sections: Apps, Contacts, Files - can be reordered and individually enabled/disabled
+- Settings: Device settings shortcuts (WiFi, Bluetooth, Display, etc.) organized by category
+- Search ranking: multi-source ranking using `SearchRankingUtils` for priority ordering (exact/starts-with/second-word/contains)
+- Sections: Apps, Contacts, Files, Settings - can be reordered and individually enabled/disabled
 - Layout modes: Normal layout (pinned items first) vs keyboard-aligned layout (search results first)
+- Direct Search: Gemini-powered AI answers with optional personal context
+- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode, Direct Search
+- Search engine shortcuts: Customizable shortcut codes per engine (e.g., "g" for Google)
+- Personal Context: Optional context sent to Gemini API for personalized Direct Search answers
+- Nicknames: Custom names for apps that can be searched
+- Direct Dial: Option to call directly without opening dialer (requires calling permission)
 - Permissions:
   - Mandatory: `PACKAGE_USAGE_STATS` (usage access) - required to continue
-  - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE` (R+)
+  - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE` (R+), `CALL_PHONE` (for direct dial)
   - Manifest also declares `QUERY_ALL_PACKAGES`, `REQUEST_DELETE_PACKAGES`, `REQUEST_INSTALL_PACKAGES`
-- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode
-- Search engine shortcuts: Customizable shortcut codes per engine (e.g., "g" for Google)
 - Widget: Home screen widget using Glance App Widget framework, customizable colors/border/label, launches MainActivity on tap
 - Auto-focus multi-line search field, keyboard forced visible on start/resume
 - Edge-to-edge display with system bar padding and bottom search-engine row behavior depending on whether app results exist
-- Section expansion: Contacts and Files sections can expand to show more results
-- Excluded items: Apps, contacts, and files can be hidden/excluded from search results
+- Section expansion: Contacts, Files, and Settings sections can expand to show more results
+- Excluded items: Apps, contacts, files, and settings can be hidden/excluded from search results
 - App caching: App list cached to SharedPreferences for instant loading on startup
+- Encrypted preferences: Gemini API keys stored securely using EncryptedSharedPreferences
 
 **Config**: Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`. Min SDK 24, Target/Compile SDK 36. Uses Jetpack Glance for widgets, Compose BOM 2024.09.00, Material 3.
