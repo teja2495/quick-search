@@ -320,36 +320,16 @@ object IntentHelpers {
      * Opens a file with appropriate app.
      */
     fun openFile(context: Application, deviceFile: DeviceFile) {
-        val isApk = isApkFile(deviceFile)
-        val mimeType = if (isApk) {
-            "application/vnd.android.package-archive"
-        } else {
-            deviceFile.mimeType ?: "*/*"
-        }
-        
+        val mimeType = deviceFile.mimeType ?: "*/*"
+
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(deviceFile.uri, mimeType)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        
+
         try {
             context.startActivity(viewIntent)
         } catch (exception: ActivityNotFoundException) {
-            if (isApk) {
-                val installIntent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-                    setDataAndType(deviceFile.uri, mimeType)
-                    addFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                }
-                try {
-                    context.startActivity(installIntent)
-                    return
-                } catch (_: Exception) {
-                    // Fall through to generic error toast
-                }
-            }
             showFileOpenError(context, deviceFile.displayName)
         } catch (exception: SecurityException) {
             showFileOpenError(context, deviceFile.displayName)
@@ -364,15 +344,4 @@ object IntentHelpers {
         ).show()
     }
     
-    /**
-     * Best-effort detection of APK files.
-     */
-    private fun isApkFile(deviceFile: DeviceFile): Boolean {
-        val mime = deviceFile.mimeType?.lowercase(java.util.Locale.getDefault())
-        if (mime == "application/vnd.android.package-archive") {
-            return true
-        }
-        val name = deviceFile.displayName.lowercase(java.util.Locale.getDefault())
-        return name.endsWith(".apk")
-    }
 }

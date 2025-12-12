@@ -33,7 +33,6 @@ private fun getFileTypeDisplayName(fileType: FileType): String {
     return when (fileType) {
         FileType.PHOTOS_AND_VIDEOS -> stringResource(R.string.file_type_photos_and_videos)
         FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
-        FileType.APK -> stringResource(R.string.file_type_apk)
         FileType.OTHER -> stringResource(R.string.file_type_other)
     }
 }

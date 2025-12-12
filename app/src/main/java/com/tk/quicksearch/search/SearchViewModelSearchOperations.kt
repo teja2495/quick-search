@@ -8,6 +8,7 @@ import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.FileTypeUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
+import java.util.Locale
 
 /**
  * Handles secondary search operations (contacts and files).
@@ -115,8 +116,21 @@ class SearchOperations(
         return allFiles
             .filter { file ->
                 val fileType = FileTypeUtils.getFileType(file)
-                fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
+                fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString()) &&
+                !isApkFile(file)
             }
             .take(FILE_RESULT_LIMIT)
+    }
+
+    /**
+     * Checks if a file is an APK file.
+     */
+    private fun isApkFile(deviceFile: DeviceFile): Boolean {
+        val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
+        if (mime == "application/vnd.android.package-archive") {
+            return true
+        }
+        val name = deviceFile.displayName.lowercase(Locale.getDefault())
+        return name.endsWith(".apk")
     }
 }

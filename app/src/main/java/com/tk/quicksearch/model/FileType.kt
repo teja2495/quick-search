@@ -6,7 +6,6 @@ package com.tk.quicksearch.model
 enum class FileType {
     PHOTOS_AND_VIDEOS,
     DOCUMENTS,
-    APK,
     OTHER
 }
 
@@ -34,8 +33,6 @@ object FileTypeUtils {
         "text/"
     )
     
-    // MIME type prefix for APK files
-    private const val APK_PREFIX = "application/vnd.android.package-archive"
     
     /**
      * Determines the file type category based on MIME type.
@@ -48,7 +45,6 @@ object FileTypeUtils {
         
         return when {
             isMediaType(normalizedMime) -> FileType.PHOTOS_AND_VIDEOS
-            normalizedMime.startsWith(APK_PREFIX) -> FileType.APK
             isDocumentType(normalizedMime) -> FileType.DOCUMENTS
             else -> FileType.OTHER
         }
