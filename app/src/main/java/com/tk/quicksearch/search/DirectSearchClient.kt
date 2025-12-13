@@ -101,17 +101,19 @@ class DirectSearchClient(private val apiKey: String) {
 
     private fun buildRequestBody(query: String, personalContext: String?): String {
         val systemInstruction = JSONObject().apply {
-            put("parts", JSONArray().put(JSONObject().put("text", SYSTEM_PROMPT)))
-        }
-        val contentParts = JSONArray().apply {
+            val systemParts = JSONArray()
+            systemParts.put(JSONObject().put("text", SYSTEM_PROMPT))
             if (!personalContext.isNullOrBlank()) {
-                put(
+                systemParts.put(
                     JSONObject().put(
                         "text",
-                        "User personal context:\n${personalContext.trim()}"
+                        "\n\nUser personal context:\n${personalContext.trim()}"
                     )
                 )
             }
+            put("parts", systemParts)
+        }
+        val contentParts = JSONArray().apply {
             put(JSONObject().put("text", query))
         }
         val content = JSONObject().apply {
