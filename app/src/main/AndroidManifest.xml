@@ -14,8 +14,6 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-    <!-- Needed to initiate APK installs via ACTION_INSTALL_PACKAGE on Android O+ -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- Contact Permissions -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
