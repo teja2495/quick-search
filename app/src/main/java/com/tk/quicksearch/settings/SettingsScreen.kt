@@ -81,6 +81,7 @@ fun SettingsRoute(
         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
+        clearQueryAfterSearchEngine = uiState.clearQueryAfterSearchEngine,
         directDialEnabled = uiState.directDialEnabled,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -202,6 +203,7 @@ fun SettingsRoute(
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+        onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleDirectDial = onToggleDirectDial,
         onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
@@ -316,16 +318,33 @@ private fun SettingsScreen(
                 onReorderSections = callbacks.onReorderSections
             )
 
+            // Internet Search Section
+            Text(
+                text = stringResource(R.string.settings_internet_search_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .padding(top = SettingsSpacing.sectionTopPadding)
+                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+            )
+
             // Search Engine Section - Navigation Card
             SettingsNavigationCard(
                 title = stringResource(R.string.settings_search_engines_title),
                 description = stringResource(R.string.settings_search_engines_desc),
                 onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
                 contentPadding = SettingsSpacing.singleCardPadding
             )
 
             // Appearance Section
+            Text(
+                text = stringResource(R.string.settings_app_labels_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .padding(top = SettingsSpacing.sectionTopPadding)
+                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+            )
             AppLabelsSection(
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
@@ -338,8 +357,7 @@ private fun SettingsScreen(
                         callbacks.onToggleShowWallpaperBackground(enabled)
                     }
                 },
-                hasFilePermission = hasFilePermission,
-                modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+                hasFilePermission = hasFilePermission
             )
 
             // Excluded Items Section - Navigation Card (only shown when there are excluded items)
@@ -377,6 +395,23 @@ private fun SettingsScreen(
                 onToggleFileType = callbacks.onToggleFileType,
                 filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+            )
+
+            // More Options Section
+            Text(
+                text = stringResource(R.string.settings_more_options_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .padding(top = SettingsSpacing.sectionTopPadding)
+                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+            )
+            // Additional Settings - Navigation Card
+            SettingsNavigationCard(
+                title = stringResource(R.string.settings_additional_settings_title),
+                description = stringResource(R.string.settings_additional_settings_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
+                contentPadding = SettingsSpacing.singleCardPadding
             )
 
             // Permissions Section (at the bottom)

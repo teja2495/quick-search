@@ -73,6 +73,7 @@ fun SettingsDetailRoute(
         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
+        clearQueryAfterSearchEngine = uiState.clearQueryAfterSearchEngine,
         directDialEnabled = uiState.directDialEnabled,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -136,6 +137,7 @@ fun SettingsDetailRoute(
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+        onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleDirectDial = viewModel::setDirectDialEnabled,
         onToggleSection = { _, _ -> },
         onReorderSections = viewModel::reorderSections,
@@ -193,6 +195,7 @@ private fun SettingsDetailScreen(
                 title = when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
                     SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
+                    SettingsDetailType.ADDITIONAL_SETTINGS -> stringResource(R.string.settings_additional_settings_title)
                 },
                 onBack = callbacks.onBack,
                 trailingContent = if (detailType == SettingsDetailType.SEARCH_ENGINES) {
@@ -257,6 +260,14 @@ private fun SettingsDetailScreen(
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onClearAll = callbacks.onClearAllExclusions,
+                            showTitle = false
+                        )
+                    }
+                    SettingsDetailType.ADDITIONAL_SETTINGS -> {
+                        // Additional Settings Section
+                        AdditionalSettingsSection(
+                            clearQueryAfterSearchEngine = state.clearQueryAfterSearchEngine,
+                            onToggleClearQueryAfterSearchEngine = callbacks.onToggleClearQueryAfterSearchEngine,
                             showTitle = false
                         )
                     }
@@ -337,6 +348,7 @@ private fun SettingsDetailHeader(
  */
 enum class SettingsDetailType {
     SEARCH_ENGINES,
-    EXCLUDED_ITEMS
+    EXCLUDED_ITEMS,
+    ADDITIONAL_SETTINGS
 }
 

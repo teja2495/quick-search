@@ -13,6 +13,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Sms
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -89,115 +90,104 @@ fun MessagingSection(
             modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
         )
 
-        Text(
-            text = stringResource(R.string.settings_messaging_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-        )
-
-        DirectDialCard(
-            enabled = directDialEnabled,
-            hasCallPermission = hasCallPermission,
-            onToggle = onToggleDirectDial
-        )
-
-        MessagingOptionsCard(
-            options = messagingOptions,
+        MergedMessagingCard(
+            messagingOptions = messagingOptions,
             selectedApp = messagingApp,
-            onSelect = onSetMessagingApp,
-            modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
+            onSetMessagingApp = onSetMessagingApp,
+            directDialEnabled = directDialEnabled,
+            onToggleDirectDial = onToggleDirectDial,
+            hasCallPermission = hasCallPermission
         )
     }
 }
 
+
 @Composable
-private fun DirectDialCard(
-    enabled: Boolean,
-    hasCallPermission: Boolean,
-    onToggle: (Boolean) -> Unit
+private fun MergedMessagingCard(
+    messagingOptions: List<MessagingOption>,
+    selectedApp: MessagingApp,
+    onSetMessagingApp: (MessagingApp) -> Unit,
+    directDialEnabled: Boolean,
+    onToggleDirectDial: (Boolean) -> Unit,
+    hasCallPermission: Boolean
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SettingsSpacing.singleCardPadding),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = MessagingSpacing.toggleSpacing),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_direct_dial_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.settings_direct_dial_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Switch(
-                checked = enabled && hasCallPermission,
-                onCheckedChange = onToggle
-            )
-        }
-    }
-}
-
-@Composable
-private fun MessagingOptionsCard(
-    options: List<MessagingOption>,
-    selectedApp: MessagingApp,
-    onSelect: (MessagingApp) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    if (options.isEmpty()) return
-
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = MessagingSpacing.cardHorizontalPadding,
-                    end = MessagingSpacing.cardHorizontalPadding,
-                    top = MessagingSpacing.cardTopPadding,
-                    bottom = MessagingSpacing.cardBottomPadding
-                ),
-            verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_messaging_card_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Direct Dial Section
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                    .padding(SettingsSpacing.singleCardPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                options.forEach { option ->
-                    MessagingOptionChip(
-                        option = option,
-                        selected = selectedApp == option.app,
-                        onClick = { onSelect(option.app) },
-                        modifier = Modifier.weight(1f)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = MessagingSpacing.toggleSpacing),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_direct_dial_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
+                    Text(
+                        text = stringResource(R.string.settings_direct_dial_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = directDialEnabled && hasCallPermission,
+                    onCheckedChange = onToggleDirectDial
+                )
+            }
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Messaging Options Section
+            if (messagingOptions.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = MessagingSpacing.cardHorizontalPadding,
+                            end = MessagingSpacing.cardHorizontalPadding,
+                            top = MessagingSpacing.cardTopPadding,
+                            bottom = MessagingSpacing.cardBottomPadding
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_messaging_card_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectableGroup(),
+                        horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        messagingOptions.forEach { option ->
+                            MessagingOptionChip(
+                                option = option,
+                                selected = selectedApp == option.app,
+                                onClick = { onSetMessagingApp(option.app) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
                 }
             }
         }

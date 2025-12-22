@@ -125,6 +125,7 @@ data class SearchUiState(
     val isWhatsAppInstalled: Boolean = false,
     val isTelegramInstalled: Boolean = false,
     val showWallpaperBackground: Boolean = true,
+    val clearQueryAfterSearchEngine: Boolean = false,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
@@ -191,6 +192,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             false
         }
     }
+    private var clearQueryAfterSearchEngine: Boolean = userPreferences.shouldClearQueryAfterSearchEngine()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
@@ -639,6 +641,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun launchApp(appInfo: AppInfo) {
         IntentHelpers.launchApp(getApplication(), appInfo)
+        clearQuery()
     }
 
     fun openAppInfo(appInfo: AppInfo) {
@@ -661,6 +664,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             null
         }
         IntentHelpers.openSearchUrl(getApplication(), trimmedQuery, searchEngine, amazonDomain)
+
+        // Clear query after triggering search engine if enabled
+        if (clearQueryAfterSearchEngine) {
+            clearQuery()
+        }
     }
 
     fun clearCachedApps() {
@@ -984,6 +992,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowWallpaperBackground(showWallpaper)
             showWallpaperBackground = showWallpaper
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
+        }
+    }
+
+    fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setClearQueryAfterSearchEngine(clearQuery)
+            clearQueryAfterSearchEngine = clearQuery
+            _uiState.update {
+                it.copy(clearQueryAfterSearchEngine = clearQuery)
+            }
         }
     }
 
@@ -1734,6 +1752,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun openContact(contactInfo: ContactInfo) {
         IntentHelpers.openContact(getApplication(), contactInfo)
+        clearQuery()
     }
 
     fun openEmail(email: String) {
@@ -1938,6 +1957,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun openFile(deviceFile: DeviceFile) {
         IntentHelpers.openFile(getApplication(), deviceFile)
+        clearQuery()
     }
 }
 

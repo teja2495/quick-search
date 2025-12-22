@@ -191,7 +191,6 @@
          Settings - Permissions
          ============================================================================ -->
     <string name="settings_section_permissions">Permissions</string>
-    <string name="settings_section_permissions_desc">Permissions that are required to unlock additional features.</string>
     <string name="settings_usage_access_title">Usage Access</string>
     <string name="settings_contacts_permission_title">Contacts</string>
     <string name="settings_files_permission_title">Files</string>
@@ -246,8 +245,9 @@
     <!-- ============================================================================
          Settings - Search Engines
          ============================================================================ -->
+    <string name="settings_internet_search_title">Internet Search</string>
     <string name="settings_search_engines_title">Search Engines</string>
-    <string name="settings_search_engines_desc">Customize your search engines and their shortcuts.</string>
+    <string name="settings_search_engines_desc">Customize your search engines (Google, ChatGPT, etc.).</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_amazon_domain_title">Amazon Domain</string>
     <string name="settings_amazon_domain_label">Domain:</string>
@@ -288,16 +288,19 @@
          Settings - File Types
          ============================================================================ -->
     <string name="settings_file_types_title">File Types</string>
-    <string name="settings_file_types_desc">Choose which file types appear in search results.</string>
-    <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
+   <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
     <string name="file_type_documents">Documents</string>
     <string name="file_type_other">Other</string>
+
+    <!-- ============================================================================
+         Settings - More Options
+         ============================================================================ -->
+    <string name="settings_more_options_title">More Options</string>
 
     <!-- ============================================================================
          Settings - Messaging
          ============================================================================ -->
     <string name="settings_messaging_title">Calls &amp; Texts</string>
-    <string name="settings_messaging_desc">Manage how you place calls and send messages.</string>
     <string name="settings_messaging_card_title">Default Messaging App</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
@@ -307,7 +310,6 @@
          Settings - Sections
          ============================================================================ -->
     <string name="settings_sections_title">Search Results</string>
-    <string name="settings_sections_desc">Customize which type of results appear in search results and their order.</string>
     <string name="section_apps">Apps</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
@@ -319,6 +321,9 @@
          ============================================================================ -->
     <string name="settings_excluded_items_title">Excluded Items</string>
     <string name="settings_excluded_items_desc">View and manage items excluded from search results.</string>
+    <string name="settings_additional_settings_title">Additional Settings</string>
+    <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
+    <string name="settings_clear_query_after_search_engine_toggle">Clear query after search</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
     <string name="settings_excluded_items_more">More</string>

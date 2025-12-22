@@ -170,13 +170,6 @@ fun SectionSettingsSection(
         modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
     )
     
-    Text(
-        text = stringResource(R.string.settings_sections_desc),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-    )
-    
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge

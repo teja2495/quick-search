@@ -98,14 +98,6 @@ fun FileTypesSection(
         modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
     )
     
-    // Section description
-    Text(
-        text = stringResource(R.string.settings_file_types_desc),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-    )
-    
     // File types card
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
