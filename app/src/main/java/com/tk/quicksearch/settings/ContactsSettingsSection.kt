@@ -54,6 +54,7 @@ private data class MessagingOption(val app: MessagingApp, val labelRes: Int)
  * @param contactsSectionEnabled Whether the contacts section is enabled. If false, this section is not displayed.
  * @param isWhatsAppInstalled Whether WhatsApp is available on the device
  * @param isTelegramInstalled Whether Telegram is available on the device
+ * @param onMessagingAppSelected Callback when a messaging option is selected, handles installation check
  * @param modifier Modifier to be applied to the section title
  */
 @Composable
@@ -66,6 +67,7 @@ fun MessagingSection(
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
+    onMessagingAppSelected: ((MessagingApp) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     if (!contactsSectionEnabled) {
@@ -74,12 +76,8 @@ fun MessagingSection(
 
     val messagingOptions = buildList {
         add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
-        if (isWhatsAppInstalled) {
-            add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
-        }
-        if (isTelegramInstalled) {
-            add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
-        }
+        add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
+        add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
     }
 
     Column(modifier = modifier) {
@@ -94,6 +92,7 @@ fun MessagingSection(
             messagingOptions = messagingOptions,
             selectedApp = messagingApp,
             onSetMessagingApp = onSetMessagingApp,
+            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
             directDialEnabled = directDialEnabled,
             onToggleDirectDial = onToggleDirectDial,
             hasCallPermission = hasCallPermission
@@ -107,6 +106,7 @@ private fun MergedMessagingCard(
     messagingOptions: List<MessagingOption>,
     selectedApp: MessagingApp,
     onSetMessagingApp: (MessagingApp) -> Unit,
+    onMessagingAppSelected: (MessagingApp) -> Unit,
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
     hasCallPermission: Boolean
@@ -183,7 +183,7 @@ private fun MergedMessagingCard(
                             MessagingOptionChip(
                                 option = option,
                                 selected = selectedApp == option.app,
-                                onClick = { onSetMessagingApp(option.app) },
+                                onClick = { onMessagingAppSelected(option.app) },
                                 modifier = Modifier.weight(1f)
                             )
                         }

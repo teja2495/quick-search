@@ -305,6 +305,7 @@
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="settings_messaging_option_telegram">Telegram</string>
+    <string name="settings_messaging_app_not_installed">%s is not installed on your device</string>
 
     <!-- ============================================================================
          Settings - Sections

@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -217,7 +218,31 @@ fun SettingsRoute(
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext
     )
-    
+
+    // Callback for messaging app selection with installation check
+    val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
+        val isInstalled = when (app) {
+            MessagingApp.MESSAGES -> true // Messages is always available
+            MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
+            MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
+        }
+
+        if (isInstalled) {
+            callbacks.onSetMessagingApp(app)
+        } else {
+            val appName = when (app) {
+                MessagingApp.WHATSAPP -> "WhatsApp"
+                MessagingApp.TELEGRAM -> "Telegram"
+                MessagingApp.MESSAGES -> "Messages"
+            }
+            Toast.makeText(
+                context,
+                context.getString(R.string.settings_messaging_app_not_installed, appName),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -250,6 +275,7 @@ fun SettingsRoute(
         state = state,
         callbacks = callbacks,
         hasUsagePermission = uiState.hasUsagePermission,
+        onMessagingAppSelected = onMessagingAppSelected,
         hasContactPermission = uiState.hasContactPermission,
         hasFilePermission = uiState.hasFilePermission,
         hasCallPermission = uiState.hasCallPermission,
@@ -275,6 +301,7 @@ private fun SettingsScreen(
     hasCallPermission: Boolean,
     shouldShowBanner: Boolean,
     onRequestUsagePermission: () -> Unit,
+    onMessagingAppSelected: (MessagingApp) -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
@@ -392,6 +419,7 @@ private fun SettingsScreen(
                 contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
                 isWhatsAppInstalled = state.isWhatsAppInstalled,
                 isTelegramInstalled = state.isTelegramInstalled,
+                onMessagingAppSelected = onMessagingAppSelected,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )
 
