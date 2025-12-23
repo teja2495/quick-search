@@ -58,7 +58,8 @@ fun SettingsRoute(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     viewModel: SearchViewModel,
-    onNavigateToDetail: (SettingsDetailType) -> Unit = {}
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {},
+    scrollState: androidx.compose.foundation.ScrollState = androidx.compose.foundation.rememberScrollState()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     
@@ -254,7 +255,8 @@ fun SettingsRoute(
         onRequestFilePermission = viewModel::openFilesPermissionSettings,
         onRequestCallPermission = onRequestCallPermission,
         onDismissBanner = onDismissBanner,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = onNavigateToDetail,
+        scrollState = scrollState
     )
 }
 
@@ -273,10 +275,10 @@ private fun SettingsScreen(
     onRequestFilePermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
     onDismissBanner: () -> Unit,
-    onNavigateToDetail: (SettingsDetailType) -> Unit
+    onNavigateToDetail: (SettingsDetailType) -> Unit,
+    scrollState: androidx.compose.foundation.ScrollState = androidx.compose.foundation.rememberScrollState()
 ) {
     BackHandler(onBack = callbacks.onBack)
-    val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     

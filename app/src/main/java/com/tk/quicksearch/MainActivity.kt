@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -138,6 +139,7 @@ class MainActivity : ComponentActivity() {
         onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
         viewModel: SearchViewModel
     ) {
+        val settingsScrollState = rememberScrollState()
         when {
             destination == RootDestination.Settings && settingsDetailType != null -> {
                 SettingsDetailRoute(
@@ -152,7 +154,8 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel,
                     onNavigateToDetail = { detailType ->
                         onSettingsDetailTypeChange(detailType)
-                    }
+                    },
+                    scrollState = settingsScrollState
                 )
             }
             else -> {
