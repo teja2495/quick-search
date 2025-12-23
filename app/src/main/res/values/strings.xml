@@ -352,6 +352,9 @@
     <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_toggle_show_label">Show "Quick Search" text</string>
     <string name="widget_toggle_show_search_icon">Show icon</string>
+    <string name="widget_icon_alignment">Icon Alignment</string>
+    <string name="widget_icon_align_left">Left</string>
+    <string name="widget_icon_align_center">Center</string>
     <string name="widget_background_color">Background Color</string>
     <string name="widget_background_white">White</string>
     <string name="widget_background_black">Black</string>

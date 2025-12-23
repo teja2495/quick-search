@@ -24,6 +24,7 @@ private object WidgetDefaults {
     // Default text/icon color inverts the background for readability:
     // white text on dark backgrounds, dark text on light backgrounds.
     const val TEXT_ICON_COLOR_IS_WHITE = false
+    const val ICON_ALIGN_LEFT = false
 }
 
 // Value ranges for validation
@@ -46,6 +47,7 @@ private object WidgetKeys {
     val BACKGROUND_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_background_color_is_white")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
     val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
+    val ICON_ALIGN_LEFT = booleanPreferencesKey("quick_search_widget_icon_align_left")
 }
 
 /**
@@ -60,7 +62,8 @@ data class QuickSearchWidgetPreferences(
     val showSearchIcon: Boolean = WidgetDefaults.SHOW_SEARCH_ICON,
     val backgroundColorIsWhite: Boolean = WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
-    val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE
+    val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE,
+    val iconAlignLeft: Boolean = WidgetDefaults.ICON_ALIGN_LEFT
 ) : Parcelable {
 
     companion object {
@@ -109,7 +112,8 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
         showSearchIcon = this[WidgetKeys.SHOW_SEARCH_ICON] ?: WidgetDefaults.SHOW_SEARCH_ICON,
         backgroundColorIsWhite = backgroundIsWhite,
         backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA,
-        textIconColorIsWhite = textIconIsWhite
+        textIconColorIsWhite = textIconIsWhite,
+        iconAlignLeft = this[WidgetKeys.ICON_ALIGN_LEFT] ?: WidgetDefaults.ICON_ALIGN_LEFT
     ).coerceToValidRanges()
 }
 
@@ -126,5 +130,6 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE] = validated.backgroundColorIsWhite
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
     this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE] = validated.textIconColorIsWhite
+    this[WidgetKeys.ICON_ALIGN_LEFT] = validated.iconAlignLeft
 }
 

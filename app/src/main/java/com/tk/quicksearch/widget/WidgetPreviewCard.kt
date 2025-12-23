@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,41 +41,89 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                 bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING
             )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(WidgetConfigConstants.PREVIEW_HEIGHT)
-                .background(colors.background, shape = borderShape)
-                .then(
-                    if (shouldShowBorder) {
-                        Modifier.border(
-                            width = state.borderWidthDp.dp,
-                            color = colors.border,
-                            shape = borderShape
+        if (state.iconAlignLeft) {
+            // Left alignment: icon on left, text centered
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(WidgetConfigConstants.PREVIEW_HEIGHT)
+                    .background(colors.background, shape = borderShape)
+                    .then(
+                        if (shouldShowBorder) {
+                            Modifier.border(
+                                width = state.borderWidthDp.dp,
+                                color = colors.border,
+                                shape = borderShape
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                contentAlignment = Alignment.Center
+            ) {
+                // Text is always centered
+                if (state.showLabel) {
+                    Text(
+                        text = stringResource(R.string.widget_label_text),
+                        color = colors.textIcon,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                // Icon on the left
+                if (state.showSearchIcon) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_widget_search),
+                            contentDescription = stringResource(R.string.desc_search_icon),
+                            tint = colors.textIcon,
+                            modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
                         )
-                    } else {
-                        Modifier
                     }
-                )
-                .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            if (state.showSearchIcon) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_widget_search),
-                    contentDescription = stringResource(R.string.desc_search_icon),
-                    tint = colors.textIcon,
-                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
-                )
+                }
             }
-            if (state.showLabel) {
-                Text(
-                    text = stringResource(R.string.widget_label_text),
-                    modifier = Modifier.padding(start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp),
-                    color = colors.textIcon,
-                    fontWeight = FontWeight.Medium
-                )
+        } else {
+            // Center alignment: icon and text together, centered as a unit
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(WidgetConfigConstants.PREVIEW_HEIGHT)
+                    .background(colors.background, shape = borderShape)
+                    .then(
+                        if (shouldShowBorder) {
+                            Modifier.border(
+                                width = state.borderWidthDp.dp,
+                                color = colors.border,
+                                shape = borderShape
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (state.showSearchIcon) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_widget_search),
+                        contentDescription = stringResource(R.string.desc_search_icon),
+                        tint = colors.textIcon,
+                        modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                    )
+                }
+                if (state.showLabel) {
+                    Text(
+                        text = stringResource(R.string.widget_label_text),
+                        modifier = Modifier.padding(start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp),
+                        color = colors.textIcon,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

@@ -98,6 +98,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             textIconColor = colors.textIconColor,
             showLabel = config.showLabel,
             showSearchIcon = config.showSearchIcon,
+            iconAlignLeft = config.iconAlignLeft,
             launchIntent = launchIntent
         )
     }
@@ -150,6 +151,7 @@ private fun WidgetContent(
     textIconColor: Color,
     showLabel: Boolean,
     showSearchIcon: Boolean,
+    iconAlignLeft: Boolean,
     launchIntent: Intent
 ) {
     val context = LocalContext.current
@@ -172,30 +174,69 @@ private fun WidgetContent(
                 .background(ImageProvider(backgroundBitmap))
                 .padding(horizontal = 16.dp)
 
-            Row(
-                modifier = widgetModifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (showSearchIcon) {
-                    Image(
-                        provider = ImageProvider(R.drawable.ic_widget_search),
-                        contentDescription = context.getString(R.string.desc_search_icon),
-                        modifier = GlanceModifier.size(20.dp),
-                        colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
-                    )
+            if (iconAlignLeft) {
+                // Left alignment: icon on left, text centered
+                Box(
+                    modifier = widgetModifier,
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Text is always centered
+                    if (showLabel) {
+                        Text(
+                            text = context.getString(R.string.widget_label_text),
+                            style = TextStyle(
+                                color = ColorProvider(textIconColor),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            maxLines = 1
+                        )
+                    }
+
+                    // Icon on the left
+                    if (showSearchIcon) {
+                        Box(
+                            modifier = GlanceModifier
+                                .fillMaxSize()
+                                .padding(start = 4.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_widget_search),
+                                contentDescription = context.getString(R.string.desc_search_icon),
+                                modifier = GlanceModifier.size(20.dp),
+                                colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+                            )
+                        }
+                    }
                 }
-                if (showLabel) {
-                    Text(
-                        text = context.getString(R.string.widget_label_text),
-                        modifier = GlanceModifier.padding(start = if (showSearchIcon) 8.dp else 0.dp),
-                        style = TextStyle(
-                            color = ColorProvider(textIconColor),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        ),
-                        maxLines = 1
-                    )
+            } else {
+                // Center alignment: icon and text together, centered as a unit
+                Row(
+                    modifier = widgetModifier,
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (showSearchIcon) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_widget_search),
+                            contentDescription = context.getString(R.string.desc_search_icon),
+                            modifier = GlanceModifier.size(20.dp),
+                            colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+                        )
+                    }
+                    if (showLabel) {
+                        Text(
+                            text = context.getString(R.string.widget_label_text),
+                            modifier = GlanceModifier.padding(start = if (showSearchIcon) 8.dp else 0.dp),
+                            style = TextStyle(
+                                color = ColorProvider(textIconColor),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            maxLines = 1
+                        )
+                    }
                 }
             }
         }

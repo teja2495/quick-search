@@ -125,6 +125,9 @@ fun QuickSearchWidgetConfigScreen(
                 WidgetBackgroundColorSection(state = state, onStateChange = onStateChange)
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
                 WidgetToggleSection(state = state, onStateChange = onStateChange)
+                if (state.showSearchIcon) {
+                    WidgetIconAlignmentSection(state = state, onStateChange = onStateChange)
+                }
             }
         }
     }
@@ -267,6 +270,36 @@ private fun WidgetBackgroundColorSection(
                 icon = {}
             ) {
                 Text(stringResource(R.string.widget_background_black))
+            }
+        }
+    }
+}
+
+@Composable
+private fun WidgetIconAlignmentSection(
+    state: QuickSearchWidgetPreferences,
+    onStateChange: (QuickSearchWidgetPreferences) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
+        Text(text = stringResource(R.string.widget_icon_alignment))
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SegmentedButton(
+                selected = state.iconAlignLeft,
+                onClick = { onStateChange(state.copy(iconAlignLeft = true)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_icon_align_left))
+            }
+            SegmentedButton(
+                selected = !state.iconAlignLeft,
+                onClick = { onStateChange(state.copy(iconAlignLeft = false)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_icon_align_center))
             }
         }
     }
