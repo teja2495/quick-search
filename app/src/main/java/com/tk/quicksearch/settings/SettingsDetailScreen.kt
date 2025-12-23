@@ -1,5 +1,7 @@
 package com.tk.quicksearch.settings
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -148,7 +150,25 @@ fun SettingsDetailRoute(
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
-        onSetPersonalContext = viewModel::setPersonalContext
+        onSetPersonalContext = viewModel::setPersonalContext,
+        onSetDefaultAssistant = {
+            try {
+                val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                // Fallback to general settings if voice input settings not available
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        "Unable to open settings",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     )
     
     SettingsDetailScreen(
@@ -276,6 +296,7 @@ private fun SettingsDetailScreen(
                             onToggleShowAllResults = callbacks.onToggleShowAllResults,
                             sortAppsByUsageEnabled = state.sortAppsByUsageEnabled,
                             onToggleSortAppsByUsage = callbacks.onToggleSortAppsByUsage,
+                            onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
                             showTitle = false
                         )
                     }

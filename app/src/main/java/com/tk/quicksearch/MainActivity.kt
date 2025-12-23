@@ -60,13 +60,13 @@ class MainActivity : ComponentActivity() {
         // Preload wallpaper in background (already non-blocking)
         WallpaperUtils.preloadWallpaper(this)
         refreshPermissionStateIfNeeded()
-        handleVoiceSearchIntent(intent)
+        handleIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleVoiceSearchIntent(intent)
+        handleIntent(intent)
     }
 
     private fun initializePreferences() {
@@ -197,13 +197,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun handleVoiceSearchIntent(intent: Intent?) {
-        val shouldStartVoiceSearch = intent
-            ?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false)
-            ?: false
-        if (shouldStartVoiceSearch) {
-            intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
-            startVoiceInput()
+    private fun handleIntent(intent: Intent?) {
+        when (intent?.action) {
+            Intent.ACTION_ASSIST -> {
+                // Handle digital assistant activation - app is already ready for search
+                // No special handling needed as the search interface is the main UI
+            }
+            else -> {
+                // Handle other intents like voice search from widget
+                val shouldStartVoiceSearch = intent
+                    ?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false)
+                    ?: false
+                if (shouldStartVoiceSearch) {
+                    intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
+                    startVoiceInput()
+                }
+            }
         }
     }
 

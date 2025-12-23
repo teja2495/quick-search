@@ -216,7 +216,25 @@ fun SettingsRoute(
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
-        onSetPersonalContext = viewModel::setPersonalContext
+        onSetPersonalContext = viewModel::setPersonalContext,
+        onSetDefaultAssistant = {
+            try {
+                val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                // Fallback to general settings if voice input settings not available
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        "Unable to open settings",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     )
 
     // Callback for messaging app selection with installation check

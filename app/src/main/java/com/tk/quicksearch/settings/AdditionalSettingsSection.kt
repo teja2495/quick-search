@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.SettingsNavigationCard
 
 /**
  * Additional Settings section with advanced options and configuration.
@@ -28,6 +29,7 @@ fun AdditionalSettingsSection(
     onToggleShowAllResults: (Boolean) -> Unit,
     sortAppsByUsageEnabled: Boolean,
     onToggleSortAppsByUsage: (Boolean) -> Unit,
+    onSetDefaultAssistant: () -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -45,6 +47,15 @@ fun AdditionalSettingsSection(
             modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
         )
     }
+
+    // Default Assistant - Navigation Card
+    SettingsNavigationCard(
+        title = stringResource(R.string.settings_default_assistant_title),
+        description = stringResource(R.string.settings_default_assistant_desc),
+        onClick = onSetDefaultAssistant,
+        modifier = Modifier.padding(bottom = 16.dp),
+        contentPadding = SettingsSpacing.singleCardPadding
+    )
 
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
@@ -127,6 +138,7 @@ fun AdditionalSettingsSection(
                     onCheckedChange = onToggleSortAppsByUsage
                 )
             }
+
         }
     }
 }

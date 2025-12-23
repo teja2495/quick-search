@@ -87,7 +87,8 @@ data class SettingsScreenCallbacks(
     val onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
     val onSetAmazonDomain: (String?) -> Unit,
     val onSetGeminiApiKey: (String?) -> Unit,
-    val onSetPersonalContext: (String?) -> Unit
+    val onSetPersonalContext: (String?) -> Unit,
+    val onSetDefaultAssistant: () -> Unit
 )
 
 /**

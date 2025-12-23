@@ -327,6 +327,9 @@
     <string name="settings_clear_query_after_search_engine_toggle">Clear query after search</string>
     <string name="settings_show_all_results_toggle">Auto-expand all results</string>
     <string name="settings_sort_apps_by_usage_toggle">Order apps by most used</string>
+    <string name="settings_default_assistant_title">Default Assistant</string>
+    <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
+    <string name="settings_default_assistant_button">Set as Default Assistant</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
     <string name="settings_excluded_items_more">More</string>
