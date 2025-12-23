@@ -1433,26 +1433,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val normalizedQuery = query.lowercase(Locale.getDefault())
         return source
             .asSequence()
-            .filter { app ->
-                app.matches(query) || userPreferences.getAppNickname(app.packageName)
-                    ?.lowercase(Locale.getDefault())
-                    ?.contains(normalizedQuery) == true
-            }
-            .map { app ->
+            .mapNotNull { app ->
+                val normalizedName = app.appName.lowercase(Locale.getDefault())
                 val nickname = userPreferences.getAppNickname(app.packageName)
-                val priority = when {
-                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> {
-                        // Nickname match gets highest priority (1 = EXACT_MATCH)
-                        1
-                    }
-                    else -> {
-                        SearchRankingUtils.getBestMatchPriority(
-                            query,
-                            app.appName,
-                            app.packageName
-                        )
-                    }
-                }
+                val normalizedNickname = nickname?.lowercase(Locale.getDefault())
+
+                val nameMatches = normalizedName.contains(normalizedQuery)
+                val nicknameMatches = normalizedNickname?.contains(normalizedQuery) == true
+                if (!nameMatches && !nicknameMatches) return@mapNotNull null
+
+                val startsWithMatch = (normalizedNickname?.startsWith(normalizedQuery) == true) ||
+                    normalizedName.startsWith(normalizedQuery)
+                val priority = if (startsWithMatch) 1 else 2
                 app to priority
             }
             .sortedWith(compareBy(

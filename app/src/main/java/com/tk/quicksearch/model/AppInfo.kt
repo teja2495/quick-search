@@ -17,12 +17,10 @@ data class AppInfo(
  */
 fun AppInfo.matches(query: String): Boolean {
     if (query.isBlank()) return true
-    
+
     val locale = Locale.getDefault()
-    val normalizedQuery = query.lowercase(locale)
+    val normalizedQuery = query.trim().lowercase(locale)
     val normalizedAppName = appName.lowercase(locale)
-    val normalizedPackageName = packageName.lowercase(locale)
-    
-    return normalizedAppName.contains(normalizedQuery) ||
-        normalizedPackageName.contains(normalizedQuery)
+
+    return normalizedAppName.contains(normalizedQuery)
 }
