@@ -19,6 +19,7 @@ import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -44,6 +45,7 @@ import kotlin.math.roundToInt
 class QuickSearchWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
+    override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent { WidgetBody() }
@@ -57,11 +59,13 @@ class QuickSearchWidget : GlanceAppWidget() {
         val widgetSize = LocalSize.current
         
         // Calculate dimensions
+        val defaultWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
         val widgetPadding = 8.dp
-        val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultHeight)
+        val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultWidth)
         val heightDp = WidgetLayoutUtils.resolveOr(widgetSize.height, defaultHeight)
         val cornerRadius = config.borderRadiusDp.dp
+        val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
         
         // Calculate displayed dimensions (widget size minus padding)
         // The bitmap should match the displayed size to avoid stretching
@@ -96,7 +100,8 @@ class QuickSearchWidget : GlanceAppWidget() {
             cornerRadius = cornerRadius,
             backgroundBitmap = backgroundBitmap,
             textIconColor = colors.textIconColor,
-            showLabel = config.showLabel,
+            // Hide label only when width is very narrow (≈2 columns) to keep icon visible
+            showLabel = config.showLabel && !isNarrowWidth,
             showSearchIcon = config.showSearchIcon,
             iconAlignLeft = config.iconAlignLeft,
             launchIntent = launchIntent
