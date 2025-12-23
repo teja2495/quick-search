@@ -473,9 +473,9 @@ private fun SearchResultsSections(
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
 
     val context = SectionRenderContext(
-        shouldRenderFiles = shouldShowFilesSection(renderingState, filesParams) && !isContactsExpanded,
-        shouldRenderContacts = shouldShowContactsSection(renderingState, contactsParams) && !isFilesExpanded,
-        shouldRenderApps = shouldShowAppsSection(renderingState),
+        shouldRenderFiles = shouldShowFilesSection(renderingState, filesParams) && !isContactsExpanded && !isSettingsExpanded,
+        shouldRenderContacts = shouldShowContactsSection(renderingState, contactsParams) && !isFilesExpanded && !isSettingsExpanded,
+        shouldRenderApps = shouldShowAppsSection(renderingState) && !isSettingsExpanded,
         shouldRenderSettings = shouldShowSettingsSection(renderingState) && !isFilesExpanded && !isContactsExpanded,
         isFilesExpanded = isFilesExpanded,
         isContactsExpanded = isContactsExpanded,
