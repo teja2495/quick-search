@@ -228,7 +228,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
             
             // Initialize UI state with cached data - UI appears instantly
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
                     isLoading = false,
                     searchEngineOrder = searchEngineOrder,
@@ -243,6 +243,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
+                    clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+                    showAllResults = showAllResults,
+                    sortAppsByUsageEnabled = sortAppsByUsageEnabled,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
@@ -264,7 +267,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 isTelegramInstalled = isTelegramInstalled,
                 updateState = false
             )
-            _uiState.update { 
+            _uiState.update {
                 it.copy(
                     searchEngineOrder = searchEngineOrder,
                     disabledSearchEngines = disabledSearchEngines,
@@ -278,6 +281,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
+                    clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+                    showAllResults = showAllResults,
+                    sortAppsByUsageEnabled = sortAppsByUsageEnabled,
                     sectionOrder = sectionOrder,
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
