@@ -60,16 +60,18 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_widget_search),
-                contentDescription = stringResource(R.string.desc_search_icon),
-                tint = colors.textIcon,
-                modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
-            )
+            if (state.showSearchIcon) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_widget_search),
+                    contentDescription = stringResource(R.string.desc_search_icon),
+                    tint = colors.textIcon,
+                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                )
+            }
             if (state.showLabel) {
                 Text(
                     text = stringResource(R.string.widget_label_text),
-                    modifier = Modifier.padding(start = WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING),
+                    modifier = Modifier.padding(start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp),
                     color = colors.textIcon,
                     fontWeight = FontWeight.Medium
                 )

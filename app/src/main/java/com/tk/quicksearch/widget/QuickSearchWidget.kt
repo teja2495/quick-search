@@ -97,6 +97,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             backgroundBitmap = backgroundBitmap,
             textIconColor = colors.textIconColor,
             showLabel = config.showLabel,
+            showSearchIcon = config.showSearchIcon,
             launchIntent = launchIntent
         )
     }
@@ -148,6 +149,7 @@ private fun WidgetContent(
     backgroundBitmap: Bitmap,
     textIconColor: Color,
     showLabel: Boolean,
+    showSearchIcon: Boolean,
     launchIntent: Intent
 ) {
     val context = LocalContext.current
@@ -175,16 +177,18 @@ private fun WidgetContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    provider = ImageProvider(R.drawable.ic_widget_search),
-                    contentDescription = context.getString(R.string.desc_search_icon),
-                    modifier = GlanceModifier.size(20.dp),
-                    colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
-                )
+                if (showSearchIcon) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_widget_search),
+                        contentDescription = context.getString(R.string.desc_search_icon),
+                        modifier = GlanceModifier.size(20.dp),
+                        colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+                    )
+                }
                 if (showLabel) {
                     Text(
                         text = context.getString(R.string.widget_label_text),
-                        modifier = GlanceModifier.padding(start = 8.dp),
+                        modifier = GlanceModifier.padding(start = if (showSearchIcon) 8.dp else 0.dp),
                         style = TextStyle(
                             color = ColorProvider(textIconColor),
                             fontSize = 16.sp,

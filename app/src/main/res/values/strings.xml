@@ -351,6 +351,7 @@
     <string name="widget_slider_border">Border Thickness</string>
     <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_toggle_show_label">Show "Quick Search" text</string>
+    <string name="widget_toggle_show_search_icon">Show icon</string>
     <string name="widget_background_color">Background Color</string>
     <string name="widget_background_white">White</string>
     <string name="widget_background_black">Black</string>

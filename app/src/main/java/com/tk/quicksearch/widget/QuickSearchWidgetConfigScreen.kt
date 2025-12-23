@@ -277,15 +277,35 @@ private fun WidgetToggleSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)) {
+        ToggleRow(
+            label = stringResource(R.string.widget_toggle_show_label),
+            checked = state.showLabel,
+            onCheckedChange = { onStateChange(state.copy(showLabel = it)) }
+        )
+        ToggleRow(
+            label = stringResource(R.string.widget_toggle_show_search_icon),
+            checked = state.showSearchIcon,
+            onCheckedChange = { onStateChange(state.copy(showSearchIcon = it)) }
+        )
+    }
+}
+
+@Composable
+private fun ToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = stringResource(R.string.widget_toggle_show_label))
+        Text(text = label)
         Switch(
-            checked = state.showLabel,
-            onCheckedChange = { onStateChange(state.copy(showLabel = it)) }
+            checked = checked,
+            onCheckedChange = onCheckedChange
         )
     }
 }
