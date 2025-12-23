@@ -571,6 +571,12 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, clearQuery)
     }
 
+    fun shouldShowAllResults(): Boolean = getBooleanPref(KEY_SHOW_ALL_RESULTS, false)
+
+    fun setShowAllResults(showAllResults: Boolean) {
+        setBooleanPref(KEY_SHOW_ALL_RESULTS, showAllResults)
+    }
+
     fun getUsagePermissionBannerDismissCount(): Int {
         return firstLaunchPrefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
     }
@@ -866,6 +872,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_INSTALL_TIME = "install_time"
         private const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
         private const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
+        private const val KEY_SHOW_ALL_RESULTS = "show_all_results"
 
         // Fresh install detection window (10 minutes)
         private const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L

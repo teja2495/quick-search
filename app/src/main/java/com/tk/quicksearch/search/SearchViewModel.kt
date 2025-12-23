@@ -126,6 +126,7 @@ data class SearchUiState(
     val isTelegramInstalled: Boolean = false,
     val showWallpaperBackground: Boolean = true,
     val clearQueryAfterSearchEngine: Boolean = false,
+    val showAllResults: Boolean = false,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
@@ -193,6 +194,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
     private var clearQueryAfterSearchEngine: Boolean = userPreferences.shouldClearQueryAfterSearchEngine()
+    private var showAllResults: Boolean = userPreferences.shouldShowAllResults()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
@@ -1001,6 +1003,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             clearQueryAfterSearchEngine = clearQuery
             _uiState.update {
                 it.copy(clearQueryAfterSearchEngine = clearQuery)
+            }
+        }
+    }
+
+    fun setShowAllResults(showAllResults: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowAllResults(showAllResults)
+            this@SearchViewModel.showAllResults = showAllResults
+            _uiState.update {
+                it.copy(showAllResults = showAllResults)
             }
         }
     }

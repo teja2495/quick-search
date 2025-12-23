@@ -24,6 +24,8 @@ import com.tk.quicksearch.R
 fun AdditionalSettingsSection(
     clearQueryAfterSearchEngine: Boolean,
     onToggleClearQueryAfterSearchEngine: (Boolean) -> Unit,
+    showAllResults: Boolean,
+    onToggleShowAllResults: (Boolean) -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -67,6 +69,33 @@ fun AdditionalSettingsSection(
                 Switch(
                     checked = clearQueryAfterSearchEngine,
                     onCheckedChange = onToggleClearQueryAfterSearchEngine
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Show all results toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 20.dp,
+                        vertical = 12.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_show_all_results_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = showAllResults,
+                    onCheckedChange = onToggleShowAllResults
                 )
             }
         }

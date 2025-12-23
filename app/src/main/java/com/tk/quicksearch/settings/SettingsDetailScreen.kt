@@ -74,6 +74,7 @@ fun SettingsDetailRoute(
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
         clearQueryAfterSearchEngine = uiState.clearQueryAfterSearchEngine,
+        showAllResults = uiState.showAllResults,
         directDialEnabled = uiState.directDialEnabled,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
@@ -138,6 +139,7 @@ fun SettingsDetailRoute(
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
         onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
+        onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleDirectDial = viewModel::setDirectDialEnabled,
         onToggleSection = { _, _ -> },
         onReorderSections = viewModel::reorderSections,
@@ -268,6 +270,8 @@ private fun SettingsDetailScreen(
                         AdditionalSettingsSection(
                             clearQueryAfterSearchEngine = state.clearQueryAfterSearchEngine,
                             onToggleClearQueryAfterSearchEngine = callbacks.onToggleClearQueryAfterSearchEngine,
+                            showAllResults = state.showAllResults,
+                            onToggleShowAllResults = callbacks.onToggleShowAllResults,
                             showTitle = false
                         )
                     }
