@@ -26,6 +26,8 @@ fun AdditionalSettingsSection(
     onToggleClearQueryAfterSearchEngine: (Boolean) -> Unit,
     showAllResults: Boolean,
     onToggleShowAllResults: (Boolean) -> Unit,
+    sortAppsByUsageEnabled: Boolean,
+    onToggleSortAppsByUsage: (Boolean) -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -96,6 +98,33 @@ fun AdditionalSettingsSection(
                 Switch(
                     checked = showAllResults,
                     onCheckedChange = onToggleShowAllResults
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Sort apps by usage toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 20.dp,
+                        vertical = 12.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_sort_apps_by_usage_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = sortAppsByUsageEnabled,
+                    onCheckedChange = onToggleSortAppsByUsage
                 )
             }
         }

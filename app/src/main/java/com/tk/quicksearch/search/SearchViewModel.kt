@@ -127,6 +127,7 @@ data class SearchUiState(
     val showWallpaperBackground: Boolean = true,
     val clearQueryAfterSearchEngine: Boolean = false,
     val showAllResults: Boolean = false,
+    val sortAppsByUsageEnabled: Boolean = false,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
@@ -195,6 +196,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     private var clearQueryAfterSearchEngine: Boolean = userPreferences.shouldClearQueryAfterSearchEngine()
     private var showAllResults: Boolean = userPreferences.shouldShowAllResults()
+    private var sortAppsByUsageEnabled: Boolean = userPreferences.shouldSortAppsByUsage()
     private var sectionOrder: List<SearchSection> = loadSectionOrder()
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
@@ -1017,6 +1019,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setSortAppsByUsageEnabled(sortAppsByUsageEnabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setSortAppsByUsage(sortAppsByUsageEnabled)
+            this@SearchViewModel.sortAppsByUsageEnabled = sortAppsByUsageEnabled
+            _uiState.update {
+                it.copy(sortAppsByUsageEnabled = sortAppsByUsageEnabled)
+            }
+        }
+    }
+
     fun getEnabledSearchEngines(): List<SearchEngine> {
         return searchEngineOrder.filter { it !in disabledSearchEngines }
     }
@@ -1437,7 +1449,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
                 app to priority
             }
-            .sortedWith(compareBy({ it.second }, { it.first.appName.lowercase(Locale.getDefault()) }))
+            .sortedWith(compareBy(
+                { it.second },
+                {
+                    if (sortAppsByUsageEnabled) {
+                        // When sorting by usage is enabled, use negative lastUsedTime for descending order (most recent first)
+                        -it.first.lastUsedTime
+                    } else {
+                        // Default: sort by app name
+                        it.first.appName.lowercase(Locale.getDefault())
+                    }
+                }
+            ))
             .map { it.first }
             .take(GRID_ITEM_COUNT)
             .toList()
