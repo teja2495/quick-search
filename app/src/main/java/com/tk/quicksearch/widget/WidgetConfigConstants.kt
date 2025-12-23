@@ -12,6 +12,7 @@ object WidgetConfigConstants {
     // Preview dimensions
     val PREVIEW_HEIGHT = 64.dp
     val PREVIEW_ICON_SIZE = 20.dp
+    val PREVIEW_MIC_SPACE = 36.dp
     
     // Spacing
     val SECTION_SPACING = 24.dp

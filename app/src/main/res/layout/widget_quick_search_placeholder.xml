@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/widget_quick_search_placeholder_outline"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
@@ -23,12 +23,21 @@
             android:tint="@android:color/white" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:gravity="center"
             android:text="@string/widget_label_text"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_widget_mic"
+            android:contentDescription="@string/desc_voice_search_icon"
+            android:tint="@android:color/white" />
 
     </LinearLayout>
 

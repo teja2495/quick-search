@@ -1,12 +1,17 @@
 package com.tk.quicksearch
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
@@ -25,11 +30,23 @@ import com.tk.quicksearch.settings.SettingsDetailRoute
 import com.tk.quicksearch.settings.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.WallpaperUtils
+import com.tk.quicksearch.widget.QuickSearchWidget
 
 class MainActivity : ComponentActivity() {
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
+    private val voiceInputLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val spokenText = data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+        if (!spokenText.isNullOrBlank()) {
+            searchViewModel.onQueryChange(spokenText)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +60,13 @@ class MainActivity : ComponentActivity() {
         // Preload wallpaper in background (already non-blocking)
         WallpaperUtils.preloadWallpaper(this)
         refreshPermissionStateIfNeeded()
+        handleVoiceSearchIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleVoiceSearchIntent(intent)
     }
 
     private fun initializePreferences() {
@@ -170,6 +194,32 @@ class MainActivity : ComponentActivity() {
     private fun refreshPermissionStateIfNeeded() {
         if (!userPreferences.isFirstLaunch()) {
             searchViewModel.handleOptionalPermissionChange()
+        }
+    }
+
+    private fun handleVoiceSearchIntent(intent: Intent?) {
+        val shouldStartVoiceSearch = intent
+            ?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false)
+            ?: false
+        if (shouldStartVoiceSearch) {
+            intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
+            startVoiceInput()
+        }
+    }
+
+    private fun startVoiceInput() {
+        val voiceIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.widget_label_text))
+        }
+        try {
+            voiceInputLauncher.launch(voiceIntent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                this,
+                R.string.voice_input_not_available,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

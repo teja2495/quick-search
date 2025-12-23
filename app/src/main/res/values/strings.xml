@@ -353,7 +353,8 @@
     <string name="widget_slider_border">Border Thickness</string>
     <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_toggle_show_label">Show "Quick Search" text</string>
-    <string name="widget_toggle_show_search_icon">Show icon</string>
+    <string name="widget_toggle_show_search_icon">Show search icon</string>
+    <string name="widget_toggle_show_mic_icon">Show mic icon</string>
     <string name="widget_icon_alignment">Icon Alignment</string>
     <string name="widget_icon_align_left">Left</string>
     <string name="widget_icon_align_center">Center</string>
@@ -369,6 +370,8 @@
     <string name="widget_preset_ember">Deep Ember</string>
     <string name="widget_preset_midnight">Midnight Neon</string>
     <string name="widget_preset_void">Carbon Mist</string>
+    <string name="desc_voice_search_icon">Start voice search</string>
+    <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
 
     <!-- ============================================================================
          Permissions Screen

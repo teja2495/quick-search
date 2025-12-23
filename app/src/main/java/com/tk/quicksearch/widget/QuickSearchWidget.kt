@@ -44,6 +44,10 @@ import kotlin.math.roundToInt
 
 class QuickSearchWidget : GlanceAppWidget() {
 
+    companion object {
+        const val EXTRA_START_VOICE_SEARCH = "com.tk.quicksearch.extra.START_VOICE_SEARCH"
+    }
+
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode: SizeMode = SizeMode.Exact
 
@@ -93,6 +97,10 @@ class QuickSearchWidget : GlanceAppWidget() {
         
         // Create launch intent
         val launchIntent = createLaunchIntent(context)
+        val voiceLaunchIntent = createLaunchIntent(
+            context = context,
+            startVoiceSearch = true
+        )
 
         WidgetContent(
             widthDp = widthDp,
@@ -103,8 +111,10 @@ class QuickSearchWidget : GlanceAppWidget() {
             // Hide label only when width is very narrow (≈2 columns) to keep icon visible
             showLabel = config.showLabel && !isNarrowWidth,
             showSearchIcon = config.showSearchIcon,
+            showMicIcon = config.showMicIcon,
             iconAlignLeft = config.iconAlignLeft,
-            launchIntent = launchIntent
+            launchIntent = launchIntent,
+            voiceLaunchIntent = voiceLaunchIntent
         )
     }
 
@@ -140,9 +150,13 @@ class QuickSearchWidget : GlanceAppWidget() {
         )
     }
 
-    private fun createLaunchIntent(context: Context): Intent {
+    private fun createLaunchIntent(
+        context: Context,
+        startVoiceSearch: Boolean = false
+    ): Intent {
         return Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
         }
     }
 }
@@ -156,10 +170,13 @@ private fun WidgetContent(
     textIconColor: Color,
     showLabel: Boolean,
     showSearchIcon: Boolean,
+    showMicIcon: Boolean,
     iconAlignLeft: Boolean,
-    launchIntent: Intent
+    launchIntent: Intent,
+    voiceLaunchIntent: Intent
 ) {
     val context = LocalContext.current
+    val micTouchSpace = 36.dp
     
     Box(
         modifier = GlanceModifier.fillMaxSize(),
@@ -240,6 +257,29 @@ private fun WidgetContent(
                                 fontWeight = FontWeight.Medium
                             ),
                             maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            if (showMicIcon) {
+                Box(
+                    modifier = GlanceModifier
+                        .fillMaxSize()
+                        .padding(end = 8.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Box(
+                        modifier = GlanceModifier
+                            .size(micTouchSpace)
+                            .clickable(actionStartActivity(voiceLaunchIntent)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_widget_mic),
+                            contentDescription = context.getString(R.string.desc_voice_search_icon),
+                            modifier = GlanceModifier.size(20.dp),
+                            colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
                         )
                     }
                 }

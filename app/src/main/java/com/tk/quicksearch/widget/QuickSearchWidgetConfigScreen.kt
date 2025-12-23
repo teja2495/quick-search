@@ -128,6 +128,7 @@ fun QuickSearchWidgetConfigScreen(
                 if (state.showSearchIcon) {
                     WidgetIconAlignmentSection(state = state, onStateChange = onStateChange)
                 }
+                WidgetMicIconSection(state = state, onStateChange = onStateChange)
             }
         }
     }
@@ -322,6 +323,18 @@ private fun WidgetToggleSection(
             onCheckedChange = { onStateChange(state.copy(showSearchIcon = it)) }
         )
     }
+}
+
+@Composable
+private fun WidgetMicIconSection(
+    state: QuickSearchWidgetPreferences,
+    onStateChange: (QuickSearchWidgetPreferences) -> Unit
+) {
+    ToggleRow(
+        label = stringResource(R.string.widget_toggle_show_mic_icon),
+        checked = state.showMicIcon,
+        onCheckedChange = { onStateChange(state.copy(showMicIcon = it)) }
+    )
 }
 
 @Composable

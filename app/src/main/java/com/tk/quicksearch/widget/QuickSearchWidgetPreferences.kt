@@ -18,6 +18,7 @@ private object WidgetDefaults {
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
     const val SHOW_SEARCH_ICON = true
+    const val SHOW_MIC_ICON = true
     // Default to black background for higher contrast out of the box.
     const val BACKGROUND_COLOR_IS_WHITE = false
     const val BACKGROUND_ALPHA = 0.35f
@@ -44,6 +45,7 @@ private object WidgetKeys {
     val BORDER_WIDTH = floatPreferencesKey("quick_search_widget_border_width")
     val SHOW_LABEL = booleanPreferencesKey("quick_search_widget_show_label")
     val SHOW_SEARCH_ICON = booleanPreferencesKey("quick_search_widget_show_search_icon")
+    val SHOW_MIC_ICON = booleanPreferencesKey("quick_search_widget_show_mic_icon")
     val BACKGROUND_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_background_color_is_white")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
     val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
@@ -60,6 +62,7 @@ data class QuickSearchWidgetPreferences(
     val borderWidthDp: Float = WidgetDefaults.BORDER_WIDTH_DP,
     val showLabel: Boolean = WidgetDefaults.SHOW_LABEL,
     val showSearchIcon: Boolean = WidgetDefaults.SHOW_SEARCH_ICON,
+    val showMicIcon: Boolean = WidgetDefaults.SHOW_MIC_ICON,
     val backgroundColorIsWhite: Boolean = WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
     val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE,
@@ -110,6 +113,7 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
         borderWidthDp = this[WidgetKeys.BORDER_WIDTH] ?: WidgetDefaults.BORDER_WIDTH_DP,
         showLabel = this[WidgetKeys.SHOW_LABEL] ?: WidgetDefaults.SHOW_LABEL,
         showSearchIcon = this[WidgetKeys.SHOW_SEARCH_ICON] ?: WidgetDefaults.SHOW_SEARCH_ICON,
+        showMicIcon = this[WidgetKeys.SHOW_MIC_ICON] ?: WidgetDefaults.SHOW_MIC_ICON,
         backgroundColorIsWhite = backgroundIsWhite,
         backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA,
         textIconColorIsWhite = textIconIsWhite,
@@ -127,6 +131,7 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.BORDER_WIDTH] = validated.borderWidthDp
     this[WidgetKeys.SHOW_LABEL] = validated.showLabel
     this[WidgetKeys.SHOW_SEARCH_ICON] = validated.showSearchIcon
+    this[WidgetKeys.SHOW_MIC_ICON] = validated.showMicIcon
     this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE] = validated.backgroundColorIsWhite
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
     this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE] = validated.textIconColorIsWhite
