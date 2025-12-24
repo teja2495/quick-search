@@ -8,7 +8,16 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.parcelize.Parcelize
+
+/**
+ * Defines the action to perform when the mic icon is tapped on the widget.
+ */
+enum class MicAction(val value: String) {
+    DEFAULT_VOICE_SEARCH("default_voice_search"),
+    DIGITAL_ASSISTANT("digital_assistant")
+}
 
 // Default values
 private object WidgetDefaults {
@@ -26,6 +35,7 @@ private object WidgetDefaults {
     // white text on dark backgrounds, dark text on light backgrounds.
     const val TEXT_ICON_COLOR_IS_WHITE = false
     const val ICON_ALIGN_LEFT = false
+    val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
 }
 
 // Value ranges for validation
@@ -50,6 +60,7 @@ private object WidgetKeys {
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
     val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
     val ICON_ALIGN_LEFT = booleanPreferencesKey("quick_search_widget_icon_align_left")
+    val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
 }
 
 /**
@@ -66,7 +77,8 @@ data class QuickSearchWidgetPreferences(
     val backgroundColorIsWhite: Boolean = WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
     val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE,
-    val iconAlignLeft: Boolean = WidgetDefaults.ICON_ALIGN_LEFT
+    val iconAlignLeft: Boolean = WidgetDefaults.ICON_ALIGN_LEFT,
+    val micAction: MicAction = WidgetDefaults.MIC_ACTION
 ) : Parcelable {
 
     companion object {
@@ -117,7 +129,10 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
         backgroundColorIsWhite = backgroundIsWhite,
         backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA,
         textIconColorIsWhite = textIconIsWhite,
-        iconAlignLeft = this[WidgetKeys.ICON_ALIGN_LEFT] ?: WidgetDefaults.ICON_ALIGN_LEFT
+        iconAlignLeft = this[WidgetKeys.ICON_ALIGN_LEFT] ?: WidgetDefaults.ICON_ALIGN_LEFT,
+        micAction = this[WidgetKeys.MIC_ACTION]?.let { actionString ->
+            MicAction.entries.find { it.value == actionString }
+        } ?: WidgetDefaults.MIC_ACTION
     ).coerceToValidRanges()
 }
 
@@ -136,5 +151,6 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
     this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE] = validated.textIconColorIsWhite
     this[WidgetKeys.ICON_ALIGN_LEFT] = validated.iconAlignLeft
+    this[WidgetKeys.MIC_ACTION] = validated.micAction.value
 }
 

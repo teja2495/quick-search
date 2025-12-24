@@ -359,6 +359,9 @@
     <string name="widget_toggle_show_label">Show "Quick Search" text</string>
     <string name="widget_toggle_show_search_icon">Show search icon</string>
     <string name="widget_toggle_show_mic_icon">Show mic icon</string>
+    <string name="widget_mic_action">Mic Icon Action</string>
+    <string name="widget_mic_action_default">Default</string>
+    <string name="widget_mic_action_digital_assistant">Digital Assistant</string>
     <string name="widget_icon_alignment">Icon Alignment</string>
     <string name="widget_icon_align_left">Left</string>
     <string name="widget_icon_align_center">Center</string>

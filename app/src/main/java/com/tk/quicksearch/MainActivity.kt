@@ -31,6 +31,7 @@ import com.tk.quicksearch.settings.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
+import com.tk.quicksearch.widget.MicAction
 
 class MainActivity : ComponentActivity() {
 
@@ -210,9 +211,20 @@ class MainActivity : ComponentActivity() {
                     ?: false
                 if (shouldStartVoiceSearch) {
                     intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
-                    startVoiceInput()
+                    val micActionString = intent?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
+                    val micAction = micActionString?.let { actionString ->
+                        MicAction.entries.find { it.value == actionString }
+                    } ?: MicAction.DEFAULT_VOICE_SEARCH
+                    handleMicAction(micAction)
                 }
             }
+        }
+    }
+
+    private fun handleMicAction(micAction: MicAction) {
+        when (micAction) {
+            MicAction.DEFAULT_VOICE_SEARCH -> startVoiceInput()
+            MicAction.DIGITAL_ASSISTANT -> startDigitalAssistant()
         }
     }
 
@@ -231,6 +243,19 @@ class MainActivity : ComponentActivity() {
             ).show()
         }
     }
+
+    private fun startDigitalAssistant() {
+        val assistantIntent = Intent(Intent.ACTION_VOICE_COMMAND).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            startActivity(assistantIntent)
+            finish()
+        } catch (e: ActivityNotFoundException) {
+            
+        }
+    }
+
 }
 
 private enum class RootDestination {

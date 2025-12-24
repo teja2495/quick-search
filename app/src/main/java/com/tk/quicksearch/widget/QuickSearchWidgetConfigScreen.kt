@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.widget.MicAction
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -129,6 +130,9 @@ fun QuickSearchWidgetConfigScreen(
                     WidgetIconAlignmentSection(state = state, onStateChange = onStateChange)
                 }
                 WidgetMicIconSection(state = state, onStateChange = onStateChange)
+                if (state.showMicIcon) {
+                    WidgetMicActionSection(state = state, onStateChange = onStateChange)
+                }
             }
         }
     }
@@ -335,6 +339,36 @@ private fun WidgetMicIconSection(
         checked = state.showMicIcon,
         onCheckedChange = { onStateChange(state.copy(showMicIcon = it)) }
     )
+}
+
+@Composable
+private fun WidgetMicActionSection(
+    state: QuickSearchWidgetPreferences,
+    onStateChange: (QuickSearchWidgetPreferences) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
+        Text(text = stringResource(R.string.widget_mic_action))
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SegmentedButton(
+                selected = state.micAction == MicAction.DEFAULT_VOICE_SEARCH,
+                onClick = { onStateChange(state.copy(micAction = MicAction.DEFAULT_VOICE_SEARCH)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_mic_action_default))
+            }
+            SegmentedButton(
+                selected = state.micAction == MicAction.DIGITAL_ASSISTANT,
+                onClick = { onStateChange(state.copy(micAction = MicAction.DIGITAL_ASSISTANT)) },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                icon = {}
+            ) {
+                Text(stringResource(R.string.widget_mic_action_digital_assistant))
+            }
+        }
+    }
 }
 
 @Composable

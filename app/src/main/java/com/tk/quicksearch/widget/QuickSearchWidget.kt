@@ -46,6 +46,7 @@ class QuickSearchWidget : GlanceAppWidget() {
 
     companion object {
         const val EXTRA_START_VOICE_SEARCH = "com.tk.quicksearch.extra.START_VOICE_SEARCH"
+        const val EXTRA_MIC_ACTION = "com.tk.quicksearch.extra.MIC_ACTION"
     }
 
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -99,7 +100,8 @@ class QuickSearchWidget : GlanceAppWidget() {
         val launchIntent = createLaunchIntent(context)
         val voiceLaunchIntent = createLaunchIntent(
             context = context,
-            startVoiceSearch = true
+            startVoiceSearch = true,
+            micAction = config.micAction
         )
 
         WidgetContent(
@@ -153,11 +155,13 @@ class QuickSearchWidget : GlanceAppWidget() {
 
     private fun createLaunchIntent(
         context: Context,
-        startVoiceSearch: Boolean = false
+        startVoiceSearch: Boolean = false,
+        micAction: MicAction = MicAction.DEFAULT_VOICE_SEARCH
     ): Intent {
         return Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
+            putExtra(EXTRA_MIC_ACTION, micAction.value)
         }
     }
 }
