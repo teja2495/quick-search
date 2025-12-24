@@ -67,8 +67,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -928,6 +930,18 @@ private fun PersistentSearchField(
     // Track if text is multi-line to adjust text size
     var isMultiLine by remember { mutableStateOf(false) }
 
+    // Local text field value maintains cursor position even when state query changes from voice input.
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(query)) }
+
+    LaunchedEffect(query) {
+        if (query != textFieldValue.text) {
+            textFieldValue = textFieldValue.copy(
+                text = query,
+                selection = TextRange(query.length)
+            )
+        }
+    }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         keyboardController?.show()
@@ -989,8 +1003,11 @@ private fun PersistentSearchField(
                 .background(searchBarBackground)
         ) {
             TextField(
-                value = query,
-                onValueChange = onQueryChange,
+                value = textFieldValue,
+                onValueChange = { newValue ->
+                    textFieldValue = newValue
+                    onQueryChange(newValue.text)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
