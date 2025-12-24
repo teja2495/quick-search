@@ -112,7 +112,8 @@ class QuickSearchWidget : GlanceAppWidget() {
             showLabel = config.showLabel && !isNarrowWidth,
             showSearchIcon = config.showSearchIcon,
             showMicIcon = config.showMicIcon,
-            iconAlignLeft = config.iconAlignLeft,
+            // Force left alignment for icons when the widget collapses to ~2 columns.
+            iconAlignLeft = config.iconAlignLeft || isNarrowWidth,
             launchIntent = launchIntent,
             voiceLaunchIntent = voiceLaunchIntent
         )
