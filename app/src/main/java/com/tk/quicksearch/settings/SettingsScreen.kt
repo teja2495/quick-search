@@ -8,9 +8,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +25,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -411,22 +416,6 @@ private fun SettingsScreen(
                 hasFilePermission = hasFilePermission
             )
 
-            // Excluded Items Section - Navigation Card (only shown when there are excluded items)
-            val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() || 
-                                   state.resultExcludedApps.isNotEmpty() ||
-                                   state.excludedContacts.isNotEmpty() || 
-                                   state.excludedFiles.isNotEmpty() ||
-                                   state.excludedSettings.isNotEmpty()
-            if (hasExcludedItems) {
-                SettingsNavigationCard(
-                    title = stringResource(R.string.settings_excluded_items_title),
-                    description = stringResource(R.string.settings_excluded_items_desc),
-                    onClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
-                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding),
-                    contentPadding = SettingsSpacing.singleCardPadding
-                )
-            }
-
             // Contacts Section
             MessagingSection(
                 messagingApp = state.messagingApp,
@@ -458,11 +447,20 @@ private fun SettingsScreen(
                     .padding(top = SettingsSpacing.sectionTopPadding)
                     .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
             )
-            // Additional Settings - Navigation Card
-            SettingsNavigationCard(
-                title = stringResource(R.string.settings_additional_settings_title),
-                description = stringResource(R.string.settings_additional_settings_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
+
+            // Combined Excluded Items and Additional Settings Card
+            CombinedSettingsNavigationCard(
+                excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
+                excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
+                additionalSettingsTitle = stringResource(R.string.settings_additional_settings_title),
+                additionalSettingsDescription = stringResource(R.string.settings_additional_settings_desc),
+                hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
+                                   state.resultExcludedApps.isNotEmpty() ||
+                                   state.excludedContacts.isNotEmpty() ||
+                                   state.excludedFiles.isNotEmpty() ||
+                                   state.excludedSettings.isNotEmpty(),
+                onExcludedItemsClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
+                onAdditionalSettingsClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
                 contentPadding = SettingsSpacing.singleCardPadding
             )
 
@@ -584,6 +582,99 @@ private fun SettingsVersionDisplay() {
             ),
         textAlign = TextAlign.Center
     )
+}
+
+/**
+ * Combined navigation card for excluded items and additional settings with divider.
+ */
+@Composable
+private fun CombinedSettingsNavigationCard(
+    excludedItemsTitle: String,
+    excludedItemsDescription: String,
+    additionalSettingsTitle: String,
+    additionalSettingsDescription: String,
+    hasExcludedItems: Boolean,
+    onExcludedItemsClick: () -> Unit,
+    onAdditionalSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        // Excluded Items Section (only shown if there are excluded items)
+        if (hasExcludedItems) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onExcludedItemsClick)
+                    .padding(contentPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = excludedItemsTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = excludedItemsDescription,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            // Divider
+            androidx.compose.material3.HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+        }
+
+        // Additional Settings Section (always shown)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onAdditionalSettingsClick)
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = additionalSettingsTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = additionalSettingsDescription,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.Rounded.ChevronRight,
+                contentDescription = stringResource(R.string.desc_navigate_forward),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
 }
 
 
