@@ -329,6 +329,7 @@
     <string name="settings_sort_apps_by_usage_toggle">Order apps by most used</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
+    <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_default_assistant_button">Set as Default Assistant</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
@@ -362,6 +363,7 @@
     <string name="widget_mic_action">Mic Icon Action</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Digital Assistant</string>
+    <string name="widget_mic_action_digital_assistant_limitation">Due to Android\'s limitations, you cannot trigger Google/Gemini Assistant unless Google is set as the digital assistant app.</string>
     <string name="widget_icon_alignment">Icon Alignment</string>
     <string name="widget_icon_align_left">Left</string>
     <string name="widget_icon_align_center">Center</string>

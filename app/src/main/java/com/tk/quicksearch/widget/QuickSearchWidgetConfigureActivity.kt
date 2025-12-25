@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
@@ -20,6 +20,7 @@ import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Activity for configuring widget preferences when a widget is added or reconfigured.
@@ -104,6 +105,7 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         appWidgetId: Int,
         onConfigurationComplete: () -> Unit
     ) {
+        val context = LocalContext.current
         var config by rememberSaveable { mutableStateOf(QuickSearchWidgetPreferences.Default) }
         var isLoaded by rememberSaveable { mutableStateOf(false) }
         val scope = rememberCoroutineScope()

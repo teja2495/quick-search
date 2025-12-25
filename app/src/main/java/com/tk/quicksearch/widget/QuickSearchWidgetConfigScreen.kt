@@ -1,5 +1,6 @@
 package com.tk.quicksearch.widget
 
+import android.content.Intent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.widget.MicAction
 import java.util.Locale
@@ -367,6 +377,63 @@ private fun WidgetMicActionSection(
             ) {
                 Text(stringResource(R.string.widget_mic_action_digital_assistant))
             }
+        }
+
+        // Show limitation text when Digital Assistant is selected
+        if (state.micAction == MicAction.DIGITAL_ASSISTANT) {
+            val context = LocalContext.current
+            val limitationText = stringResource(R.string.widget_mic_action_digital_assistant_limitation)
+            val linkText = "digital assistant app"
+
+            // Find the position of the link text in the limitation text
+            val linkStartIndex = limitationText.indexOf(linkText, ignoreCase = true)
+            val linkEndIndex = if (linkStartIndex >= 0) linkStartIndex + linkText.length else -1
+
+            val annotatedString = buildAnnotatedString {
+                if (linkStartIndex >= 0) {
+                    // Add text before the link
+                    append(limitationText.substring(0, linkStartIndex))
+                    // Add the clickable link
+                    pushLink(LinkAnnotation.Clickable(
+                        tag = "OPEN_SETTINGS",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        ),
+                        linkInteractionListener = {
+                            // Open voice input settings (contains digital assistant settings)
+                            try {
+                                val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback to general settings if voice input settings not available
+                                try {
+                                    val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    // Ignore if settings can't be opened
+                                }
+                            }
+                        }
+                    ))
+                    append(linkText)
+                    pop()
+                    // Add text after the link
+                    append(limitationText.substring(linkEndIndex))
+                } else {
+                    // Fallback: just add the whole text normally
+                    append(limitationText)
+                }
+            }
+
+            Text(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }

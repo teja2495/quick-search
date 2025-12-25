@@ -30,6 +30,7 @@ fun AdditionalSettingsSection(
     sortAppsByUsageEnabled: Boolean,
     onToggleSortAppsByUsage: (Boolean) -> Unit,
     onSetDefaultAssistant: () -> Unit,
+    isDefaultAssistant: Boolean = false,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -51,7 +52,13 @@ fun AdditionalSettingsSection(
     // Default Assistant - Navigation Card
     SettingsNavigationCard(
         title = stringResource(R.string.settings_default_assistant_title),
-        description = stringResource(R.string.settings_default_assistant_desc),
+        description = stringResource(
+            if (isDefaultAssistant) {
+                R.string.settings_default_assistant_desc_change
+            } else {
+                R.string.settings_default_assistant_desc
+            }
+        ),
         onClick = onSetDefaultAssistant,
         modifier = Modifier.padding(bottom = 16.dp),
         contentPadding = SettingsSpacing.singleCardPadding

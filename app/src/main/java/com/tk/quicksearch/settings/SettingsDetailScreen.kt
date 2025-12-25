@@ -49,6 +49,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.util.isDefaultDigitalAssistant
 
 @Composable
 fun SettingsDetailRoute(
@@ -100,17 +101,22 @@ fun SettingsDetailRoute(
             }
         )
     }
+    var isDefaultAssistant by remember {
+        mutableStateOf(context.isDefaultDigitalAssistant())
+    }
     
     DisposableEffect(lifecycleOwner, detailType) {
         val observer = LifecycleEventObserver { _, event ->
             if (detailType != SettingsDetailType.SEARCH_ENGINES) return@LifecycleEventObserver
-            when (event) {
+                when (event) {
                 Lifecycle.Event.ON_START -> {
                     userPreferences.resetShortcutHintBannerSessionDismissed()
                     shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                        isDefaultAssistant = context.isDefaultDigitalAssistant()
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                        isDefaultAssistant = context.isDefaultDigitalAssistant()
                 }
                 else -> {}
             }
@@ -177,7 +183,8 @@ fun SettingsDetailRoute(
         callbacks = callbacks,
         detailType = detailType,
         showShortcutHintBanner = shouldShowShortcutHint,
-        onDismissShortcutHintBanner = onDismissShortcutHint
+        onDismissShortcutHintBanner = onDismissShortcutHint,
+        isDefaultAssistant = isDefaultAssistant
     )
 }
 
@@ -187,6 +194,7 @@ private fun SettingsDetailScreen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
+    isDefaultAssistant: Boolean,
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: () -> Unit = {}
 ) {
@@ -297,6 +305,7 @@ private fun SettingsDetailScreen(
                             sortAppsByUsageEnabled = state.sortAppsByUsageEnabled,
                             onToggleSortAppsByUsage = callbacks.onToggleSortAppsByUsage,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
+                            isDefaultAssistant = isDefaultAssistant,
                             showTitle = false
                         )
                     }
