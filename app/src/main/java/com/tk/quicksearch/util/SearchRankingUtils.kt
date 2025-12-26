@@ -6,17 +6,17 @@ import java.util.Locale
  * Utility object for calculating search result ranking priorities.
  * 
  * Priority levels (lower is better):
- * 1. Exact match with query
- * 2. Result starts with query
- * 3. Any word in the text starts with query
- * 4. Other matches (contains query)
+ * 1. Result starts with query
+ * 2. Any word in the text starts with query
+ * 3. Result contains query
+ * 4. No match
  */
 object SearchRankingUtils {
     
-    private const val PRIORITY_EXACT_MATCH = 1
-    private const val PRIORITY_STARTS_WITH = 2
-    private const val PRIORITY_WORD_STARTS_WITH = 3
-    private const val PRIORITY_OTHER = 4
+    private const val PRIORITY_STARTS_WITH = 1
+    private const val PRIORITY_WORD_STARTS_WITH = 2
+    private const val PRIORITY_CONTAINS = 3
+    private const val PRIORITY_NO_MATCH = 4
     
     private val WHITESPACE_REGEX = "\\s+".toRegex()
     
@@ -29,33 +29,33 @@ object SearchRankingUtils {
      * @return Priority level (1-4, where 1 is highest priority)
      */
     fun calculateMatchPriority(text: String, query: String): Int {
-        if (query.isBlank()) return PRIORITY_OTHER
+        if (query.isBlank()) return PRIORITY_NO_MATCH
 
         val normalizedText = text.lowercase(Locale.getDefault())
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
-
-        // Priority 1: Exact match
-        if (normalizedText == normalizedQuery) {
-            return PRIORITY_EXACT_MATCH
-        }
 
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
 
-        // Priority 2: Starts with query or primary token
+        // Priority 1: Starts with query or primary token
         if (normalizedText.startsWith(normalizedQuery) || normalizedText.startsWith(primaryToken)) {
             return PRIORITY_STARTS_WITH
         }
 
-        // Priority 3: Any word starts with query/token
+        // Priority 2: Any word starts with query/token
         val textWords = normalizedText.split(WHITESPACE_REGEX)
         if (hasWordStartingWithQuery(textWords, normalizedQuery, primaryToken, queryTokens)) {
             return PRIORITY_WORD_STARTS_WITH
         }
 
-        // Priority 4: Other matches
-        return PRIORITY_OTHER
+        // Priority 3: Contains query/token anywhere
+        if (hasContainingMatch(normalizedText, normalizedQuery, queryTokens)) {
+            return PRIORITY_CONTAINS
+        }
+
+        // Priority 4: No match
+        return PRIORITY_NO_MATCH
     }
     
     /**
@@ -87,6 +87,45 @@ object SearchRankingUtils {
         
         return false
     }
+
+    private fun hasContainingMatch(
+        normalizedText: String,
+        normalizedQuery: String,
+        queryTokens: List<String>
+    ): Boolean {
+        if (normalizedText.contains(normalizedQuery)) {
+            return true
+        }
+
+        if (queryTokens.size > 1) {
+            return queryTokens.any { token ->
+                token.isNotBlank() && normalizedText.contains(token)
+            }
+        }
+
+        return false
+    }
+    
+    /**
+     * Calculates match priority while giving an optional nickname the highest boost.
+     * Nickname matches get priority 0 (higher than any text match).
+     */
+    fun calculateMatchPriorityWithNickname(
+        primaryText: String,
+        nickname: String?,
+        query: String
+    ): Int {
+        if (query.isBlank()) return PRIORITY_NO_MATCH
+
+        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val normalizedNickname = nickname?.lowercase(Locale.getDefault())
+
+        if (normalizedNickname?.contains(normalizedQuery) == true) {
+            return 0
+        }
+
+        return calculateMatchPriority(primaryText, query)
+    }
     
     /**
      * Gets the best match priority from multiple text fields.
@@ -97,15 +136,15 @@ object SearchRankingUtils {
      * @return The best (lowest) priority found
      */
     fun getBestMatchPriority(query: String, vararg textFields: String): Int {
-        return textFields.minOfOrNull { calculateMatchPriority(it, query) } ?: PRIORITY_OTHER
+        return textFields.minOfOrNull { calculateMatchPriority(it, query) } ?: PRIORITY_NO_MATCH
     }
 
     /**
-     * Checks if the given priority represents an "other" match (lowest priority).
+     * Checks if the given priority represents a non-match (lowest priority).
      * 
      * @param priority The priority to check
-     * @return true if priority is PRIORITY_OTHER
+     * @return true if priority is PRIORITY_NO_MATCH
      */
-    fun isOtherMatch(priority: Int): Boolean = priority == PRIORITY_OTHER
+    fun isOtherMatch(priority: Int): Boolean = priority == PRIORITY_NO_MATCH
 }
 

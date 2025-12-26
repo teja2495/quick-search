@@ -1430,21 +1430,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
-        val normalizedQuery = query.lowercase(Locale.getDefault())
         return source
             .asSequence()
             .mapNotNull { app ->
-                val normalizedName = app.appName.lowercase(Locale.getDefault())
                 val nickname = userPreferences.getAppNickname(app.packageName)
-                val normalizedNickname = nickname?.lowercase(Locale.getDefault())
-
-                val nameMatches = normalizedName.contains(normalizedQuery)
-                val nicknameMatches = normalizedNickname?.contains(normalizedQuery) == true
-                if (!nameMatches && !nicknameMatches) return@mapNotNull null
-
-                val startsWithMatch = (normalizedNickname?.startsWith(normalizedQuery) == true) ||
-                    normalizedName.startsWith(normalizedQuery)
-                val priority = if (startsWithMatch) 1 else 2
+                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+                    app.appName,
+                    nickname,
+                    query
+                )
+                if (SearchRankingUtils.isOtherMatch(priority)) {
+                    return@mapNotNull null
+                }
                 app to priority
             }
             .sortedWith(compareBy(
@@ -1679,35 +1676,39 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val allFiles = (result.files + nicknameOnlyFiles).distinctBy { it.uri.toString() }
 
             // Filter and rank by nickname matches
-            val filteredContacts = allContacts.filter { contact ->
+            val filteredContacts = allContacts.mapNotNull { contact ->
                 val nickname = userPreferences.getContactNickname(contact.contactId)
-                contact.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+                    contact.displayName,
+                    nickname,
+                    normalizedQuery
+                )
+                if (SearchRankingUtils.isOtherMatch(priority)) {
+                    null
+                } else {
+                    contact to priority
+                }
             }.sortedWith(
-                compareBy<ContactInfo> { contact ->
-                    val nickname = userPreferences.getContactNickname(contact.contactId)
-                    when {
-                        nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> 0
-                        contact.displayName.lowercase(Locale.getDefault()).startsWith(normalizedQuery) -> 1
-                        else -> 2
-                    }
-                }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
-            )
+                compareBy<Pair<ContactInfo, Int>> { it.second }
+                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
+            ).map { it.first }
 
-            val filteredFiles = allFiles.filter { file ->
+            val filteredFiles = allFiles.mapNotNull { file ->
                 val nickname = userPreferences.getFileNickname(file.uri.toString())
-                file.displayName.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+                    file.displayName,
+                    nickname,
+                    normalizedQuery
+                )
+                if (SearchRankingUtils.isOtherMatch(priority)) {
+                    null
+                } else {
+                    file to priority
+                }
             }.sortedWith(
-                compareBy<DeviceFile> { file ->
-                    val nickname = userPreferences.getFileNickname(file.uri.toString())
-                    when {
-                        nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true -> 0
-                        file.displayName.lowercase(Locale.getDefault()).startsWith(normalizedQuery) -> 1
-                        else -> 2
-                    }
-                }.thenBy { it.displayName.lowercase(Locale.getDefault()) }
-            )
+                compareBy<Pair<DeviceFile, Int>> { it.second }
+                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
+            ).map { it.first }
 
             val shouldSearchSettings = SearchSection.SETTINGS !in disabledSections
             val settingsMatches = if (shouldSearchSettings) {
