@@ -56,7 +56,8 @@ fun SearchEnginesSection(
     query: String,
     hasAppResults: Boolean,
     enabledEngines: List<SearchEngine>,
-    onSearchEngineClick: (String, SearchEngine) -> Unit
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineLongPress: () -> Unit
 ) {
     if (enabledEngines.isEmpty()) return
 
@@ -84,7 +85,8 @@ fun SearchEnginesSection(
             query = query,
             enabledEngines = enabledEngines,
             scrollState = scrollState,
-            onSearchEngineClick = onSearchEngineClick
+            onSearchEngineClick = onSearchEngineClick,
+            onSearchEngineLongPress = onSearchEngineLongPress
         )
     }
 }
@@ -97,7 +99,8 @@ private fun SearchEngineContent(
     query: String,
     enabledEngines: List<SearchEngine>,
     scrollState: androidx.compose.foundation.lazy.LazyListState,
-    onSearchEngineClick: (String, SearchEngine) -> Unit
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineLongPress: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -117,7 +120,8 @@ private fun SearchEngineContent(
             query = query,
             enabledEngines = enabledEngines,
             scrollState = scrollState,
-            onSearchEngineClick = onSearchEngineClick
+            onSearchEngineClick = onSearchEngineClick,
+            onSearchEngineLongPress = onSearchEngineLongPress
         )
     }
 }
@@ -144,7 +148,8 @@ private fun ScrollableEngineIcons(
     query: String,
     enabledEngines: List<SearchEngine>,
     scrollState: androidx.compose.foundation.lazy.LazyListState,
-    onSearchEngineClick: (String, SearchEngine) -> Unit
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineLongPress: () -> Unit
 ) {
     BoxWithConstraints(
         modifier = Modifier.fillMaxWidth()
@@ -162,7 +167,8 @@ private fun ScrollableEngineIcons(
                     query = query,
                     iconSize = SearchEngineSectionConstants.ICON_SIZE,
                     itemWidth = itemWidthDp,
-                    onSearchEngineClick = onSearchEngineClick
+                    onSearchEngineClick = onSearchEngineClick,
+                    onSearchEngineLongPress = onSearchEngineLongPress
                 )
             }
         }

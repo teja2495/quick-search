@@ -186,7 +186,11 @@ class MainActivity : ComponentActivity() {
             else -> {
                 SearchRoute(
                     viewModel = viewModel,
-                    onSettingsClick = { onDestinationChange(RootDestination.Settings) }
+                    onSettingsClick = { onDestinationChange(RootDestination.Settings) },
+                    onSearchEngineLongPress = {
+                        onDestinationChange(RootDestination.Settings)
+                        onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                    }
                 )
             }
         }

@@ -232,6 +232,7 @@ private fun rememberDerivedState(
 fun SearchRoute(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
+    onSearchEngineLongPress: () -> Unit = {},
     viewModel: SearchViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -298,6 +299,7 @@ fun SearchRoute(
         onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
+        onSearchEngineLongPress = onSearchEngineLongPress,
         onRetryDirectSearch = viewModel::retryDirectSearch,
         onDirectSearchEmailClick = viewModel::openEmail,
         onOpenAppSettings = viewModel::openAppSettings,
@@ -353,6 +355,7 @@ fun SearchScreen(
     onUnpinSetting: (SettingShortcut) -> Unit,
     onExcludeSetting: (SettingShortcut) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineLongPress: () -> Unit,
     onRetryDirectSearch: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
     onOpenAppSettings: () -> Unit,
@@ -762,6 +765,7 @@ fun SearchScreen(
                     }
                     onSearchEngineClick(query, engine)
                 },
+                onSearchEngineLongPress = onSearchEngineLongPress,
                 modifier = Modifier.imePadding()
             )
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {
