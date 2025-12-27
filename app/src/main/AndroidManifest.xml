@@ -75,6 +75,18 @@
                 android:resource="@xml/quick_search_widget_info" />
         </receiver>
 
+        <!-- Quick Settings Tile Service -->
+        <service
+            android:name=".tiles.QuickSearchTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_widget_search"
+            android:label="@string/quick_settings_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

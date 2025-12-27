@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
@@ -55,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.app.ActivityCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionRequestHandler
@@ -62,6 +62,7 @@ import com.tk.quicksearch.search.IconPackInfo
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.tiles.requestAddQuickSearchTile
 
 @Composable
 fun SettingsRoute(
@@ -206,6 +207,8 @@ fun SettingsRoute(
         }
     }
 
+    val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
+
     val callbacks = SettingsScreenCallbacks(
         onBack = onBack,
         onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
@@ -234,6 +237,7 @@ fun SettingsRoute(
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext,
+        onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
         onSetDefaultAssistant = {
             try {
                 val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)

@@ -93,6 +93,7 @@ data class SettingsScreenCallbacks(
     val onSetAmazonDomain: (String?) -> Unit,
     val onSetGeminiApiKey: (String?) -> Unit,
     val onSetPersonalContext: (String?) -> Unit,
+    val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit
 )
 

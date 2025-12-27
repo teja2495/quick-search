@@ -30,6 +30,7 @@ fun AdditionalSettingsSection(
     sortAppsByUsageEnabled: Boolean,
     onToggleSortAppsByUsage: (Boolean) -> Unit,
     onSetDefaultAssistant: () -> Unit,
+    onAddQuickSettingsTile: () -> Unit = {},
     isDefaultAssistant: Boolean = false,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
@@ -60,6 +61,14 @@ fun AdditionalSettingsSection(
             }
         ),
         onClick = onSetDefaultAssistant,
+        modifier = Modifier.padding(bottom = 16.dp),
+        contentPadding = SettingsSpacing.singleCardPadding
+    )
+
+    SettingsNavigationCard(
+        title = stringResource(R.string.settings_quick_settings_tile_title),
+        description = stringResource(R.string.settings_quick_settings_tile_desc),
+        onClick = onAddQuickSettingsTile,
         modifier = Modifier.padding(bottom = 16.dp),
         contentPadding = SettingsSpacing.singleCardPadding
     )
@@ -148,4 +157,5 @@ fun AdditionalSettingsSection(
 
         }
     }
+
 }

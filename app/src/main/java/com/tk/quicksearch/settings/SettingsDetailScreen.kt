@@ -49,6 +49,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.tiles.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
 
 @Composable
@@ -132,6 +133,8 @@ fun SettingsDetailRoute(
         userPreferences.setShortcutHintBannerSessionDismissed(true)
         shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
     }
+
+    val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
     
     val callbacks = SettingsScreenCallbacks(
         onBack = onBack,
@@ -161,6 +164,7 @@ fun SettingsDetailRoute(
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext,
+        onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
         onSetDefaultAssistant = {
             try {
                 val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
@@ -310,6 +314,7 @@ private fun SettingsDetailScreen(
                             sortAppsByUsageEnabled = state.sortAppsByUsageEnabled,
                             onToggleSortAppsByUsage = callbacks.onToggleSortAppsByUsage,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
+                            onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
                             isDefaultAssistant = isDefaultAssistant,
                             showTitle = false
                         )

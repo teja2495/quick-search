@@ -337,6 +337,14 @@
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_default_assistant_button">Set as Default Assistant</string>
+    <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
+    <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings for one-tap access.</string>
+    <string name="quick_settings_tile_label">Quick Search</string>
+    <string name="quick_settings_tile_added">Quick Search tile added</string>
+    <string name="quick_settings_tile_already_added">Quick Search tile is already added</string>
+    <string name="quick_settings_tile_not_added">Tile not added</string>
+    <string name="quick_settings_tile_not_supported">Direct tile requests aren\'t supported on this Android version. Use Quick Settings edit to add it.</string>
+    <string name="quick_settings_tile_error">Unable to request the Quick Settings tile. Try again.</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
     <string name="settings_excluded_items_more">More</string>
@@ -413,7 +421,7 @@
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string name="release_notes_point_1">Icon pack support.</string>
     <string name="release_notes_point_2">Ability to trigger device digital assistant using mic icon in the widget.</string>
-    <string name="release_notes_point_3">Improve search results ranking.</string>
+    <string name="release_notes_point_3">Improved search results ranking.</string>
     <string name="release_notes_point_4">Bug fixes and performance improvements.</string>
     <string name="release_notes_action_got_it">Got it</string>
 
