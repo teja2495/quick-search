@@ -137,7 +137,9 @@ data class SearchUiState(
     val DirectSearchState: DirectSearchState = DirectSearchState(),
     val hasGeminiApiKey: Boolean = false,
     val geminiApiKeyLast4: String? = null,
-    val personalContext: String = ""
+    val personalContext: String = "",
+    val showReleaseNotesDialog: Boolean = false,
+    val releaseNotesVersionName: String? = null
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -306,6 +308,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Refresh permissions (fast operations)
         refreshUsageAccess()
         refreshOptionalPermissions()
+        checkForReleaseNotes()
         
         // Load apps in background (refresh cache if needed)
         loadApps()
@@ -434,6 +437,60 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun isPackageInstalled(packageName: String): Boolean {
         val packageManager = getApplication<Application>().packageManager
         return packageManager.getLaunchIntentForPackage(packageName) != null
+    }
+
+    private fun getCurrentVersionName(): String? {
+        val app = getApplication<Application>()
+        return try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                app.packageManager.getPackageInfo(
+                    app.packageName,
+                    android.content.pm.PackageManager.PackageInfoFlags.of(0)
+                ).versionName
+            } else {
+                @Suppress("DEPRECATION")
+                app.packageManager.getPackageInfo(app.packageName, 0).versionName
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun checkForReleaseNotes() {
+        val currentVersion = getCurrentVersionName() ?: return
+        // Skip showing release notes on a fresh install; just record baseline
+        if (userPreferences.isFirstLaunch()) {
+            userPreferences.setLastSeenVersionName(currentVersion)
+            return
+        }
+
+        val lastSeenVersion = userPreferences.getLastSeenVersionName()
+        if (lastSeenVersion == null) {
+            userPreferences.setLastSeenVersionName(currentVersion)
+            return
+        }
+
+        if (lastSeenVersion != currentVersion) {
+            _uiState.update {
+                it.copy(
+                    showReleaseNotesDialog = true,
+                    releaseNotesVersionName = currentVersion
+                )
+            }
+        }
+    }
+
+    fun acknowledgeReleaseNotes() {
+        val versionToStore = _uiState.value.releaseNotesVersionName ?: getCurrentVersionName()
+        if (versionToStore != null) {
+            userPreferences.setLastSeenVersionName(versionToStore)
+        }
+        _uiState.update {
+            it.copy(
+                showReleaseNotesDialog = false,
+                releaseNotesVersionName = versionToStore
+            )
+        }
     }
 
     fun setMessagingApp(app: MessagingApp) {

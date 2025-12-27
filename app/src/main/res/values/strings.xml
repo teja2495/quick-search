@@ -407,6 +407,17 @@
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
 
     <!-- ============================================================================
+         Release Notes
+         ============================================================================ -->
+    <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
+    <string name="release_notes_title_no_version">Quick Search Release Notes</string>
+    <string name="release_notes_point_1">Icon pack support.</string>
+    <string name="release_notes_point_2">Ability to trigger device digital assistanrt using mic icon in the widget.</string>
+    <string name="release_notes_point_3">Bug fixes and performance improvements.</string>
+    <!-- <string name="release_notes_point_4">Search engine shortcuts, pinning, and keyboard-aligned layout refinements.</string> -->
+    <string name="release_notes_action_got_it">Got it</string>
+
+    <!-- ============================================================================
          Search Engine Names
          ============================================================================ -->
     <string name="search_engine_google">Google</string>

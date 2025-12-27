@@ -597,6 +597,19 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_SORT_APPS_BY_USAGE, sortAppsByUsage)
     }
 
+    fun getLastSeenVersionName(): String? = prefs.getString(KEY_LAST_SEEN_VERSION, null)
+
+    fun setLastSeenVersionName(versionName: String?) {
+        val normalized = versionName?.trim()
+        val editor = prefs.edit()
+        if (normalized.isNullOrEmpty()) {
+            editor.remove(KEY_LAST_SEEN_VERSION)
+        } else {
+            editor.putString(KEY_LAST_SEEN_VERSION, normalized)
+        }
+        editor.apply()
+    }
+
     fun getUsagePermissionBannerDismissCount(): Int {
         return firstLaunchPrefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
     }
@@ -895,6 +908,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHOW_ALL_RESULTS = "show_all_results"
         private const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         private const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
+        private const val KEY_LAST_SEEN_VERSION = "last_seen_version"
 
         // Fresh install detection window (10 minutes)
         private const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L

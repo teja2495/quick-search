@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -39,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -322,7 +324,8 @@ fun SearchRoute(
         getSettingNickname = viewModel::getSettingNickname,
         onSaveSettingNickname = viewModel::setSettingNickname,
         onDirectDialChoiceSelected = viewModel::onDirectDialChoiceSelected,
-        onDismissDirectDialChoice = viewModel::dismissDirectDialChoice
+        onDismissDirectDialChoice = viewModel::dismissDirectDialChoice,
+        onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes
     )
 }
 
@@ -374,7 +377,8 @@ fun SearchScreen(
     getSettingNickname: (String) -> String?,
     onSaveSettingNickname: (SettingShortcut, String?) -> Unit,
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
-    onDismissDirectDialChoice: () -> Unit
+    onDismissDirectDialChoice: () -> Unit,
+    onReleaseNotesAcknowledged: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -794,6 +798,13 @@ fun SearchScreen(
             onDismiss = onDismissDirectDialChoice
         )
     }
+
+    if (state.showReleaseNotesDialog) {
+        ReleaseNotesDialog(
+            versionName = state.releaseNotesVersionName,
+            onAcknowledge = onReleaseNotesAcknowledged
+        )
+    }
     
     // Nickname dialog
     nicknameDialogState?.let { dialogState ->
@@ -844,6 +855,61 @@ fun SearchScreen(
             }
         }
     }
+}
+
+@Composable
+private fun ReleaseNotesDialog(
+    versionName: String?,
+    onAcknowledge: () -> Unit
+) {
+    val title = if (versionName != null) {
+        stringResource(R.string.release_notes_title, versionName)
+    } else {
+        stringResource(R.string.release_notes_title_no_version)
+    }
+    val bulletPoints = listOf(
+        stringResource(R.string.release_notes_point_1),
+        stringResource(R.string.release_notes_point_2),
+        stringResource(R.string.release_notes_point_3),
+        //stringResource(R.string.release_notes_point_4)
+    )
+
+    AlertDialog(
+        onDismissRequest = onAcknowledge,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                bulletPoints.forEach { point ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = point,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onAcknowledge) {
+                Text(text = stringResource(R.string.release_notes_action_got_it))
+            }
+        }
+    )
 }
 
 sealed class NicknameDialogState {
