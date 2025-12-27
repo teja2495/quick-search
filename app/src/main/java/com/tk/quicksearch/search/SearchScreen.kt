@@ -867,12 +867,9 @@ private fun ReleaseNotesDialog(
     } else {
         stringResource(R.string.release_notes_title_no_version)
     }
-    val bulletPoints = listOf(
-        stringResource(R.string.release_notes_point_1),
-        stringResource(R.string.release_notes_point_2),
-        stringResource(R.string.release_notes_point_3),
-        //stringResource(R.string.release_notes_point_4)
-    )
+    val bulletPoints = stringResource(R.string.release_notes_points)
+        .split("\n")
+        .filter { it.isNotBlank() }
 
     AlertDialog(
         onDismissRequest = onAcknowledge,
