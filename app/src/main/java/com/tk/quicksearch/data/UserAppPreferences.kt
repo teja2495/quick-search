@@ -577,6 +577,20 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_SHOW_ALL_RESULTS, showAllResults)
     }
 
+    fun getSelectedIconPackPackage(): String? {
+        return prefs.getString(KEY_SELECTED_ICON_PACK, null)
+    }
+
+    fun setSelectedIconPackPackage(packageName: String?) {
+        val editor = prefs.edit()
+        if (packageName.isNullOrBlank()) {
+            editor.remove(KEY_SELECTED_ICON_PACK)
+        } else {
+            editor.putString(KEY_SELECTED_ICON_PACK, packageName)
+        }
+        editor.apply()
+    }
+
     fun shouldSortAppsByUsage(): Boolean = getBooleanPref(KEY_SORT_APPS_BY_USAGE, true)
 
     fun setSortAppsByUsage(sortAppsByUsage: Boolean) {
@@ -879,6 +893,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
         private const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
         private const val KEY_SHOW_ALL_RESULTS = "show_all_results"
+        private const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         private const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
 
         // Fresh install detection window (10 minutes)

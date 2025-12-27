@@ -76,6 +76,8 @@ fun SettingsDetailRoute(
         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
+        selectedIconPackPackage = uiState.selectedIconPackPackage,
+        availableIconPacks = uiState.availableIconPacks,
         clearQueryAfterSearchEngine = uiState.clearQueryAfterSearchEngine,
         showAllResults = uiState.showAllResults,
         sortAppsByUsageEnabled = uiState.sortAppsByUsageEnabled,
@@ -147,6 +149,8 @@ fun SettingsDetailRoute(
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+        onSelectIconPack = viewModel::setIconPackPackage,
+        onSearchIconPacks = viewModel::searchIconPacks,
         onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleSortAppsByUsage = viewModel::setSortAppsByUsageEnabled,
@@ -292,7 +296,8 @@ private fun SettingsDetailScreen(
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onClearAll = callbacks.onClearAllExclusions,
-                            showTitle = false
+                            showTitle = false,
+                            iconPackPackage = state.selectedIconPackPackage
                         )
                     }
                     SettingsDetailType.ADDITIONAL_SETTINGS -> {

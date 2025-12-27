@@ -127,6 +127,8 @@ data class SearchUiState(
     val showWallpaperBackground: Boolean = true,
     val clearQueryAfterSearchEngine: Boolean = false,
     val showAllResults: Boolean = false,
+    val selectedIconPackPackage: String? = null,
+    val availableIconPacks: List<IconPackInfo> = emptyList(),
     val sortAppsByUsageEnabled: Boolean = false,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
@@ -194,6 +196,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             false
         }
     }
+    private var selectedIconPackPackage: String? = userPreferences.getSelectedIconPackPackage()
+    private var availableIconPacks: List<IconPackInfo> = emptyList()
     private var clearQueryAfterSearchEngine: Boolean = userPreferences.shouldClearQueryAfterSearchEngine()
     private var showAllResults: Boolean = userPreferences.shouldShowAllResults()
     private var sortAppsByUsageEnabled: Boolean = userPreferences.shouldSortAppsByUsage()
@@ -243,6 +247,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
+                    selectedIconPackPackage = selectedIconPackPackage,
+                    availableIconPacks = availableIconPacks,
                     clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                     showAllResults = showAllResults,
                     sortAppsByUsageEnabled = sortAppsByUsageEnabled,
@@ -281,6 +287,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     showWallpaperBackground = showWallpaperBackground,
+                    selectedIconPackPackage = selectedIconPackPackage,
+                    availableIconPacks = availableIconPacks,
                     clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                     showAllResults = showAllResults,
                     sortAppsByUsageEnabled = sortAppsByUsageEnabled,
@@ -302,6 +310,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Load apps in background (refresh cache if needed)
         loadApps()
         loadSettingsShortcuts()
+        refreshIconPacks()
         
         // Defer non-critical loads until after UI is visible
         viewModelScope.launch {
@@ -681,6 +690,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun searchIconPacks() {
+        val query = getApplication<Application>().getString(R.string.settings_icon_pack_search_query)
+        openSearchUrl(query, SearchEngine.GOOGLE_PLAY)
+    }
+
     fun clearCachedApps() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.clearCache()
@@ -1002,6 +1016,50 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowWallpaperBackground(showWallpaper)
             showWallpaperBackground = showWallpaper
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
+        }
+    }
+
+    fun refreshIconPacks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val packs = IconPackManager.findInstalledIconPacks(getApplication())
+            val normalizedSelection = selectedIconPackPackage?.takeIf { pkg ->
+                packs.any { it.packageName == pkg }
+            }
+
+            if (normalizedSelection == null && selectedIconPackPackage != null) {
+                userPreferences.setSelectedIconPackPackage(null)
+            }
+
+            selectedIconPackPackage = normalizedSelection
+            availableIconPacks = packs
+            _uiState.update {
+                it.copy(
+                    availableIconPacks = packs,
+                    selectedIconPackPackage = normalizedSelection
+                )
+            }
+        }
+    }
+
+    fun setIconPackPackage(packageName: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val normalizedSelection = packageName?.takeIf { pkg ->
+                availableIconPacks.any { it.packageName == pkg }
+            }
+
+            selectedIconPackPackage = normalizedSelection
+            userPreferences.setSelectedIconPackPackage(normalizedSelection)
+            clearAppIconCaches()
+
+            _uiState.update {
+                it.copy(selectedIconPackPackage = normalizedSelection)
+            }
+
+            prefetchVisibleAppIcons(
+                pinnedApps = _uiState.value.pinnedApps,
+                recents = _uiState.value.recentApps,
+                searchResults = _uiState.value.searchResults
+            )
         }
     }
 
@@ -1578,6 +1636,35 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 messagingApp = resolvedMessagingApp,
                 isWhatsAppInstalled = isWhatsAppInstalled,
                 isTelegramInstalled = isTelegramInstalled
+            )
+        }
+
+        prefetchVisibleAppIcons(
+            pinnedApps = pinnedAppsForSuggestions,
+            recents = recents,
+            searchResults = searchResults
+        )
+    }
+
+    private fun prefetchVisibleAppIcons(
+        pinnedApps: List<AppInfo>,
+        recents: List<AppInfo>,
+        searchResults: List<AppInfo>
+    ) {
+        val iconPack = selectedIconPackPackage ?: return
+        val packageNames = buildList {
+            addAll(pinnedApps.map { it.packageName })
+            addAll(recents.map { it.packageName })
+            addAll(searchResults.take(GRID_ITEM_COUNT).map { it.packageName })
+        }
+        if (packageNames.isEmpty()) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            prefetchAppIcons(
+                context = getApplication(),
+                packageNames = packageNames,
+                iconPackPackage = iconPack,
+                maxCount = 30
             )
         }
     }

@@ -107,7 +107,8 @@ data class AppsSectionParams(
     val onNicknameClick: (AppInfo) -> Unit,
     val getAppNickname: (String) -> String?,
     val showAppLabels: Boolean,
-    val rowCount: Int
+    val rowCount: Int,
+    val iconPackPackage: String?
 )
 
 // ============================================================================
@@ -205,6 +206,7 @@ fun RenderAppsSection(
         pinnedPackageNames = params.pinnedPackageNames,
         showAppLabels = params.showAppLabels,
         modifier = modifier,
-        rowCount = params.rowCount
+        rowCount = params.rowCount,
+        iconPackPackage = params.iconPackPackage
     )
 }

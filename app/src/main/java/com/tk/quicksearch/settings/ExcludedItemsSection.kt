@@ -62,7 +62,8 @@ fun ExcludedItemsSection(
     onRemoveExcludedSetting: (SettingShortcut) -> Unit,
     onClearAll: () -> Unit,
     showTitle: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconPackPackage: String? = null
 ) {
     val allItems = remember(suggestionExcludedApps, resultExcludedApps, excludedContacts, excludedFiles, excludedSettings) {
         (suggestionExcludedApps.map { ExcludedItem.SuggestionApp(it) } +
@@ -126,6 +127,7 @@ fun ExcludedItemsSection(
         ) {
             ExcludedItemsList(
                 allItems = allItems,
+                iconPackPackage = iconPackPackage,
                 onRemoveItem = { item ->
                     when (item) {
                         is ExcludedItem.SuggestionApp -> onRemoveSuggestionExcludedApp(item.appInfo)
@@ -154,12 +156,14 @@ fun ExcludedItemsSection(
 @Composable
 private fun ExcludedItemsList(
     allItems: List<ExcludedItem>,
+    iconPackPackage: String?,
     onRemoveItem: (ExcludedItem) -> Unit
 ) {
     Column {
         allItems.forEachIndexed { index, item ->
             ExcludedItemRow(
                 item = item,
+                iconPackPackage = iconPackPackage,
                 onRemove = { onRemoveItem(item) }
             )
             if (index < allItems.lastIndex) {
@@ -172,6 +176,7 @@ private fun ExcludedItemsList(
 @Composable
 private fun ExcludedItemRow(
     item: ExcludedItem,
+    iconPackPackage: String?,
     onRemove: () -> Unit
 ) {
     Row(
@@ -189,7 +194,10 @@ private fun ExcludedItemRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ExcludedItemIcon(item = item)
+            ExcludedItemIcon(
+                item = item,
+                iconPackPackage = iconPackPackage
+            )
             
             Column(modifier = Modifier.padding(vertical = 2.dp)) {
                 Text(
@@ -218,7 +226,10 @@ private fun ExcludedItemRow(
 }
 
 @Composable
-private fun ExcludedItemIcon(item: ExcludedItem) {
+private fun ExcludedItemIcon(
+    item: ExcludedItem,
+    iconPackPackage: String?
+) {
     when (item) {
         is ExcludedItem.Contact -> {
             Icon(
@@ -245,17 +256,23 @@ private fun ExcludedItemIcon(item: ExcludedItem) {
             )
         }
         is ExcludedItem.SuggestionApp -> {
-            AppIconPlaceholder(appInfo = item.appInfo)
+            AppIconPlaceholder(appInfo = item.appInfo, iconPackPackage = iconPackPackage)
         }
         is ExcludedItem.ResultApp -> {
-            AppIconPlaceholder(appInfo = item.appInfo)
+            AppIconPlaceholder(appInfo = item.appInfo, iconPackPackage = iconPackPackage)
         }
     }
 }
 
 @Composable
-private fun AppIconPlaceholder(appInfo: AppInfo) {
-    val iconBitmap = rememberAppIcon(appInfo.packageName)
+private fun AppIconPlaceholder(
+    appInfo: AppInfo,
+    iconPackPackage: String?
+) {
+    val iconBitmap = rememberAppIcon(
+        packageName = appInfo.packageName,
+        iconPackPackage = iconPackPackage
+    )
     
     if (iconBitmap != null) {
         Image(

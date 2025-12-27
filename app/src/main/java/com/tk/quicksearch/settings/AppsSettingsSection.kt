@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -118,6 +120,26 @@ fun AppLabelsSection(
             )
         }
     }
+}
+
+@Composable
+fun IconPackSection(
+    selectedLabel: String,
+    availableCount: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SettingsNavigationCard(
+        title = stringResource(R.string.settings_icon_pack_title),
+        description = if (availableCount > 0) {
+            stringResource(R.string.settings_icon_pack_selected_label, selectedLabel)
+        } else {
+            stringResource(R.string.settings_icon_pack_empty)
+        },
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding = SettingsSpacing.singleCardPadding
+    )
 }
 
 @Composable

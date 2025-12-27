@@ -26,11 +26,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,9 +54,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.search.IconPackInfo
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchSection
 import com.tk.quicksearch.search.SearchViewModel
@@ -88,6 +92,8 @@ fun SettingsRoute(
         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
         isTelegramInstalled = uiState.isTelegramInstalled,
         showWallpaperBackground = uiState.showWallpaperBackground,
+        selectedIconPackPackage = uiState.selectedIconPackPackage,
+        availableIconPacks = uiState.availableIconPacks,
         clearQueryAfterSearchEngine = uiState.clearQueryAfterSearchEngine,
         showAllResults = uiState.showAllResults,
         sortAppsByUsageEnabled = uiState.sortAppsByUsageEnabled,
@@ -106,6 +112,10 @@ fun SettingsRoute(
     var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
     val lifecycleOwner = LocalLifecycleOwner.current
     var pendingEnableDirectDial by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshIconPacks()
+    }
     
     // Launcher for contacts permission request
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
@@ -212,6 +222,8 @@ fun SettingsRoute(
         setShortcutEnabled = viewModel::setShortcutEnabled,
         onSetMessagingApp = viewModel::setMessagingApp,
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+        onSelectIconPack = viewModel::setIconPackPackage,
+        onSearchIconPacks = viewModel::searchIconPacks,
         onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleSortAppsByUsage = viewModel::setSortAppsByUsageEnabled,
@@ -335,6 +347,11 @@ private fun SettingsScreen(
     BackHandler(onBack = callbacks.onBack)
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    var showIconPackDialog by remember { mutableStateOf(false) }
+    val selectedIconPackLabel = remember(state.selectedIconPackPackage, state.availableIconPacks) {
+        state.availableIconPacks.firstOrNull { it.packageName == state.selectedIconPackPackage }?.label
+            ?: context.getString(R.string.settings_icon_pack_option_system)
+    }
     
     Column(
         modifier = modifier
@@ -414,6 +431,20 @@ private fun SettingsScreen(
                     }
                 },
                 hasFilePermission = hasFilePermission
+            )
+
+            val hasIconPacks = state.availableIconPacks.isNotEmpty()
+            IconPackSection(
+                selectedLabel = selectedIconPackLabel,
+                availableCount = state.availableIconPacks.size,
+                onClick = {
+                    if (hasIconPacks) {
+                        showIconPackDialog = true
+                    } else {
+                        callbacks.onSearchIconPacks()
+                    }
+                },
+                modifier = Modifier.padding(top = 12.dp)
             )
 
             // Contacts Section
@@ -530,6 +561,18 @@ private fun SettingsScreen(
             // App Version
             Spacer(modifier = Modifier.height(16.dp))
             SettingsVersionDisplay()
+        }
+
+        if (showIconPackDialog) {
+            IconPackPickerDialog(
+                availableIconPacks = state.availableIconPacks,
+                selectedPackage = state.selectedIconPackPackage,
+                onSelect = { packageName ->
+                    callbacks.onSelectIconPack(packageName)
+                    showIconPackDialog = false
+                },
+                onDismiss = { showIconPackDialog = false }
+            )
         }
     }
 }
@@ -674,6 +717,89 @@ private fun CombinedSettingsNavigationCard(
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun IconPackPickerDialog(
+    availableIconPacks: List<IconPackInfo>,
+    selectedPackage: String?,
+    onSelect: (String?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.settings_icon_pack_picker_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (availableIconPacks.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.settings_icon_pack_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IconPackOptionRow(
+                            label = stringResource(R.string.settings_icon_pack_option_system),
+                            selected = selectedPackage == null,
+                            onClick = { onSelect(null) }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        availableIconPacks.forEach { pack ->
+                            IconPackOptionRow(
+                                label = pack.label,
+                                selected = selectedPackage == pack.packageName,
+                                onClick = { onSelect(pack.packageName) }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+            ) {
+                Text("Done")
+            }
+        }
+    )
+}
+
+@Composable
+private fun IconPackOptionRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

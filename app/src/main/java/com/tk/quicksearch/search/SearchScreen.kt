@@ -586,7 +586,8 @@ fun SearchScreen(
         },
         getAppNickname = getAppNickname,
         showAppLabels = true,
-        rowCount = derivedState.visibleRowCount
+        rowCount = derivedState.visibleRowCount,
+        iconPackPackage = state.selectedIconPackPackage
     )
     
     val renderingState = SectionRenderingState(

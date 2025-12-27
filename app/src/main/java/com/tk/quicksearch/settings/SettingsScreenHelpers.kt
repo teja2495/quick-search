@@ -21,6 +21,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.search.IconPackInfo
 import com.tk.quicksearch.search.MessagingApp
 import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.search.SearchSection
@@ -46,6 +47,8 @@ data class SettingsScreenState(
     val isWhatsAppInstalled: Boolean,
     val isTelegramInstalled: Boolean,
     val showWallpaperBackground: Boolean,
+    val selectedIconPackPackage: String? = null,
+    val availableIconPacks: List<IconPackInfo> = emptyList(),
     val clearQueryAfterSearchEngine: Boolean,
     val showAllResults: Boolean,
     val sortAppsByUsageEnabled: Boolean,
@@ -78,6 +81,8 @@ data class SettingsScreenCallbacks(
     val setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
     val onSetMessagingApp: (MessagingApp) -> Unit,
     val onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    val onSelectIconPack: (String?) -> Unit,
+    val onSearchIconPacks: () -> Unit,
     val onToggleClearQueryAfterSearchEngine: (Boolean) -> Unit,
     val onToggleShowAllResults: (Boolean) -> Unit,
     val onToggleSortAppsByUsage: (Boolean) -> Unit,

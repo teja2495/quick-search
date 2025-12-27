@@ -1,15 +1,17 @@
 package com.tk.quicksearch.search
 
+import android.content.Context
+import android.util.LruCache
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import android.util.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.tk.quicksearch.search.IconPackManager
 
 /**
  * In-memory cache for app icons to avoid repeated loading.
@@ -26,12 +28,16 @@ private object AppIconCache {
         }
     }
 
-    fun get(packageName: String): ImageBitmap? = cache.get(packageName)
+    fun get(cacheKey: String): ImageBitmap? = cache.get(cacheKey)
 
-    fun put(packageName: String, bitmap: ImageBitmap?) {
+    fun put(cacheKey: String, bitmap: ImageBitmap?) {
         if (bitmap != null) {
-            cache.put(packageName, bitmap)
+            cache.put(cacheKey, bitmap)
         }
+    }
+
+    fun clear() {
+        cache.evictAll()
     }
 }
 
@@ -40,12 +46,20 @@ private object AppIconCache {
  * Returns a State that holds the ImageBitmap, or null if the icon cannot be loaded.
  */
 @Composable
-fun rememberAppIcon(packageName: String): ImageBitmap? {
+fun rememberAppIcon(
+    packageName: String,
+    iconPackPackage: String? = null
+): ImageBitmap? {
     val context = LocalContext.current
+    val cacheKey = buildCacheKey(packageName, iconPackPackage)
     
-    val iconState = produceState<ImageBitmap?>(initialValue = AppIconCache.get(packageName), key1 = packageName) {
+    val iconState = produceState<ImageBitmap?>(
+        initialValue = AppIconCache.get(cacheKey),
+        key1 = packageName,
+        key2 = iconPackPackage
+    ) {
         // Check cache first
-        val cached = AppIconCache.get(packageName)
+        val cached = AppIconCache.get(cacheKey)
         if (cached != null) {
             value = cached
             return@produceState
@@ -53,7 +67,16 @@ fun rememberAppIcon(packageName: String): ImageBitmap? {
 
         // Load from package manager on IO thread
         val bitmap = withContext(Dispatchers.IO) {
-            runCatching {
+            // Try icon pack first if selected; fall back to system icon if not found.
+            val iconPackBitmap = iconPackPackage?.let { pack ->
+                IconPackManager.loadIconBitmap(
+                    context = context,
+                    iconPackPackage = pack,
+                    targetPackage = packageName
+                )
+            }
+
+            iconPackBitmap ?: runCatching {
                 context.packageManager.getApplicationIcon(packageName)
                     .toBitmap()
                     .asImageBitmap()
@@ -62,10 +85,70 @@ fun rememberAppIcon(packageName: String): ImageBitmap? {
 
         // Cache and return the result
         if (bitmap != null) {
-            AppIconCache.put(packageName, bitmap)
+            AppIconCache.put(cacheKey, bitmap)
         }
         value = bitmap
     }
     
     return iconState.value
+}
+
+/**
+ * Clears all cached icons, including icon pack resources.
+ */
+fun clearAppIconCaches() {
+    AppIconCache.clear()
+    IconPackManager.clearAllCaches()
+}
+
+/**
+ * Warms the in-memory icon cache for the provided package list.
+ * Useful when an icon pack is applied so icons are ready before Compose draws them.
+ */
+suspend fun prefetchAppIcons(
+    context: Context,
+    packageNames: Collection<String>,
+    iconPackPackage: String?,
+    maxCount: Int = 30
+) {
+    if (packageNames.isEmpty()) return
+
+    val packagesToLoad = packageNames
+        .asSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .distinct()
+        .map { pkg -> pkg to buildCacheKey(pkg, iconPackPackage) }
+        .filter { (_, cacheKey) -> AppIconCache.get(cacheKey) == null }
+        .take(maxCount)
+        .toList()
+
+    if (packagesToLoad.isEmpty()) return
+
+    withContext(Dispatchers.IO) {
+        packagesToLoad.forEach { (packageName, cacheKey) ->
+            val iconPackBitmap = iconPackPackage?.let { pack ->
+                IconPackManager.loadIconBitmap(
+                    context = context,
+                    iconPackPackage = pack,
+                    targetPackage = packageName
+                )
+            }
+
+            val bitmap = iconPackBitmap ?: runCatching {
+                context.packageManager.getApplicationIcon(packageName)
+                    .toBitmap()
+                    .asImageBitmap()
+            }.getOrNull()
+
+            if (bitmap != null) {
+                AppIconCache.put(cacheKey, bitmap)
+            }
+        }
+    }
+}
+
+private fun buildCacheKey(packageName: String, iconPackPackage: String?): String {
+    val prefix = iconPackPackage ?: "system"
+    return "$prefix:$packageName"
 }

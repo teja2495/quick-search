@@ -55,7 +55,8 @@ fun AppGridSection(
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
     modifier: Modifier = Modifier,
-    rowCount: Int = ROW_COUNT
+    rowCount: Int = ROW_COUNT,
+    iconPackPackage: String? = null
 ) {
     Column(
         modifier = modifier
@@ -85,7 +86,8 @@ fun AppGridSection(
                     getAppNickname = getAppNickname,
                     pinnedPackageNames = pinnedPackageNames,
                     showAppLabels = showAppLabels,
-                    rowCount = rowCount
+                    rowCount = rowCount,
+                    iconPackPackage = iconPackPackage
                 )
             }
         }
@@ -105,7 +107,8 @@ private fun AppGrid(
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
-    rowCount: Int = ROW_COUNT
+    rowCount: Int = ROW_COUNT,
+    iconPackPackage: String?
 ) {
     val rows = remember(apps, rowCount) {
         apps.take(rowCount * COLUMNS).chunked(COLUMNS)
@@ -128,7 +131,8 @@ private fun AppGrid(
                 onNicknameClick = onNicknameClick,
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
-                showAppLabels = showAppLabels
+                showAppLabels = showAppLabels,
+                iconPackPackage = iconPackPackage
             )
         }
     }
@@ -146,7 +150,8 @@ private fun AppGridRow(
     onNicknameClick: (AppInfo) -> Unit,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
-    showAppLabels: Boolean
+    showAppLabels: Boolean,
+    iconPackPackage: String?
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -168,7 +173,8 @@ private fun AppGridRow(
                     hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
                     isPinned = pinnedPackageNames.contains(app.packageName),
                     showUninstall = !app.isSystemApp,
-                    showAppLabel = showAppLabels
+                    showAppLabel = showAppLabels,
+                    iconPackPackage = iconPackPackage
                 )
             } else {
                 Spacer(modifier = Modifier.weight(1f))
@@ -192,9 +198,13 @@ private fun AppGridItem(
     hasNickname: Boolean,
     isPinned: Boolean,
     showUninstall: Boolean,
-    showAppLabel: Boolean
+    showAppLabel: Boolean,
+    iconPackPackage: String?
 ) {
-    val iconBitmap = rememberAppIcon(appInfo.packageName)
+    val iconBitmap = rememberAppIcon(
+        packageName = appInfo.packageName,
+        iconPackPackage = iconPackPackage
+    )
     var showOptions by remember { mutableStateOf(false) }
     val placeholderLabel = remember(appInfo.appName) {
         appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
