@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -63,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -518,6 +521,192 @@ private fun ContactActionButtons(
 }
 
 // ============================================================================
+// Contact Action Button (Messaging App Style)
+// ============================================================================
+
+@Composable
+private fun ContactActionButton(
+    method: ContactMethod,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val (backgroundColor, contentColor) = when (method) {
+        is ContactMethod.Phone -> Pair(Color(0xFF4CAF50), Color.White)
+        is ContactMethod.Sms -> Pair(Color(0xFF2196F3), Color.White)
+        is ContactMethod.WhatsAppCall,
+        is ContactMethod.WhatsAppMessage,
+        is ContactMethod.WhatsAppVideoCall -> Pair(Color(0xFF25D366), Color.White)
+        is ContactMethod.TelegramMessage,
+        is ContactMethod.TelegramCall,
+        is ContactMethod.TelegramVideoCall -> Pair(Color(0xFF0088CC), Color.White)
+        is ContactMethod.GoogleMeet -> Pair(Color.White, Color.Black)
+        is ContactMethod.Email -> Pair(Color(0xFFFF9800), Color.White)
+        is ContactMethod.VideoCall -> Pair(Color(0xFF9C27B0), Color.White)
+        is ContactMethod.CustomApp -> Pair(Color(0xFF607D8B), Color.White)
+        is ContactMethod.ViewInContactsApp -> Pair(Color(0xFF9E9E9E), Color.White)
+    }
+
+    Column(
+        modifier = modifier
+            .width(80.dp)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Surface(
+            modifier = Modifier.size(56.dp),
+            shape = CircleShape,
+            color = backgroundColor,
+            shadowElevation = 4.dp
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ContactActionIcon(method = method, tint = contentColor)
+            }
+        }
+
+        Text(
+            text = getActionButtonLabel(method),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 0.9f
+        )
+    }
+}
+
+@Composable
+private fun ContactActionIcon(method: ContactMethod, tint: Color) {
+    when (method) {
+        is ContactMethod.Phone -> {
+            Icon(
+                imageVector = Icons.Rounded.Call,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.Sms -> {
+            Icon(
+                imageVector = Icons.Rounded.Sms,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.WhatsAppCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.whatsapp),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.WhatsAppMessage -> {
+            Icon(
+                painter = painterResource(id = R.drawable.whatsapp),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.WhatsAppVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.whatsapp),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.TelegramMessage -> {
+            Icon(
+                painter = painterResource(id = R.drawable.telegram),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.TelegramCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.telegram),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.TelegramVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.telegram),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.GoogleMeet -> {
+            Icon(
+                painter = painterResource(id = R.drawable.google_meet),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.Email -> {
+            Icon(
+                imageVector = Icons.Rounded.Email,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.VideoCall -> {
+            Icon(
+                imageVector = Icons.Rounded.Call,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.CustomApp -> {
+            Icon(
+                imageVector = Icons.Rounded.Person,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        is ContactMethod.ViewInContactsApp -> {
+            Icon(
+                imageVector = Icons.Rounded.Person,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+}
+
+private fun getActionButtonLabel(method: ContactMethod): String {
+    return when (method) {
+        is ContactMethod.Phone -> "Call"
+        is ContactMethod.Sms -> "Message"
+        is ContactMethod.WhatsAppCall -> "WhatsApp\nCall"
+        is ContactMethod.WhatsAppMessage -> "WhatsApp\nChat"
+        is ContactMethod.WhatsAppVideoCall -> "WhatsApp\nVideo"
+        is ContactMethod.TelegramMessage -> "Telegram\nChat"
+        is ContactMethod.TelegramCall -> "Telegram\nCall"
+        is ContactMethod.TelegramVideoCall -> "Telegram\nVideo"
+        is ContactMethod.GoogleMeet -> "Meet"
+        is ContactMethod.Email -> "Email"
+        is ContactMethod.VideoCall -> "Video Call"
+        is ContactMethod.CustomApp -> method.displayLabel
+        is ContactMethod.ViewInContactsApp -> "Contacts"
+    }
+}
+
+// ============================================================================
 // Contact Methods List
 // ============================================================================
 
@@ -544,10 +733,11 @@ private fun ContactMethodsList(
 @Composable
 private fun ContactMethodItem(
     method: ContactMethod,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(vertical = 8.dp, horizontal = 4.dp),
@@ -971,7 +1161,7 @@ fun ContactMethodsDialog(
 
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     Text(
                         text = contactInfo.displayName,
@@ -986,36 +1176,109 @@ fun ContactMethodsDialog(
                         )
                     }
                 }
+
+                // Info icon to open contact in contacts app
+                IconButton(
+                    onClick = {
+                        onContactMethodClick(contactInfo, ContactMethod.ViewInContactsApp())
+                        onDismiss()
+                    },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = "View contact",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Always show "View in contacts app" as first option
-                ContactMethodItem(
-                    method = ContactMethod.ViewInContactsApp(),
-                    onClick = {
-                        onContactMethodClick(contactInfo, ContactMethod.ViewInContactsApp())
-                        onDismiss()
-                    }
-                )
+                // First row: call, message, google meet
+                val firstRowMethods = mutableListOf<ContactMethod>()
 
-                // Contact methods list
-                val methodsToShow = contactInfo.contactMethods.filterNot { it is ContactMethod.Email }
-                if (methodsToShow.isNotEmpty()) {
-                    methodsToShow.forEach { method ->
-                        ContactMethodItem(
-                            method = method,
-                            onClick = {
-                                onContactMethodClick(contactInfo, method)
-                                onDismiss()
-                            }
-                        )
+                // Always add call if available
+                contactInfo.contactMethods.find { it is ContactMethod.Phone }?.let { firstRowMethods.add(it) }
+
+                // Always add message if available
+                contactInfo.contactMethods.find { it is ContactMethod.Sms }?.let { firstRowMethods.add(it) }
+
+                // Add Google Meet if available
+                contactInfo.contactMethods.find { it is ContactMethod.GoogleMeet }?.let { firstRowMethods.add(it) }
+
+                if (firstRowMethods.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        firstRowMethods.forEach { method ->
+                            ContactActionButton(
+                                method = method,
+                                onClick = {
+                                    onContactMethodClick(contactInfo, method)
+                                    onDismiss()
+                                }
+                            )
+                        }
                     }
-                } else {
-                    // Fallback if no methods - this shouldn't happen but just in case
+                }
+
+                // Second row: WhatsApp options
+                val whatsappMethods = contactInfo.contactMethods.filter {
+                    it is ContactMethod.WhatsAppCall ||
+                    it is ContactMethod.WhatsAppMessage ||
+                    it is ContactMethod.WhatsAppVideoCall
+                }
+                if (whatsappMethods.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        whatsappMethods.forEach { method ->
+                            ContactActionButton(
+                                method = method,
+                                onClick = {
+                                    onContactMethodClick(contactInfo, method)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Third row: Telegram options
+                val telegramMethods = contactInfo.contactMethods.filter {
+                    it is ContactMethod.TelegramMessage ||
+                    it is ContactMethod.TelegramCall ||
+                    it is ContactMethod.TelegramVideoCall
+                }
+                if (telegramMethods.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        telegramMethods.forEach { method ->
+                            ContactActionButton(
+                                method = method,
+                                onClick = {
+                                    onContactMethodClick(contactInfo, method)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Show message if no methods available
+                if (contactInfo.contactMethods.filterNot { it is ContactMethod.Email }.isEmpty()) {
                     Text(
                         text = stringResource(R.string.contacts_no_methods_available),
                         style = MaterialTheme.typography.bodyMedium,
