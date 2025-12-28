@@ -224,6 +224,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         messagingApp = messagingApp,
         directDialEnabled = directDialEnabled,
         hasSeenDirectDialChoice = hasSeenDirectDialChoice,
+        clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
         getCurrentState = { _uiState.value },
         uiStateUpdater = { update -> _uiState.update(update) },
         clearQuery = this::clearQuery

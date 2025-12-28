@@ -20,6 +20,7 @@ class ContactActionHandler(
     private val messagingApp: MessagingApp,
     private val directDialEnabled: Boolean,
     private val hasSeenDirectDialChoice: Boolean,
+    private val clearQueryAfterSearchEngine: Boolean,
     private val getCurrentState: () -> SearchUiState,
     private val uiStateUpdater: (SearchUiState.() -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit
@@ -183,7 +184,7 @@ class ContactActionHandler(
                 val dataId = pendingWhatsAppCallDataId.toLongOrNull()
                 val success = ContactIntentHelpers.openWhatsAppCall(context, dataId)
                 if (success) {
-                    clearQuery()
+                    clearQueryIfEnabled()
                 }
             }
         } else {
@@ -202,6 +203,12 @@ class ContactActionHandler(
         }
     }
 
+    private fun clearQueryIfEnabled() {
+        if (clearQueryAfterSearchEngine) {
+            clearQuery()
+        }
+    }
+
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) {
         when (method) {
             is ContactMethod.Phone -> {
@@ -211,12 +218,12 @@ class ContactActionHandler(
 
             is ContactMethod.Sms -> {
                 ContactIntentHelpers.performSms(context, method.data)
-                clearQuery()
+                clearQueryIfEnabled()
             }
 
             is ContactMethod.Email -> {
                 ContactIntentHelpers.composeEmail(context, method.data)
-                clearQuery()
+                clearQueryIfEnabled()
             }
 
             is ContactMethod.WhatsAppCall -> {
@@ -225,7 +232,7 @@ class ContactActionHandler(
                 if (hasPermission) {
                     val success = ContactIntentHelpers.openWhatsAppCall(context, method.dataId)
                     if (success) {
-                        clearQuery()
+                        clearQueryIfEnabled()
                     }
                 } else {
                     // Store pending WhatsApp call dataId and request permission
@@ -235,7 +242,7 @@ class ContactActionHandler(
 
             is ContactMethod.WhatsAppMessage -> {
                 ContactIntentHelpers.openWhatsAppChat(context, method.dataId)
-                clearQuery()
+                clearQueryIfEnabled()
             }
 
             is ContactMethod.WhatsAppVideoCall -> {
@@ -255,7 +262,7 @@ class ContactActionHandler(
                 if (hasPermission) {
                     val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId)
                     if (success) {
-                        clearQuery()
+                        clearQueryIfEnabled()
                     }
                 } else {
                     // Store pending WhatsApp video call dataId and request permission
@@ -265,32 +272,32 @@ class ContactActionHandler(
 
             is ContactMethod.TelegramMessage -> {
                 ContactIntentHelpers.openTelegramChat(context, method.dataId)
-                clearQuery()
+                clearQueryIfEnabled()
             }
 
             is ContactMethod.TelegramCall -> {
                 val success = ContactIntentHelpers.openTelegramCall(context, method.dataId)
                 if (success) {
-                    clearQuery()
+                    clearQueryIfEnabled()
                 }
             }
 
             is ContactMethod.TelegramVideoCall -> {
                 val success = ContactIntentHelpers.openTelegramVideoCall(context, method.dataId, method.data)
                 if (success) {
-                    clearQuery()
+                    clearQueryIfEnabled()
                 }
             }
 
             is ContactMethod.VideoCall -> {
                 ContactIntentHelpers.openVideoCall(context, method.data, method.packageName)
-                clearQuery()
+                clearQueryIfEnabled()
             }
 
             is ContactMethod.GoogleMeet -> {
                 val success = ContactIntentHelpers.openGoogleMeet(context, method.dataId ?: return)
                 if (success) {
-                    clearQuery()
+                    clearQueryIfEnabled()
                 }
             }
 
@@ -299,11 +306,11 @@ class ContactActionHandler(
                 if (method.dataId != null) {
                     val success = ContactIntentHelpers.openCustomAppWithDataId(context, method.dataId, method.mimeType, method.packageName)
                     if (success) {
-                        clearQuery()
+                        clearQueryIfEnabled()
                     }
                 } else {
                     ContactIntentHelpers.openCustomApp(context, method.data, method.mimeType, method.packageName)
-                    clearQuery()
+                    clearQueryIfEnabled()
                 }
             }
         }
