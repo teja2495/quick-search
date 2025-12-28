@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 
@@ -37,8 +38,10 @@ data class ContactsSectionParams(
     val messagingApp: MessagingApp,
     val pinnedContactIds: Set<Long>,
     val onContactClick: (ContactInfo) -> Unit,
+    val onShowContactMethods: (ContactInfo) -> Unit,
     val onCallContact: (ContactInfo) -> Unit,
     val onSmsContact: (ContactInfo) -> Unit,
+    val onContactMethodClick: (ContactInfo, ContactMethod) -> Unit = { _, _ -> },
     val onTogglePin: (ContactInfo) -> Unit,
     val onExclude: (ContactInfo) -> Unit,
     val onNicknameClick: (ContactInfo) -> Unit,
@@ -133,8 +136,10 @@ fun RenderContactsSection(
         isExpanded = params.isExpanded,
         messagingApp = params.messagingApp,
         onContactClick = params.onContactClick,
+        onShowContactMethods = params.onShowContactMethods,
         onCallContact = params.onCallContact,
         onSmsContact = params.onSmsContact,
+        onContactMethodClick = params.onContactMethodClick,
         pinnedContactIds = params.pinnedContactIds,
         onTogglePin = params.onTogglePin,
         onExclude = params.onExclude,

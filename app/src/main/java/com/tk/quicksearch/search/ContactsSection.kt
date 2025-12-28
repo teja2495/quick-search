@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Person
@@ -68,6 +70,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.ContactMethod
 import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,8 +96,10 @@ fun ContactResultsSection(
     isExpanded: Boolean,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit = {},
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit = { _, _ -> },
     pinnedContactIds: Set<Long> = emptySet(),
     onTogglePin: (ContactInfo) -> Unit = {},
     onExclude: (ContactInfo) -> Unit = {},
@@ -123,8 +128,10 @@ fun ContactResultsSection(
                     showExpandControls = showExpandControls,
                     messagingApp = messagingApp,
                     onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
                     onCallContact = onCallContact,
                     onSmsContact = onSmsContact,
+                    onContactMethodClick = onContactMethodClick,
                     pinnedContactIds = pinnedContactIds,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
@@ -159,8 +166,10 @@ private fun ContactsResultCard(
     showExpandControls: Boolean,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
     pinnedContactIds: Set<Long>,
     onTogglePin: (ContactInfo) -> Unit,
     onExclude: (ContactInfo) -> Unit,
@@ -202,8 +211,10 @@ private fun ContactsResultCard(
                             contactInfo = contactInfo,
                             messagingApp = messagingApp,
                             onContactClick = onContactClick,
+                            onShowContactMethods = onShowContactMethods,
                             onCallContact = onCallContact,
                             onSmsContact = onSmsContact,
+                            onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
                             isPinned = pinnedContactIds.contains(contactInfo.contactId),
                             onTogglePin = onTogglePin,
                             onExclude = onExclude,
@@ -247,8 +258,10 @@ private fun ContactsResultCard(
                                 contactInfo = contactInfo,
                                 messagingApp = messagingApp,
                                 onContactClick = onContactClick,
+                                onShowContactMethods = onShowContactMethods,
                                 onCallContact = onCallContact,
                                 onSmsContact = onSmsContact,
+                                onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
                                 isPinned = pinnedContactIds.contains(contactInfo.contactId),
                                 onTogglePin = onTogglePin,
                                 onExclude = onExclude,
@@ -296,8 +309,10 @@ private fun ContactResultRow(
     contactInfo: ContactInfo,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit = {},
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactMethod) -> Unit,
     isPinned: Boolean = false,
     onTogglePin: (ContactInfo) -> Unit = {},
     onExclude: (ContactInfo) -> Unit = {},
@@ -310,38 +325,48 @@ private fun ContactResultRow(
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = CONTACT_ROW_MIN_HEIGHT.dp)
-            .combinedClickable(
-                onClick = { onContactClick(contactInfo) },
-                onLongClick = { showOptions = true }
-            )
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ContactAvatar(
-            photoUri = contactInfo.photoUri,
-            displayName = contactInfo.displayName
-        )
-        
-        Text(
-            text = contactInfo.displayName,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        
-        ContactActionButtons(
-            hasNumber = hasNumber,
-            messagingApp = messagingApp,
-            onCallClick = { onCallContact(contactInfo) },
-            onSmsClick = { onSmsContact(contactInfo) }
-        )
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = CONTACT_ROW_MIN_HEIGHT.dp)
+                    .combinedClickable(
+                        onClick = {
+                            // Show contact methods bottom sheet if available, otherwise open contact
+                            if (contactInfo.hasContactMethods) {
+                                onShowContactMethods(contactInfo)
+                            } else {
+                                onContactClick(contactInfo)
+                            }
+                        },
+                        onLongClick = { showOptions = true }
+                    )
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ContactAvatar(
+                    photoUri = contactInfo.photoUri,
+                    displayName = contactInfo.displayName
+                )
+                
+                Text(
+                    text = contactInfo.displayName,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Always show call and message action buttons
+                ContactActionButtons(
+                    hasNumber = hasNumber,
+                    messagingApp = messagingApp,
+                    onCallClick = { onCallContact(contactInfo) },
+                    onSmsClick = { onSmsContact(contactInfo) }
+                )
+            }
         }
 
         ContactDropdownMenu(
@@ -486,6 +511,109 @@ private fun ContactActionButtons(
             }
         }
     }
+}
+
+// ============================================================================
+// Contact Methods List
+// ============================================================================
+
+@Composable
+private fun ContactMethodsList(
+    contactMethods: List<ContactMethod>,
+    onMethodClick: (ContactMethod) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 52.dp, end = 12.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        contactMethods.forEach { method ->
+            ContactMethodItem(
+                method = method,
+                onClick = { onMethodClick(method) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContactMethodItem(
+    method: ContactMethod,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Icon based on method type
+        ContactMethodIcon(method = method)
+        
+        // Method label and data (show subtext only for email)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = method.displayLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            // Show subtext only for Email methods
+            if (method is ContactMethod.Email) {
+                Text(
+                    text = method.data,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ContactMethodIcon(method: ContactMethod) {
+    val (icon, tint) = when (method) {
+        is ContactMethod.Phone -> Pair(Icons.Rounded.Call, Color.White)
+        is ContactMethod.Sms -> Pair(Icons.Rounded.Sms, Color.White)
+        is ContactMethod.WhatsAppCall,
+        is ContactMethod.WhatsAppMessage,
+        is ContactMethod.WhatsAppVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.whatsapp),
+                contentDescription = null,
+                tint = Color(0xFF25D366),
+                modifier = Modifier.size(24.dp)
+            )
+            return
+        }
+        is ContactMethod.TelegramMessage,
+        is ContactMethod.TelegramCall,
+        is ContactMethod.TelegramVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.telegram),
+                contentDescription = null,
+                tint = Color(0xFF0088CC),
+                modifier = Modifier.size(24.dp)
+            )
+            return
+        }
+        is ContactMethod.GoogleMeet -> {
+            // Use Google Meet colors - blue tones
+            Pair(Icons.Rounded.Call, Color(0xFF4285F4))
+        }
+        is ContactMethod.Email -> Pair(Icons.Rounded.Email, Color.White)
+        is ContactMethod.VideoCall -> Pair(Icons.Rounded.Call, Color.White) // TODO: Use video icon
+        is ContactMethod.CustomApp -> Pair(Icons.Rounded.Person, Color.White) // TODO: Use generic icon
+    }
+    
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = tint,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 // ============================================================================
@@ -799,6 +927,85 @@ fun DirectDialChoiceDialog(
                 Text(text = stringResource(R.string.dialog_ok))
             }
         },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
+}
+
+// ============================================================================
+// Contact Methods Dialog
+// ============================================================================
+
+@Composable
+fun ContactMethodsDialog(
+    contactInfo: ContactInfo,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                ContactAvatar(
+                    photoUri = contactInfo.photoUri,
+                    displayName = contactInfo.displayName
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = contactInfo.displayName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    contactInfo.primaryNumber?.let { phoneNumber ->
+                        Text(
+                            text = phoneNumber,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Contact methods list
+                val methodsToShow = contactInfo.contactMethods.filterNot { it is ContactMethod.Email }
+                if (methodsToShow.isNotEmpty()) {
+                    methodsToShow.forEach { method ->
+                        ContactMethodItem(
+                            method = method,
+                            onClick = {
+                                onContactMethodClick(contactInfo, method)
+                                onDismiss()
+                            }
+                        )
+                    }
+                } else {
+                    // Fallback if no methods - this shouldn't happen but just in case
+                    Text(
+                        text = stringResource(R.string.contacts_no_methods_available),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))

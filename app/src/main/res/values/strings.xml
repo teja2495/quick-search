@@ -63,6 +63,7 @@
     <string name="contacts_action_sms">Message contact</string>
     <string name="contacts_action_whatsapp">WhatsApp contact</string>
     <string name="contacts_action_telegram">Telegram contact</string>
+    <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
 

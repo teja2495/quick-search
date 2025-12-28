@@ -12,11 +12,13 @@ import com.tk.quicksearch.data.SettingsShortcutRepository
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.search.ContactIntentHelpers
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -114,7 +116,9 @@ data class SearchUiState(
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
     val directDialChoice: DirectDialChoice? = null,
+    val contactMethodsBottomSheet: ContactInfo? = null,
     val pendingDirectCallNumber: String? = null,
+    val pendingWhatsAppCallDataId: String? = null,
     val directDialEnabled: Boolean = false,
     val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
     val keyboardAlignedLayout: Boolean = true,
@@ -213,6 +217,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+    private val contactActionHandler = ContactActionHandler(
+        context = application,
+        userPreferences = userPreferences,
+        messagingApp = messagingApp,
+        directDialEnabled = directDialEnabled,
+        hasSeenDirectDialChoice = hasSeenDirectDialChoice,
+        getCurrentState = { _uiState.value },
+        uiStateUpdater = { update -> _uiState.update(update) },
+        clearQuery = this::clearQuery
+    )
 
     init {
         // Load cached apps synchronously for instant UI display
@@ -1929,189 +1944,64 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun openContact(contactInfo: ContactInfo) {
-        IntentHelpers.openContact(getApplication(), contactInfo)
+        ContactIntentHelpers.openContact(getApplication(), contactInfo)
         clearQuery()
     }
 
     fun openEmail(email: String) {
-        IntentHelpers.composeEmail(getApplication(), email)
+        ContactIntentHelpers.composeEmail(getApplication(), email)
+    }
+    
+    fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) {
+        contactActionHandler.handleContactMethod(contactInfo, method)
+    }
+
+    fun showContactMethodsBottomSheet(contactInfo: ContactInfo) {
+        _uiState.update { it.copy(contactMethodsBottomSheet = contactInfo) }
+    }
+
+    fun dismissContactMethodsBottomSheet() {
+        _uiState.update { it.copy(contactMethodsBottomSheet = null) }
     }
 
     fun callContact(contactInfo: ContactInfo) {
-        val context = getApplication<Application>()
-        if (contactInfo.phoneNumbers.isEmpty()) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_missing_phone_number),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        
-        // Check if there's a preferred number stored
-        val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
-        if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
-            // Use preferred number directly
-            beginCallFlow(contactInfo.displayName, preferredNumber)
-            return
-        }
-        
-        // If multiple numbers, show selection dialog
-        if (contactInfo.phoneNumbers.size > 1) {
-            _uiState.update { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = true)) }
-            return
-        }
-        
-        // Single number, use it directly
-        beginCallFlow(contactInfo.displayName, contactInfo.phoneNumbers.first())
+        contactActionHandler.callContact(contactInfo)
     }
 
     fun smsContact(contactInfo: ContactInfo) {
-        val context = getApplication<Application>()
-        if (contactInfo.phoneNumbers.isEmpty()) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_missing_phone_number),
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        
-        // Check if there's a preferred number stored
-        val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
-        if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
-            // Use preferred number directly
-            performMessaging(preferredNumber)
-            return
-        }
-        
-        // If multiple numbers, show selection dialog
-        if (contactInfo.phoneNumbers.size > 1) {
-            _uiState.update { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = false)) }
-            return
-        }
-        
-        // Single number, use it directly
-        performMessaging(contactInfo.phoneNumbers.first())
+        contactActionHandler.smsContact(contactInfo)
     }
     
     fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) {
-        val selection = _uiState.value.phoneNumberSelection ?: return
-        val contactInfo = selection.contactInfo
-        
-        // Store preference if requested
-        if (rememberChoice) {
-            userPreferences.setPreferredPhoneNumber(contactInfo.contactId, phoneNumber)
-        }
-        
-        // Perform the action
-        if (selection.isCall) {
-            beginCallFlow(contactInfo.displayName, phoneNumber)
-        } else {
-            performMessaging(phoneNumber)
-        }
-        
-        // Clear the selection dialog
-        _uiState.update { it.copy(phoneNumberSelection = null) }
+        contactActionHandler.onPhoneNumberSelected(phoneNumber, rememberChoice)
     }
     
     fun dismissPhoneNumberSelection() {
-        _uiState.update { it.copy(phoneNumberSelection = null) }
+        contactActionHandler.dismissPhoneNumberSelection()
     }
     
-    private fun beginCallFlow(contactName: String, phoneNumber: String) {
-        if (!hasSeenDirectDialChoice) {
-            _uiState.update { state ->
-                state.copy(
-                    directDialChoice = DirectDialChoice(
-                        contactName = contactName,
-                        phoneNumber = phoneNumber
-                    )
-                )
-            }
-            return
-        }
 
-        if (directDialEnabled) {
-            startDirectCallFlow(phoneNumber)
-        } else {
-            openDialer(phoneNumber)
-        }
-    }
-
-    private fun startDirectCallFlow(phoneNumber: String) {
-        val hasPermission = PermissionRequestHandler.checkCallPermission(getApplication())
-        if (hasPermission) {
-            performDirectCall(phoneNumber)
-        } else {
-            _uiState.update { it.copy(pendingDirectCallNumber = phoneNumber) }
-        }
-    }
 
     fun onDirectDialChoiceSelected(option: DirectDialOption, rememberChoice: Boolean) {
-        val choice = _uiState.value.directDialChoice ?: return
+        contactActionHandler.onDirectDialChoiceSelected(option, rememberChoice)
+        // Update local state variables
         val useDirectDial = option == DirectDialOption.DIRECT_CALL
-
         if (rememberChoice) {
             directDialEnabled = useDirectDial
-            userPreferences.setDirectDialEnabled(useDirectDial)
         }
         hasSeenDirectDialChoice = true
-        userPreferences.setHasSeenDirectDialChoice(true)
-
-        _uiState.update {
-            it.copy(
-                directDialChoice = null,
-                directDialEnabled = directDialEnabled
-            )
-        }
-
-        if (useDirectDial) {
-            startDirectCallFlow(choice.phoneNumber)
-        } else {
-            openDialer(choice.phoneNumber)
-        }
     }
 
     fun dismissDirectDialChoice() {
-        _uiState.update { it.copy(directDialChoice = null) }
+        contactActionHandler.dismissDirectDialChoice()
     }
 
     fun onCallPermissionResult(isGranted: Boolean) {
-        val pendingNumber = _uiState.value.pendingDirectCallNumber ?: return
-
-        _uiState.update { it.copy(pendingDirectCallNumber = null) }
-
+        contactActionHandler.onCallPermissionResult(isGranted)
         // Refresh permission state after request result
         handleOptionalPermissionChange()
-
-        if (isGranted) {
-            performDirectCall(pendingNumber)
-        } else {
-            // If permission is denied, fall back to the dialer so the action still works
-            openDialer(pendingNumber)
-        }
     }
 
-    private fun performDirectCall(number: String) {
-        IntentHelpers.performDirectCall(getApplication(), number)
-    }
-
-    private fun openDialer(number: String) {
-        IntentHelpers.performDial(getApplication(), number)
-    }
-    
-    private fun performSms(number: String) {
-        IntentHelpers.performSms(getApplication(), number)
-    }
-
-    private fun performMessaging(number: String) {
-        when (messagingApp) {
-            MessagingApp.MESSAGES -> performSms(number)
-            MessagingApp.WHATSAPP -> IntentHelpers.openWhatsAppChat(getApplication(), number)
-            MessagingApp.TELEGRAM -> IntentHelpers.openTelegramChat(getApplication(), number)
-        }
-    }
 
     override fun onCleared() {
         super.onCleared()

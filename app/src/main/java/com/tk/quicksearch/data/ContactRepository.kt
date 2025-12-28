@@ -5,8 +5,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.provider.ContactsContract
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.ContactMethod
+import com.tk.quicksearch.model.ContactMethodMimeTypes
 import com.tk.quicksearch.util.PhoneNumberUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import java.util.Locale
@@ -40,9 +43,23 @@ class ContactRepository(
             ContactsContract.Contacts._ID,
             ContactsContract.Contacts.PHOTO_URI
         )
+        
+        // Projection fields for contact methods (Data table)
+        private val DATA_PROJECTION = arrayOf(
+            ContactsContract.Data._ID,
+            ContactsContract.Data.CONTACT_ID,
+            ContactsContract.Data.MIMETYPE,
+            ContactsContract.Data.DATA1,
+            ContactsContract.Data.DATA2,
+            ContactsContract.Data.DATA3,
+            ContactsContract.Data.IS_PRIMARY,
+            ContactsContract.Data.IS_SUPER_PRIMARY
+        )
 
         // Sort order for contacts (most contacted first)
         private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.TIMES_CONTACTED} DESC"
+        
+        private const val TAG = "ContactRepository"
     }
 
     // ==================== Public API ====================
@@ -64,10 +81,13 @@ class ContactRepository(
      * @return List of contacts sorted alphabetically by display name
      */
     fun getContactsByIds(contactIds: Set<Long>): List<ContactInfo> {
-        if (contactIds.isEmpty() || !hasPermission()) return emptyList()
+        if (contactIds.isEmpty() || !hasPermission()) {
+            return emptyList()
+        }
 
         val contacts = queryContactsByIds(contactIds)
         fetchPhotoUris(contacts)
+        fetchContactMethods(contacts)
         
         return contacts.values
             .map { it.toContactInfo() }
@@ -87,6 +107,7 @@ class ContactRepository(
         val normalizedQuery = normalizeSearchQuery(query)
         val contacts = queryContactsBySearch(normalizedQuery, limit)
         fetchPhotoUris(contacts)
+        fetchContactMethods(contacts)
         
         return contacts.values
             .map { it.toContactInfo() }
@@ -207,6 +228,183 @@ class ContactRepository(
             }
         }
     }
+    
+    /**
+     * Fetches all contact methods for the given contacts from the Data table.
+     * This includes phone, email, and app-specific methods like WhatsApp, Telegram, etc.
+     */
+    private fun fetchContactMethods(contacts: LinkedHashMap<Long, MutableContact>) {
+        if (contacts.isEmpty()) return
+
+        val selection = buildInClause(ContactsContract.Data.CONTACT_ID, contacts.keys)
+        
+        val cursor = contentResolver.query(
+            ContactsContract.Data.CONTENT_URI,
+            DATA_PROJECTION,
+            selection,
+            null,
+            "${ContactsContract.Data.IS_SUPER_PRIMARY} DESC, ${ContactsContract.Data.IS_PRIMARY} DESC"
+        ) ?: return
+
+        cursor.use { c ->
+            val dataIdIndex = c.getColumnIndexOrThrow(ContactsContract.Data._ID)
+            val contactIdIndex = c.getColumnIndexOrThrow(ContactsContract.Data.CONTACT_ID)
+            val mimeTypeIndex = c.getColumnIndexOrThrow(ContactsContract.Data.MIMETYPE)
+            val data1Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA1)
+            val data2Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA2)
+            val data3Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA3)
+            val isPrimaryIndex = c.getColumnIndexOrThrow(ContactsContract.Data.IS_PRIMARY)
+            val isSuperPrimaryIndex = c.getColumnIndexOrThrow(ContactsContract.Data.IS_SUPER_PRIMARY)
+
+            while (c.moveToNext()) {
+                val dataId = c.getLong(dataIdIndex)
+                val contactId = c.getLong(contactIdIndex)
+                val contact = contacts[contactId] ?: continue
+
+                val mimeType = c.getString(mimeTypeIndex) ?: continue
+                val data1 = c.getString(data1Index) ?: continue
+                val data2 = c.getString(data2Index)
+                val data3 = c.getString(data3Index)
+                val isPrimary = c.getInt(isPrimaryIndex) == 1 || c.getInt(isSuperPrimaryIndex) == 1
+
+                val method = parseContactMethod(mimeType, data1, data2, data3, dataId, isPrimary)
+                if (method != null) {
+                    // Only add one Phone method per contact to avoid duplicates
+                    if (method is ContactMethod.Phone) {
+                        if (!contact.hasPhoneMethod) {
+                            contact.contactMethods.add(method)
+                            // Also add SMS method for the same phone number
+                            val smsMethod = ContactMethod.Sms("Message", data1, dataId, isPrimary)
+                            contact.contactMethods.add(smsMethod)
+                            // Add Google Meet method if Meet is available
+                            if (isGoogleMeetAvailable()) {
+                                val meetMethod = ContactMethod.GoogleMeet(displayLabel = "Google Meet", data = data1, dataId = dataId, isPrimary = isPrimary)
+                                contact.contactMethods.add(meetMethod)
+                            }
+                            contact.hasPhoneMethod = true
+                            contact.hasSmsMethod = true
+                        }
+                    } else {
+                        contact.contactMethods.add(method)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses a contact method from Data table row.
+     */
+    private fun parseContactMethod(
+        mimeType: String,
+        data1: String,
+        data2: String?,
+        data3: String?,
+        dataId: Long,
+        isPrimary: Boolean
+    ): ContactMethod? {
+        return try {
+            when (mimeType) {
+                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
+                    ContactMethod.Phone("Call", data1, dataId, isPrimary)
+                }
+
+                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE -> {
+                    ContactMethod.Email("Email", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.WHATSAPP_VOICE_CALL -> {
+                    ContactMethod.WhatsAppCall("WhatsApp voice call", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.WHATSAPP_MESSAGE -> {
+                    ContactMethod.WhatsAppMessage("WhatsApp", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.WHATSAPP_VIDEO_CALL -> {
+                    ContactMethod.WhatsAppVideoCall("WhatsApp video call", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.TELEGRAM_MESSAGE -> {
+                    ContactMethod.TelegramMessage("Telegram", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.TELEGRAM_CALL -> {
+                    ContactMethod.TelegramCall("Telegram voice call", data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.TELEGRAM_VIDEO_CALL -> {
+                    ContactMethod.TelegramVideoCall("Telegram video call", data1, dataId, isPrimary)
+                }
+
+
+                else -> {
+                    // Log unknown MIME types for debugging
+                    if (mimeType.startsWith("vnd.android.cursor.item/vnd.")) {
+                        Log.d(TAG, "Unknown contact method MIME type: $mimeType for data: $data1")
+                        // Try to extract package name from MIME type
+                        val packageName = extractPackageFromMimeType(mimeType)
+                        ContactMethod.CustomApp(
+                            displayLabel = packageName ?: "Other",
+                            data = data1,
+                            mimeType = mimeType,
+                            packageName = packageName,
+                            dataId = dataId,
+                            isPrimary = isPrimary
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing contact method: $mimeType", e)
+            null
+        }
+    }
+    
+    /**
+     * Converts phone/email type codes to human-readable labels.
+     */
+    private fun typeToLabel(type: Int, customLabel: String?): String {
+        return when (type) {
+            ContactsContract.CommonDataKinds.Phone.TYPE_HOME -> "Home"
+            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE -> "Mobile"
+            ContactsContract.CommonDataKinds.Phone.TYPE_WORK -> "Work"
+            ContactsContract.CommonDataKinds.Phone.TYPE_MAIN -> "Main"
+            ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM -> customLabel ?: "Other"
+            else -> "Other"
+        }
+    }
+    
+    /**
+     * Checks if Google Meet is available on the device.
+     */
+    private fun isGoogleMeetAvailable(): Boolean {
+        return try {
+            context.packageManager.getPackageInfo("com.google.android.apps.tachyon", 0)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Attempts to extract package name from custom MIME type.
+     * Format: vnd.android.cursor.item/vnd.com.package.name.xxx
+     */
+    private fun extractPackageFromMimeType(mimeType: String): String? {
+        val prefix = "vnd.android.cursor.item/vnd."
+        if (!mimeType.startsWith(prefix)) return null
+
+        val rest = mimeType.substring(prefix.length)
+        // Extract package-like part (e.g., "com.whatsapp.profile" -> "com.whatsapp")
+        val parts = rest.split(".")
+        if (parts.size >= 2) {
+            return "${parts[0]}.${parts[1]}"
+        }
+        return null
+    }
 
     /**
      * Normalizes a search query by trimming, lowercasing, and removing SQL wildcards.
@@ -293,15 +491,30 @@ class ContactRepository(
         val lookupKey: String,
         val displayName: String,
         val numbers: MutableList<String>,
-        var photoUri: String? = null
+        var photoUri: String? = null,
+        val contactMethods: MutableList<ContactMethod> = mutableListOf(),
+        var hasPhoneMethod: Boolean = false,
+        var hasSmsMethod: Boolean = false
     ) {
         fun toContactInfo(): ContactInfo {
+            // Reorder contact methods so email comes last
+            val reorderedMethods = contactMethods.sortedWith(compareBy<ContactMethod> {
+                when (it) {
+                    is ContactMethod.Email -> 1 // Email comes last
+                    else -> 0 // Everything else comes first
+                }
+            }.thenBy {
+                // Within the same priority group, maintain original order
+                contactMethods.indexOf(it)
+            })
+
             return ContactInfo(
                 contactId = contactId,
                 lookupKey = lookupKey,
                 displayName = displayName,
                 phoneNumbers = numbers,
-                photoUri = photoUri
+                photoUri = photoUri,
+                contactMethods = reorderedMethods
             )
         }
     }

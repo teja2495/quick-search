@@ -81,6 +81,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
+import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.WallpaperUtils
@@ -240,10 +241,18 @@ fun SearchRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    
+
     // Wrapper function that calls directly - performCall will handle permission check and fallback to dialer
     val callContactWithPermission: (ContactInfo) -> Unit = { contact ->
         viewModel.callContact(contact)
+    }
+
+    val showContactMethodsBottomSheet: (ContactInfo) -> Unit = { contact ->
+        viewModel.showContactMethodsBottomSheet(contact)
+    }
+
+    val dismissContactMethodsBottomSheet: () -> Unit = {
+        viewModel.dismissContactMethodsBottomSheet()
     }
 
     val callPermissionLauncher = rememberLauncherForActivityResult(
@@ -262,12 +271,16 @@ fun SearchRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(uiState.pendingDirectCallNumber) {
-        val pendingNumber = uiState.pendingDirectCallNumber ?: return@LaunchedEffect
-        if (context is android.app.Activity) {
-            callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
-        } else {
-            viewModel.onCallPermissionResult(false)
+    LaunchedEffect(uiState.pendingDirectCallNumber, uiState.pendingWhatsAppCallDataId) {
+        val pendingNumber = uiState.pendingDirectCallNumber
+        val pendingWhatsAppCall = uiState.pendingWhatsAppCallDataId
+        
+        if (pendingNumber != null || pendingWhatsAppCall != null) {
+            if (context is android.app.Activity) {
+                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+            } else {
+                viewModel.onCallPermissionResult(false)
+            }
         }
     }
 
@@ -285,8 +298,11 @@ fun SearchRoute(
         onPinApp = viewModel::pinApp,
         onUnpinApp = viewModel::unpinApp,
         onContactClick = viewModel::openContact,
+        onShowContactMethods = showContactMethodsBottomSheet,
+        onDismissContactMethods = dismissContactMethodsBottomSheet,
         onCallContact = callContactWithPermission,
         onSmsContact = viewModel::smsContact,
+        onContactMethodClick = viewModel::handleContactMethod,
         onFileClick = viewModel::openFile,
         onPinContact = viewModel::pinContact,
         onUnpinContact = viewModel::unpinContact,
@@ -344,8 +360,11 @@ fun SearchScreen(
     onPinApp: (AppInfo) -> Unit,
     onUnpinApp: (AppInfo) -> Unit,
     onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onDismissContactMethods: () -> Unit,
     onCallContact: (ContactInfo) -> Unit,
     onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
     onFileClick: (DeviceFile) -> Unit,
     onPinContact: (ContactInfo) -> Unit,
     onUnpinContact: (ContactInfo) -> Unit,
@@ -441,55 +460,6 @@ fun SearchScreen(
         reverseScrolling = alignResultsToBottom
     )
 
-    // Prepare section parameters
-    val contactsParams = ContactsSectionParams(
-        contacts = state.contactResults,
-        hasPermission = state.hasContactPermission,
-        isExpanded = expandedSection == ExpandedSection.CONTACTS,
-        messagingApp = state.messagingApp,
-        pinnedContactIds = derivedState.pinnedContactIds,
-        onContactClick = onContactClick,
-        onCallContact = onCallContact,
-        onSmsContact = onSmsContact,
-        onTogglePin = { contact ->
-            if (derivedState.pinnedContactIds.contains(contact.contactId)) {
-                onUnpinContact(contact)
-            } else {
-                onPinContact(contact)
-            }
-        },
-        onExclude = onExcludeContact,
-        onNicknameClick = { contact ->
-            nicknameDialogState = NicknameDialogState.Contact(
-                contact = contact,
-                currentNickname = getContactNickname(contact.contactId),
-                itemName = contact.displayName
-            )
-        },
-        getContactNickname = getContactNickname,
-        onOpenAppSettings = onOpenAppSettings,
-        showAllResults = derivedState.autoExpandContacts,
-        showExpandControls = derivedState.hasMultipleExpandableSections,
-        onExpandClick = {
-            if (expandedSection == ExpandedSection.CONTACTS) {
-                keyboardController?.show()
-                expandedSection = ExpandedSection.NONE
-            } else {
-                keyboardController?.hide()
-                expandedSection = ExpandedSection.CONTACTS
-            }
-        },
-        permissionDisabledCard = { title, message, actionLabel, onActionClick ->
-            PermissionDisabledCard(
-                title = title,
-                message = message,
-                actionLabel = actionLabel,
-                onActionClick = onActionClick
-            )
-        },
-        showWallpaperBackground = state.showWallpaperBackground
-    )
-    
     val filesParams = FilesSectionParams(
         files = state.fileResults,
         hasPermission = state.hasFilePermission,
@@ -566,6 +536,56 @@ fun SearchScreen(
                 keyboardController?.hide()
                 expandedSection = ExpandedSection.SETTINGS
             }
+        },
+        showWallpaperBackground = state.showWallpaperBackground
+    )
+
+    val contactsParams = ContactsSectionParams(
+        contacts = state.contactResults,
+        hasPermission = state.hasContactPermission,
+        isExpanded = expandedSection == ExpandedSection.CONTACTS,
+        messagingApp = state.messagingApp,
+        pinnedContactIds = derivedState.pinnedContactIds,
+        onContactClick = onContactClick,
+        onShowContactMethods = onShowContactMethods,
+        onCallContact = onCallContact,
+        onSmsContact = onSmsContact,
+        onContactMethodClick = onContactMethodClick,
+        onTogglePin = { contact ->
+            if (derivedState.pinnedContactIds.contains(contact.contactId)) {
+                onUnpinContact(contact)
+            } else {
+                onPinContact(contact)
+            }
+        },
+        onExclude = onExcludeContact,
+        onNicknameClick = { contact ->
+            nicknameDialogState = NicknameDialogState.Contact(
+                contact = contact,
+                currentNickname = getContactNickname(contact.contactId),
+                itemName = contact.displayName
+            )
+        },
+        getContactNickname = getContactNickname,
+        onOpenAppSettings = onOpenAppSettings,
+        showAllResults = derivedState.autoExpandContacts,
+        showExpandControls = derivedState.hasMultipleExpandableSections,
+        onExpandClick = {
+            if (expandedSection == ExpandedSection.CONTACTS) {
+                keyboardController?.show()
+                expandedSection = ExpandedSection.NONE
+            } else {
+                keyboardController?.hide()
+                expandedSection = ExpandedSection.CONTACTS
+            }
+        },
+        permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+            PermissionDisabledCard(
+                title = title,
+                message = message,
+                actionLabel = actionLabel,
+                onActionClick = onActionClick
+            )
         },
         showWallpaperBackground = state.showWallpaperBackground
     )
@@ -796,6 +816,15 @@ fun SearchScreen(
             phoneNumber = choice.phoneNumber,
             onSelectOption = onDirectDialChoiceSelected,
             onDismiss = onDismissDirectDialChoice
+        )
+    }
+
+    // Contact methods dialog
+    state.contactMethodsBottomSheet?.let { contactInfo ->
+        ContactMethodsDialog(
+            contactInfo = contactInfo,
+            onContactMethodClick = onContactMethodClick,
+            onDismiss = onDismissContactMethods
         )
     }
 
