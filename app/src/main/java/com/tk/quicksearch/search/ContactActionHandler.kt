@@ -313,6 +313,11 @@ class ContactActionHandler(
                     clearQueryIfEnabled()
                 }
             }
+
+            is ContactMethod.ViewInContactsApp -> {
+                ContactIntentHelpers.openContact(context, contactInfo)
+                clearQueryIfEnabled()
+            }
         }
     }
 

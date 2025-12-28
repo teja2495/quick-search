@@ -96,6 +96,13 @@ sealed class ContactMethod {
         override val dataId: Long? = null,
         override val isPrimary: Boolean = false
     ) : ContactMethod()
+
+    data class ViewInContactsApp(
+        override val displayLabel: String = "View in contacts app",
+        override val data: String = "",
+        override val dataId: Long? = null,
+        override val isPrimary: Boolean = false
+    ) : ContactMethod()
 }
 
 /**

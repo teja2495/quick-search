@@ -347,7 +347,8 @@ private fun ContactResultRow(
             ) {
                 ContactAvatar(
                     photoUri = contactInfo.photoUri,
-                    displayName = contactInfo.displayName
+                    displayName = contactInfo.displayName,
+                    onClick = { onContactClick(contactInfo) }
                 )
                 
                 Text(
@@ -388,7 +389,8 @@ private fun ContactResultRow(
 @Composable
 private fun ContactAvatar(
     photoUri: String?,
-    displayName: String
+    displayName: String,
+    onClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
@@ -412,7 +414,9 @@ private fun ContactAvatar(
     }
 
     Surface(
-        modifier = Modifier.size(CONTACT_AVATAR_SIZE.dp),
+        modifier = Modifier
+            .size(CONTACT_AVATAR_SIZE.dp)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         shape = CircleShape,
         color = MaterialTheme.colorScheme.primaryContainer
     ) {
@@ -600,12 +604,18 @@ private fun ContactMethodIcon(method: ContactMethod) {
             return
         }
         is ContactMethod.GoogleMeet -> {
-            // Use Google Meet colors - blue tones
-            Pair(Icons.Rounded.Call, Color(0xFF4285F4))
+            Icon(
+                painter = painterResource(id = R.drawable.google_meet),
+                contentDescription = null,
+                tint = Color.Unspecified, // Use original colors from the drawable
+                modifier = Modifier.size(24.dp)
+            )
+            return
         }
         is ContactMethod.Email -> Pair(Icons.Rounded.Email, Color.White)
         is ContactMethod.VideoCall -> Pair(Icons.Rounded.Call, Color.White) // TODO: Use video icon
         is ContactMethod.CustomApp -> Pair(Icons.Rounded.Person, Color.White) // TODO: Use generic icon
+        is ContactMethod.ViewInContactsApp -> Pair(Icons.Rounded.Person, Color.White)
     }
     
     Icon(
@@ -955,7 +965,8 @@ fun ContactMethodsDialog(
             ) {
                 ContactAvatar(
                     photoUri = contactInfo.photoUri,
-                    displayName = contactInfo.displayName
+                    displayName = contactInfo.displayName,
+                    onClick = null
                 )
 
                 Column(
@@ -982,6 +993,15 @@ fun ContactMethodsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Always show "View in contacts app" as first option
+                ContactMethodItem(
+                    method = ContactMethod.ViewInContactsApp(),
+                    onClick = {
+                        onContactMethodClick(contactInfo, ContactMethod.ViewInContactsApp())
+                        onDismiss()
+                    }
+                )
+
                 // Contact methods list
                 val methodsToShow = contactInfo.contactMethods.filterNot { it is ContactMethod.Email }
                 if (methodsToShow.isNotEmpty()) {

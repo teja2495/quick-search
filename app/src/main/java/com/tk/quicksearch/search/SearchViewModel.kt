@@ -1946,7 +1946,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun openContact(contactInfo: ContactInfo) {
         ContactIntentHelpers.openContact(getApplication(), contactInfo)
-        clearQuery()
+        if (clearQueryAfterSearchEngine) {
+            clearQuery()
+        }
     }
 
     fun openEmail(email: String) {
