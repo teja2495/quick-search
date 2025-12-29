@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,11 +45,14 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -530,51 +535,51 @@ private fun ContactActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (backgroundColor, contentColor) = when (method) {
-        is ContactMethod.Phone -> Pair(Color(0xFF4CAF50), Color.White)
-        is ContactMethod.Sms -> Pair(Color(0xFF2196F3), Color.White)
+    val iconColor = when (method) {
+        is ContactMethod.Phone -> Color(0xFF4CAF50)
+        is ContactMethod.Sms -> Color(0xFF2196F3)
         is ContactMethod.WhatsAppCall,
         is ContactMethod.WhatsAppMessage,
-        is ContactMethod.WhatsAppVideoCall -> Pair(Color(0xFF25D366), Color.White)
+        is ContactMethod.WhatsAppVideoCall -> Color(0xFF25D366)
         is ContactMethod.TelegramMessage,
         is ContactMethod.TelegramCall,
-        is ContactMethod.TelegramVideoCall -> Pair(Color(0xFF0088CC), Color.White)
-        is ContactMethod.GoogleMeet -> Pair(Color.White, Color.Black)
-        is ContactMethod.Email -> Pair(Color(0xFFFF9800), Color.White)
-        is ContactMethod.VideoCall -> Pair(Color(0xFF9C27B0), Color.White)
-        is ContactMethod.CustomApp -> Pair(Color(0xFF607D8B), Color.White)
-        is ContactMethod.ViewInContactsApp -> Pair(Color(0xFF9E9E9E), Color.White)
+        is ContactMethod.TelegramVideoCall -> Color(0xFF0088CC)
+        is ContactMethod.GoogleMeet -> Color.Unspecified
+        is ContactMethod.Email -> Color(0xFFFF9800)
+        is ContactMethod.VideoCall -> Color(0xFF9C27B0)
+        is ContactMethod.CustomApp -> Color(0xFF607D8B)
+        is ContactMethod.ViewInContactsApp -> Color(0xFF9E9E9E)
     }
 
-    Column(
+    Surface(
         modifier = modifier
-            .width(80.dp)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .width(90.dp)
+            .clickable(onClick = onClick)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     ) {
-        Surface(
-            modifier = Modifier.size(56.dp),
-            shape = CircleShape,
-            color = backgroundColor,
-            shadowElevation = 4.dp
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                ContactActionIcon(method = method, tint = contentColor)
-            }
+            ContactActionIcon(method = method, tint = iconColor)
+            Text(
+                text = getActionButtonLabel(method),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 0.9f
+            )
         }
-
-        Text(
-            text = getActionButtonLabel(method),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 0.9f
-        )
     }
 }
 
@@ -692,12 +697,12 @@ private fun getActionButtonLabel(method: ContactMethod): String {
     return when (method) {
         is ContactMethod.Phone -> "Call"
         is ContactMethod.Sms -> "Message"
-        is ContactMethod.WhatsAppCall -> "WhatsApp\nCall"
-        is ContactMethod.WhatsAppMessage -> "WhatsApp\nChat"
-        is ContactMethod.WhatsAppVideoCall -> "WhatsApp\nVideo"
-        is ContactMethod.TelegramMessage -> "Telegram\nChat"
-        is ContactMethod.TelegramCall -> "Telegram\nCall"
-        is ContactMethod.TelegramVideoCall -> "Telegram\nVideo"
+        is ContactMethod.WhatsAppCall -> "Voice Call"
+        is ContactMethod.WhatsAppMessage -> "Chat"
+        is ContactMethod.WhatsAppVideoCall -> "Video Call"
+        is ContactMethod.TelegramMessage -> "Chat"
+        is ContactMethod.TelegramCall -> "Voice Call"
+        is ContactMethod.TelegramVideoCall -> "Video Call"
         is ContactMethod.GoogleMeet -> "Meet"
         is ContactMethod.Email -> "Email"
         is ContactMethod.VideoCall -> "Video Call"
@@ -1139,15 +1144,26 @@ fun DirectDialChoiceDialog(
 // Contact Methods Dialog
 // ============================================================================
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactMethodsDialog(
     contactInfo: ContactInfo,
     onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = {
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            // Header with contact info
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -1174,6 +1190,7 @@ fun ContactMethodsDialog(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
 
@@ -1192,8 +1209,8 @@ fun ContactMethodsDialog(
                     )
                 }
             }
-        },
-        text = {
+
+            // Action buttons
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -1287,12 +1304,9 @@ fun ContactMethodsDialog(
                     )
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_cancel))
-            }
+            
+            // Add bottom padding for navigation bar
+            Spacer(modifier = Modifier.height(16.dp))
         }
-    )
+    }
 }
