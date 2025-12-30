@@ -441,10 +441,20 @@
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_grok">Grok</string>
     <string name="search_engine_google_maps">Google Maps</string>
+    <string name="search_engine_google_drive">Google Drive</string>
+    <string name="search_engine_google_photos">Google Photos</string>
     <string name="search_engine_google_play">Google Play</string>
     <string name="search_engine_reddit">Reddit</string>
     <string name="search_engine_youtube">YouTube</string>
+    <string name="search_engine_youtube_music">YouTube Music</string>
+    <string name="search_engine_spotify">Spotify</string>
+    <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
     <string name="search_engine_amazon">Amazon</string>
+    <string name="search_engine_you_com">You.com</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_brave">Brave</string>
+    <string name="search_engine_bing">Bing</string>
+    <string name="search_engine_x">X</string>
     <string name="search_engine_ai_mode">AI mode</string>
     <string name="search_engine_direct_search">Direct Search</string>
 

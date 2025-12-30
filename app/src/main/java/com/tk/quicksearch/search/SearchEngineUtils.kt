@@ -64,6 +64,18 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
         urlTemplate = "https://maps.google.com/?q=%s",
         defaultShortcutCode = "mps"
     ),
+    SearchEngine.GOOGLE_DRIVE to SearchEngineMetadata(
+        drawableResId = R.drawable.google_drive,
+        contentDescription = "Google Drive",
+        urlTemplate = "https://drive.google.com/drive/u/0/search?q=%s",
+        defaultShortcutCode = "gdr"
+    ),
+    SearchEngine.GOOGLE_PHOTOS to SearchEngineMetadata(
+        drawableResId = R.drawable.google_photos,
+        contentDescription = "Google Photos",
+        urlTemplate = "https://photos.google.com/search/%s",
+        defaultShortcutCode = "gph"
+    ),
     SearchEngine.GOOGLE_PLAY to SearchEngineMetadata(
         drawableResId = R.drawable.google_play,
         contentDescription = "Google Play",
@@ -82,11 +94,59 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
         urlTemplate = "https://www.youtube.com/results?search_query=%s",
         defaultShortcutCode = "ytb"
     ),
+    SearchEngine.YOUTUBE_MUSIC to SearchEngineMetadata(
+        drawableResId = R.drawable.youtube_music,
+        contentDescription = "YouTube Music",
+        urlTemplate = "https://music.youtube.com/search?q=%s",
+        defaultShortcutCode = "ytm"
+    ),
+    SearchEngine.SPOTIFY to SearchEngineMetadata(
+        drawableResId = R.drawable.spotify,
+        contentDescription = "Spotify",
+        urlTemplate = "https://open.spotify.com/search/%s",
+        defaultShortcutCode = "sfy"
+    ),
+    SearchEngine.FACEBOOK_MARKETPLACE to SearchEngineMetadata(
+        drawableResId = R.drawable.facebook_marketplace,
+        contentDescription = "Facebook Marketplace",
+        urlTemplate = "https://www.facebook.com/marketplace/search/?query=%s",
+        defaultShortcutCode = "fbm"
+    ),
     SearchEngine.AMAZON to SearchEngineMetadata(
         drawableResId = R.drawable.amazon,
         contentDescription = "Amazon",
         urlTemplate = "https://www.amazon.com/s?k=%s",
         defaultShortcutCode = "amz"
+    ),
+    SearchEngine.YOU_COM to SearchEngineMetadata(
+        drawableResId = R.drawable.you_com,
+        contentDescription = "You.com",
+        urlTemplate = "https://you.com/search?q=%s",
+        defaultShortcutCode = "yu"
+    ),
+    SearchEngine.DUCKDUCKGO to SearchEngineMetadata(
+        drawableResId = R.drawable.duckduckgo,
+        contentDescription = "DuckDuckGo",
+        urlTemplate = "https://duckduckgo.com/?q=%s",
+        defaultShortcutCode = "ddg"
+    ),
+    SearchEngine.BRAVE to SearchEngineMetadata(
+        drawableResId = R.drawable.brave,
+        contentDescription = "Brave",
+        urlTemplate = "https://search.brave.com/search?q=%s",
+        defaultShortcutCode = "brv"
+    ),
+    SearchEngine.BING to SearchEngineMetadata(
+        drawableResId = R.drawable.bing,
+        contentDescription = "Bing",
+        urlTemplate = "https://www.bing.com/search?q=%s",
+        defaultShortcutCode = "bng"
+    ),
+    SearchEngine.X to SearchEngineMetadata(
+        drawableResId = R.drawable.x,
+        contentDescription = "X",
+        urlTemplate = "https://x.com/search?q=%s",
+        defaultShortcutCode = "twt"
     ),
     SearchEngine.AI_MODE to SearchEngineMetadata(
         drawableResId = R.drawable.ai_mode,
@@ -221,10 +281,20 @@ fun SearchEngine.getDisplayNameResId(): Int = when (this) {
     SearchEngine.PERPLEXITY -> R.string.search_engine_perplexity
     SearchEngine.GROK -> R.string.search_engine_grok
     SearchEngine.GOOGLE_MAPS -> R.string.search_engine_google_maps
+    SearchEngine.GOOGLE_DRIVE -> R.string.search_engine_google_drive
+    SearchEngine.GOOGLE_PHOTOS -> R.string.search_engine_google_photos
     SearchEngine.GOOGLE_PLAY -> R.string.search_engine_google_play
     SearchEngine.REDDIT -> R.string.search_engine_reddit
     SearchEngine.YOUTUBE -> R.string.search_engine_youtube
+    SearchEngine.YOUTUBE_MUSIC -> R.string.search_engine_youtube_music
+    SearchEngine.SPOTIFY -> R.string.search_engine_spotify
+    SearchEngine.FACEBOOK_MARKETPLACE -> R.string.search_engine_facebook_marketplace
     SearchEngine.AMAZON -> R.string.search_engine_amazon
+    SearchEngine.YOU_COM -> R.string.search_engine_you_com
+    SearchEngine.DUCKDUCKGO -> R.string.search_engine_duckduckgo
+    SearchEngine.BRAVE -> R.string.search_engine_brave
+    SearchEngine.BING -> R.string.search_engine_bing
+    SearchEngine.X -> R.string.search_engine_x
     SearchEngine.AI_MODE -> R.string.search_engine_ai_mode
 }
 

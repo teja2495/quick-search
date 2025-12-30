@@ -42,10 +42,20 @@ enum class SearchEngine {
     PERPLEXITY,
     GROK,
     GOOGLE_MAPS,
+    GOOGLE_DRIVE,
+    GOOGLE_PHOTOS,
     GOOGLE_PLAY,
     REDDIT,
     YOUTUBE,
+    YOUTUBE_MUSIC,
+    SPOTIFY,
+    FACEBOOK_MARKETPLACE,
     AMAZON,
+    YOU_COM,
+    DUCKDUCKGO,
+    BRAVE,
+    BING,
+    X,
     AI_MODE
 }
 
