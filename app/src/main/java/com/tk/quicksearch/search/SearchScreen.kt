@@ -42,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -804,7 +805,7 @@ fun SearchScreen(
         if (expandedSection == ExpandedSection.NONE) {
             val pillText = if (manuallySwitchedToNumberKeyboard) {
                 stringResource(R.string.keyboard_switch_back)
-            } else if (hasMathExpression) {
+            } else if (hasMathExpression && state.calculatorEnabled) {
                 stringResource(R.string.keyboard_switch_to_number)
             } else {
                 null
@@ -1362,4 +1363,5 @@ private fun KeyboardSwitchPill(
         }
     }
 }
+
 

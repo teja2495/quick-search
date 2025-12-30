@@ -88,6 +88,8 @@ fun SettingsDetailRoute(
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         amazonDomain = uiState.amazonDomain,
+        calculatorEnabled = uiState.calculatorEnabled,
+        webSuggestionsEnabled = uiState.webSuggestionsEnabled,
         hasGeminiApiKey = uiState.hasGeminiApiKey,
         geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
         personalContext = uiState.personalContext
@@ -173,6 +175,8 @@ fun SettingsDetailRoute(
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
+        onToggleCalculator = viewModel::setCalculatorEnabled,
+        onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext,
         onAddQuickSettingsTile = onRequestAddQuickSettingsTile,

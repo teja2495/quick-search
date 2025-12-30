@@ -157,6 +157,8 @@ data class SearchUiState(
     val disabledSections: Set<SearchSection> = emptySet(),
     val searchEngineSectionEnabled: Boolean = true,
     val amazonDomain: String? = null,
+    val webSuggestionsEnabled: Boolean = true,
+    val calculatorEnabled: Boolean = true,
     val DirectSearchState: DirectSearchState = DirectSearchState(),
     val hasGeminiApiKey: Boolean = false,
     val geminiApiKeyLast4: String? = null,
@@ -233,6 +235,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
     private var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
     private var amazonDomain: String? = userPreferences.getAmazonDomain()
+    private var webSuggestionsEnabled: Boolean = userPreferences.areWebSuggestionsEnabled()
+    private var calculatorEnabled: Boolean = userPreferences.isCalculatorEnabled()
     private var searchJob: Job? = null
     private var DirectSearchJob: Job? = null
     private var webSuggestionsJob: Job? = null
@@ -297,6 +301,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     disabledSections = disabledSections,
                     searchEngineSectionEnabled = searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
+                    webSuggestionsEnabled = webSuggestionsEnabled,
+                    calculatorEnabled = calculatorEnabled,
                     hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
                     geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
                     personalContext = personalContext,
@@ -629,8 +635,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
 
-        // Check if query is a math expression
-        val calculatorResult = if (CalculatorUtils.isMathExpression(trimmedQuery)) {
+        // Check if query is a math expression (only if calculator is enabled)
+        val calculatorResult = if (calculatorEnabled && CalculatorUtils.isMathExpression(trimmedQuery)) {
             CalculatorUtils.evaluateExpression(trimmedQuery)?.let { result ->
                 CalculatorState(result = result, expression = trimmedQuery)
             } ?: CalculatorState()
@@ -1213,11 +1219,41 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 // The caller should request permission first
                 return@launch
             }
-            
+
             // Update user preference (this tracks explicit user choice)
             userPreferences.setShowWallpaperBackground(showWallpaper)
             showWallpaperBackground = showWallpaper
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
+        }
+    }
+
+    fun setWebSuggestionsEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setWebSuggestionsEnabled(enabled)
+            webSuggestionsEnabled = enabled
+
+            // Update UI state
+            _uiState.update { it.copy(webSuggestionsEnabled = enabled) }
+
+            // If disabling web suggestions, clear any existing suggestions
+            if (!enabled) {
+                _uiState.update { it.copy(webSuggestions = emptyList()) }
+            }
+        }
+    }
+
+    fun setCalculatorEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setCalculatorEnabled(enabled)
+            calculatorEnabled = enabled
+
+            // Update UI state
+            _uiState.update { it.copy(calculatorEnabled = enabled) }
+
+            // If disabling calculator, clear any existing calculator result
+            if (!enabled) {
+                _uiState.update { it.copy(calculatorState = CalculatorState()) }
+            }
         }
     }
 
@@ -2032,8 +2068,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         )
                     }
                     
-                    // Fetch web suggestions if there are no results and query is long enough
-                    if (!hasAnyResults && trimmedQuery.length >= 2) {
+                    // Fetch web suggestions if there are no results, query is long enough, and suggestions are enabled
+                    if (!hasAnyResults && trimmedQuery.length >= 2 && webSuggestionsEnabled) {
                         fetchWebSuggestions(trimmedQuery, currentVersion)
                     } else {
                         // Clear suggestions if we have results

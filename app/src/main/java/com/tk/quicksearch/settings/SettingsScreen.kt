@@ -37,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -109,6 +110,8 @@ fun SettingsRoute(
         disabledSections = uiState.disabledSections,
         searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
         amazonDomain = uiState.amazonDomain,
+        calculatorEnabled = uiState.calculatorEnabled,
+        webSuggestionsEnabled = uiState.webSuggestionsEnabled,
         hasGeminiApiKey = uiState.hasGeminiApiKey,
         geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
         personalContext = uiState.personalContext
@@ -242,6 +245,8 @@ fun SettingsRoute(
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
         onSetAmazonDomain = viewModel::setAmazonDomain,
+        onToggleCalculator = viewModel::setCalculatorEnabled,
+        onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext,
         onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
@@ -435,6 +440,13 @@ private fun SettingsScreen(
                 onReorderSections = callbacks.onReorderSections
             )
 
+            // Calculator Toggle
+            CalculatorToggleCard(
+                enabled = state.calculatorEnabled,
+                onToggle = callbacks.onToggleCalculator,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
             // Internet Search Section
             Text(
                 text = stringResource(R.string.settings_internet_search_title),
@@ -451,6 +463,13 @@ private fun SettingsScreen(
                 description = stringResource(R.string.settings_search_engines_desc),
                 onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 contentPadding = SettingsSpacing.singleCardPadding
+            )
+
+            // Web Search Suggestions Toggle
+            WebSuggestionsToggleCard(
+                enabled = state.webSuggestionsEnabled,
+                onToggle = callbacks.onToggleWebSuggestions,
+                modifier = Modifier.padding(top = 12.dp)
             )
 
             // Appearance Section
@@ -928,5 +947,68 @@ fun RefreshDataCard(
         }
     }
 }
+
+@Composable
+private fun WebSuggestionsToggleCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggle(!enabled) }
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.web_search_suggestions_title),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = enabled,
+                onCheckedChange = onToggle
+            )
+        }
+    }
+}
+
+@Composable
+private fun CalculatorToggleCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggle(!enabled) }
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.calculator_toggle_title),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = enabled,
+                onCheckedChange = onToggle
+            )
+        }
+    }
+}
+
 
 

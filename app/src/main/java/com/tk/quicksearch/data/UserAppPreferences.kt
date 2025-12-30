@@ -662,6 +662,30 @@ class UserAppPreferences(context: Context) {
         return getUsagePermissionBannerDismissCount() < 2 && !isUsagePermissionBannerSessionDismissed()
     }
 
+    // ============================================================================
+    // Web Search Suggestions Preferences
+    // ============================================================================
+
+    fun areWebSuggestionsEnabled(): Boolean = getBooleanPref(KEY_WEB_SUGGESTIONS_ENABLED, true)
+
+    fun setWebSuggestionsEnabled(enabled: Boolean) {
+        setBooleanPref(KEY_WEB_SUGGESTIONS_ENABLED, enabled)
+    }
+
+    // ============================================================================
+    // Calculator Preferences
+    // ============================================================================
+
+    fun isCalculatorEnabled(): Boolean = getBooleanPref(KEY_CALCULATOR_ENABLED, true)
+
+    fun setCalculatorEnabled(enabled: Boolean) {
+        setBooleanPref(KEY_CALCULATOR_ENABLED, enabled)
+    }
+
+    // ============================================================================
+    // Usage permission banner preferences keys
+    // ============================================================================
+
     fun getShortcutHintBannerDismissCount(): Int {
         return firstLaunchPrefs.getInt(KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, 0)
     }
@@ -958,6 +982,12 @@ class UserAppPreferences(context: Context) {
         // Shortcut hint banner preferences keys
         private const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT = "shortcut_hint_banner_dismiss_count"
         private const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED = "shortcut_hint_banner_session_dismissed"
+
+        // Web search suggestions preferences keys
+        private const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
+
+        // Calculator preferences keys
+        private const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
 
         // Nickname preferences keys
         private const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"

@@ -466,4 +466,14 @@
     <string name="settings_section_feedback">Feedback</string>
     <string name="settings_feedback_send_title">Send Feedback</string>
     <string name="settings_feedback_rate_title">Rate Quick Search</string>
+
+    <!-- ============================================================================
+         Web Search Suggestions
+         ============================================================================ -->
+    <string name="web_search_suggestions_title">Web search suggestions</string>
+
+    <!-- ============================================================================
+         Calculator
+         ============================================================================ -->
+    <string name="calculator_toggle_title">Calculator</string>
 </resources>

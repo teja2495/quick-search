@@ -209,8 +209,8 @@ private fun ContentLayout(
                 shouldShowSettingsSection(renderingState)
 
         if (hasQuery && !hasAnySearchContent) {
-            // Show web suggestions if available, otherwise show empty message
-            if (state.webSuggestions.isNotEmpty()) {
+            // Show web suggestions if available and enabled, otherwise show empty message
+            if (state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled) {
                 WebSuggestionsSection(
                     suggestions = state.webSuggestions,
                     onSuggestionClick = onWebSuggestionClick,
@@ -228,6 +228,7 @@ private fun ContentLayout(
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 )
             }
+
             return
         }
 
@@ -782,3 +783,5 @@ private fun ClickableDirectSearchText(
         }
     )
 }
+
+
