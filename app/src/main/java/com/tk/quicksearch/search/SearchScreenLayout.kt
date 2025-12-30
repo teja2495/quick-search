@@ -98,7 +98,8 @@ fun SearchContentArea(
         renderingState.expandedSection == ExpandedSection.NONE
     val DirectSearchState = state.DirectSearchState
     val showDirectSearch = DirectSearchState.status != DirectSearchStatus.Idle
-    val hideResultsForDirectSearch = showDirectSearch
+    val showCalculator = state.calculatorState.result != null
+    val hideResultsForDirectSearch = showDirectSearch || showCalculator
     val hasQuery = state.query.isNotBlank()
     val hasAnySearchContent =
         shouldShowAppsSection(renderingState) ||
@@ -108,13 +109,14 @@ fun SearchContentArea(
     val shouldShowEmptyResultsMessage = hasQuery && !hasAnySearchContent
     val alignResultsToBottom = useKeyboardAlignedLayout &&
         !showDirectSearch &&
+        !showCalculator &&
         !shouldShowEmptyResultsMessage
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Ignore bottom alignment when direct answer card or empty state is showing
-        val verticalArrangement = if (alignResultsToBottom) {
+        // Ignore bottom alignment when direct answer card, calculator result, or empty state is showing
+        val verticalArrangement = if (alignResultsToBottom && !showCalculator) {
             Arrangement.spacedBy(12.dp, Alignment.Bottom)
         } else {
             Arrangement.spacedBy(12.dp)
@@ -131,6 +133,13 @@ fun SearchContentArea(
                 .padding(vertical = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
+            val showCalculator = state.calculatorState.result != null
+            if (showCalculator) {
+                CalculatorResult(
+                    calculatorState = state.calculatorState,
+                    showWallpaperBackground = state.showWallpaperBackground
+                )
+            }
             if (showDirectSearch) {
                 DirectSearchResult(
                     DirectSearchState = DirectSearchState,
@@ -149,9 +158,9 @@ fun SearchContentArea(
                 settingsParams = settingsParams,
                 appsParams = appsParams,
                 onRequestUsagePermission = onRequestUsagePermission,
-                // Ignore keyboard-aligned layout when direct answer card is showing
+                // Ignore keyboard-aligned layout when direct answer card or calculator is showing
                 minContentHeight = this@BoxWithConstraints.maxHeight,
-                isReversed = useKeyboardAlignedLayout && !showDirectSearch,
+                isReversed = useKeyboardAlignedLayout && !showDirectSearch && !showCalculator,
                 hideResults = hideResultsForDirectSearch
             )
         }
@@ -425,6 +434,61 @@ private fun DirectSearchResult(
                 modifier = Modifier.fillMaxWidth(),
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun CalculatorResult(
+    calculatorState: CalculatorState,
+    showWallpaperBackground: Boolean = false
+) {
+    val result = calculatorState.result
+    if (result == null) return
+
+    val content: @Composable () -> Unit = {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "= $result",
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val minCardHeight = 140.dp
+
+        if (showWallpaperBackground) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = minCardHeight),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black.copy(alpha = 0.4f)
+                ),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                content()
+            }
+        } else {
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = minCardHeight),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                content()
+            }
         }
     }
 }

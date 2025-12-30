@@ -19,6 +19,7 @@ import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.ContactIntentHelpers
+import com.tk.quicksearch.util.CalculatorUtils
 import com.tk.quicksearch.util.FileUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
@@ -72,6 +73,11 @@ data class DirectSearchState(
     val answer: String? = null,
     val errorMessage: String? = null,
     val activeQuery: String? = null
+)
+
+data class CalculatorState(
+    val result: String? = null,
+    val expression: String? = null
 )
 
 data class PhoneNumberSelection(
@@ -145,7 +151,8 @@ data class SearchUiState(
     val geminiApiKeyLast4: String? = null,
     val personalContext: String = "",
     val showReleaseNotesDialog: Boolean = false,
-    val releaseNotesVersionName: String? = null
+    val releaseNotesVersionName: String? = null,
+    val calculatorState: CalculatorState = CalculatorState()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -600,10 +607,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
-                    DirectSearchState = DirectSearchState()
+                    DirectSearchState = DirectSearchState(),
+                    calculatorState = CalculatorState()
                 ) 
             }
             return
+        }
+
+        // Check if query is a math expression
+        val calculatorResult = if (CalculatorUtils.isMathExpression(trimmedQuery)) {
+            CalculatorUtils.evaluateExpression(trimmedQuery)?.let { result ->
+                CalculatorState(result = result, expression = trimmedQuery)
+            } ?: CalculatorState()
+        } else {
+            CalculatorState()
         }
 
         // Check for shortcuts if enabled
@@ -640,10 +657,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { state ->
             state.copy(
                 query = newQuery,
-                searchResults = matches
+                searchResults = matches,
+                calculatorState = calculatorResult
             )
         }
-        performSecondarySearches(newQuery)
+        
+        // Skip secondary searches if calculator result is shown
+        if (calculatorResult.result == null) {
+            performSecondarySearches(newQuery)
+        } else {
+            // Clear search results when showing calculator
+            _uiState.update { state ->
+                state.copy(
+                    contactResults = emptyList(),
+                    fileResults = emptyList(),
+                    settingResults = emptyList()
+                )
+            }
+        }
     }
 
     private fun detectShortcut(query: String): Pair<String, SearchEngine>? {
@@ -1379,7 +1410,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         status = DirectSearchStatus.Error,
                         errorMessage = getApplication<Application>().getString(R.string.direct_search_error_no_key),
                         activeQuery = trimmedQuery
-                    )
+                    ),
+                    calculatorState = CalculatorState()
                 )
             }
             return
@@ -1392,7 +1424,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     DirectSearchState = DirectSearchState(
                         status = DirectSearchStatus.Loading,
                         activeQuery = trimmedQuery
-                    )
+                    ),
+                    calculatorState = CalculatorState()
                 )
             }
 
@@ -1407,7 +1440,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             status = DirectSearchStatus.Success,
                             answer = answer,
                             activeQuery = trimmedQuery
-                        )
+                        ),
+                        calculatorState = CalculatorState()
                     )
                 }
             }.onFailure { error ->
@@ -1420,7 +1454,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             status = DirectSearchStatus.Error,
                             errorMessage = message,
                             activeQuery = trimmedQuery
-                        )
+                        ),
+                        calculatorState = CalculatorState()
                     )
                 }
             }
@@ -1564,7 +1599,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         DirectSearchJob?.cancel()
         DirectSearchJob = null
         _uiState.update {
-            it.copy(DirectSearchState = DirectSearchState())
+            it.copy(
+                DirectSearchState = DirectSearchState(),
+                calculatorState = CalculatorState()
+            )
         }
     }
 
