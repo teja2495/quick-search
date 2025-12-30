@@ -43,7 +43,7 @@ class ContactRepository(
             ContactsContract.Contacts._ID,
             ContactsContract.Contacts.PHOTO_URI
         )
-        
+
         // Projection fields for contact methods (Data table)
         private val DATA_PROJECTION = arrayOf(
             ContactsContract.Data._ID,
@@ -60,8 +60,29 @@ class ContactRepository(
 
         // Sort order for contacts (most contacted first)
         private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.TIMES_CONTACTED} DESC"
-        
+
         private const val TAG = "ContactRepository"
+
+        // MIME type prefixes
+        private const val VND_MIME_PREFIX = "vnd.android.cursor.item/vnd."
+
+        // Contact method display labels
+        private const val CALL_LABEL = "Call"
+        private const val MESSAGE_LABEL = "Message"
+        private const val EMAIL_LABEL = "Email"
+        private const val WHATSAPP_VOICE_CALL_LABEL = "WhatsApp voice call"
+        private const val WHATSAPP_MESSAGE_LABEL = "WhatsApp"
+        private const val WHATSAPP_VIDEO_CALL_LABEL = "WhatsApp video call"
+        private const val TELEGRAM_MESSAGE_LABEL = "Telegram"
+        private const val TELEGRAM_VOICE_CALL_LABEL = "Telegram voice call"
+        private const val TELEGRAM_VIDEO_CALL_LABEL = "Telegram video call"
+        private const val OTHER_LABEL = "Other"
+
+        // Package name extraction constants
+        private const val PACKAGE_SEPARATOR = "."
+        private const val PACKAGE_PARTS_MIN_COUNT = 2
+        private const val PACKAGE_FIRST_INDEX = 0
+        private const val PACKAGE_SECOND_INDEX = 1
     }
 
     // ==================== Public API ====================
@@ -285,11 +306,15 @@ class ContactRepository(
                         if (!hasPhoneForThisNumber) {
                             contact.contactMethods.add(method)
                             // Also add SMS method for the same phone number
-                            val smsMethod = ContactMethod.Sms("Message", data1, dataId, isPrimary)
+                            val smsMethod = ContactMethod.Sms(MESSAGE_LABEL, data1, dataId, isPrimary)
                             contact.contactMethods.add(smsMethod)
                             // Add Google Meet method if Meet is available
                             if (isGoogleMeetAvailable()) {
-                                val meetMethod = ContactMethod.GoogleMeet(displayLabel = "Google Meet", data = data1, dataId = dataId, isPrimary = isPrimary)
+                                val meetMethod = ContactMethod.GoogleMeet(
+                                    data = data1,
+                                    dataId = dataId,
+                                    isPrimary = isPrimary
+                                )
                                 contact.contactMethods.add(meetMethod)
                             }
                         }
@@ -317,44 +342,42 @@ class ContactRepository(
         return try {
             when (mimeType) {
                 ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
-                    ContactMethod.Phone("Call", data1, dataId, isPrimary)
+                    ContactMethod.Phone(CALL_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE -> {
-                    ContactMethod.Email("Email", data1, dataId, isPrimary)
+                    ContactMethod.Email(EMAIL_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.WHATSAPP_VOICE_CALL -> {
-                    ContactMethod.WhatsAppCall("WhatsApp voice call", data1, dataId, isPrimary)
+                    ContactMethod.WhatsAppCall(WHATSAPP_VOICE_CALL_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.WHATSAPP_MESSAGE -> {
-                    ContactMethod.WhatsAppMessage("WhatsApp", data1, dataId, isPrimary)
+                    ContactMethod.WhatsAppMessage(WHATSAPP_MESSAGE_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.WHATSAPP_VIDEO_CALL -> {
-                    ContactMethod.WhatsAppVideoCall("WhatsApp video call", data1, dataId, isPrimary)
+                    ContactMethod.WhatsAppVideoCall(WHATSAPP_VIDEO_CALL_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.TELEGRAM_MESSAGE -> {
-                    ContactMethod.TelegramMessage("Telegram", data1, dataId, isPrimary)
+                    ContactMethod.TelegramMessage(TELEGRAM_MESSAGE_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.TELEGRAM_CALL -> {
-                    ContactMethod.TelegramCall("Telegram voice call", data1, dataId, isPrimary)
+                    ContactMethod.TelegramCall(TELEGRAM_VOICE_CALL_LABEL, data1, dataId, isPrimary)
                 }
 
                 ContactMethodMimeTypes.TELEGRAM_VIDEO_CALL -> {
-                    ContactMethod.TelegramVideoCall("Telegram video call", data1, dataId, isPrimary)
+                    ContactMethod.TelegramVideoCall(TELEGRAM_VIDEO_CALL_LABEL, data1, dataId, isPrimary)
                 }
 
-
                 else -> {
-                    if (mimeType.startsWith("vnd.android.cursor.item/vnd.")) {
-                        // Try to extract package name from MIME type
+                    if (mimeType.startsWith(VND_MIME_PREFIX)) {
                         val packageName = extractPackageFromMimeType(mimeType)
                         ContactMethod.CustomApp(
-                            displayLabel = packageName ?: "Other",
+                            displayLabel = packageName ?: OTHER_LABEL,
                             data = data1,
                             mimeType = mimeType,
                             packageName = packageName,
@@ -403,16 +426,16 @@ class ContactRepository(
      * Format: vnd.android.cursor.item/vnd.com.package.name.xxx
      */
     private fun extractPackageFromMimeType(mimeType: String): String? {
-        val prefix = "vnd.android.cursor.item/vnd."
-        if (!mimeType.startsWith(prefix)) return null
+        if (!mimeType.startsWith(VND_MIME_PREFIX)) return null
 
-        val rest = mimeType.substring(prefix.length)
+        val rest = mimeType.substring(VND_MIME_PREFIX.length)
         // Extract package-like part (e.g., "com.whatsapp.profile" -> "com.whatsapp")
-        val parts = rest.split(".")
-        if (parts.size >= 2) {
-            return "${parts[0]}.${parts[1]}"
+        val parts = rest.split(PACKAGE_SEPARATOR)
+        return if (parts.size >= PACKAGE_PARTS_MIN_COUNT) {
+            "${parts[PACKAGE_FIRST_INDEX]}$PACKAGE_SEPARATOR${parts[PACKAGE_SECOND_INDEX]}"
+        } else {
+            null
         }
-        return null
     }
 
     /**
@@ -501,9 +524,7 @@ class ContactRepository(
         val displayName: String,
         val numbers: MutableList<String>,
         var photoUri: String? = null,
-        val contactMethods: MutableList<ContactMethod> = mutableListOf(),
-        var hasPhoneMethod: Boolean = false,
-        var hasSmsMethod: Boolean = false
+        val contactMethods: MutableList<ContactMethod> = mutableListOf()
     ) {
         fun toContactInfo(): ContactInfo {
             // Reorder contact methods so email comes last

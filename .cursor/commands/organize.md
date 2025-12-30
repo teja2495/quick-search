@@ -2,10 +2,13 @@
 - Improve readability through clearer naming, structure, and flow.
 - Follow standard, language-idiomatic best practices.
 - Improve maintainability and scalability, but avoid over-engineering.
-- Remove unused code, and redundant abstractions. Move redundant code into reusable methods.
+- Remove unused code and redundant abstractions. Extract truly duplicated logic into reusable methods only when it improves clarity.
 - Add comments only where intent is not obvious. Remove obvious or redundant comments.
 - Preserve all existing logic, behavior, public APIs, method signatures, and file structure unless strictly necessary.
 - Do NOT add new features or remove existing ones.
-- If a change is potentially risky, call it out and explain why.
+- Avoid refactors that are purely stylistic or formatting-only.
+- If a change is potentially risky, explicitly call it out and explain why.
 - Briefly explain the reasoning behind each meaningful change.
-- Move hardcoded strings to strings.xml file. Create enums or constants wherever necessary.
+- Move hardcoded user-facing strings to strings.xml. Do not move non-UI constants.
+- Create enums or constants only when they clearly reduce duplication or magic values.
+- Organize files only if they are clearly misplaced. Do not reshuffle packages without a strong reason.

@@ -232,11 +232,6 @@ class UserAppPreferences(context: Context) {
 
     fun setMessagingApp(app: com.tk.quicksearch.search.MessagingApp) = uiPreferences.setMessagingApp(app)
 
-    @Deprecated("Use getMessagingApp() instead", ReplaceWith("getMessagingApp()"))
-    fun useWhatsAppForMessages(): Boolean = uiPreferences.useWhatsAppForMessages()
-
-    @Deprecated("Use setMessagingApp() instead", ReplaceWith("setMessagingApp(MessagingApp.WHATSAPP)"))
-    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) = uiPreferences.setUseWhatsAppForMessages(useWhatsApp)
 
     fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()
 
@@ -299,8 +294,9 @@ class UserAppPreferences(context: Context) {
     fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
 
     // ============================================================================
-    // Usage permission banner preferences keys
+    // Usage Permission Banner Preferences
     // ============================================================================
+
 
     fun getShortcutHintBannerDismissCount(): Int = uiPreferences.getShortcutHintBannerDismissCount()
 
