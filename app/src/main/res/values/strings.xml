@@ -183,8 +183,8 @@
     <string name="settings_action_refresh_now">Refresh now</string>
     <string name="settings_action_clear_cache">Clear cache</string>
     <string name="settings_action_open_system_settings">Open Android app settings</string>
-    <string name="settings_action_move_up">Move up</string>
-    <string name="settings_action_move_down">Move down</string>
+    <string name="settings_action_move_up">Move to top</string>
+    <string name="settings_action_move_down">Move to bottom</string>
     <string name="settings_action_reorder">Drag to reorder</string>
     <string name="settings_action_unhide_app">Unhide</string>
     <string name="settings_action_edit_shortcut">Edit shortcut code</string>

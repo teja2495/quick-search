@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,8 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DragHandle
@@ -33,6 +36,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +47,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -645,7 +654,7 @@ private fun SearchEngineListCard(
                                 }
                                 val newIndex = (currentIndex + positionsMoved)
                                     .coerceIn(0, searchEngineOrder.lastIndex)
-                                
+
                                 if (newIndex != currentIndex) {
                                     val newOrder = searchEngineOrder.toMutableList()
                                     val item = newOrder.removeAt(currentIndex)
@@ -674,7 +683,23 @@ private fun SearchEngineListCard(
                     allowDrag = searchEngineSectionEnabled,
                     switchEnabled = searchEngineSectionEnabled,
                     amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
-                    onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null
+                    onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
+                    onMoveToTop = if (searchEngineSectionEnabled && index > 0) {
+                        {
+                            val newOrder = searchEngineOrder.toMutableList()
+                            val item = newOrder.removeAt(index)
+                            newOrder.add(0, item)
+                            onReorderSearchEngines(newOrder)
+                        }
+                    } else null,
+                    onMoveToBottom = if (searchEngineSectionEnabled && index < searchEngineOrder.lastIndex) {
+                        {
+                            val newOrder = searchEngineOrder.toMutableList()
+                            val item = newOrder.removeAt(index)
+                            newOrder.add(item)
+                            onReorderSearchEngines(newOrder)
+                        }
+                    } else null
                 )
                 
                 if (index != searchEngineOrder.lastIndex) {
@@ -706,11 +731,14 @@ private fun SearchEngineRow(
     allowDrag: Boolean = true,
     switchEnabled: Boolean = true,
     amazonDomain: String? = null,
-    onSetAmazonDomain: ((String?) -> Unit)? = null
+    onSetAmazonDomain: ((String?) -> Unit)? = null,
+    onMoveToTop: (() -> Unit)? = null,
+    onMoveToBottom: (() -> Unit)? = null
 ) {
     val engineName = engine.getDisplayName()
     val drawableId = engine.getDrawableResId()
-    
+    var showMenu by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -719,19 +747,6 @@ private fun SearchEngineRow(
             .padding(
                 horizontal = SearchEngineSettingsSpacing.rowHorizontalPadding,
                 vertical = SearchEngineSettingsSpacing.rowVerticalPadding
-            )
-            .then(
-                if (allowDrag) {
-                    Modifier.pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { onDragStart() },
-                            onDrag = onDrag,
-                            onDragEnd = { onDragEnd() }
-                        )
-                    }
-                } else {
-                    Modifier
-                }
             ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -741,45 +756,122 @@ private fun SearchEngineRow(
                 imageVector = Icons.Rounded.DragHandle,
                 contentDescription = stringResource(R.string.settings_action_reorder),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(
+                        if (allowDrag) {
+                            Modifier.pointerInput(Unit) {
+                                detectDragGesturesAfterLongPress(
+                                    onDragStart = { onDragStart() },
+                                    onDrag = onDrag,
+                                    onDragEnd = { onDragEnd() }
+                                )
+                            }
+                        } else {
+                            Modifier
+                        }
+                    )
             )
         }
         
-        Image(
-            painter = painterResource(id = drawableId),
-            contentDescription = engineName,
-            modifier = Modifier.size(24.dp),
-            contentScale = ContentScale.Fit,
-            colorFilter = getSearchEngineIconColorFilter(engine)
-        )
-        
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        // Content area with long press for menu
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        if (onMoveToTop != null || onMoveToBottom != null) {
+                            showMenu = true
+                        }
+                    }
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = engineName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+            Image(
+                painter = painterResource(id = drawableId),
+                contentDescription = engineName,
+                modifier = Modifier.size(24.dp),
+                contentScale = ContentScale.Fit,
+                colorFilter = getSearchEngineIconColorFilter(engine)
             )
-            if (shortcutCode.isNotEmpty()) {
-                ShortcutCodeDisplay(
-                    shortcutCode = shortcutCode,
-                    isEnabled = shortcutEnabled,
-                    onCodeChange = onShortcutCodeChange,
-                    onToggle = onShortcutToggle,
-                    engineName = engineName
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = engineName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                if (shortcutCode.isNotEmpty()) {
+                    ShortcutCodeDisplay(
+                        shortcutCode = shortcutCode,
+                        isEnabled = shortcutEnabled,
+                        onCodeChange = onShortcutCodeChange,
+                        onToggle = onShortcutToggle,
+                        engineName = engineName
+                    )
+                }
+                // Show Amazon domain configuration link
+                if (engine == SearchEngine.AMAZON && onSetAmazonDomain != null) {
+                    AmazonDomainLink(
+                        amazonDomain = amazonDomain,
+                        onSetAmazonDomain = onSetAmazonDomain
+                    )
+                }
             }
-            // Show Amazon domain configuration link
-            if (engine == SearchEngine.AMAZON && onSetAmazonDomain != null) {
-                AmazonDomainLink(
-                    amazonDomain = amazonDomain,
-                    onSetAmazonDomain = onSetAmazonDomain
-                )
+
+            @OptIn(ExperimentalMaterial3Api::class)
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                shape = RoundedCornerShape(24.dp),
+                properties = PopupProperties(focusable = false)
+            ) {
+                // Show "Move to top" if available
+                if (onMoveToTop != null) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.settings_action_move_up)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.ArrowUpward,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            onMoveToTop.invoke()
+                            showMenu = false
+                        }
+                    )
+                }
+
+                // Show divider if both options are available
+                if (onMoveToTop != null && onMoveToBottom != null) {
+                    HorizontalDivider()
+                }
+
+                // Show "Move to bottom" if available
+                if (onMoveToBottom != null) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.settings_action_move_down)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.ArrowDownward,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            onMoveToBottom.invoke()
+                            showMenu = false
+                        }
+                    )
+                }
             }
         }
-        
+
         if (showToggle) {
             Switch(
                 checked = isEnabled,
