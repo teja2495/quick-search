@@ -2,59 +2,35 @@ package com.tk.quicksearch.search.contacts
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.ChevronLeft
-import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -71,7 +47,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -81,226 +56,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.search.MessagingApp
-import com.tk.quicksearch.util.PhoneNumberUtils
-import com.tk.quicksearch.util.TelegramContactUtils
-import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-// ============================================================================
-// Public API
-// ============================================================================
-
-@Composable
-fun ContactResultsSection(
-    modifier: Modifier = Modifier,
-    hasPermission: Boolean,
-    contacts: List<ContactInfo>,
-    isExpanded: Boolean,
-    messagingApp: MessagingApp,
-    onContactClick: (ContactInfo) -> Unit,
-    onShowContactMethods: (ContactInfo) -> Unit = {},
-    onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit,
-    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit = { _, _ -> },
-    pinnedContactIds: Set<Long> = emptySet(),
-    onTogglePin: (ContactInfo) -> Unit = {},
-    onExclude: (ContactInfo) -> Unit = {},
-    onNicknameClick: (ContactInfo) -> Unit = {},
-    getContactNickname: (Long) -> String? = { null },
-    onOpenAppSettings: () -> Unit,
-    showAllResults: Boolean = false,
-    showExpandControls: Boolean = false,
-    onExpandClick: () -> Unit,
-    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
-    showWallpaperBackground: Boolean = false
-) {
-    val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
-    if (!hasVisibleContent) return
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        when {
-            hasPermission && contacts.isNotEmpty() -> {
-                ContactsResultCard(
-                    contacts = contacts,
-                    isExpanded = isExpanded,
-                    showAllResults = showAllResults,
-                    showExpandControls = showExpandControls,
-                    messagingApp = messagingApp,
-                    onContactClick = onContactClick,
-                    onShowContactMethods = onShowContactMethods,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact,
-                    onContactMethodClick = onContactMethodClick,
-                    pinnedContactIds = pinnedContactIds,
-                    onTogglePin = onTogglePin,
-                    onExclude = onExclude,
-                    onNicknameClick = onNicknameClick,
-                    getContactNickname = getContactNickname,
-                    onExpandClick = onExpandClick,
-                    showWallpaperBackground = showWallpaperBackground
-                )
-            }
-
-            !hasPermission -> {
-                permissionDisabledCard(
-                    stringResource(R.string.contacts_permission_title),
-                    stringResource(R.string.contacts_permission_subtitle),
-                    stringResource(R.string.permission_action_manage_android),
-                    onOpenAppSettings
-                )
-            }
-        }
-    }
-}
-
-// ============================================================================
-// Result Card
-// ============================================================================
-
-@Composable
-private fun ContactsResultCard(
-    contacts: List<ContactInfo>,
-    isExpanded: Boolean,
-    showAllResults: Boolean,
-    showExpandControls: Boolean,
-    messagingApp: MessagingApp,
-    onContactClick: (ContactInfo) -> Unit,
-    onShowContactMethods: (ContactInfo) -> Unit,
-    onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit,
-    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
-    pinnedContactIds: Set<Long>,
-    onTogglePin: (ContactInfo) -> Unit,
-    onExclude: (ContactInfo) -> Unit,
-    onNicknameClick: (ContactInfo) -> Unit,
-    getContactNickname: (Long) -> String?,
-    onExpandClick: () -> Unit,
-    showWallpaperBackground: Boolean = false
-) {
-    val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
-    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-    val shouldShowCollapseButton = isExpanded && showExpandControls
-
-    val displayContacts = if (displayAsExpanded) {
-        contacts
-    } else {
-        contacts.take(INITIAL_RESULT_COUNT)
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        if (showWallpaperBackground) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Black.copy(alpha = 0.4f)
-                ),
-                shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                displayContacts.forEachIndexed { index, contactInfo ->
-                    key(contactInfo.contactId) {
-                        ContactResultRow(
-                            contactInfo = contactInfo,
-                            messagingApp = messagingApp,
-                            onContactClick = onContactClick,
-                            onShowContactMethods = onShowContactMethods,
-                            onCallContact = onCallContact,
-                            onSmsContact = onSmsContact,
-                            onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
-                            isPinned = pinnedContactIds.contains(contactInfo.contactId),
-                            onTogglePin = onTogglePin,
-                            onExclude = onExclude,
-                            onNicknameClick = onNicknameClick,
-                            hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
-                        )
-                    }
-                    if (index != displayContacts.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    }
-                }
-
-                if (shouldShowExpandButton) {
-                    ExpandButton(
-                        onClick = onExpandClick,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .height(EXPAND_BUTTON_HEIGHT.dp)
-                            .padding(top = 2.dp)
-                    )
-                }
-            }
-            }
-        } else {
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ),
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    displayContacts.forEachIndexed { index, contactInfo ->
-                        key(contactInfo.contactId) {
-                            ContactResultRow(
-                                contactInfo = contactInfo,
-                                messagingApp = messagingApp,
-                                onContactClick = onContactClick,
-                                onShowContactMethods = onShowContactMethods,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
-                                isPinned = pinnedContactIds.contains(contactInfo.contactId),
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onNicknameClick = onNicknameClick,
-                                hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
-                            )
-                        }
-                        if (index != displayContacts.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .height(EXPAND_BUTTON_HEIGHT.dp)
-                                .padding(top = 2.dp)
-                        )
-                    }
-                }
-            }
-        }
-
-        if (shouldShowCollapseButton) {
-            CollapseButton(
-                onClick = onExpandClick,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
 
 // ============================================================================
 // Contact Row
@@ -308,7 +65,7 @@ private fun ContactsResultCard(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ContactResultRow(
+internal fun ContactResultRow(
     contactInfo: ContactInfo,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
@@ -598,57 +355,6 @@ private fun ContactDropdownMenu(
                 onDismissRequest()
                 onExclude()
             }
-        )
-    }
-}
-
-// ============================================================================
-// Expand/Collapse Buttons
-// ============================================================================
-
-@Composable
-private fun ExpandButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.action_expand_more),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Icon(
-            imageVector = Icons.Rounded.ExpandMore,
-            contentDescription = stringResource(R.string.desc_expand),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
-        )
-    }
-}
-
-@Composable
-private fun CollapseButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Text(
-            text = stringResource(R.string.action_collapse),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Icon(
-            imageVector = Icons.Rounded.ExpandLess,
-            contentDescription = stringResource(R.string.desc_collapse),
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
         )
     }
 }
