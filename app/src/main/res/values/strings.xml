@@ -310,6 +310,9 @@
     <string name="settings_refresh_apps_title">Apps</string>
     <string name="settings_refresh_contacts_title">Contacts</string>
     <string name="settings_refresh_files_title">Files</string>
+    <string name="settings_refresh_apps_disabled">App search is disabled, cannot refresh apps data</string>
+    <string name="settings_refresh_contacts_disabled">Contacts search is disabled, cannot refresh contacts data</string>
+    <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
 
     <!-- ============================================================================
          Settings - Messaging

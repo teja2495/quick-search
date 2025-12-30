@@ -263,9 +263,39 @@ fun SettingsRoute(
                 }
             }
         },
-        onRefreshApps = viewModel::refreshApps,
-        onRefreshContacts = viewModel::refreshContacts,
-        onRefreshFiles = viewModel::refreshFiles
+        onRefreshApps = { showToast ->
+            if (SearchSection.APPS in uiState.disabledSections) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.settings_refresh_apps_disabled),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                viewModel.refreshApps(showToast)
+            }
+        },
+        onRefreshContacts = { showToast ->
+            if (SearchSection.CONTACTS in uiState.disabledSections) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.settings_refresh_contacts_disabled),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                viewModel.refreshContacts(showToast)
+            }
+        },
+        onRefreshFiles = { showToast ->
+            if (SearchSection.FILES in uiState.disabledSections) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.settings_refresh_files_disabled),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                viewModel.refreshFiles(showToast)
+            }
+        }
     )
 
     // Callback for messaging app selection with installation check
@@ -495,6 +525,13 @@ private fun SettingsScreen(
                     .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
             )
 
+            // Refresh Data Section
+            RefreshDataCard(
+                onRefreshApps = { callbacks.onRefreshApps(true) },
+                onRefreshContacts = { callbacks.onRefreshContacts(true) },
+                onRefreshFiles = { callbacks.onRefreshFiles(true) }
+            )
+
             // Combined Excluded Items and Additional Settings Card
             CombinedSettingsNavigationCard(
                 excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
@@ -508,14 +545,7 @@ private fun SettingsScreen(
                                    state.excludedSettings.isNotEmpty(),
                 onExcludedItemsClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
                 onAdditionalSettingsClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
-                contentPadding = SettingsSpacing.singleCardPadding
-            )
-
-            // Refresh Data Section
-            RefreshDataCard(
-                onRefreshApps = { callbacks.onRefreshApps(true) },
-                onRefreshContacts = { callbacks.onRefreshContacts(true) },
-                onRefreshFiles = { callbacks.onRefreshFiles(true) },
+                contentPadding = SettingsSpacing.singleCardPadding,
                 modifier = Modifier.padding(top = 12.dp)
             )
 
