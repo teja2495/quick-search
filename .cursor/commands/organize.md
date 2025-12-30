@@ -8,3 +8,4 @@
 - Do NOT add new features or remove existing ones.
 - If a change is potentially risky, call it out and explain why.
 - Briefly explain the reasoning behind each meaningful change.
+- Move hardcoded strings to strings.xml file. Create enums or constants wherever necessary.
