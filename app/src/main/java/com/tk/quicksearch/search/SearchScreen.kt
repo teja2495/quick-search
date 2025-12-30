@@ -824,10 +824,14 @@ fun SearchScreen(
 
     // Contact methods dialog
     state.contactMethodsBottomSheet?.let { contactInfo ->
+        val context = LocalContext.current
+        val userPreferences = remember { com.tk.quicksearch.data.UserAppPreferences(context) }
         ContactMethodsDialog(
             contactInfo = contactInfo,
             onContactMethodClick = onContactMethodClick,
-            onDismiss = onDismissContactMethods
+            onDismiss = onDismissContactMethods,
+            getLastShownPhoneNumber = { contactId -> userPreferences.getLastShownPhoneNumber(contactId) },
+            setLastShownPhoneNumber = { contactId, phoneNumber -> userPreferences.setLastShownPhoneNumber(contactId, phoneNumber) }
         )
     }
 

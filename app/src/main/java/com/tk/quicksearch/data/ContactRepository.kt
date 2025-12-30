@@ -52,6 +52,8 @@ class ContactRepository(
             ContactsContract.Data.DATA1,
             ContactsContract.Data.DATA2,
             ContactsContract.Data.DATA3,
+            ContactsContract.Data.DATA4,
+            ContactsContract.Data.DATA5,
             ContactsContract.Data.IS_PRIMARY,
             ContactsContract.Data.IS_SUPER_PRIMARY
         )
@@ -253,6 +255,8 @@ class ContactRepository(
             val data1Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA1)
             val data2Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA2)
             val data3Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA3)
+            val data4Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA4)
+            val data5Index = c.getColumnIndexOrThrow(ContactsContract.Data.DATA5)
             val isPrimaryIndex = c.getColumnIndexOrThrow(ContactsContract.Data.IS_PRIMARY)
             val isSuperPrimaryIndex = c.getColumnIndexOrThrow(ContactsContract.Data.IS_SUPER_PRIMARY)
 
@@ -265,13 +269,20 @@ class ContactRepository(
                 val data1 = c.getString(data1Index) ?: continue
                 val data2 = c.getString(data2Index)
                 val data3 = c.getString(data3Index)
+                val data4 = c.getString(data4Index)
+                val data5 = c.getString(data5Index)
                 val isPrimary = c.getInt(isPrimaryIndex) == 1 || c.getInt(isSuperPrimaryIndex) == 1
 
-                val method = parseContactMethod(mimeType, data1, data2, data3, dataId, isPrimary)
+                val method = parseContactMethod(mimeType, data1, data2, data3, data4, data5, dataId, isPrimary)
                 if (method != null) {
-                    // Only add one Phone method per contact to avoid duplicates
+                    // For Phone methods, create both Phone and SMS methods for each phone number
                     if (method is ContactMethod.Phone) {
-                        if (!contact.hasPhoneMethod) {
+                        // Check if we already have a Phone method for this specific phone number
+                        val hasPhoneForThisNumber = contact.contactMethods.any {
+                            it is ContactMethod.Phone && it.data == data1
+                        }
+
+                        if (!hasPhoneForThisNumber) {
                             contact.contactMethods.add(method)
                             // Also add SMS method for the same phone number
                             val smsMethod = ContactMethod.Sms("Message", data1, dataId, isPrimary)
@@ -281,8 +292,6 @@ class ContactRepository(
                                 val meetMethod = ContactMethod.GoogleMeet(displayLabel = "Google Meet", data = data1, dataId = dataId, isPrimary = isPrimary)
                                 contact.contactMethods.add(meetMethod)
                             }
-                            contact.hasPhoneMethod = true
-                            contact.hasSmsMethod = true
                         }
                     } else {
                         contact.contactMethods.add(method)
@@ -300,6 +309,8 @@ class ContactRepository(
         data1: String,
         data2: String?,
         data3: String?,
+        data4: String?,
+        data5: String?,
         dataId: Long,
         isPrimary: Boolean
     ): ContactMethod? {
@@ -339,9 +350,7 @@ class ContactRepository(
 
 
                 else -> {
-                    // Log unknown MIME types for debugging
                     if (mimeType.startsWith("vnd.android.cursor.item/vnd.")) {
-                        Log.d(TAG, "Unknown contact method MIME type: $mimeType for data: $data1")
                         // Try to extract package name from MIME type
                         val packageName = extractPackageFromMimeType(mimeType)
                         ContactMethod.CustomApp(

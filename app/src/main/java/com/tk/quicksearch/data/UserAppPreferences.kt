@@ -126,6 +126,14 @@ class UserAppPreferences(context: Context) {
         prefs.edit().putString("$KEY_PREFERRED_PHONE_PREFIX$contactId", phoneNumber).apply()
     }
 
+    fun getLastShownPhoneNumber(contactId: Long): String? {
+        return prefs.getString("$KEY_LAST_SHOWN_PHONE_PREFIX$contactId", null)
+    }
+
+    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) {
+        prefs.edit().putString("$KEY_LAST_SHOWN_PHONE_PREFIX$contactId", phoneNumber).apply()
+    }
+
     fun isDirectDialEnabled(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_ENABLED, false)
 
     fun setDirectDialEnabled(enabled: Boolean) {
@@ -886,9 +894,10 @@ class UserAppPreferences(context: Context) {
         // Contact preferences keys
         private const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"
         private const val KEY_EXCLUDED_CONTACT_IDS = "excluded_contact_ids"
-        private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
-        private const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
-        private const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
+    private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
+    private const val KEY_LAST_SHOWN_PHONE_PREFIX = "last_shown_phone_"
+    private const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
+    private const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
 
         // File preferences keys
         private const val KEY_PINNED_FILE_URIS = "pinned_file_uris"
