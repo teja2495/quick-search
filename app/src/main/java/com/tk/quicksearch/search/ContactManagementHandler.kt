@@ -13,7 +13,7 @@ class ContactManagementHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val onStateChanged: () -> Unit,
-    private val onUiStateUpdate: (SearchUiState.() -> SearchUiState) -> Unit
+    private val onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
 
     fun pinContact(contactInfo: ContactInfo) {
@@ -26,8 +26,8 @@ class ContactManagementHandler(
     fun unpinContact(contactInfo: ContactInfo) {
         // Update UI immediately
         onUiStateUpdate {
-            copy(
-                pinnedContacts = pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+            it.copy(
+                pinnedContacts = it.pinnedContacts.filterNot { pinned -> pinned.contactId == contactInfo.contactId }
             )
         }
         scope.launch(Dispatchers.IO) {
@@ -46,9 +46,9 @@ class ContactManagementHandler(
 
             // Update current state to reflect exclusion immediately
             onUiStateUpdate {
-                copy(
-                    contactResults = contactResults.filterNot { it.contactId == contactInfo.contactId },
-                    pinnedContacts = pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+                it.copy(
+                    contactResults = it.contactResults.filterNot { result -> result.contactId == contactInfo.contactId },
+                    pinnedContacts = it.pinnedContacts.filterNot { pinned -> pinned.contactId == contactInfo.contactId }
                 )
             }
             onStateChanged()

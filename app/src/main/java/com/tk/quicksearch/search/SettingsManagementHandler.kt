@@ -37,10 +37,10 @@ class SettingsManagementHandler(
             if (userPreferences.getPinnedSettingIds().contains(setting.id)) {
                 userPreferences.unpinSetting(setting.id)
             }
-            onUiStateUpdate {
-                copy(
-                    settingResults = settingResults.filterNot { it.id == setting.id },
-                    pinnedSettings = pinnedSettings.filterNot { it.id == setting.id }
+            onUiStateUpdate { state ->
+                state.copy(
+                    settingResults = state.settingResults.filterNot { it.id == setting.id },
+                    pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id }
                 )
             }
             onStateChanged()

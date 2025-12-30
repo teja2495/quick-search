@@ -12,7 +12,7 @@ import java.util.Locale
 class UiStateManager(
     private val repository: AppUsageRepository,
     private val userPreferences: UserAppPreferences,
-    private val onStateUpdate: (SearchUiState.() -> SearchUiState) -> Unit
+    private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
 
     fun refreshDerivedState(
@@ -46,16 +46,16 @@ class UiStateManager(
             .filter { userPreferences.getResultHiddenPackages().contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
 
-        onStateUpdate {
-            copy(
+        onStateUpdate { state ->
+            state.copy(
                 recentApps = recents,
                 searchResults = searchResults,
                 pinnedApps = pinnedAppsForSuggestions,
                 suggestionExcludedApps = suggestionHiddenAppList,
                 resultExcludedApps = resultHiddenAppList,
                 indexedAppCount = visibleAppList.size,
-                cacheLastUpdatedMillis = lastUpdated ?: cacheLastUpdatedMillis,
-                isLoading = isLoading ?: this.isLoading
+                cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
+                isLoading = isLoading ?: state.isLoading
             )
         }
     }

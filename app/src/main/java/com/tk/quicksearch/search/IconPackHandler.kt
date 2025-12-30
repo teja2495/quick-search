@@ -37,8 +37,8 @@ class IconPackHandler(
 
             selectedIconPackPackage = normalizedSelection
             availableIconPacks = packs
-            onStateUpdate {
-                copy(
+            onStateUpdate { state ->
+                state.copy(
                     availableIconPacks = packs,
                     selectedIconPackPackage = normalizedSelection
                 )
@@ -56,8 +56,8 @@ class IconPackHandler(
             userPreferences.setSelectedIconPackPackage(normalizedSelection)
             clearAppIconCaches()
 
-            onStateUpdate {
-                copy(selectedIconPackPackage = normalizedSelection)
+            onStateUpdate { state ->
+                state.copy(selectedIconPackPackage = normalizedSelection)
             }
 
             prefetchVisibleAppIcons()

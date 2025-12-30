@@ -37,8 +37,8 @@ class SearchEngineManager(
             }
             disabledSearchEngines = disabled
             userPreferences.setDisabledSearchEngines(disabled.map { it.name }.toSet())
-            onStateUpdate {
-                copy(disabledSearchEngines = disabledSearchEngines)
+            onStateUpdate { state ->
+                state.copy(disabledSearchEngines = disabledSearchEngines)
             }
         }
     }
@@ -47,8 +47,8 @@ class SearchEngineManager(
         scope.launch(Dispatchers.IO) {
             searchEngineOrder = newOrder
             userPreferences.setSearchEngineOrder(newOrder.map { it.name })
-            onStateUpdate {
-                copy(searchEngineOrder = searchEngineOrder)
+            onStateUpdate { state ->
+                state.copy(searchEngineOrder = searchEngineOrder)
             }
         }
     }
@@ -57,8 +57,8 @@ class SearchEngineManager(
         scope.launch(Dispatchers.IO) {
             searchEngineSectionEnabled = enabled
             userPreferences.setSearchEngineSectionEnabled(enabled)
-            onStateUpdate {
-                copy(searchEngineSectionEnabled = searchEngineSectionEnabled)
+            onStateUpdate { state ->
+                state.copy(searchEngineSectionEnabled = searchEngineSectionEnabled)
             }
         }
     }
@@ -71,8 +71,9 @@ class SearchEngineManager(
         }
         userPreferences.setSearchEngineOrder(searchEngineOrder.map { it.name })
         userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
-        onStateUpdate {
-            copy(
+        userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
+        onStateUpdate { state ->
+            state.copy(
                 searchEngineOrder = searchEngineOrder,
                 disabledSearchEngines = disabledSearchEngines
             )

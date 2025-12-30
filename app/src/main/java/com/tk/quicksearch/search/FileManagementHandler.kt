@@ -14,7 +14,7 @@ class FileManagementHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val onStateChanged: () -> Unit,
-    private val onUiStateUpdate: (SearchUiState.() -> SearchUiState) -> Unit
+    private val onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
 
     fun pinFile(deviceFile: DeviceFile) {
@@ -28,9 +28,9 @@ class FileManagementHandler(
     fun unpinFile(deviceFile: DeviceFile) {
         val uriString = deviceFile.uri.toString()
         // Update UI immediately
-        onUiStateUpdate {
-            copy(
-                pinnedFiles = pinnedFiles.filterNot { it.uri.toString() == uriString }
+        onUiStateUpdate { state ->
+            state.copy(
+                pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
             )
         }
         scope.launch(Dispatchers.IO) {
@@ -56,10 +56,10 @@ class FileManagementHandler(
                 userPreferences.unpinFile(uriString)
             }
 
-            onUiStateUpdate {
-                copy(
-                    fileResults = fileResults.filterNot { it.uri.toString() == uriString },
-                    pinnedFiles = pinnedFiles.filterNot { it.uri.toString() == uriString }
+            onUiStateUpdate { state ->
+                state.copy(
+                    fileResults = state.fileResults.filterNot { it.uri.toString() == uriString },
+                    pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
                 )
             }
             onStateChanged()
@@ -72,9 +72,9 @@ class FileManagementHandler(
             scope.launch(Dispatchers.IO) {
                 userPreferences.addExcludedFileExtension(extension)
 
-                onUiStateUpdate {
-                    copy(
-                        fileResults = fileResults.filterNot {
+                onUiStateUpdate { state ->
+                    state.copy(
+                        fileResults = state.fileResults.filterNot {
                             FileUtils.isFileExtensionExcluded(it.displayName, userPreferences.getExcludedFileExtensions())
                         }
                     )

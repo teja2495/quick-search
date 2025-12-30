@@ -22,7 +22,7 @@ class ContactActionHandler(
     private val hasSeenDirectDialChoice: Boolean,
     private val clearQueryAfterSearchEngine: Boolean,
     private val getCurrentState: () -> SearchUiState,
-    private val uiStateUpdater: (SearchUiState.() -> SearchUiState) -> Unit,
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit
 ) {
 
@@ -46,7 +46,7 @@ class ContactActionHandler(
 
         // If multiple numbers, show selection dialog
         if (contactInfo.phoneNumbers.size > 1) {
-            uiStateUpdater { copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = true)) }
+            uiStateUpdater { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = true)) }
             return
         }
 
@@ -74,7 +74,7 @@ class ContactActionHandler(
 
         // If multiple numbers, show selection dialog
         if (contactInfo.phoneNumbers.size > 1) {
-            uiStateUpdater { copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = false)) }
+            uiStateUpdater { it.copy(phoneNumberSelection = PhoneNumberSelection(contactInfo, isCall = false)) }
             return
         }
 
@@ -99,17 +99,17 @@ class ContactActionHandler(
         }
 
         // Clear the selection dialog
-        uiStateUpdater { copy(phoneNumberSelection = null) }
+        uiStateUpdater { it.copy(phoneNumberSelection = null) }
     }
 
     fun dismissPhoneNumberSelection() {
-        uiStateUpdater { copy(phoneNumberSelection = null) }
+        uiStateUpdater { it.copy(phoneNumberSelection = null) }
     }
 
     private fun beginCallFlow(contactName: String, phoneNumber: String) {
         if (!hasSeenDirectDialChoice) {
             uiStateUpdater {
-                copy(
+                it.copy(
                     directDialChoice = DirectDialChoice(
                         contactName = contactName,
                         phoneNumber = phoneNumber
@@ -131,7 +131,7 @@ class ContactActionHandler(
         if (hasPermission) {
             performDirectCall(phoneNumber)
         } else {
-            uiStateUpdater { copy(pendingDirectCallNumber = phoneNumber) }
+            uiStateUpdater { it.copy(pendingDirectCallNumber = phoneNumber) }
         }
     }
 
@@ -145,7 +145,7 @@ class ContactActionHandler(
         userPreferences.setHasSeenDirectDialChoice(true)
 
         uiStateUpdater {
-            copy(
+            it.copy(
                 directDialChoice = null,
                 directDialEnabled = useDirectDial
             )
@@ -159,7 +159,7 @@ class ContactActionHandler(
     }
 
     fun dismissDirectDialChoice() {
-        uiStateUpdater { copy(directDialChoice = null) }
+        uiStateUpdater { it.copy(directDialChoice = null) }
     }
 
     fun onCallPermissionResult(isGranted: Boolean) {
@@ -168,7 +168,7 @@ class ContactActionHandler(
         val pendingWhatsAppCallDataId = state.pendingWhatsAppCallDataId
 
         uiStateUpdater {
-            copy(
+            it.copy(
                 pendingDirectCallNumber = null,
                 pendingWhatsAppCallDataId = null
             )
@@ -236,7 +236,7 @@ class ContactActionHandler(
                     }
                 } else {
                     // Store pending WhatsApp call dataId and request permission
-                    uiStateUpdater { copy(pendingWhatsAppCallDataId = method.dataId?.toString()) }
+                    uiStateUpdater { it.copy(pendingWhatsAppCallDataId = method.dataId?.toString()) }
                 }
             }
 
@@ -266,7 +266,7 @@ class ContactActionHandler(
                     }
                 } else {
                     // Store pending WhatsApp video call dataId and request permission
-                    uiStateUpdater { copy(pendingWhatsAppCallDataId = dataId.toString()) }
+                    uiStateUpdater { it.copy(pendingWhatsAppCallDataId = dataId.toString()) }
                 }
             }
 

@@ -25,8 +25,8 @@ class SectionManager(
         scope.launch(Dispatchers.IO) {
             sectionOrder = newOrder
             userPreferences.setSectionOrder(newOrder.map { it.name })
-            onStateUpdate {
-                copy(sectionOrder = sectionOrder)
+            onStateUpdate { state ->
+                state.copy(sectionOrder = sectionOrder)
             }
         }
     }
@@ -48,8 +48,8 @@ class SectionManager(
                 // Note: Permission refresh logic would be handled by the caller
             }
 
-            onStateUpdate {
-                copy(disabledSections = disabledSections)
+            onStateUpdate { state ->
+                state.copy(disabledSections = disabledSections)
             }
         }
     }
