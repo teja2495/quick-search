@@ -36,20 +36,29 @@ object SearchRankingUtils {
 
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
 
-        // Priority 1: Starts with query or primary token
+        // For multi-word queries, only match if the text starts with the full query
+        if (isMultiWord) {
+            if (normalizedText.startsWith(normalizedQuery)) {
+                return PRIORITY_STARTS_WITH
+            }
+            return PRIORITY_NO_MATCH
+        }
+
+        // Priority 1: Starts with query or primary token (single-word only)
         if (normalizedText.startsWith(normalizedQuery) || normalizedText.startsWith(primaryToken)) {
             return PRIORITY_STARTS_WITH
         }
 
-        // Priority 2: Any word starts with query/token
+        // Priority 2: Any word starts with query/token (single-word only)
         val textWords = normalizedText.split(WHITESPACE_REGEX)
         if (hasWordStartingWithQuery(textWords, normalizedQuery, primaryToken, queryTokens)) {
             return PRIORITY_WORD_STARTS_WITH
         }
 
-        // Priority 3: Contains query/token anywhere
+        // Priority 3: Contains query/token anywhere (single-word only)
         if (hasContainingMatch(normalizedText, normalizedQuery, queryTokens)) {
             return PRIORITY_CONTAINS
         }
@@ -98,7 +107,8 @@ object SearchRankingUtils {
         }
 
         if (queryTokens.size > 1) {
-            return queryTokens.any { token ->
+            // For multi-word queries, require ALL tokens to be present
+            return queryTokens.all { token ->
                 token.isNotBlank() && normalizedText.contains(token)
             }
         }
