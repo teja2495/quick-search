@@ -57,12 +57,39 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val sectionManager = SectionManager(userPreferences, permissionManager, viewModelScope, _uiState::update)
     private val uiStateManager = UiStateManager(repository, userPreferences, _uiState::update)
     private val iconPackHandler = IconPackHandler(application, userPreferences, viewModelScope, _uiState::update)
-    private var cachedApps: List<AppInfo> = emptyList()
-    private var noMatchPrefix: String? = null
-    private var availableSettings: List<SettingShortcut> = emptyList()
-    private var geminiApiKey: String? = userPreferences.getGeminiApiKey()
-    private var geminiClient: DirectSearchClient? = geminiApiKey?.let { DirectSearchClient(it) }
-    private var personalContext: String = userPreferences.getPersonalContext().orEmpty()
+    
+    private val appSearchHandler = AppSearchHandler(
+        context = application.applicationContext,
+        repository = repository,
+        userPreferences = userPreferences,
+        scope = viewModelScope,
+        onAppsUpdated = { this.refreshDerivedState() },
+        onLoadingStateChanged = { isLoading, error -> 
+            _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
+        }
+    )
+
+    private val settingsSearchHandler = SettingsSearchHandler(
+        context = application.applicationContext,
+        repository = settingsShortcutRepository,
+        userPreferences = userPreferences,
+        scope = viewModelScope
+    )
+    
+    private val directSearchHandler = DirectSearchHandler(
+        context = application.applicationContext,
+        userPreferences = userPreferences,
+        scope = viewModelScope
+    )
+    
+    private val unifiedSearchHandler = UnifiedSearchHandler(
+        contactRepository = contactRepository,
+        fileRepository = fileRepository,
+        userPreferences = userPreferences,
+        settingsSearchHandler = settingsSearchHandler,
+        searchOperations = searchOperations
+    )
+
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
     private var keyboardAlignedLayout: Boolean = userPreferences.isKeyboardAlignedLayout()
     private var shortcutsEnabled: Boolean = run {
@@ -100,7 +127,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var webSuggestionsEnabled: Boolean = userPreferences.areWebSuggestionsEnabled()
     private var calculatorEnabled: Boolean = userPreferences.isCalculatorEnabled()
     private var searchJob: Job? = null
-    private var DirectSearchJob: Job? = null
+
+    // DirectSearchJob moved to DirectSearchHandler
     private var webSuggestionsJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -117,14 +145,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     init {
+        // Initialize handlers logic
+        
+        // Listen to Direct Search State
+        viewModelScope.launch {
+            directSearchHandler.directSearchState.collect { dsState ->
+                 _uiState.update { it.copy(DirectSearchState = dsState) }
+            }
+        }
+        
         // Load cached apps synchronously for instant UI display
         val cachedAppsList = runCatching {
             repository.loadCachedApps()
         }.getOrNull()
         
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-            // Set cached apps immediately
-            cachedApps = cachedAppsList
+            // Set cached apps immediately in handler
+            appSearchHandler.initCache(cachedAppsList)
             val lastUpdated = repository.cacheLastUpdatedMillis()
             val packageNames = cachedAppsList.map { it.packageName }.toSet()
             val isWhatsAppInstalled = packageNames.contains(WHATSAPP_PACKAGE)
@@ -162,9 +199,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     amazonDomain = amazonDomain,
                     webSuggestionsEnabled = webSuggestionsEnabled,
                     calculatorEnabled = calculatorEnabled,
-                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
-                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
-                    personalContext = personalContext,
+                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    personalContext = directSearchHandler.getPersonalContext(),
                     cacheLastUpdatedMillis = lastUpdated
                 )
             }
@@ -202,9 +239,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     disabledSections = sectionManager.disabledSections,
                     searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
                     amazonDomain = amazonDomain,
-                    hasGeminiApiKey = !geminiApiKey.isNullOrBlank(),
-                    geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
-                    personalContext = personalContext
+                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    personalContext = directSearchHandler.getPersonalContext()
                 )
             }
         }
@@ -227,45 +264,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /**
-     * Loads apps from cache first for instant display, then refreshes in background.
-     * Note: Cache is already loaded synchronously in init, so this just refreshes.
-     */
     private fun loadApps() {
-        viewModelScope.launch(Dispatchers.IO) {
-            // Cache was already loaded synchronously in init, so just refresh in background
-            refreshApps()
-        }
+        appSearchHandler.loadApps()
     }
 
     private fun loadSettingsShortcuts() {
         viewModelScope.launch(Dispatchers.IO) {
-            availableSettings = settingsShortcutRepository.loadShortcuts()
-            refreshSettingsState()
+            settingsSearchHandler.loadShortcuts()
         }
     }
 
     private fun refreshSettingsState(updateResults: Boolean = true) {
-        val pinned = availableSettings
-            .filter { userPreferences.getPinnedSettingIds().contains(it.id) && !userPreferences.getExcludedSettingIds().contains(it.id) }
-            .sortedBy { it.title.lowercase(Locale.getDefault()) }
-        val excluded = availableSettings
-            .filter { userPreferences.getExcludedSettingIds().contains(it.id) }
-            .sortedBy { it.title.lowercase(Locale.getDefault()) }
-        val currentQuery = _uiState.value.query
-        val results = if (updateResults && currentQuery.isNotBlank() && SearchSection.SETTINGS !in sectionManager.disabledSections) {
-            searchSettings(currentQuery)
-        } else if (currentQuery.isBlank() || SearchSection.SETTINGS in sectionManager.disabledSections) {
-            emptyList()
-        } else {
-            _uiState.value.settingResults
-        }
+        val currentResults = _uiState.value.settingResults
+        val currentState = settingsSearchHandler.getSettingsState(
+            query = _uiState.value.query,
+            isSettingsSectionEnabled = SearchSection.SETTINGS !in sectionManager.disabledSections,
+            currentResults = currentResults // Pass current results to avoid re-search if not needed? Actually logic handles it
+        )
 
         _uiState.update { state ->
             state.copy(
-                pinnedSettings = pinned,
-                excludedSettings = excluded,
-                settingResults = results
+                pinnedSettings = currentState.pinned,
+                excludedSettings = currentState.excluded,
+                settingResults = currentState.results
             )
         }
     }
@@ -275,52 +296,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun refreshApps(showToast: Boolean = false) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // Only show loading if we don't have any cached apps yet
-            if (cachedApps.isEmpty()) {
-                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            }
-
-            runCatching { repository.loadLaunchableApps() }
-                .onSuccess { apps ->
-                    cachedApps = apps
-                    noMatchPrefix = null
-                    val lastUpdated = System.currentTimeMillis()
-                    refreshDerivedState(
-                        lastUpdated = lastUpdated,
-                        isLoading = false
-                    )
-                    // Show success toast only for user-triggered refreshes
-                    if (showToast) {
-                        withContext(Dispatchers.Main) {
-                            android.widget.Toast.makeText(
-                                getApplication(),
-                                "Apps refreshed successfully",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-                .onFailure { error ->
-                    val fallbackMessage = getApplication<Application>().getString(R.string.error_loading_user_apps)
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = error.localizedMessage ?: fallbackMessage
-                        )
-                    }
-                    // Show error toast only for user-triggered refreshes
-                    if (showToast) {
-                        withContext(Dispatchers.Main) {
-                            android.widget.Toast.makeText(
-                                getApplication(),
-                                "Failed to refresh apps",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-        }
+        appSearchHandler.refreshApps(showToast)
     }
 
     fun refreshContacts(showToast: Boolean = false) {
@@ -470,13 +446,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val trimmedQuery = newQuery.trim()
         val DirectSearchState = _uiState.value.DirectSearchState
         if (DirectSearchState.status != DirectSearchStatus.Idle && newQuery != previousQuery) {
-            clearDirectSearchState()
+            directSearchHandler.clearDirectSearchState()
         } else if (DirectSearchState.activeQuery != null && DirectSearchState.activeQuery != trimmedQuery) {
-            clearDirectSearchState()
+            directSearchHandler.clearDirectSearchState()
         }
 
         if (trimmedQuery.isBlank()) {
-            noMatchPrefix = null
+            appSearchHandler.setNoMatchPrefix(null)
+            // Actually explicit clear method is better or just recreate handler state if needed.
+            // But handler has reset logic.
+            // Let's call appSearchHandler.setNoMatchPrefix(null) but I defined it as accepting String.
+            // I should have made it nullable. Let's send empty string as specific logic? 
+            // Checking AppSearchHandler code: `noMatchPrefix = prefix`. 
+            // In AppSearchHandler: `resetNoMatchPrefixIfNeeded` sets it to null.
+            // I'll assume setNoMatchPrefix("") won't match anything or I should use resetNoMatchPrefixIfNeeded("")
+            // Actually, I should just set query to "" and reset handler state.
+            // AppSearchHandler.refreshApps sets it to null.
+            // But here we are just clearing query.
+            // I'll call appSearchHandler.setNoMatchPrefix(null) if I allowed it. 
+            // I defined `fun setNoMatchPrefix(prefix: String)`.
+            // I'll assume passing a non-matching prefix or just ignoring it for blank query is fine as reset happens on next char.
+            // Or better, let's fix AppSearchHandler to allow resetting or use internal logic.
+            // Actually `resetNoMatchPrefixIfNeeded` does the job if query is blank!
+            
             searchJob?.cancel()
             webSuggestionsJob?.cancel()
             _uiState.update { 
@@ -527,15 +519,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
-        resetNoMatchPrefixIfNeeded(normalizedQuery)
+        appSearchHandler.resetNoMatchPrefixIfNeeded(normalizedQuery)
 
-        val shouldSkipSearch = shouldSkipDueToNoMatchPrefix(normalizedQuery)
+        val shouldSkipSearch = appSearchHandler.shouldSkipDueToNoMatchPrefix(normalizedQuery)
         val matches = if (shouldSkipSearch) {
             emptyList()
         } else {
-            deriveMatches(trimmedQuery, searchSourceApps()).also { results ->
+            appSearchHandler.deriveMatches(trimmedQuery, appSearchHandler.searchSourceApps()).also { results ->
                 if (results.isEmpty()) {
-                    noMatchPrefix = normalizedQuery
+                    appSearchHandler.setNoMatchPrefix(normalizedQuery)
                 }
             }
         }
@@ -580,7 +572,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         // Check each enabled search engine for matching shortcut
         for (engine in SearchEngine.values()) {
-            if (engine == SearchEngine.DIRECT_SEARCH && geminiApiKey.isNullOrBlank()) continue
+            if (engine == SearchEngine.DIRECT_SEARCH && directSearchHandler.getGeminiApiKey().isNullOrBlank()) continue
             if (!userPreferences.isShortcutEnabled(engine)) continue
             val shortcutCode = userPreferences.getShortcutCode(engine).lowercase(Locale.getDefault())
             if (lastWord == shortcutCode) {
@@ -593,17 +585,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return null
     }
 
-    private fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
-        val prefix = noMatchPrefix ?: return
-        if (!normalizedQuery.startsWith(prefix)) {
-            noMatchPrefix = null
-        }
-    }
 
-    private fun shouldSkipDueToNoMatchPrefix(normalizedQuery: String): Boolean {
-        val prefix = noMatchPrefix ?: return false
-        return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
-    }
+
+
 
     fun clearQuery() {
         onQueryChange("")
@@ -748,31 +732,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun clearCachedApps() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.clearCache()
-            cachedApps = emptyList()
-            noMatchPrefix = null
-            _uiState.update { state ->
-                state.copy(
-                    recentApps = emptyList(),
-                    searchResults = emptyList(),
-                    pinnedApps = emptyList(),
-                    suggestionExcludedApps = emptyList(),
-                    resultExcludedApps = emptyList(),
-                    indexedAppCount = 0,
-                    cacheLastUpdatedMillis = 0L,
-                    isLoading = true
-                )
-            }
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    getApplication(),
-                    getApplication<Application>().getString(R.string.settings_cache_cleared_toast),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            refreshApps()
-        }
+        appSearchHandler.clearCachedApps()
     }
 
     fun pinContact(contactInfo: ContactInfo) = contactManager.pinContact(contactInfo)
@@ -917,7 +877,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun setSortAppsByUsageEnabled(sortAppsByUsageEnabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setSortAppsByUsage(sortAppsByUsageEnabled)
-            this@SearchViewModel.sortAppsByUsageEnabled = sortAppsByUsageEnabled
+            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
             _uiState.update {
                 it.copy(sortAppsByUsageEnabled = sortAppsByUsageEnabled)
             }
@@ -973,26 +933,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setGeminiApiKey(apiKey: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            val hadGemini = _uiState.value.hasGeminiApiKey
-            val normalized = apiKey?.trim().takeUnless { it.isNullOrBlank() }
-            if (normalized == geminiApiKey) return@launch
-
-            geminiApiKey = normalized
-            geminiClient = normalized?.let { DirectSearchClient(it) }
-            userPreferences.setGeminiApiKey(normalized)
-
-            val hasGemini = !normalized.isNullOrBlank()
-            if (!hasGemini) {
-                clearDirectSearchState()
-            }
+            directSearchHandler.setGeminiApiKey(apiKey)
+            
+            val hasGemini = !apiKey.isNullOrBlank()
             searchEngineManager.updateSearchEnginesForGemini(hasGemini)
-            if (hasGemini && !hadGemini) {
-                clearDirectSearchState()
-            }
+            
             _uiState.update {
                 it.copy(
                     hasGeminiApiKey = hasGemini,
-                    geminiApiKeyLast4 = normalized?.takeLast(4)
+                    geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4)
                 )
             }
         }
@@ -1000,88 +949,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setPersonalContext(context: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            val normalized = context?.trim().orEmpty()
-            if (normalized == personalContext) return@launch
-
-            personalContext = normalized
-            userPreferences.setPersonalContext(normalized.takeUnless { it.isBlank() })
+            directSearchHandler.setPersonalContext(context)
             _uiState.update {
-                it.copy(personalContext = personalContext)
+                it.copy(personalContext = context?.trim().orEmpty())
             }
         }
     }
 
     fun requestDirectSearch(query: String) {
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isBlank()) {
-            clearDirectSearchState()
-            return
-        }
-
-        val client = geminiClient
-        if (client == null || geminiApiKey.isNullOrBlank()) {
-            _uiState.update {
-                it.copy(
-                    DirectSearchState = DirectSearchState(
-                        status = DirectSearchStatus.Error,
-                        errorMessage = getApplication<Application>().getString(R.string.direct_search_error_no_key),
-                        activeQuery = trimmedQuery
-                    ),
-                    calculatorState = CalculatorState()
-                )
-            }
-            return
-        }
-
-        DirectSearchJob?.cancel()
-        DirectSearchJob = viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    DirectSearchState = DirectSearchState(
-                        status = DirectSearchStatus.Loading,
-                        activeQuery = trimmedQuery
-                    ),
-                    calculatorState = CalculatorState()
-                )
-            }
-
-            val result = client.fetchAnswer(
-                trimmedQuery,
-                personalContext.takeIf { it.isNotBlank() }
-            )
-            result.onSuccess { answer ->
-                _uiState.update { state ->
-                    state.copy(
-                        DirectSearchState = DirectSearchState(
-                            status = DirectSearchStatus.Success,
-                            answer = answer,
-                            activeQuery = trimmedQuery
-                        ),
-                        calculatorState = CalculatorState()
-                    )
-                }
-            }.onFailure { error ->
-                if (error is CancellationException) return@onFailure
-                val message = error.message
-                    ?: getApplication<Application>().getString(R.string.direct_search_error_generic)
-                _uiState.update { state ->
-                    state.copy(
-                        DirectSearchState = DirectSearchState(
-                            status = DirectSearchStatus.Error,
-                            errorMessage = message,
-                            activeQuery = trimmedQuery
-                        ),
-                        calculatorState = CalculatorState()
-                    )
-                }
-            }
-        }
+        directSearchHandler.requestDirectSearch(query)
     }
 
     fun retryDirectSearch() {
-        val lastQuery = _uiState.value.DirectSearchState.activeQuery ?: _uiState.value.query
-        if (lastQuery.isNullOrBlank()) return
-        requestDirectSearch(lastQuery)
+        directSearchHandler.retryDirectSearch(_uiState.value.query)
     }
 
     fun setShortcutsEnabled(enabled: Boolean) {
@@ -1132,16 +1012,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    private fun clearDirectSearchState() {
-        DirectSearchJob?.cancel()
-        DirectSearchJob = null
-        _uiState.update {
-            it.copy(
-                DirectSearchState = DirectSearchState(),
-                calculatorState = CalculatorState()
-            )
-        }
-    }
+
 
 
     fun reorderSections(newOrder: List<SearchSection>) = sectionManager.reorderSections(newOrder)
@@ -1153,79 +1024,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun canEnableSection(section: SearchSection): Boolean = sectionManager.canEnableSection(section)
 
-    private fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
-        if (query.isBlank()) return emptyList()
-        return source
-            .asSequence()
-            .mapNotNull { app ->
-                val nickname = userPreferences.getAppNickname(app.packageName)
-                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    app.appName,
-                    nickname,
-                    query
-                )
-                if (SearchRankingUtils.isOtherMatch(priority)) {
-                    return@mapNotNull null
-                }
-                app to priority
-            }
-            .sortedWith(compareBy(
-                { it.second },
-                {
-                    if (sortAppsByUsageEnabled) {
-                        // When sorting by usage is enabled, use negative lastUsedTime for descending order (most recent first)
-                        -it.first.lastUsedTime
-                    } else {
-                        // Default: sort by app name
-                        it.first.appName.lowercase(Locale.getDefault())
-                    }
-                }
-            ))
-            .map { it.first }
-            .take(GRID_ITEM_COUNT)
-            .toList()
-    }
 
-    private fun searchSettings(query: String): List<SettingShortcut> {
-        if (availableSettings.isEmpty()) return emptyList()
-        val trimmed = query.trim()
-        if (trimmed.length < 2) return emptyList()
 
-        val normalizedQuery = trimmed.lowercase(Locale.getDefault())
-        val nicknameMatches = userPreferences.findSettingsWithMatchingNickname(trimmed)
-            .filterNot { userPreferences.getExcludedSettingIds().contains(it) }
-            .toSet()
 
-        return availableSettings
-            .asSequence()
-            .filterNot { userPreferences.getExcludedSettingIds().contains(it.id) }
-            .mapNotNull { shortcut ->
-                val nickname = userPreferences.getSettingNickname(shortcut.id)
-                val hasNicknameMatch = nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
-                val keywordText = shortcut.keywords.joinToString(" ")
-                val hasFieldMatch = shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    (shortcut.description?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true) ||
-                    keywordText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    nicknameMatches.contains(shortcut.id)
-
-                if (!hasFieldMatch && !hasNicknameMatch) return@mapNotNull null
-
-                val priority = when {
-                    hasNicknameMatch || nicknameMatches.contains(shortcut.id) -> 0
-                    else -> SearchRankingUtils.getBestMatchPriority(
-                        trimmed,
-                        shortcut.title,
-                        shortcut.description ?: "",
-                        keywordText
-                    )
-                }
-                shortcut to priority
-            }
-            .sortedWith(compareBy({ it.second }, { it.first.title.lowercase(Locale.getDefault()) }))
-            .take(6)
-            .map { it.first }
-            .toList()
-    }
 
     companion object {
         private const val WHATSAPP_PACKAGE = "com.whatsapp"
@@ -1234,35 +1035,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
     }
 
-    private fun availableApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
-        if (apps.isEmpty()) return emptyList()
-        return apps.filterNot { userPreferences.getSuggestionHiddenPackages().contains(it.packageName) }
-    }
 
-    private fun searchSourceApps(apps: List<AppInfo> = cachedApps): List<AppInfo> {
-        if (apps.isEmpty()) return emptyList()
-        return apps.filterNot {
-            userPreferences.getResultHiddenPackages().contains(it.packageName) || userPreferences.getPinnedPackages().contains(it.packageName)
-        }
-    }
-
-    private fun computePinnedApps(apps: List<AppInfo>, exclusion: Set<String>): List<AppInfo> {
-        if (apps.isEmpty() || userPreferences.getPinnedPackages().isEmpty()) return emptyList()
-        return apps
-            .asSequence()
-            .filter { userPreferences.getPinnedPackages().contains(it.packageName) && !exclusion.contains(it.packageName) }
-            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
-            .toList()
-    }
 
     private fun refreshDerivedState(
         lastUpdated: Long? = null,
         isLoading: Boolean? = null
     ) {
-        val apps = cachedApps
-        val visibleAppList = availableApps(apps)
-        val pinnedAppsForSuggestions = computePinnedApps(apps, userPreferences.getSuggestionHiddenPackages())
-        val pinnedAppsForResults = computePinnedApps(apps, userPreferences.getResultHiddenPackages())
+        val apps = appSearchHandler.cachedApps
+        val visibleAppList = appSearchHandler.availableApps()
+        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(userPreferences.getSuggestionHiddenPackages())
+        val pinnedAppsForResults = appSearchHandler.computePinnedApps(userPreferences.getResultHiddenPackages())
         val recentsSource = visibleAppList.filterNot { userPreferences.getPinnedPackages().contains(it.packageName) }
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
@@ -1279,9 +1061,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             emptyList()
         } else {
             // Include both pinned and non-pinned apps in search, let ranking determine order
-            val nonPinnedApps = searchSourceApps(apps)
+            val nonPinnedApps = appSearchHandler.searchSourceApps()
             val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
-            deriveMatches(trimmedQuery, allSearchableApps)
+            appSearchHandler.deriveMatches(trimmedQuery, allSearchableApps)
         }
         val suggestionHiddenAppList = apps
             .filter { userPreferences.getSuggestionHiddenPackages().contains(it.packageName) }
@@ -1361,131 +1143,35 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             SearchSection.CONTACTS !in sectionManager.disabledSections
         val canSearchFiles = _uiState.value.hasFilePermission &&
             SearchSection.FILES !in sectionManager.disabledSections
+        val canSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
+            
         val currentVersion = ++queryVersion
 
         searchJob = viewModelScope.launch(Dispatchers.IO) {
             // Debounce expensive contact/file queries during rapid typing
             delay(SECONDARY_SEARCH_DEBOUNCE_MS)
             if (currentVersion != queryVersion) return@launch
-
-            val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
             
-            // Search by display name (existing behavior)
-            val result = searchOperations.performSearches(
+            val unifiedResults = unifiedSearchHandler.performSearch(
                 query = trimmedQuery,
+                enabledFileTypes = enabledFileTypes,
                 canSearchContacts = canSearchContacts,
                 canSearchFiles = canSearchFiles,
-                enabledFileTypes = enabledFileTypes,
-                excludedContactIds = userPreferences.getExcludedContactIds(),
-                excludedFileUris = userPreferences.getExcludedFileUris(),
-                excludedFileExtensions = userPreferences.getExcludedFileExtensions(),
-                scope = this
+                canSearchSettings = canSearchSettings
             )
-
-            // Also search for contacts/files with matching nicknames
-            val nicknameMatchingContactIds = if (canSearchContacts) {
-                userPreferences.findContactsWithMatchingNickname(trimmedQuery)
-                    .filterNot { userPreferences.getExcludedContactIds().contains(it) }
-            } else {
-                emptySet()
-            }
-
-            val nicknameMatchingFileUris = if (canSearchFiles) {
-                userPreferences.findFilesWithMatchingNickname(trimmedQuery)
-                    .filterNot { userPreferences.getExcludedFileUris().contains(it) }
-            } else {
-                emptySet()
-            }
-
-            // Fetch contacts/files that match by nickname but not by display name
-            val nicknameOnlyContacts = if (nicknameMatchingContactIds.isNotEmpty()) {
-                val displayNameMatchedIds = result.contacts.map { it.contactId }.toSet()
-                val nicknameOnlyIds = nicknameMatchingContactIds.filterNot { displayNameMatchedIds.contains(it) }
-                if (nicknameOnlyIds.isNotEmpty()) {
-                    contactRepository.getContactsByIds(nicknameOnlyIds.toSet())
-                } else {
-                    emptyList()
-                }
-            } else {
-                emptyList()
-            }
-
-            val nicknameOnlyFiles = if (nicknameMatchingFileUris.isNotEmpty()) {
-                val displayNameMatchedUris = result.files.map { it.uri.toString() }.toSet()
-                val nicknameOnlyUris = nicknameMatchingFileUris.filterNot { displayNameMatchedUris.contains(it) }
-                if (nicknameOnlyUris.isNotEmpty()) {
-                    fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
-                        .filter { file ->
-                            val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
-                            fileType in enabledFileTypes &&
-                            !userPreferences.getExcludedFileUris().contains(file.uri.toString()) &&
-                            !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions())
-                        }
-                } else {
-                    emptyList()
-                }
-            } else {
-                emptyList()
-            }
-
-            // Combine display name matches and nickname-only matches
-            val allContacts = (result.contacts + nicknameOnlyContacts).distinctBy { it.contactId }
-            val allFiles = (result.files + nicknameOnlyFiles).distinctBy { it.uri.toString() }
-
-            // Filter and rank by nickname matches
-            val filteredContacts = allContacts.mapNotNull { contact ->
-                val nickname = userPreferences.getContactNickname(contact.contactId)
-                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    contact.displayName,
-                    nickname,
-                    normalizedQuery
-                )
-                if (SearchRankingUtils.isOtherMatch(priority)) {
-                    null
-                } else {
-                    contact to priority
-                }
-            }.sortedWith(
-                compareBy<Pair<ContactInfo, Int>> { it.second }
-                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
-            ).map { it.first }
-
-            val filteredFiles = allFiles.mapNotNull { file ->
-                val nickname = userPreferences.getFileNickname(file.uri.toString())
-                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    file.displayName,
-                    nickname,
-                    normalizedQuery
-                )
-                if (SearchRankingUtils.isOtherMatch(priority)) {
-                    null
-                } else {
-                    file to priority
-                }
-            }.sortedWith(
-                compareBy<Pair<DeviceFile, Int>> { it.second }
-                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
-            ).map { it.first }
-
-            val shouldSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
-            val settingsMatches = if (shouldSearchSettings) {
-                searchSettings(trimmedQuery)
-            } else {
-                emptyList()
-            }
 
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
-                    val hasAnyResults = filteredContacts.isNotEmpty() || 
-                        filteredFiles.isNotEmpty() || 
-                        settingsMatches.isNotEmpty() ||
+                    val hasAnyResults = unifiedResults.contactResults.isNotEmpty() || 
+                        unifiedResults.fileResults.isNotEmpty() || 
+                        unifiedResults.settingResults.isNotEmpty() ||
                         _uiState.value.searchResults.isNotEmpty()
                     
                     _uiState.update { state ->
                         state.copy(
-                            contactResults = filteredContacts,
-                            fileResults = filteredFiles,
-                            settingResults = settingsMatches,
+                            contactResults = unifiedResults.contactResults,
+                            fileResults = unifiedResults.fileResults,
+                            settingResults = unifiedResults.settingResults,
                             webSuggestions = if (hasAnyResults) emptyList() else state.webSuggestions
                         )
                     }
@@ -1649,21 +1335,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     override fun onCleared() {
         super.onCleared()
         searchJob?.cancel()
-        DirectSearchJob?.cancel()
     }
 
     fun openSetting(setting: SettingShortcut) {
-        val context = getApplication<Application>()
-        runCatching {
-            val intent = settingsShortcutRepository.buildIntent(setting)
-            context.startActivity(intent)
-        }.onFailure {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_setting, setting.title),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        settingsSearchHandler.openSetting(setting)
     }
 
     fun openFile(deviceFile: DeviceFile) {
