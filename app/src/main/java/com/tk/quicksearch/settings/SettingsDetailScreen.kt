@@ -108,6 +108,15 @@ fun SettingsDetailRoute(
     var isDefaultAssistant by remember {
         mutableStateOf(context.isDefaultDigitalAssistant())
     }
+    var directSearchSetupExpanded by remember(detailType) {
+        mutableStateOf(
+            if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                userPreferences.isDirectSearchSetupExpanded()
+            } else {
+                true
+            }
+        )
+    }
     
     DisposableEffect(lifecycleOwner, detailType) {
         val observer = LifecycleEventObserver { _, event ->
@@ -189,7 +198,15 @@ fun SettingsDetailRoute(
         onRefreshContacts = viewModel::refreshContacts,
         onRefreshFiles = viewModel::refreshFiles
     )
-    
+
+    val onToggleDirectSearchSetupExpanded = {
+        val newExpanded = !directSearchSetupExpanded
+        directSearchSetupExpanded = newExpanded
+        if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+            userPreferences.setDirectSearchSetupExpanded(newExpanded)
+        }
+    }
+
     SettingsDetailScreen(
         modifier = modifier,
         state = state,
@@ -197,7 +214,9 @@ fun SettingsDetailRoute(
         detailType = detailType,
         showShortcutHintBanner = shouldShowShortcutHint,
         onDismissShortcutHintBanner = onDismissShortcutHint,
-        isDefaultAssistant = isDefaultAssistant
+        isDefaultAssistant = isDefaultAssistant,
+        directSearchSetupExpanded = directSearchSetupExpanded,
+        onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded
     )
 }
 
@@ -209,7 +228,9 @@ private fun SettingsDetailScreen(
     detailType: SettingsDetailType,
     isDefaultAssistant: Boolean,
     showShortcutHintBanner: Boolean = false,
-    onDismissShortcutHintBanner: () -> Unit = {}
+    onDismissShortcutHintBanner: () -> Unit = {},
+    directSearchSetupExpanded: Boolean = true,
+    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null
 ) {
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
@@ -285,10 +306,12 @@ private fun SettingsDetailScreen(
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
                             personalContext = state.personalContext,
                             onSetPersonalContext = callbacks.onSetPersonalContext,
-                        DirectSearchAvailable = state.hasGeminiApiKey,
-                        showTitle = false,
-                        showShortcutHintBanner = showShortcutHintBanner,
-                        onDismissShortcutHintBanner = onDismissShortcutHintBanner
+                            DirectSearchAvailable = state.hasGeminiApiKey,
+                            showTitle = false,
+                            showShortcutHintBanner = showShortcutHintBanner,
+                            onDismissShortcutHintBanner = onDismissShortcutHintBanner,
+                            directSearchSetupExpanded = directSearchSetupExpanded,
+                            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded
                         )
                     }
                     SettingsDetailType.EXCLUDED_ITEMS -> {

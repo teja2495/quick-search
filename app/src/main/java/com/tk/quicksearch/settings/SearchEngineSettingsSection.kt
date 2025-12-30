@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
@@ -154,6 +156,8 @@ fun SearchEnginesSection(
     DirectSearchAvailable: Boolean = false,
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: (() -> Unit)? = null,
+    directSearchSetupExpanded: Boolean = true,
+    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
@@ -179,7 +183,9 @@ fun SearchEnginesSection(
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,
             personalContext = personalContext,
-            onSetPersonalContext = onSetPersonalContext
+            onSetPersonalContext = onSetPersonalContext,
+            isExpanded = directSearchSetupExpanded,
+            onToggleExpanded = onToggleDirectSearchSetupExpanded
         )
     }
 
@@ -259,7 +265,9 @@ private fun SearchEngineToggleCard(
     onSetGeminiApiKey: (String?) -> Unit,
     geminiApiKeyLast4: String?,
     personalContext: String,
-    onSetPersonalContext: ((String?) -> Unit)?
+    onSetPersonalContext: ((String?) -> Unit)?,
+    isExpanded: Boolean = true,
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
@@ -310,21 +318,45 @@ private fun SearchEngineToggleCard(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(bottom = 12.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onToggleExpanded != null) {
+                            Modifier.clickable(onClick = onToggleExpanded)
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .padding(bottom = if (isExpanded) 12.dp else 0.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.direct_search),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(24.dp)
-                )
-                Text(
-                    text = stringResource(R.string.settings_direct_search_toggle),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.direct_search),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_direct_search_toggle),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                if (onToggleExpanded != null) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+
+            if (!isExpanded) return@Column
 
             if (directSearchEnabled && geminiApiKeyLast4 != null) {
                 Text(

@@ -617,6 +617,12 @@ class UserAppPreferences(context: Context) {
         setBooleanPref(KEY_SORT_APPS_BY_USAGE, sortAppsByUsage)
     }
 
+    fun isDirectSearchSetupExpanded(): Boolean = getBooleanPref(KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
+
+    fun setDirectSearchSetupExpanded(expanded: Boolean) {
+        setBooleanPref(KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
+    }
+
     fun getLastSeenVersionName(): String? = prefs.getString(KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
@@ -931,6 +937,7 @@ class UserAppPreferences(context: Context) {
         private const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         private const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
         private const val KEY_LAST_SEEN_VERSION = "last_seen_version"
+        private const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
 
         // Fresh install detection window (10 minutes)
         private const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L
