@@ -63,12 +63,11 @@ fun FeedbackSection(
 
             
             ---
-            App Version: $versionName
             Android Version: $androidVersion
             Device: $deviceModel
         """.trimIndent()
 
-        val subject = "Quick Search Feedback"
+        val subject = "Quick Search Feedback - v$versionName"
 
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}&body=${Uri.encode(emailBody)}")
