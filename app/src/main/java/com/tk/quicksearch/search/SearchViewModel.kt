@@ -386,13 +386,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(hasUsagePermission = repository.hasUsageAccess()) }
     }
 
-    fun refreshApps() {
+    fun refreshApps(showToast: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
             // Only show loading if we don't have any cached apps yet
             if (cachedApps.isEmpty()) {
                 _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             }
-            
+
             runCatching { repository.loadLaunchableApps() }
                 .onSuccess { apps ->
                     cachedApps = apps
@@ -402,6 +402,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         lastUpdated = lastUpdated,
                         isLoading = false
                     )
+                    // Show success toast only for user-triggered refreshes
+                    if (showToast) {
+                        withContext(Dispatchers.Main) {
+                            android.widget.Toast.makeText(
+                                getApplication(),
+                                "Apps refreshed successfully",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
                 .onFailure { error ->
                     val fallbackMessage = getApplication<Application>().getString(R.string.error_loading_user_apps)
@@ -411,7 +421,45 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             errorMessage = error.localizedMessage ?: fallbackMessage
                         )
                     }
+                    // Show error toast only for user-triggered refreshes
+                    if (showToast) {
+                        withContext(Dispatchers.Main) {
+                            android.widget.Toast.makeText(
+                                getApplication(),
+                                "Failed to refresh apps",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
+        }
+    }
+
+    fun refreshContacts(showToast: Boolean = false) {
+        // Contacts are queried directly from the system provider, so we don't need to refresh a cache
+        // Instead, we can clear any current contact results to force a fresh query on next search
+        _uiState.update { it.copy(contactResults = emptyList()) }
+        // Show success toast only for user-triggered refreshes
+        if (showToast) {
+            android.widget.Toast.makeText(
+                getApplication(),
+                "Contacts refreshed successfully",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    fun refreshFiles(showToast: Boolean = false) {
+        // Files are queried directly from MediaStore, so we don't need to refresh a cache
+        // Instead, we can clear any current file results to force a fresh query on next search
+        _uiState.update { it.copy(fileResults = emptyList()) }
+        // Show success toast only for user-triggered refreshes
+        if (showToast) {
+            android.widget.Toast.makeText(
+                getApplication(),
+                "Files refreshed successfully",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

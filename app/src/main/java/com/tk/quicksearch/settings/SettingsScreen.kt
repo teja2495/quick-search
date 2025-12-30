@@ -20,11 +20,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -255,7 +260,10 @@ fun SettingsRoute(
                     ).show()
                 }
             }
-        }
+        },
+        onRefreshApps = viewModel::refreshApps,
+        onRefreshContacts = viewModel::refreshContacts,
+        onRefreshFiles = viewModel::refreshFiles
     )
 
     // Callback for messaging app selection with installation check
@@ -497,6 +505,14 @@ private fun SettingsScreen(
                 onExcludedItemsClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
                 onAdditionalSettingsClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
                 contentPadding = SettingsSpacing.singleCardPadding
+            )
+
+            // Refresh Data Section
+            RefreshDataCard(
+                onRefreshApps = { callbacks.onRefreshApps(true) },
+                onRefreshContacts = { callbacks.onRefreshContacts(true) },
+                onRefreshFiles = { callbacks.onRefreshFiles(true) },
+                modifier = Modifier.padding(top = 12.dp)
             )
 
             // Permissions Section (at the bottom)
@@ -804,6 +820,131 @@ private fun IconPackOptionRow(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+/**
+ * Refresh Data Card with options to refresh Apps, Contacts, and Files data.
+ */
+@Composable
+private fun RefreshDataCard(
+    onRefreshApps: () -> Unit,
+    onRefreshContacts: () -> Unit,
+    onRefreshFiles: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Title
+            Text(
+                text = stringResource(R.string.settings_refresh_data_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(
+                    start = 20.dp,
+                    top = 16.dp,
+                    end = 20.dp,
+                    bottom = 12.dp
+                )
+            )
+
+            // Horizontal row with three columns for Apps, Contacts, Files
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Apps option
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onRefreshApps)
+                        .padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.GridView,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_apps_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                // Vertical divider
+                androidx.compose.material3.VerticalDivider(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .padding(vertical = 12.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Contacts option
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onRefreshContacts)
+                        .padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_contacts_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                // Vertical divider
+                androidx.compose.material3.VerticalDivider(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .padding(vertical = 12.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Files option
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = onRefreshFiles)
+                        .padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.InsertDriveFile,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_files_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // Add space below the options
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

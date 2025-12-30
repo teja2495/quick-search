@@ -303,6 +303,10 @@
          Settings - More Options
          ============================================================================ -->
     <string name="settings_more_options_title">More Options</string>
+    <string name="settings_refresh_data_title">Refresh Data</string>
+    <string name="settings_refresh_apps_title">Apps</string>
+    <string name="settings_refresh_contacts_title">Contacts</string>
+    <string name="settings_refresh_files_title">Files</string>
 
     <!-- ============================================================================
          Settings - Messaging

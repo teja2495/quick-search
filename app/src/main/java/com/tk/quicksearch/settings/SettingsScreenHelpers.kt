@@ -94,7 +94,10 @@ data class SettingsScreenCallbacks(
     val onSetGeminiApiKey: (String?) -> Unit,
     val onSetPersonalContext: (String?) -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
-    val onSetDefaultAssistant: () -> Unit
+    val onSetDefaultAssistant: () -> Unit,
+    val onRefreshApps: (Boolean) -> Unit,
+    val onRefreshContacts: (Boolean) -> Unit,
+    val onRefreshFiles: (Boolean) -> Unit
 )
 
 /**

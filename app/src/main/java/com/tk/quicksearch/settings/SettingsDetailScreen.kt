@@ -182,7 +182,10 @@ fun SettingsDetailRoute(
                     ).show()
                 }
             }
-        }
+        },
+        onRefreshApps = viewModel::refreshApps,
+        onRefreshContacts = viewModel::refreshContacts,
+        onRefreshFiles = viewModel::refreshFiles
     )
     
     SettingsDetailScreen(
