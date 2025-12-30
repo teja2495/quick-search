@@ -1,998 +1,330 @@
 package com.tk.quicksearch.data
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.search.MessagingApp
-import com.tk.quicksearch.search.SearchEngine
-import com.tk.quicksearch.search.getDefaultShortcutCode
-import com.tk.quicksearch.search.isValidAmazonDomain
-import com.tk.quicksearch.search.isValidShortcutCode
-import com.tk.quicksearch.search.normalizeShortcutCodeInput
-import java.util.Locale
+import com.tk.quicksearch.data.preferences.*
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
  * Manages preferences for apps, contacts, files, search engines, shortcuts, and UI settings.
+ * This class now delegates to specialized preference classes for better organization.
  */
 class UserAppPreferences(context: Context) {
 
-    private val appContext = context.applicationContext
-
-    private val prefs: SharedPreferences =
-        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val firstLaunchPrefs: SharedPreferences =
-        appContext.getSharedPreferences(FIRST_LAUNCH_PREFS_NAME, Context.MODE_PRIVATE)
-    
-    // Encrypted SharedPreferences for sensitive data like API keys.
-    // If encryption cannot be initialized, Gemini keys will not be persisted.
-    private val encryptedPrefs: SharedPreferences? = run {
-        try {
-            val masterKey = MasterKey.Builder(appContext)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-
-            EncryptedSharedPreferences.create(
-                appContext,
-                ENCRYPTED_PREFS_NAME,
-                masterKey,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to create EncryptedSharedPreferences; Gemini API key will not be stored", e)
-            null
-        }
-    }
-
-    init {
-        migrateHiddenPackages()
-    }
+    // Feature-specific preference managers
+    private val appPreferences = AppPreferences(context)
+    private val contactPreferences = ContactPreferences(context)
+    private val filePreferences = FilePreferences(context)
+    private val settingsPreferences = SettingsPreferences(context)
+    private val nicknamePreferences = NicknamePreferences(context)
+    private val searchEnginePreferences = SearchEnginePreferences(context)
+    private val shortcutPreferences = ShortcutPreferences(context)
+    private val geminiPreferences = GeminiPreferences(context)
+    private val uiPreferences = UiPreferences(context)
+    private val amazonPreferences = AmazonPreferences(context)
 
     // ============================================================================
     // App Preferences
     // ============================================================================
 
-    fun getSuggestionHiddenPackages(): Set<String> = getStringSet(KEY_HIDDEN_SUGGESTIONS)
+    fun getSuggestionHiddenPackages(): Set<String> = appPreferences.getSuggestionHiddenPackages()
 
-    fun getResultHiddenPackages(): Set<String> = getStringSet(KEY_HIDDEN_RESULTS)
+    fun getResultHiddenPackages(): Set<String> = appPreferences.getResultHiddenPackages()
 
-    fun getPinnedPackages(): Set<String> = getStringSet(KEY_PINNED)
+    fun getPinnedPackages(): Set<String> = appPreferences.getPinnedPackages()
 
-    fun hidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_SUGGESTIONS) {
-        it.add(packageName)
-    }
+    fun hidePackageInSuggestions(packageName: String): Set<String> = appPreferences.hidePackageInSuggestions(packageName)
 
-    fun hidePackageInResults(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_RESULTS) {
-        it.add(packageName)
-    }
+    fun hidePackageInResults(packageName: String): Set<String> = appPreferences.hidePackageInResults(packageName)
 
-    fun unhidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_SUGGESTIONS) {
-        it.remove(packageName)
-    }
+    fun unhidePackageInSuggestions(packageName: String): Set<String> = appPreferences.unhidePackageInSuggestions(packageName)
 
-    fun unhidePackageInResults(packageName: String): Set<String> = updateStringSet(KEY_HIDDEN_RESULTS) {
-        it.remove(packageName)
-    }
+    fun unhidePackageInResults(packageName: String): Set<String> = appPreferences.unhidePackageInResults(packageName)
 
-    fun pinPackage(packageName: String): Set<String> = updateStringSet(KEY_PINNED) {
-        it.add(packageName)
-    }
+    fun pinPackage(packageName: String): Set<String> = appPreferences.pinPackage(packageName)
 
-    fun unpinPackage(packageName: String): Set<String> = updateStringSet(KEY_PINNED) {
-        it.remove(packageName)
-    }
+    fun unpinPackage(packageName: String): Set<String> = appPreferences.unpinPackage(packageName)
 
-    fun clearAllHiddenAppsInSuggestions(): Set<String> = clearStringSet(KEY_HIDDEN_SUGGESTIONS)
+    fun clearAllHiddenAppsInSuggestions(): Set<String> = appPreferences.clearAllHiddenAppsInSuggestions()
 
-    fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(KEY_HIDDEN_RESULTS)
+    fun clearAllHiddenAppsInResults(): Set<String> = appPreferences.clearAllHiddenAppsInResults()
 
     // ============================================================================
     // Contact Preferences
     // ============================================================================
 
-    fun getPinnedContactIds(): Set<Long> = getLongSet(KEY_PINNED_CONTACT_IDS)
+    fun getPinnedContactIds(): Set<Long> = contactPreferences.getPinnedContactIds()
 
-    fun getExcludedContactIds(): Set<Long> = getLongSet(KEY_EXCLUDED_CONTACT_IDS)
+    fun getExcludedContactIds(): Set<Long> = contactPreferences.getExcludedContactIds()
 
-    fun pinContact(contactId: Long): Set<Long> = updateLongSet(KEY_PINNED_CONTACT_IDS) {
-        it.add(contactId.toString())
-    }
+    fun pinContact(contactId: Long): Set<Long> = contactPreferences.pinContact(contactId)
 
-    fun unpinContact(contactId: Long): Set<Long> = updateLongSet(KEY_PINNED_CONTACT_IDS) {
-        it.remove(contactId.toString())
-    }
+    fun unpinContact(contactId: Long): Set<Long> = contactPreferences.unpinContact(contactId)
 
-    fun excludeContact(contactId: Long): Set<Long> = updateLongSet(KEY_EXCLUDED_CONTACT_IDS) {
-        it.add(contactId.toString())
-    }
+    fun excludeContact(contactId: Long): Set<Long> = contactPreferences.excludeContact(contactId)
 
-    fun removeExcludedContact(contactId: Long): Set<Long> = updateLongSet(KEY_EXCLUDED_CONTACT_IDS) {
-        it.remove(contactId.toString())
-    }
+    fun removeExcludedContact(contactId: Long): Set<Long> = contactPreferences.removeExcludedContact(contactId)
 
-    fun clearAllExcludedContacts(): Set<Long> = clearLongSet(KEY_EXCLUDED_CONTACT_IDS)
+    fun clearAllExcludedContacts(): Set<Long> = contactPreferences.clearAllExcludedContacts()
 
-    fun getPreferredPhoneNumber(contactId: Long): String? {
-        return prefs.getString("$KEY_PREFERRED_PHONE_PREFIX$contactId", null)
-    }
+    fun getPreferredPhoneNumber(contactId: Long): String? = contactPreferences.getPreferredPhoneNumber(contactId)
 
-    fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) {
-        prefs.edit().putString("$KEY_PREFERRED_PHONE_PREFIX$contactId", phoneNumber).apply()
-    }
+    fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) = contactPreferences.setPreferredPhoneNumber(contactId, phoneNumber)
 
-    fun getLastShownPhoneNumber(contactId: Long): String? {
-        return prefs.getString("$KEY_LAST_SHOWN_PHONE_PREFIX$contactId", null)
-    }
+    fun getLastShownPhoneNumber(contactId: Long): String? = contactPreferences.getLastShownPhoneNumber(contactId)
 
-    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) {
-        prefs.edit().putString("$KEY_LAST_SHOWN_PHONE_PREFIX$contactId", phoneNumber).apply()
-    }
+    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) = contactPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
 
-    fun isDirectDialEnabled(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_ENABLED, false)
+    fun isDirectDialEnabled(): Boolean = contactPreferences.isDirectDialEnabled()
 
-    fun setDirectDialEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_DIRECT_DIAL_ENABLED, enabled)
-    }
+    fun setDirectDialEnabled(enabled: Boolean) = contactPreferences.setDirectDialEnabled(enabled)
 
-    fun hasSeenDirectDialChoice(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_CHOICE_SHOWN, false)
+    fun hasSeenDirectDialChoice(): Boolean = contactPreferences.hasSeenDirectDialChoice()
 
-    fun setHasSeenDirectDialChoice(seen: Boolean) {
-        setBooleanPref(KEY_DIRECT_DIAL_CHOICE_SHOWN, seen)
-    }
+    fun setHasSeenDirectDialChoice(seen: Boolean) = contactPreferences.setHasSeenDirectDialChoice(seen)
 
     // ============================================================================
     // File Preferences
     // ============================================================================
 
-    fun getPinnedFileUris(): Set<String> = getStringSet(KEY_PINNED_FILE_URIS)
+    fun getPinnedFileUris(): Set<String> = filePreferences.getPinnedFileUris()
 
-    fun getExcludedFileUris(): Set<String> = getStringSet(KEY_EXCLUDED_FILE_URIS)
+    fun getExcludedFileUris(): Set<String> = filePreferences.getExcludedFileUris()
 
-    fun pinFile(uri: String): Set<String> = updateStringSet(KEY_PINNED_FILE_URIS) {
-        it.add(uri)
-    }
+    fun pinFile(uri: String): Set<String> = filePreferences.pinFile(uri)
 
-    fun unpinFile(uri: String): Set<String> = updateStringSet(KEY_PINNED_FILE_URIS) {
-        it.remove(uri)
-    }
+    fun unpinFile(uri: String): Set<String> = filePreferences.unpinFile(uri)
 
-    fun excludeFile(uri: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_URIS) {
-        it.add(uri)
-    }
+    fun excludeFile(uri: String): Set<String> = filePreferences.excludeFile(uri)
 
-    fun removeExcludedFile(uri: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_URIS) {
-        it.remove(uri)
-    }
+    fun removeExcludedFile(uri: String): Set<String> = filePreferences.removeExcludedFile(uri)
 
-    fun clearAllExcludedFiles(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_URIS)
+    fun clearAllExcludedFiles(): Set<String> = filePreferences.clearAllExcludedFiles()
 
-    fun getExcludedFileExtensions(): Set<String> = getStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+    fun getExcludedFileExtensions(): Set<String> = filePreferences.getExcludedFileExtensions()
 
-    fun addExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
-        it.add(extension.lowercase().removePrefix("."))
-    }
+    fun addExcludedFileExtension(extension: String): Set<String> = filePreferences.addExcludedFileExtension(extension)
 
-    fun removeExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
-        it.remove(extension.lowercase().removePrefix("."))
-    }
+    fun removeExcludedFileExtension(extension: String): Set<String> = filePreferences.removeExcludedFileExtension(extension)
 
-    fun clearAllExcludedFileExtensions(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+    fun clearAllExcludedFileExtensions(): Set<String> = filePreferences.clearAllExcludedFileExtensions()
+
+    fun getEnabledFileTypes(): Set<com.tk.quicksearch.model.FileType> = filePreferences.getEnabledFileTypes()
+
+    fun setEnabledFileTypes(enabled: Set<com.tk.quicksearch.model.FileType>) = filePreferences.setEnabledFileTypes(enabled)
 
     // ============================================================================
     // Settings Preferences
     // ============================================================================
 
-    fun getPinnedSettingIds(): Set<String> = getStringSet(KEY_PINNED_SETTINGS)
+    fun getPinnedSettingIds(): Set<String> = settingsPreferences.getPinnedSettingIds()
 
-    fun getExcludedSettingIds(): Set<String> = getStringSet(KEY_EXCLUDED_SETTINGS)
+    fun getExcludedSettingIds(): Set<String> = settingsPreferences.getExcludedSettingIds()
 
-    fun pinSetting(id: String): Set<String> = updateStringSet(KEY_PINNED_SETTINGS) {
-        it.add(id)
-    }
+    fun pinSetting(id: String): Set<String> = settingsPreferences.pinSetting(id)
 
-    fun unpinSetting(id: String): Set<String> = updateStringSet(KEY_PINNED_SETTINGS) {
-        it.remove(id)
-    }
+    fun unpinSetting(id: String): Set<String> = settingsPreferences.unpinSetting(id)
 
-    fun excludeSetting(id: String): Set<String> = updateStringSet(KEY_EXCLUDED_SETTINGS) {
-        it.add(id)
-    }
+    fun excludeSetting(id: String): Set<String> = settingsPreferences.excludeSetting(id)
 
-    fun removeExcludedSetting(id: String): Set<String> = updateStringSet(KEY_EXCLUDED_SETTINGS) {
-        it.remove(id)
-    }
+    fun removeExcludedSetting(id: String): Set<String> = settingsPreferences.removeExcludedSetting(id)
 
-    fun clearAllExcludedSettings(): Set<String> = clearStringSet(KEY_EXCLUDED_SETTINGS)
+    fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
 
     // ============================================================================
     // Nickname Preferences
     // ============================================================================
 
-    fun getAppNickname(packageName: String): String? {
-        return prefs.getString("$KEY_NICKNAME_APP_PREFIX$packageName", null)
-    }
+    fun getAppNickname(packageName: String): String? = nicknamePreferences.getAppNickname(packageName)
 
-    fun setAppNickname(packageName: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_APP_PREFIX$packageName"
-        if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
-        } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
-        }
-    }
+    fun setAppNickname(packageName: String, nickname: String?) = nicknamePreferences.setAppNickname(packageName, nickname)
 
-    fun getContactNickname(contactId: Long): String? {
-        return prefs.getString("$KEY_NICKNAME_CONTACT_PREFIX$contactId", null)
-    }
+    fun getContactNickname(contactId: Long): String? = nicknamePreferences.getContactNickname(contactId)
 
-    fun setContactNickname(contactId: Long, nickname: String?) {
-        val key = "$KEY_NICKNAME_CONTACT_PREFIX$contactId"
-        if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
-        } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
-        }
-    }
+    fun setContactNickname(contactId: Long, nickname: String?) = nicknamePreferences.setContactNickname(contactId, nickname)
 
-    fun getFileNickname(uri: String): String? {
-        return prefs.getString("$KEY_NICKNAME_FILE_PREFIX$uri", null)
-    }
+    fun getFileNickname(uri: String): String? = nicknamePreferences.getFileNickname(uri)
 
-    fun setFileNickname(uri: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_FILE_PREFIX$uri"
-        if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
-        } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
-        }
-    }
+    fun setFileNickname(uri: String, nickname: String?) = nicknamePreferences.setFileNickname(uri, nickname)
 
-    fun getSettingNickname(id: String): String? {
-        return prefs.getString("$KEY_NICKNAME_SETTING_PREFIX$id", null)
-    }
+    fun getSettingNickname(id: String): String? = nicknamePreferences.getSettingNickname(id)
 
-    fun setSettingNickname(id: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_SETTING_PREFIX$id"
-        if (nickname.isNullOrBlank()) {
-            prefs.edit().remove(key).apply()
-        } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
-        }
-    }
+    fun setSettingNickname(id: String, nickname: String?) = nicknamePreferences.setSettingNickname(id, nickname)
 
     /**
      * Finds contact IDs that have nicknames matching the query.
      */
-    fun findContactsWithMatchingNickname(query: String): Set<Long> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
-        if (normalizedQuery.isBlank()) return emptySet()
-
-        val matchingContactIds = mutableSetOf<Long>()
-        val allPrefs = prefs.all
-        
-        for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_CONTACT_PREFIX) && value is String) {
-                val nickname = value.lowercase(Locale.getDefault())
-                if (nickname.contains(normalizedQuery)) {
-                    val contactIdStr = key.removePrefix(KEY_NICKNAME_CONTACT_PREFIX)
-                    contactIdStr.toLongOrNull()?.let { matchingContactIds.add(it) }
-                }
-            }
-        }
-        
-        return matchingContactIds
-    }
+    fun findContactsWithMatchingNickname(query: String): Set<Long> = nicknamePreferences.findContactsWithMatchingNickname(query)
 
     /**
      * Finds file URIs that have nicknames matching the query.
      */
-    fun findFilesWithMatchingNickname(query: String): Set<String> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
-        if (normalizedQuery.isBlank()) return emptySet()
-
-        val matchingFileUris = mutableSetOf<String>()
-        val allPrefs = prefs.all
-        
-        for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_FILE_PREFIX) && value is String) {
-                val nickname = value.lowercase(Locale.getDefault())
-                if (nickname.contains(normalizedQuery)) {
-                    val fileUri = key.removePrefix(KEY_NICKNAME_FILE_PREFIX)
-                    matchingFileUris.add(fileUri)
-                }
-            }
-        }
-        
-        return matchingFileUris
-    }
+    fun findFilesWithMatchingNickname(query: String): Set<String> = nicknamePreferences.findFilesWithMatchingNickname(query)
 
     /**
      * Finds settings that have nicknames matching the query.
      */
-    fun findSettingsWithMatchingNickname(query: String): Set<String> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
-        if (normalizedQuery.isBlank()) return emptySet()
+    fun findSettingsWithMatchingNickname(query: String): Set<String> = nicknamePreferences.findSettingsWithMatchingNickname(query)
 
-        val matchingSettingIds = mutableSetOf<String>()
-        val allPrefs = prefs.all
-
-        for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_SETTING_PREFIX) && value is String) {
-                val nickname = value.lowercase(Locale.getDefault())
-                if (nickname.contains(normalizedQuery)) {
-                    val id = key.removePrefix(KEY_NICKNAME_SETTING_PREFIX)
-                    matchingSettingIds.add(id)
-                }
-            }
-        }
-
-        return matchingSettingIds
-    }
-
-    fun getEnabledFileTypes(): Set<FileType> {
-        val enabledNames = prefs.getStringSet(KEY_ENABLED_FILE_TYPES, null)
-        return if (enabledNames == null) {
-            // Default: all file types enabled except OTHER
-            FileType.values().filter { it != FileType.OTHER }.toSet()
-        } else {
-            migrateAndGetFileTypes(enabledNames)
-        }
-    }
-
-    fun setEnabledFileTypes(enabled: Set<FileType>) {
-        prefs.edit().putStringSet(KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
-    }
 
     // ============================================================================
     // Search Engine Preferences
     // ============================================================================
 
-    fun getDisabledSearchEngines(): Set<String> = getStringSet(KEY_DISABLED_SEARCH_ENGINES)
+    fun getDisabledSearchEngines(): Set<String> = searchEnginePreferences.getDisabledSearchEngines()
 
-    fun setDisabledSearchEngines(disabled: Set<String>) {
-        prefs.edit().putStringSet(KEY_DISABLED_SEARCH_ENGINES, disabled).apply()
-    }
+    fun setDisabledSearchEngines(disabled: Set<String>) = searchEnginePreferences.setDisabledSearchEngines(disabled)
 
-    fun getSearchEngineOrder(): List<String> = getStringListPref(KEY_SEARCH_ENGINE_ORDER)
+    fun getSearchEngineOrder(): List<String> = searchEnginePreferences.getSearchEngineOrder()
 
-    fun setSearchEngineOrder(order: List<String>) {
-        setStringListPref(KEY_SEARCH_ENGINE_ORDER, order)
-    }
+    fun setSearchEngineOrder(order: List<String>) = searchEnginePreferences.setSearchEngineOrder(order)
 
-    fun isSearchEngineSectionEnabled(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, true)
+    fun isSearchEngineSectionEnabled(): Boolean = searchEnginePreferences.isSearchEngineSectionEnabled()
 
-    fun setSearchEngineSectionEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, enabled)
-    }
+    fun setSearchEngineSectionEnabled(enabled: Boolean) = searchEnginePreferences.setSearchEngineSectionEnabled(enabled)
 
     // ============================================================================
     // Shortcut Preferences
     // ============================================================================
 
-    fun areShortcutsEnabled(): Boolean = getBooleanPref(KEY_SHORTCUTS_ENABLED, true)
+    fun areShortcutsEnabled(): Boolean = shortcutPreferences.areShortcutsEnabled()
 
-    fun setShortcutsEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_SHORTCUTS_ENABLED, enabled)
-    }
+    fun setShortcutsEnabled(enabled: Boolean) = shortcutPreferences.setShortcutsEnabled(enabled)
 
-    fun getShortcutCode(engine: SearchEngine): String {
-        val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
-        val defaultCode = getDefaultShortcutCode(engine)
-        val storedCode = prefs.getString(key, defaultCode) ?: defaultCode
-        val normalizedCode = normalizeShortcutCodeInput(storedCode)
-        return if (isValidShortcutCode(normalizedCode)) {
-            normalizedCode
-        } else {
-            defaultCode
-        }
-    }
+    fun getShortcutCode(engine: com.tk.quicksearch.search.SearchEngine): String = shortcutPreferences.getShortcutCode(engine)
 
-    fun setShortcutCode(engine: SearchEngine, code: String) {
-        val key = "$KEY_SHORTCUT_CODE_PREFIX${engine.name}"
-        val normalizedCode = normalizeShortcutCodeInput(code)
-        if (!isValidShortcutCode(normalizedCode)) {
-            return
-        }
-        prefs.edit().putString(key, normalizedCode).apply()
-    }
+    fun setShortcutCode(engine: com.tk.quicksearch.search.SearchEngine, code: String) = shortcutPreferences.setShortcutCode(engine, code)
 
-    fun isShortcutEnabled(engine: SearchEngine): Boolean {
-        val key = "$KEY_SHORTCUT_ENABLED_PREFIX${engine.name}"
-        return getBooleanPref(key, true)
-    }
+    fun isShortcutEnabled(engine: com.tk.quicksearch.search.SearchEngine): Boolean = shortcutPreferences.isShortcutEnabled(engine)
 
-    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) {
-        val key = "$KEY_SHORTCUT_ENABLED_PREFIX${engine.name}"
-        setBooleanPref(key, enabled)
-    }
+    fun setShortcutEnabled(engine: com.tk.quicksearch.search.SearchEngine, enabled: Boolean) = shortcutPreferences.setShortcutEnabled(engine, enabled)
 
-    fun getAllShortcutCodes(): Map<SearchEngine, String> {
-        return SearchEngine.values().associateWith { getShortcutCode(it) }
-    }
+    fun getAllShortcutCodes(): Map<com.tk.quicksearch.search.SearchEngine, String> = shortcutPreferences.getAllShortcutCodes()
 
     // ============================================================================
     // Amazon Domain Preferences
     // ============================================================================
 
-    fun getAmazonDomain(): String? {
-        return prefs.getString(KEY_AMAZON_DOMAIN, null)
-    }
+    fun getAmazonDomain(): String? = amazonPreferences.getAmazonDomain()
 
-    fun setAmazonDomain(domain: String?) {
-        if (domain.isNullOrBlank()) {
-            prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
-        } else {
-            // Normalize domain (remove protocol, www, trailing slashes)
-            val normalizedDomain = domain.trim()
-                .removePrefix("https://")
-                .removePrefix("http://")
-                .removePrefix("www.")
-                .removeSuffix("/")
-            
-            // Validate domain before saving
-            if (isValidAmazonDomain(normalizedDomain)) {
-                prefs.edit().putString(KEY_AMAZON_DOMAIN, normalizedDomain).apply()
-            } else {
-                // Invalid domain - don't save, just remove the existing one
-                prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
-            }
-        }
-    }
+    fun setAmazonDomain(domain: String?) = amazonPreferences.setAmazonDomain(domain)
 
     // ============================================================================
     // Gemini API Preferences
     // ============================================================================
 
-    fun getGeminiApiKey(): String? {
-        val securePrefs = encryptedPrefs ?: run {
-            Log.e(TAG, "EncryptedSharedPreferences unavailable; Gemini API key not loaded")
-            return null
-        }
+    fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
 
-        // First try to get from encrypted storage
-        val encryptedKey = securePrefs.getString(KEY_GEMINI_API_KEY, null)
-        if (!encryptedKey.isNullOrBlank()) return encryptedKey
+    fun setGeminiApiKey(key: String?) = geminiPreferences.setGeminiApiKey(key)
 
-        // Migration: If not in encrypted storage, check plain text storage and migrate
-        val plainTextKey = prefs.getString(KEY_GEMINI_API_KEY, null)
-        if (!plainTextKey.isNullOrBlank()) {
-            // Migrate to encrypted storage
-            securePrefs.edit().putString(KEY_GEMINI_API_KEY, plainTextKey).apply()
-            // Remove from plain text storage
-            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
-            return plainTextKey
-        }
-        
-        return null
-    }
+    fun getPersonalContext(): String? = geminiPreferences.getPersonalContext()
 
-    fun setGeminiApiKey(key: String?) {
-        val securePrefs = encryptedPrefs ?: run {
-            Log.e(TAG, "EncryptedSharedPreferences unavailable; Gemini API key not persisted")
-            return
-        }
-
-        if (key.isNullOrBlank()) {
-            // Remove from both encrypted and plain text (for migration safety)
-            securePrefs.edit().remove(KEY_GEMINI_API_KEY).apply()
-            prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
-            return
-        }
-
-        val normalizedKey = key.trim()
-        // Save to encrypted storage
-        securePrefs.edit().putString(KEY_GEMINI_API_KEY, normalizedKey).apply()
-        // Also remove from plain text storage if it exists (cleanup)
-        prefs.edit().remove(KEY_GEMINI_API_KEY).apply()
-    }
-
-    fun getPersonalContext(): String? {
-        // Prefer encrypted storage when available
-        val securePrefs = encryptedPrefs
-        val encryptedValue = securePrefs?.getString(KEY_GEMINI_PERSONAL_CONTEXT, null)
-        if (!encryptedValue.isNullOrBlank()) return encryptedValue
-
-        return prefs.getString(KEY_GEMINI_PERSONAL_CONTEXT, null)
-    }
-
-    fun setPersonalContext(context: String?) {
-        val trimmed = context?.trim()
-        val securePrefs = encryptedPrefs
-
-        if (trimmed.isNullOrEmpty()) {
-            securePrefs?.edit()?.remove(KEY_GEMINI_PERSONAL_CONTEXT)?.apply()
-            prefs.edit().remove(KEY_GEMINI_PERSONAL_CONTEXT).apply()
-            return
-        }
-
-        if (securePrefs != null) {
-            securePrefs.edit().putString(KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
-            // Keep plain storage clean if we can encrypt
-            prefs.edit().remove(KEY_GEMINI_PERSONAL_CONTEXT).apply()
-        } else {
-            prefs.edit().putString(KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
-        }
-    }
+    fun setPersonalContext(context: String?) = geminiPreferences.setPersonalContext(context)
 
     // ============================================================================
     // UI Preferences
     // ============================================================================
 
-    fun isKeyboardAlignedLayout(): Boolean = getBooleanPref(KEY_KEYBOARD_ALIGNED_LAYOUT, false)
+    fun isKeyboardAlignedLayout(): Boolean = uiPreferences.isKeyboardAlignedLayout()
 
-    fun setKeyboardAlignedLayout(enabled: Boolean) {
-        setBooleanPref(KEY_KEYBOARD_ALIGNED_LAYOUT, enabled)
-    }
+    fun setKeyboardAlignedLayout(enabled: Boolean) = uiPreferences.setKeyboardAlignedLayout(enabled)
 
-    fun getMessagingApp(): MessagingApp {
-        // Migrate from old boolean preference if it exists
-        val oldKeyExists = prefs.contains(KEY_USE_WHATSAPP_FOR_MESSAGES)
-        if (oldKeyExists) {
-            val useWhatsApp = getBooleanPref(KEY_USE_WHATSAPP_FOR_MESSAGES, false)
-            val migratedApp = if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES
-            // Save migrated value and remove old key
-            setMessagingApp(migratedApp)
-            prefs.edit().remove(KEY_USE_WHATSAPP_FOR_MESSAGES).apply()
-            return migratedApp
-        }
-        
-        // Read new enum preference
-        val appName = prefs.getString(KEY_MESSAGING_APP, null)
-        return if (appName != null) {
-            try {
-                MessagingApp.valueOf(appName)
-            } catch (e: IllegalArgumentException) {
-                MessagingApp.MESSAGES
-            }
-        } else {
-            MessagingApp.MESSAGES
-        }
-    }
+    fun getMessagingApp(): com.tk.quicksearch.search.MessagingApp = uiPreferences.getMessagingApp()
 
-    fun setMessagingApp(app: MessagingApp) {
-        prefs.edit().putString(KEY_MESSAGING_APP, app.name).apply()
-    }
-    
+    fun setMessagingApp(app: com.tk.quicksearch.search.MessagingApp) = uiPreferences.setMessagingApp(app)
+
     @Deprecated("Use getMessagingApp() instead", ReplaceWith("getMessagingApp()"))
-    fun useWhatsAppForMessages(): Boolean {
-        return getMessagingApp() == MessagingApp.WHATSAPP
-    }
-    
+    fun useWhatsAppForMessages(): Boolean = uiPreferences.useWhatsAppForMessages()
+
     @Deprecated("Use setMessagingApp() instead", ReplaceWith("setMessagingApp(MessagingApp.WHATSAPP)"))
-    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
-        setMessagingApp(if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES)
-    }
+    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) = uiPreferences.setUseWhatsAppForMessages(useWhatsApp)
 
-    fun isFirstLaunch(): Boolean {
-        syncInstallTimeWithBackup()
-        return getFirstLaunchFlag()
-    }
+    fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()
 
-    fun setFirstLaunchCompleted() {
-        setFirstLaunchFlag(false)
-        recordCurrentInstallTime()
-    }
+    fun setFirstLaunchCompleted() = uiPreferences.setFirstLaunchCompleted()
 
-    fun shouldShowWallpaperBackground(): Boolean = getBooleanPref(KEY_SHOW_WALLPAPER_BACKGROUND, true)
+    fun shouldShowWallpaperBackground(): Boolean = uiPreferences.shouldShowWallpaperBackground()
 
-    fun setShowWallpaperBackground(showWallpaper: Boolean) {
-        setBooleanPref(KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
-    }
+    fun setShowWallpaperBackground(showWallpaper: Boolean) = uiPreferences.setShowWallpaperBackground(showWallpaper)
 
-    fun shouldClearQueryAfterSearchEngine(): Boolean = getBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, false)
+    fun shouldClearQueryAfterSearchEngine(): Boolean = uiPreferences.shouldClearQueryAfterSearchEngine()
 
-    fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
-        setBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, clearQuery)
-    }
+    fun setClearQueryAfterSearchEngine(clearQuery: Boolean) = uiPreferences.setClearQueryAfterSearchEngine(clearQuery)
 
-    fun shouldShowAllResults(): Boolean = getBooleanPref(KEY_SHOW_ALL_RESULTS, false)
+    fun shouldShowAllResults(): Boolean = uiPreferences.shouldShowAllResults()
 
-    fun setShowAllResults(showAllResults: Boolean) {
-        setBooleanPref(KEY_SHOW_ALL_RESULTS, showAllResults)
-    }
+    fun setShowAllResults(showAllResults: Boolean) = uiPreferences.setShowAllResults(showAllResults)
 
-    fun getSelectedIconPackPackage(): String? {
-        return prefs.getString(KEY_SELECTED_ICON_PACK, null)
-    }
+    fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 
-    fun setSelectedIconPackPackage(packageName: String?) {
-        val editor = prefs.edit()
-        if (packageName.isNullOrBlank()) {
-            editor.remove(KEY_SELECTED_ICON_PACK)
-        } else {
-            editor.putString(KEY_SELECTED_ICON_PACK, packageName)
-        }
-        editor.apply()
-    }
+    fun setSelectedIconPackPackage(packageName: String?) = uiPreferences.setSelectedIconPackPackage(packageName)
 
-    fun shouldSortAppsByUsage(): Boolean = getBooleanPref(KEY_SORT_APPS_BY_USAGE, true)
+    fun shouldSortAppsByUsage(): Boolean = uiPreferences.shouldSortAppsByUsage()
 
-    fun setSortAppsByUsage(sortAppsByUsage: Boolean) {
-        setBooleanPref(KEY_SORT_APPS_BY_USAGE, sortAppsByUsage)
-    }
+    fun setSortAppsByUsage(sortAppsByUsage: Boolean) = uiPreferences.setSortAppsByUsage(sortAppsByUsage)
 
-    fun isDirectSearchSetupExpanded(): Boolean = getBooleanPref(KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
+    fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 
-    fun setDirectSearchSetupExpanded(expanded: Boolean) {
-        setBooleanPref(KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
-    }
+    fun setDirectSearchSetupExpanded(expanded: Boolean) = uiPreferences.setDirectSearchSetupExpanded(expanded)
 
-    fun getLastSeenVersionName(): String? = prefs.getString(KEY_LAST_SEEN_VERSION, null)
+    fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
-    fun setLastSeenVersionName(versionName: String?) {
-        val normalized = versionName?.trim()
-        val editor = prefs.edit()
-        if (normalized.isNullOrEmpty()) {
-            editor.remove(KEY_LAST_SEEN_VERSION)
-        } else {
-            editor.putString(KEY_LAST_SEEN_VERSION, normalized)
-        }
-        editor.apply()
-    }
+    fun setLastSeenVersionName(versionName: String?) = uiPreferences.setLastSeenVersionName(versionName)
 
-    fun getUsagePermissionBannerDismissCount(): Int {
-        return firstLaunchPrefs.getInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
-    }
+    fun getUsagePermissionBannerDismissCount(): Int = uiPreferences.getUsagePermissionBannerDismissCount()
 
-    fun incrementUsagePermissionBannerDismissCount() {
-        val currentCount = getUsagePermissionBannerDismissCount()
-        firstLaunchPrefs.edit().putInt(KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
-    }
+    fun incrementUsagePermissionBannerDismissCount() = uiPreferences.incrementUsagePermissionBannerDismissCount()
 
-    fun isUsagePermissionBannerSessionDismissed(): Boolean {
-        return firstLaunchPrefs.getBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
-    }
+    fun isUsagePermissionBannerSessionDismissed(): Boolean = uiPreferences.isUsagePermissionBannerSessionDismissed()
 
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        firstLaunchPrefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed).apply()
-    }
+    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) = uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
 
-    fun resetUsagePermissionBannerSessionDismissed() {
-        firstLaunchPrefs.edit().putBoolean(KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false).apply()
-    }
+    fun resetUsagePermissionBannerSessionDismissed() = uiPreferences.resetUsagePermissionBannerSessionDismissed()
 
-    fun shouldShowUsagePermissionBanner(): Boolean {
-        // Show banner if: total dismiss count < 2 AND session not dismissed
-        return getUsagePermissionBannerDismissCount() < 2 && !isUsagePermissionBannerSessionDismissed()
-    }
+    fun shouldShowUsagePermissionBanner(): Boolean = uiPreferences.shouldShowUsagePermissionBanner()
 
     // ============================================================================
     // Web Search Suggestions Preferences
     // ============================================================================
 
-    fun areWebSuggestionsEnabled(): Boolean = getBooleanPref(KEY_WEB_SUGGESTIONS_ENABLED, true)
+    fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 
-    fun setWebSuggestionsEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_WEB_SUGGESTIONS_ENABLED, enabled)
-    }
+    fun setWebSuggestionsEnabled(enabled: Boolean) = uiPreferences.setWebSuggestionsEnabled(enabled)
 
     // ============================================================================
     // Calculator Preferences
     // ============================================================================
 
-    fun isCalculatorEnabled(): Boolean = getBooleanPref(KEY_CALCULATOR_ENABLED, true)
+    fun isCalculatorEnabled(): Boolean = uiPreferences.isCalculatorEnabled()
 
-    fun setCalculatorEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_CALCULATOR_ENABLED, enabled)
-    }
+    fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
 
     // ============================================================================
     // Usage permission banner preferences keys
     // ============================================================================
 
-    fun getShortcutHintBannerDismissCount(): Int {
-        return firstLaunchPrefs.getInt(KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, 0)
-    }
+    fun getShortcutHintBannerDismissCount(): Int = uiPreferences.getShortcutHintBannerDismissCount()
 
-    fun incrementShortcutHintBannerDismissCount() {
-        val currentCount = getShortcutHintBannerDismissCount()
-        firstLaunchPrefs.edit().putInt(KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, currentCount + 1).apply()
-    }
+    fun incrementShortcutHintBannerDismissCount() = uiPreferences.incrementShortcutHintBannerDismissCount()
 
-    fun isShortcutHintBannerSessionDismissed(): Boolean {
-        return firstLaunchPrefs.getBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false)
-    }
+    fun isShortcutHintBannerSessionDismissed(): Boolean = uiPreferences.isShortcutHintBannerSessionDismissed()
 
-    fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) {
-        firstLaunchPrefs.edit().putBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, dismissed).apply()
-    }
+    fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) = uiPreferences.setShortcutHintBannerSessionDismissed(dismissed)
 
-    fun resetShortcutHintBannerSessionDismissed() {
-        firstLaunchPrefs.edit().putBoolean(KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false).apply()
-    }
+    fun resetShortcutHintBannerSessionDismissed() = uiPreferences.resetShortcutHintBannerSessionDismissed()
 
-    fun shouldShowShortcutHintBanner(): Boolean {
-        return getShortcutHintBannerDismissCount() < 2 && !isShortcutHintBannerSessionDismissed()
-    }
+    fun shouldShowShortcutHintBanner(): Boolean = uiPreferences.shouldShowShortcutHintBanner()
 
     // ============================================================================
     // Section Preferences
     // ============================================================================
 
-    fun getSectionOrder(): List<String> = getStringListPref(KEY_SECTION_ORDER)
+    fun getSectionOrder(): List<String> = uiPreferences.getSectionOrder()
 
-    fun setSectionOrder(order: List<String>) {
-        setStringListPref(KEY_SECTION_ORDER, order)
-    }
+    fun setSectionOrder(order: List<String>) = uiPreferences.setSectionOrder(order)
 
-    fun getDisabledSections(): Set<String> = getStringSet(KEY_DISABLED_SECTIONS)
+    fun getDisabledSections(): Set<String> = uiPreferences.getDisabledSections()
 
-    fun setDisabledSections(disabled: Set<String>) {
-        prefs.edit().putStringSet(KEY_DISABLED_SECTIONS, disabled).apply()
-    }
+    fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)
 
-    // ============================================================================
-    // Private Helper Functions
-    // ============================================================================
 
-    private fun migrateHiddenPackages() {
-        val legacyHidden = getStringSet(KEY_HIDDEN_LEGACY)
-        val currentSuggestions = prefs.getStringSet(KEY_HIDDEN_SUGGESTIONS, null)
-        val currentResults = prefs.getStringSet(KEY_HIDDEN_RESULTS, null)
-
-        if (legacyHidden.isEmpty()) {
-            // Nothing to migrate; ensure legacy key is cleaned up if present
-            if (prefs.contains(KEY_HIDDEN_LEGACY)) {
-                prefs.edit().remove(KEY_HIDDEN_LEGACY).apply()
-            }
-            return
-        }
-
-        val editor = prefs.edit()
-        if (currentSuggestions.isNullOrEmpty()) {
-            editor.putStringSet(KEY_HIDDEN_SUGGESTIONS, legacyHidden)
-        }
-        if (currentResults.isNullOrEmpty()) {
-            editor.putStringSet(KEY_HIDDEN_RESULTS, legacyHidden)
-        }
-        editor.remove(KEY_HIDDEN_LEGACY).apply()
-    }
-
-    private fun getStringSet(key: String): Set<String> {
-        return prefs.getStringSet(key, emptySet()).orEmpty().toSet()
-    }
-
-    private fun getLongSet(key: String): Set<Long> {
-        return prefs.getStringSet(key, emptySet()).orEmpty()
-            .mapNotNull { it.toLongOrNull() }
-            .toSet()
-    }
-
-    private fun getBooleanPref(key: String, defaultValue: Boolean): Boolean {
-        return prefs.getBoolean(key, defaultValue)
-    }
-
-    private fun setBooleanPref(key: String, value: Boolean) {
-        prefs.edit().putBoolean(key, value).apply()
-    }
-
-    private fun getStringListPref(key: String): List<String> {
-        val orderString = prefs.getString(key, null)
-        return if (orderString.isNullOrBlank()) {
-            emptyList()
-        } else {
-            orderString.split(",").filter { it.isNotBlank() }
-        }
-    }
-
-    private fun setStringListPref(key: String, order: List<String>) {
-        prefs.edit().putString(key, order.joinToString(",")).apply()
-    }
-
-    private inline fun updateStringSet(
-        key: String,
-        block: (MutableSet<String>) -> Unit
-    ): Set<String> {
-        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
-        block(current)
-        val snapshot = current.toSet()
-        prefs.edit().putStringSet(key, snapshot).apply()
-        return snapshot
-    }
-
-    private inline fun updateLongSet(
-        key: String,
-        block: (MutableSet<String>) -> Unit
-    ): Set<Long> {
-        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
-        block(current)
-        val snapshot = current.toSet()
-        prefs.edit().putStringSet(key, snapshot).apply()
-        return snapshot.mapNotNull { it.toLongOrNull() }.toSet()
-    }
-
-    private fun clearStringSet(key: String): Set<String> {
-        prefs.edit().putStringSet(key, emptySet()).apply()
-        return emptySet()
-    }
-
-    private fun clearLongSet(key: String): Set<Long> {
-        prefs.edit().putStringSet(key, emptySet()).apply()
-        return emptySet()
-    }
-
-    private fun migrateAndGetFileTypes(enabledNames: Set<String>): Set<FileType> {
-        val migratedNames = enabledNames.map { name ->
-            // Migrate old IMAGES or VIDEOS to PHOTOS_AND_VIDEOS
-            when (name) {
-                "IMAGES", "VIDEOS" -> "PHOTOS_AND_VIDEOS"
-                else -> name
-            }
-        }.toSet()
-
-        val result = migratedNames.mapNotNull { name ->
-            FileType.values().find { it.name == name }
-        }.toSet()
-
-        // If migration occurred, save the migrated preferences
-        if (migratedNames != enabledNames) {
-            setEnabledFileTypes(result)
-        }
-
-        return result
-    }
-
-    private fun getDefaultShortcutCode(engine: SearchEngine): String {
-        return engine.getDefaultShortcutCode()
-    }
-
-    private fun syncInstallTimeWithBackup() {
-        val currentInstallTime = getCurrentInstallTime() ?: return
-        val storedInstallTime = prefs.getLong(KEY_INSTALL_TIME, -1L)
-
-        if (storedInstallTime == -1L) {
-            prefs.edit().putLong(KEY_INSTALL_TIME, currentInstallTime).apply()
-            return
-        }
-
-        if (storedInstallTime != currentInstallTime) {
-            // Restored from backup on a fresh install: treat as first launch again
-            prefs.edit()
-                .putLong(KEY_INSTALL_TIME, currentInstallTime)
-                .apply()
-            setFirstLaunchFlag(true)
-        }
-    }
-
-    private fun recordCurrentInstallTime() {
-        val currentInstallTime = getCurrentInstallTime() ?: return
-        prefs.edit().putLong(KEY_INSTALL_TIME, currentInstallTime).apply()
-    }
-
-    private fun getCurrentInstallTime(): Long? {
-        return try {
-            val packageManager = appContext.packageManager
-            val packageName = appContext.packageName
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getPackageInfo(
-                    packageName,
-                    PackageManager.PackageInfoFlags.of(0)
-                ).firstInstallTime
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, 0).firstInstallTime
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Unable to read install time", e)
-            null
-        }
-    }
-
-    private fun getFirstLaunchFlag(): Boolean {
-        // Prefer the dedicated non-backed-up prefs. If missing, infer a safe value.
-        if (!firstLaunchPrefs.contains(KEY_FIRST_LAUNCH)) {
-            val currentInstallTime = getCurrentInstallTime()
-            val isFreshInstall = currentInstallTime != null &&
-                System.currentTimeMillis() - currentInstallTime < FRESH_INSTALL_THRESHOLD_MS
-
-            // If this looks like a fresh install, default to true even if legacy prefs say otherwise.
-            val legacyValue = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
-            val initialValue = if (isFreshInstall) true else legacyValue
-            setFirstLaunchFlag(initialValue)
-            return initialValue
-        }
-
-        return firstLaunchPrefs.getBoolean(KEY_FIRST_LAUNCH, true)
-    }
-
-    private fun setFirstLaunchFlag(value: Boolean) {
-        firstLaunchPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
-        // Keep legacy location in sync for backward compatibility
-        prefs.edit().putBoolean(KEY_FIRST_LAUNCH, value).apply()
-    }
-
-    private companion object {
-        private const val TAG = "UserAppPreferences"
-        
-        // SharedPreferences name
-        private const val PREFS_NAME = "user_app_preferences"
-        private const val FIRST_LAUNCH_PREFS_NAME = "first_launch_state"
-        private const val ENCRYPTED_PREFS_NAME = "encrypted_user_preferences"
-
-        // App preferences keys
-        private const val KEY_HIDDEN_LEGACY = "hidden_packages"
-        private const val KEY_HIDDEN_SUGGESTIONS = "hidden_packages_suggestions"
-        private const val KEY_HIDDEN_RESULTS = "hidden_packages_results"
-        private const val KEY_PINNED = "pinned_packages"
-
-        // Contact preferences keys
-        private const val KEY_PINNED_CONTACT_IDS = "pinned_contact_ids"
-        private const val KEY_EXCLUDED_CONTACT_IDS = "excluded_contact_ids"
-    private const val KEY_PREFERRED_PHONE_PREFIX = "preferred_phone_"
-    private const val KEY_LAST_SHOWN_PHONE_PREFIX = "last_shown_phone_"
-    private const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
-    private const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
-
-        // File preferences keys
-        private const val KEY_PINNED_FILE_URIS = "pinned_file_uris"
-        private const val KEY_EXCLUDED_FILE_URIS = "excluded_file_uris"
-        private const val KEY_EXCLUDED_FILE_EXTENSIONS = "excluded_file_extensions"
-        private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
-
-        // Settings preferences keys
-        private const val KEY_PINNED_SETTINGS = "pinned_settings"
-        private const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
-
-        // Search engine preferences keys
-        private const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
-        private const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
-        private const val KEY_SEARCH_ENGINE_SECTION_ENABLED = "search_engine_section_enabled"
-
-        // Shortcut preferences keys
-        private const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"
-        private const val KEY_SHORTCUT_CODE_PREFIX = "shortcut_code_"
-        private const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
-
-        // UI preferences keys
-        private const val KEY_KEYBOARD_ALIGNED_LAYOUT = "keyboard_aligned_layout"
-        private const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
-        private const val KEY_MESSAGING_APP = "messaging_app"
-        private const val KEY_FIRST_LAUNCH = "first_launch"
-        private const val KEY_INSTALL_TIME = "install_time"
-        private const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
-        private const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
-        private const val KEY_SHOW_ALL_RESULTS = "show_all_results"
-        private const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
-        private const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
-        private const val KEY_LAST_SEEN_VERSION = "last_seen_version"
-        private const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
-
-        // Fresh install detection window (10 minutes)
-        private const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L
-
-        // Section preferences keys
-        private const val KEY_SECTION_ORDER = "section_order"
-        private const val KEY_DISABLED_SECTIONS = "disabled_sections"
-
-        // Amazon domain preferences keys
-        private const val KEY_AMAZON_DOMAIN = "amazon_domain"
-        private const val KEY_GEMINI_API_KEY = "gemini_api_key"
-        private const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
-
-        // Usage permission banner preferences keys
-        private const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
-        private const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED = "usage_permission_banner_session_dismissed"
-
-        // Shortcut hint banner preferences keys
-        private const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT = "shortcut_hint_banner_dismiss_count"
-        private const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED = "shortcut_hint_banner_session_dismissed"
-
-        // Web search suggestions preferences keys
-        private const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
-
-        // Calculator preferences keys
-        private const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
-
-        // Nickname preferences keys
-        private const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
-        private const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
-        private const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
-        private const val KEY_NICKNAME_SETTING_PREFIX = "nickname_setting_"
-    }
 }
