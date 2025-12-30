@@ -60,7 +60,7 @@ class IconPackHandler(
                 state.copy(selectedIconPackPackage = normalizedSelection)
             }
 
-            prefetchVisibleAppIcons()
+
         }
     }
 
@@ -69,8 +69,26 @@ class IconPackHandler(
         // For now, we'll leave it as a placeholder
     }
 
-    private fun prefetchVisibleAppIcons() {
-        // This would need to be implemented based on the existing prefetch logic
-        // For now, we'll leave it as a placeholder
+    fun prefetchVisibleAppIcons(
+        pinnedApps: List<com.tk.quicksearch.model.AppInfo>,
+        recents: List<com.tk.quicksearch.model.AppInfo>,
+        searchResults: List<com.tk.quicksearch.model.AppInfo>
+    ) {
+        val iconPack = selectedIconPackPackage ?: return
+        val packageNames = buildList {
+            addAll(pinnedApps.map { it.packageName })
+            addAll(recents.map { it.packageName })
+            addAll(searchResults.take(10).map { it.packageName }) // 10 is default GRID_ITEM_COUNT
+        }
+        if (packageNames.isEmpty()) return
+
+        scope.launch(Dispatchers.IO) {
+            prefetchAppIcons(
+                context = application,
+                packageNames = packageNames,
+                iconPackPackage = iconPack,
+                maxCount = 30
+            )
+        }
     }
 }

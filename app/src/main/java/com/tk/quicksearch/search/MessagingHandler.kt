@@ -1,0 +1,79 @@
+package com.tk.quicksearch.search
+
+import android.app.Application
+import com.tk.quicksearch.data.UserAppPreferences
+
+import kotlinx.coroutines.flow.update
+
+class MessagingHandler(
+    private val application: Application,
+    private val userPreferences: UserAppPreferences,
+    private val uiStateUpdater: ( (SearchUiState) -> SearchUiState ) -> Unit
+) {
+    var messagingApp: MessagingApp = userPreferences.getMessagingApp()
+        private set
+    
+    var isWhatsAppInstalled: Boolean = false
+        private set
+        
+    var isTelegramInstalled: Boolean = false
+        private set
+
+    fun resolveMessagingApp(
+        whatsappInstalled: Boolean,
+        telegramInstalled: Boolean
+    ): MessagingApp {
+        return when (messagingApp) {
+            MessagingApp.WHATSAPP -> if (whatsappInstalled) MessagingApp.WHATSAPP else MessagingApp.MESSAGES
+            MessagingApp.TELEGRAM -> if (telegramInstalled) MessagingApp.TELEGRAM else MessagingApp.MESSAGES
+            MessagingApp.MESSAGES -> MessagingApp.MESSAGES
+        }
+    }
+
+    fun updateMessagingAvailability(
+        whatsappInstalled: Boolean,
+        telegramInstalled: Boolean,
+        updateState: Boolean = true
+    ): MessagingApp {
+        isWhatsAppInstalled = whatsappInstalled
+        isTelegramInstalled = telegramInstalled
+        
+        val resolvedMessagingApp = resolveMessagingApp(whatsappInstalled, telegramInstalled)
+        if (resolvedMessagingApp != messagingApp) {
+            messagingApp = resolvedMessagingApp
+            userPreferences.setMessagingApp(resolvedMessagingApp)
+        }
+
+        if (updateState) {
+            uiStateUpdater { state ->
+                state.copy(
+                    messagingApp = messagingApp,
+                    isWhatsAppInstalled = whatsappInstalled,
+                    isTelegramInstalled = telegramInstalled
+                )
+            }
+        }
+
+        return resolvedMessagingApp
+    }
+    
+    fun setMessagingApp(app: MessagingApp) {
+        messagingApp = app
+        // Persist the user's explicit choice before resolving availability
+        userPreferences.setMessagingApp(app)
+        updateMessagingAvailability(
+            whatsappInstalled = isWhatsAppInstalled,
+            telegramInstalled = isTelegramInstalled
+        )
+    }
+
+    fun isPackageInstalled(packageName: String): Boolean {
+        val packageManager = application.packageManager
+        return packageManager.getLaunchIntentForPackage(packageName) != null
+    }
+
+    companion object {
+        const val WHATSAPP_PACKAGE = "com.whatsapp"
+        const val TELEGRAM_PACKAGE = "org.telegram.messenger"
+    }
+}
