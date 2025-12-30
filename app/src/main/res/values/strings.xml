@@ -39,6 +39,8 @@
     <string name="direct_search_action_retry">Retry</string>
     <string name="direct_search_powered_by">Powered by </string>
     <string name="error_open_email">No email app found to send mail.</string>
+    <string name="keyboard_switch_back">Switch to regular keyboard</string>
+    <string name="keyboard_switch_to_number">Switch to number keyboard</string>
 
     <!-- ============================================================================
          Apps Section

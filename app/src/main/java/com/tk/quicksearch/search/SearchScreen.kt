@@ -7,15 +7,18 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -72,6 +75,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -84,6 +88,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.util.CalculatorUtils
 import com.tk.quicksearch.util.WallpaperUtils
 
 /**
@@ -436,12 +441,22 @@ fun SearchScreen(
     
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }
+
+    // Keyboard switching state
+    var manuallySwitchedToNumberKeyboard by remember { mutableStateOf(false) }
     
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
         expandedSection = ExpandedSection.NONE
+        // Reset keyboard state only when query is cleared completely
+        if (state.query.isEmpty()) {
+            manuallySwitchedToNumberKeyboard = false
+        }
     }
-    
+
+    // Check for math expressions to determine pill visibility
+    val hasMathExpression = CalculatorUtils.isMathExpression(state.query)
+
     // Handle back button when section is expanded
     BackHandler(enabled = expandedSection != ExpandedSection.NONE) {
         keyboardController?.show()
@@ -728,6 +743,7 @@ fun SearchScreen(
             onClearQuery = onClearQuery,
             onSettingsClick = onSettingsClick,
             enabledEngines = enabledEngines,
+            shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
                 if (trimmedQuery.isBlank()) return@PersistentSearchField
@@ -783,6 +799,36 @@ fun SearchScreen(
             onEmailClick = onDirectSearchEmailClick,
             onWebSuggestionClick = onWebSuggestionClick
         )
+
+        // Keyboard switch pill - appears above search engines
+        if (expandedSection == ExpandedSection.NONE) {
+            val pillText = if (manuallySwitchedToNumberKeyboard) {
+                stringResource(R.string.keyboard_switch_back)
+            } else if (hasMathExpression) {
+                stringResource(R.string.keyboard_switch_to_number)
+            } else {
+                null
+            }
+
+            pillText?.let {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    KeyboardSwitchPill(
+                        text = it,
+                        onClick = {
+                            if (manuallySwitchedToNumberKeyboard) {
+                                manuallySwitchedToNumberKeyboard = false
+                            } else {
+                                manuallySwitchedToNumberKeyboard = true
+                            }
+                        },
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+            }
+        }
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded, or when search engine section is disabled
@@ -1023,6 +1069,7 @@ private fun PersistentSearchField(
     onSettingsClick: () -> Unit,
     enabledEngines: List<SearchEngine>,
     onSearchAction: () -> Unit,
+    shouldUseNumberKeyboard: Boolean,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -1165,7 +1212,10 @@ private fun PersistentSearchField(
                         }
                     }
                 },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search,
+                    keyboardType = if (shouldUseNumberKeyboard) KeyboardType.Number else KeyboardType.Text
+                ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         if (query.isNotBlank()) {
@@ -1281,6 +1331,35 @@ private fun EmptyState() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun KeyboardSwitchPill(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Black.copy(alpha = 0.4f),
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .height(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
