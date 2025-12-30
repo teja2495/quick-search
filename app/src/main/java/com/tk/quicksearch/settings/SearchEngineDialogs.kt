@@ -27,13 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -176,12 +179,20 @@ fun EditAmazonDomainDialog(
     onDismiss: () -> Unit
 ) {
     val defaultDomain = "amazon.com"
-    var editingDomain by remember(currentDomain) { mutableStateOf(currentDomain ?: defaultDomain) }
+    val initialDomain = currentDomain ?: defaultDomain
+    var editingDomain by remember(currentDomain) { 
+        mutableStateOf(
+            TextFieldValue(
+                text = initialDomain,
+                selection = TextRange(initialDomain.length)
+            )
+        )
+    }
     val focusRequester = remember { FocusRequester() }
     
     // Normalize domain for validation (remove protocol, www, trailing slashes)
-    val normalizedDomain = remember(editingDomain) {
-        editingDomain.trim()
+    val normalizedDomain = remember(editingDomain.text) {
+        editingDomain.text.trim()
             .removePrefix("https://")
             .removePrefix("http://")
             .removePrefix("www.")
@@ -195,6 +206,9 @@ fun EditAmazonDomainDialog(
     
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+        // Small delay to ensure TextField is ready, then set cursor to end of text
+        delay(50)
+        editingDomain = editingDomain.copy(selection = TextRange(editingDomain.text.length))
     }
     
     AlertDialog(
@@ -214,7 +228,10 @@ fun EditAmazonDomainDialog(
                 )
                 TextField(
                     value = editingDomain,
-                    onValueChange = { editingDomain = it.replace(" ", "") },
+                    onValueChange = { 
+                        val newText = it.text.replace(" ", "")
+                        editingDomain = it.copy(text = newText)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -225,7 +242,7 @@ fun EditAmazonDomainDialog(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             if (isValid) {
-                                val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                                val domainToSave = if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
                                     null
                                 } else {
                                     normalizedDomain
@@ -259,7 +276,7 @@ fun EditAmazonDomainDialog(
             Button(
                 onClick = {
                     if (isValid) {
-                        val domainToSave = if (editingDomain.isBlank() || editingDomain.trim() == defaultDomain) {
+                        val domainToSave = if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
                             null
                         } else {
                             normalizedDomain
