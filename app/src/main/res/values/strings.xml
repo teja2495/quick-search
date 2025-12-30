@@ -447,4 +447,11 @@
     <string name="search_engine_amazon">Amazon</string>
     <string name="search_engine_ai_mode">AI mode</string>
     <string name="search_engine_direct_search">Direct Search</string>
+
+    <!-- ============================================================================
+         Settings - Feedback
+         ============================================================================ -->
+    <string name="settings_section_feedback">Feedback</string>
+    <string name="settings_feedback_send_title">Send Feedback</string>
+    <string name="settings_feedback_rate_title">Rate Quick Search</string>
 </resources>
