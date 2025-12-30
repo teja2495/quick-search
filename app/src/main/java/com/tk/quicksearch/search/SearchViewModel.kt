@@ -1600,6 +1600,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 SearchEngine.GROK,
                 SearchEngine.AI_MODE,
                 SearchEngine.GOOGLE_MAPS,
+                SearchEngine.GOOGLE_DRIVE,
+                SearchEngine.GOOGLE_PHOTOS,
                 SearchEngine.REDDIT,
                 SearchEngine.YOU_COM,
                 SearchEngine.DUCKDUCKGO,

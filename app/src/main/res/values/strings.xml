@@ -432,7 +432,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Icon pack support.\nAbility to trigger device digital assistant using mic icon in the widget.\nImproved search results ranking.\nBug fixes and performance improvements.</string>
+    <string name="release_notes_points">Added a Quick Settings tile\nContact results now show all actions like WhatsApp, Telegram, and Google Meet\nCalculator support. Do math directly in the search bar\nGoogle web suggestions now appear while searching\nNew search engines added: YouTube Music, Spotify, DuckDuckGo, Bing, Brave, You.com, X, Google Drive, Google Photos, and Facebook Marketplace\nManually refresh apps, contacts, and files data\nExclude specific file types by long pressing on file results</string>
     <string name="release_notes_action_got_it">Got it</string>
 
     <!-- ============================================================================
