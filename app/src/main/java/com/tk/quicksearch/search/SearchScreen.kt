@@ -342,7 +342,10 @@ fun SearchRoute(
         onSaveSettingNickname = viewModel::setSettingNickname,
         onDirectDialChoiceSelected = viewModel::onDirectDialChoiceSelected,
         onDismissDirectDialChoice = viewModel::dismissDirectDialChoice,
-        onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes
+        onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
+        onWebSuggestionClick = { suggestion: String ->
+            viewModel.onWebSuggestionTap(suggestion)
+        }
     )
 }
 
@@ -399,7 +402,8 @@ fun SearchScreen(
     onSaveSettingNickname: (SettingShortcut, String?) -> Unit,
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
     onDismissDirectDialChoice: () -> Unit,
-    onReleaseNotesAcknowledged: () -> Unit
+    onReleaseNotesAcknowledged: () -> Unit,
+    onWebSuggestionClick: (String) -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -776,7 +780,8 @@ fun SearchScreen(
                 )
                 onCallContact(tempContact)
             },
-            onEmailClick = onDirectSearchEmailClick
+            onEmailClick = onDirectSearchEmailClick,
+            onWebSuggestionClick = onWebSuggestionClick
         )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)

@@ -22,6 +22,7 @@ import com.tk.quicksearch.search.ContactIntentHelpers
 import com.tk.quicksearch.util.CalculatorUtils
 import com.tk.quicksearch.util.FileUtils
 import com.tk.quicksearch.util.SearchRankingUtils
+import com.tk.quicksearch.util.WebSuggestionsUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -152,7 +153,8 @@ data class SearchUiState(
     val personalContext: String = "",
     val showReleaseNotesDialog: Boolean = false,
     val releaseNotesVersionName: String? = null,
-    val calculatorState: CalculatorState = CalculatorState()
+    val calculatorState: CalculatorState = CalculatorState(),
+    val webSuggestions: List<String> = emptyList()
 )
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -223,6 +225,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var amazonDomain: String? = userPreferences.getAmazonDomain()
     private var searchJob: Job? = null
     private var DirectSearchJob: Job? = null
+    private var webSuggestionsJob: Job? = null
     private var queryVersion: Long = 0L
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -600,6 +603,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (trimmedQuery.isBlank()) {
             noMatchPrefix = null
             searchJob?.cancel()
+            webSuggestionsJob?.cancel()
             _uiState.update { 
                 it.copy(
                     query = "",
@@ -608,7 +612,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     fileResults = emptyList(),
                     settingResults = emptyList(),
                     DirectSearchState = DirectSearchState(),
-                    calculatorState = CalculatorState()
+                    calculatorState = CalculatorState(),
+                    webSuggestions = emptyList()
                 ) 
             }
             return
@@ -654,11 +659,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
+        // Clear web suggestions when query changes
+        webSuggestionsJob?.cancel()
         _uiState.update { state ->
             state.copy(
                 query = newQuery,
                 searchResults = matches,
-                calculatorState = calculatorResult
+                calculatorState = calculatorResult,
+                webSuggestions = emptyList()
             )
         }
         
@@ -671,7 +679,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 state.copy(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
-                    settingResults = emptyList()
+                    settingResults = emptyList(),
+                    webSuggestions = emptyList()
                 )
             }
         }
@@ -1999,16 +2008,60 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
+                    val hasAnyResults = filteredContacts.isNotEmpty() || 
+                        filteredFiles.isNotEmpty() || 
+                        settingsMatches.isNotEmpty() ||
+                        _uiState.value.searchResults.isNotEmpty()
+                    
                     _uiState.update { state ->
                         state.copy(
                             contactResults = filteredContacts,
                             fileResults = filteredFiles,
-                            settingResults = settingsMatches
+                            settingResults = settingsMatches,
+                            webSuggestions = if (hasAnyResults) emptyList() else state.webSuggestions
                         )
+                    }
+                    
+                    // Fetch web suggestions if there are no results and query is long enough
+                    if (!hasAnyResults && trimmedQuery.length >= 2) {
+                        fetchWebSuggestions(trimmedQuery, currentVersion)
+                    } else {
+                        // Clear suggestions if we have results
+                        webSuggestionsJob?.cancel()
+                        if (hasAnyResults) {
+                            _uiState.update { state ->
+                                state.copy(webSuggestions = emptyList())
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+    
+    private fun fetchWebSuggestions(query: String, queryVersion: Long) {
+        webSuggestionsJob?.cancel()
+        webSuggestionsJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val suggestions = WebSuggestionsUtils.getSuggestions(query)
+                withContext(Dispatchers.Main) {
+                    // Only update if query hasn't changed
+                    if (this@SearchViewModel.queryVersion == queryVersion && 
+                        _uiState.value.query.trim() == query.trim()) {
+                        _uiState.update { state ->
+                            state.copy(webSuggestions = suggestions)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Silently fail - don't show suggestions on error
+            }
+        }
+    }
+    
+    fun onWebSuggestionTap(suggestion: String) {
+        // Copy the suggestion text to the search bar
+        onQueryChange(suggestion)
     }
 
     private fun refreshOptionalPermissions(): Boolean {

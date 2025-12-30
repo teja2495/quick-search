@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.google.material)
     implementation(libs.androidx.security.crypto)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

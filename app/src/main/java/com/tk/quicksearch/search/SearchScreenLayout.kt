@@ -92,7 +92,8 @@ fun SearchContentArea(
     scrollState: androidx.compose.foundation.ScrollState,
     onRetryDirectSearch: () -> Unit,
     onPhoneNumberClick: (String) -> Unit = {},
-    onEmailClick: (String) -> Unit = {}
+    onEmailClick: (String) -> Unit = {},
+    onWebSuggestionClick: (String) -> Unit = {}
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
@@ -161,7 +162,8 @@ fun SearchContentArea(
                 // Ignore keyboard-aligned layout when direct answer card or calculator is showing
                 minContentHeight = this@BoxWithConstraints.maxHeight,
                 isReversed = useKeyboardAlignedLayout && !showDirectSearch && !showCalculator,
-                hideResults = hideResultsForDirectSearch
+                hideResults = hideResultsForDirectSearch,
+                onWebSuggestionClick = onWebSuggestionClick
             )
         }
     }
@@ -182,7 +184,8 @@ private fun ContentLayout(
     onRequestUsagePermission: () -> Unit,
     minContentHeight: Dp,
     isReversed: Boolean,
-    hideResults: Boolean
+    hideResults: Boolean,
+    onWebSuggestionClick: (String) -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -206,13 +209,25 @@ private fun ContentLayout(
                 shouldShowSettingsSection(renderingState)
 
         if (hasQuery && !hasAnySearchContent) {
-            EmptyResultsMessage(
-                enabledSections = renderingState.orderedSections,
-                showWallpaperBackground = state.showWallpaperBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-            )
+            // Show web suggestions if available, otherwise show empty message
+            if (state.webSuggestions.isNotEmpty()) {
+                WebSuggestionsSection(
+                    suggestions = state.webSuggestions,
+                    onSuggestionClick = onWebSuggestionClick,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            } else {
+                EmptyResultsMessage(
+                    enabledSections = renderingState.orderedSections,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                )
+            }
             return
         }
 
