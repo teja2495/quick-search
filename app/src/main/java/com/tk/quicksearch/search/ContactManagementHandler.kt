@@ -1,0 +1,82 @@
+package com.tk.quicksearch.search
+
+import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.model.ContactInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+/**
+ * Handles contact management operations like pinning, excluding, and nicknames.
+ */
+class ContactManagementHandler(
+    private val userPreferences: UserAppPreferences,
+    private val scope: CoroutineScope,
+    private val onStateChanged: () -> Unit,
+    private val onUiStateUpdate: (SearchUiState.() -> SearchUiState) -> Unit
+) {
+
+    fun pinContact(contactInfo: ContactInfo) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.pinContact(contactInfo.contactId)
+            onStateChanged()
+        }
+    }
+
+    fun unpinContact(contactInfo: ContactInfo) {
+        // Update UI immediately
+        onUiStateUpdate {
+            copy(
+                pinnedContacts = pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+            )
+        }
+        scope.launch(Dispatchers.IO) {
+            userPreferences.unpinContact(contactInfo.contactId)
+            onStateChanged()
+        }
+    }
+
+    fun excludeContact(contactInfo: ContactInfo) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.excludeContact(contactInfo.contactId)
+            // Removing from pinned if present
+            if (userPreferences.getPinnedContactIds().contains(contactInfo.contactId)) {
+                userPreferences.unpinContact(contactInfo.contactId)
+            }
+
+            // Update current state to reflect exclusion immediately
+            onUiStateUpdate {
+                copy(
+                    contactResults = contactResults.filterNot { it.contactId == contactInfo.contactId },
+                    pinnedContacts = pinnedContacts.filterNot { it.contactId == contactInfo.contactId }
+                )
+            }
+            onStateChanged()
+        }
+    }
+
+    fun removeExcludedContact(contactInfo: ContactInfo) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.removeExcludedContact(contactInfo.contactId)
+            onStateChanged()
+        }
+    }
+
+    fun setContactNickname(contactInfo: ContactInfo, nickname: String?) {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.setContactNickname(contactInfo.contactId, nickname)
+            onStateChanged()
+        }
+    }
+
+    fun getContactNickname(contactId: Long): String? {
+        return userPreferences.getContactNickname(contactId)
+    }
+
+    fun clearAllExcludedContacts() {
+        scope.launch(Dispatchers.IO) {
+            userPreferences.clearAllExcludedContacts()
+            onStateChanged()
+        }
+    }
+}

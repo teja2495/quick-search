@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search
 
 import androidx.compose.foundation.Image
+import com.tk.quicksearch.search.SearchEngine
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
