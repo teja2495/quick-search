@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.search.MessagingApp
+import com.tk.quicksearch.search.contacts.ContactResultsSection
+
 
 // ============================================================================
 // Section Visibility Helpers
@@ -211,14 +214,30 @@ private fun renderFilesSection(
     context: SectionRenderContext
 ) {
     if (context.shouldRenderFiles) {
-        RenderFilesSection(
-            params = params.filesParams.copy(
-                files = context.filesList,
-                isExpanded = context.isFilesExpanded,
-                showAllResults = context.showAllFilesResults,
-                showExpandControls = context.showFilesExpandControls,
-                onExpandClick = context.filesExpandClick
-            )
+        val filesParams = params.filesParams.copy(
+            files = context.filesList,
+            isExpanded = context.isFilesExpanded,
+            showAllResults = context.showAllFilesResults,
+            showExpandControls = context.showFilesExpandControls,
+            onExpandClick = context.filesExpandClick
+        )
+        FileResultsSection(
+            hasPermission = filesParams.hasPermission,
+            files = filesParams.files,
+            isExpanded = filesParams.isExpanded,
+            onFileClick = filesParams.onFileClick,
+            onRequestPermission = filesParams.onRequestPermission,
+            pinnedFileUris = filesParams.pinnedFileUris,
+            onTogglePin = filesParams.onTogglePin,
+            onExclude = filesParams.onExclude,
+            onExcludeExtension = filesParams.onExcludeExtension,
+            onNicknameClick = filesParams.onNicknameClick,
+            getFileNickname = filesParams.getFileNickname,
+            showAllResults = filesParams.showAllResults,
+            showExpandControls = filesParams.showExpandControls,
+            onExpandClick = filesParams.onExpandClick,
+            permissionDisabledCard = filesParams.permissionDisabledCard,
+            showWallpaperBackground = filesParams.showWallpaperBackground
         )
     }
 }
@@ -232,14 +251,34 @@ private fun renderContactsSection(
     context: SectionRenderContext
 ) {
     if (context.shouldRenderContacts) {
-        RenderContactsSection(
-            params = params.contactsParams.copy(
-                contacts = context.contactsList,
-                isExpanded = context.isContactsExpanded,
-                showAllResults = context.showAllContactsResults,
-                showExpandControls = context.showContactsExpandControls,
-                onExpandClick = context.contactsExpandClick
-            )
+        val contactsParams = params.contactsParams.copy(
+            contacts = context.contactsList,
+            isExpanded = context.isContactsExpanded,
+            showAllResults = context.showAllContactsResults,
+            showExpandControls = context.showContactsExpandControls,
+            onExpandClick = context.contactsExpandClick
+        )
+        ContactResultsSection(
+            hasPermission = contactsParams.hasPermission,
+            contacts = contactsParams.contacts,
+            isExpanded = contactsParams.isExpanded,
+            messagingApp = contactsParams.messagingApp ?: MessagingApp.MESSAGES,
+            onContactClick = contactsParams.onContactClick,
+            onShowContactMethods = contactsParams.onShowContactMethods,
+            onCallContact = contactsParams.onCallContact,
+            onSmsContact = contactsParams.onSmsContact,
+            onContactMethodClick = contactsParams.onContactMethodClick,
+            pinnedContactIds = contactsParams.pinnedContactIds,
+            onTogglePin = contactsParams.onTogglePin,
+            onExclude = contactsParams.onExclude,
+            onNicknameClick = contactsParams.onNicknameClick,
+            getContactNickname = contactsParams.getContactNickname,
+            onOpenAppSettings = contactsParams.onOpenAppSettings,
+            showAllResults = contactsParams.showAllResults,
+            showExpandControls = contactsParams.showExpandControls,
+            onExpandClick = contactsParams.onExpandClick,
+            permissionDisabledCard = contactsParams.permissionDisabledCard,
+            showWallpaperBackground = contactsParams.showWallpaperBackground
         )
     }
 }
@@ -253,7 +292,23 @@ private fun renderAppsSection(
     context: SectionRenderContext
 ) {
     if (context.shouldRenderApps && params.appsParams != null) {
-        RenderAppsSection(params = params.appsParams)
+        AppGridSection(
+            apps = params.appsParams.apps,
+            isSearching = params.appsParams.isSearching,
+            hasAppResults = params.appsParams.hasAppResults,
+            onAppClick = params.appsParams.onAppClick,
+            onAppInfoClick = params.appsParams.onAppInfoClick,
+            onUninstallClick = params.appsParams.onUninstallClick,
+            onHideApp = params.appsParams.onHideApp,
+            onPinApp = params.appsParams.onPinApp,
+            onUnpinApp = params.appsParams.onUnpinApp,
+            onNicknameClick = params.appsParams.onNicknameClick,
+            getAppNickname = params.appsParams.getAppNickname,
+            pinnedPackageNames = params.appsParams.pinnedPackageNames,
+            showAppLabels = params.appsParams.showAppLabels,
+            rowCount = params.appsParams.rowCount,
+            iconPackPackage = params.appsParams.iconPackPackage
+        )
     }
 }
 
