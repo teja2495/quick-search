@@ -19,6 +19,7 @@ import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.ContactIntentHelpers
+import com.tk.quicksearch.util.FileUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -121,6 +122,7 @@ data class SearchUiState(
     val pendingWhatsAppCallDataId: String? = null,
     val directDialEnabled: Boolean = false,
     val enabledFileTypes: Set<FileType> = FileType.values().toSet(),
+    val excludedFileExtensions: Set<String> = emptySet(),
     val keyboardAlignedLayout: Boolean = true,
     val shortcutsEnabled: Boolean = true,
     val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
@@ -164,6 +166,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var excludedContactIds: Set<Long> = userPreferences.getExcludedContactIds()
     private var pinnedFileUris: Set<String> = userPreferences.getPinnedFileUris()
     private var excludedFileUris: Set<String> = userPreferences.getExcludedFileUris()
+    private var excludedFileExtensions: Set<String> = userPreferences.getExcludedFileExtensions()
     private var availableSettings: List<SettingShortcut> = emptyList()
     private var pinnedSettingIds: Set<String> = userPreferences.getPinnedSettingIds()
     private var excludedSettingIds: Set<String> = userPreferences.getExcludedSettingIds()
@@ -733,7 +736,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update { state ->
                 state.copy(
                     excludedContacts = excludedContacts,
-                    excludedFiles = excludedFiles
+                    excludedFiles = excludedFiles,
+                    excludedFileExtensions = excludedFileExtensions
                 )
             }
         }
@@ -928,6 +932,33 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
                 )
             }
+            loadExcludedContactsAndFiles()
+        }
+    }
+
+    fun excludeFileExtension(deviceFile: DeviceFile) {
+        val extension = FileUtils.getFileExtension(deviceFile.displayName)
+        if (extension != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                excludedFileExtensions = userPreferences.addExcludedFileExtension(extension)
+
+                _uiState.update { state ->
+                    state.copy(
+                        fileResults = state.fileResults.filterNot {
+                            FileUtils.isFileExtensionExcluded(it.displayName, excludedFileExtensions)
+                        }
+                    )
+                }
+                loadExcludedContactsAndFiles()
+            }
+        }
+    }
+
+    fun removeExcludedFileExtension(extension: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            excludedFileExtensions = userPreferences.removeExcludedFileExtension(extension)
+
+            // Re-run search to include previously excluded files with this extension
             loadExcludedContactsAndFiles()
         }
     }
@@ -1832,6 +1863,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 enabledFileTypes = enabledFileTypes,
                 excludedContactIds = excludedContactIds,
                 excludedFileUris = excludedFileUris,
+                excludedFileExtensions = excludedFileExtensions,
                 scope = this
             )
 
@@ -1870,7 +1902,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
                         .filter { file ->
                             val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
-                            fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString())
+                            fileType in enabledFileTypes &&
+                            !excludedFileUris.contains(file.uri.toString()) &&
+                            !FileUtils.isFileExtensionExcluded(file.displayName, excludedFileExtensions)
                         }
                 } else {
                     emptyList()

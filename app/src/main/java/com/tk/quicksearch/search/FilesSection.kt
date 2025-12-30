@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.util.FileUtils
 
 // ============================================================================
 // Constants
@@ -74,6 +75,7 @@ fun FileResultsSection(
     pinnedFileUris: Set<String> = emptySet(),
     onTogglePin: (DeviceFile) -> Unit = {},
     onExclude: (DeviceFile) -> Unit = {},
+    onExcludeExtension: (DeviceFile) -> Unit = {},
     onNicknameClick: (DeviceFile) -> Unit = {},
     getFileNickname: (String) -> String? = { null },
     showAllResults: Boolean = false,
@@ -100,6 +102,7 @@ fun FileResultsSection(
                     pinnedFileUris = pinnedFileUris,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
                     onNicknameClick = onNicknameClick,
                     getFileNickname = getFileNickname,
                     onExpandClick = onExpandClick,
@@ -133,6 +136,7 @@ private fun FilesResultCard(
     pinnedFileUris: Set<String>,
     onTogglePin: (DeviceFile) -> Unit,
     onExclude: (DeviceFile) -> Unit,
+    onExcludeExtension: (DeviceFile) -> Unit,
     onNicknameClick: (DeviceFile) -> Unit,
     getFileNickname: (String) -> String?,
     onExpandClick: () -> Unit,
@@ -173,6 +177,7 @@ private fun FilesResultCard(
                             isPinned = pinnedFileUris.contains(file.uri.toString()),
                             onTogglePin = onTogglePin,
                             onExclude = onExclude,
+                            onExcludeExtension = onExcludeExtension,
                             onNicknameClick = onNicknameClick,
                             hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
                         )
@@ -214,6 +219,7 @@ private fun FilesResultCard(
                             isPinned = pinnedFileUris.contains(file.uri.toString()),
                             onTogglePin = onTogglePin,
                             onExclude = onExclude,
+                            onExcludeExtension = onExcludeExtension,
                             onNicknameClick = onNicknameClick,
                             hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
                         )
@@ -260,6 +266,7 @@ private fun FileResultRow(
     isPinned: Boolean = false,
     onTogglePin: (DeviceFile) -> Unit = {},
     onExclude: (DeviceFile) -> Unit = {},
+    onExcludeExtension: (DeviceFile) -> Unit = {},
     onNicknameClick: (DeviceFile) -> Unit = {},
     hasNickname: Boolean = false
 ) {
@@ -298,10 +305,12 @@ private fun FileResultRow(
         FileDropdownMenu(
             expanded = showOptions,
             onDismissRequest = { showOptions = false },
+            deviceFile = deviceFile,
             isPinned = isPinned,
             hasNickname = hasNickname,
             onTogglePin = { onTogglePin(deviceFile) },
             onExclude = { onExclude(deviceFile) },
+            onExcludeExtension = { onExcludeExtension(deviceFile) },
             onNicknameClick = { onNicknameClick(deviceFile) }
         )
     }
@@ -315,10 +324,12 @@ private fun FileResultRow(
 private fun FileDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
+    deviceFile: DeviceFile,
     isPinned: Boolean,
     hasNickname: Boolean,
     onTogglePin: () -> Unit,
     onExclude: () -> Unit,
+    onExcludeExtension: () -> Unit,
     onNicknameClick: () -> Unit
 ) {
     DropdownMenu(
@@ -370,7 +381,7 @@ private fun FileDropdownMenu(
         )
         
         HorizontalDivider()
-        
+
         DropdownMenuItem(
             text = {
                 Text(text = stringResource(R.string.action_exclude_generic))
@@ -386,6 +397,27 @@ private fun FileDropdownMenu(
                 onExclude()
             }
         )
+
+        val fileExtension = FileUtils.getFileExtension(deviceFile.displayName)
+        if (fileExtension != null) {
+            HorizontalDivider()
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = stringResource(R.string.action_exclude_extension, fileExtension))
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.VisibilityOff,
+                        contentDescription = null
+                    )
+                },
+                onClick = {
+                    onDismissRequest()
+                    onExcludeExtension()
+                }
+            )
+        }
     }
 }
 

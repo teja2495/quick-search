@@ -91,6 +91,7 @@ fun SettingsRoute(
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
         enabledFileTypes = uiState.enabledFileTypes,
+        excludedFileExtensions = uiState.excludedFileExtensions,
         keyboardAlignedLayout = uiState.keyboardAlignedLayout,
         shortcutCodes = uiState.shortcutCodes,
         shortcutEnabled = uiState.shortcutEnabled,
@@ -225,6 +226,7 @@ fun SettingsRoute(
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
         onToggleFileType = viewModel::setFileTypeEnabled,
+        onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
         onToggleKeyboardAlignedLayout = viewModel::setKeyboardAlignedLayout,
         setShortcutCode = viewModel::setShortcutCode,
         setShortcutEnabled = viewModel::setShortcutEnabled,
@@ -477,6 +479,8 @@ private fun SettingsScreen(
             FileTypesSection(
                 enabledFileTypes = state.enabledFileTypes,
                 onToggleFileType = callbacks.onToggleFileType,
+                excludedExtensions = state.excludedFileExtensions,
+                onRemoveExcludedExtension = callbacks.onRemoveExcludedFileExtension,
                 filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
                 modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
             )

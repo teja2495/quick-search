@@ -6,6 +6,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.FileTypeUtils
+import com.tk.quicksearch.util.FileUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
@@ -35,13 +36,14 @@ class SearchOperations(
     
     /**
      * Performs searches for contacts and files in parallel.
-     * 
+     *
      * @param query The search query
      * @param canSearchContacts Whether contacts search is enabled
      * @param canSearchFiles Whether files search is enabled
      * @param enabledFileTypes Set of enabled file types
      * @param excludedContactIds Set of excluded contact IDs
      * @param excludedFileUris Set of excluded file URIs
+     * @param excludedFileExtensions Set of excluded file extensions
      * @param scope Coroutine scope for async operations
      * @return SearchResult containing contacts and files
      */
@@ -52,6 +54,7 @@ class SearchOperations(
         enabledFileTypes: Set<FileType>,
         excludedContactIds: Set<Long>,
         excludedFileUris: Set<String>,
+        excludedFileExtensions: Set<String>,
         scope: CoroutineScope
     ): SearchResult {
         val trimmedQuery = query.trim()
@@ -70,7 +73,7 @@ class SearchOperations(
         
         val filesDeferred = scope.async {
             if (canSearchFiles) {
-                searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris)
+                searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris, excludedFileExtensions)
             } else {
                 emptyList()
             }
@@ -82,7 +85,7 @@ class SearchOperations(
         // Optimize results: if only one type has results, fetch more for that type
         return when {
             contacts.isNotEmpty() && files.isEmpty() && canSearchFiles -> {
-                SearchResult(contacts, searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris, Int.MAX_VALUE))
+                SearchResult(contacts, searchFiles(trimmedQuery, enabledFileTypes, excludedFileUris, excludedFileExtensions, Int.MAX_VALUE))
             }
             files.isNotEmpty() && contacts.isEmpty() && canSearchContacts -> {
                 SearchResult(searchContacts(trimmedQuery, excludedContactIds, Int.MAX_VALUE), files)
@@ -110,13 +113,16 @@ class SearchOperations(
         query: String,
         enabledFileTypes: Set<FileType>,
         excludedFileUris: Set<String>,
+        excludedFileExtensions: Set<String>,
         limit: Int = FILE_RESULT_LIMIT * 2
     ): List<DeviceFile> {
         val allFiles = fileRepository.searchFiles(query, limit)
         return allFiles
             .filter { file ->
                 val fileType = FileTypeUtils.getFileType(file)
-                fileType in enabledFileTypes && !excludedFileUris.contains(file.uri.toString()) &&
+                fileType in enabledFileTypes &&
+                !excludedFileUris.contains(file.uri.toString()) &&
+                !FileUtils.isFileExtensionExcluded(file.displayName, excludedFileExtensions) &&
                 !isApkFile(file)
             }
             .take(FILE_RESULT_LIMIT)

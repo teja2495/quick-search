@@ -310,6 +310,7 @@ fun SearchRoute(
         onPinFile = viewModel::pinFile,
         onUnpinFile = viewModel::unpinFile,
         onExcludeFile = viewModel::excludeFile,
+        onExcludeFileExtension = viewModel::excludeFileExtension,
         onSettingClick = viewModel::openSetting,
         onPinSetting = viewModel::pinSetting,
         onUnpinSetting = viewModel::unpinSetting,
@@ -372,6 +373,7 @@ fun SearchScreen(
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
+    onExcludeFileExtension: (DeviceFile) -> Unit,
     onSettingClick: (SettingShortcut) -> Unit,
     onPinSetting: (SettingShortcut) -> Unit,
     onUnpinSetting: (SettingShortcut) -> Unit,
@@ -475,6 +477,7 @@ fun SearchScreen(
             }
         },
         onExclude = onExcludeFile,
+        onExcludeExtension = onExcludeFileExtension,
         onNicknameClick = { file ->
             nicknameDialogState = NicknameDialogState.File(
                 file = file,

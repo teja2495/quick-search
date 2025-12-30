@@ -164,6 +164,18 @@ class UserAppPreferences(context: Context) {
 
     fun clearAllExcludedFiles(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_URIS)
 
+    fun getExcludedFileExtensions(): Set<String> = getStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+
+    fun addExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
+        it.add(extension.lowercase().removePrefix("."))
+    }
+
+    fun removeExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
+        it.remove(extension.lowercase().removePrefix("."))
+    }
+
+    fun clearAllExcludedFileExtensions(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+
     // ============================================================================
     // Settings Preferences
     // ============================================================================
@@ -881,6 +893,7 @@ class UserAppPreferences(context: Context) {
         // File preferences keys
         private const val KEY_PINNED_FILE_URIS = "pinned_file_uris"
         private const val KEY_EXCLUDED_FILE_URIS = "excluded_file_uris"
+        private const val KEY_EXCLUDED_FILE_EXTENSIONS = "excluded_file_extensions"
         private const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
 
         // Settings preferences keys

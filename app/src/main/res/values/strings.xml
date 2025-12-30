@@ -131,6 +131,9 @@
     <string name="action_pin_generic">Pin</string>
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
+    <string name="action_exclude_extension">Exclude .%s files</string>
+    <string name="settings_excluded_extensions_title">Excluded File Extensions</string>
+    <string name="action_remove">Remove</string>
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_edit_nickname">Edit Nickname</string>
     <string name="action_remove_nickname">Remove nickname</string>
