@@ -7,6 +7,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.search.contacts.ContactResultsSection
 
 // ============================================================================
 // Common Parameter Interfaces

@@ -91,6 +91,9 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.CalculatorUtils
 import com.tk.quicksearch.util.WallpaperUtils
+import com.tk.quicksearch.search.contacts.PhoneNumberSelectionDialog
+import com.tk.quicksearch.search.contacts.DirectDialChoiceDialog
+import com.tk.quicksearch.search.contacts.ContactMethodsDialog
 
 /**
  * Enum representing which section is currently expanded.
