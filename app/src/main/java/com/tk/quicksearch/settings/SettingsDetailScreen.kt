@@ -321,6 +321,9 @@ private fun SettingsDetailScreen(
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
                             onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
                             isDefaultAssistant = isDefaultAssistant,
+                            onRefreshApps = { callbacks.onRefreshApps(true) },
+                            onRefreshContacts = { callbacks.onRefreshContacts(true) },
+                            onRefreshFiles = { callbacks.onRefreshFiles(true) },
                             showTitle = false
                         )
                     }

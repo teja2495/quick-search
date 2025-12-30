@@ -32,6 +32,9 @@ fun AdditionalSettingsSection(
     onSetDefaultAssistant: () -> Unit,
     onAddQuickSettingsTile: () -> Unit = {},
     isDefaultAssistant: Boolean = false,
+    onRefreshApps: () -> Unit,
+    onRefreshContacts: () -> Unit,
+    onRefreshFiles: () -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +64,7 @@ fun AdditionalSettingsSection(
             }
         ),
         onClick = onSetDefaultAssistant,
-        modifier = Modifier.padding(bottom = 16.dp),
+        modifier = Modifier.padding(bottom = 12.dp),
         contentPadding = SettingsSpacing.singleCardPadding
     )
 
@@ -69,7 +72,7 @@ fun AdditionalSettingsSection(
         title = stringResource(R.string.settings_quick_settings_tile_title),
         description = stringResource(R.string.settings_quick_settings_tile_desc),
         onClick = onAddQuickSettingsTile,
-        modifier = Modifier.padding(bottom = 16.dp),
+        modifier = Modifier.padding(bottom = 12.dp),
         contentPadding = SettingsSpacing.singleCardPadding
     )
 
@@ -157,5 +160,13 @@ fun AdditionalSettingsSection(
 
         }
     }
+
+    // Refresh Data Section at the bottom
+    RefreshDataCard(
+        onRefreshApps = onRefreshApps,
+        onRefreshContacts = onRefreshContacts,
+        onRefreshFiles = onRefreshFiles,
+        modifier = Modifier.padding(top = 12.dp)
+    )
 
 }
