@@ -837,7 +837,7 @@ fun SearchScreen(
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded, or when search engine section is disabled
         if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled) {
-            SearchEnginesSection(
+            SearchEngineIconsSection(
                 query = state.query,
                 hasAppResults = derivedState.hasAppResults,
                 enabledEngines = enabledEngines,

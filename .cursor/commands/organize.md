@@ -1,0 +1,10 @@
+- Simplify unnecessarily complex logic without changing behavior.
+- Improve readability through clearer naming, structure, and flow.
+- Follow standard, language-idiomatic best practices.
+- Improve maintainability and scalability, but avoid over-engineering.
+- Remove unused code, and redundant abstractions. Move redundant code into reusable methods.
+- Add comments only where intent is not obvious. Remove obvious or redundant comments.
+- Preserve all existing logic, behavior, public APIs, method signatures, and file structure unless strictly necessary.
+- Do NOT add new features or remove existing ones.
+- If a change is potentially risky, call it out and explain why.
+- Briefly explain the reasoning behind each meaningful change.

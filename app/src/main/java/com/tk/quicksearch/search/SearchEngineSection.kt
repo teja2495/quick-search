@@ -39,10 +39,10 @@ private object SearchEngineSectionConstants {
 
 /**
  * Composable section displaying search engine icons in a scrollable row.
- * 
+ *
  * The section extends to screen edges by compensating for parent padding.
  * Displays a fixed search icon followed by scrollable engine icons.
- * 
+ *
  * @param modifier Modifier for the section
  * @param query The current search query
  * @param hasAppResults Whether app results are displayed (unused but kept for API compatibility)
@@ -51,7 +51,7 @@ private object SearchEngineSectionConstants {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchEnginesSection(
+fun SearchEngineIconsSection(
     modifier: Modifier = Modifier,
     query: String,
     hasAppResults: Boolean,
