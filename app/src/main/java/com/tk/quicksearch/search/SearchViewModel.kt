@@ -649,6 +649,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val shortcutMatch = detectShortcut(trimmedQuery)
             if (shortcutMatch != null) {
                 val (queryWithoutShortcut, engine) = shortcutMatch
+                // Show toast notification for shortcut trigger
+                android.widget.Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(engine.getDisplayNameResId()) + " search shortcut triggered",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
                 // Automatically perform search with the detected engine
                 openSearchUrl(queryWithoutShortcut.trim(), engine)
                 // Update query to remove shortcut but keep the remaining query
@@ -1586,12 +1592,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 SearchEngine.CHATGPT,
                 SearchEngine.PERPLEXITY,
                 SearchEngine.YOUTUBE,
+                SearchEngine.YOUTUBE_MUSIC,
+                SearchEngine.SPOTIFY,
                 SearchEngine.GOOGLE_PLAY,
                 SearchEngine.AMAZON,
+                SearchEngine.FACEBOOK_MARKETPLACE,
                 SearchEngine.GROK,
                 SearchEngine.AI_MODE,
                 SearchEngine.GOOGLE_MAPS,
-                SearchEngine.REDDIT
+                SearchEngine.REDDIT,
+                SearchEngine.YOU_COM,
+                SearchEngine.DUCKDUCKGO,
+                SearchEngine.BRAVE,
+                SearchEngine.BING,
+                SearchEngine.X
             )
             return applyDirectSearchAvailability(defaultOrder, hasGemini)
         }
