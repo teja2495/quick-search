@@ -13,24 +13,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.settings.components.SettingsToggleRow
 
 /**
  * Constants for consistent spacing and styling in search engine settings.
+ * @deprecated Use DesignTokens instead for new components.
  */
 object SearchEngineSettingsSpacing {
-    val cardHorizontalPadding = 20.dp
-    val cardVerticalPadding = 12.dp
-    val cardTopPadding = 20.dp
-    val cardBottomPadding = 20.dp
+    val cardHorizontalPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardHorizontalPadding
+    val cardVerticalPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardVerticalPadding
+    val cardTopPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardTopPadding
+    val cardBottomPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardBottomPadding
     val apiKeyButtonBottomPadding = 8.dp
-    val rowHorizontalPadding = 24.dp
-    val rowVerticalPadding = 12.dp
-    val itemHeight = 60.dp // Approximate row height with padding
+    val rowHorizontalPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardHorizontalPadding
+    val rowVerticalPadding = com.tk.quicksearch.ui.theme.DesignTokens.CardVerticalPadding
+    val itemHeight = com.tk.quicksearch.ui.theme.DesignTokens.DraggableItemHeight
 }
 
 /**
- * Reusable toggle row component for settings cards.
+ * Reusable toggle row component for search engine settings cards.
  * Provides consistent styling and layout across all toggle rows.
+ * @deprecated Use SettingsToggleRow from shared components instead.
  */
 @Composable
 fun SearchEngineToggleRow(
@@ -42,45 +45,15 @@ fun SearchEngineToggleRow(
     isFirstItem: Boolean = false,
     isLastItem: Boolean = false
 ) {
-    val topPadding = if (isFirstItem) SearchEngineSettingsSpacing.cardTopPadding 
-                     else SearchEngineSettingsSpacing.cardVerticalPadding
-    val bottomPadding = if (isLastItem) SearchEngineSettingsSpacing.cardBottomPadding 
-                        else SearchEngineSettingsSpacing.cardVerticalPadding
-    
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                start = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                top = topPadding,
-                end = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                bottom = bottomPadding
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
-    }
+    SettingsToggleRow(
+        title = title,
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        subtitle = subtitle,
+        isFirstItem = isFirstItem,
+        isLastItem = isLastItem
+    )
 }
 
 /**

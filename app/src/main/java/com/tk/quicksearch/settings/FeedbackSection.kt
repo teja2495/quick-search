@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,13 +30,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.settings.components.SettingsCard
+import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants for consistent spacing
 private object FeedbackSpacing {
-    val cardPaddingHorizontal = 16.dp
-    val cardPaddingVertical = 16.dp
-    val iconEndPadding = 12.dp
+    val cardPaddingHorizontal = DesignTokens.CardHorizontalPadding
+    val cardPaddingVertical = DesignTokens.CardVerticalPadding
+    val iconEndPadding = DesignTokens.ItemRowSpacing
     val chevronMinWidth = 80.dp
     val chevronMinHeight = 40.dp
     val chevronStartPadding = 8.dp
@@ -115,17 +116,11 @@ fun FeedbackSection(
     }
     
     Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.settings_section_feedback),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        SettingsSectionTitle(
+            title = stringResource(R.string.settings_section_feedback)
         )
-        
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
+
+        SettingsCard {
             Column {
                 val feedbackItems = listOf(
                     FeedbackItem(

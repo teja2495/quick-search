@@ -108,23 +108,19 @@ data class SettingsScreenCallbacks(
 
 /**
  * Constants for consistent spacing throughout the settings screen.
+ * @deprecated Use DesignTokens instead for new components.
  */
 object SettingsSpacing {
-    val headerHorizontalPadding = 20.dp
-    val headerVerticalPadding = 16.dp
-    val headerIconSpacing = 8.dp
-    val contentHorizontalPadding = 20.dp
-    val sectionTopPadding = 24.dp
-    val sectionTitleBottomPadding = 8.dp
-    val sectionDescriptionBottomPadding = 16.dp
-    val versionTopPadding = 45.dp
-    val versionBottomPadding = 100.dp
-    val singleCardPadding = PaddingValues(
-        start = 24.dp,
-        top = 20.dp,
-        end = 24.dp,
-        bottom = 24.dp
-    )
+    val headerHorizontalPadding = com.tk.quicksearch.ui.theme.DesignTokens.ContentHorizontalPadding
+    val headerVerticalPadding = com.tk.quicksearch.ui.theme.DesignTokens.HeaderVerticalPadding
+    val headerIconSpacing = com.tk.quicksearch.ui.theme.DesignTokens.HeaderIconSpacing
+    val contentHorizontalPadding = com.tk.quicksearch.ui.theme.DesignTokens.ContentHorizontalPadding
+    val sectionTopPadding = com.tk.quicksearch.ui.theme.DesignTokens.SectionTopPadding
+    val sectionTitleBottomPadding = com.tk.quicksearch.ui.theme.DesignTokens.SectionTitleBottomPadding
+    val sectionDescriptionBottomPadding = com.tk.quicksearch.ui.theme.DesignTokens.SectionDescriptionBottomPadding
+    val versionTopPadding = com.tk.quicksearch.ui.theme.DesignTokens.VersionTopPadding
+    val versionBottomPadding = com.tk.quicksearch.ui.theme.DesignTokens.VersionBottomPadding
+    val singleCardPadding = com.tk.quicksearch.ui.theme.DesignTokens.singleCardPadding()
 }
 
 /**

@@ -13,8 +13,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -30,22 +30,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.settings.components.SettingsCard
+import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.settings.components.SettingsToggleRow
 import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants for consistent spacing
 private object MessagingSpacing {
-    val cardHorizontalPadding = 20.dp
-    val cardTopPadding = 20.dp
-    val cardBottomPadding = 26.dp
-    val optionSpacing = 12.dp
-    val toggleSpacing = 12.dp
-    val directDialColumnSpacing = 6.dp
-    val messagingTitleBottomPadding = 8.dp
-    val chipVerticalPadding = 12.dp
-    val chipHorizontalPadding = 12.dp
-    val chipIconSpacing = 10.dp
-    val iconSize = 28.dp
-    val borderWidth = 1.dp
+    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
+    val cardTopPadding = DesignTokens.CardTopPadding
+    val cardBottomPadding = DesignTokens.CardBottomPadding
+    val optionSpacing = DesignTokens.ItemRowSpacing
+    val toggleSpacing = DesignTokens.ToggleSpacing
+    val directDialColumnSpacing = DesignTokens.TextColumnSpacing
+    val messagingTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
+    val chipVerticalPadding = DesignTokens.ChipVerticalPadding
+    val chipHorizontalPadding = DesignTokens.ChipHorizontalPadding
+    val chipIconSpacing = DesignTokens.ChipIconSpacing
+    val iconSize = DesignTokens.LargeIconSize
+    val borderWidth = DesignTokens.BorderWidth
 }
 
 private data class MessagingOption(val app: MessagingApp, val labelRes: Int)
@@ -89,11 +93,8 @@ fun MessagingSection(
     }
 
     Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.settings_messaging_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        SettingsSectionTitle(
+            title = stringResource(R.string.settings_messaging_title)
         )
 
         MergedMessagingCard(

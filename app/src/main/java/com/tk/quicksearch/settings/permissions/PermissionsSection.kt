@@ -14,7 +14,6 @@ import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.settings.components.SettingsCard
+import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 private val GrantedPermissionColor = Color(0xFF4CAF50)
 
@@ -54,17 +55,11 @@ fun PermissionsSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.settings_section_permissions),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        SettingsSectionTitle(
+            title = stringResource(R.string.settings_section_permissions)
         )
-        
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
+
+        SettingsCard {
             Column {
                 val permissions = listOf(
                     PermissionItem(

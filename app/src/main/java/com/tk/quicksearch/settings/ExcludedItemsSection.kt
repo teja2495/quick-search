@@ -39,15 +39,17 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.settings.components.SettingsCard
+import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants
-private val DEFAULT_ICON_SIZE = 24.dp
-private val ITEM_ROW_PADDING_HORIZONTAL = 16.dp
-private val ITEM_ROW_PADDING_VERTICAL = 12.dp
+private val DEFAULT_ICON_SIZE = DesignTokens.IconSize
+private val ITEM_ROW_PADDING_HORIZONTAL = DesignTokens.CardHorizontalPadding
+private val ITEM_ROW_PADDING_VERTICAL = DesignTokens.CardVerticalPadding
 private val SECTION_SPACER_HEIGHT = 4.dp
-private val LIST_BOTTOM_PADDING = 80.dp
-private val ITEM_ROW_ICON_TEXT_SPACING = 12.dp
+private val LIST_BOTTOM_PADDING = DesignTokens.VersionBottomPadding
+private val ITEM_ROW_ICON_TEXT_SPACING = DesignTokens.ItemRowSpacing
 private val ITEM_ROW_TEXT_VERTICAL_PADDING = 2.dp
 
 @Composable
@@ -84,40 +86,20 @@ fun ExcludedItemsSection(
 
     Column {
         // Header with title and description
-        Column(modifier = modifier.fillMaxWidth()) {
-            if (showTitle) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_excluded_items_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                
-                Text(
-                    text = stringResource(R.string.settings_excluded_items_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(
-                            top = SettingsSpacing.sectionTitleBottomPadding,
-                            bottom = SettingsSpacing.sectionDescriptionBottomPadding
-                        )
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.settings_excluded_items_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
-                )
-            }
+        if (showTitle) {
+            SettingsSectionTitle(
+                title = stringResource(R.string.settings_excluded_items_title),
+                description = stringResource(R.string.settings_excluded_items_desc),
+                modifier = modifier
+            )
+        } else {
+            SettingsSectionTitle(
+                title = "",
+                description = stringResource(R.string.settings_excluded_items_desc),
+                modifier = modifier
+            )
         }
-        
+
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
         
         // Items card

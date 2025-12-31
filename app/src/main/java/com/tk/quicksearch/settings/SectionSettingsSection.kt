@@ -46,21 +46,21 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
  * Constants for drag and drop behavior and animations.
  */
 private object DragConstants {
-    val itemHeight: Dp = 60.dp
-    val dragThreshold: Float = 0.5f
-    val dragAlpha: Float = 0.8f
-    val springDampingRatio: Float = 0.8f
-    val springStiffness: Float = 300f
-    val rowHorizontalPadding: Dp = 16.dp
-    val rowVerticalPadding: Dp = 12.dp
-    val iconSize: Dp = 24.dp
-    val rowSpacing: Dp = 12.dp
+    val itemHeight: Dp = DesignTokens.DraggableItemHeight
+    val dragThreshold: Float = DesignTokens.DragThreshold
+    val dragAlpha: Float = DesignTokens.DragAlpha
+    val springDampingRatio: Float = DesignTokens.SpringDampingRatio
+    val springStiffness: Float = DesignTokens.SpringStiffness
+    val rowHorizontalPadding: Dp = DesignTokens.CardHorizontalPadding
+    val rowVerticalPadding: Dp = DesignTokens.CardVerticalPadding
+    val iconSize: Dp = DesignTokens.IconSize
+    val rowSpacing: Dp = DesignTokens.ItemRowSpacing
 }
 
 /**
@@ -167,12 +167,12 @@ fun SectionSettingsSection(
         text = stringResource(R.string.settings_sections_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
     )
     
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = DesignTokens.ExtraLargeCardShape
     ) {
         Column {
             val draggedIndex = remember { mutableIntStateOf(-1) }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -18,7 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.settings.components.SettingsCard
+import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.settings.components.SettingsToggleRow
 import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.ui.theme.DesignTokens
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
@@ -29,11 +32,11 @@ import androidx.compose.material3.TextButton
 
 // Constants for consistent spacing
 private object FileTypesSpacing {
-    val cardHorizontalPadding = 20.dp
-    val cardVerticalPadding = 12.dp
+    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
+    val cardVerticalPadding = DesignTokens.CardVerticalPadding
     val chipButtonSize = 16.dp
     val chipIconSize = 12.dp
-    val excludedExtensionsTitleBottomPadding = 8.dp
+    val excludedExtensionsTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
     val excludedExtensionsChipSpacing = 8.dp
 }
 
@@ -146,18 +149,13 @@ fun FileTypesSection(
     }
     
     // Section title
-    Text(
-        text = stringResource(R.string.settings_file_types_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+    SettingsSectionTitle(
+        title = stringResource(R.string.settings_file_types_title),
+        modifier = modifier
     )
-    
+
     // File types card
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
+    SettingsCard {
         Column {
             // Cache FileType.values() to avoid multiple calls
             val fileTypes = FileType.values()
