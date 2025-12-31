@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.main.SettingsSpacing
 
+private val GrantedPermissionColor = Color(0xFF4CAF50)
+
 /**
  * Data class representing a permission item.
  */
@@ -142,7 +144,7 @@ private fun PermissionRow(
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = stringResource(R.string.settings_usage_access_granted),
-                    tint = Color(0xFF4CAF50),
+                    tint = GrantedPermissionColor,
                     modifier = Modifier.size(24.dp)
                 )
             } else {

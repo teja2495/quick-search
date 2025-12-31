@@ -39,6 +39,29 @@ import com.tk.quicksearch.model.AppInfo
 private const val ROW_COUNT = 2
 private const val COLUMNS = 5
 
+/**
+ * Data class containing all app actions to reduce parameter count in composables.
+ */
+private data class AppActions(
+    val onClick: () -> Unit,
+    val onAppInfoClick: () -> Unit,
+    val onUninstallClick: () -> Unit,
+    val onHideApp: () -> Unit,
+    val onPinApp: () -> Unit,
+    val onUnpinApp: () -> Unit,
+    val onNicknameClick: () -> Unit
+)
+
+/**
+ * Data class containing app state information to reduce parameter count in composables.
+ */
+private data class AppState(
+    val hasNickname: Boolean,
+    val isPinned: Boolean,
+    val showUninstall: Boolean,
+    val showAppLabel: Boolean
+)
+
 @Composable
 fun AppGridSection(
     apps: List<AppInfo>,
@@ -122,17 +145,29 @@ private fun AppGrid(
             val rowApps = rows.getOrNull(rowIndex).orEmpty()
             AppGridRow(
                 apps = rowApps,
-                onAppClick = onAppClick,
-                onAppInfoClick = onAppInfoClick,
-                onUninstallClick = onUninstallClick,
-                onHideApp = onHideApp,
-                onPinApp = onPinApp,
-                onUnpinApp = onUnpinApp,
-                onNicknameClick = onNicknameClick,
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
                 showAppLabels = showAppLabels,
-                iconPackPackage = iconPackPackage
+                iconPackPackage = iconPackPackage,
+                createAppActions = { app ->
+                    AppActions(
+                        onClick = { onAppClick(app) },
+                        onAppInfoClick = { onAppInfoClick(app) },
+                        onUninstallClick = { onUninstallClick(app) },
+                        onHideApp = { onHideApp(app) },
+                        onPinApp = { onPinApp(app) },
+                        onUnpinApp = { onUnpinApp(app) },
+                        onNicknameClick = { onNicknameClick(app) }
+                    )
+                },
+                createAppState = { app ->
+                    AppState(
+                        hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
+                        isPinned = pinnedPackageNames.contains(app.packageName),
+                        showUninstall = !app.isSystemApp,
+                        showAppLabel = showAppLabels
+                    )
+                }
             )
         }
     }
@@ -141,17 +176,12 @@ private fun AppGrid(
 @Composable
 private fun AppGridRow(
     apps: List<AppInfo>,
-    onAppClick: (AppInfo) -> Unit,
-    onAppInfoClick: (AppInfo) -> Unit,
-    onUninstallClick: (AppInfo) -> Unit,
-    onHideApp: (AppInfo) -> Unit,
-    onPinApp: (AppInfo) -> Unit,
-    onUnpinApp: (AppInfo) -> Unit,
-    onNicknameClick: (AppInfo) -> Unit,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
-    iconPackPackage: String?
+    iconPackPackage: String?,
+    createAppActions: (AppInfo) -> AppActions,
+    createAppState: (AppInfo) -> AppState
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -163,17 +193,8 @@ private fun AppGridRow(
                 AppGridItem(
                     modifier = Modifier.weight(1f),
                     appInfo = app,
-                    onClick = { onAppClick(app) },
-                    onAppInfoClick = { onAppInfoClick(app) },
-                    onUninstallClick = { onUninstallClick(app) },
-                    onHideApp = { onHideApp(app) },
-                    onPinApp = { onPinApp(app) },
-                    onUnpinApp = { onUnpinApp(app) },
-                    onNicknameClick = { onNicknameClick(app) },
-                    hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
-                    isPinned = pinnedPackageNames.contains(app.packageName),
-                    showUninstall = !app.isSystemApp,
-                    showAppLabel = showAppLabels,
+                    appActions = createAppActions(app),
+                    appState = createAppState(app),
                     iconPackPackage = iconPackPackage
                 )
             } else {
@@ -188,17 +209,8 @@ private fun AppGridRow(
 private fun AppGridItem(
     modifier: Modifier = Modifier,
     appInfo: AppInfo,
-    onClick: () -> Unit,
-    onAppInfoClick: () -> Unit,
-    onUninstallClick: () -> Unit,
-    onHideApp: () -> Unit,
-    onPinApp: () -> Unit,
-    onUnpinApp: () -> Unit,
-    onNicknameClick: () -> Unit,
-    hasNickname: Boolean,
-    isPinned: Boolean,
-    showUninstall: Boolean,
-    showAppLabel: Boolean,
+    appActions: AppActions,
+    appState: AppState,
     iconPackPackage: String?
 ) {
     val iconBitmap = rememberAppIcon(
@@ -222,10 +234,10 @@ private fun AppGridItem(
                 iconBitmap = iconBitmap,
                 placeholderLabel = placeholderLabel,
                 appName = appInfo.appName,
-                onClick = onClick,
+                onClick = appActions.onClick,
                 onLongClick = { showOptions = true }
             )
-            if (showAppLabel) {
+            if (appState.showAppLabel) {
                 AppLabelText(appInfo.appName)
             }
         }
@@ -233,15 +245,15 @@ private fun AppGridItem(
         AppItemDropdownMenu(
             expanded = showOptions,
             onDismiss = { showOptions = false },
-            isPinned = isPinned,
-            showUninstall = showUninstall,
-            hasNickname = hasNickname,
-            onAppInfoClick = onAppInfoClick,
-            onHideApp = onHideApp,
-            onPinApp = onPinApp,
-            onUnpinApp = onUnpinApp,
-            onUninstallClick = onUninstallClick,
-            onNicknameClick = onNicknameClick
+            isPinned = appState.isPinned,
+            showUninstall = appState.showUninstall,
+            hasNickname = appState.hasNickname,
+            onAppInfoClick = appActions.onAppInfoClick,
+            onHideApp = appActions.onHideApp,
+            onPinApp = appActions.onPinApp,
+            onUnpinApp = appActions.onUnpinApp,
+            onUninstallClick = appActions.onUninstallClick,
+            onNicknameClick = appActions.onNicknameClick
         )
     }
 }

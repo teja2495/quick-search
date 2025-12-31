@@ -14,15 +14,16 @@ class ReleaseNotesHandler(
 
     private fun getCurrentVersionName(): String? {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 application.packageManager.getPackageInfo(
                     application.packageName,
                     android.content.pm.PackageManager.PackageInfoFlags.of(0)
-                ).versionName
+                )
             } else {
                 @Suppress("DEPRECATION")
-                application.packageManager.getPackageInfo(application.packageName, 0).versionName
+                application.packageManager.getPackageInfo(application.packageName, 0)
             }
+            packageInfo.versionName
         } catch (e: Exception) {
             null
         }
@@ -30,6 +31,7 @@ class ReleaseNotesHandler(
 
     fun checkForReleaseNotes() {
         val currentVersion = getCurrentVersionName() ?: return
+
         // Skip showing release notes on a fresh install; just record baseline
         if (userPreferences.isFirstLaunch()) {
             userPreferences.setLastSeenVersionName(currentVersion)
@@ -37,18 +39,18 @@ class ReleaseNotesHandler(
         }
 
         val lastSeenVersion = userPreferences.getLastSeenVersionName()
-        if (lastSeenVersion == null) {
-            userPreferences.setLastSeenVersionName(currentVersion)
+        if (lastSeenVersion == null || lastSeenVersion == currentVersion) {
+            if (lastSeenVersion == null) {
+                userPreferences.setLastSeenVersionName(currentVersion)
+            }
             return
         }
 
-        if (lastSeenVersion != currentVersion) {
-            uiStateUpdater {
-                it.copy(
-                    showReleaseNotesDialog = true,
-                    releaseNotesVersionName = currentVersion
-                )
-            }
+        uiStateUpdater {
+            it.copy(
+                showReleaseNotesDialog = true,
+                releaseNotesVersionName = currentVersion
+            )
         }
     }
 

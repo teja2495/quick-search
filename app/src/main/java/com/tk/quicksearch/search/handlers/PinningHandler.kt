@@ -21,26 +21,10 @@ class PinningHandler(
 
     fun loadPinnedContactsAndFiles() {
         scope.launch(Dispatchers.IO) {
-            val hasContactsPermission = permissionManager.hasContactPermission()
-            val hasFilesPermission = permissionManager.hasFilePermission()
+            val permissions = checkPermissions()
 
-            val pinnedContactIds = userPreferences.getPinnedContactIds()
-            val excludedContactIds = userPreferences.getExcludedContactIds()
-            val pinnedContacts = if (hasContactsPermission && pinnedContactIds.isNotEmpty()) {
-                contactRepository.getContactsByIds(pinnedContactIds)
-                    .filterNot { excludedContactIds.contains(it.contactId) }
-            } else {
-                emptyList()
-            }
-
-            val pinnedFileUris = userPreferences.getPinnedFileUris()
-            val excludedFileUris = userPreferences.getExcludedFileUris()
-            val pinnedFiles = if (hasFilesPermission && pinnedFileUris.isNotEmpty()) {
-                fileRepository.getFilesByUris(pinnedFileUris)
-                    .filterNot { excludedFileUris.contains(it.uri.toString()) }
-            } else {
-                emptyList()
-            }
+            val pinnedContacts = loadPinnedContacts(permissions.contacts)
+            val pinnedFiles = loadPinnedFiles(permissions.files)
 
             uiStateUpdater { state ->
                 state.copy(
@@ -53,22 +37,10 @@ class PinningHandler(
 
     fun loadExcludedContactsAndFiles() {
         scope.launch(Dispatchers.IO) {
-            val hasContactsPermission = permissionManager.hasContactPermission()
-            val hasFilesPermission = permissionManager.hasFilePermission()
+            val permissions = checkPermissions()
 
-            val excludedContactIds = userPreferences.getExcludedContactIds()
-            val excludedContacts = if (hasContactsPermission && excludedContactIds.isNotEmpty()) {
-                contactRepository.getContactsByIds(excludedContactIds)
-            } else {
-                emptyList()
-            }
-
-            val excludedFileUris = userPreferences.getExcludedFileUris()
-            val excludedFiles = if (hasFilesPermission && excludedFileUris.isNotEmpty()) {
-                fileRepository.getFilesByUris(excludedFileUris)
-            } else {
-                emptyList()
-            }
+            val excludedContacts = loadExcludedContacts(permissions.contacts)
+            val excludedFiles = loadExcludedFiles(permissions.files)
 
             uiStateUpdater { state ->
                 state.copy(
@@ -79,4 +51,54 @@ class PinningHandler(
             }
         }
     }
+
+    private fun checkPermissions() = PermissionsState(
+        contacts = permissionManager.hasContactPermission(),
+        files = permissionManager.hasFilePermission()
+    )
+
+    private fun loadPinnedContacts(hasPermission: Boolean): List<com.tk.quicksearch.model.ContactInfo> {
+        if (!hasPermission) return emptyList()
+
+        val pinnedIds = userPreferences.getPinnedContactIds()
+        if (pinnedIds.isEmpty()) return emptyList()
+
+        val excludedIds = userPreferences.getExcludedContactIds()
+        return contactRepository.getContactsByIds(pinnedIds)
+            .filterNot { excludedIds.contains(it.contactId) }
+    }
+
+    private fun loadPinnedFiles(hasPermission: Boolean): List<com.tk.quicksearch.model.DeviceFile> {
+        if (!hasPermission) return emptyList()
+
+        val pinnedUris = userPreferences.getPinnedFileUris()
+        if (pinnedUris.isEmpty()) return emptyList()
+
+        val excludedUris = userPreferences.getExcludedFileUris()
+        return fileRepository.getFilesByUris(pinnedUris)
+            .filterNot { excludedUris.contains(it.uri.toString()) }
+    }
+
+    private fun loadExcludedContacts(hasPermission: Boolean): List<com.tk.quicksearch.model.ContactInfo> {
+        if (!hasPermission) return emptyList()
+
+        val excludedIds = userPreferences.getExcludedContactIds()
+        if (excludedIds.isEmpty()) return emptyList()
+
+        return contactRepository.getContactsByIds(excludedIds)
+    }
+
+    private fun loadExcludedFiles(hasPermission: Boolean): List<com.tk.quicksearch.model.DeviceFile> {
+        if (!hasPermission) return emptyList()
+
+        val excludedUris = userPreferences.getExcludedFileUris()
+        if (excludedUris.isEmpty()) return emptyList()
+
+        return fileRepository.getFilesByUris(excludedUris)
+    }
+
+    private data class PermissionsState(
+        val contacts: Boolean,
+        val files: Boolean
+    )
 }

@@ -108,7 +108,6 @@ fun SearchContentArea(
                 .padding(vertical = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
-            val showCalculator = state.calculatorState.result != null
             if (showCalculator) {
                 CalculatorResult(
                     calculatorState = state.calculatorState,

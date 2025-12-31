@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchengines.utils
+package com.tk.quicksearch.settings.searchEngines
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -6,6 +6,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import com.tk.quicksearch.search.core.*
+
+private const val AMAZON_ICON_SCALE_FACTOR = 0.3f
+private const val INVERSION_OFFSET = 255f
+private const val BRIGHTNESS_THRESHOLD = 0.7f
 
 /**
  * Helper function to get color filter for search engine icons based on theme.
@@ -19,9 +23,10 @@ fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
         SearchEngine.AMAZON
     )
 
-    // Check if we're in light mode by checking the background color brightness
+    // Check if we're in light mode by calculating perceived brightness
     val backgroundColor = MaterialTheme.colorScheme.background
-    val isLightMode = backgroundColor.red > 0.9f && backgroundColor.green > 0.9f && backgroundColor.blue > 0.9f
+    val brightness = (backgroundColor.red * 0.299f + backgroundColor.green * 0.587f + backgroundColor.blue * 0.114f)
+    val isLightMode = brightness > BRIGHTNESS_THRESHOLD
 
     return if (needsColorChange && isLightMode) {
         if (engine == SearchEngine.AMAZON) {
@@ -29,9 +34,9 @@ fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
             ColorFilter.colorMatrix(
                 ColorMatrix(
                     floatArrayOf(
-                        0.3f, 0f, 0f, 0f, 0f,     // Red: scale to 30% (preserves orange better)
-                        0f, 0.3f, 0f, 0f, 0f,     // Green: scale to 30%
-                        0f, 0f, 0.3f, 0f, 0f,     // Blue: scale to 30%
+                        AMAZON_ICON_SCALE_FACTOR, 0f, 0f, 0f, 0f,     // Red: scale to preserve orange
+                        0f, AMAZON_ICON_SCALE_FACTOR, 0f, 0f, 0f,     // Green: scale to preserve orange
+                        0f, 0f, AMAZON_ICON_SCALE_FACTOR, 0f, 0f,     // Blue: scale to preserve orange
                         0f, 0f, 0f, 1f, 0f        // Alpha: keep
                     )
                 )
@@ -41,9 +46,9 @@ fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
             ColorFilter.colorMatrix(
                 ColorMatrix(
                     floatArrayOf(
-                        -1f, 0f, 0f, 0f, 255f,  // Red: invert
-                        0f, -1f, 0f, 0f, 255f,   // Green: invert
-                        0f, 0f, -1f, 0f, 255f,   // Blue: invert
+                        -1f, 0f, 0f, 0f, INVERSION_OFFSET,  // Red: invert
+                        0f, -1f, 0f, 0f, INVERSION_OFFSET,   // Green: invert
+                        0f, 0f, -1f, 0f, INVERSION_OFFSET,   // Blue: invert
                         0f, 0f, 0f, 1f, 0f       // Alpha: keep
                     )
                 )

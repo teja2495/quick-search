@@ -31,7 +31,7 @@ class SettingsSearchHandler(
     }
 
     fun getSettingsState(
-        query: String, 
+        query: String,
         isSettingsSectionEnabled: Boolean,
         currentResults: List<SettingShortcut>
     ): SettingsSearchResults {
@@ -41,13 +41,11 @@ class SettingsSearchHandler(
         val excluded = availableSettings
             .filter { userPreferences.getExcludedSettingIds().contains(it.id) }
             .sortedBy { it.title.lowercase(Locale.getDefault()) }
-        
+
         val results = if (query.isNotBlank() && isSettingsSectionEnabled) {
             searchSettings(query)
-        } else if (query.isBlank() || !isSettingsSectionEnabled) {
-            emptyList()
         } else {
-            currentResults
+            emptyList()
         }
 
         return SettingsSearchResults(pinned, excluded, results)
@@ -67,31 +65,52 @@ class SettingsSearchHandler(
             .asSequence()
             .filterNot { userPreferences.getExcludedSettingIds().contains(it.id) }
             .mapNotNull { shortcut ->
-                val nickname = userPreferences.getSettingNickname(shortcut.id)
-                val hasNicknameMatch = nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
-                val keywordText = shortcut.keywords.joinToString(" ")
-                val hasFieldMatch = shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    (shortcut.description?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true) ||
-                    keywordText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
-                    nicknameMatches.contains(shortcut.id)
+                val matchResult = checkShortcutMatch(shortcut, normalizedQuery, nicknameMatches)
+                if (!matchResult.hasMatch) return@mapNotNull null
 
-                if (!hasFieldMatch && !hasNicknameMatch) return@mapNotNull null
-
-                val priority = when {
-                    hasNicknameMatch || nicknameMatches.contains(shortcut.id) -> 0
-                    else -> SearchRankingUtils.getBestMatchPriority(
-                        trimmed,
-                        shortcut.title,
-                        shortcut.description ?: "",
-                        keywordText
-                    )
-                }
+                val priority = calculatePriority(shortcut, matchResult, trimmed)
                 shortcut to priority
             }
             .sortedWith(compareBy({ it.second }, { it.first.title.lowercase(Locale.getDefault()) }))
             .take(6)
             .map { it.first }
             .toList()
+    }
+
+    private data class MatchResult(val hasMatch: Boolean, val hasNicknameMatch: Boolean)
+
+    private fun checkShortcutMatch(
+        shortcut: SettingShortcut,
+        normalizedQuery: String,
+        nicknameMatches: Set<String>
+    ): MatchResult {
+        val nickname = userPreferences.getSettingNickname(shortcut.id)
+        val hasNicknameMatch = nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+        val keywordText = shortcut.keywords.joinToString(" ")
+        val hasFieldMatch = shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+            (shortcut.description?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true) ||
+            keywordText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+            nicknameMatches.contains(shortcut.id)
+
+        return MatchResult(hasFieldMatch || hasNicknameMatch, hasNicknameMatch || nicknameMatches.contains(shortcut.id))
+    }
+
+    private fun calculatePriority(
+        shortcut: SettingShortcut,
+        matchResult: MatchResult,
+        trimmedQuery: String
+    ): Int {
+        return if (matchResult.hasNicknameMatch) {
+            0
+        } else {
+            val keywordText = shortcut.keywords.joinToString(" ")
+            SearchRankingUtils.getBestMatchPriority(
+                trimmedQuery,
+                shortcut.title,
+                shortcut.description ?: "",
+                keywordText
+            )
+        }
     }
 
     fun openSetting(setting: SettingShortcut) {

@@ -101,13 +101,7 @@ fun SettingsDetailRoute(
     val lifecycleOwner = LocalLifecycleOwner.current
     val userPreferences = remember { UserAppPreferences(context) }
     var shouldShowShortcutHint by remember(detailType) {
-        mutableStateOf(
-            if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                userPreferences.shouldShowShortcutHintBanner()
-            } else {
-                false
-            }
-        )
+        mutableStateOf(detailType == SettingsDetailType.SEARCH_ENGINES && userPreferences.shouldShowShortcutHintBanner())
     }
     var isDefaultAssistant by remember {
         mutableStateOf(context.isDefaultDigitalAssistant())
@@ -194,7 +188,7 @@ fun SettingsDetailRoute(
                 } catch (e: Exception) {
                     Toast.makeText(
                         context,
-                        "Unable to open settings",
+                        context.getString(R.string.settings_unable_to_open_settings),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -282,7 +276,6 @@ private fun SettingsDetailScreen(
                 }
             )
 
-            // Scrollable Content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -295,7 +288,6 @@ private fun SettingsDetailScreen(
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {
-                        // Search Engine Section (includes shortcuts)
                         SearchEnginesSection(
                             searchEngineOrder = state.searchEngineOrder,
                             disabledSearchEngines = state.disabledSearchEngines,
@@ -312,7 +304,7 @@ private fun SettingsDetailScreen(
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
                             personalContext = state.personalContext,
                             onSetPersonalContext = callbacks.onSetPersonalContext,
-                            DirectSearchAvailable = state.hasGeminiApiKey,
+                            directSearchAvailable = state.hasGeminiApiKey,
                             showTitle = false,
                             showShortcutHintBanner = showShortcutHintBanner,
                             onDismissShortcutHintBanner = onDismissShortcutHintBanner,
@@ -321,7 +313,6 @@ private fun SettingsDetailScreen(
                         )
                     }
                     SettingsDetailType.EXCLUDED_ITEMS -> {
-                        // Excluded Items Section
                         ExcludedItemsSection(
                             suggestionExcludedApps = state.suggestionExcludedApps,
                             resultExcludedApps = state.resultExcludedApps,
@@ -339,7 +330,6 @@ private fun SettingsDetailScreen(
                         )
                     }
                     SettingsDetailType.ADDITIONAL_SETTINGS -> {
-                        // Additional Settings Section
                         AdditionalSettingsSection(
                             clearQueryAfterSearchEngine = state.clearQueryAfterSearchEngine,
                             onToggleClearQueryAfterSearchEngine = callbacks.onToggleClearQueryAfterSearchEngine,
@@ -359,8 +349,7 @@ private fun SettingsDetailScreen(
                 }
             }
         }
-        
-        // Floating Action Button for Clear All (only shown for Excluded Items)
+
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
             FloatingActionButton(
                 onClick = { showClearAllConfirmation = true },

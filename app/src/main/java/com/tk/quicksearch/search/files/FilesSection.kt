@@ -157,90 +157,52 @@ private fun FilesResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val cardModifier = Modifier.fillMaxWidth()
+
         if (showWallpaperBackground) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = cardModifier,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    displayFiles.forEachIndexed { index, file ->
-                        FileResultRow(
-                            deviceFile = file,
-                            onClick = onFileClick,
-                            isExpanded = displayAsExpanded,
-                            isPinned = pinnedFileUris.contains(file.uri.toString()),
-                            onTogglePin = onTogglePin,
-                            onExclude = onExclude,
-                            onExcludeExtension = onExcludeExtension,
-                            onNicknameClick = onNicknameClick,
-                            hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
-                        )
-                        if (index != displayFiles.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-                    
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .height(EXPAND_BUTTON_HEIGHT.dp)
-                                .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
-                        )
-                    }
-                }
+                FileCardContent(
+                    displayFiles = displayFiles,
+                    displayAsExpanded = displayAsExpanded,
+                    shouldShowExpandButton = shouldShowExpandButton,
+                    onFileClick = onFileClick,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
+                    onExpandClick = onExpandClick
+                )
             }
         } else {
             ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = cardModifier,
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer
                 ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    displayFiles.forEachIndexed { index, file ->
-                        FileResultRow(
-                            deviceFile = file,
-                            onClick = onFileClick,
-                            isExpanded = displayAsExpanded,
-                            isPinned = pinnedFileUris.contains(file.uri.toString()),
-                            onTogglePin = onTogglePin,
-                            onExclude = onExclude,
-                            onExcludeExtension = onExcludeExtension,
-                            onNicknameClick = onNicknameClick,
-                            hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
-                        )
-                        if (index != displayFiles.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-                    
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .height(EXPAND_BUTTON_HEIGHT.dp)
-                                .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
-                        )
-                    }
-                }
+                FileCardContent(
+                    displayFiles = displayFiles,
+                    displayAsExpanded = displayAsExpanded,
+                    shouldShowExpandButton = shouldShowExpandButton,
+                    onFileClick = onFileClick,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
+                    onExpandClick = onExpandClick
+                )
             }
         }
         
@@ -248,6 +210,59 @@ private fun FilesResultCard(
             CollapseButton(
                 onClick = onExpandClick,
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+// ============================================================================
+// Card Content
+// ============================================================================
+
+@Composable
+private fun FileCardContent(
+    displayFiles: List<DeviceFile>,
+    displayAsExpanded: Boolean,
+    shouldShowExpandButton: Boolean,
+    onFileClick: (DeviceFile) -> Unit,
+    pinnedFileUris: Set<String>,
+    onTogglePin: (DeviceFile) -> Unit,
+    onExclude: (DeviceFile) -> Unit,
+    onExcludeExtension: (DeviceFile) -> Unit,
+    onNicknameClick: (DeviceFile) -> Unit,
+    getFileNickname: (String) -> String?,
+    onExpandClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        displayFiles.forEachIndexed { index, file ->
+            FileResultRow(
+                deviceFile = file,
+                onClick = onFileClick,
+                isExpanded = displayAsExpanded,
+                isPinned = pinnedFileUris.contains(file.uri.toString()),
+                onTogglePin = onTogglePin,
+                onExclude = onExclude,
+                onExcludeExtension = onExcludeExtension,
+                onNicknameClick = onNicknameClick,
+                hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
+            )
+            if (index != displayFiles.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+        }
+
+        if (shouldShowExpandButton) {
+            ExpandButton(
+                onClick = onExpandClick,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .height(EXPAND_BUTTON_HEIGHT.dp)
+                    .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
             )
         }
     }

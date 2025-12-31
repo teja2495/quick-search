@@ -41,6 +41,7 @@
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
     <string name="keyboard_switch_to_number">Switch to number keyboard</string>
+    <string name="direct_answer_contact_name">Direct Answer</string>
 
     <!-- ============================================================================
          Apps Section
@@ -53,6 +54,7 @@
     <string name="settings_files_permission_banner_message">Allow files permission to search through your documents and media</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="error_launch_app">Unable to open %1$s</string>
+    <string name="error_uninstall_app">Unable to uninstall %1$s</string>
     <string name="error_uninstall_self">You can\u2019t uninstall Quick Search from here.</string>
 
     <!-- ============================================================================
@@ -76,8 +78,28 @@
     <string name="contacts_action_button_meet">Meet</string>
     <string name="contacts_action_button_email">Email</string>
     <string name="contacts_action_button_contacts">Contacts</string>
+    <string name="contacts_action_view_contact">View contact</string>
+    <string name="contacts_action_previous_number">Previous phone number</string>
+    <string name="contacts_action_next_number">Next phone number</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
+    <string name="error_whatsapp_call_permission">Phone permission required for WhatsApp calls</string>
+    <string name="error_whatsapp_video_call_missing_data">Cannot make WhatsApp video call - missing contact data</string>
+    <string name="error_whatsapp_not_installed">WhatsApp is not installed</string>
+    <string name="error_whatsapp_call_failed">WhatsApp call failed. Please ensure WhatsApp is installed.</string>
+    <string name="error_whatsapp_chat_failed">Failed to open WhatsApp chat</string>
+    <string name="error_whatsapp_video_call_failed">Failed to open WhatsApp video call</string>
+    <string name="error_whatsapp_video_call_unavailable">WhatsApp not available for video calls</string>
+    <string name="error_telegram_not_installed">Telegram is not installed</string>
+    <string name="error_telegram_invalid_phone">Invalid phone number for Telegram</string>
+    <string name="error_telegram_process_phone">Could not process phone number for Telegram</string>
+    <string name="error_telegram_web_fallback_failed">Telegram is not installed and web fallback failed</string>
+    <string name="error_telegram_chat_failed">Failed to open Telegram chat</string>
+    <string name="error_telegram_call_failed">Telegram call failed. Please ensure Telegram is installed.</string>
+    <string name="error_google_meet_not_installed">Google Meet is not installed</string>
+    <string name="error_google_meet_no_phone">Cannot make Google Meet call - no phone number found</string>
+    <string name="error_google_meet_call_failed">Google Meet call failed - app may not support this method</string>
+    <string name="error_google_meet_video_call_failed">Failed to open Google Meet video call</string>
 
     <!-- ============================================================================
          Files Section
@@ -225,6 +247,10 @@
     <string name="settings_cache_last_updated">Last updated %1$s</string>
     <string name="settings_cache_never_updated">Cache not created yet</string>
     <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
+    <string name="apps_refreshed_successfully">Apps refreshed successfully</string>
+    <string name="contacts_refreshed_successfully">Contacts refreshed successfully</string>
+    <string name="files_refreshed_successfully">Files refreshed successfully</string>
+    <string name="failed_to_refresh_apps">Failed to refresh apps</string>
 
     <!-- ============================================================================
          Settings - About
@@ -232,6 +258,7 @@
     <string name="settings_section_about">About</string>
     <string name="settings_section_about_desc">Version details and Android controls.</string>
     <string name="settings_app_version">Version %1$s</string>
+    <string name="settings_app_version_unknown">Unknown</string>
 
     <!-- ============================================================================
          Settings - Hidden Apps
@@ -299,12 +326,15 @@
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
     <string name="settings_shortcuts_hint_message">Tip: Add a shortcut code at the end of your query to instantly trigger that search engine.</string>
+    <string name="shortcut_triggered">%1$s search shortcut triggered</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
     <string name="settings_direct_search_toggle">Direct Search Setup</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
+    <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
+    <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
 
@@ -370,6 +400,7 @@
     <string name="quick_settings_tile_not_added">Tile not added</string>
     <string name="quick_settings_tile_not_supported">Direct tile requests aren\'t supported on this Android version. Use Quick Settings edit to add it.</string>
     <string name="quick_settings_tile_error">Unable to request the Quick Settings tile. Try again.</string>
+    <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
     <string name="settings_excluded_items_more">More</string>

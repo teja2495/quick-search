@@ -58,20 +58,13 @@ class IconPackHandler(
 
             selectedIconPackPackage = normalizedSelection
             userPreferences.setSelectedIconPackPackage(normalizedSelection)
-            clearAppIconCaches()
 
             onStateUpdate { state ->
                 state.copy(selectedIconPackPackage = normalizedSelection)
             }
-
-
         }
     }
 
-    private fun clearAppIconCaches() {
-        // This would need to be implemented based on the existing icon caching logic
-        // For now, we'll leave it as a placeholder
-    }
 
     fun prefetchVisibleAppIcons(
         pinnedApps: List<com.tk.quicksearch.model.AppInfo>,

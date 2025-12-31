@@ -107,7 +107,7 @@ object IntentHelpers {
         } catch (e: Exception) {
             Toast.makeText(
                 context,
-                "Unable to uninstall ${appInfo.appName}",
+                context.getString(R.string.error_uninstall_app, appInfo.appName),
                 Toast.LENGTH_SHORT
             ).show()
         }

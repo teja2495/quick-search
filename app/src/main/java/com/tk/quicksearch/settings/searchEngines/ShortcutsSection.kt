@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchengines
+package com.tk.quicksearch.settings.searchEngines
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,7 +28,7 @@ import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.EditShortcutDialog
 import com.tk.quicksearch.settings.searchEngines.SearchEngineDivider
 import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
-import com.tk.quicksearch.settings.searchengines.utils.getSearchEngineIconColorFilter
+import com.tk.quicksearch.settings.searchEngines.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.getDisplayName
 import com.tk.quicksearch.search.searchengines.getDrawableResId

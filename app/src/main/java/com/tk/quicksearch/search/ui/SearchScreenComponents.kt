@@ -118,8 +118,8 @@ internal fun PersistentSearchField(
 
     // Set search bar background to black with slight transparency
     val searchBarBackground = Color.Black.copy(alpha = 0.3f)
-    val focusedContainerColor = Color.Black.copy(alpha = 0.3f)
-    val unfocusedContainerColor = Color.Black.copy(alpha = 0.3f)
+    val focusedContainerColor = searchBarBackground
+    val unfocusedContainerColor = searchBarBackground
     // Light color for icons and text on dark grey background
     val iconAndTextColor = Color(0xFFE0E0E0)
 

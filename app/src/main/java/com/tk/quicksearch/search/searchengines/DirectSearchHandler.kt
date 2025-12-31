@@ -26,7 +26,7 @@ class DirectSearchHandler(
     private var geminiClient: DirectSearchClient? = geminiApiKey?.let { DirectSearchClient(it) }
     private var personalContext: String = userPreferences.getPersonalContext().orEmpty()
     
-    private var DirectSearchJob: Job? = null
+    private var directSearchJob: Job? = null
 
     fun getGeminiApiKey() = geminiApiKey
     fun getPersonalContext() = personalContext
@@ -75,8 +75,8 @@ class DirectSearchHandler(
             return
         }
 
-        DirectSearchJob?.cancel()
-        DirectSearchJob = scope.launch {
+        directSearchJob?.cancel()
+        directSearchJob = scope.launch {
             _directSearchState.update {
                 DirectSearchState(
                     status = DirectSearchStatus.Loading,
@@ -118,8 +118,8 @@ class DirectSearchHandler(
     }
 
     fun clearDirectSearchState() {
-        DirectSearchJob?.cancel()
-        DirectSearchJob = null
+        directSearchJob?.cancel()
+        directSearchJob = null
         _directSearchState.update { DirectSearchState() }
     }
 }

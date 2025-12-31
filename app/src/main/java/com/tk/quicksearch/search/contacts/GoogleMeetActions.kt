@@ -26,7 +26,7 @@ object GoogleMeetActions {
             if (pm.getLaunchIntentForPackage(meetPackage) == null) {
                 Toast.makeText(
                     context,
-                    "Google Meet is not installed",
+                    context.getString(R.string.error_google_meet_not_installed),
                     Toast.LENGTH_SHORT
                 ).show()
                 return false
@@ -55,7 +55,7 @@ object GoogleMeetActions {
                 Log.w("ContactIntentHelpers", "No phone number found, cannot make call")
                 Toast.makeText(
                     context,
-                    "Cannot make Google Meet call - no phone number found",
+                    context.getString(R.string.error_google_meet_no_phone),
                     Toast.LENGTH_SHORT
                 ).show()
                 return false
@@ -75,7 +75,7 @@ object GoogleMeetActions {
                 Log.w("ContactIntentHelpers", "Google Meet custom action not resolved - app may not be installed or updated")
                 Toast.makeText(
                     context,
-                    "Google Meet call failed - app may not support this method",
+                    context.getString(R.string.error_google_meet_call_failed),
                     Toast.LENGTH_SHORT
                 ).show()
                 return false
@@ -85,7 +85,7 @@ object GoogleMeetActions {
             Log.e("ContactIntentHelpers", "Failed to open Google Meet video call", e)
             Toast.makeText(
                 context,
-                "Failed to open Google Meet video call",
+                context.getString(R.string.error_google_meet_video_call_failed),
                 Toast.LENGTH_SHORT
             ).show()
             false

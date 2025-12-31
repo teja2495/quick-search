@@ -39,6 +39,13 @@ private object MessagingSpacing {
     val cardBottomPadding = 26.dp
     val optionSpacing = 12.dp
     val toggleSpacing = 12.dp
+    val directDialColumnSpacing = 6.dp
+    val messagingTitleBottomPadding = 8.dp
+    val chipVerticalPadding = 12.dp
+    val chipHorizontalPadding = 12.dp
+    val chipIconSpacing = 10.dp
+    val iconSize = 28.dp
+    val borderWidth = 1.dp
 }
 
 private data class MessagingOption(val app: MessagingApp, val labelRes: Int)
@@ -129,7 +136,7 @@ private fun MergedMessagingCard(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = MessagingSpacing.toggleSpacing),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(MessagingSpacing.directDialColumnSpacing)
                 ) {
                     Text(
                         text = stringResource(R.string.settings_direct_dial_title),
@@ -170,7 +177,7 @@ private fun MergedMessagingCard(
                         text = stringResource(R.string.settings_messaging_card_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = MessagingSpacing.messagingTitleBottomPadding)
                     )
 
                     Row(
@@ -218,7 +225,7 @@ private fun MessagingOptionChip(
             .clip(MaterialTheme.shapes.large)
             .background(backgroundColor)
             .border(
-                width = 1.dp,
+                width = MessagingSpacing.borderWidth,
                 color = borderColor,
                 shape = MaterialTheme.shapes.large
             )
@@ -227,9 +234,9 @@ private fun MessagingOptionChip(
                 onClick = onClick,
                 role = Role.RadioButton
             )
-            .padding(vertical = 12.dp, horizontal = 12.dp),
+            .padding(vertical = MessagingSpacing.chipVerticalPadding, horizontal = MessagingSpacing.chipHorizontalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(MessagingSpacing.chipIconSpacing)
     ) {
         MessagingOptionIcon(app = option.app)
         Text(
@@ -250,21 +257,21 @@ private fun MessagingOptionIcon(app: MessagingApp) {
                 imageVector = Icons.Rounded.Sms,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(MessagingSpacing.iconSize)
             )
         }
         MessagingApp.WHATSAPP -> {
             Image(
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(MessagingSpacing.iconSize)
             )
         }
         MessagingApp.TELEGRAM -> {
             Image(
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(MessagingSpacing.iconSize)
             )
         }
     }

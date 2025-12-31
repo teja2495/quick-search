@@ -43,6 +43,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.*
 
+private const val DEFAULT_AMAZON_DOMAIN = "amazon.com"
+
 /**
  * Dialog for editing a search engine shortcut code.
  * 
@@ -177,7 +179,7 @@ fun EditAmazonDomainDialog(
     onSave: (String?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val defaultDomain = "amazon.com"
+    val defaultDomain = DEFAULT_AMAZON_DOMAIN
     val initialDomain = currentDomain ?: defaultDomain
     var editingDomain by remember(currentDomain) { 
         mutableStateOf(

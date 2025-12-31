@@ -46,7 +46,7 @@ object TelegramActions {
                 Log.w("IntentHelpers", "Telegram chat intent cannot be resolved")
                 Toast.makeText(
                     context,
-                    "Telegram is not installed",
+                    context.getString(R.string.error_telegram_not_installed),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -54,7 +54,7 @@ object TelegramActions {
             Log.e("IntentHelpers", "Failed to open Telegram chat", e)
             Toast.makeText(
                 context,
-                "Failed to open Telegram chat",
+                context.getString(R.string.error_telegram_chat_failed),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -69,7 +69,7 @@ object TelegramActions {
             Log.w("IntentHelpers", "Invalid phone number for Telegram: $phoneNumber")
             Toast.makeText(
                 context,
-                "Invalid phone number for Telegram",
+                context.getString(R.string.error_telegram_invalid_phone),
                 Toast.LENGTH_SHORT
             ).show()
             return
@@ -80,7 +80,7 @@ object TelegramActions {
             Log.w("IntentHelpers", "Could not clean phone number for Telegram: $phoneNumber")
             Toast.makeText(
                 context,
-                "Could not process phone number for Telegram",
+                context.getString(R.string.error_telegram_process_phone),
                 Toast.LENGTH_SHORT
             ).show()
             return
@@ -117,7 +117,7 @@ object TelegramActions {
             Log.w("IntentHelpers", "Telegram web fallback failed", e)
             Toast.makeText(
                 context,
-                "Telegram is not installed and web fallback failed",
+                context.getString(R.string.error_telegram_web_fallback_failed),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -162,7 +162,7 @@ object TelegramActions {
             Log.e("MessagingService", "Failed to initiate Telegram call", e)
             Toast.makeText(
                 context,
-                "Telegram call failed. Please ensure Telegram is installed.",
+                context.getString(R.string.error_telegram_call_failed),
                 Toast.LENGTH_SHORT
             ).show()
             return false

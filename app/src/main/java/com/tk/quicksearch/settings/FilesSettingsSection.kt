@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -32,6 +31,10 @@ import androidx.compose.material3.TextButton
 private object FileTypesSpacing {
     val cardHorizontalPadding = 20.dp
     val cardVerticalPadding = 12.dp
+    val chipButtonSize = 16.dp
+    val chipIconSize = 12.dp
+    val excludedExtensionsTitleBottomPadding = 8.dp
+    val excludedExtensionsChipSpacing = 8.dp
 }
 
 /**
@@ -67,13 +70,13 @@ private fun ExcludedExtensionChip(
         trailingIcon = {
             IconButton(
                 onClick = onRemove,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(FileTypesSpacing.chipButtonSize)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = stringResource(R.string.action_remove),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(FileTypesSpacing.chipIconSize)
                 )
             }
         },
@@ -192,7 +195,7 @@ fun FileTypesSection(
                         start = FileTypesSpacing.cardHorizontalPadding,
                         top = FileTypesSpacing.cardVerticalPadding,
                         end = FileTypesSpacing.cardHorizontalPadding,
-                        bottom = 8.dp
+                        bottom = FileTypesSpacing.excludedExtensionsTitleBottomPadding
                     )
                 )
 
@@ -205,7 +208,7 @@ fun FileTypesSection(
                             end = FileTypesSpacing.cardHorizontalPadding,
                             bottom = FileTypesSpacing.cardVerticalPadding
                         ),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(FileTypesSpacing.excludedExtensionsChipSpacing)
                 ) {
                     excludedExtensions.sorted().forEach { extension ->
                         ExcludedExtensionChip(

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchengines
+package com.tk.quicksearch.settings.searchEngines
 
 import android.content.Intent
 import android.net.Uri
@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.searchEngines.SearchEngineDivider
 import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
 import kotlinx.coroutines.delay
 
@@ -80,7 +81,7 @@ fun SearchEngineToggleCard(
     val clipboardManager = LocalClipboardManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val personalContextFocusRequester = remember { FocusRequester() }
-    val geminiGuideUrl = "https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311"
+    val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
 
     LaunchedEffect(personalContext) {
         personalContextInput = TextFieldValue(
@@ -156,7 +157,7 @@ fun SearchEngineToggleCard(
 
             if (directSearchEnabled && geminiApiKeyLast4 != null) {
                 Text(
-                    text = "Your Gemini API key:  ****$geminiApiKeyLast4",
+                    text = stringResource(R.string.settings_gemini_api_key_display, geminiApiKeyLast4 ?: ""),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)

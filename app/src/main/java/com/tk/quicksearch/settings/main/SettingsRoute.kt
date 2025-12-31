@@ -38,7 +38,6 @@ fun SettingsRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Handle section toggle with permission check
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
 
     val state = SettingsScreenState(
@@ -85,88 +84,57 @@ fun SettingsRoute(
         viewModel.refreshIconPacks()
     }
 
-    // Launcher for contacts permission request
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        // Refresh permission state after request
-        viewModel.handleOptionalPermissionChange()
-
-        // If permission was not granted, check if we should open settings as fallback
-        // This handles the case where permission was permanently denied
-        if (!isGranted && context is android.app.Activity) {
-            val shouldShowRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-                context,
-                Manifest.permission.READ_CONTACTS
-            )
-            // If we can't show rationale and permission is still denied,
-            // it means permission was permanently denied, so open settings
-            if (!shouldShowRationale && !PermissionRequestHandler.checkContactsPermission(context)) {
-                viewModel.openContactPermissionSettings()
-            }
-        }
+        handlePermissionResult(
+            isGranted = isGranted,
+            context = context,
+            permission = Manifest.permission.READ_CONTACTS,
+            onPermanentlyDenied = viewModel::openContactPermissionSettings,
+            onPermissionChanged = viewModel::handleOptionalPermissionChange
+        )
     }
 
-    // Handler for contacts permission request - tries popup first, then settings
-    val onRequestContactPermission = {
-        // If context is not an Activity, we can't request permission via popup, so open settings
-        if (context !is android.app.Activity) {
-            viewModel.openContactPermissionSettings()
-        } else {
-            // Try to show permission popup first
-            // If permission was permanently denied, Android will handle it gracefully
-            // and we'll open settings in the launcher callback if needed
-            contactsPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-        }
-    }
+    val onRequestContactPermission = createPermissionRequestHandler(
+        context = context,
+        permissionLauncher = contactsPermissionLauncher,
+        permission = Manifest.permission.READ_CONTACTS,
+        fallbackAction = viewModel::openContactPermissionSettings
+    )
 
-    // Launcher for call permission request
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        // Refresh permission state after request
-        viewModel.handleOptionalPermissionChange()
-
-        if (isGranted && pendingEnableDirectDial) {
-            viewModel.setDirectDialEnabled(true)
-        }
-
-        // If permission was not granted, check if we should open settings as fallback
-        if (!isGranted && context is android.app.Activity) {
-            val shouldShowRationale = androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-                context,
-                Manifest.permission.CALL_PHONE
-            )
-            // If we can't show rationale and permission is still denied,
-            // it means permission was permanently denied, so open settings
-            if (!shouldShowRationale && !com.tk.quicksearch.permissions.PermissionRequestHandler.checkCallPermission(context)) {
-                viewModel.openAppSettings()
-            }
-        }
-
-        pendingEnableDirectDial = false
+        handlePermissionResult(
+            isGranted = isGranted,
+            context = context,
+            permission = Manifest.permission.CALL_PHONE,
+            onPermanentlyDenied = viewModel::openAppSettings,
+            onPermissionChanged = viewModel::handleOptionalPermissionChange,
+            onGranted = {
+                if (pendingEnableDirectDial) {
+                    viewModel.setDirectDialEnabled(true)
+                }
+            },
+            onComplete = { pendingEnableDirectDial = false }
+        )
     }
 
-    // Handler for call permission request - tries popup first, then settings
-    val onRequestCallPermission = {
-        // If context is not an Activity, we can't request permission via popup, so open settings
-        if (context !is android.app.Activity) {
-            viewModel.openAppSettings()
-        } else {
-            // Try to show permission popup first
-            callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
-        }
-    }
+    val onRequestCallPermission = createPermissionRequestHandler(
+        context = context,
+        permissionLauncher = callPermissionLauncher,
+        permission = Manifest.permission.CALL_PHONE,
+        fallbackAction = viewModel::openAppSettings
+    )
 
     val onToggleDirectDial: (Boolean) -> Unit = { enabled ->
         if (enabled) {
             if (PermissionRequestHandler.checkCallPermission(context)) {
                 viewModel.setDirectDialEnabled(true)
-            } else if (context !is android.app.Activity) {
-                viewModel.openAppSettings()
             } else {
                 pendingEnableDirectDial = true
-                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                onRequestCallPermission()
             }
         } else {
             pendingEnableDirectDial = false
@@ -220,7 +188,7 @@ fun SettingsRoute(
                 } catch (e: Exception) {
                     Toast.makeText(
                         context,
-                        "Unable to open settings",
+                        context.getString(R.string.settings_unable_to_open_settings),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -273,9 +241,9 @@ fun SettingsRoute(
             callbacks.onSetMessagingApp(app)
         } else {
             val appName = when (app) {
-                MessagingApp.WHATSAPP -> "WhatsApp"
-                MessagingApp.TELEGRAM -> "Telegram"
-                MessagingApp.MESSAGES -> "Messages"
+                MessagingApp.WHATSAPP -> context.getString(R.string.settings_messaging_option_whatsapp)
+                MessagingApp.TELEGRAM -> context.getString(R.string.settings_messaging_option_telegram)
+                MessagingApp.MESSAGES -> context.getString(R.string.settings_messaging_option_messages)
             }
             Toast.makeText(
                 context,
@@ -290,13 +258,11 @@ fun SettingsRoute(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    // Reset session dismissed flag on app launch (when activity starts)
                     userPreferences.resetUsagePermissionBannerSessionDismissed()
                     shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     viewModel.handleOnResume()
-                    // Also refresh banner state on resume
                     shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
                 }
                 else -> {}

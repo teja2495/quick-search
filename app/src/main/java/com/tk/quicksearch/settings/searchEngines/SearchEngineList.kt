@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.searchengines
+package com.tk.quicksearch.settings.searchEngines
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -53,7 +53,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.searchEngines.EditAmazonDomainDialog
 import com.tk.quicksearch.settings.searchEngines.SearchEngineDivider
 import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
-import com.tk.quicksearch.settings.searchengines.utils.getSearchEngineIconColorFilter
+import com.tk.quicksearch.settings.searchEngines.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.*
 import kotlin.math.roundToInt

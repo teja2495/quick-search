@@ -279,8 +279,8 @@ fun SearchScreen(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
+    val directAnswerContactName = stringResource(R.string.direct_answer_contact_name)
 
-    // Load wallpaper bitmap - check cache first for instant display
     var wallpaperBitmap by remember {
         mutableStateOf<ImageBitmap?>(
             WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
@@ -295,7 +295,6 @@ fun SearchScreen(
         }
     }
 
-    // Calculate derived state
     val derivedState = rememberDerivedState(state)
 
     // Section expansion state
@@ -345,7 +344,6 @@ fun SearchScreen(
         reverseScrolling = alignResultsToBottom
     )
 
-    // Build section parameters using helper function
     val sectionParams = buildSectionParams(
         state = state,
         derivedState = derivedState,
@@ -450,7 +448,7 @@ fun SearchScreen(
                 val tempContact = ContactInfo(
                     contactId = -1L,
                     lookupKey = "",
-                    displayName = "Direct Answer",
+                    displayName = directAnswerContactName,
                     phoneNumbers = listOf(phoneNumber)
                 )
                 onCallContact(tempContact)

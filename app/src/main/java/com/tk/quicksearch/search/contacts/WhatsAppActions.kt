@@ -45,7 +45,7 @@ object WhatsAppActions {
                 Log.w("MessagingService", "WhatsApp chat intent cannot be resolved")
                 Toast.makeText(
                     context,
-                    "WhatsApp is not installed",
+                    context.getString(R.string.error_whatsapp_not_installed),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -53,7 +53,7 @@ object WhatsAppActions {
             Log.e("MessagingService", "Failed to open WhatsApp chat", e)
             Toast.makeText(
                 context,
-                "Failed to open WhatsApp chat",
+                context.getString(R.string.error_whatsapp_chat_failed),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -151,7 +151,7 @@ object WhatsAppActions {
             Log.e("MessagingService", "Failed to initiate WhatsApp call", e)
             Toast.makeText(
                 context,
-                "WhatsApp call failed. Please ensure WhatsApp is installed.",
+                context.getString(R.string.error_whatsapp_call_failed),
                 Toast.LENGTH_SHORT
             ).show()
             return false
@@ -180,7 +180,7 @@ object WhatsAppActions {
                 Log.w("MessagingService", "No activity found to handle WhatsApp video call")
                 Toast.makeText(
                     context,
-                    "WhatsApp not available for video calls",
+                    context.getString(R.string.error_whatsapp_video_call_unavailable),
                     Toast.LENGTH_SHORT
                 ).show()
                 false
@@ -189,7 +189,7 @@ object WhatsAppActions {
             Log.e("MessagingService", "Failed to open WhatsApp video call", e)
             Toast.makeText(
                 context,
-                "Failed to open WhatsApp video call",
+                context.getString(R.string.error_whatsapp_video_call_failed),
                 Toast.LENGTH_SHORT
             ).show()
             false

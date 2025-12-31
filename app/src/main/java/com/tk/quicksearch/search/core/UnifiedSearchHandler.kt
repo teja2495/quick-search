@@ -37,119 +37,139 @@ class UnifiedSearchHandler(
         canSearchSettings: Boolean
     ): UnifiedSearchResults = withContext(Dispatchers.IO) {
         val trimmedQuery = query.trim()
-        if (trimmedQuery.isBlank() || trimmedQuery.length == 1) {
+        if (shouldSkipSearch(trimmedQuery)) {
             return@withContext UnifiedSearchResults()
         }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
 
         // Search by display name (existing behavior)
-        val result = searchOperations.performSearches(
-            query = trimmedQuery,
-            canSearchContacts = canSearchContacts,
-            canSearchFiles = canSearchFiles,
-            enabledFileTypes = enabledFileTypes,
-            excludedContactIds = userPreferences.getExcludedContactIds(),
-            excludedFileUris = userPreferences.getExcludedFileUris(),
-            excludedFileExtensions = userPreferences.getExcludedFileExtensions(),
-            scope = this
-        )
+        val searchResult = performBaseSearch(trimmedQuery, enabledFileTypes, canSearchContacts, canSearchFiles, this@withContext)
 
-        // Also search for contacts/files with matching nicknames
-        val nicknameMatchingContactIds = if (canSearchContacts) {
-            userPreferences.findContactsWithMatchingNickname(trimmedQuery)
-                .filterNot { userPreferences.getExcludedContactIds().contains(it) }
-        } else {
-            emptySet()
-        }
+        // Add nickname matches that weren't found by display name
+        val nicknameContacts = findNicknameOnlyContacts(searchResult.contacts, trimmedQuery, canSearchContacts)
+        val nicknameFiles = findNicknameOnlyFiles(searchResult.files, trimmedQuery, enabledFileTypes, canSearchFiles)
 
-        val nicknameMatchingFileUris = if (canSearchFiles) {
-            userPreferences.findFilesWithMatchingNickname(trimmedQuery)
-                .filterNot { userPreferences.getExcludedFileUris().contains(it) }
-        } else {
-            emptySet()
-        }
-
-        // Fetch contacts/files that match by nickname but not by display name
-        val nicknameOnlyContacts = if (nicknameMatchingContactIds.isNotEmpty()) {
-            val displayNameMatchedIds = result.contacts.map { it.contactId }.toSet()
-            val nicknameOnlyIds = nicknameMatchingContactIds.filterNot { displayNameMatchedIds.contains(it) }
-            if (nicknameOnlyIds.isNotEmpty()) {
-                contactRepository.getContactsByIds(nicknameOnlyIds.toSet())
-            } else {
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-
-        val nicknameOnlyFiles = if (nicknameMatchingFileUris.isNotEmpty()) {
-            val displayNameMatchedUris = result.files.map { it.uri.toString() }.toSet()
-            val nicknameOnlyUris = nicknameMatchingFileUris.filterNot { displayNameMatchedUris.contains(it) }
-            if (nicknameOnlyUris.isNotEmpty()) {
-                fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
-                    .filter { file ->
-                        val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
-                        fileType in enabledFileTypes &&
-                        !userPreferences.getExcludedFileUris().contains(file.uri.toString()) &&
-                        !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions())
-                    }
-            } else {
-                emptyList()
-            }
-        } else {
-            emptyList()
-        }
-
-        // Combine display name matches and nickname-only matches
-        val allContacts = (result.contacts + nicknameOnlyContacts).distinctBy { it.contactId }
-        val allFiles = (result.files + nicknameOnlyFiles).distinctBy { it.uri.toString() }
-
-        // Filter and rank by nickname matches
-        val filteredContacts = allContacts.mapNotNull { contact ->
-            val nickname = userPreferences.getContactNickname(contact.contactId)
-            val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                contact.displayName,
-                nickname,
-                normalizedQuery
-            )
-            if (SearchRankingUtils.isOtherMatch(priority)) {
-                null
-            } else {
-                contact to priority
-            }
-        }.sortedWith(
-            compareBy<Pair<ContactInfo, Int>> { it.second }
-                .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
-        ).map { it.first }
-
-        val filteredFiles = allFiles.mapNotNull { file ->
-            val nickname = userPreferences.getFileNickname(file.uri.toString())
-            val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                file.displayName,
-                nickname,
-                normalizedQuery
-            )
-            if (SearchRankingUtils.isOtherMatch(priority)) {
-                null
-            } else {
-                file to priority
-            }
-        }.sortedWith(
-            compareBy<Pair<DeviceFile, Int>> { it.second }
-                .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
-        ).map { it.first }
+        // Combine and filter results
+        val filteredContacts = filterAndRankContacts(searchResult.contacts + nicknameContacts, normalizedQuery)
+        val filteredFiles = filterAndRankFiles(searchResult.files + nicknameFiles, normalizedQuery)
 
         val settingsMatches = if (canSearchSettings) {
             settingsSearchHandler.searchSettings(trimmedQuery)
         } else {
             emptyList()
         }
-        
+
         return@withContext UnifiedSearchResults(
             contactResults = filteredContacts,
             fileResults = filteredFiles,
             settingResults = settingsMatches
         )
+    }
+
+    private fun shouldSkipSearch(query: String): Boolean {
+        return query.isBlank() || query.length == 1
+    }
+
+    private suspend fun performBaseSearch(
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        canSearchContacts: Boolean,
+        canSearchFiles: Boolean,
+        scope: CoroutineScope
+    ): SearchOperations.SearchResult {
+        return searchOperations.performSearches(
+            query = query,
+            canSearchContacts = canSearchContacts,
+            canSearchFiles = canSearchFiles,
+            enabledFileTypes = enabledFileTypes,
+            excludedContactIds = userPreferences.getExcludedContactIds(),
+            excludedFileUris = userPreferences.getExcludedFileUris(),
+            excludedFileExtensions = userPreferences.getExcludedFileExtensions(),
+            scope = scope
+        )
+    }
+
+    private suspend fun findNicknameOnlyContacts(
+        displayNameContacts: List<ContactInfo>,
+        query: String,
+        canSearchContacts: Boolean
+    ): List<ContactInfo> {
+        if (!canSearchContacts) return emptyList()
+
+        val nicknameMatchingIds = userPreferences.findContactsWithMatchingNickname(query)
+            .filterNot { userPreferences.getExcludedContactIds().contains(it) }
+
+        if (nicknameMatchingIds.isEmpty()) return emptyList()
+
+        val displayNameMatchedIds = displayNameContacts.map { it.contactId }.toSet()
+        val nicknameOnlyIds = nicknameMatchingIds.filterNot { displayNameMatchedIds.contains(it) }
+
+        return if (nicknameOnlyIds.isNotEmpty()) {
+            contactRepository.getContactsByIds(nicknameOnlyIds.toSet())
+        } else {
+            emptyList()
+        }
+    }
+
+    private suspend fun findNicknameOnlyFiles(
+        displayNameFiles: List<DeviceFile>,
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        canSearchFiles: Boolean
+    ): List<DeviceFile> {
+        if (!canSearchFiles) return emptyList()
+
+        val nicknameMatchingUris = userPreferences.findFilesWithMatchingNickname(query)
+            .filterNot { userPreferences.getExcludedFileUris().contains(it) }
+
+        if (nicknameMatchingUris.isEmpty()) return emptyList()
+
+        val displayNameMatchedUris = displayNameFiles.map { it.uri.toString() }.toSet()
+        val nicknameOnlyUris = nicknameMatchingUris.filterNot { displayNameMatchedUris.contains(it) }
+
+        return if (nicknameOnlyUris.isNotEmpty()) {
+            fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
+                .filter { file ->
+                    val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
+                    fileType in enabledFileTypes &&
+                    !userPreferences.getExcludedFileUris().contains(file.uri.toString()) &&
+                    !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions())
+                }
+        } else {
+            emptyList()
+        }
+    }
+
+    private fun filterAndRankContacts(contacts: List<ContactInfo>, normalizedQuery: String): List<ContactInfo> {
+        return contacts.distinctBy { it.contactId }
+            .mapNotNull { contact ->
+                val nickname = userPreferences.getContactNickname(contact.contactId)
+                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+                    contact.displayName, nickname, normalizedQuery
+                )
+                if (SearchRankingUtils.isOtherMatch(priority)) null else contact to priority
+            }
+            .sortedWith(
+                compareBy<Pair<ContactInfo, Int>> { it.second }
+                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
+            )
+            .map { it.first }
+    }
+
+    private fun filterAndRankFiles(files: List<DeviceFile>, normalizedQuery: String): List<DeviceFile> {
+        return files.distinctBy { it.uri.toString() }
+            .mapNotNull { file ->
+                val nickname = userPreferences.getFileNickname(file.uri.toString())
+                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+                    file.displayName, nickname, normalizedQuery
+                )
+                if (SearchRankingUtils.isOtherMatch(priority)) null else file to priority
+            }
+            .sortedWith(
+                compareBy<Pair<DeviceFile, Int>> { it.second }
+                    .thenBy { it.first.displayName.lowercase(Locale.getDefault()) }
+            )
+            .map { it.first }
     }
 }

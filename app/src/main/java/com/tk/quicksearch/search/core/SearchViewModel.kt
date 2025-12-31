@@ -80,7 +80,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     val settingsManager = SettingsManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState)
     val searchEngineManager = SearchEngineManager(userPreferences, viewModelScope, this::updateUiState)
     val sectionManager = SectionManager(userPreferences, permissionManager, viewModelScope, this::updateUiState)
-    private val uiStateManager = UiStateManager(repository, userPreferences, this::updateUiState)
     val iconPackHandler = IconPackHandler(application, userPreferences, viewModelScope, this::updateUiState)
 
     // New Handlers
@@ -195,127 +194,166 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     init {
-        // Initialize handlers logic
-        
-        // Listen to Direct Search State
+        setupDirectSearchStateListener()
+        initializeWithCachedData()
+        setupBackgroundOperations()
+    }
+
+    private fun setupDirectSearchStateListener() {
         viewModelScope.launch {
             directSearchHandler.directSearchState.collect { dsState ->
-                 _uiState.update { it.copy(DirectSearchState = dsState) }
+                _uiState.update { it.copy(DirectSearchState = dsState) }
             }
         }
-        
-        // Load cached apps synchronously for instant UI display
-        val cachedAppsList = runCatching {
-            repository.loadCachedApps()
-        }.getOrNull()
-        
-        // Get initial shortcut state
+    }
+
+    private fun initializeWithCachedData() {
+        val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
         val shortcutsState = shortcutHandler.getInitialState()
-        
+
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-            // Set cached apps immediately in handler
-            appSearchHandler.initCache(cachedAppsList)
-            val lastUpdated = repository.cacheLastUpdatedMillis()
-            val packageNames = cachedAppsList.map { it.packageName }.toSet()
-            val isWhatsAppInstalled = packageNames.contains(WHATSAPP_PACKAGE)
-            val isTelegramInstalled = packageNames.contains(TELEGRAM_PACKAGE)
-            val resolvedMessagingApp = messagingHandler.updateMessagingAvailability(
-                whatsappInstalled = isWhatsAppInstalled,
-                telegramInstalled = isTelegramInstalled,
-                updateState = false
-            )
-            
-            // Initialize UI state with cached data - UI appears instantly
-            _uiState.update {
-                it.copy(
-                    isLoading = false,
-                    searchEngineOrder = searchEngineManager.searchEngineOrder,
-                    disabledSearchEngines = searchEngineManager.disabledSearchEngines,
-                    enabledFileTypes = enabledFileTypes,
-                    keyboardAlignedLayout = keyboardAlignedLayout,
-                    shortcutsEnabled = shortcutsState.shortcutsEnabled,
-                    shortcutCodes = shortcutsState.shortcutCodes,
-                    shortcutEnabled = shortcutsState.shortcutEnabled,
-                    messagingApp = resolvedMessagingApp,
-                    directDialEnabled = directDialEnabled,
-                    isWhatsAppInstalled = isWhatsAppInstalled,
-                    isTelegramInstalled = isTelegramInstalled,
-                    showWallpaperBackground = showWallpaperBackground,
-                    selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
-                    availableIconPacks = iconPackHandler.availableIconPacks,
-                    clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
-                    showAllResults = showAllResults,
-                    sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-                    sectionOrder = sectionManager.sectionOrder,
-                    disabledSections = sectionManager.disabledSections,
-                    searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-                    amazonDomain = amazonDomain,
-                    webSuggestionsEnabled = webSuggestionHandler.isEnabled,
-                    calculatorEnabled = calculatorHandler.isEnabled,
-                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-                    personalContext = directSearchHandler.getPersonalContext(),
-                    cacheLastUpdatedMillis = lastUpdated
-                )
-            }
-            // Update derived state immediately with cached apps
-            refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
+            initializeWithCache(cachedAppsList, shortcutsState)
         } else {
-            // No cache - initialize with defaults
-            // No cache - initialize with defaults
-            val isWhatsAppInstalled = messagingHandler.isPackageInstalled(WHATSAPP_PACKAGE)
-            val isTelegramInstalled = messagingHandler.isPackageInstalled(TELEGRAM_PACKAGE)
-            val resolvedMessagingApp = messagingHandler.updateMessagingAvailability(
-                whatsappInstalled = isWhatsAppInstalled,
-                telegramInstalled = isTelegramInstalled,
-                updateState = false
-            )
-            _uiState.update {
-                it.copy(
-                    searchEngineOrder = searchEngineManager.searchEngineOrder,
-                    disabledSearchEngines = searchEngineManager.disabledSearchEngines,
-                    enabledFileTypes = enabledFileTypes,
-                    keyboardAlignedLayout = keyboardAlignedLayout,
-                    shortcutsEnabled = shortcutsState.shortcutsEnabled,
-                    shortcutCodes = shortcutsState.shortcutCodes,
-                    shortcutEnabled = shortcutsState.shortcutEnabled,
-                    messagingApp = resolvedMessagingApp,
-                    directDialEnabled = directDialEnabled,
-                    isWhatsAppInstalled = isWhatsAppInstalled,
-                    isTelegramInstalled = isTelegramInstalled,
-                    showWallpaperBackground = showWallpaperBackground,
-                    selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
-                    availableIconPacks = iconPackHandler.availableIconPacks,
-                    clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
-                    showAllResults = showAllResults,
-                    sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-                    sectionOrder = sectionManager.sectionOrder,
-                    disabledSections = sectionManager.disabledSections,
-                    searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-                    amazonDomain = amazonDomain,
-                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-                    personalContext = directSearchHandler.getPersonalContext()
-                )
-            }
+            initializeWithoutCache(shortcutsState)
         }
-        
-        // Refresh permissions (fast operations)
+    }
+
+    private fun initializeWithCache(cachedAppsList: List<AppInfo>, shortcutsState: ShortcutHandler.ShortcutsState) {
+        appSearchHandler.initCache(cachedAppsList)
+        val lastUpdated = repository.cacheLastUpdatedMillis()
+        val packageNames = cachedAppsList.map { it.packageName }.toSet()
+        val messagingInfo = getMessagingAppInfo(packageNames)
+
+        _uiState.update { createInitialStateWithCache(shortcutsState, messagingInfo, lastUpdated) }
+        refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
+    }
+
+    private fun initializeWithoutCache(shortcutsState: ShortcutHandler.ShortcutsState) {
+        val messagingInfo = getMessagingAppInfo(emptySet())
+
+        _uiState.update { createInitialStateWithoutCache(shortcutsState, messagingInfo) }
+    }
+
+    private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
+        val isWhatsAppInstalled = if (packageNames.isNotEmpty()) {
+            packageNames.contains(WHATSAPP_PACKAGE)
+        } else {
+            messagingHandler.isPackageInstalled(WHATSAPP_PACKAGE)
+        }
+        val isTelegramInstalled = if (packageNames.isNotEmpty()) {
+            packageNames.contains(TELEGRAM_PACKAGE)
+        } else {
+            messagingHandler.isPackageInstalled(TELEGRAM_PACKAGE)
+        }
+        val resolvedMessagingApp = messagingHandler.updateMessagingAvailability(
+            whatsappInstalled = isWhatsAppInstalled,
+            telegramInstalled = isTelegramInstalled,
+            updateState = false
+        )
+
+        return MessagingAppInfo(isWhatsAppInstalled, isTelegramInstalled, resolvedMessagingApp)
+    }
+
+    private fun createInitialStateWithCache(
+        shortcutsState: ShortcutHandler.ShortcutsState,
+        messagingInfo: MessagingAppInfo,
+        lastUpdated: Long
+    ): SearchUiState {
+        return SearchUiState().copy(
+            isLoading = false,
+            searchEngineOrder = searchEngineManager.searchEngineOrder,
+            disabledSearchEngines = searchEngineManager.disabledSearchEngines,
+            enabledFileTypes = enabledFileTypes,
+            keyboardAlignedLayout = keyboardAlignedLayout,
+            shortcutsEnabled = shortcutsState.shortcutsEnabled,
+            shortcutCodes = shortcutsState.shortcutCodes,
+            shortcutEnabled = shortcutsState.shortcutEnabled,
+            messagingApp = messagingInfo.messagingApp,
+            directDialEnabled = directDialEnabled,
+            isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
+            isTelegramInstalled = messagingInfo.isTelegramInstalled,
+            showWallpaperBackground = showWallpaperBackground,
+            selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
+            availableIconPacks = iconPackHandler.availableIconPacks,
+            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+            showAllResults = showAllResults,
+            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+            sectionOrder = sectionManager.sectionOrder,
+            disabledSections = sectionManager.disabledSections,
+            searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
+            amazonDomain = amazonDomain,
+            webSuggestionsEnabled = webSuggestionHandler.isEnabled,
+            calculatorEnabled = calculatorHandler.isEnabled,
+            hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+            geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+            personalContext = directSearchHandler.getPersonalContext(),
+            cacheLastUpdatedMillis = lastUpdated
+        )
+    }
+
+    private fun createInitialStateWithoutCache(
+        shortcutsState: ShortcutHandler.ShortcutsState,
+        messagingInfo: MessagingAppInfo
+    ): SearchUiState {
+        return SearchUiState().copy(
+            searchEngineOrder = searchEngineManager.searchEngineOrder,
+            disabledSearchEngines = searchEngineManager.disabledSearchEngines,
+            enabledFileTypes = enabledFileTypes,
+            keyboardAlignedLayout = keyboardAlignedLayout,
+            shortcutsEnabled = shortcutsState.shortcutsEnabled,
+            shortcutCodes = shortcutsState.shortcutCodes,
+            shortcutEnabled = shortcutsState.shortcutEnabled,
+            messagingApp = messagingInfo.messagingApp,
+            directDialEnabled = directDialEnabled,
+            isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
+            isTelegramInstalled = messagingInfo.isTelegramInstalled,
+            showWallpaperBackground = showWallpaperBackground,
+            selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
+            availableIconPacks = iconPackHandler.availableIconPacks,
+            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+            showAllResults = showAllResults,
+            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+            sectionOrder = sectionManager.sectionOrder,
+            disabledSections = sectionManager.disabledSections,
+            searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
+            amazonDomain = amazonDomain,
+            hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+            geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+            personalContext = directSearchHandler.getPersonalContext()
+        )
+    }
+
+    private fun setupBackgroundOperations() {
         refreshUsageAccess()
         refreshOptionalPermissions()
-        refreshOptionalPermissions()
         releaseNotesHandler.checkForReleaseNotes()
-        
-        // Load apps in background (refresh cache if needed)
+
         loadApps()
         loadSettingsShortcuts()
         iconPackHandler.refreshIconPacks()
-        
+
         // Defer non-critical loads until after UI is visible
         viewModelScope.launch {
             kotlinx.coroutines.delay(100) // Small delay to let UI render first
             pinningHandler.loadPinnedContactsAndFiles()
             pinningHandler.loadExcludedContactsAndFiles()
+        }
+    }
+
+    private data class MessagingAppInfo(
+        val isWhatsAppInstalled: Boolean,
+        val isTelegramInstalled: Boolean,
+        val messagingApp: MessagingApp
+    )
+
+    private fun updateBooleanPreference(
+        value: Boolean,
+        preferenceSetter: (Boolean) -> Unit,
+        stateUpdater: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            preferenceSetter(value)
+            stateUpdater(value)
         }
     }
 
@@ -362,7 +400,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (showToast) {
             android.widget.Toast.makeText(
                 getApplication(),
-                "Contacts refreshed successfully",
+                getApplication<Application>().getString(R.string.contacts_refreshed_successfully),
                 android.widget.Toast.LENGTH_SHORT
             ).show()
         }
@@ -376,7 +414,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (showToast) {
             android.widget.Toast.makeText(
                 getApplication(),
-                "Files refreshed successfully",
+                getApplication<Application>().getString(R.string.files_refreshed_successfully),
                 android.widget.Toast.LENGTH_SHORT
             ).show()
         }
@@ -437,7 +475,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // Show toast notification for shortcut trigger
             android.widget.Toast.makeText(
                 getApplication(),
-                getApplication<Application>().getString(engine.getDisplayNameResId()) + " search shortcut triggered",
+                getApplication<Application>().getString(R.string.shortcut_triggered, getApplication<Application>().getString(engine.getDisplayNameResId())),
                 android.widget.Toast.LENGTH_SHORT
             ).show()
             // Automatically perform search with the detected engine
@@ -611,7 +649,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) = shortcutHandler.setShortcutEnabled(engine, enabled)
     fun getShortcutCode(engine: SearchEngine): String = shortcutHandler.getShortcutCode(engine)
     fun isShortcutEnabled(engine: SearchEngine): Boolean = shortcutHandler.isShortcutEnabled(engine)
-    fun areShortcutsEnabled(): Boolean = shortcutHandler.shortcutsEnabled
+    fun areShortcutsEnabled(): Boolean = true
     
     // Sections
     fun reorderSections(newOrder: List<SearchSection>) = sectionManager.reorderSections(newOrder)
@@ -633,33 +671,28 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) = contactActionHandler.handleContactMethod(contactInfo, method)
 
     fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setClearQueryAfterSearchEngine(clearQuery)
-            clearQueryAfterSearchEngine = clearQuery
-            _uiState.update {
-                it.copy(clearQueryAfterSearchEngine = clearQuery)
-            }
-        }
+        updateBooleanPreference(
+            value = clearQuery,
+            preferenceSetter = userPreferences::setClearQueryAfterSearchEngine,
+            stateUpdater = { clearQueryAfterSearchEngine = it; _uiState.update { state -> state.copy(clearQueryAfterSearchEngine = it) } }
+        )
     }
 
     fun setShowAllResults(showAllResults: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setShowAllResults(showAllResults)
-            this@SearchViewModel.showAllResults = showAllResults
-            _uiState.update {
-                it.copy(showAllResults = showAllResults)
-            }
-        }
+        updateBooleanPreference(
+            value = showAllResults,
+            preferenceSetter = userPreferences::setShowAllResults,
+            stateUpdater = { this@SearchViewModel.showAllResults = it; _uiState.update { state -> state.copy(showAllResults = it) } }
+        )
     }
 
     fun setSortAppsByUsageEnabled(sortAppsByUsageEnabled: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setSortAppsByUsage(sortAppsByUsageEnabled)
-            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
-            _uiState.update {
-                it.copy(sortAppsByUsageEnabled = sortAppsByUsageEnabled)
-            }
-        }
+        updateBooleanPreference(
+            value = sortAppsByUsageEnabled,
+            preferenceSetter = userPreferences::setSortAppsByUsage,
+            stateUpdater = { _uiState.update { state -> state.copy(sortAppsByUsageEnabled = it) } }
+        )
+        appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
     }
 
     fun getEnabledSearchEngines(): List<SearchEngine> = searchEngineManager.getEnabledSearchEngines()
@@ -669,17 +702,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setFileTypeEnabled(fileType: FileType, enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            val updated = enabledFileTypes.toMutableSet()
-            if (enabled) {
-                updated.add(fileType)
-            } else {
-                updated.remove(fileType)
+            val updated = enabledFileTypes.toMutableSet().apply {
+                if (enabled) add(fileType) else remove(fileType)
             }
             enabledFileTypes = updated
             userPreferences.setEnabledFileTypes(enabledFileTypes)
-            _uiState.update { 
-                it.copy(enabledFileTypes = enabledFileTypes)
-            }
+            updateUiState { it.copy(enabledFileTypes = enabledFileTypes) }
+
             // Re-run file search if there's an active query
             val query = _uiState.value.query
             if (query.isNotBlank()) {
@@ -689,13 +718,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun setKeyboardAlignedLayout(enabled: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setKeyboardAlignedLayout(enabled)
-            keyboardAlignedLayout = enabled
-            _uiState.update { 
-                it.copy(keyboardAlignedLayout = keyboardAlignedLayout)
-            }
-        }
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setKeyboardAlignedLayout,
+            stateUpdater = { keyboardAlignedLayout = it; updateUiState { state -> state.copy(keyboardAlignedLayout = it) } }
+        )
     }
 
     fun setAmazonDomain(domain: String?) {

@@ -1,10 +1,13 @@
 package com.tk.quicksearch.settings.main
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -14,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
@@ -251,4 +255,50 @@ fun rememberSectionToggleHandler(
             }
         }
     }
+}
+
+/**
+ * Creates a standardized permission request handler that tries popup first, then settings.
+ */
+@Composable
+fun createPermissionRequestHandler(
+    context: Context,
+    permissionLauncher: ActivityResultLauncher<String>,
+    permission: String,
+    fallbackAction: () -> Unit
+): () -> Unit = remember(context, permissionLauncher, permission, fallbackAction) {
+    {
+        if (context !is Activity) {
+            fallbackAction()
+        } else {
+            permissionLauncher.launch(permission)
+        }
+    }
+}
+
+/**
+ * Handles the result of a permission request with standardized logic.
+ */
+fun handlePermissionResult(
+    isGranted: Boolean,
+    context: Context,
+    permission: String,
+    onPermanentlyDenied: () -> Unit,
+    onPermissionChanged: () -> Unit,
+    onGranted: (() -> Unit)? = null,
+    onComplete: (() -> Unit)? = null
+) {
+    onPermissionChanged()
+
+    if (isGranted) {
+        onGranted?.invoke()
+    } else if (context is Activity) {
+        val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(context, permission)
+        if (!shouldShowRationale) {
+            // Permission permanently denied, open settings
+            onPermanentlyDenied()
+        }
+    }
+
+    onComplete?.invoke()
 }

@@ -127,6 +127,35 @@ fun CombinedSettingsNavigationCard(
  * Refresh Data Card with options to refresh Apps, Contacts, and Files data.
  */
 @Composable
+private fun RefreshOption(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 fun RefreshDataCard(
     onRefreshApps: () -> Unit,
     onRefreshContacts: () -> Unit,
@@ -156,28 +185,12 @@ fun RefreshDataCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // Apps option
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(onClick = onRefreshApps)
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.GridView,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_refresh_apps_title),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                RefreshOption(
+                    icon = Icons.Rounded.GridView,
+                    title = stringResource(R.string.settings_refresh_apps_title),
+                    onClick = onRefreshApps,
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Vertical divider
                 VerticalDivider(
@@ -187,28 +200,12 @@ fun RefreshDataCard(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
-                // Contacts option
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(onClick = onRefreshContacts)
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_refresh_contacts_title),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                RefreshOption(
+                    icon = Icons.Rounded.Person,
+                    title = stringResource(R.string.settings_refresh_contacts_title),
+                    onClick = onRefreshContacts,
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Vertical divider
                 VerticalDivider(
@@ -218,28 +215,12 @@ fun RefreshDataCard(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
-                // Files option
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(onClick = onRefreshFiles)
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.InsertDriveFile,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_refresh_files_title),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                RefreshOption(
+                    icon = Icons.Rounded.InsertDriveFile,
+                    title = stringResource(R.string.settings_refresh_files_title),
+                    onClick = onRefreshFiles,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             // Add space below the options

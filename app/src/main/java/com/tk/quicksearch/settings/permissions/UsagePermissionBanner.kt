@@ -52,7 +52,7 @@ fun UsagePermissionBanner(
             ) {
                 // Banner only shows for usage access permission
                 Text(
-                    text = "${stringResource(R.string.settings_usage_permission_banner_message)}",
+                    text = stringResource(R.string.settings_usage_permission_banner_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -72,5 +72,3 @@ fun UsagePermissionBanner(
         }
     }
 }
-
-

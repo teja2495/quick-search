@@ -36,11 +36,12 @@ class NavigationHandler(
     }
 
     fun openFilesPermissionSettings() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            IntentHelpers.openAllFilesAccessSettings(application)
+        val targetMethod = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            IntentHelpers::openAllFilesAccessSettings
         } else {
-            IntentHelpers.openAppSettings(application)
+            IntentHelpers::openAppSettings
         }
+        targetMethod(application)
     }
 
     fun openContactPermissionSettings() {
@@ -78,20 +79,7 @@ class NavigationHandler(
         }
     }
 
-    fun searchIconPacks() {
-        val query = application.getString(R.string.settings_icon_pack_search_query)
-        openSearchUrl(query, SearchEngine.GOOGLE_PLAY, clearQueryAfterSearchEngine = false) // Usually don't clear for this internal action? or do we? Original code didn't specify, invoked openSearchUrl which checks param.
-        // Original code: openSearchUrl(query, SearchEngine.GOOGLE_PLAY) -> uses clearQueryAfterSearchEngine global field.
-        // I will pass false or true based on preference? I need access to preference 'clearQueryAfterSearchEngine'.
-        // Wait, `clearQueryAfterSearchEngine` is passed as arg to `openSearchUrl`.
-        // I should expose `openSearchUrl` with that param.
-        // But internal call `searchIconPacks` in original code used `openSearchUrl` which used `this.clearQueryAfterSearchEngine`.
-        // I should read that preference or pass it.
-        // I'll accept `clearQueryAfterSearchEngine` as member or param.
-    }
-    
-    // Helper for internal calls that need the current preference state
-    fun searchIconPacks(clearQueryAfter: Boolean) {
+    fun searchIconPacks(clearQueryAfter: Boolean = false) {
         val query = application.getString(R.string.settings_icon_pack_search_query)
         openSearchUrl(query, SearchEngine.GOOGLE_PLAY, clearQueryAfter)
     }

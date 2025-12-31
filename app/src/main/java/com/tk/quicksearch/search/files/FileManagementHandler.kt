@@ -28,23 +28,14 @@ class FileManagementHandler(
 
     fun unpinFile(deviceFile: DeviceFile) {
         val uriString = deviceFile.uri.toString()
-        // Update UI immediately
+        // Update UI immediately for responsive feedback
         onUiStateUpdate { state ->
             state.copy(
                 pinnedFiles = state.pinnedFiles.filterNot { it.uri.toString() == uriString }
             )
         }
         scope.launch(Dispatchers.IO) {
-            // Try to find and remove the stored URI that matches this file
-            // The file's URI might differ slightly from what's stored, so we need to find the match
-            val storedUriToRemove = userPreferences.getPinnedFileUris().firstOrNull { stored ->
-                // Normalize both URIs for comparison
-                val storedNormalized = android.net.Uri.parse(stored)?.toString() ?: stored
-                val fileNormalized = android.net.Uri.parse(uriString)?.toString() ?: uriString
-                storedNormalized == fileNormalized || stored == uriString
-            } ?: uriString
-
-            userPreferences.unpinFile(storedUriToRemove)
+            userPreferences.unpinFile(uriString)
             onStateChanged()
         }
     }

@@ -29,8 +29,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.main.SettingsSpacing
+
+// Constants for consistent spacing
+private object FeedbackSpacing {
+    val cardPaddingHorizontal = 16.dp
+    val cardPaddingVertical = 16.dp
+    val iconEndPadding = 12.dp
+    val chevronMinWidth = 80.dp
+    val chevronMinHeight = 40.dp
+    val chevronStartPadding = 8.dp
+}
 
 /**
  * Data class representing a feedback item.
@@ -154,7 +165,7 @@ private fun FeedbackRow(
     Row(
         modifier = modifier
             .clickable(onClick = item.onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = FeedbackSpacing.cardPaddingHorizontal, vertical = FeedbackSpacing.cardPaddingVertical),
         verticalAlignment = Alignment.CenterVertically
     ) {
         when {
@@ -163,7 +174,7 @@ private fun FeedbackRow(
                     imageVector = item.iconVector,
                     contentDescription = item.title,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier.padding(end = FeedbackSpacing.iconEndPadding)
                 )
             }
             item.iconResId != null -> {
@@ -171,7 +182,7 @@ private fun FeedbackRow(
                     painter = painterResource(id = item.iconResId),
                     contentDescription = item.title,
                     tint = Color.Unspecified,
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier.padding(end = FeedbackSpacing.iconEndPadding)
                 )
             }
         }
@@ -185,15 +196,15 @@ private fun FeedbackRow(
 
         Box(
             modifier = Modifier
-                .widthIn(min = 80.dp)
-                .heightIn(min = 40.dp),
+                .widthIn(min = FeedbackSpacing.chevronMinWidth)
+                .heightIn(min = FeedbackSpacing.chevronMinHeight),
             contentAlignment = Alignment.CenterEnd
         ) {
             Icon(
                 imageVector = Icons.Rounded.ChevronRight,
                 contentDescription = stringResource(R.string.desc_navigate_forward),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = FeedbackSpacing.chevronStartPadding)
             )
         }
     }

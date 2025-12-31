@@ -15,28 +15,23 @@ class ShortcutHandler(
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val directSearchHandler: DirectSearchHandler
 ) {
-    var shortcutsEnabled: Boolean = true
-        private set
-    
     private var shortcutCodes: Map<SearchEngine, String> = emptyMap()
     private var shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap()
 
     init {
-         val enabled = userPreferences.areShortcutsEnabled()
-         if (!enabled) {
-             // Remove the ability to disable all shortcuts; always keep them on, legacy fix
-             userPreferences.setShortcutsEnabled(true)
-         }
-         shortcutsEnabled = true
-         shortcutCodes = userPreferences.getAllShortcutCodes()
-         shortcutEnabled = SearchEngine.values().associateWith {
-             userPreferences.isShortcutEnabled(it)
-         }
+        // Ensure shortcuts are always enabled (legacy compatibility)
+        if (!userPreferences.areShortcutsEnabled()) {
+            userPreferences.setShortcutsEnabled(true)
+        }
+        shortcutCodes = userPreferences.getAllShortcutCodes()
+        shortcutEnabled = SearchEngine.values().associateWith {
+            userPreferences.isShortcutEnabled(it)
+        }
     }
     
     fun getInitialState(): ShortcutsState {
         return ShortcutsState(
-            shortcutsEnabled = shortcutsEnabled,
+            shortcutsEnabled = true,
             shortcutCodes = shortcutCodes,
             shortcutEnabled = shortcutEnabled
         )
@@ -44,11 +39,10 @@ class ShortcutHandler(
 
     fun setShortcutsEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            // Keep shortcuts permanently enabled
+            // Shortcuts are always enabled
             userPreferences.setShortcutsEnabled(true)
-            shortcutsEnabled = true
-            uiStateUpdater { 
-                it.copy(shortcutsEnabled = shortcutsEnabled)
+            uiStateUpdater {
+                it.copy(shortcutsEnabled = true)
             }
         }
     }
@@ -86,8 +80,6 @@ class ShortcutHandler(
     }
 
     fun detectShortcut(query: String): Pair<String, SearchEngine>? {
-        if (!shortcutsEnabled) return null
-        
         val trimmedQuery = query.trim()
         if (trimmedQuery.isEmpty()) return null
 

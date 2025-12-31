@@ -201,7 +201,7 @@ class ContactActionHandler(
             if (pendingWhatsAppCallDataId != null) {
                 Toast.makeText(
                     context,
-                    "Phone permission required for WhatsApp calls",
+                    context.getString(R.string.error_whatsapp_call_permission),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -232,17 +232,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppCall -> {
-                // WhatsApp calls require CALL_PHONE permission
-                val hasPermission = PermissionRequestHandler.checkCallPermission(context)
-                if (hasPermission) {
-                    val success = ContactIntentHelpers.openWhatsAppCall(context, method.dataId)
-                    if (success) {
-                        clearQueryIfEnabled()
-                    }
-                } else {
-                    // Store pending WhatsApp call dataId and request permission
-                    uiStateUpdater { it.copy(pendingWhatsAppCallDataId = method.dataId?.toString()) }
-                }
+                handleWhatsAppCallWithPermission(method.dataId)
             }
 
             is ContactMethod.WhatsAppMessage -> {
@@ -251,28 +241,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppVideoCall -> {
-                // WhatsApp video calls require CALL_PHONE permission and valid dataId
-                val dataId = method.dataId
-                if (dataId == null) {
-                    Log.w("ContactActionHandler", "WhatsApp video call missing dataId")
-                    Toast.makeText(
-                        context,
-                        "Cannot make WhatsApp video call - missing contact data",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return
-                }
-
-                val hasPermission = PermissionRequestHandler.checkCallPermission(context)
-                if (hasPermission) {
-                    val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId)
-                    if (success) {
-                        clearQueryIfEnabled()
-                    }
-                } else {
-                    // Store pending WhatsApp video call dataId and request permission
-                    uiStateUpdater { it.copy(pendingWhatsAppCallDataId = dataId.toString()) }
-                }
+                handleWhatsAppVideoCallWithPermission(method.dataId)
             }
 
             is ContactMethod.TelegramMessage -> {
@@ -343,6 +312,50 @@ class ContactActionHandler(
             MessagingApp.MESSAGES -> performSms(number)
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number)
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number)
+        }
+    }
+
+    /**
+     * Handles WhatsApp call with permission checking.
+     * WhatsApp calls require CALL_PHONE permission.
+     */
+    private fun handleWhatsAppCallWithPermission(dataId: Long?) {
+        val hasPermission = PermissionRequestHandler.checkCallPermission(context)
+        if (hasPermission) {
+            val success = ContactIntentHelpers.openWhatsAppCall(context, dataId)
+            if (success) {
+                clearQueryIfEnabled()
+            }
+        } else {
+            // Store pending WhatsApp call dataId and request permission
+            uiStateUpdater { it.copy(pendingWhatsAppCallDataId = dataId?.toString()) }
+        }
+    }
+
+    /**
+     * Handles WhatsApp video call with permission checking.
+     * WhatsApp video calls require CALL_PHONE permission and valid dataId.
+     */
+    private fun handleWhatsAppVideoCallWithPermission(dataId: Long?) {
+        if (dataId == null) {
+            Log.w("ContactActionHandler", "WhatsApp video call missing dataId")
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_whatsapp_video_call_missing_data),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val hasPermission = PermissionRequestHandler.checkCallPermission(context)
+        if (hasPermission) {
+            val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId)
+            if (success) {
+                clearQueryIfEnabled()
+            }
+        } else {
+            // Store pending WhatsApp video call dataId and request permission
+            uiStateUpdater { it.copy(pendingWhatsAppCallDataId = dataId.toString()) }
         }
     }
 }

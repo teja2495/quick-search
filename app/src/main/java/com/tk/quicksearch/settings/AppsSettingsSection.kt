@@ -36,6 +36,9 @@ private object Spacing {
     val cardTopPadding = 20.dp
     val cardBottomPadding = 20.dp
     val toggleSpacing = 12.dp
+    val itemRowSpacing = 12.dp
+    val appInfoColumnSpacing = 2.dp
+    val textButtonIconSpacing = 4.dp
 }
 
 /**
@@ -202,11 +205,11 @@ private fun HiddenAppRow(
                 vertical = Spacing.cardVerticalPadding
             ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(Spacing.itemRowSpacing)
     ) {
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(Spacing.appInfoColumnSpacing)
         ) {
             Text(
                 text = appInfo.appName,
@@ -225,7 +228,7 @@ private fun HiddenAppRow(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(Spacing.textButtonIconSpacing))
             Text(
                 text = stringResource(R.string.settings_action_unhide_app),
                 color = MaterialTheme.colorScheme.primary

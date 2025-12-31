@@ -14,11 +14,57 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.components.RefreshDataCard
 import com.tk.quicksearch.settings.main.SettingsNavigationCard
 import com.tk.quicksearch.settings.main.SettingsSpacing
+
+// Constants for consistent spacing
+private object AdditionalSettingsSpacing {
+    val cardHorizontalPadding = 20.dp
+    val cardVerticalPadding = 12.dp
+    val dividerHorizontalPadding = 16.dp
+    val navigationCardBottomPadding = 12.dp
+    val refreshDataTopPadding = 12.dp
+}
+
+/**
+ * Reusable toggle row component for additional settings.
+ * Provides consistent styling and layout across all toggle rows.
+ */
+@Composable
+private fun SettingsToggleRow(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    isFirstItem: Boolean = false,
+    isLastItem: Boolean = false
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = AdditionalSettingsSpacing.cardHorizontalPadding,
+                vertical = AdditionalSettingsSpacing.cardVerticalPadding
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
 
 /**
  * Additional Settings section with advanced options and configuration.
@@ -66,7 +112,7 @@ fun AdditionalSettingsSection(
             }
         ),
         onClick = onSetDefaultAssistant,
-        modifier = Modifier.padding(bottom = 12.dp),
+        modifier = Modifier.padding(bottom = AdditionalSettingsSpacing.navigationCardBottomPadding),
         contentPadding = SettingsSpacing.singleCardPadding
     )
 
@@ -74,7 +120,7 @@ fun AdditionalSettingsSection(
         title = stringResource(R.string.settings_quick_settings_tile_title),
         description = stringResource(R.string.settings_quick_settings_tile_desc),
         onClick = onAddQuickSettingsTile,
-        modifier = Modifier.padding(bottom = 12.dp),
+        modifier = Modifier.padding(bottom = AdditionalSettingsSpacing.navigationCardBottomPadding),
         contentPadding = SettingsSpacing.singleCardPadding
     )
 
@@ -84,81 +130,35 @@ fun AdditionalSettingsSection(
     ) {
         Column {
             // Clear query after search engine toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 12.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_clear_query_after_search_engine_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = clearQueryAfterSearchEngine,
-                    onCheckedChange = onToggleClearQueryAfterSearchEngine
-                )
-            }
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_clear_query_after_search_engine_toggle),
+                checked = clearQueryAfterSearchEngine,
+                onCheckedChange = onToggleClearQueryAfterSearchEngine,
+                isFirstItem = true
+            )
 
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = AdditionalSettingsSpacing.dividerHorizontalPadding)
             )
 
             // Show all results toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 12.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_show_all_results_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = showAllResults,
-                    onCheckedChange = onToggleShowAllResults
-                )
-            }
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_show_all_results_toggle),
+                checked = showAllResults,
+                onCheckedChange = onToggleShowAllResults
+            )
 
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = AdditionalSettingsSpacing.dividerHorizontalPadding)
             )
 
             // Sort apps by usage toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 12.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_sort_apps_by_usage_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = sortAppsByUsageEnabled,
-                    onCheckedChange = onToggleSortAppsByUsage
-                )
-            }
+            SettingsToggleRow(
+                text = stringResource(R.string.settings_sort_apps_by_usage_toggle),
+                checked = sortAppsByUsageEnabled,
+                onCheckedChange = onToggleSortAppsByUsage,
+                isLastItem = true
+            )
 
         }
     }
@@ -168,7 +168,7 @@ fun AdditionalSettingsSection(
         onRefreshApps = onRefreshApps,
         onRefreshContacts = onRefreshContacts,
         onRefreshFiles = onRefreshFiles,
-        modifier = Modifier.padding(top = 12.dp)
+        modifier = Modifier.padding(top = AdditionalSettingsSpacing.refreshDataTopPadding)
     )
 
 }

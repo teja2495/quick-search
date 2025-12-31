@@ -47,6 +47,8 @@ private val ITEM_ROW_PADDING_HORIZONTAL = 16.dp
 private val ITEM_ROW_PADDING_VERTICAL = 12.dp
 private val SECTION_SPACER_HEIGHT = 4.dp
 private val LIST_BOTTOM_PADDING = 80.dp
+private val ITEM_ROW_ICON_TEXT_SPACING = 12.dp
+private val ITEM_ROW_TEXT_VERTICAL_PADDING = 2.dp
 
 @Composable
 fun ExcludedItemsSection(
@@ -191,7 +193,7 @@ private fun ExcludedItemRow(
     ) {
         Row(
             modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(ITEM_ROW_ICON_TEXT_SPACING),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ExcludedItemIcon(
@@ -199,7 +201,7 @@ private fun ExcludedItemRow(
                 iconPackPackage = iconPackPackage
             )
             
-            Column(modifier = Modifier.padding(vertical = 2.dp)) {
+            Column(modifier = Modifier.padding(vertical = ITEM_ROW_TEXT_VERTICAL_PADDING)) {
                 Text(
                     text = item.displayName,
                     style = MaterialTheme.typography.bodyLarge,

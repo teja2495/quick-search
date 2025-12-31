@@ -20,9 +20,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.main.SettingsSpacing
-import com.tk.quicksearch.settings.searchengines.SearchEngineToggleCard
-import com.tk.quicksearch.settings.searchengines.SearchEngineListCard
-import com.tk.quicksearch.settings.searchengines.ShortcutsSection
+import com.tk.quicksearch.settings.searchEngines.SearchEngineToggleCard
+import com.tk.quicksearch.settings.searchEngines.SearchEngineListCard
+import com.tk.quicksearch.settings.searchEngines.ShortcutsSection
 import com.tk.quicksearch.search.core.*
 
 /**
@@ -47,7 +47,7 @@ fun SearchEnginesSection(
     personalContext: String = "",
     onSetPersonalContext: ((String?) -> Unit)? = null,
     showTitle: Boolean = true,
-    DirectSearchAvailable: Boolean = false,
+    directSearchAvailable: Boolean = false,
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: (() -> Unit)? = null,
     directSearchSetupExpanded: Boolean = true,
@@ -73,7 +73,7 @@ fun SearchEnginesSection(
     // Direct search controls (Gemini) when available
     if (onSetGeminiApiKey != null) {
         SearchEngineToggleCard(
-            directSearchEnabled = DirectSearchAvailable,
+            directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,
             personalContext = personalContext,
@@ -90,7 +90,7 @@ fun SearchEnginesSection(
         )
     }
 
-    val enginesToDisplay = if (DirectSearchAvailable) {
+    val enginesToDisplay = if (directSearchAvailable) {
         searchEngineOrder
     } else {
         searchEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }

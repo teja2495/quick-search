@@ -65,7 +65,7 @@ class AppSearchHandler(
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                "Apps refreshed successfully",
+                                context.getString(R.string.apps_refreshed_successfully),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -79,7 +79,7 @@ class AppSearchHandler(
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                "Failed to refresh apps",
+                                context.getString(R.string.failed_to_refresh_apps),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -152,32 +152,41 @@ class AppSearchHandler(
 
     fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
-        return source
-            .asSequence()
-            .mapNotNull { app ->
-                val nickname = userPreferences.getAppNickname(app.packageName)
-                val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    app.appName,
-                    nickname,
-                    query
-                )
-                if (SearchRankingUtils.isOtherMatch(priority)) {
-                    return@mapNotNull null
-                }
-                app to priority
-            }
-            .sortedWith(compareBy(
-                { it.second },
-                {
-                    if (sortAppsByUsageEnabled) {
-                        -it.first.lastUsedTime
-                    } else {
-                        it.first.appName.lowercase(Locale.getDefault())
-                    }
-                }
-            ))
+
+        val appMatches = source.asSequence()
+            .mapNotNull { app -> calculateAppMatch(app, query) }
+            .sortedWith(createAppComparator())
             .map { it.first }
             .take(GRID_ITEM_COUNT)
             .toList()
+
+        return appMatches
+    }
+
+    private fun calculateAppMatch(app: AppInfo, query: String): Pair<AppInfo, Int>? {
+        val nickname = userPreferences.getAppNickname(app.packageName)
+        val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
+            app.appName,
+            nickname,
+            query
+        )
+        return if (SearchRankingUtils.isOtherMatch(priority)) {
+            null
+        } else {
+            app to priority
+        }
+    }
+
+    private fun createAppComparator(): Comparator<Pair<AppInfo, Int>> {
+        return compareBy(
+            { it.second }, // First by match priority
+            {
+                if (sortAppsByUsageEnabled) {
+                    -it.first.lastUsedTime // Most recently used first
+                } else {
+                    it.first.appName.lowercase(Locale.getDefault()) // Alphabetical
+                }
+            }
+        )
     }
 }

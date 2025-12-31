@@ -73,7 +73,6 @@ class SearchEngineManager(
         }
         userPreferences.setSearchEngineOrder(searchEngineOrder.map { it.name })
         userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
-        userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
         onStateUpdate { state ->
             state.copy(
                 searchEngineOrder = searchEngineOrder,

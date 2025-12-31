@@ -58,7 +58,7 @@ fun SettingsHeader(onBack: () -> Unit) {
 fun SettingsVersionDisplay() {
     val versionName = getAppVersionName()
     Text(
-        text = stringResource(R.string.settings_app_version, versionName ?: "Unknown"),
+        text = stringResource(R.string.settings_app_version, versionName ?: stringResource(R.string.settings_app_version_unknown)),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier

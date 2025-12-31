@@ -52,6 +52,32 @@ private const val EXPAND_ICON_SIZE = 18
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 
 @Composable
+private fun SettingsCard(
+    showWallpaperBackground: Boolean,
+    cardColors: androidx.compose.material3.CardColors,
+    cardShape: androidx.compose.ui.graphics.Shape,
+    cardElevation: androidx.compose.material3.CardElevation,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    if (showWallpaperBackground) {
+        Card(
+            modifier = modifier,
+            colors = cardColors,
+            shape = cardShape,
+            elevation = cardElevation
+        ) { content() }
+    } else {
+        ElevatedCard(
+            modifier = modifier,
+            colors = cardColors,
+            shape = cardShape,
+            elevation = cardElevation
+        ) { content() }
+    }
+}
+
+@Composable
 fun SettingsResultsSection(
     modifier: Modifier = Modifier,
     settings: List<SettingShortcut>,
@@ -69,15 +95,15 @@ fun SettingsResultsSection(
 ) {
     if (settings.isEmpty()) return
 
-    val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand = showExpandControls && settings.size > INITIAL_RESULT_COUNT
-    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-    val shouldShowCollapseButton = isExpanded && showExpandControls
-    val displaySettings = if (displayAsExpanded) {
+    val displaySettings = if (isExpanded || showAllResults) {
         settings
     } else {
         settings.take(INITIAL_RESULT_COUNT)
     }
+
+    val canShowExpandControls = showExpandControls && settings.size > INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
+    val shouldShowCollapseButton = isExpanded && showExpandControls
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -98,25 +124,13 @@ fun SettingsResultsSection(
             CardDefaults.cardElevation()
         }
 
-        val cardComposable: @Composable (@Composable () -> Unit) -> Unit = { content ->
-            if (showWallpaperBackground) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = cardColors,
-                    shape = cardShape,
-                    elevation = cardElevation
-                ) { content() }
-            } else {
-                ElevatedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = cardColors,
-                    shape = cardShape,
-                    elevation = cardElevation
-                ) { content() }
-            }
-        }
-
-        cardComposable {
+        SettingsCard(
+            showWallpaperBackground = showWallpaperBackground,
+            cardColors = cardColors,
+            cardShape = cardShape,
+            cardElevation = cardElevation,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
