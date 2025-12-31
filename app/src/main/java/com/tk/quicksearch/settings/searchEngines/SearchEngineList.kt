@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -43,11 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -63,7 +59,6 @@ import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.*
-import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
@@ -84,11 +79,9 @@ fun SearchEngineListCard(
     onSetAmazonDomain: ((String?) -> Unit)? = null
 ) {
     Column {
-        // Separate enabled and disabled engines
         val enabledEngines = searchEngineOrder.filter { it !in disabledSearchEngines }
         val disabledEngines = searchEngineOrder.filter { it in disabledSearchEngines }
 
-        // Enabled engines card (with drag-to-reorder)
         if (enabledEngines.isNotEmpty()) {
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -101,11 +94,8 @@ fun SearchEngineListCard(
                     val density = LocalDensity.current
                     val itemHeight = SearchEngineSettingsSpacing.itemHeight
 
-                    // Clear pending reorder flag after order updates
                     LaunchedEffect(searchEngineOrder) {
-                        if (pendingReorder.value) {
-                            pendingReorder.value = false
-                        }
+                        pendingReorder.value = false
                     }
 
                     enabledEngines.forEachIndexed { index, engine ->
@@ -137,36 +127,36 @@ fun SearchEngineListCard(
                         val animatedOffset by animateDpAsState(
                             targetValue = targetOffset,
                             animationSpec = if (pendingReorder.value) {
-                                snap(delayMillis = 50) // Small delay for visual feedback before snap
+                                snap(delayMillis = 50)
                             } else {
                                 spring(
-                                    dampingRatio = 0.75f, // Slightly more responsive
-                                    stiffness = 400f       // Higher stiffness for snappier feel
+                                    dampingRatio = 0.75f,
+                                    stiffness = 400f
                                 )
                             },
                             label = "rowOffset"
                         )
 
-                            // Calculate if this item is a potential drop target
-                            val isDraggedItem = draggedIndex.intValue == index
-                            val isPotentialDropTarget = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
-                                if (draggedIndex.intValue < 0 || isDraggedItem) {
-                                    false
-                                } else {
-                                    val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                                    val dragProgress = offsetInDp.value / itemHeight.value
-                                    val relativeIndex = index - draggedIndex.intValue
-                                    val threshold = 0.3f // Lower threshold for visual feedback
+                        // Calculate if this item is a potential drop target
+                        val isDraggedItem = draggedIndex.intValue == index
+                        val isPotentialDropTarget = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
+                            if (draggedIndex.intValue < 0 || isDraggedItem) {
+                                false
+                            } else {
+                                val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                val dragProgress = offsetInDp.value / itemHeight.value
+                                val relativeIndex = index - draggedIndex.intValue
+                                val threshold = 0.3f
 
-                                    when {
-                                        relativeIndex > 0 -> dragProgress >= relativeIndex - threshold
-                                        relativeIndex < 0 -> dragProgress <= relativeIndex + threshold
-                                        else -> false
-                                    }
+                                when {
+                                    relativeIndex > 0 -> dragProgress >= relativeIndex - threshold
+                                    relativeIndex < 0 -> dragProgress <= relativeIndex + threshold
+                                    else -> false
                                 }
                             }
+                        }
 
-                            SearchEngineRow(
+                        SearchEngineRow(
                             engine = engine,
                             isEnabled = true,
                             onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
@@ -192,7 +182,6 @@ fun SearchEngineListCard(
                                     if (currentIndex >= 0) {
                                         val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
                                         val dragProgress = offsetInDp.value / itemHeight.value
-                                        // More sensitive threshold for better responsiveness
                                         val positionsMoved = when {
                                             dragProgress > 0.4f -> (dragProgress + 0.1f).roundToInt()
                                             dragProgress < -0.4f -> (dragProgress - 0.1f).roundToInt()
@@ -202,14 +191,16 @@ fun SearchEngineListCard(
                                             .coerceIn(0, enabledEngines.lastIndex)
 
                                         if (newIndex != currentIndex) {
-                                            val newOrder = enabledEngines.toMutableList()
-                                            val item = newOrder.removeAt(currentIndex)
-                                            newOrder.add(newIndex, item)
+                                            reorderEngines(
+                                                enabledEngines = enabledEngines,
+                                                fromIndex = currentIndex,
+                                                toIndex = newIndex,
+                                                disabledEngines = disabledEngines,
+                                                onReorder = onReorderSearchEngines
+                                            )
                                             draggedIndex.intValue = -1
                                             dragOffset.floatValue = 0f
                                             pendingReorder.value = true
-                                            // Reconstruct full order with enabled engines first, then disabled
-                                            onReorderSearchEngines(newOrder + disabledEngines)
                                         } else {
                                             draggedIndex.intValue = -1
                                             dragOffset.floatValue = 0f
@@ -234,18 +225,24 @@ fun SearchEngineListCard(
                             onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
                             onMoveToTop = if (searchEngineSectionEnabled && index > 0) {
                                 {
-                                    val newOrder = enabledEngines.toMutableList()
-                                    val item = newOrder.removeAt(index)
-                                    newOrder.add(0, item)
-                                    onReorderSearchEngines(newOrder + disabledEngines)
+                                    reorderEngines(
+                                        enabledEngines = enabledEngines,
+                                        fromIndex = index,
+                                        toIndex = 0,
+                                        disabledEngines = disabledEngines,
+                                        onReorder = onReorderSearchEngines
+                                    )
                                 }
                             } else null,
                             onMoveToBottom = if (searchEngineSectionEnabled && index < enabledEngines.lastIndex) {
                                 {
-                                    val newOrder = enabledEngines.toMutableList()
-                                    val item = newOrder.removeAt(index)
-                                    newOrder.add(item)
-                                    onReorderSearchEngines(newOrder + disabledEngines)
+                                    reorderEngines(
+                                        enabledEngines = enabledEngines,
+                                        fromIndex = index,
+                                        toIndex = enabledEngines.lastIndex,
+                                        disabledEngines = disabledEngines,
+                                        onReorder = onReorderSearchEngines
+                                    )
                                 }
                             } else null
                         )
@@ -258,7 +255,6 @@ fun SearchEngineListCard(
             }
         }
 
-        // More search engines title (outside the card)
         if (disabledEngines.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.settings_search_engines_more_title),
@@ -272,7 +268,6 @@ fun SearchEngineListCard(
             )
         }
 
-        // More search engines card (disabled engines, no drag)
         if (disabledEngines.isNotEmpty()) {
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -284,22 +279,22 @@ fun SearchEngineListCard(
                             engine = engine,
                             isEnabled = false,
                             onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                            onDragStart = {}, // No drag functionality for disabled engines
+                            onDragStart = {},
                             onDrag = { _, _ -> },
                             onDragEnd = {},
                             isDragging = false,
                             dragOffset = 0.dp,
-                            isPotentialDropTarget = false, // Disabled engines can't be drop targets
+                            isPotentialDropTarget = false,
                             shortcutCode = shortcutCodes[engine] ?: "",
                             shortcutEnabled = shortcutEnabled[engine] ?: true,
                             onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
                             onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
                             showToggle = searchEngineSectionEnabled,
-                            allowDrag = false, // No drag for disabled engines
+                            allowDrag = false,
                             switchEnabled = searchEngineSectionEnabled,
                             amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
                             onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
-                            onMoveToTop = null, // No move actions for disabled engines
+                            onMoveToTop = null,
                             onMoveToBottom = null
                         )
 
@@ -343,7 +338,6 @@ private fun SearchEngineRow(
     val drawableId = engine.getDrawableResId()
     var showMenu by remember { mutableStateOf(false) }
 
-    // Enhanced animation states for better drag feedback
     val dragScale by animateFloatAsState(
         targetValue = if (isDragging) 1.02f else 1f,
         animationSpec = spring(
@@ -362,14 +356,12 @@ private fun SearchEngineRow(
         label = "dragElevation"
     )
 
-    // Background highlight for potential drop targets
     val dropTargetAlpha by animateFloatAsState(
         targetValue = if (isPotentialDropTarget && !isDragging) 0.1f else 0f,
         animationSpec = tween(durationMillis = 200),
         label = "dropTargetAlpha"
     )
 
-    // Get the primary color for drop target highlighting
     val primaryColor = MaterialTheme.colorScheme.primary
 
     Row(
@@ -410,13 +402,8 @@ private fun SearchEngineRow(
                         if (allowDrag) {
                             Modifier.pointerInput(Unit) {
                                 detectDragGesturesAfterLongPress(
-                                    onDragStart = { offset ->
-                                        onDragStart()
-                                    },
-                                    onDrag = { change, dragAmount ->
-                                        // More responsive drag handling
-                                        onDrag(change, dragAmount)
-                                    },
+                                    onDragStart = { onDragStart() },
+                                    onDrag = onDrag,
                                     onDragEnd = { onDragEnd() }
                                 )
                             }
@@ -427,7 +414,6 @@ private fun SearchEngineRow(
             )
         }
 
-        // Content area with long press for menu
         Row(
             modifier = Modifier
                 .weight(1f)
@@ -468,7 +454,6 @@ private fun SearchEngineRow(
                         engineName = engineName
                     )
                 }
-                // Show Amazon domain configuration link
                 if (engine == SearchEngine.AMAZON && onSetAmazonDomain != null) {
                     AmazonDomainLink(
                         amazonDomain = amazonDomain,
@@ -484,7 +469,6 @@ private fun SearchEngineRow(
                 shape = RoundedCornerShape(24.dp),
                 properties = androidx.compose.ui.window.PopupProperties(focusable = false)
             ) {
-                // Show "Move to top" if available
                 if (onMoveToTop != null) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.settings_action_move_up)) },
@@ -501,12 +485,10 @@ private fun SearchEngineRow(
                     )
                 }
 
-                // Show divider if both options are available
                 if (onMoveToTop != null && onMoveToBottom != null) {
                     HorizontalDivider()
                 }
 
-                // Show "Move to bottom" if available
                 if (onMoveToBottom != null) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.settings_action_move_down)) },
@@ -545,20 +527,18 @@ private fun calculateOffsetForRelativeItem(
     itemHeight: Dp
 ): Dp {
     return when {
-        // Item is below the dragged item (dragging down) - move up to fill space
         relativeIndex > 0 -> {
-            val threshold = relativeIndex - 0.3f  // Wait longer before moving up
+            val threshold = relativeIndex - 0.3f
             if (dragProgress >= threshold) {
-                -itemHeight * 1.4f  // Move more than item height for better effect
+                -itemHeight * 1.4f
             } else {
                 0.dp
             }
         }
-        // Item is above the dragged item (dragging up) - move down to fill space
         relativeIndex < 0 -> {
-            val threshold = relativeIndex + 0.3f  // Wait longer before moving down
+            val threshold = relativeIndex + 0.3f
             if (dragProgress <= threshold) {
-                itemHeight * 1.3f  // Move more than item height for better effect
+                itemHeight * 1.3f
             } else {
                 0.dp
             }
@@ -568,14 +548,19 @@ private fun calculateOffsetForRelativeItem(
 }
 
 /**
- * Easing function for smooth transitions (quadratic ease in/out).
+ * Helper function to reorder search engines by moving an item from one index to another.
  */
-private fun easeInOutQuad(t: Float): Float {
-    return if (t < 0.5f) {
-        2 * t * t
-    } else {
-        1 - (-2 * t + 2).pow(2) / 2
-    }
+private fun reorderEngines(
+    enabledEngines: List<SearchEngine>,
+    fromIndex: Int,
+    toIndex: Int,
+    disabledEngines: List<SearchEngine>,
+    onReorder: (List<SearchEngine>) -> Unit
+) {
+    val newOrder = enabledEngines.toMutableList()
+    val item = newOrder.removeAt(fromIndex)
+    newOrder.add(toIndex, item)
+    onReorder(newOrder + disabledEngines)
 }
 
 /**
