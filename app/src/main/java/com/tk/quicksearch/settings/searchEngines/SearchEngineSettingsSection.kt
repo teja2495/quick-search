@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.searchEngines
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.settings.searchengines.SearchEngineToggleCard
 import com.tk.quicksearch.settings.searchengines.SearchEngineListCard
 import com.tk.quicksearch.settings.searchengines.ShortcutsSection

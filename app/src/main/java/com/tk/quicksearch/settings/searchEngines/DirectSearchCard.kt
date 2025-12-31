@@ -49,7 +49,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SearchEngineSettingsSpacing
+import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
 import kotlinx.coroutines.delay
 
 /**

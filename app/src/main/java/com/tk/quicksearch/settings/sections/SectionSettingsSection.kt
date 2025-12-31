@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.sections
 
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.clickable
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.main.SettingsSpacing
 
 /**
  * Constants for drag and drop behavior and animations.

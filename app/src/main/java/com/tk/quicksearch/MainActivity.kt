@@ -25,9 +25,9 @@ import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.ui.SearchRoute
-import com.tk.quicksearch.settings.SettingsRoute
-import com.tk.quicksearch.settings.SettingsDetailRoute
-import com.tk.quicksearch.settings.SettingsDetailType
+import com.tk.quicksearch.settings.main.SettingsRoute
+import com.tk.quicksearch.settings.main.SettingsDetailRoute
+import com.tk.quicksearch.settings.main.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget

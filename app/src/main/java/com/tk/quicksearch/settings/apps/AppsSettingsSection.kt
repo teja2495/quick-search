@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.apps
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +26,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.main.SettingsNavigationCard
+import com.tk.quicksearch.settings.main.SettingsSpacing
 
 // Constants for consistent spacing
 private object Spacing {

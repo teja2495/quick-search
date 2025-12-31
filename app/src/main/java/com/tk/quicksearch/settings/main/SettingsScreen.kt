@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -28,6 +28,23 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.settings.additional.AdditionalSettingsSection
+import com.tk.quicksearch.settings.apps.AppLabelsSection
+import com.tk.quicksearch.settings.apps.HiddenAppsSection
+import com.tk.quicksearch.settings.apps.IconPackSection
+import com.tk.quicksearch.settings.components.CalculatorToggleCard
+import com.tk.quicksearch.settings.components.CombinedSettingsNavigationCard
+import com.tk.quicksearch.settings.components.SettingsHeader
+import com.tk.quicksearch.settings.components.SettingsVersionDisplay
+import com.tk.quicksearch.settings.components.IconPackPickerDialog
+import com.tk.quicksearch.settings.components.WebSuggestionsToggleCard
+import com.tk.quicksearch.settings.contacts.MessagingSection
+import com.tk.quicksearch.settings.excluded.ExcludedItemsSection
+import com.tk.quicksearch.settings.feedback.FeedbackSection
+import com.tk.quicksearch.settings.files.FileTypesSection
+import com.tk.quicksearch.settings.permissions.PermissionsSection
+import com.tk.quicksearch.settings.permissions.UsagePermissionBanner
+import com.tk.quicksearch.settings.sections.SectionSettingsSection
 import kotlinx.coroutines.launch
 
 @Composable

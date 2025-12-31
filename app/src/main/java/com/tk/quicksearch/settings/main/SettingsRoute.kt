@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.main
 
 import android.Manifest
 import android.content.Intent

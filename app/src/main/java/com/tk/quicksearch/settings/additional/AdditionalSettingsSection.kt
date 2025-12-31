@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.additional
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsNavigationCard
+import com.tk.quicksearch.settings.components.RefreshDataCard
+import com.tk.quicksearch.settings.main.SettingsNavigationCard
+import com.tk.quicksearch.settings.main.SettingsSpacing
 
 /**
  * Additional Settings section with advanced options and configuration.

@@ -18,8 +18,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsSpacing
-import com.tk.quicksearch.settings.getAppVersionName
+import com.tk.quicksearch.settings.main.SettingsSpacing
+import com.tk.quicksearch.settings.main.getAppVersionName
 
 /**
  * Header component for the settings screen.

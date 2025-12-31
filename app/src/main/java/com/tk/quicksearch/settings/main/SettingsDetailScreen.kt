@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.main
 
 import android.content.Intent
 import android.widget.Toast
@@ -48,6 +48,9 @@ import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.settings.additional.AdditionalSettingsSection
+import com.tk.quicksearch.settings.excluded.*
+import com.tk.quicksearch.settings.searchEngines.SearchEnginesSection
 import com.tk.quicksearch.tiles.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
 

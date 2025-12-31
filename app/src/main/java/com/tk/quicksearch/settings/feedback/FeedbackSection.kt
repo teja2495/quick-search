@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.feedback
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.main.SettingsSpacing
 
 /**
  * Data class representing a feedback item.
