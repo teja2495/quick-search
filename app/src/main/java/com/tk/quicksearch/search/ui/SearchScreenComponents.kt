@@ -32,6 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -180,11 +184,26 @@ internal fun PersistentSearchField(
                 }
         )
 
-        // Determine text style based on whether text is multi-line
-        val textStyle = if (isMultiLine) {
-            MaterialTheme.typography.titleMedium
+        // Animate font size transition between single-line and multi-line
+        val targetFontSize = if (isMultiLine) {
+            MaterialTheme.typography.titleMedium.fontSize
         } else {
-            MaterialTheme.typography.titleLarge
+            MaterialTheme.typography.titleLarge.fontSize
+        }
+
+        val animatedFontSize = remember { Animatable(targetFontSize.value) }
+
+        LaunchedEffect(isMultiLine) {
+            animatedFontSize.animateTo(
+                targetValue = targetFontSize.value,
+                animationSpec = tween(durationMillis = 200)
+            )
+        }
+
+        val animatedTextStyle = if (isMultiLine) {
+            MaterialTheme.typography.titleMedium.copy(fontSize = animatedFontSize.value.sp)
+        } else {
+            MaterialTheme.typography.titleLarge.copy(fontSize = animatedFontSize.value.sp)
         }
 
         Box(
@@ -206,7 +225,8 @@ internal fun PersistentSearchField(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .focusRequester(focusRequester)
+                    .animateContentSize(),
                 shape = RoundedCornerShape(28.dp),
                 placeholder = {
                     Text(
@@ -215,7 +235,7 @@ internal fun PersistentSearchField(
                         color = iconAndTextColor.copy(alpha = 0.6f)
                     )
                 },
-                textStyle = textStyle,
+                textStyle = animatedTextStyle,
                 singleLine = false,
                 maxLines = 3,
                 leadingIcon = {
