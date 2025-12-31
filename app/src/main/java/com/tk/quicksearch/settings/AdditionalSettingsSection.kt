@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.components.CombinedAssistantCard
 import com.tk.quicksearch.settings.components.RefreshDataCard
 import com.tk.quicksearch.settings.main.SettingsNavigationCard
 import com.tk.quicksearch.settings.main.SettingsSpacing
@@ -101,27 +102,12 @@ fun AdditionalSettingsSection(
         )
     }
 
-    // Default Assistant - Navigation Card
-    SettingsNavigationCard(
-        title = stringResource(R.string.settings_default_assistant_title),
-        description = stringResource(
-            if (isDefaultAssistant) {
-                R.string.settings_default_assistant_desc_change
-            } else {
-                R.string.settings_default_assistant_desc
-            }
-        ),
-        onClick = onSetDefaultAssistant,
-        modifier = Modifier.padding(bottom = AdditionalSettingsSpacing.navigationCardBottomPadding),
-        contentPadding = SettingsSpacing.singleCardPadding
-    )
-
-    SettingsNavigationCard(
-        title = stringResource(R.string.settings_quick_settings_tile_title),
-        description = stringResource(R.string.settings_quick_settings_tile_desc),
-        onClick = onAddQuickSettingsTile,
-        modifier = Modifier.padding(bottom = AdditionalSettingsSpacing.navigationCardBottomPadding),
-        contentPadding = SettingsSpacing.singleCardPadding
+    // Combined Assistant Settings Card
+    CombinedAssistantCard(
+        isDefaultAssistant = isDefaultAssistant,
+        onSetDefaultAssistant = onSetDefaultAssistant,
+        onAddQuickSettingsTile = onAddQuickSettingsTile,
+        modifier = Modifier.padding(bottom = AdditionalSettingsSpacing.navigationCardBottomPadding)
     )
 
     ElevatedCard(
@@ -137,9 +123,7 @@ fun AdditionalSettingsSection(
                 isFirstItem = true
             )
 
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = AdditionalSettingsSpacing.dividerHorizontalPadding)
-            )
+            HorizontalDivider()
 
             // Show all results toggle
             SettingsToggleRow(
@@ -148,9 +132,7 @@ fun AdditionalSettingsSection(
                 onCheckedChange = onToggleShowAllResults
             )
 
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = AdditionalSettingsSpacing.dividerHorizontalPadding)
-            )
+            HorizontalDivider()
 
             // Sort apps by usage toggle
             SettingsToggleRow(

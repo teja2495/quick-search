@@ -84,7 +84,6 @@ fun CombinedSettingsNavigationCard(
 
             // Divider
             HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.outlineVariant
             )
         }
@@ -261,6 +260,192 @@ fun WebSuggestionsToggleCard(
 }
 
 @Composable
+fun CombinedSearchEnginesCard(
+    searchEnginesTitle: String,
+    searchEnginesDescription: String,
+    onSearchEnginesClick: () -> Unit,
+    webSuggestionsEnabled: Boolean,
+    onWebSuggestionsToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Search Engines Section (with navigation)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onSearchEnginesClick)
+                    .padding(contentPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = searchEnginesTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = searchEnginesDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Web Search Suggestions Toggle Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onWebSuggestionsToggle(!webSuggestionsEnabled) }
+                    .padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.web_search_suggestions_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = webSuggestionsEnabled,
+                    onCheckedChange = onWebSuggestionsToggle
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CombinedAppearanceCard(
+    keyboardAlignedLayout: Boolean,
+    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    showWallpaperBackground: Boolean,
+    onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    hasFilePermission: Boolean = true,
+    iconPackTitle: String,
+    iconPackDescription: String,
+    onIconPackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Wallpaper background toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        // Always call the callback - it will handle permission request if needed
+                        onToggleShowWallpaperBackground(!showWallpaperBackground)
+                    }
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_wallpaper_background_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = showWallpaperBackground && hasFilePermission,
+                    onCheckedChange = { enabled ->
+                        onToggleShowWallpaperBackground(enabled)
+                    }
+                )
+            }
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Results alignment toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleKeyboardAlignedLayout(!keyboardAlignedLayout) }
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_layout_option_bottom),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = keyboardAlignedLayout,
+                    onCheckedChange = onToggleKeyboardAlignedLayout
+                )
+            }
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Icon Pack Section (with navigation)
+            val hasIconPacks = iconPackDescription != stringResource(R.string.settings_icon_pack_empty)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onIconPackClick)
+                    .padding(
+                        start = 24.dp,
+                        top = 16.dp,
+                        end = 24.dp,
+                        bottom = if (hasIconPacks) 16.dp else 20.dp
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = iconPackTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = iconPackDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun CalculatorToggleCard(
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
@@ -287,6 +472,94 @@ fun CalculatorToggleCard(
                 checked = enabled,
                 onCheckedChange = onToggle
             )
+        }
+    }
+}
+
+@Composable
+fun CombinedAssistantCard(
+    isDefaultAssistant: Boolean,
+    onSetDefaultAssistant: () -> Unit,
+    onAddQuickSettingsTile: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Default Assistant Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onSetDefaultAssistant)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_default_assistant_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(
+                            if (isDefaultAssistant) {
+                                R.string.settings_default_assistant_desc_change
+                            } else {
+                                R.string.settings_default_assistant_desc
+                            }
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Quick Settings Tile Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onAddQuickSettingsTile)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_quick_settings_tile_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_quick_settings_tile_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
     }
 }

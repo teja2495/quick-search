@@ -29,15 +29,14 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.settings.additional.AdditionalSettingsSection
-import com.tk.quicksearch.settings.apps.AppLabelsSection
 import com.tk.quicksearch.settings.apps.HiddenAppsSection
-import com.tk.quicksearch.settings.apps.IconPackSection
 import com.tk.quicksearch.settings.components.CalculatorToggleCard
+import com.tk.quicksearch.settings.components.CombinedAppearanceCard
+import com.tk.quicksearch.settings.components.CombinedSearchEnginesCard
 import com.tk.quicksearch.settings.components.CombinedSettingsNavigationCard
 import com.tk.quicksearch.settings.components.SettingsHeader
 import com.tk.quicksearch.settings.components.SettingsVersionDisplay
 import com.tk.quicksearch.settings.components.IconPackPickerDialog
-import com.tk.quicksearch.settings.components.WebSuggestionsToggleCard
 import com.tk.quicksearch.settings.contacts.MessagingSection
 import com.tk.quicksearch.settings.excluded.ExcludedItemsSection
 import com.tk.quicksearch.settings.feedback.FeedbackSection
@@ -130,19 +129,13 @@ fun SettingsScreen(
                     .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
             )
 
-            // Search Engine Section - Navigation Card
-            SettingsNavigationCard(
-                title = stringResource(R.string.settings_search_engines_title),
-                description = stringResource(R.string.settings_search_engines_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
-                contentPadding = SettingsSpacing.singleCardPadding
-            )
-
-            // Web Search Suggestions Toggle
-            WebSuggestionsToggleCard(
-                enabled = state.webSuggestionsEnabled,
-                onToggle = callbacks.onToggleWebSuggestions,
-                modifier = Modifier.padding(top = 12.dp)
+            // Combined Search Engines and Web Suggestions Card
+            CombinedSearchEnginesCard(
+                searchEnginesTitle = stringResource(R.string.settings_search_engines_title),
+                searchEnginesDescription = stringResource(R.string.settings_search_engines_desc),
+                onSearchEnginesClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
+                webSuggestionsEnabled = state.webSuggestionsEnabled,
+                onWebSuggestionsToggle = callbacks.onToggleWebSuggestions
             )
 
             // Appearance Section
@@ -154,7 +147,8 @@ fun SettingsScreen(
                     .padding(top = SettingsSpacing.sectionTopPadding)
                     .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
             )
-            AppLabelsSection(
+            val hasIconPacks = state.availableIconPacks.isNotEmpty()
+            CombinedAppearanceCard(
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
                 showWallpaperBackground = state.showWallpaperBackground,
@@ -166,21 +160,20 @@ fun SettingsScreen(
                         callbacks.onToggleShowWallpaperBackground(enabled)
                     }
                 },
-                hasFilePermission = hasFilePermission
-            )
-
-            val hasIconPacks = state.availableIconPacks.isNotEmpty()
-            IconPackSection(
-                selectedLabel = selectedIconPackLabel,
-                availableCount = state.availableIconPacks.size,
-                onClick = {
+                hasFilePermission = hasFilePermission,
+                iconPackTitle = stringResource(R.string.settings_icon_pack_title),
+                iconPackDescription = if (hasIconPacks) {
+                    stringResource(R.string.settings_icon_pack_selected_label, selectedIconPackLabel)
+                } else {
+                    stringResource(R.string.settings_icon_pack_empty)
+                },
+                onIconPackClick = {
                     if (hasIconPacks) {
                         showIconPackDialog = true
                     } else {
                         callbacks.onSearchIconPacks()
                     }
-                },
-                modifier = Modifier.padding(top = 12.dp)
+                }
             )
 
             // Contacts Section

@@ -113,13 +113,10 @@ fun DirectSearchResult(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val minCardHeight = 140.dp
-
         if (showWallpaperBackground) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = minCardHeight),
+                    .fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
@@ -131,8 +128,7 @@ fun DirectSearchResult(
         } else {
             ElevatedCard(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = minCardHeight),
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 content()
@@ -178,13 +174,10 @@ fun CalculatorResult(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val minCardHeight = 140.dp
-
         if (showWallpaperBackground) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = minCardHeight),
+                    .fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
@@ -196,8 +189,7 @@ fun CalculatorResult(
         } else {
             ElevatedCard(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = minCardHeight),
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 content()
