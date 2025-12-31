@@ -78,7 +78,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     val contactManager = ContactManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState)
     val fileManager = FileManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState)
     val settingsManager = SettingsManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState)
-    val searchEngineManager = SearchEngineManager(userPreferences, viewModelScope, this::updateUiState)
+    val searchEngineManager = SearchEngineManager(application.applicationContext, userPreferences, viewModelScope, this::updateUiState)
     val sectionManager = SectionManager(userPreferences, permissionManager, viewModelScope, this::updateUiState)
     val iconPackHandler = IconPackHandler(application, userPreferences, viewModelScope, this::updateUiState)
 
