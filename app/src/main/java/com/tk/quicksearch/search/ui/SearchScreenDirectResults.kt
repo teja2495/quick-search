@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -146,7 +147,8 @@ fun DirectSearchResult(
         if (showWallpaperBackground) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .heightIn(min = 175.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
@@ -158,7 +160,8 @@ fun DirectSearchResult(
         } else {
             ElevatedCard(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .heightIn(min = 175.dp),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 content()
@@ -195,8 +198,9 @@ fun CalculatorResult(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "= $result",
@@ -214,6 +218,7 @@ fun CalculatorResult(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 175.dp)
                     .combinedClickable(
                         onClick = {},
                         onLongClick = onLongClick
@@ -230,6 +235,7 @@ fun CalculatorResult(
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 175.dp)
                     .combinedClickable(
                         onClick = {},
                         onLongClick = onLongClick
