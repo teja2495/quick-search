@@ -1,6 +1,6 @@
 # Quick Search
 
-A powerful Android app that lets you search across **apps, contacts, device files, device settings, and the web** from a single screen. Built with Kotlin and Jetpack Compose using Material 3 design.
+A powerful Android app that lets you search across **apps, contacts, device files, device settings, web, and evaluate math expressions** from a single screen. Built with Kotlin and Jetpack Compose using Material 3 design.
 
 [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tk.quicksearch)
 
@@ -10,19 +10,25 @@ A powerful Android app that lets you search across **apps, contacts, device file
 
 ### 🔍 Unified Search
 - **Apps**: Search and launch installed applications with smart ranking
-- **Contacts**: Find and call/text contacts with multi-number support
+- **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration
 - **Files**: Search device files (images, videos, documents, APKs, etc.)
 - **Settings**: Quick access to Android system settings shortcuts
-- **Web**: Integrated search engines with customizable shortcuts. 
-- **Gemini API**: Direct search can be enabled by configuring your own Gemini API key.
+- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions
+- **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
+- **Gemini API**: Direct search can be enabled by configuring your own Gemini API key
 
 ### 🎯 Smart Features
 - **App Nicknames**: Assign custom names to apps for easier searching
 - **Direct Search**: AI-powered answers using Gemini API (optional)
+- **Web Suggestions**: Google-powered search suggestions as you type
+- **Quick Settings Tile**: Instant access from Android Quick Settings
+- **Assistant Integration**: Detects when app is set as default digital assistant
+- **Icon Pack Support**: Integration with icon pack launchers
 - **Optional Keyboard-Aligned Layout**: Optimized for typing with search results first
 - **Section Ordering**: Customize which content appears first
 - **Pinned Apps**: Keep favorite apps always visible
 - **Recent Apps**: Smart ranking based on usage patterns
+- **Feedback System**: In-app feedback options and release notes
 
 ### 📱 Widget Support
 - Home screen widget with customizable appearance
@@ -59,7 +65,11 @@ Download the latest APK from the [Releases](https://github.com/your-username/qui
 ### Getting Started
 1. **Grant Permissions**: On first launch, grant Usage Access permission (required)
 2. **Optional Permissions**: Enable contacts and storage access for full functionality
-3. **Start Searching**: Type in the search field to find apps, contacts, files, or web results
+3. **Start Searching**: Type in the search field to find apps, contacts, files, web results, or calculate math expressions
+
+### Quick Access
+- **Quick Settings Tile**: Add Quick Search to Android Quick Settings for instant access
+- **Home Screen Widget**: Add a customizable widget to your home screen
 
 ### Search Shortcuts
 Configure custom keyboard shortcuts for search engines:
@@ -77,7 +87,7 @@ Enable AI-powered answers by:
 ## ⚙️ Configuration
 
 ### Search Engines
-- **Supported**: Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon
+- **Supported**: Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, X/Twitter, You.com, YouTube Music
 - **Customizable**: Reorder, enable/disable, and set shortcuts
 - **Direct Search**: AI answers with Gemini API integration
 
@@ -94,7 +104,7 @@ Filter which file types to include in search:
 - Documents, APKs, Other files
 
 ### Contact Preferences
-- Choose default messaging app (Messages, WhatsApp, Telegram)
+- Choose default messaging app (Messages, WhatsApp, Telegram, Google Meet)
 - Enable direct dial (call without opening dialer)
 - Set preferred numbers per contact
 
@@ -134,10 +144,25 @@ Built with modern Android development practices:
 ```
 app/src/main/kotlin/com/tk/quicksearch/
 ├── data/           # Repositories and data persistence
+│   └── preferences/ # Individual preference management
 ├── model/          # Data models
 ├── permissions/    # Permission handling
 ├── search/         # Main search UI and logic
+│   ├── apps/       # App search components
+│   ├── contacts/   # Contact search components
+│   ├── core/       # Core search functionality
+│   ├── files/      # File search components
+│   ├── handlers/   # Specialized handlers
+│   ├── managers/   # Managers (IconPackManager)
+│   ├── searchEngines/ # Search engine functionality
+│   ├── settings/   # Device settings search
+│   └── ui/         # Search UI components
 ├── settings/       # Settings screens
+│   ├── main/       # Main settings components
+│   ├── components/ # Shared settings components
+│   ├── permissions/# Permission settings
+│   └── searchEngines/ # Search engine settings
+├── tiles/          # Quick Settings tile
 ├── ui/theme/       # Material 3 theming
 ├── util/           # Utility functions
 └── widget/         # Home screen widget

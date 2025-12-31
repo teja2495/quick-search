@@ -1,55 +1,137 @@
-**Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, device settings, and web** from a single screen.
+**Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, device settings, web, and provides calculator functionality** from a single screen.
 
 **Structure**:
 - `MainActivity.kt` - Entry point, edge-to-edge setup, dark theme status bar, in-app nav between Search and Settings, first-launch permissions screen
+- `tiles/QuickSearchTileService.kt` - Quick Settings tile that launches the app
+- `tiles/QuickSettingsTileUtils.kt` - Utilities for Quick Settings tile management
 - `model/AppInfo.kt` - App data model with `matches()` for search, supports nicknames
-- `model/ContactInfo.kt`, `model/DeviceFile.kt`, `model/FileType.kt`, `model/SettingShortcut.kt` - Models for contacts, device files, file types, and Android settings shortcuts
+- `model/ContactInfo.kt`, `model/ContactMethod.kt`, `model/DeviceFile.kt`, `model/FileType.kt`, `model/SettingShortcut.kt` - Models for contacts, contact methods, device files, file types, and Android settings shortcuts
 - `data/AppUsageRepository.kt` - Loads launchable apps, usage stats, and maintains an on-disk cache (`AppCache`)
 - `data/AppCache.kt` - Persistent caching of app list using SharedPreferences (JSON serialization) for instant loading on startup
 - `data/ContactRepository.kt` - Contact search (by name), aggregates numbers per contact, supports preferred numbers and exclusions
 - `data/FileSearchRepository.kt` - Device file search via `MediaStore`, respects enabled file types
 - `data/SettingsShortcutRepository.kt` - Provides curated Android settings shortcuts (WiFi, Bluetooth, Display, etc.)
 - `data/UserAppPreferences.kt` - Persists hidden/pinned apps, UI settings, search engine order/disabled engines, file-type filters, preferred contact numbers, section ordering, keyboard-aligned layout, shortcuts, messaging preferences, nicknames, personal context, direct dial settings, excluded settings
+- `data/preferences/` - Individual preference management classes for different data types:
+  - `AmazonPreferences.kt` - Amazon search preferences
+  - `AppPreferences.kt` - App-related preferences (hidden, pinned, nicknames)
+  - `BasePreferences.kt` - Base preference management utilities
+  - `ContactPreferences.kt` - Contact preferences (excluded, preferred numbers)
+  - `FilePreferences.kt` - File search preferences (enabled types, excluded files)
+  - `GeminiPreferences.kt` - Gemini API preferences (API key, personal context)
+  - `NicknamePreferences.kt` - App nickname management
+  - `SearchEnginePreferences.kt` - Search engine configuration (order, enabled/disabled, shortcuts)
+  - `SettingsPreferences.kt` - Android settings shortcuts preferences
+  - `ShortcutPreferences.kt` - Custom shortcut preferences
+  - `UiPreferences.kt` - UI preferences (layout, themes, section ordering)
 - `permissions/PermissionsScreen.kt` - First-launch permissions screen with cards for usage/contacts/files permissions
 - `permissions/PermissionCard.kt` - Reusable permission card component with toggle and status
 - `permissions/PermissionRequestHandler.kt` - Handles permission request intents and state checks
 - `permissions/PermissionState.kt` - Data class for permission state (granted, enabled, denied)
-- `search/SearchScreen.kt` - Main UI composables (`SearchRoute`, `SearchScreen`), search field, layout orchestration
-- `search/SearchScreenLayout.kt` - Layout logic for scrollable content area, section ordering, keyboard-aligned vs normal layout
-- `search/SearchScreenScroll.kt` - Scroll state management and behavior
-- `search/SearchScreenBanners.kt` - Permission banners and error messages
-- `search/SearchScreenHelpers.kt` - Helper functions for search screen state calculations
-- `search/SectionRenderingHelpers.kt` - Utilities for rendering sections (apps, contacts, files, settings)
-- `search/AppsSection.kt` - App grid rendering (2 rows × 5 columns, 10 apps max), supports nicknames
-- `search/ContactsSection.kt` - Contacts section with inline result cards, multi-number picker, call/SMS/open actions, WhatsApp/Telegram support
-- `search/FilesSection.kt` - Files section with inline result cards, filtered by enabled file types
-- `search/SettingsSection.kt` - Device settings shortcuts section with categorized shortcuts
-- `search/SearchEngineSection.kt` - Search engine row rendering with Direct Search support
-- `search/SearchEngineLayout.kt` - Layout utilities for search engine icons
-- `search/SearchEngineIconItem.kt` - Individual search engine icon component
-- `search/SearchEngineUtils.kt` - Search engine URL building and utilities
-- `search/DirectSearchClient.kt` - Gemini API client for direct answers with personal context support
-- `search/AppIconLoader.kt` - Async app icon loading
-- `search/AppItemMenu.kt` - App item context menu (pin/unpin, hide, add nickname)
-- `search/NicknameDialog.kt` - Dialog for adding/editing app nicknames
-- `search/SearchViewModel.kt` - State management (StateFlow), app launching, contact/file actions, permissions, search ranking, search engine URL building, Direct Search
-- `search/SearchViewModelHelpers.kt` - Helper functions for ViewModel operations
-- `search/SearchViewModelPermissionManager.kt` - Permission handling logic for ViewModel
-- `search/SearchViewModelSearchOperations.kt` - Search operations and ranking logic
-- `settings/SettingsScreen.kt` - Settings screen orchestration (`SettingsRoute`, `SettingsScreen`)
-- `settings/SettingsScreenHelpers.kt` - Settings state and callback data classes, helper functions
-- `settings/SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files, Settings)
-- `settings/AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
-- `settings/ContactsSettingsSection.kt` - Messaging app preference (Messages/WhatsApp/Telegram), direct dial settings
-- `settings/FilesSettingsSection.kt` - File type filters (Images, Videos, Audio, Documents, APKs, Other)
-- `settings/SearchEngineSettingsSection.kt` - Search engine order/reorder, enable/disable, shortcuts configuration, Direct Search setup, personal context
-- `settings/SearchEngineSettingsComponents.kt` - Reusable search engine UI components
-- `settings/SearchEngineDialogs.kt` - Dialogs for search engine configuration
-- `settings/ExcludedItemsSection.kt` - Management of hidden apps, excluded contacts, excluded files, excluded settings
-- `settings/SettingsDetailScreen.kt` - Detail screens for search engines and excluded items
-- `settings/SettingsNavigationCard.kt` - Navigation cards for settings sections
-- `settings/PermissionsSection.kt` - Permission status and management
-- `settings/UsagePermissionBanner.kt` - Banner for usage permission hints
+- `search/` - Organized into logical subdirectories for search functionality:
+  - `apps/` - App search and display components:
+    - `AppIconLoader.kt` - Async app icon loading
+    - `AppItemMenu.kt` - App item context menu (pin/unpin, hide, add nickname)
+    - `AppManagementHandler.kt` - App management operations (pinning, hiding, nicknames)
+    - `AppSearchHandler.kt` - App search logic and filtering
+    - `AppsSection.kt` - App grid rendering (2 rows × 5 columns, 10 apps max), supports nicknames
+  - `contacts/` - Contact search and action components:
+    - `ContactActionComponents.kt` - Contact action UI components
+    - `ContactActionHandler.kt` - Contact action handling (call, SMS, messaging apps)
+    - `ContactBasicActions.kt` - Basic contact actions (call, SMS, open contact)
+    - `ContactConstants.kt` - Contact-related constants
+    - `ContactDialogs.kt` - Contact-related dialogs (number picker, etc.)
+    - `ContactExpandCollapse.kt` - Contact section expansion/collapse logic
+    - `ContactIntentHelpers.kt` - Intent creation helpers for contact actions
+    - `ContactManagementHandler.kt` - Contact management operations
+    - `ContactMethodsComponents.kt` - Contact method display components
+    - `ContactResultRow.kt` - Individual contact result row component
+    - `ContactResultsSection.kt` - Contacts section with inline result cards
+    - `CustomAppActions.kt` - Custom messaging app actions
+    - `GoogleMeetActions.kt` - Google Meet integration
+    - `MessagingHandler.kt` - Messaging app integration (WhatsApp, Telegram)
+    - `TelegramActions.kt` - Telegram integration
+    - `WhatsAppActions.kt` - WhatsApp integration
+  - `core/` - Core search functionality:
+    - `CalculatorHandler.kt` - Calculator functionality for math expressions
+    - `IntentHelpers.kt` - General intent creation utilities
+    - `SearchModels.kt` - Search-related data models
+    - `SearchViewModel.kt` - State management (StateFlow), app launching, contact/file actions, permissions, search ranking, search engine URL building, Direct Search
+    - `SearchViewModelPermissionManager.kt` - Permission handling logic for ViewModel
+    - `SearchViewModelSearchOperations.kt` - Search operations and ranking logic
+    - `SectionManager.kt` - Section ordering and management
+    - `SectionRenderingHelpers.kt` - Utilities for rendering sections
+    - `UnifiedSearchHandler.kt` - Unified search across all content types
+  - `files/` - File search components:
+    - `FileManagementHandler.kt` - File management operations
+    - `FilesSection.kt` - Files section with inline result cards, filtered by enabled file types
+  - `handlers/` - Specialized handlers:
+    - `IconPackHandler.kt` - Icon pack integration support
+    - `NavigationHandler.kt` - Navigation and intent handling
+    - `PinningHandler.kt` - Item pinning functionality
+    - `ReleaseNotesHandler.kt` - Release notes display
+    - `ShortcutHandler.kt` - Custom shortcut management
+  - `managers/IconPackManager.kt` - Icon pack manager for custom app icons
+  - `searchEngines/` - Search engine functionality:
+    - `DirectSearchClient.kt` - Gemini API client for direct answers with personal context support
+    - `DirectSearchHandler.kt` - Direct search operations
+    - `SearchEngineIconItem.kt` - Individual search engine icon component
+    - `SearchEngineLayout.kt` - Layout utilities for search engine icons
+    - `SearchEngineManager.kt` - Search engine management and configuration
+    - `SearchEngineSection.kt` - Search engine row rendering with Direct Search support
+    - `SearchEngineUtils.kt` - Search engine URL building and utilities
+    - `SecondarySearchOrchestrator.kt` - Secondary search operations
+    - `WebSuggestionHandler.kt` - Web search suggestions
+    - `WebSuggestionsSection.kt` - Web suggestions UI section
+  - `settings/` - Device settings search:
+    - `SettingsManagementHandler.kt` - Settings management operations
+    - `SettingsSearchHandler.kt` - Settings search logic
+    - `SettingsSection.kt` - Device settings shortcuts section with categorized shortcuts
+  - `ui/` - Search UI components:
+    - `NicknameDialog.kt` - Dialog for adding/editing app nicknames
+    - `SearchScreen.kt` - Main UI composables (`SearchRoute`, `SearchScreen`), search field, layout orchestration
+    - `SearchScreenBackground.kt` - Background rendering and wallpaper effects
+    - `SearchScreenBanners.kt` - Permission banners and error messages
+    - `SearchScreenComponents.kt` - Reusable search screen components
+    - `SearchScreenConstants.kt` - Search screen constants
+    - `SearchScreenContent.kt` - Main search screen content layout
+    - `SearchScreenDialogManagement.kt` - Dialog management for search screen
+    - `SearchScreenDialogs.kt` - Search screen dialogs
+    - `SearchScreenDirectResults.kt` - Direct search results display
+    - `SearchScreenEmptyStates.kt` - Empty state handling
+    - `SearchScreenHelpers.kt` - Helper functions for search screen state calculations
+    - `SearchScreenLayout.kt` - Layout logic for scrollable content area, section ordering, keyboard-aligned vs normal layout
+    - `SearchScreenScroll.kt` - Scroll state management and behavior
+    - `SearchScreenSectionRendering.kt` - Section rendering logic
+- `settings/` - Organized settings sections:
+  - `main/` - Main settings components:
+    - `SettingsDetailScreen.kt` - Detail screens for search engines and excluded items
+    - `SettingsNavigationCard.kt` - Navigation cards for settings sections
+    - `SettingsRoute.kt` - Settings routing
+    - `SettingsScreen.kt` - Settings screen orchestration
+    - `SettingsScreenHelpers.kt` - Settings state and callback data classes, helper functions
+  - `SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files, Settings)
+  - `AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
+  - `ContactsSettingsSection.kt` - Messaging app preference (Messages/WhatsApp/Telegram), direct dial settings
+  - `FilesSettingsSection.kt` - File type filters (Images, Videos, Audio, Documents, APKs, Other)
+  - `searchEngines/` - Search engine settings:
+    - `DirectSearchCard.kt` - Direct search configuration card
+    - `SearchEngineDialogs.kt` - Dialogs for search engine configuration
+    - `SearchEngineList.kt` - Search engine list component
+    - `SearchEngineSettingsComponents.kt` - Reusable search engine UI components
+    - `SearchEngineSettingsSection.kt` - Search engine order/reorder, enable/disable, shortcuts configuration, Direct Search setup, personal context
+    - `SearchEngineUtils.kt` - Search engine utilities
+    - `ShortcutsSection.kt` - Custom shortcuts configuration
+  - `ExcludedItemsSection.kt` - Management of hidden apps, excluded contacts, excluded files, excluded settings
+  - `FeedbackSection.kt` - Feedback and support options (email, Play Store rating)
+  - `AdditionalSettingsSection.kt` - Additional settings and about information
+  - `components/` - Shared settings components:
+    - `SettingsCards.kt` - Reusable settings card components
+    - `SettingsComponents.kt` - General settings UI components
+    - `SettingsDialogs.kt` - Settings dialogs
+  - `permissions/` - Permission settings:
+    - `PermissionsSection.kt` - Permission status and management
+    - `UsagePermissionBanner.kt` - Banner for usage permission hints
 - `widget/QuickSearchWidget.kt` - Glance App Widget implementation, customizable appearance (colors, border, label)
 - `widget/QuickSearchWidgetConfigureActivity.kt` - Widget configuration activity when widget is added
 - `widget/QuickSearchWidgetConfigScreen.kt` - Compose UI for widget configuration
@@ -60,26 +142,39 @@
 - `widget/WidgetLayoutUtils.kt` - Layout dimension utilities for widget sizing
 - `widget/WidgetPreviewCard.kt` - Preview card component for widget configuration
 - `widget/WidgetConfigConstants.kt` - Constants for widget configuration
-- `util/SearchRankingUtils.kt` - Centralised ranking for apps/contacts/files/settings (exact/starts-with/second-word/contains)
-- `util/PhoneNumberUtils.kt` - Phone number normalization, duplicate detection, country code handling
-- `util/WallpaperUtils.kt` - Wallpaper loading utilities for background effects
+- `util/` - Utility classes:
+  - `SearchRankingUtils.kt` - Centralised ranking for apps/contacts/files/settings (exact/starts-with/second-word/contains)
+  - `PhoneNumberUtils.kt` - Phone number normalization, duplicate detection, country code handling
+  - `WallpaperUtils.kt` - Wallpaper loading utilities for background effects
+  - `AssistantUtils.kt` - Helpers for determining whether this app is configured as the system assistant
+  - `CalculatorUtils.kt` - Utility functions for calculator operations and math expression evaluation
+  - `FileUtils.kt` - File operation utilities
+  - `TelegramContactUtils.kt` - Telegram contact integration utilities
+  - `WebSuggestionsUtils.kt` - Web search suggestions from Google Suggest API
 - `ui/theme/` - Material 3 theme (Color.kt, Theme.kt, Type.kt)
 
 **Key Details**:
 - Grid: 2 rows × 5 columns (10 apps max)
 - Apps: **recent apps + pinned apps** when query is empty (pinned first, then recents), filtered search results when typing, supports nicknames for custom search terms
-- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact, supports WhatsApp/Telegram messaging, direct dial option
+- Contacts: inline result card (call/SMS/open contact), with multi-number picker + "remember choice" per contact, supports WhatsApp/Telegram/Google Meet messaging, direct dial option
 - Files: inline result card (opens with appropriate app), filtered by **enabled file types** in settings
 - Settings: Device settings shortcuts (WiFi, Bluetooth, Display, etc.) organized by category
+- Calculator: Built-in calculator for math expressions (+, -, *, /, brackets)
+- Web Suggestions: Google-powered search suggestions as you type
 - Search ranking: multi-source ranking using `SearchRankingUtils` for priority ordering (exact/starts-with/second-word/contains)
 - Sections: Apps, Contacts, Files, Settings - can be reordered and individually enabled/disabled
 - Layout modes: Normal layout (pinned items first) vs keyboard-aligned layout (search results first)
 - Direct Search: Gemini-powered AI answers with optional personal context
-- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode, Direct Search
+- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode, Direct Search, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, X/Twitter, You.com, YouTube Music
 - Search engine shortcuts: Customizable shortcut codes per engine (e.g., "g" for Google)
 - Personal Context: Optional context sent to Gemini API for personalized Direct Search answers
 - Nicknames: Custom names for apps that can be searched
 - Direct Dial: Option to call directly without opening dialer (requires calling permission)
+- Quick Settings Tile: Quick Settings tile for instant app launch
+- Assistant Integration: Detects when app is set as default digital assistant
+- Icon Pack Support: Integration with icon pack launchers
+- Feedback System: In-app feedback options (email, Play Store rating)
+- Release Notes: In-app release notes display
 - Permissions:
   - Mandatory: `PACKAGE_USAGE_STATS` (usage access) - required to continue
   - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE` (R+), `CALL_PHONE` (for direct dial)
