@@ -1,8 +1,10 @@
 package com.tk.quicksearch.settings.searchEngines
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -40,7 +44,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -56,6 +63,7 @@ import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.*
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
@@ -75,146 +83,230 @@ fun SearchEngineListCard(
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null
 ) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column {
-            val draggedIndex = remember { mutableIntStateOf(-1) }
-            val dragOffset = remember { mutableFloatStateOf(0f) }
-            val pendingReorder = remember { mutableStateOf(false) }
-            val density = LocalDensity.current
-            val itemHeight = SearchEngineSettingsSpacing.itemHeight
+    Column {
+        // Separate enabled and disabled engines
+        val enabledEngines = searchEngineOrder.filter { it !in disabledSearchEngines }
+        val disabledEngines = searchEngineOrder.filter { it in disabledSearchEngines }
 
-            // Clear pending reorder flag after order updates
-            LaunchedEffect(searchEngineOrder) {
-                if (pendingReorder.value) {
-                    pendingReorder.value = false
-                }
-            }
+        // Enabled engines card (with drag-to-reorder)
+        if (enabledEngines.isNotEmpty()) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column {
+                    val draggedIndex = remember { mutableIntStateOf(-1) }
+                    val dragOffset = remember { mutableFloatStateOf(0f) }
+                    val pendingReorder = remember { mutableStateOf(false) }
+                    val density = LocalDensity.current
+                    val itemHeight = SearchEngineSettingsSpacing.itemHeight
 
-            searchEngineOrder.forEachIndexed { index, engine ->
-                val isDragging = draggedIndex.intValue == index
+                    // Clear pending reorder flag after order updates
+                    LaunchedEffect(searchEngineOrder) {
+                        if (pendingReorder.value) {
+                            pendingReorder.value = false
+                        }
+                    }
 
-                // Calculate the target offset for this item
-                val targetOffset = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
-                    if (draggedIndex.intValue < 0) {
-                        0.dp
-                    } else {
-                        val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                        val dragProgress = offsetInDp.value / itemHeight.value
+                    enabledEngines.forEachIndexed { index, engine ->
+                        val isDragging = draggedIndex.intValue == index
 
-                        when {
-                            index == draggedIndex.intValue -> {
-                                // Dragged item follows the drag directly
-                                offsetInDp
+                        // Calculate the target offset for this item
+                        val targetOffset = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
+                            if (draggedIndex.intValue < 0) {
+                                0.dp
+                            } else {
+                                val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                val dragProgress = offsetInDp.value / itemHeight.value
+
+                                when {
+                                    index == draggedIndex.intValue -> {
+                                        // Dragged item follows the drag directly
+                                        offsetInDp
+                                    }
+                                    else -> {
+                                        // Calculate the relative position of this item to the dragged item
+                                        val relativeIndex = index - draggedIndex.intValue
+                                        calculateOffsetForRelativeItem(relativeIndex, dragProgress, itemHeight)
+                                    }
+                                }
                             }
-                            else -> {
-                                // Calculate the relative position of this item to the dragged item
-                                val relativeIndex = index - draggedIndex.intValue
-                                calculateOffsetForRelativeItem(relativeIndex, dragProgress, itemHeight)
+                        }
+
+                        // Animate the offset smoothly, but snap when pending reorder
+                        val animatedOffset by animateDpAsState(
+                            targetValue = targetOffset,
+                            animationSpec = if (pendingReorder.value) {
+                                snap(delayMillis = 50) // Small delay for visual feedback before snap
+                            } else {
+                                spring(
+                                    dampingRatio = 0.75f, // Slightly more responsive
+                                    stiffness = 400f       // Higher stiffness for snappier feel
+                                )
+                            },
+                            label = "rowOffset"
+                        )
+
+                            // Calculate if this item is a potential drop target
+                            val isDraggedItem = draggedIndex.intValue == index
+                            val isPotentialDropTarget = remember(draggedIndex.intValue, dragOffset.floatValue, index) {
+                                if (draggedIndex.intValue < 0 || isDraggedItem) {
+                                    false
+                                } else {
+                                    val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                    val dragProgress = offsetInDp.value / itemHeight.value
+                                    val relativeIndex = index - draggedIndex.intValue
+                                    val threshold = 0.3f // Lower threshold for visual feedback
+
+                                    when {
+                                        relativeIndex > 0 -> dragProgress >= relativeIndex - threshold
+                                        relativeIndex < 0 -> dragProgress <= relativeIndex + threshold
+                                        else -> false
+                                    }
+                                }
                             }
+
+                            SearchEngineRow(
+                            engine = engine,
+                            isEnabled = true,
+                            onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
+                            onDragStart = if (searchEngineSectionEnabled) {
+                                {
+                                    draggedIndex.intValue = index
+                                    dragOffset.floatValue = 0f
+                                }
+                            } else {
+                                {}
+                            },
+                            onDrag = if (searchEngineSectionEnabled) {
+                                { change, dragAmount ->
+                                    dragOffset.floatValue += dragAmount.y
+                                    change.consume()
+                                }
+                            } else {
+                                { _, _ -> }
+                            },
+                            onDragEnd = if (searchEngineSectionEnabled) {
+                                {
+                                    val currentIndex = draggedIndex.intValue
+                                    if (currentIndex >= 0) {
+                                        val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
+                                        val dragProgress = offsetInDp.value / itemHeight.value
+                                        // More sensitive threshold for better responsiveness
+                                        val positionsMoved = when {
+                                            dragProgress > 0.4f -> (dragProgress + 0.1f).roundToInt()
+                                            dragProgress < -0.4f -> (dragProgress - 0.1f).roundToInt()
+                                            else -> 0
+                                        }
+                                        val newIndex = (currentIndex + positionsMoved)
+                                            .coerceIn(0, enabledEngines.lastIndex)
+
+                                        if (newIndex != currentIndex) {
+                                            val newOrder = enabledEngines.toMutableList()
+                                            val item = newOrder.removeAt(currentIndex)
+                                            newOrder.add(newIndex, item)
+                                            draggedIndex.intValue = -1
+                                            dragOffset.floatValue = 0f
+                                            pendingReorder.value = true
+                                            // Reconstruct full order with enabled engines first, then disabled
+                                            onReorderSearchEngines(newOrder + disabledEngines)
+                                        } else {
+                                            draggedIndex.intValue = -1
+                                            dragOffset.floatValue = 0f
+                                            pendingReorder.value = false
+                                        }
+                                    }
+                                }
+                            } else {
+                                {}
+                            },
+                            isDragging = isDragging,
+                            dragOffset = animatedOffset,
+                            isPotentialDropTarget = isPotentialDropTarget,
+                            shortcutCode = shortcutCodes[engine] ?: "",
+                            shortcutEnabled = shortcutEnabled[engine] ?: true,
+                            onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
+                            onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
+                            showToggle = searchEngineSectionEnabled,
+                            allowDrag = searchEngineSectionEnabled,
+                            switchEnabled = searchEngineSectionEnabled,
+                            amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
+                            onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
+                            onMoveToTop = if (searchEngineSectionEnabled && index > 0) {
+                                {
+                                    val newOrder = enabledEngines.toMutableList()
+                                    val item = newOrder.removeAt(index)
+                                    newOrder.add(0, item)
+                                    onReorderSearchEngines(newOrder + disabledEngines)
+                                }
+                            } else null,
+                            onMoveToBottom = if (searchEngineSectionEnabled && index < enabledEngines.lastIndex) {
+                                {
+                                    val newOrder = enabledEngines.toMutableList()
+                                    val item = newOrder.removeAt(index)
+                                    newOrder.add(item)
+                                    onReorderSearchEngines(newOrder + disabledEngines)
+                                }
+                            } else null
+                        )
+
+                        if (index != enabledEngines.lastIndex) {
+                            SearchEngineDivider()
                         }
                     }
                 }
+            }
+        }
 
-                // Animate the offset smoothly, but snap when pending reorder
-                val animatedOffset by animateDpAsState(
-                    targetValue = targetOffset,
-                    animationSpec = if (pendingReorder.value) {
-                        snap()
-                    } else {
-                        spring(
-                            dampingRatio = 0.8f,
-                            stiffness = 300f
+        // More search engines title (outside the card)
+        if (disabledEngines.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.settings_search_engines_more_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(
+                    start = SearchEngineSettingsSpacing.rowHorizontalPadding,
+                    top = 24.dp,
+                    bottom = 8.dp
+                )
+            )
+        }
+
+        // More search engines card (disabled engines, no drag)
+        if (disabledEngines.isNotEmpty()) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column {
+                    disabledEngines.forEachIndexed { index, engine ->
+                        SearchEngineRow(
+                            engine = engine,
+                            isEnabled = false,
+                            onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
+                            onDragStart = {}, // No drag functionality for disabled engines
+                            onDrag = { _, _ -> },
+                            onDragEnd = {},
+                            isDragging = false,
+                            dragOffset = 0.dp,
+                            isPotentialDropTarget = false, // Disabled engines can't be drop targets
+                            shortcutCode = shortcutCodes[engine] ?: "",
+                            shortcutEnabled = shortcutEnabled[engine] ?: true,
+                            onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
+                            onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
+                            showToggle = searchEngineSectionEnabled,
+                            allowDrag = false, // No drag for disabled engines
+                            switchEnabled = searchEngineSectionEnabled,
+                            amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
+                            onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
+                            onMoveToTop = null, // No move actions for disabled engines
+                            onMoveToBottom = null
                         )
-                    },
-                    label = "rowOffset"
-                )
 
-                SearchEngineRow(
-                    engine = engine,
-                    isEnabled = engine !in disabledSearchEngines,
-                    onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                    onDragStart = if (searchEngineSectionEnabled) {
-                        {
-                            draggedIndex.intValue = index
-                            dragOffset.floatValue = 0f
+                        if (index != disabledEngines.lastIndex) {
+                            SearchEngineDivider()
                         }
-                    } else {
-                        {}
-                    },
-                    onDrag = if (searchEngineSectionEnabled) {
-                        { change, dragAmount ->
-                            dragOffset.floatValue += dragAmount.y
-                            change.consume()
-                        }
-                    } else {
-                        { _, _ -> }
-                    },
-                    onDragEnd = if (searchEngineSectionEnabled) {
-                        {
-                            val currentIndex = draggedIndex.intValue
-                            if (currentIndex >= 0) {
-                                val offsetInDp = with(density) { dragOffset.floatValue.toDp() }
-                                val dragProgress = offsetInDp.value / itemHeight.value
-                                val positionsMoved = when {
-                                    dragProgress > 0.5f -> dragProgress.roundToInt()
-                                    dragProgress < -0.5f -> dragProgress.roundToInt()
-                                    else -> 0
-                                }
-                                val newIndex = (currentIndex + positionsMoved)
-                                    .coerceIn(0, searchEngineOrder.lastIndex)
-
-                                if (newIndex != currentIndex) {
-                                    val newOrder = searchEngineOrder.toMutableList()
-                                    val item = newOrder.removeAt(currentIndex)
-                                    newOrder.add(newIndex, item)
-                                    draggedIndex.intValue = -1
-                                    dragOffset.floatValue = 0f
-                                    pendingReorder.value = true
-                                    onReorderSearchEngines(newOrder)
-                                } else {
-                                    draggedIndex.intValue = -1
-                                    dragOffset.floatValue = 0f
-                                    pendingReorder.value = false
-                                }
-                            }
-                        }
-                    } else {
-                        {}
-                    },
-                    isDragging = isDragging,
-                    dragOffset = animatedOffset,
-                    shortcutCode = shortcutCodes[engine] ?: "",
-                    shortcutEnabled = shortcutEnabled[engine] ?: true,
-                    onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
-                    onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
-                    showToggle = searchEngineSectionEnabled,
-                    allowDrag = searchEngineSectionEnabled,
-                    switchEnabled = searchEngineSectionEnabled,
-                    amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
-                    onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
-                    onMoveToTop = if (searchEngineSectionEnabled && index > 0) {
-                        {
-                            val newOrder = searchEngineOrder.toMutableList()
-                            val item = newOrder.removeAt(index)
-                            newOrder.add(0, item)
-                            onReorderSearchEngines(newOrder)
-                        }
-                    } else null,
-                    onMoveToBottom = if (searchEngineSectionEnabled && index < searchEngineOrder.lastIndex) {
-                        {
-                            val newOrder = searchEngineOrder.toMutableList()
-                            val item = newOrder.removeAt(index)
-                            newOrder.add(item)
-                            onReorderSearchEngines(newOrder)
-                        }
-                    } else null
-                )
-
-                if (index != searchEngineOrder.lastIndex) {
-                    SearchEngineDivider()
+                    }
                 }
             }
         }
@@ -234,6 +326,7 @@ private fun SearchEngineRow(
     onDragEnd: () -> Unit,
     isDragging: Boolean = false,
     dragOffset: androidx.compose.ui.unit.Dp = 0.dp,
+    isPotentialDropTarget: Boolean = false,
     shortcutCode: String = "",
     shortcutEnabled: Boolean = true,
     onShortcutCodeChange: ((String) -> Unit)? = null,
@@ -250,11 +343,55 @@ private fun SearchEngineRow(
     val drawableId = engine.getDrawableResId()
     var showMenu by remember { mutableStateOf(false) }
 
+    // Enhanced animation states for better drag feedback
+    val dragScale by animateFloatAsState(
+        targetValue = if (isDragging) 1.02f else 1f,
+        animationSpec = spring(
+            dampingRatio = 0.7f,
+            stiffness = 400f
+        ),
+        label = "dragScale"
+    )
+
+    val dragElevation by animateDpAsState(
+        targetValue = if (isDragging) 8.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = 0.8f,
+            stiffness = 300f
+        ),
+        label = "dragElevation"
+    )
+
+    // Background highlight for potential drop targets
+    val dropTargetAlpha by animateFloatAsState(
+        targetValue = if (isPotentialDropTarget && !isDragging) 0.1f else 0f,
+        animationSpec = tween(durationMillis = 200),
+        label = "dropTargetAlpha"
+    )
+
+    // Get the primary color for drop target highlighting
+    val primaryColor = MaterialTheme.colorScheme.primary
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .offset(y = dragOffset)
-            .alpha(if (isDragging) 0.8f else 1f)
+            .scale(dragScale)
+            .shadow(
+                elevation = dragElevation,
+                shape = RoundedCornerShape(16.dp),
+                clip = false
+            )
+            .then(
+                if (dropTargetAlpha > 0f) {
+                    Modifier.drawBehind {
+                        drawRect(
+                            color = primaryColor.copy(alpha = dropTargetAlpha),
+                            size = size
+                        )
+                    }
+                } else Modifier
+            )
             .padding(
                 horizontal = SearchEngineSettingsSpacing.rowHorizontalPadding,
                 vertical = SearchEngineSettingsSpacing.rowVerticalPadding
@@ -262,7 +399,7 @@ private fun SearchEngineRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        if (showToggle) {
+        if (showToggle && allowDrag) {
             Icon(
                 imageVector = Icons.Rounded.DragHandle,
                 contentDescription = stringResource(R.string.settings_action_reorder),
@@ -273,8 +410,13 @@ private fun SearchEngineRow(
                         if (allowDrag) {
                             Modifier.pointerInput(Unit) {
                                 detectDragGesturesAfterLongPress(
-                                    onDragStart = { onDragStart() },
-                                    onDrag = onDrag,
+                                    onDragStart = { offset ->
+                                        onDragStart()
+                                    },
+                                    onDrag = { change, dragAmount ->
+                                        // More responsive drag handling
+                                        onDrag(change, dragAmount)
+                                    },
                                     onDragEnd = { onDragEnd() }
                                 )
                             }
@@ -395,6 +537,7 @@ private fun SearchEngineRow(
 
 /**
  * Calculates the offset for an item relative to the dragged item.
+ * Items move completely into position once they start moving.
  */
 private fun calculateOffsetForRelativeItem(
     relativeIndex: Int,
@@ -402,31 +545,36 @@ private fun calculateOffsetForRelativeItem(
     itemHeight: Dp
 ): Dp {
     return when {
-        // Item is below the dragged item (dragging down)
+        // Item is below the dragged item (dragging down) - move up to fill space
         relativeIndex > 0 -> {
-            val threshold = relativeIndex - 0.5f
-            when {
-                dragProgress >= relativeIndex -> -itemHeight
-                dragProgress > threshold -> {
-                    val progress = ((dragProgress - threshold) * 2f).coerceIn(0f, 1f)
-                    -itemHeight * progress
-                }
-                else -> 0.dp
+            val threshold = relativeIndex - 0.3f  // Wait longer before moving up
+            if (dragProgress >= threshold) {
+                -itemHeight * 1.4f  // Move more than item height for better effect
+            } else {
+                0.dp
             }
         }
-        // Item is above the dragged item (dragging up)
+        // Item is above the dragged item (dragging up) - move down to fill space
         relativeIndex < 0 -> {
-            val threshold = relativeIndex + 0.5f
-            when {
-                dragProgress <= relativeIndex -> itemHeight
-                dragProgress < threshold -> {
-                    val progress = ((threshold - dragProgress) * 2f).coerceIn(0f, 1f)
-                    itemHeight * progress
-                }
-                else -> 0.dp
+            val threshold = relativeIndex + 0.3f  // Wait longer before moving down
+            if (dragProgress <= threshold) {
+                itemHeight * 1.3f  // Move more than item height for better effect
+            } else {
+                0.dp
             }
         }
         else -> 0.dp
+    }
+}
+
+/**
+ * Easing function for smooth transitions (quadratic ease in/out).
+ */
+private fun easeInOutQuad(t: Float): Float {
+    return if (t < 0.5f) {
+        2 * t * t
+    } else {
+        1 - (-2 * t + 2).pow(2) / 2
     }
 }
 
