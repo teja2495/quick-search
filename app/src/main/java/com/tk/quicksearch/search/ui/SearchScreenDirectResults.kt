@@ -1,7 +1,9 @@
 package com.tk.quicksearch.search.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -51,60 +54,87 @@ fun DirectSearchResult(
     val showAttribution = DirectSearchState.status == DirectSearchStatus.Success &&
         !DirectSearchState.answer.isNullOrBlank()
 
+    val clipboardManager = LocalClipboardManager.current
+
+    val onLongClick: (() -> Unit)? = if (DirectSearchState.status == DirectSearchStatus.Success && !DirectSearchState.answer.isNullOrBlank()) {
+        {
+            DirectSearchState.answer?.let { answer ->
+                clipboardManager.setText(AnnotatedString(answer))
+            }
+        }
+    } else {
+        null
+    }
+
     val content: @Composable () -> Unit = {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .then(
+                    if (onLongClick != null) {
+                        Modifier.combinedClickable(
+                            onClick = {},
+                            onLongClick = onLongClick
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
-            when (DirectSearchState.status) {
-                DirectSearchStatus.Loading -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Text(
-                            text = stringResource(R.string.direct_search_loading),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                DirectSearchStatus.Success -> {
-                    DirectSearchState.answer?.let { answer ->
-                        ClickableDirectSearchText(
-                            text = answer,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            onPhoneNumberClick = onPhoneNumberClick,
-                            onEmailClick = onEmailClick
-                        )
-                    }
-                }
-                DirectSearchStatus.Error -> {
-                    Text(
-                        text = DirectSearchState.errorMessage
-                            ?: stringResource(R.string.direct_search_error_generic),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    if (DirectSearchState.activeQuery != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                when (DirectSearchState.status) {
+                    DirectSearchStatus.Loading -> {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            TextButton(onClick = onRetry) {
-                                Text(text = stringResource(R.string.direct_search_action_retry))
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Text(
+                                text = stringResource(R.string.direct_search_loading),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    DirectSearchStatus.Success -> {
+                        DirectSearchState.answer?.let { answer ->
+                            ClickableDirectSearchText(
+                                text = answer,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                onPhoneNumberClick = onPhoneNumberClick,
+                                onEmailClick = onEmailClick
+                            )
+                        }
+                    }
+                    DirectSearchStatus.Error -> {
+                        Text(
+                            text = DirectSearchState.errorMessage
+                                ?: stringResource(R.string.direct_search_error_generic),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        if (DirectSearchState.activeQuery != null) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                TextButton(onClick = onRetry) {
+                                    Text(text = stringResource(R.string.direct_search_action_retry))
+                                }
                             }
                         }
                     }
+                    DirectSearchStatus.Idle -> {}
                 }
-                DirectSearchStatus.Idle -> {}
             }
         }
     }
@@ -155,6 +185,12 @@ fun CalculatorResult(
     val result = calculatorState.result
     if (result == null) return
 
+    val clipboardManager = LocalClipboardManager.current
+
+    val onLongClick = {
+        clipboardManager.setText(AnnotatedString(result))
+    }
+
     val content: @Composable () -> Unit = {
         Column(
             modifier = Modifier
@@ -177,7 +213,11 @@ fun CalculatorResult(
         if (showWallpaperBackground) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = onLongClick
+                    ),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
@@ -189,7 +229,11 @@ fun CalculatorResult(
         } else {
             ElevatedCard(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = onLongClick
+                    ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 content()
