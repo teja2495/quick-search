@@ -55,7 +55,7 @@ import android.net.Uri
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
-import com.tk.quicksearch.search.MessagingApp
+import com.tk.quicksearch.search.core.MessagingApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

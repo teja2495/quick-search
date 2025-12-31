@@ -122,8 +122,8 @@ private fun ContactMethodIcon(method: ContactMethod) {
             return
         }
         is ContactMethod.Email -> Pair(Icons.Rounded.Email, Color.White)
-        is ContactMethod.VideoCall -> Pair(Icons.Rounded.Call, Color.White) // TODO: Use video icon
-        is ContactMethod.CustomApp -> Pair(Icons.Rounded.Person, Color.White) // TODO: Use generic icon
+        is ContactMethod.VideoCall -> Pair(Icons.Rounded.Call, Color.White)
+        is ContactMethod.CustomApp -> Pair(Icons.Rounded.Person, Color.White)
         is ContactMethod.ViewInContactsApp -> Pair(Icons.Rounded.Person, Color.White)
     }
 

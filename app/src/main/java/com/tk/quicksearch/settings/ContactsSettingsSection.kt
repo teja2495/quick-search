@@ -29,7 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.MessagingApp
+import com.tk.quicksearch.search.core.*
 
 // Constants for consistent spacing
 private object MessagingSpacing {

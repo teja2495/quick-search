@@ -23,8 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
-import com.tk.quicksearch.search.SearchRoute
-import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.ui.SearchRoute
 import com.tk.quicksearch.settings.SettingsRoute
 import com.tk.quicksearch.settings.SettingsDetailRoute
 import com.tk.quicksearch.settings.SettingsDetailType

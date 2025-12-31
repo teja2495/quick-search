@@ -24,14 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.SearchEngine
-import com.tk.quicksearch.search.getDisplayName
-import com.tk.quicksearch.search.getDrawableResId
 import com.tk.quicksearch.settings.EditShortcutDialog
 import com.tk.quicksearch.settings.SearchEngineDivider
 import com.tk.quicksearch.settings.SearchEngineSettingsSpacing
 import com.tk.quicksearch.settings.SettingsSpacing
 import com.tk.quicksearch.settings.searchengines.utils.getSearchEngineIconColorFilter
+import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.searchengines.getDisplayName
+import com.tk.quicksearch.search.searchengines.getDrawableResId
 
 /**
  * Section for managing shortcuts separately.

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
-import com.tk.quicksearch.search.MessagingApp
+import com.tk.quicksearch.search.core.MessagingApp
 
 // ============================================================================
 // Public API
@@ -131,100 +131,46 @@ private fun ContactsResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val cardModifier = Modifier.fillMaxWidth()
+        val cardContent: @Composable () -> Unit = {
+            ContactList(
+                displayContacts = displayContacts,
+                messagingApp = messagingApp,
+                onContactClick = onContactClick,
+                onShowContactMethods = onShowContactMethods,
+                onCallContact = onCallContact,
+                onSmsContact = onSmsContact,
+                onContactMethodClick = onContactMethodClick,
+                pinnedContactIds = pinnedContactIds,
+                onTogglePin = onTogglePin,
+                onExclude = onExclude,
+                onNicknameClick = onNicknameClick,
+                getContactNickname = getContactNickname,
+                shouldShowExpandButton = shouldShowExpandButton,
+                onExpandClick = onExpandClick
+            )
+        }
+
         if (showWallpaperBackground) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = cardModifier,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Black.copy(alpha = 0.4f)
                 ),
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    displayContacts.forEachIndexed { index, contactInfo ->
-                        key(contactInfo.contactId) {
-                            ContactResultRow(
-                                contactInfo = contactInfo,
-                                messagingApp = messagingApp,
-                                onContactClick = onContactClick,
-                                onShowContactMethods = onShowContactMethods,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
-                                isPinned = pinnedContactIds.contains(contactInfo.contactId),
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onNicknameClick = onNicknameClick,
-                                hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
-                            )
-                        }
-                        if (index != displayContacts.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .height(EXPAND_BUTTON_HEIGHT.dp)
-                                .padding(top = 2.dp)
-                        )
-                    }
-                }
+                cardContent()
             }
         } else {
             ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = cardModifier,
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer
                 ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    displayContacts.forEachIndexed { index, contactInfo ->
-                        key(contactInfo.contactId) {
-                            ContactResultRow(
-                                contactInfo = contactInfo,
-                                messagingApp = messagingApp,
-                                onContactClick = onContactClick,
-                                onShowContactMethods = onShowContactMethods,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
-                                isPinned = pinnedContactIds.contains(contactInfo.contactId),
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onNicknameClick = onNicknameClick,
-                                hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
-                            )
-                        }
-                        if (index != displayContacts.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .height(EXPAND_BUTTON_HEIGHT.dp)
-                                .padding(top = 2.dp)
-                        )
-                    }
-                }
+                cardContent()
             }
         }
 
@@ -232,6 +178,67 @@ private fun ContactsResultCard(
             CollapseButton(
                 onClick = onExpandClick,
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+// ============================================================================
+// Contact List
+// ============================================================================
+
+@Composable
+private fun ContactList(
+    displayContacts: List<ContactInfo>,
+    messagingApp: MessagingApp,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    pinnedContactIds: Set<Long>,
+    onTogglePin: (ContactInfo) -> Unit,
+    onExclude: (ContactInfo) -> Unit,
+    onNicknameClick: (ContactInfo) -> Unit,
+    getContactNickname: (Long) -> String?,
+    shouldShowExpandButton: Boolean,
+    onExpandClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        displayContacts.forEachIndexed { index, contactInfo ->
+            key(contactInfo.contactId) {
+                ContactResultRow(
+                    contactInfo = contactInfo,
+                    messagingApp = messagingApp,
+                    onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onContactMethodClick = { method -> onContactMethodClick(contactInfo, method) },
+                    isPinned = pinnedContactIds.contains(contactInfo.contactId),
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    hasNickname = !getContactNickname(contactInfo.contactId).isNullOrBlank()
+                )
+            }
+            if (index != displayContacts.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+        }
+
+        if (shouldShowExpandButton) {
+            ExpandButton(
+                onClick = onExpandClick,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .height(EXPAND_BUTTON_HEIGHT.dp)
+                    .padding(top = 2.dp)
             )
         }
     }

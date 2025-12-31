@@ -21,11 +21,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.permissions.PermissionRequestHandler
-import com.tk.quicksearch.search.IconPackInfo
-import com.tk.quicksearch.search.MessagingApp
-import com.tk.quicksearch.search.SearchEngine
-import com.tk.quicksearch.search.SearchSection
-import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.search.core.*
 
 /**
  * Data class to hold all settings screen state and callbacks.

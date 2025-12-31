@@ -26,8 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.MessagingApp
-import com.tk.quicksearch.search.SearchSection
+import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.SearchSection
 import kotlinx.coroutines.launch
 
 @Composable

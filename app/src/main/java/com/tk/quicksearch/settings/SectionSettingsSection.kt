@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.SearchSection
+import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.settings.SettingsSpacing
 
 /**

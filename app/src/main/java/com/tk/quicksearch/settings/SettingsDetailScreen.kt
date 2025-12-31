@@ -47,8 +47,7 @@ import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.search.SearchEngine
-import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.tiles.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
 

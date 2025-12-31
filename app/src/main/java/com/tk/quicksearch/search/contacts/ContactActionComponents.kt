@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -198,20 +199,21 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
     }
 }
 
+@Composable
 private fun getActionButtonLabel(method: ContactMethod): String {
     return when (method) {
-        is ContactMethod.Phone -> "Call"
-        is ContactMethod.Sms -> "Message"
-        is ContactMethod.WhatsAppCall -> "Voice Call"
-        is ContactMethod.WhatsAppMessage -> "Chat"
-        is ContactMethod.WhatsAppVideoCall -> "Video Call"
-        is ContactMethod.TelegramMessage -> "Chat"
-        is ContactMethod.TelegramCall -> "Voice Call"
-        is ContactMethod.TelegramVideoCall -> "Video Call"
-        is ContactMethod.GoogleMeet -> "Meet"
-        is ContactMethod.Email -> "Email"
-        is ContactMethod.VideoCall -> "Video Call"
+        is ContactMethod.Phone -> stringResource(R.string.contacts_action_button_call)
+        is ContactMethod.Sms -> stringResource(R.string.contacts_action_button_message)
+        is ContactMethod.WhatsAppCall -> stringResource(R.string.contacts_action_button_voice_call)
+        is ContactMethod.WhatsAppMessage -> stringResource(R.string.contacts_action_button_chat)
+        is ContactMethod.WhatsAppVideoCall -> stringResource(R.string.contacts_action_button_video_call)
+        is ContactMethod.TelegramMessage -> stringResource(R.string.contacts_action_button_chat)
+        is ContactMethod.TelegramCall -> stringResource(R.string.contacts_action_button_voice_call)
+        is ContactMethod.TelegramVideoCall -> stringResource(R.string.contacts_action_button_video_call)
+        is ContactMethod.GoogleMeet -> stringResource(R.string.contacts_action_button_meet)
+        is ContactMethod.Email -> stringResource(R.string.contacts_action_button_email)
+        is ContactMethod.VideoCall -> stringResource(R.string.contacts_action_button_video_call)
         is ContactMethod.CustomApp -> method.displayLabel
-        is ContactMethod.ViewInContactsApp -> "Contacts"
+        is ContactMethod.ViewInContactsApp -> stringResource(R.string.contacts_action_button_contacts)
     }
 }

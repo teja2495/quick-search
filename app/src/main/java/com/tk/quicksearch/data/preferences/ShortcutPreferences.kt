@@ -2,10 +2,10 @@ package com.tk.quicksearch.data.preferences
 
 import android.content.Context
 
-import com.tk.quicksearch.search.SearchEngine
-import com.tk.quicksearch.search.getDefaultShortcutCode
-import com.tk.quicksearch.search.isValidShortcutCode
-import com.tk.quicksearch.search.normalizeShortcutCodeInput
+import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.searchengines.getDefaultShortcutCode
+import com.tk.quicksearch.search.searchengines.isValidShortcutCode
+import com.tk.quicksearch.search.searchengines.normalizeShortcutCodeInput
 
 /**
  * Preferences for shortcut-related settings such as enabled shortcuts and custom codes.

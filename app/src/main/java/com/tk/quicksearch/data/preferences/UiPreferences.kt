@@ -2,7 +2,7 @@ package com.tk.quicksearch.data.preferences
 
 import android.content.Context
 
-import com.tk.quicksearch.search.MessagingApp
+import com.tk.quicksearch.search.core.MessagingApp
 
 /**
  * Preferences for UI-related settings such as layout, messaging app, banners, etc.

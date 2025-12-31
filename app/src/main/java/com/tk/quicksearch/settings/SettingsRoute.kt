@@ -23,9 +23,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionRequestHandler
-import com.tk.quicksearch.search.MessagingApp
-import com.tk.quicksearch.search.SearchSection
-import com.tk.quicksearch.search.SearchViewModel
+import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.tiles.requestAddQuickSearchTile
 
 @Composable

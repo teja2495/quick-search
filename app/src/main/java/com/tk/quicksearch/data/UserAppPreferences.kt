@@ -2,6 +2,8 @@ package com.tk.quicksearch.data
 
 import android.content.Context
 import com.tk.quicksearch.data.preferences.*
+import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.SearchEngine
 
 /**
  * Stores user-driven overrides for the app grid such as hidden or pinned apps.
@@ -190,15 +192,15 @@ class UserAppPreferences(context: Context) {
 
     fun setShortcutsEnabled(enabled: Boolean) = shortcutPreferences.setShortcutsEnabled(enabled)
 
-    fun getShortcutCode(engine: com.tk.quicksearch.search.SearchEngine): String = shortcutPreferences.getShortcutCode(engine)
+    fun getShortcutCode(engine: SearchEngine): String = shortcutPreferences.getShortcutCode(engine)
 
-    fun setShortcutCode(engine: com.tk.quicksearch.search.SearchEngine, code: String) = shortcutPreferences.setShortcutCode(engine, code)
+    fun setShortcutCode(engine: SearchEngine, code: String) = shortcutPreferences.setShortcutCode(engine, code)
 
-    fun isShortcutEnabled(engine: com.tk.quicksearch.search.SearchEngine): Boolean = shortcutPreferences.isShortcutEnabled(engine)
+    fun isShortcutEnabled(engine: SearchEngine): Boolean = shortcutPreferences.isShortcutEnabled(engine)
 
-    fun setShortcutEnabled(engine: com.tk.quicksearch.search.SearchEngine, enabled: Boolean) = shortcutPreferences.setShortcutEnabled(engine, enabled)
+    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) = shortcutPreferences.setShortcutEnabled(engine, enabled)
 
-    fun getAllShortcutCodes(): Map<com.tk.quicksearch.search.SearchEngine, String> = shortcutPreferences.getAllShortcutCodes()
+    fun getAllShortcutCodes(): Map<SearchEngine, String> = shortcutPreferences.getAllShortcutCodes()
 
     // ============================================================================
     // Amazon Domain Preferences
@@ -228,9 +230,9 @@ class UserAppPreferences(context: Context) {
 
     fun setKeyboardAlignedLayout(enabled: Boolean) = uiPreferences.setKeyboardAlignedLayout(enabled)
 
-    fun getMessagingApp(): com.tk.quicksearch.search.MessagingApp = uiPreferences.getMessagingApp()
+    fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 
-    fun setMessagingApp(app: com.tk.quicksearch.search.MessagingApp) = uiPreferences.setMessagingApp(app)
+    fun setMessagingApp(app: MessagingApp) = uiPreferences.setMessagingApp(app)
 
 
     fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()

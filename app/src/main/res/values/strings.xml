@@ -68,6 +68,14 @@
     <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_action_google_meet">Google Meet</string>
     <string name="contacts_action_view_in_contacts">View in contacts app</string>
+    <string name="contacts_action_button_call">Call</string>
+    <string name="contacts_action_button_message">Message</string>
+    <string name="contacts_action_button_voice_call">Voice Call</string>
+    <string name="contacts_action_button_chat">Chat</string>
+    <string name="contacts_action_button_video_call">Video Call</string>
+    <string name="contacts_action_button_meet">Meet</string>
+    <string name="contacts_action_button_email">Email</string>
+    <string name="contacts_action_button_contacts">Contacts</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
 

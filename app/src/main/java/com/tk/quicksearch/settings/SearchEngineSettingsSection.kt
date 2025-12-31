@@ -19,11 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.SearchEngine
 import com.tk.quicksearch.settings.SettingsSpacing
 import com.tk.quicksearch.settings.searchengines.SearchEngineToggleCard
 import com.tk.quicksearch.settings.searchengines.SearchEngineListCard
 import com.tk.quicksearch.settings.searchengines.ShortcutsSection
+import com.tk.quicksearch.search.core.*
 
 /**
  * Main section for configuring search engines.

@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.IconPackInfo
+import com.tk.quicksearch.search.core.*
 
 @Composable
 fun IconPackPickerDialog(

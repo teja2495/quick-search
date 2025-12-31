@@ -38,7 +38,7 @@ import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
-import com.tk.quicksearch.search.rememberAppIcon
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.settings.SettingsSpacing
 
 // Constants

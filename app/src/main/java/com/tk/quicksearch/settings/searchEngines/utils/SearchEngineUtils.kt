@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
-import com.tk.quicksearch.search.SearchEngine
+import com.tk.quicksearch.search.core.*
 
 /**
  * Helper function to get color filter for search engine icons based on theme.

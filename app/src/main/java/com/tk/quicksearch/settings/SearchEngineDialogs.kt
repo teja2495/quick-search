@@ -40,9 +40,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.isValidAmazonDomain
-import com.tk.quicksearch.search.isValidShortcutCode
-import com.tk.quicksearch.search.normalizeShortcutCodeInput
+import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.searchengines.*
 
 /**
  * Dialog for editing a search engine shortcut code.
