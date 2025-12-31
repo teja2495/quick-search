@@ -24,8 +24,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 
+private val GrantedCheckmarkColor = Color(0xFF4CAF50)
+
 /**
  * A card component that displays a permission with its title, description, and toggle/status.
+ * Shows a green checkmark if permission is granted, otherwise shows a toggle switch.
+ * Displays an asterisk (*) if the permission is mandatory.
+ *
+ * @param title Permission title text
+ * @param description Permission description text
+ * @param permissionState Current permission state
+ * @param isMandatory Whether this permission is required (shows asterisk)
+ * @param onToggleChange Callback when user toggles permission on/off
+ * @param modifier Modifier for the card
  */
 @Composable
 fun PermissionCard(
@@ -66,7 +77,7 @@ fun PermissionCard(
                     )
                     if (isMandatory) {
                         Text(
-                            text = "*",
+                            text = stringResource(R.string.permissions_mandatory_indicator),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -84,7 +95,7 @@ fun PermissionCard(
                 Icon(
                     imageVector = Icons.Rounded.CheckCircle,
                     contentDescription = stringResource(R.string.permissions_granted),
-                    tint = Color(0xFF4CAF50),
+                    tint = GrantedCheckmarkColor,
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .size(24.dp)

@@ -93,12 +93,12 @@ val md_theme_dark_onTertiaryContainer = Color(TERTIARY_CONTAINER_LIGHT)
 val md_theme_dark_error = Color(0xFFFFB4AB)
 val md_theme_dark_onError = Color(0xFF690005)
 
-// Surface colors (shared dark background for both themes)
+// Surface colors
 val md_theme_dark_background = Color(BACKGROUND_DARK)
 val md_theme_dark_onBackground = Color(WHITE)
 val md_theme_dark_surface = Color(BACKGROUND_DARK)
 val md_theme_dark_onSurface = Color(WHITE)
-val md_theme_dark_surfaceVariant = Color(BACKGROUND_DARK)
+val md_theme_dark_surfaceVariant = Color(0xFF49454F)
 val md_theme_dark_onSurfaceVariant = Color(0xFFCAC4D0)
 
 // Outline color

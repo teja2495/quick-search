@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -244,49 +245,17 @@ private fun WidgetBackgroundColorSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
         Text(text = stringResource(R.string.widget_background_color))
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SegmentedButton(
-                selected = state.backgroundColorIsWhite,
-                onClick = { onStateChange(state.copy(backgroundColorIsWhite = true)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_background_white))
-            }
-            SegmentedButton(
-                selected = !state.backgroundColorIsWhite,
-                onClick = { onStateChange(state.copy(backgroundColorIsWhite = false)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_background_black))
-            }
-        }
+        ColorChoiceSegmentedButtonRow(
+            selectedIsWhite = state.backgroundColorIsWhite,
+            onSelectionChange = { onStateChange(state.copy(backgroundColorIsWhite = it)) }
+        )
 
         Spacer(modifier = Modifier.height(WidgetConfigConstants.COLOR_SECTION_SPACING))
         Text(text = stringResource(R.string.widget_text_icon_color))
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SegmentedButton(
-                selected = state.textIconColorIsWhite,
-                onClick = { onStateChange(state.copy(textIconColorIsWhite = true)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_background_white))
-            }
-            SegmentedButton(
-                selected = !state.textIconColorIsWhite,
-                onClick = { onStateChange(state.copy(textIconColorIsWhite = false)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_background_black))
-            }
-        }
+        ColorChoiceSegmentedButtonRow(
+            selectedIsWhite = state.textIconColorIsWhite,
+            onSelectionChange = { onStateChange(state.copy(textIconColorIsWhite = it)) }
+        )
     }
 }
 
@@ -297,26 +266,10 @@ private fun WidgetIconAlignmentSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
         Text(text = stringResource(R.string.widget_icon_alignment))
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SegmentedButton(
-                selected = state.iconAlignLeft,
-                onClick = { onStateChange(state.copy(iconAlignLeft = true)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_icon_align_left))
-            }
-            SegmentedButton(
-                selected = !state.iconAlignLeft,
-                onClick = { onStateChange(state.copy(iconAlignLeft = false)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_icon_align_center))
-            }
-        }
+        AlignmentChoiceSegmentedButtonRow(
+            selectedAlignLeft = state.iconAlignLeft,
+            onSelectionChange = { onStateChange(state.copy(iconAlignLeft = it)) }
+        )
     }
 }
 
@@ -358,75 +311,36 @@ private fun WidgetMicActionSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
         Text(text = stringResource(R.string.widget_mic_action))
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SegmentedButton(
-                selected = state.micAction == MicAction.DEFAULT_VOICE_SEARCH,
-                onClick = { onStateChange(state.copy(micAction = MicAction.DEFAULT_VOICE_SEARCH)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_mic_action_default))
-            }
-            SegmentedButton(
-                selected = state.micAction == MicAction.DIGITAL_ASSISTANT,
-                onClick = { onStateChange(state.copy(micAction = MicAction.DIGITAL_ASSISTANT)) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                icon = {}
-            ) {
-                Text(stringResource(R.string.widget_mic_action_digital_assistant))
-            }
-        }
+        MicActionChoiceSegmentedButtonRow(
+            selectedAction = state.micAction,
+            onSelectionChange = { onStateChange(state.copy(micAction = it)) }
+        )
 
         // Show limitation text when Digital Assistant is selected
         if (state.micAction == MicAction.DIGITAL_ASSISTANT) {
             val context = LocalContext.current
             val limitationText = stringResource(R.string.widget_mic_action_digital_assistant_limitation)
-            val linkText = "digital assistant app"
+            val linkText = "Google"
 
-            // Find the position of the link text in the limitation text
-            val linkStartIndex = limitationText.indexOf(linkText, ignoreCase = true)
-            val linkEndIndex = if (linkStartIndex >= 0) linkStartIndex + linkText.length else -1
-
-            val annotatedString = buildAnnotatedString {
-                if (linkStartIndex >= 0) {
-                    // Add text before the link
-                    append(limitationText.substring(0, linkStartIndex))
-                    // Add the clickable link
-                    pushLink(LinkAnnotation.Clickable(
-                        tag = "OPEN_SETTINGS",
-                        styles = TextLinkStyles(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                textDecoration = TextDecoration.Underline
-                            )
-                        ),
-                        linkInteractionListener = {
-                            // Open voice input settings (contains digital assistant settings)
-                            try {
-                                val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // Fallback to general settings if voice input settings not available
-                                try {
-                                    val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    // Ignore if settings can't be opened
-                                }
-                            }
+            val annotatedString = createClickableText(
+                fullText = limitationText,
+                linkText = linkText,
+                onClick = {
+                    // Open voice input settings (contains digital assistant settings)
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // Fallback to general settings if voice input settings not available
+                        try {
+                            val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Ignore if settings can't be opened
                         }
-                    ))
-                    append(linkText)
-                    pop()
-                    // Add text after the link
-                    append(limitationText.substring(linkEndIndex))
-                } else {
-                    // Fallback: just add the whole text normally
-                    append(limitationText)
+                    }
                 }
-            }
+            )
 
             Text(
                 text = annotatedString,
@@ -454,6 +368,137 @@ private fun ToggleRow(
             checked = checked,
             onCheckedChange = onCheckedChange
         )
+    }
+}
+
+/**
+ * Creates an annotated string with a clickable link for the specified text.
+ */
+@Composable
+private fun createClickableText(
+    fullText: String,
+    linkText: String,
+    onClick: () -> Unit
+): AnnotatedString {
+    val linkStartIndex = fullText.indexOf(linkText, ignoreCase = true)
+
+    return buildAnnotatedString {
+        if (linkStartIndex >= 0) {
+            val linkEndIndex = linkStartIndex + linkText.length
+
+            // Add text before the link
+            append(fullText.substring(0, linkStartIndex))
+
+            // Add the clickable link
+            pushLink(LinkAnnotation.Clickable(
+                tag = "LINK",
+                styles = TextLinkStyles(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ),
+                linkInteractionListener = { onClick() }
+            ))
+            append(linkText)
+            pop()
+
+            // Add text after the link
+            append(fullText.substring(linkEndIndex))
+        } else {
+            // Fallback: just add the whole text normally
+            append(fullText)
+        }
+    }
+}
+
+/**
+ * Segmented button row for choosing between white and black colors.
+ */
+@Composable
+private fun ColorChoiceSegmentedButtonRow(
+    selectedIsWhite: Boolean,
+    onSelectionChange: (Boolean) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedIsWhite,
+            onClick = { onSelectionChange(true) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_background_white))
+        }
+        SegmentedButton(
+            selected = !selectedIsWhite,
+            onClick = { onSelectionChange(false) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_background_black))
+        }
+    }
+}
+
+/**
+ * Segmented button row for choosing between left and center icon alignment.
+ */
+@Composable
+private fun AlignmentChoiceSegmentedButtonRow(
+    selectedAlignLeft: Boolean,
+    onSelectionChange: (Boolean) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedAlignLeft,
+            onClick = { onSelectionChange(true) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_icon_align_left))
+        }
+        SegmentedButton(
+            selected = !selectedAlignLeft,
+            onClick = { onSelectionChange(false) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_icon_align_center))
+        }
+    }
+}
+
+/**
+ * Segmented button row for choosing between mic actions.
+ */
+@Composable
+private fun MicActionChoiceSegmentedButtonRow(
+    selectedAction: MicAction,
+    onSelectionChange: (MicAction) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedAction == MicAction.DEFAULT_VOICE_SEARCH,
+            onClick = { onSelectionChange(MicAction.DEFAULT_VOICE_SEARCH) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_mic_action_default))
+        }
+        SegmentedButton(
+            selected = selectedAction == MicAction.DIGITAL_ASSISTANT,
+            onClick = { onSelectionChange(MicAction.DIGITAL_ASSISTANT) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_mic_action_digital_assistant))
+        }
     }
 }
 

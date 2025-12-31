@@ -15,46 +15,46 @@ import android.app.StatusBarManager
  */
 fun requestAddQuickSearchTile(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val tileComponent = ComponentName(context, QuickSearchTileService::class.java)
-        try {
-            val icon = Icon.createWithResource(context, R.drawable.ic_widget_search)
-            val statusBarManager = context.getSystemService(StatusBarManager::class.java)
-            statusBarManager?.requestAddTileService(
-                tileComponent,
-                context.getString(R.string.quick_settings_tile_label),
-                icon,
-                ContextCompat.getMainExecutor(context)
-            ) { result ->
-                val message = when (result) {
-                    StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> {
-                        context.getString(R.string.quick_settings_tile_added)
-                    }
-                    StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> {
-                        context.getString(R.string.quick_settings_tile_already_added)
-                    }
-                    else -> {
-                        context.getString(R.string.quick_settings_tile_not_added)
-                    }
-                }
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            } ?: Toast.makeText(
-                context,
-                context.getString(R.string.quick_settings_tile_error),
-                Toast.LENGTH_SHORT
-            ).show()
-        } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.quick_settings_tile_error),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        requestTileForAndroid13Plus(context)
     } else {
-        Toast.makeText(
-            context,
-            context.getString(R.string.quick_settings_tile_not_supported),
-            Toast.LENGTH_LONG
-        ).show()
+        showUnsupportedVersionToast(context)
     }
+}
+
+private fun requestTileForAndroid13Plus(context: Context) {
+    val tileComponent = ComponentName(context, QuickSearchTileService::class.java)
+    try {
+        val icon = Icon.createWithResource(context, R.drawable.ic_widget_search)
+        val statusBarManager = context.getSystemService(StatusBarManager::class.java)
+        statusBarManager?.requestAddTileService(
+            tileComponent,
+            context.getString(R.string.quick_settings_tile_label),
+            icon,
+            ContextCompat.getMainExecutor(context)
+        ) { result -> handleTileAddResult(context, result) } ?: showErrorToast(context)
+    } catch (e: Exception) {
+        showErrorToast(context)
+    }
+}
+
+private fun handleTileAddResult(context: Context, result: Int) {
+    val messageResId = when (result) {
+        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> R.string.quick_settings_tile_added
+        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> R.string.quick_settings_tile_already_added
+        else -> R.string.quick_settings_tile_not_added
+    }
+    showToast(context, messageResId)
+}
+
+private fun showUnsupportedVersionToast(context: Context) {
+    showToast(context, R.string.quick_settings_tile_not_supported, Toast.LENGTH_LONG)
+}
+
+private fun showErrorToast(context: Context) {
+    showToast(context, R.string.quick_settings_tile_error)
+}
+
+private fun showToast(context: Context, messageResId: Int, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(context, context.getString(messageResId), duration).show()
 }
 

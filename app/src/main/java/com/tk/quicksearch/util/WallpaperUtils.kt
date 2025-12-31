@@ -5,8 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -80,20 +78,20 @@ object WallpaperUtils {
     
     /**
      * Converts a Drawable to a Bitmap.
-     * Uses a reasonable size for wallpaper rendering.
+     * Uses the drawable's intrinsic dimensions if available, otherwise falls back to standard HD resolution.
      */
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        // Use a standard wallpaper size for better quality
-        val width = 1920
-        val height = 1080
-        
+        // Use drawable's intrinsic dimensions if available, otherwise use standard HD resolution
+        val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 1920
+        val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 1080
+
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        
+
         // Set bounds to fill the entire bitmap
         drawable.setBounds(0, 0, width, height)
         drawable.draw(canvas)
-        
+
         return bitmap
     }
     

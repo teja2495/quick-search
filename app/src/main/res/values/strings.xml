@@ -152,6 +152,7 @@
     <string name="dialog_select_phone_number_message">Choose a number for %1$s</string>
     <string name="dialog_remember_choice">Remember this choice</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_done">Done</string>
     <string name="dialog_ok">Continue</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">Message</string>
@@ -272,6 +273,7 @@
     <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
     <string name="settings_gemini_api_key_paste">Paste from clipboard</string>
     <string name="settings_gemini_api_key_save">Save key</string>
+    <string name="settings_gemini_api_key_add">Add Key</string>
     <string name="settings_gemini_api_key_remove">Remove key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
     <string name="settings_gemini_api_key_saved">Key saved</string>
@@ -428,6 +430,7 @@
     <string name="permissions_granted">Granted</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
+    <string name="permissions_mandatory_indicator">*</string>
 
     <!-- ============================================================================
          Release Notes

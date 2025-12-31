@@ -241,7 +241,7 @@ fun SearchEngineToggleCard(
                                 showInput = false
                             }
                         ) {
-                            Text(text = "Cancel")
+                            Text(text = stringResource(R.string.dialog_cancel))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
@@ -254,7 +254,7 @@ fun SearchEngineToggleCard(
                                 }
                             }
                         ) {
-                            Text(text = "Save")
+                            Text(text = stringResource(R.string.dialog_save))
                         }
                     }
                 } else {
@@ -282,7 +282,7 @@ fun SearchEngineToggleCard(
                         Button(
                             onClick = { showInput = true }
                         ) {
-                            Text(text = "Add Key")
+                            Text(text = stringResource(R.string.settings_gemini_api_key_add))
                         }
                     }
                 }
@@ -318,14 +318,14 @@ fun SearchEngineToggleCard(
                                 showPersonalContextDialog = false
                             }
                         ) {
-                            Text(text = "Save")
+                            Text(text = stringResource(R.string.dialog_save))
                         }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = { showPersonalContextDialog = false }
                         ) {
-                            Text(text = "Cancel")
+                            Text(text = stringResource(R.string.dialog_cancel))
                         }
                     }
                 )

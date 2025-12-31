@@ -33,42 +33,38 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
     val borderShape = RoundedCornerShape(state.borderRadiusDp.dp)
     val shouldShowBorder = state.borderWidthDp >= WidgetConfigConstants.BORDER_VISIBILITY_THRESHOLD
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                top = WidgetConfigConstants.PREVIEW_TOP_PADDING,
-                bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING
-            )
-    ) {
-        // Widget container with background and border
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(WidgetConfigConstants.PREVIEW_HEIGHT)
-                .background(colors.background, shape = borderShape)
-                .then(
-                    if (shouldShowBorder) {
-                        Modifier.border(
-                            width = state.borderWidthDp.dp,
-                            color = colors.border,
-                            shape = borderShape
-                        )
-                    } else {
-                        Modifier
-                    }
+                .padding(
+                    top = WidgetConfigConstants.PREVIEW_TOP_PADDING,
+                    bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING
                 )
         ) {
-            // Main content (search icon and label)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(WidgetConfigConstants.PREVIEW_HEIGHT)
+                    .background(colors.background, shape = borderShape)
+                    .then(
+                        if (shouldShowBorder) {
+                            Modifier.border(
+                                width = state.borderWidthDp.dp,
+                                color = colors.border,
+                                shape = borderShape
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+            ) {
             if (state.iconAlignLeft) {
-                // Left alignment: icon on left, text centered
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Text is always centered
                     if (state.showLabel) {
                         Text(
                             text = stringResource(R.string.widget_label_text),
@@ -77,7 +73,6 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                         )
                     }
 
-                    // Icon on the left
                     if (state.showSearchIcon) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -93,7 +88,6 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                     }
                 }
             } else {
-                // Center alignment: icon and text together, centered as a unit
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -118,9 +112,8 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                         )
                     }
                 }
-            }
+                }
 
-            // Mic icon always on the right, inside the widget container
             if (state.showMicIcon) {
                 Box(
                     modifier = Modifier
@@ -170,7 +163,3 @@ private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): Preview
         textIcon = textIcon
     )
 }
-
-
-
-

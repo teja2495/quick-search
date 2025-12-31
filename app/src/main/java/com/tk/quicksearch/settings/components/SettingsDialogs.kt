@@ -71,7 +71,7 @@ fun IconPackPickerDialog(
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
             ) {
-                Text("Done")
+                Text(stringResource(R.string.dialog_done))
             }
         }
     )

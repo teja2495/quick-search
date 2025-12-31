@@ -96,36 +96,23 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun SetStatusBarAppearance(darkTheme: Boolean) {
         val view = LocalView.current
-        
+
         DisposableEffect(darkTheme) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Android 11+ (API 30+)
-                // APPEARANCE_LIGHT_STATUS_BARS means dark icons (for light backgrounds)
-                // Without it means light icons (for dark backgrounds)
                 val windowInsetsController = view.windowInsetsController
                 windowInsetsController?.setSystemBarsAppearance(
-                    if (darkTheme) 
-                        0  // Dark theme: use light icons (no flag)
-                    else 
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,  // Light theme: use dark icons
+                    if (darkTheme) 0 else android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                     android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                 )
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // Android 6.0+ (API 23+)
-                // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR means dark icons (for light backgrounds)
-                // Without it means light icons (for dark backgrounds)
                 @Suppress("DEPRECATION")
-                var flags = view.systemUiVisibility
-                flags = if (darkTheme) {
-                    // Dark theme: use light status bar icons (remove the flag)
+                val flags = view.systemUiVisibility
+                view.systemUiVisibility = if (darkTheme) {
                     flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 } else {
-                    // Light theme: use dark status bar icons (add the flag)
                     flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                 }
-                view.systemUiVisibility = flags
             }
-            
             onDispose { }
         }
     }
@@ -164,26 +151,25 @@ class MainActivity : ComponentActivity() {
         onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
         viewModel: SearchViewModel
     ) {
-        val settingsScrollState = rememberScrollState()
-        when {
-            destination == RootDestination.Settings && settingsDetailType != null -> {
-                SettingsDetailRoute(
-                    onBack = { onSettingsDetailTypeChange(null) },
-                    viewModel = viewModel,
-                    detailType = settingsDetailType
-                )
+        when (destination) {
+            RootDestination.Settings -> {
+                if (settingsDetailType != null) {
+                    SettingsDetailRoute(
+                        onBack = { onSettingsDetailTypeChange(null) },
+                        viewModel = viewModel,
+                        detailType = settingsDetailType
+                    )
+                } else {
+                    val settingsScrollState = rememberScrollState()
+                    SettingsRoute(
+                        onBack = { onDestinationChange(RootDestination.Search) },
+                        viewModel = viewModel,
+                        onNavigateToDetail = onSettingsDetailTypeChange,
+                        scrollState = settingsScrollState
+                    )
+                }
             }
-            destination == RootDestination.Settings -> {
-                SettingsRoute(
-                    onBack = { onDestinationChange(RootDestination.Search) },
-                    viewModel = viewModel,
-                    onNavigateToDetail = { detailType ->
-                        onSettingsDetailTypeChange(detailType)
-                    },
-                    scrollState = settingsScrollState
-                )
-            }
-            else -> {
+            RootDestination.Search -> {
                 SearchRoute(
                     viewModel = viewModel,
                     onSettingsClick = { onDestinationChange(RootDestination.Settings) },
@@ -203,26 +189,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        when (intent?.action) {
-            Intent.ACTION_ASSIST -> {
-                // Handle digital assistant activation - app is already ready for search
-                // No special handling needed as the search interface is the main UI
-            }
-            else -> {
-                // Handle other intents like voice search from widget
-                val shouldStartVoiceSearch = intent
-                    ?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false)
-                    ?: false
-                if (shouldStartVoiceSearch) {
-                    intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
-                    val micActionString = intent?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
-                    val micAction = micActionString?.let { actionString ->
-                        MicAction.entries.find { it.value == actionString }
-                    } ?: MicAction.DEFAULT_VOICE_SEARCH
-                    handleMicAction(micAction)
-                }
-            }
+        // Handle voice search from widget
+        val shouldStartVoiceSearch = intent
+            ?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false)
+            ?: false
+        if (shouldStartVoiceSearch) {
+            intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
+            val micActionString = intent?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
+            val micAction = micActionString?.let { actionString ->
+                MicAction.entries.find { it.value == actionString }
+            } ?: MicAction.DEFAULT_VOICE_SEARCH
+            handleMicAction(micAction)
         }
+        // ACTION_ASSIST is handled implicitly - search interface is always ready
     }
 
     private fun handleMicAction(micAction: MicAction) {
@@ -252,11 +231,15 @@ class MainActivity : ComponentActivity() {
         val assistantIntent = Intent(Intent.ACTION_VOICE_COMMAND).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        try {
+        if (assistantIntent.resolveActivity(packageManager) != null) {
             startActivity(assistantIntent)
             finish()
-        } catch (e: ActivityNotFoundException) {
-            
+        } else {
+            Toast.makeText(
+                this,
+                R.string.voice_input_not_available,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

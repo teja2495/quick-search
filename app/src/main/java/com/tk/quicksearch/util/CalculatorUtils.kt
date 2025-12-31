@@ -27,18 +27,17 @@ object CalculatorUtils {
         // Check if it contains mostly valid math characters
         // Allow: digits, spaces, operators, brackets, decimal points
         val validChars = trimmed.all { char ->
-            char.isDigit() || 
-            char == '+' || 
-            char == '-' || 
-            char == '*' || 
-            char == '/' || 
-            char == '(' || 
-            char == ')' || 
-            char == '.' || 
+            char.isDigit() ||
+            char == '+' ||
+            char == '-' ||
+            char == '*' ||
+            char == '/' ||
+            char == '(' ||
+            char == ')' ||
+            char == '.' ||
             char == ' ' ||
             char == '×' || // multiplication symbol
             char == '÷' || // division symbol
-            char == '×' || // multiplication symbol (different encoding)
             char == '·'    // middle dot for multiplication
         }
         
@@ -77,26 +76,26 @@ object CalculatorUtils {
      */
     private fun evaluate(expression: String): Double {
         var index = 0
-        
+
         fun parseNumber(): Double {
             var numStr = ""
-            while (index < expression.length && 
+            while (index < expression.length &&
                    (expression[index].isDigit() || expression[index] == '.')) {
                 numStr += expression[index]
                 index++
             }
             return numStr.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid number")
         }
-        
-        // Declare parseExpression first as a variable that will be assigned later
+
+        // Forward declaration for recursive parsing
         lateinit var parseExpression: () -> Double
-        
+
         fun parseFactor(): Double {
             if (index >= expression.length) {
                 throw IllegalArgumentException("Unexpected end of expression")
             }
-            
-            when (expression[index]) {
+
+            return when (expression[index]) {
                 '(' -> {
                     index++ // consume '('
                     val result = parseExpression()
@@ -104,22 +103,20 @@ object CalculatorUtils {
                         throw IllegalArgumentException("Missing closing parenthesis")
                     }
                     index++ // consume ')'
-                    return result
+                    result
                 }
                 '-' -> {
                     index++ // consume '-'
-                    return -parseFactor()
+                    -parseFactor()
                 }
                 '+' -> {
                     index++ // consume '+'
-                    return parseFactor()
+                    parseFactor()
                 }
-                else -> {
-                    return parseNumber()
-                }
+                else -> parseNumber()
             }
         }
-        
+
         fun parseTerm(): Double {
             var result = parseFactor()
             while (index < expression.length) {
@@ -139,7 +136,7 @@ object CalculatorUtils {
             }
             return result
         }
-        
+
         parseExpression = {
             var result = parseTerm()
             while (index < expression.length) {
@@ -157,7 +154,7 @@ object CalculatorUtils {
             }
             result
         }
-        
+
         val result = parseExpression()
         if (index < expression.length) {
             throw IllegalArgumentException("Unexpected character at position $index")

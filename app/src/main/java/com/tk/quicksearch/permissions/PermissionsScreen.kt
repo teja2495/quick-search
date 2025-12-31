@@ -49,6 +49,14 @@ import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.ContactRepository
 import com.tk.quicksearch.data.FileSearchRepository
 
+/**
+ * Main permissions screen that allows users to grant optional permissions for enhanced functionality.
+ * Displays cards for usage access, contacts, and files permissions with toggle controls.
+ * Shows a reminder dialog if user tries to continue without granting all permissions.
+ *
+ * @param onPermissionsComplete Callback invoked when user wants to proceed (with or without permissions)
+ * @param modifier Modifier for the composable
+ */
 @Composable
 fun PermissionsScreen(
     onPermissionsComplete: () -> Unit,
@@ -59,7 +67,6 @@ fun PermissionsScreen(
     val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
 
-    // Permission states
     var usagePermissionState by remember {
         mutableStateOf(createInitialPermissionState(appUsageRepository.hasUsageAccess()))
     }
@@ -69,17 +76,15 @@ fun PermissionsScreen(
     var filesPermissionState by remember {
         mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
     }
-    
-    // Dialog state
+
     var showPermissionReminderDialog by remember { mutableStateOf(false) }
 
-    // Runtime permissions launcher (for contacts and files on pre-R)
-    val runtimePermissionsLauncher = rememberLauncherForActivityResult(
+    val multiplePermissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
         contactsPermissionState = updatePermissionState(contactsGranted, contactsGranted)
-        
+
         // Handle files permission for pre-R Android
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
             val filesGranted = permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
@@ -91,7 +96,6 @@ fun PermissionsScreen(
         }
     }
 
-    // All files access launcher (for Android R+)
     val allFilesAccessLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
@@ -104,18 +108,18 @@ fun PermissionsScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                val newUsagePermission = appUsageRepository.hasUsageAccess()
-                val newContactsPermission = contactRepository.hasPermission()
-                val newFilesPermission = fileRepository.hasPermission()
+                val hasUsageAccess = appUsageRepository.hasUsageAccess()
+                val hasContactsPermission = contactRepository.hasPermission()
+                val hasFilesPermission = fileRepository.hasPermission()
 
-                usagePermissionState = updatePermissionState(newUsagePermission, newUsagePermission)
-                
-                if (newContactsPermission) {
-                    contactsPermissionState = updatePermissionState(newContactsPermission, true)
+                usagePermissionState = updatePermissionState(hasUsageAccess, hasUsageAccess)
+
+                if (hasContactsPermission) {
+                    contactsPermissionState = updatePermissionState(hasContactsPermission, true)
                 }
-                
-                if (newFilesPermission) {
-                    filesPermissionState = updatePermissionState(newFilesPermission, true, wasDenied = false)
+
+                if (hasFilesPermission) {
+                    filesPermissionState = updatePermissionState(hasFilesPermission, true, wasDenied = false)
                 }
             }
         }
@@ -175,7 +179,7 @@ fun PermissionsScreen(
             onToggleChange = { enabled ->
                 contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
                 if (enabled && !contactsPermissionState.isGranted) {
-                    runtimePermissionsLauncher.launch(
+                    multiplePermissionsLauncher.launch(
                         arrayOf(Manifest.permission.READ_CONTACTS)
                     )
                 }
@@ -194,7 +198,7 @@ fun PermissionsScreen(
                     handleFilesPermissionRequest(
                         context = context,
                         permissionState = filesPermissionState,
-                        runtimeLauncher = runtimePermissionsLauncher,
+                        runtimeLauncher = multiplePermissionsLauncher,
                         allFilesLauncher = allFilesAccessLauncher,
                         onStateUpdate = { newState ->
                             filesPermissionState = newState
@@ -204,12 +208,10 @@ fun PermissionsScreen(
             }
         )
 
-        // Continue button - always enabled
         Button(
             onClick = {
-                // Check if any permissions are not granted
-                val hasUngrantedPermissions = !usagePermissionState.isGranted || 
-                    !contactsPermissionState.isGranted || 
+                val hasUngrantedPermissions = !usagePermissionState.isGranted ||
+                    !contactsPermissionState.isGranted ||
                     !filesPermissionState.isGranted
                 
                 if (hasUngrantedPermissions) {
@@ -259,19 +261,11 @@ private fun PermissionReminderDialog(
     onDismiss: () -> Unit,
     onContinue: () -> Unit
 ) {
-    // Build list of ungranted permissions
-    val ungrantedPermissions = mutableListOf<String>()
-    if (!usagePermissionState.isGranted) {
-        ungrantedPermissions.add(stringResource(R.string.permissions_usage_title))
-    }
-    if (!contactsPermissionState.isGranted) {
-        ungrantedPermissions.add(stringResource(R.string.permissions_contacts_title))
-    }
-    if (!filesPermissionState.isGranted) {
-        ungrantedPermissions.add(stringResource(R.string.permissions_files_title))
-    }
-    
-    val permissionsList = ungrantedPermissions.joinToString(", ")
+    val permissionsList = listOfNotNull(
+        stringResource(R.string.permissions_usage_title).takeIf { !usagePermissionState.isGranted },
+        stringResource(R.string.permissions_contacts_title).takeIf { !contactsPermissionState.isGranted },
+        stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted }
+    ).joinToString(", ")
     
     Dialog(
         onDismissRequest = onDismiss,
@@ -321,7 +315,8 @@ private fun PermissionReminderDialog(
 }
 
 /**
- * Creates initial permission state based on whether permission is granted.
+ * Creates initial permission state. If permission is already granted, creates a granted state.
+ * Otherwise creates an initial state (not granted, not enabled).
  */
 private fun createInitialPermissionState(isGranted: Boolean): PermissionState {
     return if (isGranted) {
@@ -332,7 +327,8 @@ private fun createInitialPermissionState(isGranted: Boolean): PermissionState {
 }
 
 /**
- * Updates permission state based on grant status and enabled flag.
+ * Creates a new permission state with the given parameters.
+ * Used to update permission states after permission checks or user interactions.
  */
 private fun updatePermissionState(
     isGranted: Boolean,
@@ -348,7 +344,9 @@ private fun updatePermissionState(
 
 
 /**
- * Handles files permission request based on Android version and current state.
+ * Handles files permission request with different logic for Android versions.
+ * - Android R+: Always opens settings to request "All files access" permission
+ * - Pre-R: Opens settings if permission was previously denied, otherwise requests runtime permission
  */
 private fun handleFilesPermissionRequest(
     context: Context,

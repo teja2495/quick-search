@@ -82,19 +82,11 @@ object SearchRankingUtils {
         primaryToken: String,
         queryTokens: List<String>
     ): Boolean {
-        // Check if any word starts with the full query or primary token
-        if (textWords.any { word -> word.startsWith(normalizedQuery) || word.startsWith(primaryToken) }) {
-            return true
+        return textWords.any { word ->
+            word.startsWith(normalizedQuery) ||
+            word.startsWith(primaryToken) ||
+            (queryTokens.size > 1 && queryTokens.any { token -> word.startsWith(token) })
         }
-        
-        // For multi-word queries, check if any word starts with any query token
-        if (queryTokens.size > 1) {
-            return textWords.any { word ->
-                queryTokens.any { token -> word.startsWith(token) }
-            }
-        }
-        
-        return false
     }
 
     private fun hasContainingMatch(
@@ -102,18 +94,10 @@ object SearchRankingUtils {
         normalizedQuery: String,
         queryTokens: List<String>
     ): Boolean {
-        if (normalizedText.contains(normalizedQuery)) {
-            return true
-        }
-
-        if (queryTokens.size > 1) {
-            // For multi-word queries, require ALL tokens to be present
-            return queryTokens.all { token ->
-                token.isNotBlank() && normalizedText.contains(token)
-            }
-        }
-
-        return false
+        return normalizedText.contains(normalizedQuery) ||
+               (queryTokens.size > 1 && queryTokens.all { token ->
+                   token.isNotBlank() && normalizedText.contains(token)
+               })
     }
     
     /**

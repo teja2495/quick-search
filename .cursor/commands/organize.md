@@ -12,3 +12,4 @@
 - Move hardcoded user-facing strings to strings.xml. Do not move non-UI constants.
 - Create enums or constants only when they clearly reduce duplication or magic values.
 - Organize files only if they are clearly misplaced. Do not reshuffle packages without a strong reason.
+- Finally, check for build errors.
