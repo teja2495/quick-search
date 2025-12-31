@@ -9,7 +9,7 @@
     android:previewLayout="@layout/widget_quick_search_placeholder"
     android:configure="com.tk.quicksearch.widget.QuickSearchWidgetConfigureActivity"
     android:widgetCategory="home_screen"
-    android:resizeMode="horizontal|vertical"
+    android:resizeMode="horizontal"
     android:widgetFeatures="reconfigurable"
     android:description="@string/widget_settings_title" />
 
