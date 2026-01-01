@@ -307,7 +307,8 @@ fun ContactMethodsDialog(
                     Text(
                         text = contactInfo.displayName,
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
 
