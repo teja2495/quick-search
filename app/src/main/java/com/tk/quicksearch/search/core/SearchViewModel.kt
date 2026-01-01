@@ -390,8 +390,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(hasUsagePermission = repository.hasUsageAccess()) }
     }
 
-    fun refreshApps(showToast: Boolean = false) {
-        appSearchHandler.refreshApps(showToast)
+    fun refreshApps(showToast: Boolean = false, forceUiUpdate: Boolean = false) {
+        appSearchHandler.refreshApps(showToast, forceUiUpdate)
     }
 
     fun refreshContacts(showToast: Boolean = false) {
@@ -558,6 +558,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         pinningHandler.loadPinnedContactsAndFiles()
         pinningHandler.loadExcludedContactsAndFiles()
         refreshSettingsState()
+    }
+
+    fun handleOnStop() {
+        // When app is backgrounded, force a refresh of the apps list.
+        if (repository.hasUsageAccess()) {
+            refreshApps(forceUiUpdate = true)
+        }
     }
 
     // Navigation Delegates

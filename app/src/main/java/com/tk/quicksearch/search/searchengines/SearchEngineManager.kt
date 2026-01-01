@@ -101,20 +101,10 @@ class SearchEngineManager(
         }
 
         if (savedOrder.isEmpty()) {
-            // First time - use default order
-            val defaultOrder = listOf(
-                SearchEngine.GOOGLE,
-                SearchEngine.CHATGPT,
-                SearchEngine.PERPLEXITY,
-                SearchEngine.AMAZON,
-                SearchEngine.YOUTUBE,
-                SearchEngine.GOOGLE_PLAY,
-                SearchEngine.GOOGLE_DRIVE,
-                SearchEngine.GOOGLE_PHOTOS,
-                SearchEngine.GOOGLE_MAPS,
-                SearchEngine.AI_MODE
-            )
-            return applyDirectSearchAvailability(defaultOrder, hasGemini)
+            // First time - use default order with all available engines
+            val defaultOrder = allEngines
+            userPreferences.setSearchEngineOrder(defaultOrder.map { it.name })
+            return defaultOrder
         }
 
         // Merge saved order with any new engines that might have been added
@@ -123,7 +113,14 @@ class SearchEngineManager(
         }
         val mergedSaved = applyDirectSearchAvailability(savedEngines, hasGemini)
         val newEngines = allEngines.filter { it !in mergedSaved }
-        return mergedSaved + newEngines
+        val finalOrder = mergedSaved + newEngines
+
+        // Save the updated order if new engines were added
+        if (newEngines.isNotEmpty()) {
+            userPreferences.setSearchEngineOrder(finalOrder.map { it.name })
+        }
+
+        return finalOrder
     }
 
     private fun loadDisabledSearchEngines(): Set<SearchEngine> {

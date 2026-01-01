@@ -135,8 +135,10 @@ fun SearchRoute(
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.handleOnResume()
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> viewModel.handleOnResume()
+                Lifecycle.Event.ON_STOP -> viewModel.handleOnStop()
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

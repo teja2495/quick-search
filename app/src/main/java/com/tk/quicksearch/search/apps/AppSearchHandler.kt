@@ -43,7 +43,7 @@ class AppSearchHandler(
         }
     }
 
-    fun refreshApps(showToast: Boolean = false) {
+    fun refreshApps(showToast: Boolean = false, forceUiUpdate: Boolean = false) {
         scope.launch(Dispatchers.IO) {
             if (cachedApps.isEmpty()) {
                 onLoadingStateChanged(true, null)
@@ -51,11 +51,15 @@ class AppSearchHandler(
 
             runCatching { repository.loadLaunchableApps() }
                 .onSuccess { apps ->
-                    cachedApps = apps
-                    noMatchPrefix = null
-                    val lastUpdated = System.currentTimeMillis()
-                    
-                    onAppsUpdated() // Trigger refreshDerivedState in VM
+                    val currentPackageSet = cachedApps.map { it.packageName }.toSet()
+                    val newPackageSet = apps.map { it.packageName }.toSet()
+                    val appSetChanged = currentPackageSet != newPackageSet
+
+                    if (showToast || cachedApps.isEmpty() || appSetChanged || forceUiUpdate) {
+                        cachedApps = apps
+                        noMatchPrefix = null
+                        onAppsUpdated()
+                    }
                     
                     if (cachedApps.isNotEmpty()) {
                          onLoadingStateChanged(false, null)
