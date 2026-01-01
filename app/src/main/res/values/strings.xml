@@ -397,7 +397,7 @@
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_default_assistant_button">Set as Default Assistant</string>
     <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
-    <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings for one-tap access.</string>
+    <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings tiles.</string>
     <string name="quick_settings_tile_label">Quick Search</string>
     <string name="quick_settings_tile_added">Quick Search tile added</string>
     <string name="quick_settings_tile_already_added">Quick Search tile is already added</string>
@@ -432,14 +432,14 @@
     <string name="widget_slider_radius">Corner Radius</string>
     <string name="widget_slider_border">Border Thickness</string>
     <string name="widget_slider_transparency">Transparency</string>
-    <string name="widget_toggle_show_label">Show "Quick Search" text</string>
-    <string name="widget_toggle_show_search_icon">Show search icon</string>
-    <string name="widget_toggle_show_mic_icon">Show mic icon</string>
+    <string name="widget_toggle_show_label">Show "Quick Search" Text</string>
+    <string name="widget_toggle_show_search_icon">Show Search Icon</string>
+    <string name="widget_toggle_show_mic_icon">Show Mic Icon</string>
     <string name="widget_mic_action">Mic Icon Action</string>
     <string name="widget_mic_action_default">Default</string>
     <string name="widget_mic_action_digital_assistant">Digital Assistant</string>
     <string name="widget_mic_action_digital_assistant_limitation">Due to Android\'s limitations, you cannot trigger Google/Gemini Assistant unless Google is set as the digital assistant app.</string>
-    <string name="widget_icon_alignment">Icon Alignment</string>
+    <string name="widget_icon_alignment">Search Icon Alignment</string>
     <string name="widget_icon_align_left">Left</string>
     <string name="widget_icon_align_center">Center</string>
     <string name="widget_background_color">Background Color</string>

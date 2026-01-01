@@ -628,6 +628,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         fileManager.clearAllExcludedFiles()
         appManager.clearAllHiddenApps()
         settingsManager.clearAllExcludedSettings()
+        pinningHandler.loadExcludedContactsAndFiles()
+        refreshSettingsState(updateResults = false)
     }
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {

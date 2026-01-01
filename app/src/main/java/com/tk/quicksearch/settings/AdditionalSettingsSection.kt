@@ -48,14 +48,6 @@ fun AdditionalSettingsSection(
         )
     }
 
-    // Combined Assistant Settings Card
-    CombinedAssistantCard(
-        isDefaultAssistant = isDefaultAssistant,
-        onSetDefaultAssistant = onSetDefaultAssistant,
-        onAddQuickSettingsTile = onAddQuickSettingsTile,
-        modifier = Modifier.padding(bottom = 12.dp)
-    )
-
     SettingsCard(modifier = modifier) {
         // Clear query after search engine toggle
         SettingsToggleRow(
@@ -74,12 +66,20 @@ fun AdditionalSettingsSection(
 
         // Sort apps by usage toggle
         SettingsToggleRow(
-            title = stringResource(R.string.settings_sort_apps_by_usage_toggle),
+            title = stringResource(R.string.settings_sort_apps_b_usage_toggle),
             checked = sortAppsByUsageEnabled,
             onCheckedChange = onToggleSortAppsByUsage,
             isLastItem = true
         )
     }
+
+    // Combined Assistant Settings Card
+    CombinedAssistantCard(
+        isDefaultAssistant = isDefaultAssistant,
+        onSetDefaultAssistant = onSetDefaultAssistant,
+        onAddQuickSettingsTile = onAddQuickSettingsTile,
+        modifier = Modifier.padding(top = 12.dp)
+    )
 
     // Refresh Data Section at the bottom
     RefreshDataCard(
