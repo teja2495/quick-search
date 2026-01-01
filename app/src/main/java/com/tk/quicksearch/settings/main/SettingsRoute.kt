@@ -163,6 +163,7 @@ fun SettingsRoute(
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
         onSelectIconPack = viewModel::setIconPackPackage,
         onSearchIconPacks = viewModel::searchIconPacks,
+        onRefreshIconPacks = viewModel::refreshIconPacks,
         onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleSortAppsByUsage = viewModel::setSortAppsByUsageEnabled,

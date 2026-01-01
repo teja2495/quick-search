@@ -32,12 +32,14 @@ fun SettingsSectionTitle(
     description: String? = null
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
-        )
+        if (title.isNotEmpty()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+            )
+        }
 
         if (description != null) {
             Text(

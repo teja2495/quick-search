@@ -58,12 +58,11 @@ class FileManagementHandler(
         }
     }
 
-    fun excludeFileExtension(deviceFile: DeviceFile) {
+    fun excludeFileExtension(deviceFile: DeviceFile): Set<String> {
         val extension = FileUtils.getFileExtension(deviceFile.displayName)
-        if (extension != null) {
+        return if (extension != null) {
+            val updatedExtensions = userPreferences.addExcludedFileExtension(extension)
             scope.launch(Dispatchers.IO) {
-                userPreferences.addExcludedFileExtension(extension)
-
                 onUiStateUpdate { state ->
                     state.copy(
                         fileResults = state.fileResults.filterNot {
@@ -73,15 +72,19 @@ class FileManagementHandler(
                 }
                 onStateChanged()
             }
+            updatedExtensions
+        } else {
+            userPreferences.getExcludedFileExtensions()
         }
     }
 
-    fun removeExcludedFileExtension(extension: String) {
+    fun removeExcludedFileExtension(extension: String): Set<String> {
+        val updatedExtensions = userPreferences.removeExcludedFileExtension(extension)
         scope.launch(Dispatchers.IO) {
-            userPreferences.removeExcludedFileExtension(extension)
             // Re-run search to include previously excluded files with this extension
             onStateChanged()
         }
+        return updatedExtensions
     }
 
     fun setFileNickname(deviceFile: DeviceFile, nickname: String?) {

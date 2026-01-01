@@ -290,8 +290,10 @@
     <string name="settings_icon_pack_selected_label">Current: %1$s</string>
     <string name="settings_icon_pack_empty">No icon packs found.</string>
     <string name="settings_icon_pack_option_system">System icons</string>
+    <string name="settings_refresh_icon_packs">Refresh icon packs</string>
+    <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>
-    <string name="settings_icon_pack_search_query">Icon packs</string>
+    <string name="settings_icon_pack_search_query">Free icon packs</string>
 
     <!-- ============================================================================
          Settings - Search Engines
@@ -384,12 +386,12 @@
          Settings - Excluded Items
          ============================================================================ -->
     <string name="settings_excluded_items_title">Excluded Items</string>
-    <string name="settings_excluded_items_desc">View and manage items excluded from search results.</string>
+    <string name="settings_excluded_items_desc">View and manage items excluded from search results &amp; suggestions.</string>
     <string name="settings_additional_settings_title">Additional Settings</string>
     <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
     <string name="settings_clear_query_after_search_engine_toggle">Clear query after search</string>
     <string name="settings_show_all_results_toggle">Auto-expand all results</string>
-    <string name="settings_sort_apps_by_usage_toggle">Order apps by most used</string>
+    <string name="settings_sort_apps_b_usage_toggle">Order apps by most used</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
@@ -412,6 +414,7 @@
     <string name="excluded_item_type_app_results">App (Results)</string>
     <string name="excluded_item_type_contact">Contact</string>
     <string name="excluded_item_type_file">File</string>
+    <string name="excluded_item_type_file_extension">File Extension</string>
     <string name="excluded_item_type_setting">Setting</string>
 
     <!-- ============================================================================

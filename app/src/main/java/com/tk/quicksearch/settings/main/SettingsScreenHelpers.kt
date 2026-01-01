@@ -87,6 +87,7 @@ data class SettingsScreenCallbacks(
     val onToggleShowWallpaperBackground: (Boolean) -> Unit,
     val onSelectIconPack: (String?) -> Unit,
     val onSearchIconPacks: () -> Unit,
+    val onRefreshIconPacks: () -> Unit,
     val onToggleClearQueryAfterSearchEngine: (Boolean) -> Unit,
     val onToggleShowAllResults: (Boolean) -> Unit,
     val onToggleSortAppsByUsage: (Boolean) -> Unit,

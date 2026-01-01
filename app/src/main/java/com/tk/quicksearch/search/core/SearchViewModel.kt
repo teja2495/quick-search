@@ -165,8 +165,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     private var enabledFileTypes: Set<FileType> = userPreferences.getEnabledFileTypes()
+    private var excludedFileExtensions: Set<String> = userPreferences.getExcludedFileExtensions()
     private var keyboardAlignedLayout: Boolean = userPreferences.isKeyboardAlignedLayout()
-    private var messagingApp: MessagingApp = userPreferences.getMessagingApp()
     private var directDialEnabled: Boolean = userPreferences.isDirectDialEnabled()
     private var hasSeenDirectDialChoice: Boolean = userPreferences.hasSeenDirectDialChoice()
     private var showWallpaperBackground: Boolean = run {
@@ -184,7 +184,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     val contactActionHandler = ContactActionHandler(
         context = application,
         userPreferences = userPreferences,
-        messagingApp = messagingApp,
+        getMessagingApp = { messagingHandler.messagingApp },
         directDialEnabled = directDialEnabled,
         hasSeenDirectDialChoice = hasSeenDirectDialChoice,
         clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
@@ -264,6 +264,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             searchEngineOrder = searchEngineManager.searchEngineOrder,
             disabledSearchEngines = searchEngineManager.disabledSearchEngines,
             enabledFileTypes = enabledFileTypes,
+            excludedFileExtensions = excludedFileExtensions,
             keyboardAlignedLayout = keyboardAlignedLayout,
             shortcutsEnabled = shortcutsState.shortcutsEnabled,
             shortcutCodes = shortcutsState.shortcutCodes,
@@ -299,6 +300,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             searchEngineOrder = searchEngineManager.searchEngineOrder,
             disabledSearchEngines = searchEngineManager.disabledSearchEngines,
             enabledFileTypes = enabledFileTypes,
+            excludedFileExtensions = excludedFileExtensions,
             keyboardAlignedLayout = keyboardAlignedLayout,
             shortcutsEnabled = shortcutsState.shortcutsEnabled,
             shortcutCodes = shortcutsState.shortcutCodes,
@@ -597,8 +599,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun pinFile(deviceFile: DeviceFile) = fileManager.pinFile(deviceFile)
     fun unpinFile(deviceFile: DeviceFile) = fileManager.unpinFile(deviceFile)
     fun excludeFile(deviceFile: DeviceFile) = fileManager.excludeFile(deviceFile)
-    fun excludeFileExtension(deviceFile: DeviceFile) = fileManager.excludeFileExtension(deviceFile)
-    fun removeExcludedFileExtension(extension: String) = fileManager.removeExcludedFileExtension(extension)
+    fun excludeFileExtension(deviceFile: DeviceFile) {
+        excludedFileExtensions = fileManager.excludeFileExtension(deviceFile)
+        updateUiState { it.copy(excludedFileExtensions = excludedFileExtensions) }
+    }
+    fun removeExcludedFileExtension(extension: String) {
+        excludedFileExtensions = fileManager.removeExcludedFileExtension(extension)
+        updateUiState { it.copy(excludedFileExtensions = excludedFileExtensions) }
+    }
     fun removeExcludedFile(deviceFile: DeviceFile) = fileManager.removeExcludedFile(deviceFile)
     fun clearAllExcludedFiles() = fileManager.clearAllExcludedFiles()
     fun setFileNickname(deviceFile: DeviceFile, nickname: String?) = fileManager.setFileNickname(deviceFile, nickname)

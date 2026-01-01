@@ -16,6 +16,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -151,6 +152,16 @@ class MainActivity : ComponentActivity() {
         onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
         viewModel: SearchViewModel
     ) {
+        // Preserve scroll state for forward navigation but reset for back navigation
+        val settingsScrollState = rememberScrollState()
+
+        // Reset scroll position when navigating back to search
+        LaunchedEffect(destination) {
+            if (destination == RootDestination.Search) {
+                settingsScrollState.scrollTo(0)
+            }
+        }
+
         when (destination) {
             RootDestination.Settings -> {
                 if (settingsDetailType != null) {
@@ -160,7 +171,6 @@ class MainActivity : ComponentActivity() {
                         detailType = settingsDetailType
                     )
                 } else {
-                    val settingsScrollState = rememberScrollState()
                     SettingsRoute(
                         onBack = { onDestinationChange(RootDestination.Search) },
                         viewModel = viewModel,

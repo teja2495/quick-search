@@ -58,10 +58,12 @@ fun ExcludedItemsSection(
     resultExcludedApps: List<AppInfo>,
     excludedContacts: List<ContactInfo>,
     excludedFiles: List<DeviceFile>,
+    excludedFileExtensions: Set<String>,
     onRemoveSuggestionExcludedApp: (AppInfo) -> Unit,
     onRemoveResultExcludedApp: (AppInfo) -> Unit,
     onRemoveExcludedContact: (ContactInfo) -> Unit,
     onRemoveExcludedFile: (DeviceFile) -> Unit,
+    onRemoveExcludedFileExtension: (String) -> Unit,
     excludedSettings: List<SettingShortcut>,
     onRemoveExcludedSetting: (SettingShortcut) -> Unit,
     onClearAll: () -> Unit,
@@ -69,11 +71,12 @@ fun ExcludedItemsSection(
     modifier: Modifier = Modifier,
     iconPackPackage: String? = null
 ) {
-    val allItems = remember(suggestionExcludedApps, resultExcludedApps, excludedContacts, excludedFiles, excludedSettings) {
+    val allItems = remember(suggestionExcludedApps, resultExcludedApps, excludedContacts, excludedFiles, excludedFileExtensions, excludedSettings) {
         (suggestionExcludedApps.map { ExcludedItem.SuggestionApp(it) } +
          resultExcludedApps.map { ExcludedItem.ResultApp(it) } +
          excludedContacts.map { ExcludedItem.Contact(it) } +
          excludedFiles.map { ExcludedItem.File(it) } +
+         excludedFileExtensions.map { ExcludedItem.FileExtension(it) } +
          excludedSettings.map { ExcludedItem.Setting(it) })
             .sortedBy { it.displayName.lowercase() }
     }
@@ -118,6 +121,7 @@ fun ExcludedItemsSection(
                         is ExcludedItem.ResultApp -> onRemoveResultExcludedApp(item.appInfo)
                         is ExcludedItem.Contact -> onRemoveExcludedContact(item.contactInfo)
                         is ExcludedItem.File -> onRemoveExcludedFile(item.deviceFile)
+                        is ExcludedItem.FileExtension -> onRemoveExcludedFileExtension(item.extension)
                         is ExcludedItem.Setting -> onRemoveExcludedSetting(item.setting)
                     }
                 }
@@ -231,6 +235,14 @@ private fun ExcludedItemIcon(
                 modifier = Modifier.size(DEFAULT_ICON_SIZE)
             )
         }
+        is ExcludedItem.FileExtension -> {
+            Icon(
+                imageVector = Icons.Rounded.InsertDriveFile,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DEFAULT_ICON_SIZE)
+            )
+        }
         is ExcludedItem.Setting -> {
             Icon(
                 imageVector = Icons.Rounded.Settings,
@@ -328,6 +340,11 @@ private sealed class ExcludedItem {
     data class File(val deviceFile: DeviceFile) : ExcludedItem() {
         override val displayName: String = deviceFile.displayName
         override val typeLabelRes: Int = R.string.excluded_item_type_file
+    }
+
+    data class FileExtension(val extension: String) : ExcludedItem() {
+        override val displayName: String = ".$extension"
+        override val typeLabelRes: Int = R.string.excluded_item_type_file_extension
     }
 
     data class Setting(val setting: SettingShortcut) : ExcludedItem() {

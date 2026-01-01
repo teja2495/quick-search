@@ -15,6 +15,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -344,6 +345,7 @@ fun CombinedAppearanceCard(
     iconPackTitle: String,
     iconPackDescription: String,
     onIconPackClick: () -> Unit,
+    onRefreshIconPacks: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -435,10 +437,15 @@ fun CombinedAppearanceCard(
                     )
                 }
                 Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
+                    imageVector = if (hasIconPacks) Icons.Rounded.ChevronRight else Icons.Rounded.Refresh,
+                    contentDescription = if (hasIconPacks) stringResource(R.string.desc_navigate_forward) else stringResource(R.string.settings_refresh_icon_packs),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .then(
+                            if (!hasIconPacks) Modifier.clickable(onClick = onRefreshIconPacks)
+                            else Modifier
+                        )
                 )
             }
         }

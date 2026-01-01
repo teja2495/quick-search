@@ -163,6 +163,7 @@ fun SettingsDetailRoute(
         onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
         onSelectIconPack = viewModel::setIconPackPackage,
         onSearchIconPacks = viewModel::searchIconPacks,
+        onRefreshIconPacks = viewModel::refreshIconPacks,
         onToggleClearQueryAfterSearchEngine = viewModel::setClearQueryAfterSearchEngine,
         onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleSortAppsByUsage = viewModel::setSortAppsByUsageEnabled,
@@ -318,11 +319,13 @@ private fun SettingsDetailScreen(
                             resultExcludedApps = state.resultExcludedApps,
                             excludedContacts = state.excludedContacts,
                             excludedFiles = state.excludedFiles,
+                            excludedFileExtensions = state.excludedFileExtensions,
                             excludedSettings = state.excludedSettings,
                             onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
                             onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
                             onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
+                            onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onClearAll = callbacks.onClearAllExclusions,
                             showTitle = false,
@@ -355,7 +358,9 @@ private fun SettingsDetailScreen(
                 onClick = { showClearAllConfirmation = true },
                 modifier = Modifier
                     .align(androidx.compose.ui.Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Delete,

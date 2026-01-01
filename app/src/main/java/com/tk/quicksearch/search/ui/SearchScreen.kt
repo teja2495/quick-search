@@ -314,10 +314,6 @@ fun SearchScreen(
     // Reset expansion when query changes
     LaunchedEffect(state.query) {
         expandedSection = ExpandedSection.NONE
-        // Reset keyboard state only when query is cleared completely
-        if (state.query.isEmpty()) {
-            manuallySwitchedToNumberKeyboard = false
-        }
     }
 
     // Handle back button when section is expanded

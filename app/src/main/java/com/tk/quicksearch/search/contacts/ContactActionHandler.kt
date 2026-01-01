@@ -22,7 +22,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 class ContactActionHandler(
     private val context: Application,
     private val userPreferences: UserAppPreferences,
-    private val messagingApp: MessagingApp,
+    private val getMessagingApp: () -> MessagingApp,
     private val directDialEnabled: Boolean,
     private val hasSeenDirectDialChoice: Boolean,
     private val clearQueryAfterSearchEngine: Boolean,
@@ -308,7 +308,7 @@ class ContactActionHandler(
     }
 
     private fun performMessaging(number: String) {
-        when (messagingApp) {
+        when (getMessagingApp()) {
             MessagingApp.MESSAGES -> performSms(number)
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number)
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number)

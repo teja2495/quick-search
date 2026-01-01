@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
@@ -172,6 +173,16 @@ fun SettingsScreen(
                         showIconPackDialog = true
                     } else {
                         callbacks.onSearchIconPacks()
+                    }
+                },
+                onRefreshIconPacks = {
+                    callbacks.onRefreshIconPacks()
+                    coroutineScope.launch {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.settings_refreshing_icon_packs),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             )

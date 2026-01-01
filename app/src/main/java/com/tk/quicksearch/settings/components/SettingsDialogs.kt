@@ -69,7 +69,7 @@ fun IconPackPickerDialog(
             TextButton(
                 onClick = onDismiss,
                 modifier = Modifier
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 16.dp)
             ) {
                 Text(stringResource(R.string.dialog_done))
             }
