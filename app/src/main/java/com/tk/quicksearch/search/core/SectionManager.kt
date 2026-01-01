@@ -58,6 +58,17 @@ class SectionManager(
         return permissionManager.canEnableSection(section)
     }
 
+    /**
+     * Refreshes disabled sections based on current permissions.
+     * Should be called when permissions change.
+     */
+    fun refreshDisabledSections() {
+        disabledSections = permissionManager.computeDisabledSections()
+        onStateUpdate { state ->
+            state.copy(disabledSections = disabledSections)
+        }
+    }
+
     private fun loadSectionOrder(): List<SearchSection> {
         val savedOrder = userPreferences.getSectionOrder()
         val defaultOrder = listOf(

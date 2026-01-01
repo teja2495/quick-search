@@ -858,7 +858,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             previousState.hasCallPermission != hasCall
 
         if (changed) {
-            
+
             // Handle wallpaper background based on files permission
             val userPrefValue = userPreferences.shouldShowWallpaperBackground()
             val shouldUpdateWallpaper = when {
@@ -883,7 +883,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
                 else -> false
             }
-            
+
             _uiState.update { state ->
                 state.copy(
                     hasContactPermission = hasContacts,
@@ -891,10 +891,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     hasCallPermission = hasCall,
                     contactResults = if (hasContacts) state.contactResults else emptyList(),
                     fileResults = if (hasFiles) state.fileResults else emptyList(),
-                    disabledSections = sectionManager.disabledSections,
                     showWallpaperBackground = if (shouldUpdateWallpaper) showWallpaperBackground else state.showWallpaperBackground
                 )
             }
+
+            // Refresh disabled sections based on new permission state
+            sectionManager.refreshDisabledSections()
         }
         return changed
     }

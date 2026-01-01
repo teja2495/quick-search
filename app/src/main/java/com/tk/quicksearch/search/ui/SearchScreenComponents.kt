@@ -121,7 +121,7 @@ internal fun PersistentSearchField(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Set search bar background to black with slight transparency
-    val searchBarBackground = Color.Black.copy(alpha = 0.3f)
+    val searchBarBackground = Color.Black.copy(alpha = 0.5f)
     val focusedContainerColor = searchBarBackground
     val unfocusedContainerColor = searchBarBackground
     // Light color for icons and text on dark grey background
