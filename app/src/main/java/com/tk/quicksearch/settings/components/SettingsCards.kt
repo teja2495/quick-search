@@ -71,7 +71,7 @@ fun CombinedSettingsNavigationCard(
                     )
                     Text(
                         text = excludedItemsDescription,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -109,7 +109,7 @@ fun CombinedSettingsNavigationCard(
                 )
                 Text(
                     text = additionalSettingsDescription,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

@@ -40,7 +40,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.settings.components.SettingsCard
-import com.tk.quicksearch.settings.components.SettingsSectionTitle
+import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants
@@ -90,16 +90,25 @@ fun ExcludedItemsSection(
     Column {
         // Header with title and description
         if (showTitle) {
-            SettingsSectionTitle(
-                title = stringResource(R.string.settings_excluded_items_title),
-                description = stringResource(R.string.settings_excluded_items_desc),
-                modifier = modifier
+            Text(
+                text = stringResource(R.string.settings_excluded_items_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+            )
+
+            Text(
+                text = stringResource(R.string.settings_excluded_items_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
             )
         } else {
-            SettingsSectionTitle(
-                title = "",
-                description = stringResource(R.string.settings_excluded_items_desc),
-                modifier = modifier
+            Text(
+                text = stringResource(R.string.settings_excluded_items_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
             )
         }
 

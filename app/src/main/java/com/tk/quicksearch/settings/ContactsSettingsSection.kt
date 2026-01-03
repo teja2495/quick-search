@@ -146,7 +146,7 @@ private fun MergedMessagingCard(
                     )
                     Text(
                         text = stringResource(R.string.settings_direct_dial_desc),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

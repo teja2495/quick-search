@@ -14,9 +14,9 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.components.CombinedAssistantCard
 import com.tk.quicksearch.settings.components.RefreshDataCard
 import com.tk.quicksearch.settings.components.SettingsCard
-import com.tk.quicksearch.settings.components.SettingsSectionTitle
 import com.tk.quicksearch.settings.components.SettingsToggleRow
 import com.tk.quicksearch.settings.main.SettingsNavigationCard
+import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 
@@ -42,9 +42,18 @@ fun AdditionalSettingsSection(
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
-        SettingsSectionTitle(
-            title = stringResource(R.string.settings_additional_settings_title),
-            description = stringResource(R.string.settings_additional_settings_desc)
+        Text(
+            text = stringResource(R.string.settings_additional_settings_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+        )
+
+        Text(
+            text = stringResource(R.string.settings_additional_settings_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
         )
     }
 
