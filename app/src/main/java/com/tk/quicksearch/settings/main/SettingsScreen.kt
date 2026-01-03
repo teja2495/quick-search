@@ -227,12 +227,22 @@ fun SettingsScreen(
                 excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
                 additionalSettingsTitle = stringResource(R.string.settings_additional_settings_title),
                 additionalSettingsDescription = stringResource(R.string.settings_additional_settings_desc),
-                hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
+                onExcludedItemsClick = {
+                    val hasItems = state.suggestionExcludedApps.isNotEmpty() ||
                                    state.resultExcludedApps.isNotEmpty() ||
                                    state.excludedContacts.isNotEmpty() ||
                                    state.excludedFiles.isNotEmpty() ||
-                                   state.excludedSettings.isNotEmpty(),
-                onExcludedItemsClick = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) },
+                                   state.excludedSettings.isNotEmpty()
+                    if (hasItems) {
+                        onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.settings_excluded_items_empty),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
                 onAdditionalSettingsClick = { onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS) },
                 contentPadding = SettingsSpacing.singleCardPadding
             )

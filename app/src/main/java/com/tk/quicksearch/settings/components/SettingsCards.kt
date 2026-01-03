@@ -40,7 +40,6 @@ fun CombinedSettingsNavigationCard(
     excludedItemsDescription: String,
     additionalSettingsTitle: String,
     additionalSettingsDescription: String,
-    hasExcludedItems: Boolean,
     onExcludedItemsClick: () -> Unit,
     onAdditionalSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -50,44 +49,42 @@ fun CombinedSettingsNavigationCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        // Excluded Items Section (only shown if there are excluded items)
-        if (hasExcludedItems) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onExcludedItemsClick)
-                    .padding(contentPadding),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        // Excluded Items Section (always shown)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onExcludedItemsClick)
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = excludedItemsTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = excludedItemsDescription,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp)
+                Text(
+                    text = excludedItemsTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = excludedItemsDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            // Divider
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
+            Icon(
+                imageVector = Icons.Rounded.ChevronRight,
+                contentDescription = stringResource(R.string.desc_navigate_forward),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
+
+        // Divider
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
 
         // Additional Settings Section (always shown)
         Row(

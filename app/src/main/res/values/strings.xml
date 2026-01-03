@@ -387,6 +387,7 @@
          ============================================================================ -->
     <string name="settings_excluded_items_title">Excluded Items</string>
     <string name="settings_excluded_items_desc">View and manage items excluded from search results &amp; suggestions.</string>
+    <string name="settings_excluded_items_empty">You have no excluded items.</string>
     <string name="settings_additional_settings_title">Additional Settings</string>
     <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
     <string name="settings_clear_query_after_search_engine_toggle">Clear query after search</string>
