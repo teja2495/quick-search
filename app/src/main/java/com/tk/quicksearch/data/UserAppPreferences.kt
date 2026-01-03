@@ -2,6 +2,7 @@ package com.tk.quicksearch.data
 
 import android.content.Context
 import com.tk.quicksearch.data.preferences.*
+import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchEngine
 
@@ -23,6 +24,47 @@ class UserAppPreferences(context: Context) {
     private val geminiPreferences = GeminiPreferences(context)
     private val uiPreferences = UiPreferences(context)
     private val amazonPreferences = AmazonPreferences(context)
+
+    /**
+     * Data class to hold all preferences needed during app startup for performance optimization.
+     */
+    data class StartupPreferences(
+        val enabledFileTypes: Set<FileType>,
+        val excludedFileExtensions: Set<String>,
+        val keyboardAlignedLayout: Boolean,
+        val directDialEnabled: Boolean,
+        val hasSeenDirectDialChoice: Boolean,
+        val showWallpaperBackground: Boolean,
+        val clearQueryAfterSearchEngine: Boolean,
+        val showAllResults: Boolean,
+        val sortAppsByUsage: Boolean,
+        val amazonDomain: String?,
+        val pinnedPackages: Set<String>,
+        val suggestionHiddenPackages: Set<String>,
+        val resultHiddenPackages: Set<String>
+    )
+
+    /**
+     * Loads all preferences needed during startup in a single batch operation.
+     * This reduces the number of SharedPreferences reads for better startup performance.
+     */
+    fun getStartupPreferences(): StartupPreferences {
+        return StartupPreferences(
+            enabledFileTypes = filePreferences.getEnabledFileTypes(),
+            excludedFileExtensions = filePreferences.getExcludedFileExtensions(),
+            keyboardAlignedLayout = uiPreferences.isKeyboardAlignedLayout(),
+            directDialEnabled = contactPreferences.isDirectDialEnabled(),
+            hasSeenDirectDialChoice = contactPreferences.hasSeenDirectDialChoice(),
+            showWallpaperBackground = uiPreferences.shouldShowWallpaperBackground(),
+            clearQueryAfterSearchEngine = uiPreferences.shouldClearQueryAfterSearchEngine(),
+            showAllResults = uiPreferences.shouldShowAllResults(),
+            sortAppsByUsage = uiPreferences.shouldSortAppsByUsage(),
+            amazonDomain = amazonPreferences.getAmazonDomain(),
+            pinnedPackages = appPreferences.getPinnedPackages(),
+            suggestionHiddenPackages = appPreferences.getSuggestionHiddenPackages(),
+            resultHiddenPackages = appPreferences.getResultHiddenPackages()
+        )
+    }
 
     // ============================================================================
     // App Preferences

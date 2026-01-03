@@ -137,7 +137,6 @@ fun SearchRoute(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> viewModel.handleOnResume()
-                Lifecycle.Event.ON_STOP -> viewModel.handleOnStop()
                 else -> {}
             }
         }

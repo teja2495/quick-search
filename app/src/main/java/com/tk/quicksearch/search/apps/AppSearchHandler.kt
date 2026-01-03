@@ -54,8 +54,11 @@ class AppSearchHandler(
                     val currentPackageSet = cachedApps.map { it.packageName }.toSet()
                     val newPackageSet = apps.map { it.packageName }.toSet()
                     val appSetChanged = currentPackageSet != newPackageSet
+                    val currentUsageMap = cachedApps.associate { it.packageName to it.lastUsedTime }
+                    val newUsageMap = apps.associate { it.packageName to it.lastUsedTime }
+                    val usageStatsChanged = currentUsageMap != newUsageMap
 
-                    if (showToast || cachedApps.isEmpty() || appSetChanged || forceUiUpdate) {
+                    if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
                         cachedApps = apps
                         noMatchPrefix = null
                         onAppsUpdated()
