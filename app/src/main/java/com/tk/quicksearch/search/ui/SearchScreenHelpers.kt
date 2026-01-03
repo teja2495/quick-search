@@ -92,7 +92,8 @@ data class AppsSectionParams(
     val getAppNickname: (String) -> String?,
     val showAppLabels: Boolean,
     val rowCount: Int,
-    val iconPackPackage: String?
+    val iconPackPackage: String?,
+    val keyboardAlignedLayout: Boolean
 )
 
 /**
@@ -292,7 +293,8 @@ internal fun buildSectionParams(
         getAppNickname = getAppNickname,
         showAppLabels = true,
         rowCount = derivedState.visibleRowCount,
-        iconPackPackage = state.selectedIconPackPackage
+        iconPackPackage = state.selectedIconPackPackage,
+        keyboardAlignedLayout = state.keyboardAlignedLayout
     )
 
     SectionParams(

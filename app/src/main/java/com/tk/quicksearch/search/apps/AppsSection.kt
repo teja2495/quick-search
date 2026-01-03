@@ -79,11 +79,12 @@ fun AppGridSection(
     showAppLabels: Boolean,
     modifier: Modifier = Modifier,
     rowCount: Int = ROW_COUNT,
-    iconPackPackage: String? = null
+    iconPackPackage: String? = null,
+    keyboardAlignedLayout: Boolean = false
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
+             .fillMaxWidth()
             .animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
@@ -110,7 +111,8 @@ fun AppGridSection(
                     pinnedPackageNames = pinnedPackageNames,
                     showAppLabels = showAppLabels,
                     rowCount = rowCount,
-                    iconPackPackage = iconPackPackage
+                    iconPackPackage = iconPackPackage,
+                    keyboardAlignedLayout = keyboardAlignedLayout
                 )
             }
         }
@@ -131,10 +133,12 @@ private fun AppGrid(
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
     rowCount: Int = ROW_COUNT,
-    iconPackPackage: String?
+    iconPackPackage: String?,
+    keyboardAlignedLayout: Boolean
 ) {
-    val rows = remember(apps, rowCount) {
-        apps.take(rowCount * COLUMNS).chunked(COLUMNS)
+    val rows = remember(apps, rowCount, keyboardAlignedLayout) {
+        val chunked = apps.take(rowCount * COLUMNS).chunked(COLUMNS)
+        if (keyboardAlignedLayout) chunked.reversed() else chunked
     }
 
     Column(
