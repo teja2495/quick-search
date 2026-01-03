@@ -72,6 +72,11 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
+    override fun onStop() {
+        super.onStop()
+        searchViewModel.handleOnStop()
+    }
+
     private fun initializePreferences() {
         userPreferences = UserAppPreferences(this)
     }

@@ -160,7 +160,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences = userPreferences,
             settingsSearchHandler = settingsSearchHandler,
             onRequestDirectSearch = { query -> directSearchHandler.requestDirectSearch(query) },
-            onClearQuery = this::clearQuery
+            onClearQuery = this::onNavigationTriggered
         )
     }
 
@@ -197,6 +197,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
+    private var pendingNavigationClear: Boolean = false
+
+    private fun onNavigationTriggered() {
+        pendingNavigationClear = true
+    }
+
+    fun handleOnStop() {
+        if (pendingNavigationClear) {
+            clearQuery()
+            pendingNavigationClear = false
+        }
+    }
 
     val contactActionHandler = ContactActionHandler(
         context = application,
@@ -207,7 +219,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
         getCurrentState = { _uiState.value },
         uiStateUpdater = { update -> _uiState.update(update) },
-        clearQuery = this::clearQuery
+        clearQuery = this::onNavigationTriggered
     )
 
     init {
