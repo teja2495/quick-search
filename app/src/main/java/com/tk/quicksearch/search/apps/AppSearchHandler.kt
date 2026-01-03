@@ -26,7 +26,7 @@ class AppSearchHandler(
         private set
     
     private var noMatchPrefix: String? = null
-    var sortAppsByUsageEnabled: Boolean = userPreferences.shouldSortAppsByUsage()
+    var sortAppsByUsageEnabled: Boolean = false
         private set
 
     companion object {

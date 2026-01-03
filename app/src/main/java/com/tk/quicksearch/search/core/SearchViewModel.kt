@@ -57,11 +57,11 @@ import java.util.Locale
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = AppUsageRepository(application.applicationContext)
-    private val contactRepository = ContactRepository(application.applicationContext)
-    private val fileRepository = FileSearchRepository(application.applicationContext)
-    private val settingsShortcutRepository = SettingsShortcutRepository(application.applicationContext)
-    private val userPreferences = UserAppPreferences(application.applicationContext)
+    private val repository by lazy { AppUsageRepository(application.applicationContext) }
+    private val contactRepository by lazy { ContactRepository(application.applicationContext) }
+    private val fileRepository by lazy { FileSearchRepository(application.applicationContext) }
+    private val settingsShortcutRepository by lazy { SettingsShortcutRepository(application.applicationContext) }
+    private val userPreferences by lazy { UserAppPreferences(application.applicationContext) }
     private val permissionManager by lazy { PermissionManager(contactRepository, fileRepository, userPreferences) }
     private val searchOperations by lazy { SearchOperations(contactRepository, fileRepository) }
 
@@ -74,11 +74,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
 
     // Management handlers - lazy initialize non-critical ones
-    val appManager = AppManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState)
+    // Management handlers - lazy initialize non-critical ones
+    val appManager by lazy { AppManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState) }
     val contactManager by lazy { ContactManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
     val fileManager by lazy { FileManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
     val settingsManager by lazy { SettingsManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
-    val searchEngineManager = SearchEngineManager(application.applicationContext, userPreferences, viewModelScope, this::updateUiState)
+    val searchEngineManager by lazy { SearchEngineManager(application.applicationContext, userPreferences, viewModelScope, this::updateUiState) }
     val sectionManager by lazy { SectionManager(userPreferences, permissionManager, viewModelScope, this::updateUiState) }
     val iconPackHandler by lazy { IconPackHandler(application, userPreferences, viewModelScope, this::updateUiState) }
 
@@ -114,16 +115,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
     
-    val appSearchHandler = AppSearchHandler(
-        context = application.applicationContext,
-        repository = repository,
-        userPreferences = userPreferences,
-        scope = viewModelScope,
-        onAppsUpdated = { this.refreshDerivedState() },
-        onLoadingStateChanged = { isLoading, error ->
-            _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
-        }
-    )
+    val appSearchHandler by lazy {
+        AppSearchHandler(
+            context = application.applicationContext,
+            repository = repository,
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            onAppsUpdated = { this.refreshDerivedState() },
+            onLoadingStateChanged = { isLoading, error ->
+                _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
+            }
+        )
+    }
 
     val settingsSearchHandler by lazy {
         SettingsSearchHandler(
@@ -182,23 +185,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    // Load all startup preferences in a single batch operation for better performance
-    private val startupPrefs = userPreferences.getStartupPreferences()
-
-    private var enabledFileTypes: Set<FileType> = startupPrefs.enabledFileTypes
-    private var excludedFileExtensions: Set<String> = startupPrefs.excludedFileExtensions
-    private var keyboardAlignedLayout: Boolean = startupPrefs.keyboardAlignedLayout
-    private var directDialEnabled: Boolean = startupPrefs.directDialEnabled
-    private var hasSeenDirectDialChoice: Boolean = startupPrefs.hasSeenDirectDialChoice
-    private var showWallpaperBackground: Boolean = run {
-        val prefValue = startupPrefs.showWallpaperBackground
-        val hasFilesPermission = permissionManager.hasFilePermission()
-        if (hasFilesPermission) prefValue else false
-    }
-    private var clearQueryAfterSearchEngine: Boolean = startupPrefs.clearQueryAfterSearchEngine
-    private var showAllResults: Boolean = startupPrefs.showAllResults
-    private var sortAppsByUsageEnabled: Boolean = startupPrefs.sortAppsByUsage
-    private var amazonDomain: String? = startupPrefs.amazonDomain
+    private var enabledFileTypes: Set<FileType> = emptySet()
+    private var excludedFileExtensions: Set<String> = emptySet()
+    private var keyboardAlignedLayout: Boolean = true
+    private var directDialEnabled: Boolean = false
+    private var hasSeenDirectDialChoice: Boolean = false
+    private var showWallpaperBackground: Boolean = true
+    private var clearQueryAfterSearchEngine: Boolean = false
+    private var showAllResults: Boolean = false
+    private var sortAppsByUsageEnabled: Boolean = false
+    private var amazonDomain: String? = null
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
 
@@ -215,13 +211,39 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     init {
-        // Pre-initialize critical handlers that are needed immediately
-        messagingHandler // Initialize messaging handler as it's used in initialization
-        shortcutHandler // Initialize shortcut handler early as it's used in UI state
-
         setupDirectSearchStateListener()
-        initializeWithCachedData()
-        setupBackgroundOperations()
+
+        // Load startup data and cached apps endlessly to unblock the main thread
+        viewModelScope.launch(Dispatchers.IO) {
+            // Move setupBackgroundOperations here to ensure lazy properties are initialized in background
+            setupBackgroundOperations()
+
+            val startupPrefs = userPreferences.getStartupPreferences()
+
+            // Update local fields with loaded preferences
+            enabledFileTypes = startupPrefs.enabledFileTypes
+            excludedFileExtensions = startupPrefs.excludedFileExtensions
+            keyboardAlignedLayout = startupPrefs.keyboardAlignedLayout
+            directDialEnabled = startupPrefs.directDialEnabled
+            hasSeenDirectDialChoice = startupPrefs.hasSeenDirectDialChoice
+            clearQueryAfterSearchEngine = startupPrefs.clearQueryAfterSearchEngine
+            showAllResults = startupPrefs.showAllResults
+            sortAppsByUsageEnabled = startupPrefs.sortAppsByUsage
+            amazonDomain = startupPrefs.amazonDomain
+
+            // Logic for wallpaper background based on permissions
+            val hasFilesPermission = permissionManager.hasFilePermission()
+            showWallpaperBackground = if (hasFilesPermission) startupPrefs.showWallpaperBackground else false
+
+            // Sync handlers with loaded prefs
+            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
+
+            // Initialize critical handlers now that we are in background
+            messagingHandler
+            shortcutHandler
+
+            initializeWithCachedData()
+        }
     }
 
     private fun setupDirectSearchStateListener() {
@@ -825,9 +847,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         val apps = appSearchHandler.cachedApps
         val visibleAppList = appSearchHandler.availableApps()
-        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(startupPrefs.suggestionHiddenPackages)
-        val pinnedAppsForResults = appSearchHandler.computePinnedApps(startupPrefs.resultHiddenPackages)
-        val recentsSource = visibleAppList.filterNot { startupPrefs.pinnedPackages.contains(it.packageName) }
+        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(userPreferences.getSuggestionHiddenPackages())
+        val pinnedAppsForResults = appSearchHandler.computePinnedApps(userPreferences.getResultHiddenPackages())
+        val recentsSource = visibleAppList.filterNot { userPreferences.getPinnedPackages().contains(it.packageName) }
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
@@ -848,10 +870,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             appSearchHandler.deriveMatches(trimmedQuery, allSearchableApps)
         }
         val suggestionHiddenAppList = apps
-            .filter { startupPrefs.suggestionHiddenPackages.contains(it.packageName) }
+            .filter { userPreferences.getSuggestionHiddenPackages().contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
         val resultHiddenAppList = apps
-            .filter { startupPrefs.resultHiddenPackages.contains(it.packageName) }
+            .filter { userPreferences.getResultHiddenPackages().contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
 
         _uiState.update { state ->

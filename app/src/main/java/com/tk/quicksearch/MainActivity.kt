@@ -9,6 +9,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -180,6 +181,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
             RootDestination.Search -> {
+                BackHandler {
+                    moveTaskToBack(true)
+                }
                 SearchRoute(
                     viewModel = viewModel,
                     onSettingsClick = { onDestinationChange(RootDestination.Settings) },
