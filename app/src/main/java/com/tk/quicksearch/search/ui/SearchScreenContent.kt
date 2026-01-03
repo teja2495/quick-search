@@ -81,7 +81,6 @@ internal fun SearchScreenContent(
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
-                if (trimmedQuery.isBlank()) return@PersistentSearchField
 
                 // If query has trailing/leading spaces, trim it first
                 if (state.query != trimmedQuery) {
@@ -93,7 +92,7 @@ internal fun SearchScreenContent(
                     onAppClick(firstApp)
                 } else {
                     val primaryEngine = enabledEngines.firstOrNull()
-                    if (primaryEngine != null) {
+                    if (primaryEngine != null && trimmedQuery.isNotBlank()) {
                         onSearchEngineClick(trimmedQuery, primaryEngine)
                     }
                 }

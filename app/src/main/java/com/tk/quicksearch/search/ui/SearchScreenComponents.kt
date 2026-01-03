@@ -278,8 +278,8 @@ internal fun PersistentSearchField(
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
+                        onSearchAction()
                         if (query.isNotBlank()) {
-                            onSearchAction()
                             // Only hide keyboard if the first engine is not DIRECT_ANSWER
                             val firstEngine = enabledEngines.firstOrNull()
                             if (firstEngine != SearchEngine.DIRECT_SEARCH) {
