@@ -19,7 +19,8 @@ class NavigationHandler(
     private val userPreferences: UserAppPreferences,
     private val settingsSearchHandler: SettingsSearchHandler,
     private val onRequestDirectSearch: (String) -> Unit,
-    private val onClearQuery: () -> Unit
+    private val onClearQuery: () -> Unit,
+    private val clearQueryAfterSearchEngine: Boolean
 ) {
     private val context: Context get() = application.applicationContext
 
@@ -86,11 +87,14 @@ class NavigationHandler(
 
     fun openFile(deviceFile: DeviceFile) {
         IntentHelpers.openFile(application, deviceFile)
-        onClearQuery()
+        if (clearQueryAfterSearchEngine) {
+            onClearQuery()
+        }
     }
 
     fun openSetting(setting: SettingShortcut) {
         settingsSearchHandler.openSetting(setting)
+        onClearQuery()
     }
 
     fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {

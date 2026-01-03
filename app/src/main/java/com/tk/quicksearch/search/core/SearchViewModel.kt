@@ -160,7 +160,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences = userPreferences,
             settingsSearchHandler = settingsSearchHandler,
             onRequestDirectSearch = { query -> directSearchHandler.requestDirectSearch(query) },
-            onClearQuery = this::onNavigationTriggered
+            onClearQuery = this::onNavigationTriggered,
+            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine
         )
     }
 
