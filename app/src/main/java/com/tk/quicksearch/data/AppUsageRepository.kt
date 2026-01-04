@@ -2,6 +2,7 @@ package com.tk.quicksearch.data
 
 import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
+import android.app.usage.UsageStats
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -94,7 +95,7 @@ class AppUsageRepository(
      */
     suspend fun loadLaunchableApps(): List<AppInfo> {
         val resolveInfos = queryLaunchableApps()
-        val usageMap = queryLastUsedMap()
+        val usageMap = queryUsageStatsMap()
         val currentPackageName = context.packageName
 
         val apps = resolveInfos
@@ -147,11 +148,13 @@ class AppUsageRepository(
      */
     private fun createAppInfo(
         resolveInfo: ResolveInfo,
-        usageMap: Map<String, Long>
+        usageMap: Map<String, UsageStats>
     ): AppInfo {
         val packageName = resolveInfo.activityInfo.packageName
         val label = extractAppLabel(resolveInfo, packageName)
-        val lastUsedTime = usageMap[packageName] ?: 0L
+        val stats = usageMap[packageName]
+        val lastUsedTime = stats?.lastTimeUsed ?: 0L
+        val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
         val isSystemApp = (resolveInfo.activityInfo.applicationInfo.flags 
             and ApplicationInfo.FLAG_SYSTEM) != 0
 
@@ -159,6 +162,7 @@ class AppUsageRepository(
             appName = label,
             packageName = packageName,
             lastUsedTime = lastUsedTime,
+            totalTimeInForeground = totalTimeInForeground,
             isSystemApp = isSystemApp
         )
     }
@@ -184,32 +188,27 @@ class AppUsageRepository(
     }
 
     /**
-     * Queries usage statistics for the last 7 days and returns a map of package names to last used times.
-     * 
-     * @return Map of package names to last used timestamps, or empty map if unavailable
+     * Queries usage statistics for the last 30 days and aggregates them.
      */
-    private fun queryLastUsedMap(): Map<String, Long> {
+    private fun queryUsageStatsMap(): Map<String, UsageStats> {
         val manager = usageStatsManager ?: return emptyMap()
 
         return runCatching {
             val endTime = System.currentTimeMillis()
-            val startTime = endTime - TimeUnit.DAYS.toMillis(7)
+            val startTime = endTime - TimeUnit.DAYS.toMillis(30)
 
-            manager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
+            manager.queryAndAggregateUsageStats(
                 startTime,
                 endTime
-            )?.associate { stats ->
-                stats.packageName to stats.lastTimeUsed
-            }.orEmpty()
+            )
         }.getOrDefault(emptyMap())
     }
 
     companion object {
         /**
-         * Comparator for sorting apps by last used time (descending), then by name (ascending).
+         * Comparator for sorting apps by total usage time (descending), then by name (ascending).
          */
-        private val AppInfoComparator = compareByDescending<AppInfo> { it.lastUsedTime }
+        private val AppInfoComparator = compareByDescending<AppInfo> { it.totalTimeInForeground }
             .thenBy { it.appName.lowercase(Locale.getDefault()) }
     }
 }

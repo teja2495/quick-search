@@ -54,8 +54,8 @@ class AppSearchHandler(
                     val currentPackageSet = cachedApps.map { it.packageName }.toSet()
                     val newPackageSet = apps.map { it.packageName }.toSet()
                     val appSetChanged = currentPackageSet != newPackageSet
-                    val currentUsageMap = cachedApps.associate { it.packageName to it.lastUsedTime }
-                    val newUsageMap = apps.associate { it.packageName to it.lastUsedTime }
+                    val currentUsageMap = cachedApps.associate { it.packageName to it.totalTimeInForeground }
+                    val newUsageMap = apps.associate { it.packageName to it.totalTimeInForeground }
                     val usageStatsChanged = currentUsageMap != newUsageMap
 
                     if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
@@ -189,7 +189,7 @@ class AppSearchHandler(
             { it.second }, // First by match priority
             {
                 if (sortAppsByUsageEnabled) {
-                    -it.first.lastUsedTime // Most recently used first
+                    -it.first.totalTimeInForeground // Most used first
                 } else {
                     it.first.appName.lowercase(Locale.getDefault()) // Alphabetical
                 }

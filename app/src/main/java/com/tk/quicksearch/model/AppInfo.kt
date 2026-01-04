@@ -9,6 +9,7 @@ data class AppInfo(
     val appName: String,
     val packageName: String,
     val lastUsedTime: Long,
+    val totalTimeInForeground: Long,
     val isSystemApp: Boolean
 )
 
