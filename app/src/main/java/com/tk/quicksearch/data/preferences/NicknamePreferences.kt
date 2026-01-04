@@ -26,6 +26,18 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
         }
     }
 
+    fun getAllAppNicknames(): Map<String, String> {
+        val allPrefs = prefs.all
+        val nicknames = mutableMapOf<String, String>()
+        for ((key, value) in allPrefs) {
+            if (key.startsWith(KEY_NICKNAME_APP_PREFIX) && value is String) {
+                val packageName = key.removePrefix(KEY_NICKNAME_APP_PREFIX)
+                nicknames[packageName] = value
+            }
+        }
+        return nicknames
+    }
+
     fun getContactNickname(contactId: Long): String? {
         return prefs.getString("$KEY_NICKNAME_CONTACT_PREFIX$contactId", null)
     }

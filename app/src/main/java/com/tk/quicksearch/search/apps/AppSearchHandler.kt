@@ -157,11 +157,26 @@ class AppSearchHandler(
             .toList()
     }
 
+    private var cachedAppNicknames: Map<String, String> = emptyMap()
+
+    init {
+        // Initial load of nicknames
+        refreshNicknames()
+    }
+
+    fun refreshNicknames() {
+        cachedAppNicknames = userPreferences.getAllAppNicknames()
+    }
+
     fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
         if (query.isBlank()) return emptyList()
 
+        // Pre-compute normalized query and tokens once
+        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+
         val appMatches = source.asSequence()
-            .mapNotNull { app -> calculateAppMatch(app, query) }
+            .mapNotNull { app -> calculateAppMatch(app, normalizedQuery, queryTokens) }
             .sortedWith(createAppComparator())
             .map { it.first }
             .take(GRID_ITEM_COUNT)
@@ -170,12 +185,18 @@ class AppSearchHandler(
         return appMatches
     }
 
-    private fun calculateAppMatch(app: AppInfo, query: String): Pair<AppInfo, Int>? {
-        val nickname = userPreferences.getAppNickname(app.packageName)
+    private fun calculateAppMatch(
+        app: AppInfo, 
+        normalizedQuery: String, 
+        queryTokens: List<String>
+    ): Pair<AppInfo, Int>? {
+        // Use cached nickname to avoid SharedPreferences lookup per item
+        val nickname = cachedAppNicknames[app.packageName]
         val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
             app.appName,
             nickname,
-            query
+            normalizedQuery,
+            queryTokens
         )
         return if (SearchRankingUtils.isOtherMatch(priority)) {
             null

@@ -178,6 +178,8 @@ class UserAppPreferences(context: Context) {
     // Nickname Preferences
     // ============================================================================
 
+    fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
+
     fun getAppNickname(packageName: String): String? = nicknamePreferences.getAppNickname(packageName)
 
     fun setAppNickname(packageName: String, nickname: String?) = nicknamePreferences.setAppNickname(packageName, nickname)

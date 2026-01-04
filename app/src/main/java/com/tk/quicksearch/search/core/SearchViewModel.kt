@@ -68,6 +68,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
+    // Cache searchable apps to avoid re-computing on every query change
+    @Volatile
+    private var cachedAllSearchableApps: List<AppInfo> = emptyList()
+
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
         _uiState.update(updater)
     }
@@ -576,7 +580,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val matches = if (shouldSkipSearch) {
             emptyList()
         } else {
-            appSearchHandler.deriveMatches(trimmedQuery, appSearchHandler.searchSourceApps()).also { results ->
+            appSearchHandler.deriveMatches(trimmedQuery, cachedAllSearchableApps).also { results ->
                 if (results.isEmpty()) {
                     appSearchHandler.setNoMatchPrefix(normalizedQuery)
                 }
@@ -858,6 +862,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         lastUpdated: Long? = null,
         isLoading: Boolean? = null
     ) {
+        // Refresh nicknames cache to ensure we have the latest data
+        appSearchHandler.refreshNicknames()
+        
         val apps = appSearchHandler.cachedApps
         val visibleAppList = appSearchHandler.availableApps()
         val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(userPreferences.getSuggestionHiddenPackages())
@@ -874,12 +881,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             telegramInstalled = isTelegramInstalled,
             updateState = false
         )
+
+        // Always update the searchable apps cache regardless of query state
+        // Include both pinned and non-pinned apps in search, let ranking determine order
+        val nonPinnedApps = appSearchHandler.searchSourceApps()
+        val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
+        cachedAllSearchableApps = allSearchableApps
+
         val searchResults = if (trimmedQuery.isBlank()) {
             emptyList()
         } else {
-            // Include both pinned and non-pinned apps in search, let ranking determine order
-            val nonPinnedApps = appSearchHandler.searchSourceApps()
-            val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
             appSearchHandler.deriveMatches(trimmedQuery, allSearchableApps)
         }
         val suggestionHiddenAppList = apps

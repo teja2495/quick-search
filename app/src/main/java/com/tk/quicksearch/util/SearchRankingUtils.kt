@@ -28,14 +28,36 @@ object SearchRankingUtils {
      * @param query The search query
      * @return Priority level (1-4, where 1 is highest priority)
      */
+    /**
+     * Calculates the match priority for a given text and query.
+     * Returns a lower number for higher priority matches.
+     * 
+     * @param text The text to match against
+     * @param query The search query
+     * @return Priority level (1-4, where 1 is highest priority)
+     */
     fun calculateMatchPriority(text: String, query: String): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
-        val normalizedText = text.lowercase(Locale.getDefault())
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
-
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        
+        return calculateMatchPriority(text, normalizedQuery, queryTokens)
+    }
+
+    /**
+     * Optimized version of calculateMatchPriority that accepts pre-calculated query tokens.
+     * Use this in tight loops to avoid re-normalizing the query.
+     */
+    fun calculateMatchPriority(
+        text: String, 
+        normalizedQuery: String, 
+        queryTokens: List<String>
+    ): Int {
+        if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
+
+        val normalizedText = text.lowercase(Locale.getDefault())
         val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
 
@@ -104,6 +126,10 @@ object SearchRankingUtils {
      * Calculates match priority while giving an optional nickname the highest boost.
      * Nickname matches get priority 0 (higher than any text match).
      */
+    /**
+     * Calculates match priority while giving an optional nickname the highest boost.
+     * Nickname matches get priority 0 (higher than any text match).
+     */
     fun calculateMatchPriorityWithNickname(
         primaryText: String,
         nickname: String?,
@@ -112,13 +138,30 @@ object SearchRankingUtils {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        // Parse query tokens once for reuse
+        val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+        
+        return calculateMatchPriorityWithNickname(primaryText, nickname, normalizedQuery, queryTokens)
+    }
+
+    /**
+     * Optimized version of calculateMatchPriorityWithNickname.
+     */
+    fun calculateMatchPriorityWithNickname(
+        primaryText: String,
+        nickname: String?,
+        normalizedQuery: String,
+        queryTokens: List<String>
+    ): Int {
+        if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
+
         val normalizedNickname = nickname?.lowercase(Locale.getDefault())
 
         if (normalizedNickname?.contains(normalizedQuery) == true) {
             return 0
         }
 
-        return calculateMatchPriority(primaryText, query)
+        return calculateMatchPriority(primaryText, normalizedQuery, queryTokens)
     }
     
     /**
