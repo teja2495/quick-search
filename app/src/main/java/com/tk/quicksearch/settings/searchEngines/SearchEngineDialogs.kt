@@ -64,15 +64,25 @@ fun EditShortcutDialog(
     onToggle: ((Boolean) -> Unit)?,
     onDismiss: () -> Unit
 ) {
-    var editingCode by remember(currentCode) { mutableStateOf(normalizeShortcutCodeInput(currentCode)) }
+    val initialText = normalizeShortcutCodeInput(currentCode)
+    var editingCode by remember(currentCode) {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length)
+            )
+        )
+    }
     var enabledState by remember(isEnabled) { mutableStateOf(isEnabled) }
     val focusRequester = remember { FocusRequester() }
-    val isValidShortcut = isValidShortcutCode(editingCode)
-    val showShortcutError = editingCode.isNotEmpty() && !isValidShortcut
+    val isValidShortcut = isValidShortcutCode(editingCode.text)
+    val showShortcutError = editingCode.text.isNotEmpty() && !isValidShortcut
     
     LaunchedEffect(Unit) {
         if (enabledState) {
             focusRequester.requestFocus()
+            // Ensure cursor is at the end of text
+            editingCode = editingCode.copy(selection = TextRange(editingCode.text.length))
         }
     }
     
@@ -93,7 +103,10 @@ fun EditShortcutDialog(
                 )
                 TextField(
                     value = editingCode,
-                    onValueChange = { editingCode = normalizeShortcutCodeInput(it) },
+                    onValueChange = {
+                        val normalized = normalizeShortcutCodeInput(it.text)
+                        editingCode = it.copy(text = normalized)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -105,7 +118,7 @@ fun EditShortcutDialog(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             if (isValidShortcut) {
-                                onSave(editingCode)
+                                onSave(editingCode.text)
                                 onDismiss()
                             }
                         }
@@ -149,7 +162,7 @@ fun EditShortcutDialog(
             Button(
                 onClick = {
                     if (isValidShortcut) {
-                        onSave(editingCode)
+                        onSave(editingCode.text)
                         onDismiss()
                     }
                 },

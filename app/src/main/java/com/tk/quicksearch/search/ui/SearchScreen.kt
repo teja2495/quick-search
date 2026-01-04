@@ -471,6 +471,7 @@ fun SearchScreen(
         onContactMethodClick = onContactMethodClick,
         onDismissContactMethods = onDismissContactMethods,
         onReleaseNotesAcknowledged = onReleaseNotesAcknowledged,
+        onDismissNicknameDialog = { nicknameDialogState = null },
         onSaveAppNickname = { app, nickname ->
             onSaveAppNickname(app, nickname)
             nicknameDialogState = null

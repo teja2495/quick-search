@@ -25,6 +25,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import kotlinx.coroutines.delay
@@ -36,8 +38,14 @@ fun NicknameDialog(
     onSave: (String?) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val initialText = currentNickname ?: ""
     var nicknameText by remember(currentNickname) {
-        mutableStateOf(currentNickname ?: "")
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length)
+            )
+        )
     }
     val hasExistingNickname = !currentNickname.isNullOrBlank()
     val focusRequester = remember { FocusRequester() }
@@ -48,6 +56,8 @@ fun NicknameDialog(
         delay(50)
         focusRequester.requestFocus()
         keyboardController?.show()
+        // Ensure cursor is at the end of text
+        nicknameText = nicknameText.copy(selection = TextRange(nicknameText.text.length))
     }
 
     AlertDialog(
@@ -80,9 +90,9 @@ fun NicknameDialog(
                         .focusRequester(focusRequester),
                     singleLine = true,
                     trailingIcon = {
-                        if (nicknameText.isNotEmpty()) {
+                        if (nicknameText.text.isNotEmpty()) {
                             IconButton(
-                                onClick = { nicknameText = "" }
+                                onClick = { nicknameText = TextFieldValue("") }
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
@@ -98,7 +108,7 @@ fun NicknameDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val trimmedNickname = nicknameText.trim()
+                    val trimmedNickname = nicknameText.text.trim()
                     onSave(if (trimmedNickname.isBlank()) null else trimmedNickname)
                 }
             ) {

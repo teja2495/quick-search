@@ -26,6 +26,7 @@ internal fun SearchScreenDialogs(
     onContactMethodClick: (ContactInfo, com.tk.quicksearch.model.ContactMethod) -> Unit,
     onDismissContactMethods: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
+    onDismissNicknameDialog: () -> Unit,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
@@ -80,7 +81,7 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveAppNickname(dialogState.app, nickname)
                     },
-                    onDismiss = { /* This will be handled by parent */ }
+                    onDismiss = onDismissNicknameDialog
                 )
             }
             is NicknameDialogState.Contact -> {
@@ -90,7 +91,7 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveContactNickname(dialogState.contact, nickname)
                     },
-                    onDismiss = { /* This will be handled by parent */ }
+                    onDismiss = onDismissNicknameDialog
                 )
             }
             is NicknameDialogState.File -> {
@@ -100,7 +101,7 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveFileNickname(dialogState.file, nickname)
                     },
-                    onDismiss = { /* This will be handled by parent */ }
+                    onDismiss = onDismissNicknameDialog
                 )
             }
             is NicknameDialogState.Setting -> {
@@ -110,7 +111,7 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveSettingNickname(dialogState.setting, nickname)
                     },
-                    onDismiss = { /* This will be handled by parent */ }
+                    onDismiss = onDismissNicknameDialog
                 )
             }
         }
