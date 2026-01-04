@@ -48,7 +48,7 @@ abstract class BasePreferences(protected val context: Context) {
     // ============================================================================
 
     protected fun getStringSet(key: String): Set<String> {
-        return prefs.getStringSet(key, emptySet()).orEmpty().toSet()
+        return prefs.getStringSet(key, emptySet()).orEmpty()
     }
 
     protected fun getLongSet(key: String): Set<Long> {

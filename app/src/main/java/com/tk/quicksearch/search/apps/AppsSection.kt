@@ -145,6 +145,31 @@ private fun AppGrid(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val createAppActions = remember(onAppClick, onAppInfoClick, onUninstallClick, onHideApp, onPinApp, onUnpinApp, onNicknameClick) {
+            { app: AppInfo ->
+                AppActions(
+                    onClick = { onAppClick(app) },
+                    onAppInfoClick = { onAppInfoClick(app) },
+                    onUninstallClick = { onUninstallClick(app) },
+                    onHideApp = { onHideApp(app) },
+                    onPinApp = { onPinApp(app) },
+                    onUnpinApp = { onUnpinApp(app) },
+                    onNicknameClick = { onNicknameClick(app) }
+                )
+            }
+        }
+        
+        val createAppState = remember(getAppNickname, pinnedPackageNames, showAppLabels) {
+            { app: AppInfo ->
+                AppState(
+                    hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
+                    isPinned = pinnedPackageNames.contains(app.packageName),
+                    showUninstall = !app.isSystemApp,
+                    showAppLabel = showAppLabels
+                )
+            }
+        }
+        
         repeat(rowCount) { rowIndex ->
             val rowApps = rows.getOrNull(rowIndex).orEmpty()
             AppGridRow(
@@ -153,25 +178,8 @@ private fun AppGrid(
                 pinnedPackageNames = pinnedPackageNames,
                 showAppLabels = showAppLabels,
                 iconPackPackage = iconPackPackage,
-                createAppActions = { app ->
-                    AppActions(
-                        onClick = { onAppClick(app) },
-                        onAppInfoClick = { onAppInfoClick(app) },
-                        onUninstallClick = { onUninstallClick(app) },
-                        onHideApp = { onHideApp(app) },
-                        onPinApp = { onPinApp(app) },
-                        onUnpinApp = { onUnpinApp(app) },
-                        onNicknameClick = { onNicknameClick(app) }
-                    )
-                },
-                createAppState = { app ->
-                    AppState(
-                        hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
-                        isPinned = pinnedPackageNames.contains(app.packageName),
-                        showUninstall = !app.isSystemApp,
-                        showAppLabel = showAppLabels
-                    )
-                }
+                createAppActions = createAppActions,
+                createAppState = createAppState
             )
         }
     }

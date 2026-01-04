@@ -28,6 +28,16 @@ class ContactRepository(
 ) {
 
     private val contentResolver = context.contentResolver
+    
+    // Cache GoogleMeet availability to avoid repeated PackageManager queries
+    private val isGoogleMeetInstalled: Boolean by lazy {
+        try {
+            context.packageManager.getPackageInfo("com.google.android.apps.tachyon", 0)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     companion object {
         // Common projection fields for phone number queries
@@ -309,7 +319,7 @@ class ContactRepository(
                             val smsMethod = ContactMethod.Sms(MESSAGE_LABEL, data1, dataId, isPrimary)
                             contact.contactMethods.add(smsMethod)
                             // Add Google Meet method if Meet is available
-                            if (isGoogleMeetAvailable()) {
+                            if (isGoogleMeetInstalled) {
                                 val meetMethod = ContactMethod.GoogleMeet(
                                     data = data1,
                                     dataId = dataId,

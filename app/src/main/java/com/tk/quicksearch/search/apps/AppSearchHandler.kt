@@ -149,10 +149,12 @@ class AppSearchHandler(
     }
 
     fun computePinnedApps(exclusion: Set<String>): List<AppInfo> {
-        if (cachedApps.isEmpty() || userPreferences.getPinnedPackages().isEmpty()) return emptyList()
+        val pinnedPackages = userPreferences.getPinnedPackages()
+        if (cachedApps.isEmpty() || pinnedPackages.isEmpty()) return emptyList()
+        
         return cachedApps
             .asSequence()
-            .filter { userPreferences.getPinnedPackages().contains(it.packageName) && !exclusion.contains(it.packageName) }
+            .filter { pinnedPackages.contains(it.packageName) && !exclusion.contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
             .toList()
     }

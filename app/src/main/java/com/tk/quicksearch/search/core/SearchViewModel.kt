@@ -867,9 +867,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         val apps = appSearchHandler.cachedApps
         val visibleAppList = appSearchHandler.availableApps()
-        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(userPreferences.getSuggestionHiddenPackages())
-        val pinnedAppsForResults = appSearchHandler.computePinnedApps(userPreferences.getResultHiddenPackages())
-        val recentsSource = visibleAppList.filterNot { userPreferences.getPinnedPackages().contains(it.packageName) }
+        
+        // Cache these to avoid multiple SharedPreferences reads
+        val suggestionHiddenPackages = userPreferences.getSuggestionHiddenPackages()
+        val resultHiddenPackages = userPreferences.getResultHiddenPackages()
+        val pinnedPackages = userPreferences.getPinnedPackages()
+        
+        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(suggestionHiddenPackages)
+        val pinnedAppsForResults = appSearchHandler.computePinnedApps(resultHiddenPackages)
+        val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
@@ -894,10 +900,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             appSearchHandler.deriveMatches(trimmedQuery, allSearchableApps)
         }
         val suggestionHiddenAppList = apps
-            .filter { userPreferences.getSuggestionHiddenPackages().contains(it.packageName) }
+            .filter { suggestionHiddenPackages.contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
         val resultHiddenAppList = apps
-            .filter { userPreferences.getResultHiddenPackages().contains(it.packageName) }
+            .filter { resultHiddenPackages.contains(it.packageName) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
 
         _uiState.update { state ->
