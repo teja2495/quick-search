@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -52,7 +53,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Install splash screen BEFORE super.onCreate() - critical for proper cold start handling
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+        
+        // Start wallpaper preload immediately during splash screen phase
+        WallpaperUtils.preloadWallpaper(this)
         
         initializePreferences()
         setupWindow()
@@ -60,8 +66,6 @@ class MainActivity : ComponentActivity() {
         // This ensures cached apps are ready when UI renders
         searchViewModel
         setupContent()
-        // Preload wallpaper in background (already non-blocking)
-        WallpaperUtils.preloadWallpaper(this)
         refreshPermissionStateIfNeeded()
         handleIntent(intent)
     }

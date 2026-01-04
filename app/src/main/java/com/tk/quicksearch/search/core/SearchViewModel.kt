@@ -230,14 +230,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     init {
         setupDirectSearchStateListener()
 
-        // Load startup data and cached apps endlessly to unblock the main thread
+        // CRITICAL: Load cached apps first for instant UI render
+        // This runs on IO but starts immediately to minimize delay
         viewModelScope.launch(Dispatchers.IO) {
-            // Move setupBackgroundOperations here to ensure lazy properties are initialized in background
-            setupBackgroundOperations()
-
+            // Load cached data first for instant display - this is the critical path
+            val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
+            
+            // Load preferences in parallel with cache processing
             val startupPrefs = userPreferences.getStartupPreferences()
-
-            // Update local fields with loaded preferences
+            
+            // Apply preferences immediately
             enabledFileTypes = startupPrefs.enabledFileTypes
             excludedFileExtensions = startupPrefs.excludedFileExtensions
             keyboardAlignedLayout = startupPrefs.keyboardAlignedLayout
@@ -248,18 +250,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             sortAppsByUsageEnabled = startupPrefs.sortAppsByUsage
             amazonDomain = startupPrefs.amazonDomain
 
-            // Logic for wallpaper background based on permissions
+            // Check permissions for wallpaper
             val hasFilesPermission = permissionManager.hasFilePermission()
             showWallpaperBackground = if (hasFilesPermission) startupPrefs.showWallpaperBackground else false
 
             // Sync handlers with loaded prefs
             appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
 
-            // Initialize critical handlers now that we are in background
-            messagingHandler
-            shortcutHandler
-
-            initializeWithCachedData()
+            // Initialize with cached data (or without if no cache)
+            val shortcutsState = shortcutHandler.getInitialState()
+            if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
+                initializeWithCache(cachedAppsList, shortcutsState)
+            } else {
+                initializeWithoutCache(shortcutsState)
+            }
+            
+            // Start background operations after initial UI is ready
+            // These run in parallel and won't block the UI
+            setupBackgroundOperations()
         }
     }
 
@@ -268,17 +276,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             directSearchHandler.directSearchState.collect { dsState ->
                 _uiState.update { it.copy(DirectSearchState = dsState) }
             }
-        }
-    }
-
-    private fun initializeWithCachedData() {
-        val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
-        val shortcutsState = shortcutHandler.getInitialState()
-
-        if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-            initializeWithCache(cachedAppsList, shortcutsState)
-        } else {
-            initializeWithoutCache(shortcutsState)
         }
     }
 
@@ -390,35 +387,38 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun setupBackgroundOperations() {
-        // Critical operations that affect UI state immediately
-        refreshUsageAccess()
-        refreshOptionalPermissions()
-
-        // Defer heavier operations to avoid blocking UI
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(50) // Small delay to prioritize UI rendering
+        // Launch all background operations in parallel with minimal delays
+        // Since cached apps already loaded in init, these are optimizations not blockers
+        
+        viewModelScope.launch(Dispatchers.IO) {
+            // Refresh usage access and permissions first as they affect other features
+            refreshUsageAccess()
+            refreshOptionalPermissions()
+        }
+        
+        viewModelScope.launch(Dispatchers.IO) {
+            // Initialize messaging handler immediately (needed for contacts)
+            messagingHandler
             releaseNotesHandler.checkForReleaseNotes()
-            messagingHandler // Initialize messaging handler
         }
 
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(100) // Let UI render first
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(50) // Minimal delay to let UI render
             loadApps()
         }
 
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(150) // Further delay for settings shortcuts
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(50) // Run in parallel with app loading
             loadSettingsShortcuts()
         }
 
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(200) // Delay icon pack loading as it's least critical
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(100) // Slightly delayed non-critical operations
             iconPackHandler.refreshIconPacks()
         }
 
-        // Defer non-critical loads until after UI is visible
-        viewModelScope.launch {
-            kotlinx.coroutines.delay(250) // Increased delay for less critical operations
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(100) // Run in parallel with icon packs
             pinningHandler.loadPinnedContactsAndFiles()
             pinningHandler.loadExcludedContactsAndFiles()
         }
