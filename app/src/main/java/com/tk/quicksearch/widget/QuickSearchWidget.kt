@@ -39,6 +39,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.MainActivity
+import com.tk.quicksearch.MainActivityLauncher
 import com.tk.quicksearch.R
 import kotlin.math.roundToInt
 
@@ -159,7 +160,7 @@ class QuickSearchWidget : GlanceAppWidget() {
         startVoiceSearch: Boolean = false,
         micAction: MicAction = MicAction.DEFAULT_VOICE_SEARCH
     ): Intent {
-        return Intent(context, MainActivity::class.java).apply {
+        return Intent(context, MainActivityLauncher::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
             putExtra(EXTRA_MIC_ACTION, micAction.value)

@@ -6,6 +6,7 @@ import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.tk.quicksearch.MainActivity
+import com.tk.quicksearch.MainActivityLauncher
 import com.tk.quicksearch.R
 
 /**
@@ -15,7 +16,7 @@ class QuickSearchTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val launchIntent = Intent(this, MainActivity::class.java).apply {
+        val launchIntent = Intent(this, MainActivityLauncher::class.java).apply {
             action = Intent.ACTION_MAIN
             addCategory(Intent.CATEGORY_LAUNCHER)
             addFlags(

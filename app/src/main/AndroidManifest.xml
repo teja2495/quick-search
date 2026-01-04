@@ -55,7 +55,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Main Activity Launcher -->
+        <activity
+            android:name=".MainActivityLauncher"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false"
+            android:noHistory="true" />
+
         <!-- Widget Configuration Activity -->
+
         <activity
             android:name=".widget.QuickSearchWidgetConfigureActivity"
             android:exported="false"
