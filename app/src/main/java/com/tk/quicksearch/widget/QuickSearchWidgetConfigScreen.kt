@@ -320,7 +320,7 @@ private fun WidgetMicActionSection(
         if (state.micAction == MicAction.DIGITAL_ASSISTANT) {
             val context = LocalContext.current
             val limitationText = stringResource(R.string.widget_mic_action_digital_assistant_limitation)
-            val linkText = "Google"
+            val linkText = "digital assistant app"
 
             val annotatedString = createClickableText(
                 fullText = limitationText,

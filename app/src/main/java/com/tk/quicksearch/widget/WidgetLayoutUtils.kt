@@ -9,7 +9,7 @@ object WidgetLayoutUtils {
     /**
      * Default widget height in dp.
      */
-    const val DEFAULT_HEIGHT_DP = 58f
+    const val DEFAULT_HEIGHT_DP = 78f
 
     /**
      * Default widget width in dp. Keep this aligned with the provider's

@@ -68,7 +68,8 @@ class QuickSearchWidget : GlanceAppWidget() {
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
         val widgetPadding = 8.dp
         val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultWidth)
-        val heightDp = WidgetLayoutUtils.resolveOr(widgetSize.height, defaultHeight)
+        // Force fixed height regardless of grid size
+        val heightDp = defaultHeight
         val cornerRadius = config.borderRadiusDp.dp
         val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
         
@@ -106,7 +107,7 @@ class QuickSearchWidget : GlanceAppWidget() {
 
         WidgetContent(
             widthDp = widthDp,
-            heightDp = heightDp,
+            heightDp = displayedHeightDp, // Pass displayed height for strict sizing
             cornerRadius = cornerRadius,
             backgroundBitmap = backgroundBitmap,
             textIconColor = colors.textIconColor,
@@ -196,7 +197,7 @@ private fun WidgetContent(
         ) {
             val widgetModifier = GlanceModifier
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .height(heightDp)
                 .cornerRadius(cornerRadius)
                 .background(ImageProvider(backgroundBitmap))
                 .padding(horizontal = 16.dp)
