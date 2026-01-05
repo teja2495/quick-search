@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
+import android.mtp.MtpConstants
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -85,7 +86,7 @@ class FileSearchRepository(
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedQuery = normalizeQuery(query)
-        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ?"
+        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND format != ${MtpConstants.FORMAT_ASSOCIATION}"
         val selectionArgs = arrayOf("%$normalizedQuery%")
         val uri = getFilesContentUri()
 

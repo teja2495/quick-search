@@ -114,17 +114,28 @@ class SettingsSearchHandler(
         matchResult: MatchResult,
         trimmedQuery: String
     ): Int {
-        return if (matchResult.hasNicknameMatch) {
-            0
-        } else {
-            val keywordText = shortcut.keywords.joinToString(" ")
-            SearchRankingUtils.getBestMatchPriority(
-                trimmedQuery,
-                shortcut.title,
-                shortcut.description ?: "",
-                keywordText
-            )
-        }
+        if (matchResult.hasNicknameMatch) return 0
+        
+        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
+        val normalizedTitle = shortcut.title.lowercase(Locale.getDefault())
+        
+        // 1. Exact match
+        if (normalizedTitle == normalizedQuery) return 1
+        
+        // 2. Starts with
+        if (normalizedTitle.startsWith(normalizedQuery)) return 2
+        
+        // 3. Remaining matches (keywords, description, or contained in title)
+        // We shift the standard Utils priority to ensure they come after title matches
+        val keywordText = shortcut.keywords.joinToString(" ")
+        val utilsPriority = SearchRankingUtils.getBestMatchPriority(
+            trimmedQuery,
+            shortcut.title,
+            shortcut.description ?: "",
+            keywordText
+        )
+        // Utils returns 1-4. shifting by 2 makes them 3-6.
+        return utilsPriority + 2
     }
 
     fun openSetting(setting: SettingShortcut) {

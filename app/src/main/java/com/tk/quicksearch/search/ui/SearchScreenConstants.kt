@@ -107,9 +107,9 @@ internal fun rememberDerivedState(
     val pinnedSettingIds = remember(state.pinnedSettings) {
         state.pinnedSettings.map { it.id }.toSet()
     }
-    val autoExpandFiles = (hasFileResults && !hasContactResults) || state.showAllResults
-    val autoExpandContacts = (hasContactResults && !hasFileResults) || state.showAllResults
-    val autoExpandSettings = (!isSearching && hasSettingResults && !hasContactResults && !hasFileResults) || state.showAllResults
+    val autoExpandFiles = (hasFileResults && !hasContactResults && !hasSettingResults) || state.showAllResults
+    val autoExpandContacts = (hasContactResults && !hasFileResults && !hasSettingResults) || state.showAllResults
+    val autoExpandSettings = (hasSettingResults && !hasContactResults && !hasFileResults) || state.showAllResults
     val hasMultipleExpandableSections = listOf(hasContactResults, hasFileResults, hasSettingResults).count { it } > 1
 
     val orderedSections = remember(state.sectionOrder, state.disabledSections) {
