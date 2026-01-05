@@ -16,7 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,38 +100,12 @@ class MainActivity : ComponentActivity() {
 
     private fun setupContent() {
         setContent {
-            // Always use dark mode
-            SetStatusBarAppearance(darkTheme = true)
-            
             QuickSearchTheme {
                 MainContent()
             }
         }
     }
     
-    @Composable
-    private fun SetStatusBarAppearance(darkTheme: Boolean) {
-        val view = LocalView.current
-
-        DisposableEffect(darkTheme) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowInsetsController = view.windowInsetsController
-                windowInsetsController?.setSystemBarsAppearance(
-                    if (darkTheme) 0 else android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                    android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                )
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                @Suppress("DEPRECATION")
-                val flags = view.systemUiVisibility
-                view.systemUiVisibility = if (darkTheme) {
-                    flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                } else {
-                    flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                }
-            }
-            onDispose { }
-        }
-    }
 
     @Composable
     private fun MainContent() {
