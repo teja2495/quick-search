@@ -108,9 +108,12 @@ class FileSearchRepository(
             }
         }
 
+        // Pre-tokenize the already-normalized query for efficient ranking
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        
         return results.sortedWith(
             compareBy(
-                { SearchRankingUtils.calculateMatchPriority(it.displayName, query) },
+                { SearchRankingUtils.calculateMatchPriority(it.displayName, normalizedQuery, queryTokens) },
                 { it.displayName.lowercase(Locale.getDefault()) }
             )
         )

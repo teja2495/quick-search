@@ -6,13 +6,18 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 
 /**
  * Utility functions for fetching web search suggestions from Google's Suggest API.
  */
 object WebSuggestionsUtils {
     
-    private val client = OkHttpClient()
+    // Use shorter timeouts for suggestions - fail fast on slow networks
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(3, TimeUnit.SECONDS)
+        .build()
     
     /**
      * Fetches web search suggestions for the given query.

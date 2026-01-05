@@ -142,11 +142,22 @@ class UnifiedSearchHandler(
     }
 
     private fun filterAndRankContacts(contacts: List<ContactInfo>, normalizedQuery: String): List<ContactInfo> {
-        return contacts.distinctBy { it.contactId }
+        if (contacts.isEmpty()) return emptyList()
+        
+        // Pre-tokenize query once for efficient matching
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        
+        // Pre-fetch all contact nicknames in a single call to reduce SharedPreferences reads
+        val distinctContacts = contacts.distinctBy { it.contactId }
+        val contactNicknames = distinctContacts.associate { contact ->
+            contact.contactId to userPreferences.getContactNickname(contact.contactId)
+        }
+        
+        return distinctContacts
             .mapNotNull { contact ->
-                val nickname = userPreferences.getContactNickname(contact.contactId)
+                val nickname = contactNicknames[contact.contactId]
                 val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    contact.displayName, nickname, normalizedQuery
+                    contact.displayName, nickname, normalizedQuery, queryTokens
                 )
                 if (SearchRankingUtils.isOtherMatch(priority)) null else contact to priority
             }
@@ -158,11 +169,23 @@ class UnifiedSearchHandler(
     }
 
     private fun filterAndRankFiles(files: List<DeviceFile>, normalizedQuery: String): List<DeviceFile> {
-        return files.distinctBy { it.uri.toString() }
+        if (files.isEmpty()) return emptyList()
+        
+        // Pre-tokenize query once for efficient matching
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        
+        // Pre-fetch all file nicknames in a single call to reduce SharedPreferences reads
+        val distinctFiles = files.distinctBy { it.uri.toString() }
+        val fileNicknames = distinctFiles.associate { file ->
+            file.uri.toString() to userPreferences.getFileNickname(file.uri.toString())
+        }
+        
+        return distinctFiles
             .mapNotNull { file ->
-                val nickname = userPreferences.getFileNickname(file.uri.toString())
+                val uriString = file.uri.toString()
+                val nickname = fileNicknames[uriString]
                 val priority = SearchRankingUtils.calculateMatchPriorityWithNickname(
-                    file.displayName, nickname, normalizedQuery
+                    file.displayName, nickname, normalizedQuery, queryTokens
                 )
                 if (SearchRankingUtils.isOtherMatch(priority)) null else file to priority
             }

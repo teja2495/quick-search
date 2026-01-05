@@ -472,10 +472,17 @@ class ContactRepository(
      * Filters contacts by match priority and sorts them accordingly.
      */
     private fun List<ContactInfo>.filterAndRank(query: String): List<ContactInfo> {
+        if (isEmpty()) return emptyList()
+        
+        // Pre-normalize and tokenize query once for efficient matching
+        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        
         return mapNotNull { contact ->
             val priority = SearchRankingUtils.calculateMatchPriority(
                 contact.displayName,
-                query
+                normalizedQuery,
+                queryTokens
             )
             if (SearchRankingUtils.isOtherMatch(priority)) {
                 null

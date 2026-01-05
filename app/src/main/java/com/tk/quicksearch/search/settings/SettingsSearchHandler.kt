@@ -35,15 +35,19 @@ class SettingsSearchHandler(
         isSettingsSectionEnabled: Boolean,
         currentResults: List<SettingShortcut>
     ): SettingsSearchResults {
+        // Cache preference reads to avoid repeated SharedPreferences lookups
+        val pinnedIds = userPreferences.getPinnedSettingIds()
+        val excludedIds = userPreferences.getExcludedSettingIds()
+        
         val pinned = availableSettings
-            .filter { userPreferences.getPinnedSettingIds().contains(it.id) && !userPreferences.getExcludedSettingIds().contains(it.id) }
+            .filter { pinnedIds.contains(it.id) && !excludedIds.contains(it.id) }
             .sortedBy { it.title.lowercase(Locale.getDefault()) }
         val excluded = availableSettings
-            .filter { userPreferences.getExcludedSettingIds().contains(it.id) }
+            .filter { excludedIds.contains(it.id) }
             .sortedBy { it.title.lowercase(Locale.getDefault()) }
 
         val results = if (query.isNotBlank() && isSettingsSectionEnabled) {
-            searchSettings(query)
+            searchSettingsInternal(query, excludedIds)
         } else {
             emptyList()
         }
@@ -52,20 +56,29 @@ class SettingsSearchHandler(
     }
 
     fun searchSettings(query: String): List<SettingShortcut> {
+        return searchSettingsInternal(query, userPreferences.getExcludedSettingIds())
+    }
+    
+    private fun searchSettingsInternal(query: String, excludedIds: Set<String>): List<SettingShortcut> {
         if (availableSettings.isEmpty()) return emptyList()
         val trimmed = query.trim()
         if (trimmed.length < 2) return emptyList()
 
         val normalizedQuery = trimmed.lowercase(Locale.getDefault())
         val nicknameMatches = userPreferences.findSettingsWithMatchingNickname(trimmed)
-            .filterNot { userPreferences.getExcludedSettingIds().contains(it) }
+            .filterNot { excludedIds.contains(it) }
             .toSet()
+        
+        // Pre-fetch all nicknames to avoid repeated SharedPreferences lookups during iteration
+        val settingsToSearch = availableSettings.filterNot { excludedIds.contains(it.id) }
+        val nicknameCache = settingsToSearch.associate { shortcut ->
+            shortcut.id to userPreferences.getSettingNickname(shortcut.id)
+        }
 
-        return availableSettings
+        return settingsToSearch
             .asSequence()
-            .filterNot { userPreferences.getExcludedSettingIds().contains(it.id) }
             .mapNotNull { shortcut ->
-                val matchResult = checkShortcutMatch(shortcut, normalizedQuery, nicknameMatches)
+                val matchResult = checkShortcutMatchCached(shortcut, normalizedQuery, nicknameMatches, nicknameCache)
                 if (!matchResult.hasMatch) return@mapNotNull null
 
                 val priority = calculatePriority(shortcut, matchResult, trimmed)
@@ -79,12 +92,13 @@ class SettingsSearchHandler(
 
     private data class MatchResult(val hasMatch: Boolean, val hasNicknameMatch: Boolean)
 
-    private fun checkShortcutMatch(
+    private fun checkShortcutMatchCached(
         shortcut: SettingShortcut,
         normalizedQuery: String,
-        nicknameMatches: Set<String>
+        nicknameMatches: Set<String>,
+        nicknameCache: Map<String, String?>
     ): MatchResult {
-        val nickname = userPreferences.getSettingNickname(shortcut.id)
+        val nickname = nicknameCache[shortcut.id]
         val hasNicknameMatch = nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
         val keywordText = shortcut.keywords.joinToString(" ")
         val hasFieldMatch = shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
