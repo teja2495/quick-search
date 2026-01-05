@@ -24,6 +24,14 @@ class SearchOperations(
         private const val CONTACT_RESULT_LIMIT = 5
         private const val FILE_RESULT_LIMIT = 5
         private const val MIN_QUERY_LENGTH = 2
+
+        // System/Internal file extensions to ignore
+        private val SYSTEM_EXCLUDED_EXTENSIONS = setOf(
+            "db", "db-shm", "db-wal", "sql", "sqlite",
+            "log", "tmp", "temp", "dat", "bak", "ini",
+            "nomedia", "thumbnails", "thumb",
+            "lck", "lock", "sys", "bin", "cfg", "conf", "prop"
+        )
     }
     
     /**
@@ -123,7 +131,8 @@ class SearchOperations(
                 fileType in enabledFileTypes &&
                 !excludedFileUris.contains(file.uri.toString()) &&
                 !FileUtils.isFileExtensionExcluded(file.displayName, excludedFileExtensions) &&
-                !isApkFile(file)
+                !isApkFile(file) &&
+                !isSystemFile(file)
             }
             .take(FILE_RESULT_LIMIT)
     }
@@ -138,5 +147,24 @@ class SearchOperations(
         }
         val name = deviceFile.displayName.lowercase(Locale.getDefault())
         return name.endsWith(".apk")
+    }
+
+    /**
+     * Checks if a file is a system or internal file that should be hidden.
+     */
+    private fun isSystemFile(deviceFile: DeviceFile): Boolean {
+        val name = deviceFile.displayName
+        // Check for hidden files (starting with dot)
+        if (name.startsWith(".")) return true
+
+        val extension = FileUtils.getFileExtension(name)?.lowercase(Locale.getDefault()) ?: return false
+
+        // WhatsApp/Signal backup files (crypt, crypt12, crypt14, etc.)
+        if (extension.startsWith("crypt")) {
+            // Check if it's "crypt" or "crypt" followed by numbers
+            return extension == "crypt" || extension.drop(5).all { it.isDigit() }
+        }
+
+        return extension in SYSTEM_EXCLUDED_EXTENSIONS
     }
 }
