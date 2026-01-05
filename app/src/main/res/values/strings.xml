@@ -286,7 +286,7 @@
     <string name="settings_theme_option_system">System default</string>
     <string name="settings_theme_option_light">Light</string>
     <string name="settings_theme_option_dark">Dark</string>
-    <string name="settings_icon_pack_title">Icon pack</string>
+    <string name="settings_icon_pack_title">Icon Pack</string>
     <string name="settings_icon_pack_selected_label">Current: %1$s</string>
     <string name="settings_icon_pack_empty">No icon packs found.</string>
     <string name="settings_icon_pack_option_system">System icons</string>

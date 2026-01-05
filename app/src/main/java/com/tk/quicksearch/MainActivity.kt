@@ -23,6 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
@@ -172,35 +178,70 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        when (destination) {
-            RootDestination.Settings -> {
-                if (settingsDetailType != null) {
-                    SettingsDetailRoute(
-                        onBack = { onSettingsDetailTypeChange(null) },
-                        viewModel = viewModel,
-                        detailType = settingsDetailType
-                    )
+        AnimatedContent(
+            targetState = destination,
+            transitionSpec = {
+                if (targetState == RootDestination.Settings) {
+                    slideInHorizontally { width -> width } + fadeIn() togetherWith
+                        slideOutHorizontally { width -> -width } + fadeOut()
                 } else {
-                    SettingsRoute(
-                        onBack = { onDestinationChange(RootDestination.Search) },
+                    slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                        slideOutHorizontally { width -> width } + fadeOut()
+                }
+            },
+            label = "RootNavigation"
+        ) { targetDestination ->
+            when (targetDestination) {
+                RootDestination.Settings -> {
+                    AnimatedContent(
+                        targetState = settingsDetailType,
+                        transitionSpec = {
+                            if (targetState != null) {
+                                // Navigate to Detail
+                                slideInHorizontally { width -> width } + fadeIn() togetherWith
+                                    slideOutHorizontally { width -> -width } + fadeOut() 
+                            } else {
+                                // Navigate back to Main Settings
+                                slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                                    slideOutHorizontally { width -> width } + fadeOut()
+                            }
+                        },
+                        label = "SettingsNavigation"
+                    ) { targetDetailType ->
+                        if (targetDetailType != null) {
+                            SettingsDetailRoute(
+                                onBack = { onSettingsDetailTypeChange(null) },
+                                viewModel = viewModel,
+                                detailType = targetDetailType
+                            )
+                        } else {
+                            SettingsRoute(
+                                onBack = { onDestinationChange(RootDestination.Search) },
+                                viewModel = viewModel,
+                                onNavigateToDetail = onSettingsDetailTypeChange,
+                                scrollState = settingsScrollState
+                            )
+                        }
+                    }
+                }
+                RootDestination.Search -> {
+                    BackHandler {
+                        moveTaskToBack(true)
+                    }
+                    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+                    SearchRoute(
                         viewModel = viewModel,
-                        onNavigateToDetail = onSettingsDetailTypeChange,
-                        scrollState = settingsScrollState
+                        onSettingsClick = { 
+                            keyboardController?.hide()
+                            onDestinationChange(RootDestination.Settings)
+                        },
+                        onSearchEngineLongPress = {
+                            keyboardController?.hide()
+                            onDestinationChange(RootDestination.Settings)
+                            onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                        }
                     )
                 }
-            }
-            RootDestination.Search -> {
-                BackHandler {
-                    moveTaskToBack(true)
-                }
-                SearchRoute(
-                    viewModel = viewModel,
-                    onSettingsClick = { onDestinationChange(RootDestination.Settings) },
-                    onSearchEngineLongPress = {
-                        onDestinationChange(RootDestination.Settings)
-                        onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
-                    }
-                )
             }
         }
     }

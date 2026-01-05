@@ -193,7 +193,10 @@ private fun WidgetContent(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .padding(8.dp)
-                .clickable(actionStartActivity(launchIntent)),
+                .clickable(
+                    onClick = actionStartActivity(launchIntent),
+                    rippleOverride = android.R.color.transparent
+                ),
             contentAlignment = Alignment.Center
         ) {
             val widgetModifier = GlanceModifier
@@ -279,7 +282,10 @@ private fun WidgetContent(
                     Box(
                         modifier = GlanceModifier
                             .size(micTouchSpace)
-                            .clickable(actionStartActivity(voiceLaunchIntent)),
+                            .clickable(
+                                onClick = actionStartActivity(voiceLaunchIntent),
+                                rippleOverride = android.R.color.transparent
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
