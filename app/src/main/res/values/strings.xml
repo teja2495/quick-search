@@ -301,6 +301,7 @@
     <string name="settings_internet_search_title">Internet Search</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Customize your search engines (Google, ChatGPT, etc.).</string>
+    <string name="request_search_engine_text">Request a search engine</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_search_engines_more_title">More</string>
     <string name="settings_amazon_domain_title">Amazon Domain</string>
