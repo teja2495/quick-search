@@ -72,6 +72,7 @@ class AppCache(context: Context) {
         private const val FIELD_PACKAGE_NAME = "packageName"
         private const val FIELD_LAST_USED_TIME = "lastUsedTime"
         private const val FIELD_TOTAL_TIME_IN_FOREGROUND = "totalTimeInForeground"
+        private const val FIELD_LAUNCH_COUNT = "launchCount"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
 
         /**
@@ -85,6 +86,7 @@ class AppCache(context: Context) {
                     packageName = jsonObject.getString(FIELD_PACKAGE_NAME),
                     lastUsedTime = jsonObject.getLong(FIELD_LAST_USED_TIME),
                     totalTimeInForeground = jsonObject.optLong(FIELD_TOTAL_TIME_IN_FOREGROUND, 0L),
+                    launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
                     isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP)
                 )
             }
@@ -102,6 +104,7 @@ class AppCache(context: Context) {
                             put(FIELD_PACKAGE_NAME, app.packageName)
                             put(FIELD_LAST_USED_TIME, app.lastUsedTime)
                             put(FIELD_TOTAL_TIME_IN_FOREGROUND, app.totalTimeInForeground)
+                            put(FIELD_LAUNCH_COUNT, app.launchCount)
                             put(FIELD_IS_SYSTEM_APP, app.isSystemApp)
                         }
                     )

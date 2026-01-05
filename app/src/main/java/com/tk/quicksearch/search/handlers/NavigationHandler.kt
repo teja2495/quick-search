@@ -51,6 +51,7 @@ class NavigationHandler(
 
     fun launchApp(appInfo: AppInfo) {
         IntentHelpers.launchApp(application, appInfo)
+        userPreferences.incrementAppLaunchCount(appInfo.packageName)
         onClearQuery()
     }
 

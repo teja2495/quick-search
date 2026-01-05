@@ -10,6 +10,7 @@ data class AppInfo(
     val packageName: String,
     val lastUsedTime: Long,
     val totalTimeInForeground: Long,
+    val launchCount: Int = 0,
     val isSystemApp: Boolean
 )
 

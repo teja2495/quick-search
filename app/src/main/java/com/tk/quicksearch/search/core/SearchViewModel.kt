@@ -876,7 +876,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(suggestionHiddenPackages)
         val pinnedAppsForResults = appSearchHandler.computePinnedApps(resultHiddenPackages)
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
-        val recents = repository.extractRecentApps(recentsSource, GRID_ITEM_COUNT)
+        val recents = repository.extractRecentlyOpenedApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
         val packageNames = apps.map { it.packageName }.toSet()

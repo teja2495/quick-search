@@ -49,13 +49,14 @@ class AppSearchHandler(
                 onLoadingStateChanged(true, null)
             }
 
-            runCatching { repository.loadLaunchableApps() }
+            val launchCounts = userPreferences.getAllAppLaunchCounts()
+            runCatching { repository.loadLaunchableApps(launchCounts) }
                 .onSuccess { apps ->
                     val currentPackageSet = cachedApps.map { it.packageName }.toSet()
                     val newPackageSet = apps.map { it.packageName }.toSet()
                     val appSetChanged = currentPackageSet != newPackageSet
-                    val currentUsageMap = cachedApps.associate { it.packageName to it.totalTimeInForeground }
-                    val newUsageMap = apps.associate { it.packageName to it.totalTimeInForeground }
+                    val currentUsageMap = cachedApps.associate { it.packageName to it.launchCount }
+                    val newUsageMap = apps.associate { it.packageName to it.launchCount }
                     val usageStatsChanged = currentUsageMap != newUsageMap
 
                     if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
@@ -159,6 +160,10 @@ class AppSearchHandler(
             .toList()
     }
 
+    fun getRecentlyOpenedApps(limit: Int): List<AppInfo> {
+        return repository.extractRecentlyOpenedApps(availableApps(), limit)
+    }
+
     private var cachedAppNicknames: Map<String, String> = emptyMap()
 
     init {
@@ -212,7 +217,7 @@ class AppSearchHandler(
             { it.second }, // First by match priority
             {
                 if (sortAppsByUsageEnabled) {
-                    -it.first.totalTimeInForeground // Most used first
+                    -it.first.launchCount // Most launched first
                 } else {
                     it.first.appName.lowercase(Locale.getDefault()) // Alphabetical
                 }

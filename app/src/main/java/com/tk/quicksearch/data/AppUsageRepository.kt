@@ -91,9 +91,10 @@ class AppUsageRepository(
      * Results are sorted by last used time (most recent first), then alphabetically by name.
      * Also saves the result to cache for instant loading next time.
      * 
+     * @param launchCounts Map of package name to local launch count
      * @return List of launchable apps sorted by usage and name
      */
-    suspend fun loadLaunchableApps(): List<AppInfo> {
+    suspend fun loadLaunchableApps(launchCounts: Map<String, Int> = emptyMap()): List<AppInfo> {
         val resolveInfos = queryLaunchableApps()
         val usageMap = queryUsageStatsMap()
         val currentPackageName = context.packageName
@@ -102,7 +103,7 @@ class AppUsageRepository(
             .distinctBy { it.activityInfo.packageName }
             .filter { it.activityInfo.packageName != currentPackageName }
             .map { resolveInfo ->
-                createAppInfo(resolveInfo, usageMap)
+                createAppInfo(resolveInfo, usageMap, launchCounts)
             }
             .sortedWith(AppInfoComparator)
 
@@ -117,9 +118,21 @@ class AppUsageRepository(
      * @param limit Maximum number of apps to return
      * @return List of most recently used apps, up to the specified limit
      */
-    fun extractRecentApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
+    fun extractMostUsedApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
         return apps.sortedWith(AppInfoComparator).take(limit)
+    }
+
+    /**
+     * Extracts the most recently opened apps from a list, sorted by last used timestamp.
+     *
+     * @param apps List of apps to extract from
+     * @param limit Maximum number of apps to return
+     * @return List of apps sorted by last used time (descending)
+     */
+    fun extractRecentlyOpenedApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
+        if (apps.isEmpty() || limit <= 0) return emptyList()
+        return apps.sortedByDescending { it.lastUsedTime }.take(limit)
     }
 
     // ==================== Private Helpers ====================
@@ -148,13 +161,15 @@ class AppUsageRepository(
      */
     private fun createAppInfo(
         resolveInfo: ResolveInfo,
-        usageMap: Map<String, UsageStats>
+        usageMap: Map<String, UsageStats>,
+        launchCounts: Map<String, Int>
     ): AppInfo {
         val packageName = resolveInfo.activityInfo.packageName
         val label = extractAppLabel(resolveInfo, packageName)
         val stats = usageMap[packageName]
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
+        val launchCount = launchCounts[packageName] ?: 0
         val isSystemApp = (resolveInfo.activityInfo.applicationInfo.flags 
             and ApplicationInfo.FLAG_SYSTEM) != 0
 
@@ -163,6 +178,7 @@ class AppUsageRepository(
             packageName = packageName,
             lastUsedTime = lastUsedTime,
             totalTimeInForeground = totalTimeInForeground,
+            launchCount = launchCount,
             isSystemApp = isSystemApp
         )
     }
@@ -206,9 +222,9 @@ class AppUsageRepository(
 
     companion object {
         /**
-         * Comparator for sorting apps by total usage time (descending), then by name (ascending).
+         * Comparator for sorting apps by launch count (descending), then by name (ascending).
          */
-        private val AppInfoComparator = compareByDescending<AppInfo> { it.totalTimeInForeground }
+        private val AppInfoComparator = compareByDescending<AppInfo> { it.launchCount }
             .thenBy { it.appName.lowercase(Locale.getDefault()) }
     }
 }

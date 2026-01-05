@@ -92,6 +92,12 @@ class UserAppPreferences(context: Context) {
 
     fun clearAllHiddenAppsInResults(): Set<String> = appPreferences.clearAllHiddenAppsInResults()
 
+    fun getAppLaunchCount(packageName: String): Int = appPreferences.getAppLaunchCount(packageName)
+
+    fun incrementAppLaunchCount(packageName: String) = appPreferences.incrementAppLaunchCount(packageName)
+
+    fun getAllAppLaunchCounts(): Map<String, Int> = appPreferences.getAllAppLaunchCounts()
+
     // ============================================================================
     // Contact Preferences
     // ============================================================================

@@ -49,6 +49,26 @@ class AppPreferences(context: Context) : BasePreferences(context) {
 
     fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(KEY_HIDDEN_RESULTS)
 
+    fun getAppLaunchCount(packageName: String): Int {
+        return prefs.getInt(PREFIX_LAUNCH_COUNT + packageName, 0)
+    }
+
+    fun incrementAppLaunchCount(packageName: String) {
+        val current = getAppLaunchCount(packageName)
+        prefs.edit().putInt(PREFIX_LAUNCH_COUNT + packageName, current + 1).apply()
+    }
+
+    fun getAllAppLaunchCounts(): Map<String, Int> {
+        return prefs.all
+            .filterKeys { it.startsWith(PREFIX_LAUNCH_COUNT) }
+            .mapKeys { it.key.removePrefix(PREFIX_LAUNCH_COUNT) }
+            .mapValues { it.value as? Int ?: 0 }
+    }
+
+    companion object {
+        private const val PREFIX_LAUNCH_COUNT = "launch_count_"
+    }
+
     // ============================================================================
     // Private Helper Functions
     // ============================================================================
