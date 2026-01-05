@@ -9,7 +9,7 @@ object WidgetLayoutUtils {
     /**
      * Default widget height in dp.
      */
-    const val DEFAULT_HEIGHT_DP = 78f
+    const val DEFAULT_HEIGHT_DP = 58f
 
     /**
      * Default widget width in dp. Keep this aligned with the provider's
@@ -21,7 +21,7 @@ object WidgetLayoutUtils {
      * Approximate width for a 2-column widget. When the widget is this narrow
      * or less, we collapse to icon-only to keep layout intact.
      */
-    const val TWO_COLUMN_WIDTH_DP = 160f
+    const val TWO_COLUMN_WIDTH_DP = 220f
 
     /**
      * Resolves a Dp value, returning a default if it's unspecified or invalid.

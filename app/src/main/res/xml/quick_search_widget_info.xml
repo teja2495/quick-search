@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="280dp"
-    android:minHeight="64dp"
-    android:minResizeWidth="160dp"
-    android:minResizeHeight="64dp"
+    android:minWidth="260dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="60dp"
+    android:minResizeHeight="40dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_quick_search_placeholder"
     android:previewLayout="@layout/widget_quick_search_placeholder"
@@ -11,5 +11,7 @@
     android:widgetCategory="home_screen"
     android:resizeMode="horizontal"
     android:widgetFeatures="reconfigurable"
+    android:targetCellWidth="5"
+    android:targetCellHeight="1"
     android:description="@string/widget_settings_title" />
 

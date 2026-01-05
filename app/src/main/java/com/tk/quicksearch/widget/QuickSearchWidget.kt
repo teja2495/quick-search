@@ -20,7 +20,6 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -67,11 +66,10 @@ class QuickSearchWidget : GlanceAppWidget() {
         // Calculate dimensions
         val defaultWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
-        val widgetPadding = 8.dp
+        val widgetPadding = 0.dp
         val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultWidth)
         // Force fixed height regardless of grid size
         val heightDp = defaultHeight
-        val cornerRadius = config.borderRadiusDp.dp
         val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
         
         // Calculate displayed dimensions (widget size minus padding)
@@ -109,7 +107,6 @@ class QuickSearchWidget : GlanceAppWidget() {
         WidgetContent(
             widthDp = widthDp,
             heightDp = displayedHeightDp, // Pass displayed height for strict sizing
-            cornerRadius = cornerRadius,
             backgroundBitmap = backgroundBitmap,
             textIconColor = colors.textIconColor,
             // Hide label only when width is very narrow (≈2 columns) to keep icon visible
@@ -172,7 +169,6 @@ class QuickSearchWidget : GlanceAppWidget() {
 private fun WidgetContent(
     widthDp: Dp,
     heightDp: Dp,
-    cornerRadius: Dp,
     backgroundBitmap: Bitmap,
     textIconColor: Color,
     showLabel: Boolean,
@@ -192,7 +188,7 @@ private fun WidgetContent(
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(0.dp)
                 .clickable(
                     onClick = actionStartActivity(launchIntent),
                     rippleOverride = android.R.color.transparent
@@ -202,7 +198,6 @@ private fun WidgetContent(
             val widgetModifier = GlanceModifier
                 .fillMaxWidth()
                 .height(heightDp)
-                .cornerRadius(cornerRadius)
                 .background(ImageProvider(backgroundBitmap))
                 .padding(horizontal = 16.dp)
 
