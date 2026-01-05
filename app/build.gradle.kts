@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.okhttp)
     implementation(libs.androidx.splashscreen)
+    implementation(libs.reorderable)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
