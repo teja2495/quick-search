@@ -194,6 +194,7 @@ fun ContentLayout(
                 )
             } else {
                 EmptyResultsMessage(
+                    query = state.query,
                     enabledSections = renderingState.orderedSections,
                     showWallpaperBackground = state.showWallpaperBackground,
                     modifier = Modifier

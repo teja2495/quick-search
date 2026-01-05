@@ -3,23 +3,35 @@ package com.tk.quicksearch.search.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import kotlinx.coroutines.delay
 
 /**
  * Composable that displays an empty results message when no search results are found.
  */
 @Composable
 fun EmptyResultsMessage(
+    query: String,
     enabledSections: List<SearchSection>,
     showWallpaperBackground: Boolean,
     modifier: Modifier = Modifier
 ) {
+    var visible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(query) {
+        visible = false
+        delay(400) // Small delay to prevent flickering during search
+        visible = true
+    }
+
+    if (!visible) return
+
     val sectionLabels = enabledSections.mapNotNull { section ->
         when (section) {
             SearchSection.APPS -> stringResource(R.string.empty_state_section_apps)
