@@ -4,52 +4,52 @@
 
 # Main Activity and Application Startup
 Lcom/tk/quicksearch/MainActivity;
-Lcom/tk/quicksearch/MainActivity;-><init>()V
-Lcom/tk/quicksearch/MainActivity;->onCreate(Landroid/os/Bundle;)V
-Lcom/tk/quicksearch/MainActivity;->initializePreferences()V
-Lcom/tk/quicksearch/MainActivity;->setupWindow()V
-Lcom/tk/quicksearch/MainActivity;->setupContent()V
+HSPLcom/tk/quicksearch/MainActivity;-><init>()V
+HSPLcom/tk/quicksearch/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/tk/quicksearch/MainActivity;->initializePreferences()V
+HSPLcom/tk/quicksearch/MainActivity;->setupWindow()V
+HSPLcom/tk/quicksearch/MainActivity;->setupContent()V
 
 # Search ViewModel - Critical Path
 Lcom/tk/quicksearch/search/core/SearchViewModel;
-Lcom/tk/quicksearch/search/core/SearchViewModel;-><init>(Landroid/app/Application;)V
-Lcom/tk/quicksearch/search/core/SearchViewModel;->initializeWithCachedData()V
-Lcom/tk/quicksearch/search/core/SearchViewModel;->initializeWithCache(Ljava/util/List;Lcom/tk/quicksearch/search/handlers/ShortcutHandler$ShortcutsState;)V
-Lcom/tk/quicksearch/search/core/SearchViewModel;->setupBackgroundOperations()V
+HSPLcom/tk/quicksearch/search/core/SearchViewModel;-><init>(Landroid/app/Application;)V
+HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeWithCachedData()V
+HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeWithCache(Ljava/util/List;Lcom/tk/quicksearch/search/handlers/ShortcutHandler$ShortcutsState;)V
+HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupBackgroundOperations()V
 
 # App Caching and Loading
 Lcom/tk/quicksearch/data/AppCache;
-Lcom/tk/quicksearch/data/AppCache;->loadCachedApps()Ljava/util/List;
+HSPLcom/tk/quicksearch/data/AppCache;->loadCachedApps()Ljava/util/List;
 Lcom/tk/quicksearch/data/AppUsageRepository;
-Lcom/tk/quicksearch/data/AppUsageRepository;->loadCachedApps()Ljava/util/List;
-Lcom/tk/quicksearch/data/AppUsageRepository;->hasUsageAccess()Z
+HSPLcom/tk/quicksearch/data/AppUsageRepository;->loadCachedApps()Ljava/util/List;
+HSPLcom/tk/quicksearch/data/AppUsageRepository;->hasUsageAccess()Z
 
 # App Search Handler
 Lcom/tk/quicksearch/search/apps/AppSearchHandler;
-Lcom/tk/quicksearch/search/apps/AppSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/data/AppUsageRepository;Lcom/tk/quicksearch/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
-Lcom/tk/quicksearch/search/apps/AppSearchHandler;->initCache(Ljava/util/List;)V
-Lcom/tk/quicksearch/search/apps/AppSearchHandler;->availableApps()Ljava/util/List;
+HSPLcom/tk/quicksearch/search/apps/AppSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/data/AppUsageRepository;Lcom/tk/quicksearch/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
+HSPLcom/tk/quicksearch/search/apps/AppSearchHandler;->initCache(Ljava/util/List;)V
+HSPLcom/tk/quicksearch/search/apps/AppSearchHandler;->availableApps()Ljava/util/List;
 
 # User Preferences
 Lcom/tk/quicksearch/data/UserAppPreferences;
-Lcom/tk/quicksearch/data/UserAppPreferences;-><init>(Landroid/content/Context;)V
-Lcom/tk/quicksearch/data/UserAppPreferences;->isFirstLaunch()Z
-Lcom/tk/quicksearch/data/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
-Lcom/tk/quicksearch/data/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/data/UserAppPreferences;-><init>(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/data/UserAppPreferences;->isFirstLaunch()Z
+HSPLcom/tk/quicksearch/data/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/data/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
 
 # Search Ranking Utils
 Lcom/tk/quicksearch/util/SearchRankingUtils;
-Lcom/tk/quicksearch/util/SearchRankingUtils;->calculateMatchPriorityWithNickname(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+HSPLcom/tk/quicksearch/util/SearchRankingUtils;->calculateMatchPriorityWithNickname(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
 # JSON Parsing (for cached apps)
 Lorg/json/JSONArray;
-Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
-Lorg/json/JSONArray;->length()I
-Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
+HSPLorg/json/JSONArray;-><init>(Ljava/lang/String;)V
+HSPLorg/json/JSONArray;->length()I
+HSPLorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 Lorg/json/JSONObject;
-Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
-Lorg/json/JSONObject;->getLong(Ljava/lang/String;)J
-Lorg/json/JSONObject;->getBoolean(Ljava/lang/String;)Z
+HSPLorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
+HSPLorg/json/JSONObject;->getLong(Ljava/lang/String;)J
+HSPLorg/json/JSONObject;->getBoolean(Ljava/lang/String;)Z
 
 # Compose Runtime
 Landroidx/compose/runtime/Composer;
@@ -58,21 +58,21 @@ Landroidx/compose/ui/Modifier;
 
 # Collections and Utils
 Ljava/util/ArrayList;
-Ljava/util/ArrayList;-><init>()V
-Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
-Ljava/util/ArrayList;->size()I
-Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+HSPLjava/util/ArrayList;-><init>()V
+HSPLjava/util/ArrayList;->add(Ljava/lang/Object;)Z
+HSPLjava/util/ArrayList;->size()I
+HSPLjava/util/ArrayList;->get(I)Ljava/lang/Object;
 Ljava/util/HashSet;
-Ljava/util/HashSet;-><init>()V
-Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
-Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+HSPLjava/util/HashSet;-><init>()V
+HSPLjava/util/HashSet;->add(Ljava/lang/Object;)Z
+HSPLjava/util/HashSet;->contains(Ljava/lang/Object;)Z
 Ljava/util/HashMap;
-Ljava/util/HashMap;-><init>()V
-Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+HSPLjava/util/HashMap;-><init>()V
+HSPLjava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+HSPLjava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
 # String operations
 Ljava/lang/String;
-Ljava/lang/String;->lowercase(Ljava/util/Locale;)Ljava/lang/String;
-Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+HSPLjava/lang/String;->lowercase(Ljava/util/Locale;)Ljava/lang/String;
+HSPLjava/lang/String;->startsWith(Ljava/lang/String;)Z
+HSPLjava/lang/String;->contains(Ljava/lang/CharSequence;)Z
