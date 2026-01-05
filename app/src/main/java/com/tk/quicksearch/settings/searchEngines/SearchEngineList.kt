@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -103,7 +104,7 @@ fun SearchEngineListCard(
 
                         Surface(
                             shadowElevation = elevation,
-                            color = MaterialTheme.colorScheme.surface,
+                            color = if (isDragging) MaterialTheme.colorScheme.surface else Color.Transparent,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column {

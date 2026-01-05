@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -440,7 +442,11 @@ fun CombinedAppearanceCard(
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .then(
-                            if (!hasIconPacks) Modifier.clickable(onClick = onRefreshIconPacks)
+                            if (!hasIconPacks) Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = onRefreshIconPacks
+                            )
                             else Modifier
                         )
                 )
