@@ -150,7 +150,8 @@ internal fun ContactResultRow(
 internal fun ContactAvatar(
     photoUri: String?,
     displayName: String,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier.size(CONTACT_AVATAR_SIZE.dp)
 ) {
     val context = LocalContext.current
     val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
@@ -174,8 +175,7 @@ internal fun ContactAvatar(
     }
 
     Surface(
-        modifier = Modifier
-            .size(CONTACT_AVATAR_SIZE.dp)
+        modifier = modifier
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         shape = CircleShape,
         color = MaterialTheme.colorScheme.primaryContainer
@@ -194,7 +194,7 @@ internal fun ContactAvatar(
             } ?: run {
                 Text(
                     text = placeholderInitials,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.SemiBold
                 )

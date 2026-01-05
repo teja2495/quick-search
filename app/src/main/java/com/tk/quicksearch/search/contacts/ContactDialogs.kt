@@ -3,11 +3,15 @@ package com.tk.quicksearch.search.contacts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -26,13 +31,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -252,7 +256,6 @@ fun ContactMethodsDialog(
     getLastShownPhoneNumber: (Long) -> String? = { null },
     setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> }
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val hasMultipleNumbers = contactInfo.phoneNumbers.size > 1
 
     // Reorder phone numbers to show last shown number first (only for multiple numbers)
@@ -278,200 +281,222 @@ fun ContactMethodsDialog(
         }
     }
 
-    ModalBottomSheet(
+    androidx.compose.ui.window.Dialog(
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        properties = androidx.compose.ui.window.DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .fillMaxHeight(),
+            contentAlignment = Alignment.BottomCenter
         ) {
-            // Header with contact info (photo and name outside the card)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                ContactAvatar(
-                    photoUri = contactInfo.photoUri,
-                    displayName = contactInfo.displayName,
-                    onClick = null
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    Text(
-                        text = contactInfo.displayName,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                // Info icon to open contact in contacts app
-                    IconButton(
-                        onClick = {
-                            onContactMethodClick(contactInfo, ContactMethod.ViewInContactsApp())
-                            onDismiss()
-                        },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Info,
-                            contentDescription = stringResource(R.string.contacts_action_view_contact),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-            }
-
-            // Card encompassing options with black background
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Black
-                ),
-                shape = MaterialTheme.shapes.extraLarge
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 24.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                tonalElevation = 6.dp
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(horizontal = 12.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    // Phone number with navigation arrows
-                    selectedPhoneNumber?.let { phoneNumber ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
+                    // Header with contact info (photo and name outside the card)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ContactAvatar(
+                            photoUri = contactInfo.photoUri,
+                            displayName = contactInfo.displayName,
+                            onClick = {
+                                onContactMethodClick(contactInfo, ContactMethod.ViewInContactsApp())
+                                onDismiss()
+                            },
+                            modifier = Modifier.size(48.dp)
+                        )
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            // Left arrow (only show if there are multiple numbers and not at first)
-                            if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex > 0) {
-                                IconButton(
-                                    onClick = {
-                                        selectedPhoneIndex = (selectedPhoneIndex - 1).coerceAtLeast(0)
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.ChevronLeft,
-                                        contentDescription = stringResource(R.string.contacts_action_previous_number),
-                                        tint = Color.White.copy(alpha = 0.7f),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            } else {
-                                // Spacer to maintain alignment
-                                Spacer(modifier = Modifier.size(32.dp))
-                            }
-
-                            // Phone number
                             Text(
-                                text = phoneNumber,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.weight(1f)
+                                text = contactInfo.displayName,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
+                        }
 
-                            // Right arrow (only show if there are multiple numbers and not at last)
-                            if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex < reorderedPhoneNumbers.size - 1) {
-                                IconButton(
-                                    onClick = {
-                                        selectedPhoneIndex = (selectedPhoneIndex + 1).coerceAtMost(reorderedPhoneNumbers.size - 1)
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.ChevronRight,
-                                        contentDescription = stringResource(R.string.contacts_action_next_number),
-                                        tint = Color.White.copy(alpha = 0.7f),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            } else {
-                                // Spacer to maintain alignment
-                                Spacer(modifier = Modifier.size(32.dp))
-                            }
+                        // Close button
+                        IconButton(
+                            onClick = {
+                                onDismiss()
+                            },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.dialog_cancel),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
 
-                    // First row: call, message, google meet (filtered by selected phone number)
-                    val firstRowMethods = mutableListOf<ContactMethod>()
-
-                    // Filter methods by selected phone number (using phone number normalization)
-                    val context = LocalContext.current
-                    val methodsForSelectedNumber = filterMethodsByPhoneNumber(
-                        contactInfo.contactMethods,
-                        selectedPhoneNumber,
-                        context
-                    )
-
-                    // Always add call if available for selected number
-                    methodsForSelectedNumber.find { it is ContactMethod.Phone }?.let { firstRowMethods.add(it) }
-
-                    // Always add message if available for selected number
-                    methodsForSelectedNumber.find { it is ContactMethod.Sms }?.let { firstRowMethods.add(it) }
-
-                    // Add Google Meet if available for selected number
-                    methodsForSelectedNumber.find { it is ContactMethod.GoogleMeet }?.let { firstRowMethods.add(it) }
-
-                    if (firstRowMethods.isNotEmpty()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            verticalAlignment = Alignment.Top
+                    // Card encompassing options with black background
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(370.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Black
+                        ),
+                        shape = MaterialTheme.shapes.large
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 24.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            firstRowMethods.forEach { method ->
-                                ContactActionButton(
-                                    method = method,
-                                    onClick = {
-                                        onContactMethodClick(contactInfo, method)
-                                        onDismiss()
+                            // Phone number with navigation arrows
+                            selectedPhoneNumber?.let { phoneNumber ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Left arrow (only show if there are multiple numbers and not at first)
+                                    if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex > 0) {
+                                        IconButton(
+                                            onClick = {
+                                                selectedPhoneIndex = (selectedPhoneIndex - 1).coerceAtLeast(0)
+                                            },
+                                            modifier = Modifier.size(32.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Rounded.ChevronLeft,
+                                                contentDescription = stringResource(R.string.contacts_action_previous_number),
+                                                tint = Color.White.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    } else {
+                                        // Spacer to maintain alignment
+                                        Spacer(modifier = Modifier.size(32.dp))
                                     }
+
+                                    // Phone number
+                                    Text(
+                                        text = phoneNumber,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color.White,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    // Right arrow (only show if there are multiple numbers and not at last)
+                                    if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex < reorderedPhoneNumbers.size - 1) {
+                                        IconButton(
+                                            onClick = {
+                                                selectedPhoneIndex = (selectedPhoneIndex + 1).coerceAtMost(reorderedPhoneNumbers.size - 1)
+                                            },
+                                            modifier = Modifier.size(32.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Rounded.ChevronRight,
+                                                contentDescription = stringResource(R.string.contacts_action_next_number),
+                                                tint = Color.White.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    } else {
+                                        // Spacer to maintain alignment
+                                        Spacer(modifier = Modifier.size(32.dp))
+                                    }
+                                }
+                            }
+
+                            // First row: call, message, google meet (filtered by selected phone number)
+                            val firstRowMethods = mutableListOf<ContactMethod>()
+
+                            // Filter methods by selected phone number (using phone number normalization)
+                            val context = LocalContext.current
+                            val methodsForSelectedNumber = filterMethodsByPhoneNumber(
+                                contactInfo.contactMethods,
+                                selectedPhoneNumber,
+                                context
+                            )
+
+                            // Always add call if available for selected number
+                            methodsForSelectedNumber.find { it is ContactMethod.Phone }?.let { firstRowMethods.add(it) }
+
+                            // Always add message if available for selected number
+                            methodsForSelectedNumber.find { it is ContactMethod.Sms }?.let { firstRowMethods.add(it) }
+
+                            // Add Google Meet if available for selected number
+                            methodsForSelectedNumber.find { it is ContactMethod.GoogleMeet }?.let { firstRowMethods.add(it) }
+
+                            if (firstRowMethods.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    firstRowMethods.forEach { method ->
+                                        ContactActionButton(
+                                            method = method,
+                                            onClick = {
+                                                onContactMethodClick(contactInfo, method)
+                                                onDismiss()
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Render method rows for different app types
+                            renderMethodRow(methodsForSelectedNumber, listOf(
+                                ContactMethod.WhatsAppCall::class,
+                                ContactMethod.WhatsAppMessage::class,
+                                ContactMethod.WhatsAppVideoCall::class
+                            )) { method ->
+                                onContactMethodClick(contactInfo, method)
+                                onDismiss()
+                            }
+
+                            renderMethodRow(methodsForSelectedNumber, listOf(
+                                ContactMethod.TelegramMessage::class,
+                                ContactMethod.TelegramCall::class,
+                                ContactMethod.TelegramVideoCall::class
+                            )) { method ->
+                                onContactMethodClick(contactInfo, method)
+                                onDismiss()
+                            }
+
+                            // Show message if no methods available
+                            if (contactInfo.contactMethods.filterNot { it is ContactMethod.Email }.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.contacts_no_methods_available),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    modifier = Modifier.padding(vertical = 16.dp)
                                 )
                             }
                         }
                     }
-
-                    // Render method rows for different app types
-                    renderMethodRow(methodsForSelectedNumber, listOf(
-                        ContactMethod.WhatsAppCall::class,
-                        ContactMethod.WhatsAppMessage::class,
-                        ContactMethod.WhatsAppVideoCall::class
-                    )) { method ->
-                        onContactMethodClick(contactInfo, method)
-                        onDismiss()
-                    }
-
-                    renderMethodRow(methodsForSelectedNumber, listOf(
-                        ContactMethod.TelegramMessage::class,
-                        ContactMethod.TelegramCall::class,
-                        ContactMethod.TelegramVideoCall::class
-                    )) { method ->
-                        onContactMethodClick(contactInfo, method)
-                        onDismiss()
-                    }
-
-                    // Show message if no methods available
-                    if (contactInfo.contactMethods.filterNot { it is ContactMethod.Email }.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.contacts_no_methods_available),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        )
-                    }
                 }
             }
-
-            // Add bottom padding for navigation bar
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
