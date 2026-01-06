@@ -15,7 +15,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.dp
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.main.SettingsSpacing
@@ -52,21 +63,58 @@ fun SettingsHeader(onBack: () -> Unit) {
 }
 
 /**
- * Displays the app version at the bottom of the settings screen.
+ * Displays the app version and developer info at the bottom of the settings screen.
  */
 @Composable
 fun SettingsVersionDisplay() {
-    val versionName = getAppVersionName()
-    Text(
-        text = stringResource(R.string.settings_app_version, versionName ?: stringResource(R.string.settings_app_version_unknown)),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    val context = LocalContext.current
+    val versionName = getAppVersionName() ?: "1.2.2"
+    val developerName = stringResource(R.string.settings_feedback_developer_name)
+    val developerDesc = stringResource(R.string.settings_feedback_developer_desc, developerName)
+    
+    val annotatedDeveloperDesc = buildAnnotatedString {
+        val parts = developerDesc.split(developerName)
+        if (parts.size > 1) {
+            append(parts[0])
+            withStyle(style = SpanStyle(
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium
+            )) {
+                append(developerName)
+            }
+            append(parts[1])
+        } else {
+            append(developerDesc)
+        }
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                bottom = SettingsSpacing.versionBottomPadding,
-                top = 0.dp
-            ),
-        textAlign = TextAlign.Center
-    )
+            .padding(bottom = SettingsSpacing.versionBottomPadding),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.settings_feedback_developer_title, stringResource(R.string.app_name), versionName),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Text(
+            text = annotatedDeveloperDesc,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickable {
+                val url = "https://hihello.com/p/e11b6338-b4a5-49d8-93c8-03ac219de738"
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (e: Exception) {}
+            }
+        )
+    }
 }

@@ -28,6 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.components.SettingsCard
@@ -49,8 +55,10 @@ private object FeedbackSpacing {
  */
 private data class FeedbackItem(
     val title: String,
+    val description: AnnotatedString? = null,
     val iconVector: ImageVector? = null,
     val iconResId: Int? = null,
+    val iconTint: Color? = null,
     val onClick: () -> Unit
 )
 
@@ -114,6 +122,16 @@ fun FeedbackSection(
             }
         }
     }
+
+    val onOpenGitHub = {
+        val url = "https://github.com/teja2495/quick-search"
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Handle case where browser is not available
+        }
+    }
     
     Column(modifier = modifier) {
         SettingsSectionTitle(
@@ -125,13 +143,22 @@ fun FeedbackSection(
                 val feedbackItems = listOf(
                     FeedbackItem(
                         title = stringResource(R.string.settings_feedback_send_title),
+                        description = AnnotatedString(stringResource(R.string.settings_feedback_send_desc)),
                         iconVector = Icons.Rounded.Email,
                         onClick = onSendFeedback
                     ),
                     FeedbackItem(
                         title = stringResource(R.string.settings_feedback_rate_title),
+                        description = AnnotatedString(stringResource(R.string.settings_feedback_rate_desc)),
                         iconResId = R.drawable.google_play,
                         onClick = onRateApp
+                    ),
+                    FeedbackItem(
+                        title = stringResource(R.string.settings_feedback_github_title),
+                        description = AnnotatedString(stringResource(R.string.settings_feedback_github_desc)),
+                        iconResId = R.drawable.ic_github,
+                        iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        onClick = onOpenGitHub
                     )
                 )
                 
@@ -168,7 +195,7 @@ private fun FeedbackRow(
                 Icon(
                     imageVector = item.iconVector,
                     contentDescription = item.title,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = item.iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(end = FeedbackSpacing.iconEndPadding)
                 )
             }
@@ -176,18 +203,26 @@ private fun FeedbackRow(
                 Icon(
                     painter = painterResource(id = item.iconResId),
                     contentDescription = item.title,
-                    tint = Color.Unspecified,
+                    tint = item.iconTint ?: Color.Unspecified,
                     modifier = Modifier.padding(end = FeedbackSpacing.iconEndPadding)
                 )
             }
         }
 
-        Text(
-            text = item.title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            item.description?.let { desc ->
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
 
         Box(
             modifier = Modifier

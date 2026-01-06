@@ -516,9 +516,16 @@
     <!-- ============================================================================
          Settings - Feedback
          ============================================================================ -->
-    <string name="settings_section_feedback">Feedback</string>
+    <string name="settings_section_feedback">Feedback &amp; Development</string>
     <string name="settings_feedback_send_title">Send Feedback</string>
+    <string name="settings_feedback_send_desc">Bug Reports &amp; Feature Requests</string>
     <string name="settings_feedback_rate_title">Rate Quick Search</string>
+    <string name="settings_feedback_rate_desc">Leave a 5 star rating if you find this app useful</string>
+    <string name="settings_feedback_github_title">Development</string>
+    <string name="settings_feedback_github_desc">View this project source code on GitHub</string>
+    <string name="settings_feedback_developer_title">%1$s v%2$s</string>
+    <string name="settings_feedback_developer_name">Teja Karlapudi</string>
+    <string name="settings_feedback_developer_desc">Made by %1$s</string>
 
     <!-- ============================================================================
          Web Search Suggestions

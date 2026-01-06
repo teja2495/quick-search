@@ -242,7 +242,7 @@ private fun MessagingOptionChip(
         MessagingOptionIcon(app = option.app)
         Text(
             text = stringResource(option.labelRes),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
