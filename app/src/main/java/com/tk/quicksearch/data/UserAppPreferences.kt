@@ -145,6 +145,10 @@ class UserAppPreferences(context: Context) {
 
     fun setHasSeenDirectDialChoice(seen: Boolean) = contactPreferences.setHasSeenDirectDialChoice(seen)
 
+    fun isDirectDialManuallyDisabled(): Boolean = contactPreferences.isDirectDialManuallyDisabled()
+
+    fun setDirectDialManuallyDisabled(disabled: Boolean) = contactPreferences.setDirectDialManuallyDisabled(disabled)
+
     // ============================================================================
     // File Preferences
     // ============================================================================

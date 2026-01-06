@@ -212,6 +212,7 @@ abstract class BasePreferences(protected val context: Context) {
         const val KEY_LAST_SHOWN_PHONE_PREFIX = "last_shown_phone_"
         const val KEY_DIRECT_DIAL_ENABLED = "direct_dial_enabled"
         const val KEY_DIRECT_DIAL_CHOICE_SHOWN = "direct_dial_choice_shown"
+        const val KEY_DIRECT_DIAL_MANUALLY_DISABLED = "direct_dial_manually_disabled"
 
         // File preferences keys
         const val KEY_PINNED_FILE_URIS = "pinned_file_uris"

@@ -220,9 +220,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         context = application,
         userPreferences = userPreferences,
         getMessagingApp = { messagingHandler.messagingApp },
-        directDialEnabled = directDialEnabled,
-        hasSeenDirectDialChoice = hasSeenDirectDialChoice,
-        clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+        getDirectDialEnabled = { directDialEnabled },
+        getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
+        getClearQueryAfterSearchEngine = { clearQueryAfterSearchEngine },
         getCurrentState = { _uiState.value },
         uiStateUpdater = { update -> _uiState.update(update) },
         clearQuery = this::onNavigationTriggered
@@ -344,6 +344,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showAllResults = prefs.showAllResults
         sortAppsByUsageEnabled = prefs.sortAppsByUsage
         amazonDomain = prefs.amazonDomain
+
+        _uiState.update {
+            it.copy(
+                enabledFileTypes = enabledFileTypes,
+                excludedFileExtensions = excludedFileExtensions,
+                keyboardAlignedLayout = keyboardAlignedLayout,
+                directDialEnabled = directDialEnabled,
+                showWallpaperBackground = showWallpaperBackground,
+                clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+                showAllResults = showAllResults,
+                sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+                amazonDomain = amazonDomain
+            )
+        }
     }
 
     private fun initializeWithCacheMinimal(cachedAppsList: List<AppInfo>) {
@@ -545,11 +559,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Removed setMessagingApp (delegate in SearchViewModelExtensions if needed, or direct)
 
-    fun setDirectDialEnabled(enabled: Boolean) {
+    fun setDirectDialEnabled(enabled: Boolean, manual: Boolean = true) {
         directDialEnabled = enabled
         hasSeenDirectDialChoice = true
         userPreferences.setDirectDialEnabled(enabled)
         userPreferences.setHasSeenDirectDialChoice(true)
+        if (manual) {
+            userPreferences.setDirectDialManuallyDisabled(!enabled)
+        }
         _uiState.update { it.copy(directDialEnabled = enabled) }
     }
 
@@ -1013,11 +1030,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 else -> false
             }
 
+            // Auto-enable direct dial when call permission is granted, unless user manually disabled it
+            if (hasCall && !directDialEnabled && !userPreferences.isDirectDialManuallyDisabled()) {
+                setDirectDialEnabled(true, manual = false)
+            } else if (!hasCall && directDialEnabled) {
+                // If permission is revoked, auto-disable it to avoid errors, but don't mark as manually disabled
+                setDirectDialEnabled(false, manual = false)
+            }
+
             _uiState.update { state ->
                 state.copy(
                     hasContactPermission = hasContacts,
                     hasFilePermission = hasFiles,
                     hasCallPermission = hasCall,
+                    directDialEnabled = this@SearchViewModel.directDialEnabled,
                     contactResults = if (hasContacts) state.contactResults else emptyList(),
                     fileResults = if (hasFiles) state.fileResults else emptyList(),
                     showWallpaperBackground = if (shouldUpdateWallpaper) showWallpaperBackground else state.showWallpaperBackground
@@ -1047,9 +1073,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Update local state variables
         val useDirectDial = option == DirectDialOption.DIRECT_CALL
         if (rememberChoice) {
-            directDialEnabled = useDirectDial
+            setDirectDialEnabled(useDirectDial, manual = true)
+        } else {
+            hasSeenDirectDialChoice = true
+            userPreferences.setHasSeenDirectDialChoice(true)
         }
-        hasSeenDirectDialChoice = true
     }
 
 

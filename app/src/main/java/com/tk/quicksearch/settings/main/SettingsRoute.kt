@@ -82,6 +82,7 @@ fun SettingsRoute(
 
     LaunchedEffect(Unit) {
         viewModel.refreshIconPacks()
+        viewModel.handleOptionalPermissionChange()
     }
 
     val contactsPermissionLauncher = rememberLauncherForActivityResult(

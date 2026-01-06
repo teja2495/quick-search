@@ -23,9 +23,9 @@ class ContactActionHandler(
     private val context: Application,
     private val userPreferences: UserAppPreferences,
     private val getMessagingApp: () -> MessagingApp,
-    private val directDialEnabled: Boolean,
-    private val hasSeenDirectDialChoice: Boolean,
-    private val clearQueryAfterSearchEngine: Boolean,
+    private val getDirectDialEnabled: () -> Boolean,
+    private val getHasSeenDirectDialChoice: () -> Boolean,
+    private val getClearQueryAfterSearchEngine: () -> Boolean,
     private val getCurrentState: () -> SearchUiState,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit
@@ -112,7 +112,7 @@ class ContactActionHandler(
     }
 
     private fun beginCallFlow(contactName: String, phoneNumber: String) {
-        if (!hasSeenDirectDialChoice) {
+        if (!getHasSeenDirectDialChoice()) {
             uiStateUpdater {
                 it.copy(
                     directDialChoice = DirectDialChoice(
@@ -124,7 +124,7 @@ class ContactActionHandler(
             return
         }
 
-        if (directDialEnabled) {
+        if (getDirectDialEnabled()) {
             startDirectCallFlow(phoneNumber)
         } else {
             openDialer(phoneNumber)
@@ -143,11 +143,6 @@ class ContactActionHandler(
     fun onDirectDialChoiceSelected(option: DirectDialOption, rememberChoice: Boolean) {
         val choice = getCurrentState().directDialChoice ?: return
         val useDirectDial = option == DirectDialOption.DIRECT_CALL
-
-        if (rememberChoice) {
-            userPreferences.setDirectDialEnabled(useDirectDial)
-        }
-        userPreferences.setHasSeenDirectDialChoice(true)
 
         uiStateUpdater {
             it.copy(
@@ -209,7 +204,7 @@ class ContactActionHandler(
     }
 
     private fun clearQueryIfEnabled() {
-        if (clearQueryAfterSearchEngine) {
+        if (getClearQueryAfterSearchEngine()) {
             clearQuery()
         }
     }

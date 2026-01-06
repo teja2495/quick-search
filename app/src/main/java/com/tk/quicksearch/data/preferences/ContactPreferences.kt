@@ -60,4 +60,10 @@ class ContactPreferences(context: Context) : BasePreferences(context) {
     fun setHasSeenDirectDialChoice(seen: Boolean) {
         setBooleanPref(KEY_DIRECT_DIAL_CHOICE_SHOWN, seen)
     }
+    
+    fun isDirectDialManuallyDisabled(): Boolean = getBooleanPref(KEY_DIRECT_DIAL_MANUALLY_DISABLED, false)
+    
+    fun setDirectDialManuallyDisabled(disabled: Boolean) {
+        setBooleanPref(KEY_DIRECT_DIAL_MANUALLY_DISABLED, disabled)
+    }
 }
