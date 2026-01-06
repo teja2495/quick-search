@@ -78,6 +78,7 @@ enum class DirectDialOption {
 }
 
 data class SearchUiState(
+    val isInitializing: Boolean = true,
     val query: String = "",
     val hasUsagePermission: Boolean = false,
     val hasContactPermission: Boolean = false,

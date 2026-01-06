@@ -13,17 +13,30 @@ import com.tk.quicksearch.search.core.SearchEngine
  */
 class UserAppPreferences(context: Context) {
 
-    // Feature-specific preference managers
-    private val appPreferences = AppPreferences(context)
-    private val contactPreferences = ContactPreferences(context)
-    private val filePreferences = FilePreferences(context)
-    private val settingsPreferences = SettingsPreferences(context)
-    private val nicknamePreferences = NicknamePreferences(context)
-    private val searchEnginePreferences = SearchEnginePreferences(context)
-    private val shortcutPreferences = ShortcutPreferences(context)
-    private val geminiPreferences = GeminiPreferences(context)
-    private val uiPreferences = UiPreferences(context)
-    private val amazonPreferences = AmazonPreferences(context)
+    // Feature-specific preference managers - lazy to avoid blocking construction
+    private val appPreferences by lazy { AppPreferences(context) }
+    private val contactPreferences by lazy { ContactPreferences(context) }
+    private val filePreferences by lazy { FilePreferences(context) }
+    private val settingsPreferences by lazy { SettingsPreferences(context) }
+    private val nicknamePreferences by lazy { NicknamePreferences(context) }
+    private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
+    private val shortcutPreferences by lazy { ShortcutPreferences(context) }
+    private val geminiPreferences by lazy { GeminiPreferences(context) }
+    private val uiPreferences by lazy { UiPreferences(context) }
+    private val amazonPreferences by lazy { AmazonPreferences(context) }
+
+    /**
+     * Minimal preferences needed for first frame render - only layout-affecting values.
+     */
+    data class CriticalPreferences(
+        val keyboardAlignedLayout: Boolean
+    )
+
+    fun getCriticalPreferences(): CriticalPreferences {
+        return CriticalPreferences(
+            keyboardAlignedLayout = uiPreferences.isKeyboardAlignedLayout()
+        )
+    }
 
     /**
      * Data class to hold all preferences needed during app startup for performance optimization.

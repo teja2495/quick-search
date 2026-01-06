@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.apps.AppSearchHandler
 import com.tk.quicksearch.search.contacts.ContactActionHandler
 import com.tk.quicksearch.search.contacts.ContactManagementHandler
 import com.tk.quicksearch.search.contacts.MessagingHandler
+import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.search.core.CalculatorHandler
 import com.tk.quicksearch.search.core.PermissionManager
 import com.tk.quicksearch.search.core.SearchOperations
@@ -230,44 +231,27 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     init {
         setupDirectSearchStateListener()
 
-        // CRITICAL: Load cached apps first for instant UI render
-        // This runs on IO but starts immediately to minimize delay
-        viewModelScope.launch(Dispatchers.IO) {
-            // Load cached data first for instant display - this is the critical path
-            val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
-            
-            // Load preferences in parallel with cache processing
-            val startupPrefs = userPreferences.getStartupPreferences()
-            
-            // Apply preferences immediately
-            enabledFileTypes = startupPrefs.enabledFileTypes
-            excludedFileExtensions = startupPrefs.excludedFileExtensions
-            keyboardAlignedLayout = startupPrefs.keyboardAlignedLayout
-            directDialEnabled = startupPrefs.directDialEnabled
-            hasSeenDirectDialChoice = startupPrefs.hasSeenDirectDialChoice
-            clearQueryAfterSearchEngine = startupPrefs.clearQueryAfterSearchEngine
-            showAllResults = startupPrefs.showAllResults
-            sortAppsByUsageEnabled = startupPrefs.sortAppsByUsage
-            amazonDomain = startupPrefs.amazonDomain
+        // INSTANT RENDER: Create minimal initial state synchronously
+        // UI renders immediately with empty/placeholder state based on definitions in SearchUiState
+        // No update needed - use default SearchUiState values
 
-            // Check permissions for wallpaper
-            val hasFilesPermission = permissionManager.hasFilePermission()
-            showWallpaperBackground = if (hasFilesPermission) startupPrefs.showWallpaperBackground else false
-
-            // Sync handlers with loaded prefs
-            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
-
-            // Initialize with cached data (or without if no cache)
-            val shortcutsState = shortcutHandler.getInitialState()
-            if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-                initializeWithCache(cachedAppsList, shortcutsState)
-            } else {
-                initializeWithoutCache(shortcutsState)
+        // POST-FIRST-FRAME: Load cache and preferences after UI renders
+        viewModelScope.launch(Dispatchers.Main.immediate) {
+            // Immediately load cache without yield - cache read is fast and we want to show it ASAP
+            withContext(Dispatchers.IO) {
+                loadCacheAndMinimalPrefs()
             }
             
-            // Start background operations after initial UI is ready
-            // These run in parallel and won't block the UI
-            setupBackgroundOperations()
+            // Now yield to let UI render with cached data
+            kotlinx.coroutines.yield()
+            
+            // Then compute derived state and load remaining preferences
+            withContext(Dispatchers.IO) {
+                loadRemainingStartupPreferences()
+            }
+            
+            // Then start all background operations (non-blocking)
+            launchDeferredInitialization()
         }
     }
 
@@ -279,20 +263,174 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private fun initializeWithCache(cachedAppsList: List<AppInfo>, shortcutsState: ShortcutHandler.ShortcutsState) {
-        appSearchHandler.initCache(cachedAppsList)
-        val lastUpdated = repository.cacheLastUpdatedMillis()
-        val packageNames = cachedAppsList.map { it.packageName }.toSet()
-        val messagingInfo = getMessagingAppInfo(packageNames)
 
-        _uiState.update { createInitialStateWithCache(shortcutsState, messagingInfo, lastUpdated) }
-        refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
+
+    /**
+     * Phase 1: Load critical data (cache and essential prefs)
+     */
+    /**
+     * Phase 1: Load ONLY what's needed for the first paint (cache + minimal config)
+     */
+    private suspend fun loadCacheAndMinimalPrefs() {
+        // Load only the most critical preference for layout
+        // We skip the full preference load here
+        val criticalPrefs = userPreferences.getCriticalPreferences()
+        keyboardAlignedLayout = criticalPrefs.keyboardAlignedLayout
+        
+        // Load cached data - this is the critical path for content
+        // This is just a fast JSON parse
+        val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
+
+        // Apply immediately
+        withContext(Dispatchers.Main) {
+            _uiState.update { 
+                it.copy(
+                    keyboardAlignedLayout = keyboardAlignedLayout,
+                    // We don't have full prefs yet, so keep initializing flag true
+                    // but show the apps we found in cache
+                    isInitializing = true 
+                ) 
+            }
+            
+            if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
+                initializeWithCacheMinimal(cachedAppsList)
+            }
+        }
     }
 
-    private fun initializeWithoutCache(shortcutsState: ShortcutHandler.ShortcutsState) {
-        val messagingInfo = getMessagingAppInfo(emptySet())
+    /**
+     * Phase 2: Load the rest of the startup preferences and compute derived state
+     */
+    private suspend fun loadRemainingStartupPreferences() {
+        // Load full startup preferences
+        val startupPrefs = userPreferences.getStartupPreferences()
 
-        _uiState.update { createInitialStateWithoutCache(shortcutsState, messagingInfo) }
+        // Apply preferences
+        withContext(Dispatchers.Main) {
+            applyStartupPreferences(startupPrefs)
+            
+            // Sync handlers with loaded prefs
+            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
+            
+            // Now we can compute the full state including pinned/hidden apps
+            val lastUpdated = repository.cacheLastUpdatedMillis()
+            refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
+            
+            // Fully initialized now
+            _uiState.update { it.copy(isInitializing = false) }
+        }
+    }
+
+    private fun applyStartupPreferences(prefs: UserAppPreferences.StartupPreferences) {
+        enabledFileTypes = prefs.enabledFileTypes
+        excludedFileExtensions = prefs.excludedFileExtensions
+        keyboardAlignedLayout = prefs.keyboardAlignedLayout
+        directDialEnabled = prefs.directDialEnabled
+        hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
+        showWallpaperBackground = prefs.showWallpaperBackground
+        clearQueryAfterSearchEngine = prefs.clearQueryAfterSearchEngine
+        showAllResults = prefs.showAllResults
+        sortAppsByUsageEnabled = prefs.sortAppsByUsage
+        amazonDomain = prefs.amazonDomain
+    }
+
+    private fun initializeWithCacheMinimal(cachedAppsList: List<AppInfo>) {
+        appSearchHandler.initCache(cachedAppsList)
+        val lastUpdated = repository.cacheLastUpdatedMillis()
+        
+        // Just show the raw list of apps first!
+        // Don't filter, don't sort, don't check pinned apps yet
+        // This is the fastest possible way to get pixels on screen
+        _uiState.update { state ->
+            state.copy(
+                cacheLastUpdatedMillis = lastUpdated,
+                // Temporarily show all cached apps until we load hidden/pinned prefs
+                recentApps = repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT),
+                indexedAppCount = cachedAppsList.size,
+                
+                // Critical: update these to prevent flashing
+                keyboardAlignedLayout = keyboardAlignedLayout
+            )
+        }
+        
+        // Prefetch icons for the visible apps to prevent pop-in
+        val visibleApps = repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
+        viewModelScope.launch(Dispatchers.IO) {
+            val iconPack = userPreferences.getSelectedIconPackPackage()
+            prefetchAppIcons(
+                context = getApplication(),
+                packageNames = visibleApps.map { it.packageName },
+                iconPackPackage = iconPack
+            )
+        }
+    }
+
+    /**
+     * Phase 2 & 3: Deferred initialization of background handlers
+     */
+    private fun launchDeferredInitialization() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // 1. Refresh usage access and permissions (affects features)
+            refreshUsageAccess()
+            refreshOptionalPermissions()
+            
+            // 2. Initialize messaging handler (needed for contacts)
+            val messagingInfo = getMessagingAppInfo(
+                appSearchHandler.cachedApps.map { it.packageName }.toSet()
+            )
+            
+            // Update state with messaging info and correct search engine/section config
+            // accessing these handlers now is safe as UI is rendered
+            val shortcutsState = shortcutHandler.getInitialState()
+            
+            _uiState.update { state ->
+                state.copy(
+                    // Now safely access lazy handlers
+                    searchEngineOrder = searchEngineManager.searchEngineOrder,
+                    disabledSearchEngines = searchEngineManager.disabledSearchEngines,
+                    shortcutsEnabled = shortcutsState.shortcutsEnabled,
+                    shortcutCodes = shortcutsState.shortcutCodes,
+                    shortcutEnabled = shortcutsState.shortcutEnabled,
+                    sectionOrder = sectionManager.sectionOrder,
+                    disabledSections = sectionManager.disabledSections,
+                    searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
+                    webSuggestionsEnabled = webSuggestionHandler.isEnabled,
+                    calculatorEnabled = calculatorHandler.isEnabled,
+                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    personalContext = directSearchHandler.getPersonalContext(),
+                    // Messaging info
+                    messagingApp = messagingInfo.messagingApp,
+                    isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
+                    isTelegramInstalled = messagingInfo.isTelegramInstalled
+                )
+            }
+            
+            // 3. Start heavy background loads
+            launch(Dispatchers.IO) {
+                loadApps()
+            }
+
+            launch(Dispatchers.IO) {
+                loadSettingsShortcuts()
+            }
+
+            launch(Dispatchers.IO) {
+                iconPackHandler.refreshIconPacks()
+            }
+
+            launch(Dispatchers.IO) {
+                pinningHandler.loadPinnedContactsAndFiles()
+                pinningHandler.loadExcludedContactsAndFiles()
+                // Now that heavy things are loaded, trigger a full refresh to ensure consistency
+                withContext(Dispatchers.Main) {
+                    refreshDerivedState()
+                }
+            }
+            
+            // 4. Release notes
+            releaseNotesHandler.checkForReleaseNotes()
+        }
     }
 
     private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
@@ -313,115 +451,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
 
         return MessagingAppInfo(isWhatsAppInstalled, isTelegramInstalled, resolvedMessagingApp)
-    }
-
-    private fun createInitialStateWithCache(
-        shortcutsState: ShortcutHandler.ShortcutsState,
-        messagingInfo: MessagingAppInfo,
-        lastUpdated: Long
-    ): SearchUiState {
-        return SearchUiState().copy(
-            isLoading = false,
-            searchEngineOrder = searchEngineManager.searchEngineOrder,
-            disabledSearchEngines = searchEngineManager.disabledSearchEngines,
-            enabledFileTypes = enabledFileTypes,
-            excludedFileExtensions = excludedFileExtensions,
-            keyboardAlignedLayout = keyboardAlignedLayout,
-            shortcutsEnabled = shortcutsState.shortcutsEnabled,
-            shortcutCodes = shortcutsState.shortcutCodes,
-            shortcutEnabled = shortcutsState.shortcutEnabled,
-            messagingApp = messagingInfo.messagingApp,
-            directDialEnabled = directDialEnabled,
-            isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
-            isTelegramInstalled = messagingInfo.isTelegramInstalled,
-            showWallpaperBackground = showWallpaperBackground,
-            selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
-            availableIconPacks = iconPackHandler.availableIconPacks,
-            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
-            showAllResults = showAllResults,
-            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-            sectionOrder = sectionManager.sectionOrder,
-            disabledSections = sectionManager.disabledSections,
-            searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-            amazonDomain = amazonDomain,
-            webSuggestionsEnabled = webSuggestionHandler.isEnabled,
-            calculatorEnabled = calculatorHandler.isEnabled,
-            hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-            geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-            personalContext = directSearchHandler.getPersonalContext(),
-            cacheLastUpdatedMillis = lastUpdated
-        )
-    }
-
-    private fun createInitialStateWithoutCache(
-        shortcutsState: ShortcutHandler.ShortcutsState,
-        messagingInfo: MessagingAppInfo
-    ): SearchUiState {
-        return SearchUiState().copy(
-            searchEngineOrder = searchEngineManager.searchEngineOrder,
-            disabledSearchEngines = searchEngineManager.disabledSearchEngines,
-            enabledFileTypes = enabledFileTypes,
-            excludedFileExtensions = excludedFileExtensions,
-            keyboardAlignedLayout = keyboardAlignedLayout,
-            shortcutsEnabled = shortcutsState.shortcutsEnabled,
-            shortcutCodes = shortcutsState.shortcutCodes,
-            shortcutEnabled = shortcutsState.shortcutEnabled,
-            messagingApp = messagingInfo.messagingApp,
-            directDialEnabled = directDialEnabled,
-            isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
-            isTelegramInstalled = messagingInfo.isTelegramInstalled,
-            showWallpaperBackground = showWallpaperBackground,
-            selectedIconPackPackage = iconPackHandler.selectedIconPackPackage,
-            availableIconPacks = iconPackHandler.availableIconPacks,
-            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
-            showAllResults = showAllResults,
-            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-            sectionOrder = sectionManager.sectionOrder,
-            disabledSections = sectionManager.disabledSections,
-            searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-            amazonDomain = amazonDomain,
-            hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-            geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-            personalContext = directSearchHandler.getPersonalContext()
-        )
-    }
-
-    private fun setupBackgroundOperations() {
-        // Launch all background operations in parallel with minimal delays
-        // Since cached apps already loaded in init, these are optimizations not blockers
-        
-        viewModelScope.launch(Dispatchers.IO) {
-            // Refresh usage access and permissions first as they affect other features
-            refreshUsageAccess()
-            refreshOptionalPermissions()
-        }
-        
-        viewModelScope.launch(Dispatchers.IO) {
-            // Initialize messaging handler immediately (needed for contacts)
-            messagingHandler
-            releaseNotesHandler.checkForReleaseNotes()
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(50) // Minimal delay to let UI render
-            loadApps()
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(50) // Run in parallel with app loading
-            loadSettingsShortcuts()
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(100) // Slightly delayed non-critical operations
-            iconPackHandler.refreshIconPacks()
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(100) // Run in parallel with icon packs
-            pinningHandler.loadPinnedContactsAndFiles()
-            pinningHandler.loadExcludedContactsAndFiles()
-        }
     }
 
     private data class MessagingAppInfo(

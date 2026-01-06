@@ -62,7 +62,7 @@ dependencies {
     implementation(libs.google.material)
     implementation(libs.androidx.security.crypto)
     implementation(libs.okhttp)
-    implementation(libs.androidx.splashscreen)
+
     implementation(libs.reorderable)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

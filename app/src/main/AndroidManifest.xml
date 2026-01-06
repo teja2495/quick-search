@@ -43,7 +43,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:label="@string/app_name"
-            android:theme="@style/Theme.QuickSearch.Splash"
+            android:theme="@style/Theme.QuickSearch"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,12 +55,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Main Activity Launcher -->
-        <activity
-            android:name=".MainActivityLauncher"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:exported="false"
-            android:noHistory="true" />
+
 
         <!-- Widget Configuration Activity -->
 

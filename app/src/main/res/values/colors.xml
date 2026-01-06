@@ -3,7 +3,7 @@
     <!-- Basic colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="splash_background">#FF121212</color>
+
     
     <!-- Search engine icon colors - black in light mode -->
     <color name="search_engine_icon_color">#FF000000</color>

@@ -28,7 +28,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.permissions.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -58,12 +58,8 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Install splash screen BEFORE super.onCreate() - critical for proper cold start handling
-        installSplashScreen()
+
         super.onCreate(savedInstanceState)
-        
-        // Start wallpaper preload immediately during splash screen phase
-        WallpaperUtils.preloadWallpaper(this)
         
         initializePreferences()
         setupWindow()
@@ -73,6 +69,11 @@ class MainActivity : ComponentActivity() {
         setupContent()
         refreshPermissionStateIfNeeded()
         handleIntent(intent)
+
+        // Defer wallpaper preload to after first frame to avoid blocking startup
+        window.decorView.post {
+            WallpaperUtils.preloadWallpaper(this)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

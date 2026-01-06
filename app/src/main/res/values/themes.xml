@@ -4,13 +4,5 @@
     <!-- Base theme for the app -->
     <style name="Theme.QuickSearch" parent="Theme.Material3.Dark.NoActionBar" />
 
-    <!-- Splash screen theme - used during cold start for instant display -->
-    <style name="Theme.QuickSearch.Splash" parent="Theme.SplashScreen">
-        <!-- Background color - matches app's dark background -->
-        <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <!-- App icon shown on splash - uses the actual app icon from mipmap -->
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <!-- Theme to apply after splash screen exits -->
-        <item name="postSplashScreenTheme">@style/Theme.QuickSearch</item>
-    </style>
+
 </resources>

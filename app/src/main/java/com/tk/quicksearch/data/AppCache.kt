@@ -20,8 +20,13 @@ class AppCache(context: Context) {
      * @return List of cached apps, or null if no cache exists or if cache is corrupted.
      */
     fun loadCachedApps(): List<AppInfo>? {
+        // Fast path: check if cache exists before parsing
+        if (!prefs.contains(KEY_APP_LIST)) return null
+
         return runCatching {
             val json = prefs.getString(KEY_APP_LIST, null) ?: return null
+            // Fast paths: empty or minimal content check without full parse
+            if (json.length < 10 || json == "[]") return null
             JSONArray(json).toAppInfoList()
         }.onFailure { exception ->
             Log.e(TAG, "Failed to load cached apps", exception)
