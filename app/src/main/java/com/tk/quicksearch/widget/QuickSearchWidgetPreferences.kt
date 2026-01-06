@@ -20,10 +20,10 @@ enum class MicAction(val value: String) {
 }
 
 // Default values
-private object WidgetDefaults {
+internal object WidgetDefaults {
     val BORDER_COLOR = Color.Black
     val BORDER_COLOR_ARGB = BORDER_COLOR.toArgb()
-    const val BORDER_RADIUS_DP = 30f
+    const val BORDER_RADIUS_DP = 29f
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
     const val SHOW_SEARCH_ICON = true

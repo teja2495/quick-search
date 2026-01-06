@@ -86,15 +86,26 @@ class QuickSearchWidget : GlanceAppWidget() {
         // Calculate colors
         val colors = calculateColors(config, borderWidthPx)
         
-        // Create bitmap background
-        val backgroundBitmap = WidgetBitmapUtils.createWidgetBitmap(
-            widthPx = widthPx,
-            heightPx = heightPx,
-            backgroundColor = colors.backgroundColor,
-            borderColor = colors.borderColor,
-            borderWidthPx = borderWidthPx,
-            cornerRadiusPx = cornerRadiusPx
-        )
+        // Check if current configuration matches defaults for background properties
+        // If so, use the XML drawable to prevent stretching artifacts on initial render
+        val hasDefaultBackground = config.borderRadiusDp == WidgetDefaults.BORDER_RADIUS_DP &&
+                config.borderWidthDp == WidgetDefaults.BORDER_WIDTH_DP &&
+                config.backgroundAlpha == WidgetDefaults.BACKGROUND_ALPHA &&
+                !config.backgroundColorIsWhite
+        
+        // Create bitmap background only if not using default
+        val backgroundBitmap = if (!hasDefaultBackground) {
+            WidgetBitmapUtils.createWidgetBitmap(
+                widthPx = widthPx,
+                heightPx = heightPx,
+                backgroundColor = colors.backgroundColor,
+                borderColor = colors.borderColor,
+                borderWidthPx = borderWidthPx,
+                cornerRadiusPx = cornerRadiusPx
+            )
+        } else {
+            null
+        }
         
         // Create launch intent
         val launchIntent = createLaunchIntent(context)
@@ -108,6 +119,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             widthDp = widthDp,
             heightDp = displayedHeightDp, // Pass displayed height for strict sizing
             backgroundBitmap = backgroundBitmap,
+            useDefaultBackground = hasDefaultBackground,
             textIconColor = colors.textIconColor,
             // Hide label only when width is very narrow (≈2 columns) to keep icon visible
             showLabel = config.showLabel && !isNarrowWidth,
@@ -169,7 +181,8 @@ class QuickSearchWidget : GlanceAppWidget() {
 private fun WidgetContent(
     widthDp: Dp,
     heightDp: Dp,
-    backgroundBitmap: Bitmap,
+    backgroundBitmap: Bitmap?,
+    useDefaultBackground: Boolean,
     textIconColor: Color,
     showLabel: Boolean,
     showSearchIcon: Boolean,
@@ -198,7 +211,12 @@ private fun WidgetContent(
             val widgetModifier = GlanceModifier
                 .fillMaxWidth()
                 .height(heightDp)
-                .background(ImageProvider(backgroundBitmap))
+                .background(
+                    if (useDefaultBackground) 
+                        ImageProvider(R.drawable.widget_quick_search_placeholder_outline) 
+                    else 
+                        ImageProvider(backgroundBitmap!!)
+                )
                 .padding(horizontal = 16.dp)
 
             if (iconAlignLeft) {
@@ -225,7 +243,7 @@ private fun WidgetContent(
                         Box(
                             modifier = GlanceModifier
                                 .fillMaxSize()
-                                .padding(start = 4.dp),
+                                .padding(start = 8.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             Image(
@@ -271,7 +289,7 @@ private fun WidgetContent(
                 Box(
                     modifier = GlanceModifier
                         .fillMaxSize()
-                        .padding(end = 8.dp),
+                        .padding(end = 14.dp),
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Box(
