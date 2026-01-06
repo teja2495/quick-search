@@ -69,7 +69,7 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                         Text(
                             text = stringResource(R.string.widget_label_text),
                             color = colors.textIcon,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
 
@@ -108,7 +108,7 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                             text = stringResource(R.string.widget_label_text),
                             modifier = Modifier.padding(start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp),
                             color = colors.textIcon,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.titleMedium
                         )
                     }
                 }

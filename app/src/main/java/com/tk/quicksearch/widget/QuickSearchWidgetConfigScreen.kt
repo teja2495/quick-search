@@ -61,7 +61,7 @@ fun QuickSearchWidgetConfigScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(R.string.widget_settings_title)) },
+                title = { Text(text = stringResource(R.string.widget_settings_title), style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
                         Icon(
@@ -94,7 +94,7 @@ fun QuickSearchWidgetConfigScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.dialog_save),
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 }
@@ -163,7 +163,7 @@ private fun WidgetLoadingState(innerPadding: PaddingValues) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
             Spacer(modifier = Modifier.height(WidgetConfigConstants.LOADING_STATE_SPACING))
-            Text(text = stringResource(R.string.widget_loading_state))
+            Text(text = stringResource(R.string.widget_loading_state), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -244,14 +244,14 @@ private fun WidgetBackgroundColorSection(
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_background_color))
+        Text(text = stringResource(R.string.widget_background_color), style = MaterialTheme.typography.titleSmall)
         ColorChoiceSegmentedButtonRow(
             selectedIsWhite = state.backgroundColorIsWhite,
             onSelectionChange = { onStateChange(state.copy(backgroundColorIsWhite = it)) }
         )
 
         Spacer(modifier = Modifier.height(WidgetConfigConstants.COLOR_SECTION_SPACING))
-        Text(text = stringResource(R.string.widget_text_icon_color))
+        Text(text = stringResource(R.string.widget_text_icon_color), style = MaterialTheme.typography.titleSmall)
         ColorChoiceSegmentedButtonRow(
             selectedIsWhite = state.textIconColorIsWhite,
             onSelectionChange = { onStateChange(state.copy(textIconColorIsWhite = it)) }
@@ -265,7 +265,7 @@ private fun WidgetIconAlignmentSection(
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_icon_alignment))
+        Text(text = stringResource(R.string.widget_icon_alignment), style = MaterialTheme.typography.titleSmall)
         AlignmentChoiceSegmentedButtonRow(
             selectedAlignLeft = state.iconAlignLeft,
             onSelectionChange = { onStateChange(state.copy(iconAlignLeft = it)) }
@@ -310,7 +310,7 @@ private fun WidgetMicActionSection(
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_mic_action))
+        Text(text = stringResource(R.string.widget_mic_action), style = MaterialTheme.typography.titleSmall)
         MicActionChoiceSegmentedButtonRow(
             selectedAction = state.micAction,
             onSelectionChange = { onStateChange(state.copy(micAction = it)) }

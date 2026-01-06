@@ -5,14 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,8 +31,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,12 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -60,7 +54,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -122,13 +115,8 @@ internal fun PersistentSearchField(
 
     // Set search bar background to black with slight transparency
     val searchBarBackground = Color.Black.copy(alpha = 0.5f)
-    val focusedContainerColor = searchBarBackground
-    val unfocusedContainerColor = searchBarBackground
     // Light color for icons and text on dark grey background
     val iconAndTextColor = Color(0xFFE0E0E0)
-
-    // Track if text is multi-line to adjust text size
-    var isMultiLine by remember { mutableStateOf(false) }
 
     // Local text field value maintains cursor position even when state query changes from voice input.
     var textFieldValue by remember { mutableStateOf(TextFieldValue(query)) }
@@ -158,148 +146,99 @@ internal fun PersistentSearchField(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        // Calculate available width for text (accounting for icons and padding)
-        // Leading icon: ~48dp, trailing icons: ~48-96dp, horizontal padding: ~32dp
-        val availableTextWidth = maxWidth - 176.dp
-
-        // Hidden Text composable to measure text layout and detect line count
-        // Positioned absolutely and made invisible so it doesn't affect layout
-        Text(
-            text = query.ifEmpty { " " },
-            style = MaterialTheme.typography.titleLarge,
-            maxLines = 3,
-            onTextLayout = { layoutResult ->
-                isMultiLine = layoutResult.lineCount > 1
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color.White.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(28.dp)
+            )
+            .clip(RoundedCornerShape(28.dp))
+            .background(searchBarBackground)
+    ) {
+        TextField(
+            value = textFieldValue,
+            onValueChange = { newValue ->
+                textFieldValue = newValue
+                onQueryChange(newValue.text)
             },
             modifier = Modifier
-                .width(availableTextWidth)
-                .alpha(0f)
-                .layout { measurable, constraints ->
-                    // Measure but don't take up any space in layout
-                    val placeable = measurable.measure(constraints)
-                    layout(0, 0) {
-                        // Don't place it - it's just for measurement
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .animateContentSize(),
+            shape = RoundedCornerShape(28.dp),
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.search_hint),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = iconAndTextColor.copy(alpha = 0.6f)
+                )
+            },
+            textStyle = MaterialTheme.typography.titleMedium.copy(color = iconAndTextColor),
+            singleLine = false,
+            maxLines = 3,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = stringResource(R.string.desc_search_icon),
+                    tint = iconAndTextColor,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            },
+            trailingIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(end = 4.dp)
+                ) {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = onClearQuery) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.desc_clear_search),
+                                tint = iconAndTextColor
+                            )
+                        }
+                    }
+                    if (query.isEmpty()) {
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                imageVector = Icons.Rounded.Settings,
+                                contentDescription = stringResource(R.string.desc_open_settings),
+                                tint = iconAndTextColor
+                            )
+                        }
                     }
                 }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Search,
+                keyboardType = if (shouldUseNumberKeyboard) KeyboardType.Number else KeyboardType.Text
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearchAction()
+                    if (query.isNotBlank()) {
+                        // Only hide keyboard if the first engine is not DIRECT_ANSWER
+                        val firstEngine = enabledEngines.firstOrNull()
+                        if (firstEngine != SearchEngine.DIRECT_SEARCH) {
+                            keyboardController?.hide()
+                        }
+                    }
+                }
+            ),
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedTextColor = iconAndTextColor,
+                unfocusedTextColor = iconAndTextColor
+            )
         )
-
-        // Animate font size transition between single-line and multi-line
-        val targetFontSize = if (isMultiLine) {
-            MaterialTheme.typography.titleMedium.fontSize
-        } else {
-            MaterialTheme.typography.titleLarge.fontSize
-        }
-
-        val animatedFontSize = remember { Animatable(targetFontSize.value) }
-
-        LaunchedEffect(isMultiLine) {
-            animatedFontSize.animateTo(
-                targetValue = targetFontSize.value,
-                animationSpec = tween(durationMillis = 200)
-            )
-        }
-
-        val animatedTextStyle = if (isMultiLine) {
-            MaterialTheme.typography.titleMedium.copy(fontSize = animatedFontSize.value.sp)
-        } else {
-            MaterialTheme.typography.titleLarge.copy(fontSize = animatedFontSize.value.sp)
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 2.dp,
-                    color = Color.White.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(28.dp)
-                )
-                .clip(RoundedCornerShape(28.dp))
-                .background(searchBarBackground)
-        ) {
-            TextField(
-                value = textFieldValue,
-                onValueChange = { newValue ->
-                    textFieldValue = newValue
-                    onQueryChange(newValue.text)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .animateContentSize(),
-                shape = RoundedCornerShape(28.dp),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.search_hint),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = iconAndTextColor.copy(alpha = 0.6f)
-                    )
-                },
-                textStyle = animatedTextStyle,
-                singleLine = false,
-                maxLines = 3,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(R.string.desc_search_icon),
-                        tint = iconAndTextColor,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                },
-                trailingIcon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        if (query.isNotEmpty()) {
-                            IconButton(onClick = onClearQuery) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = stringResource(R.string.desc_clear_search),
-                                    tint = iconAndTextColor
-                                )
-                            }
-                        }
-                        if (query.isEmpty()) {
-                            IconButton(onClick = onSettingsClick) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Settings,
-                                    contentDescription = stringResource(R.string.desc_open_settings),
-                                    tint = iconAndTextColor
-                                )
-                            }
-                        }
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search,
-                    keyboardType = if (shouldUseNumberKeyboard) KeyboardType.Number else KeyboardType.Text
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        onSearchAction()
-                        if (query.isNotBlank()) {
-                            // Only hide keyboard if the first engine is not DIRECT_ANSWER
-                            val firstEngine = enabledEngines.firstOrNull()
-                            if (firstEngine != SearchEngine.DIRECT_SEARCH) {
-                                keyboardController?.hide()
-                            }
-                        }
-                    }
-                ),
-                colors = TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedTextColor = iconAndTextColor,
-                    unfocusedTextColor = iconAndTextColor
-                )
-            )
-        }
     }
 }
 
