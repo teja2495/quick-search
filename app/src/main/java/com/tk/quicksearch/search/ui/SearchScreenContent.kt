@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,50 @@ internal fun SearchScreenContent(
         state.disabledSearchEngines
     ) {
         state.searchEngineOrder.filter { it !in state.disabledSearchEngines }
+    }
+
+    // Search engine scroll state for auto-scroll during onboarding
+    val searchEngineScrollState = rememberLazyListState()
+
+    // Auto-scroll search engines during onboarding
+    LaunchedEffect(state.showSearchEngineOnboarding) {
+        if (state.showSearchEngineOnboarding) {
+            // Smooth continuous scroll that loops
+            while (true) {
+                // Check if we can scroll further
+                val layoutInfo = searchEngineScrollState.layoutInfo
+                val canScrollForward = layoutInfo.visibleItemsInfo.lastOrNull()?.let { lastItem ->
+                    lastItem.index < layoutInfo.totalItemsCount - 1 || 
+                    lastItem.offset + lastItem.size > layoutInfo.viewportEndOffset
+                } ?: false
+                
+                if (!canScrollForward) {
+                    // Reached the end, scroll back to start and continue
+                    delay(500) // Pause briefly at the end
+                    searchEngineScrollState.animateScrollToItem(index = 0, scrollOffset = 0)
+                    delay(500) // Pause briefly at the start
+                    continue
+                }
+                
+                // Get current scroll position
+                val currentIndex = searchEngineScrollState.firstVisibleItemIndex
+                val currentOffset = searchEngineScrollState.firstVisibleItemScrollOffset
+                
+                // Increment by small amount for smooth scroll
+                val newOffset = currentOffset + 2
+                
+                // Smooth scroll
+                delay(30) // Small delay for smooth effect
+                
+                searchEngineScrollState.scrollToItem(
+                    index = currentIndex,
+                    scrollOffset = newOffset
+                )
+            }
+        } else {
+            // When onboarding is dismissed, scroll back to start
+            searchEngineScrollState.animateScrollToItem(index = 0, scrollOffset = 0)
+        }
     }
 
     // Check for math expressions to determine pill visibility
@@ -150,6 +197,7 @@ internal fun SearchScreenContent(
                 enabledEngines = enabledEngines,
                 onSearchEngineClick = onSearchEngineClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
+                externalScrollState = searchEngineScrollState,
                 modifier = Modifier.imePadding()
             )
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {

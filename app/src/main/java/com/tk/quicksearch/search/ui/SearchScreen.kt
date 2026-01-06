@@ -215,7 +215,8 @@ fun SearchRoute(
         onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
         onWebSuggestionClick = { suggestion: String ->
             viewModel.onWebSuggestionTap(suggestion)
-        }
+        },
+        onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed
     )
 }
 
@@ -272,7 +273,8 @@ fun SearchScreen(
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
     onDismissDirectDialChoice: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
-    onWebSuggestionClick: (String) -> Unit = {}
+    onWebSuggestionClick: (String) -> Unit = {},
+    onSearchEngineOnboardingDismissed: () -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -452,6 +454,12 @@ fun SearchScreen(
             expandedSection = expandedSection,
             manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
             scrollState = scrollState
+        )
+
+        // Search engine onboarding overlay
+        SearchEngineOnboardingOverlay(
+            visible = state.showSearchEngineOnboarding,
+            onDismiss = onSearchEngineOnboardingDismissed
         )
     }
 

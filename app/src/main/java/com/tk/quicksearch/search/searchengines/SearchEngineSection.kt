@@ -58,11 +58,12 @@ fun SearchEngineIconsSection(
     hasAppResults: Boolean,
     enabledEngines: List<SearchEngine>,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
-    onSearchEngineLongPress: () -> Unit
+    onSearchEngineLongPress: () -> Unit,
+    externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null
 ) {
     if (enabledEngines.isEmpty()) return
 
-    val scrollState = rememberLazyListState()
+    val scrollState = externalScrollState ?: rememberLazyListState()
     
     // Use black background in dark mode, otherwise use theme surface color
     // Add transparency only in dark mode to allow wallpaper background to show through

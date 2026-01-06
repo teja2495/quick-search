@@ -138,5 +138,6 @@ data class SearchUiState(
     val showReleaseNotesDialog: Boolean = false,
     val releaseNotesVersionName: String? = null,
     val calculatorState: CalculatorState = CalculatorState(),
-    val webSuggestions: List<String> = emptyList()
+    val webSuggestions: List<String> = emptyList(),
+    val showSearchEngineOnboarding: Boolean = false
 )

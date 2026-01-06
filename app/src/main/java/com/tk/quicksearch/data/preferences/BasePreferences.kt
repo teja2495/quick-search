@@ -228,6 +228,7 @@ abstract class BasePreferences(protected val context: Context) {
         const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
         const val KEY_SEARCH_ENGINE_SECTION_ENABLED = "search_engine_section_enabled"
+        const val KEY_SEARCH_ENGINE_ONBOARDING_SEEN = "search_engine_onboarding_seen"
 
         // Shortcut preferences keys
         const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"

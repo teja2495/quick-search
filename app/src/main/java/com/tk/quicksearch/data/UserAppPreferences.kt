@@ -47,6 +47,7 @@ class UserAppPreferences(context: Context) {
         val keyboardAlignedLayout: Boolean,
         val directDialEnabled: Boolean,
         val hasSeenDirectDialChoice: Boolean,
+        val hasSeenSearchEngineOnboarding: Boolean,
         val showWallpaperBackground: Boolean,
         val clearQueryAfterSearchEngine: Boolean,
         val showAllResults: Boolean,
@@ -68,6 +69,7 @@ class UserAppPreferences(context: Context) {
             keyboardAlignedLayout = uiPreferences.isKeyboardAlignedLayout(),
             directDialEnabled = contactPreferences.isDirectDialEnabled(),
             hasSeenDirectDialChoice = contactPreferences.hasSeenDirectDialChoice(),
+            hasSeenSearchEngineOnboarding = searchEnginePreferences.hasSeenSearchEngineOnboarding(),
             showWallpaperBackground = uiPreferences.shouldShowWallpaperBackground(),
             clearQueryAfterSearchEngine = uiPreferences.shouldClearQueryAfterSearchEngine(),
             showAllResults = uiPreferences.shouldShowAllResults(),
@@ -250,6 +252,10 @@ class UserAppPreferences(context: Context) {
     fun isSearchEngineSectionEnabled(): Boolean = searchEnginePreferences.isSearchEngineSectionEnabled()
 
     fun setSearchEngineSectionEnabled(enabled: Boolean) = searchEnginePreferences.setSearchEngineSectionEnabled(enabled)
+
+    fun hasSeenSearchEngineOnboarding(): Boolean = searchEnginePreferences.hasSeenSearchEngineOnboarding()
+
+    fun setHasSeenSearchEngineOnboarding(seen: Boolean) = searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
 
     // ============================================================================
     // Shortcut Preferences

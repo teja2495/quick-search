@@ -28,4 +28,10 @@ class SearchEnginePreferences(context: Context) : BasePreferences(context) {
     fun setSearchEngineSectionEnabled(enabled: Boolean) {
         setBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, enabled)
     }
+
+    fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)
+
+    fun setHasSeenSearchEngineOnboarding(seen: Boolean) {
+        setBooleanPref(KEY_SEARCH_ENGINE_ONBOARDING_SEEN, seen)
+    }
 }

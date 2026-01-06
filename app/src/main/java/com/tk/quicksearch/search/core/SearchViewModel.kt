@@ -410,6 +410,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     sectionOrder = sectionManager.sectionOrder,
                     disabledSections = sectionManager.disabledSections,
                     searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
+                    showSearchEngineOnboarding = searchEngineManager.searchEngineSectionEnabled && 
+                        !userPreferences.hasSeenSearchEngineOnboarding(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = calculatorHandler.isEnabled,
                     hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
@@ -803,6 +805,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun setMessagingApp(app: MessagingApp) = messagingHandler.setMessagingApp(app)
     fun acknowledgeReleaseNotes() = releaseNotesHandler.acknowledgeReleaseNotes(_uiState.value.releaseNotesVersionName)
     fun requestDirectSearch(query: String) = directSearchHandler.requestDirectSearch(query)
+    
+    fun onSearchEngineOnboardingDismissed() {
+        _uiState.update { it.copy(showSearchEngineOnboarding = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setHasSeenSearchEngineOnboarding(true)
+        }
+    }
     
     // Contact Actions
     fun callContact(contactInfo: ContactInfo) = contactActionHandler.callContact(contactInfo)
