@@ -36,6 +36,7 @@ import com.tk.quicksearch.search.ui.SearchRoute
 import com.tk.quicksearch.settings.main.SettingsRoute
 import com.tk.quicksearch.settings.main.SettingsDetailRoute
 import com.tk.quicksearch.settings.main.SettingsDetailType
+import com.tk.quicksearch.setup.SearchEngineSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
@@ -107,25 +108,38 @@ class MainActivity : ComponentActivity() {
     private fun MainContent() {
         val isFirstLaunch = userPreferences.isFirstLaunch()
         var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
+        var showSearchEngineSetup by rememberSaveable { mutableStateOf(false) }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
         var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
 
-        if (showPermissions && isFirstLaunch) {
-            PermissionsScreen(
-                onPermissionsComplete = {
-                    userPreferences.setFirstLaunchCompleted()
-                    showPermissions = false
-                    searchViewModel.handleOptionalPermissionChange()
-                }
-            )
-        } else {
-            NavigationContent(
-                destination = destination,
-                onDestinationChange = { destination = it },
-                settingsDetailType = settingsDetailType,
-                onSettingsDetailTypeChange = { settingsDetailType = it },
-                viewModel = searchViewModel
-            )
+        when {
+            showPermissions && isFirstLaunch -> {
+                PermissionsScreen(
+                    onPermissionsComplete = {
+                        showPermissions = false
+                        showSearchEngineSetup = true
+                        searchViewModel.handleOptionalPermissionChange()
+                    }
+                )
+            }
+            showSearchEngineSetup && isFirstLaunch -> {
+                SearchEngineSetupScreen(
+                    onContinue = {
+                        userPreferences.setFirstLaunchCompleted()
+                        showSearchEngineSetup = false
+                    },
+                    viewModel = searchViewModel
+                )
+            }
+            else -> {
+                NavigationContent(
+                    destination = destination,
+                    onDestinationChange = { destination = it },
+                    settingsDetailType = settingsDetailType,
+                    onSettingsDetailTypeChange = { settingsDetailType = it },
+                    viewModel = searchViewModel
+                )
+            }
         }
     }
 

@@ -65,7 +65,8 @@ fun SearchEngineListCard(
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
     searchEngineSectionEnabled: Boolean,
     amazonDomain: String? = null,
-    onSetAmazonDomain: ((String?) -> Unit)? = null
+    onSetAmazonDomain: ((String?) -> Unit)? = null,
+    showRequestSearchEngine: Boolean = true
 ) {
     Column {
         val enabledEngines = searchEngineOrder.filter { it !in disabledSearchEngines }
@@ -209,29 +210,31 @@ fun SearchEngineListCard(
             }
         }
 
-        val context = LocalContext.current
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.request_search_engine_text),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-                    val subject = "Search Engine Request"
-                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}")
+        if (showRequestSearchEngine) {
+            val context = LocalContext.current
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 40.dp, bottom = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.request_search_engine_text),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable {
+                        val subject = "Search Engine Request"
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}")
+                        }
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // ignore
+                        }
                     }
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        // ignore
-                    }
-                }
-            )
+                )
+            }
         }
     }
 }

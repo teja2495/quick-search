@@ -305,12 +305,12 @@
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_search_engines_more_title">More</string>
     <string name="settings_amazon_domain_title">Amazon Domain</string>
-    <string name="settings_amazon_domain_label">Domain:</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
+    <string name="settings_amazon_domain_label">Domain:</string>
     <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
     <string name="settings_gemini_api_key_title">Gemini API key</string>
     <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Search.</string>
-    <string name="settings_gemini_api_key_placeholder">Paste your Gemini API key</string>
+    <string name="settings_gemini_api_key_placeholder">Paste your API Key</string>
     <string name="settings_gemini_api_key_paste">Paste from clipboard</string>
     <string name="settings_gemini_api_key_save">Save key</string>
     <string name="settings_gemini_api_key_add">Add Key</string>
@@ -340,6 +340,7 @@
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>
+    <string name="settings_direct_search_api_key_required">Please set up Gemini API key first to enable Direct Search</string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
 
@@ -479,6 +480,13 @@
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
     <string name="permissions_mandatory_indicator">*</string>
+
+    <!-- ============================================================================
+         Search Engine Setup
+         ============================================================================ -->
+    <string name="setup_search_engines_title">Setup Search Engines</string>
+    <string name="setup_search_engines_subtitle">Enable search engines you need and reorder them as you like.</string>
+    <string name="setup_action_continue">Done</string>
 
     <!-- ============================================================================
          Release Notes

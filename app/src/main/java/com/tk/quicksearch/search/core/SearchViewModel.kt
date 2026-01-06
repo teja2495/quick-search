@@ -803,7 +803,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun setMessagingApp(app: MessagingApp) = messagingHandler.setMessagingApp(app)
     fun acknowledgeReleaseNotes() = releaseNotesHandler.acknowledgeReleaseNotes(_uiState.value.releaseNotesVersionName)
     fun requestDirectSearch(query: String) = directSearchHandler.requestDirectSearch(query)
-    fun retryDirectSearch() = directSearchHandler.retryDirectSearch(_uiState.value.query)
     
     // Contact Actions
     fun callContact(contactInfo: ContactInfo) = contactActionHandler.callContact(contactInfo)

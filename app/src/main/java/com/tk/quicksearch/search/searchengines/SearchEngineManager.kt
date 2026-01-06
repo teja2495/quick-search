@@ -2,6 +2,8 @@ package com.tk.quicksearch.search.searchengines
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.widget.Toast
+import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
@@ -41,6 +43,22 @@ class SearchEngineManager(
 
     fun setSearchEngineEnabled(engine: SearchEngine, enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
+            // Check if trying to enable Direct Search without Gemini API key
+            if (engine == SearchEngine.DIRECT_SEARCH && enabled) {
+                val hasGeminiApiKey = !userPreferences.getGeminiApiKey().isNullOrBlank()
+                if (!hasGeminiApiKey) {
+                    // Show toast on main thread and don't enable the search engine
+                    scope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.settings_direct_search_api_key_required),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    return@launch
+                }
+            }
+
             val disabled = disabledSearchEngines.toMutableSet()
             if (enabled) {
                 disabled.remove(engine)

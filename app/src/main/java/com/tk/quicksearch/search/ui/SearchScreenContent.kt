@@ -37,7 +37,6 @@ internal fun SearchScreenContent(
     onRequestUsagePermission: () -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onSearchEngineLongPress: () -> Unit,
-    onRetryDirectSearch: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
     onPhoneNumberClick: (String) -> Unit,
     onWebSuggestionClick: (String) -> Unit,
@@ -113,7 +112,6 @@ internal fun SearchScreenContent(
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
             scrollState = scrollState,
-            onRetryDirectSearch = onRetryDirectSearch,
             onPhoneNumberClick = onPhoneNumberClick,
             onEmailClick = onDirectSearchEmailClick,
             onWebSuggestionClick = onWebSuggestionClick

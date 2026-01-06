@@ -190,7 +190,6 @@ fun SearchRoute(
         onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
         onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
         onSearchEngineLongPress = onSearchEngineLongPress,
-        onRetryDirectSearch = viewModel::retryDirectSearch,
         onDirectSearchEmailClick = viewModel::openEmail,
         onOpenAppSettings = viewModel::openAppSettings,
         onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
@@ -254,7 +253,6 @@ fun SearchScreen(
     onExcludeSetting: (SettingShortcut) -> Unit,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onSearchEngineLongPress: () -> Unit,
-    onRetryDirectSearch: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
@@ -436,7 +434,6 @@ fun SearchScreen(
             onRequestUsagePermission = onRequestUsagePermission,
             onSearchEngineClick = onSearchEngineClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
-            onRetryDirectSearch = onRetryDirectSearch,
             onDirectSearchEmailClick = onDirectSearchEmailClick,
             onPhoneNumberClick = { phoneNumber ->
                 // Create a temporary ContactInfo to use the call functionality

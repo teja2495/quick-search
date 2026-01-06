@@ -64,7 +64,6 @@ fun SearchContentArea(
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
-    onRetryDirectSearch: () -> Unit,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {}
@@ -117,7 +116,6 @@ fun SearchContentArea(
             if (showDirectSearch) {
                 DirectSearchResult(
                     DirectSearchState = DirectSearchState,
-                    onRetry = onRetryDirectSearch,
                     showWallpaperBackground = state.showWallpaperBackground,
                     onPhoneNumberClick = onPhoneNumberClick,
                     onEmailClick = onEmailClick

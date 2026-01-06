@@ -111,12 +111,6 @@ class DirectSearchHandler(
         }
     }
 
-    fun retryDirectSearch(currentQuery: String) {
-        val lastQuery = _directSearchState.value.activeQuery ?: currentQuery
-        if (lastQuery.isBlank()) return
-        requestDirectSearch(lastQuery)
-    }
-
     fun clearDirectSearchState() {
         directSearchJob?.cancel()
         directSearchJob = null

@@ -3,7 +3,9 @@ package com.tk.quicksearch.settings.searchEngines
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -52,6 +54,8 @@ fun SearchEnginesSection(
     onDismissShortcutHintBanner: (() -> Unit)? = null,
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
+    showRequestSearchEngine: Boolean = true,
+    showDirectSearchAtTop: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     if (showTitle) {
@@ -70,8 +74,9 @@ fun SearchEnginesSection(
         )
     }
 
-    // Direct search controls (Gemini) when available
-    if (onSetGeminiApiKey != null) {
+    // Show Direct Search card at top or bottom based on the showDirectSearchAtTop parameter
+
+    if (showDirectSearchAtTop && onSetGeminiApiKey != null) {
         SearchEngineToggleCard(
             directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
@@ -81,6 +86,7 @@ fun SearchEnginesSection(
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded
         )
+        Spacer(modifier = Modifier.height(4.dp))
     }
 
     if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
@@ -106,8 +112,23 @@ fun SearchEnginesSection(
         setShortcutEnabled = setShortcutEnabled,
         searchEngineSectionEnabled = searchEngineSectionEnabled,
         amazonDomain = amazonDomain,
-        onSetAmazonDomain = onSetAmazonDomain
+        onSetAmazonDomain = onSetAmazonDomain,
+        showRequestSearchEngine = showRequestSearchEngine
     )
+
+    // Show Direct Search card at bottom if not shown at top
+    if (!showDirectSearchAtTop && onSetGeminiApiKey != null) {
+        Spacer(modifier = Modifier.height(16.dp))
+        SearchEngineToggleCard(
+            directSearchEnabled = directSearchAvailable,
+            onSetGeminiApiKey = onSetGeminiApiKey,
+            geminiApiKeyLast4 = geminiApiKeyLast4,
+            personalContext = personalContext,
+            onSetPersonalContext = onSetPersonalContext,
+            isExpanded = directSearchSetupExpanded,
+            onToggleExpanded = onToggleDirectSearchSetupExpanded
+        )
+    }
 
 }
 

@@ -109,7 +109,9 @@ fun SettingsDetailRoute(
     var directSearchSetupExpanded by remember(detailType) {
         mutableStateOf(
             if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                userPreferences.isDirectSearchSetupExpanded()
+                // If API key is set up, always start minimized
+                // If not set up, check user preference (defaults to expanded for first-time setup)
+                !uiState.hasGeminiApiKey && userPreferences.isDirectSearchSetupExpanded()
             } else {
                 true
             }
@@ -310,7 +312,8 @@ private fun SettingsDetailScreen(
                             showShortcutHintBanner = showShortcutHintBanner,
                             onDismissShortcutHintBanner = onDismissShortcutHintBanner,
                             directSearchSetupExpanded = directSearchSetupExpanded,
-                            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded
+                            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                            showDirectSearchAtTop = true
                         )
                     }
                     SettingsDetailType.EXCLUDED_ITEMS -> {

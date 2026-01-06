@@ -45,7 +45,6 @@ import com.tk.quicksearch.search.core.*
 @Composable
 fun DirectSearchResult(
     DirectSearchState: DirectSearchState,
-    onRetry: () -> Unit,
     showWallpaperBackground: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {}
@@ -123,16 +122,6 @@ fun DirectSearchResult(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error
                         )
-                        if (DirectSearchState.activeQuery != null) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                TextButton(onClick = onRetry) {
-                                    Text(text = stringResource(R.string.direct_search_action_retry))
-                                }
-                            }
-                        }
                     }
                     DirectSearchStatus.Idle -> {}
                 }

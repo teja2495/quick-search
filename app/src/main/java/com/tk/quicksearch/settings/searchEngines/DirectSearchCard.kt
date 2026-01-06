@@ -4,12 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -40,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -207,20 +212,32 @@ fun SearchEngineToggleCard(
                 )
 
                 if (showInput) {
-                    OutlinedTextField(
-                        value = apiKeyInput,
-                        onValueChange = { apiKeyInput = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        placeholder = { Text(text = stringResource(R.string.settings_gemini_api_key_placeholder)) },
-                        singleLine = true,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Rounded.ContentPaste,
-                                contentDescription = stringResource(R.string.settings_gemini_api_key_paste),
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = apiKeyInput,
+                            onValueChange = { apiKeyInput = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            placeholder = {
+                                Text(
+                                    text = if (apiKeyInput.isEmpty()) "" else "",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            singleLine = true,
+                            readOnly = true // Prevent keyboard opening
+                        )
+
+                        // Overlay clickable text when field is empty
+                        if (apiKeyInput.isEmpty()) {
+                            Text(
+                                text = "Paste Gemini API Key",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
                                     .clickable {
                                         clipboardManager.getText()
                                             ?.text
@@ -229,11 +246,51 @@ fun SearchEngineToggleCard(
                                             ?.let { pasted ->
                                                 apiKeyInput = pasted
                                             }
-                                    },
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
                             )
                         }
-                    )
+
+                        // Tap gesture for the entire field
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp) // Standard TextField height
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = {
+                                            if (apiKeyInput.isEmpty()) {
+                                                // Handle tap to paste when field is empty
+                                                clipboardManager.getText()
+                                                    ?.text
+                                                    ?.trim()
+                                                    ?.takeIf { it.isNotEmpty() }
+                                                    ?.let { pasted ->
+                                                        apiKeyInput = pasted
+                                                    }
+                                            } else {
+                                                // Clear when field has content
+                                                apiKeyInput = ""
+                                            }
+                                        },
+                                        onLongPress = {
+                                            if (apiKeyInput.isEmpty()) {
+                                                // Handle long press to paste when field is empty (backup)
+                                                clipboardManager.getText()
+                                                    ?.text
+                                                    ?.trim()
+                                                    ?.takeIf { it.isNotEmpty() }
+                                                    ?.let { pasted ->
+                                                        apiKeyInput = pasted
+                                                    }
+                                            } else {
+                                                // Clear when field has content
+                                                apiKeyInput = ""
+                                            }
+                                        }
+                                    )
+                                }
+                        )
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
