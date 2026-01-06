@@ -93,10 +93,6 @@ class MainActivity : ComponentActivity() {
 
     private fun setupWindow() {
         enableEdgeToEdge()
-        window.setSoftInputMode(
-            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE or
-                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-        )
     }
 
     private fun setupContent() {

@@ -281,6 +281,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // This is just a fast JSON parse
         val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
 
+        // Prefetch icons immediately on this thread (IO) before switching to Main
+        // This ensures the bitmap cache is populated before the UI tries to render
+        if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
+            val visibleApps = repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
+            val iconPack = userPreferences.getSelectedIconPackPackage()
+            prefetchAppIcons(
+                context = getApplication(),
+                packageNames = visibleApps.map { it.packageName },
+                iconPackPackage = iconPack
+            )
+        }
+
         // Apply immediately
         withContext(Dispatchers.Main) {
             _uiState.update { 
@@ -353,16 +365,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
         }
         
-        // Prefetch icons for the visible apps to prevent pop-in
-        val visibleApps = repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
-        viewModelScope.launch(Dispatchers.IO) {
-            val iconPack = userPreferences.getSelectedIconPackPackage()
-            prefetchAppIcons(
-                context = getApplication(),
-                packageNames = visibleApps.map { it.packageName },
-                iconPackPackage = iconPack
-            )
-        }
     }
 
     /**
@@ -420,8 +422,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
 
             launch(Dispatchers.IO) {
+                // Pinning handler loads contacts and files
                 pinningHandler.loadPinnedContactsAndFiles()
                 pinningHandler.loadExcludedContactsAndFiles()
+                
                 // Now that heavy things are loaded, trigger a full refresh to ensure consistency
                 withContext(Dispatchers.Main) {
                     refreshDerivedState()

@@ -86,7 +86,7 @@ class FileSearchRepository(
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedQuery = normalizeQuery(query)
-        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND format != ${MtpConstants.FORMAT_ASSOCIATION}"
+        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND format != ${MtpConstants.FORMAT_ASSOCIATION} AND LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%'"
         val selectionArgs = arrayOf("%$normalizedQuery%")
         val uri = getFilesContentUri()
 

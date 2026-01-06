@@ -53,12 +53,21 @@ fun rememberAppIcon(
     val context = LocalContext.current
     val cacheKey = buildCacheKey(packageName, iconPackPackage)
     
+    // Check cache immediately for initial value
+    val cachedInitial = AppIconCache.get(cacheKey)
+    
     val iconState = produceState<ImageBitmap?>(
-        initialValue = AppIconCache.get(cacheKey),
+        initialValue = cachedInitial,
         key1 = packageName,
         key2 = iconPackPackage
     ) {
-        // Check cache first
+        // If we already have it, just ensure value is set (redundant but safe)
+        if (cachedInitial != null) {
+            value = cachedInitial
+            return@produceState
+        }
+
+        // Double check cache before loading (in case it came in very recently)
         val cached = AppIconCache.get(cacheKey)
         if (cached != null) {
             value = cached

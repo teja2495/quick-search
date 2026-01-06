@@ -134,7 +134,8 @@ class UnifiedSearchHandler(
                     val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
                     fileType in enabledFileTypes &&
                     !userPreferences.getExcludedFileUris().contains(file.uri.toString()) &&
-                    !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions())
+                    !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions()) &&
+                    file.displayName.contains(".")
                 }
         } else {
             emptyList()

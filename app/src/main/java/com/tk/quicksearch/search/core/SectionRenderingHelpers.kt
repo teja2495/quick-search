@@ -319,7 +319,8 @@ private fun renderAppsSection(
             showAppLabels = params.appsParams.showAppLabels,
             rowCount = params.appsParams.rowCount,
             iconPackPackage = params.appsParams.iconPackPackage,
-            keyboardAlignedLayout = params.appsParams.keyboardAlignedLayout
+            keyboardAlignedLayout = params.appsParams.keyboardAlignedLayout,
+            isInitializing = params.appsParams.isInitializing
         )
     }
 }

@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.apps
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -80,41 +81,45 @@ fun AppGridSection(
     modifier: Modifier = Modifier,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String? = null,
-    keyboardAlignedLayout: Boolean = false
+    keyboardAlignedLayout: Boolean = false,
+    isInitializing: Boolean = false
 ) {
     Column(
         modifier = modifier
              .fillMaxWidth()
             .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow
-                )
+                animationSpec = if (isInitializing) {
+                    // Instant update during initialization to prevent "growing" animation on startup
+                    snap()
+                } else {
+                    spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                }
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Crossfade(targetState = apps, label = "grid") { items ->
-            if (items.isEmpty()) {
-                Box {}
-            } else {
-                AppGrid(
-                    apps = items,
-                    onAppClick = onAppClick,
-                    onAppInfoClick = onAppInfoClick,
-                    onUninstallClick = onUninstallClick,
-                    onHideApp = onHideApp,
-                    onPinApp = onPinApp,
-                    onUnpinApp = onUnpinApp,
-                    onNicknameClick = onNicknameClick,
-                    getAppNickname = getAppNickname,
-                    pinnedPackageNames = pinnedPackageNames,
-                    showAppLabels = showAppLabels,
-                    rowCount = rowCount,
-                    iconPackPackage = iconPackPackage,
-                    keyboardAlignedLayout = keyboardAlignedLayout
-                )
-            }
+        if (apps.isEmpty()) {
+            Box {}
+        } else {
+            AppGrid(
+                apps = apps,
+                onAppClick = onAppClick,
+                onAppInfoClick = onAppInfoClick,
+                onUninstallClick = onUninstallClick,
+                onHideApp = onHideApp,
+                onPinApp = onPinApp,
+                onUnpinApp = onUnpinApp,
+                onNicknameClick = onNicknameClick,
+                getAppNickname = getAppNickname,
+                pinnedPackageNames = pinnedPackageNames,
+                showAppLabels = showAppLabels,
+                rowCount = rowCount,
+                iconPackPackage = iconPackPackage,
+                keyboardAlignedLayout = keyboardAlignedLayout
+            )
         }
     }
 }

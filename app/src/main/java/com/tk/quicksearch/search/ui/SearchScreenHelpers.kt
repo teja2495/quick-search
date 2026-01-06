@@ -93,7 +93,8 @@ data class AppsSectionParams(
     val showAppLabels: Boolean,
     val rowCount: Int,
     val iconPackPackage: String?,
-    val keyboardAlignedLayout: Boolean
+    val keyboardAlignedLayout: Boolean,
+    val isInitializing: Boolean
 )
 
 /**
@@ -269,7 +270,6 @@ internal fun buildSectionParams(
         },
         showWallpaperBackground = state.showWallpaperBackground
     )
-
     val appsParams = AppsSectionParams(
         apps = derivedState.displayApps,
         isSearching = derivedState.isSearching,
@@ -294,7 +294,8 @@ internal fun buildSectionParams(
         showAppLabels = true,
         rowCount = derivedState.visibleRowCount,
         iconPackPackage = state.selectedIconPackPackage,
-        keyboardAlignedLayout = state.keyboardAlignedLayout
+        keyboardAlignedLayout = state.keyboardAlignedLayout,
+        isInitializing = state.isInitializing
     )
 
     SectionParams(
