@@ -3,6 +3,7 @@ package com.tk.quicksearch.permissions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +23,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,7 +42,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -75,6 +82,11 @@ fun PermissionsScreen(
     var filesPermissionState by remember {
         mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
     }
+    var callingPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
+        ))
+    }
 
     var showPermissionReminderDialog by remember { mutableStateOf(false) }
 
@@ -83,6 +95,9 @@ fun PermissionsScreen(
     ) { permissions ->
         val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
         contactsPermissionState = updatePermissionState(contactsGranted, contactsGranted)
+
+        val callingGranted = permissions[Manifest.permission.CALL_PHONE] == true
+        callingPermissionState = updatePermissionState(callingGranted, callingGranted)
 
         // Handle files permission for pre-R Android
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
@@ -120,6 +135,9 @@ fun PermissionsScreen(
                 if (hasFilesPermission) {
                     filesPermissionState = updatePermissionState(hasFilesPermission, true, wasDenied = false)
                 }
+
+                val hasCallingPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
+                callingPermissionState = updatePermissionState(hasCallingPermission, hasCallingPermission)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -134,83 +152,148 @@ fun PermissionsScreen(
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        horizontalAlignment = Alignment.Start
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(40.dp))
         
-        Text(
-            text = stringResource(R.string.permissions_screen_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.permissions_screen_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Start
+            )
 
-        Text(
-            text = stringResource(R.string.permissions_screen_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 12.dp)
-        )
+            Text(
+                text = stringResource(R.string.permissions_screen_subtitle),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Start
+            )
+        }
 
-        // Usage Permission Card
-        PermissionCard(
-            title = stringResource(R.string.permissions_usage_title),
-            description = stringResource(R.string.permissions_usage_desc),
-            permissionState = usagePermissionState,
-            isMandatory = false,
-            onToggleChange = { enabled ->
-                if (enabled && !usagePermissionState.isGranted) {
-                    context.startActivity(
-                        PermissionRequestHandler.createUsageAccessIntent(context)
-                    )
-                }
-            }
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
-        // Contacts Permission Card (Optional)
-        PermissionCard(
-            title = stringResource(R.string.permissions_contacts_title),
-            description = stringResource(R.string.permissions_contacts_desc),
-            permissionState = contactsPermissionState,
-            isMandatory = false,
-            onToggleChange = { enabled ->
-                contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
-                if (enabled && !contactsPermissionState.isGranted) {
-                    multiplePermissionsLauncher.launch(
-                        arrayOf(Manifest.permission.READ_CONTACTS)
-                    )
-                }
-            }
-        )
-
-        // Files Permission Card (Optional)
-        PermissionCard(
-            title = stringResource(R.string.permissions_files_title),
-            description = stringResource(R.string.permissions_files_desc),
-            permissionState = filesPermissionState,
-            isMandatory = false,
-            onToggleChange = { enabled ->
-                filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
-                if (enabled && !filesPermissionState.isGranted) {
-                    handleFilesPermissionRequest(
-                        context = context,
-                        permissionState = filesPermissionState,
-                        runtimeLauncher = multiplePermissionsLauncher,
-                        allFilesLauncher = allFilesAccessLauncher,
-                        onStateUpdate = { newState ->
-                            filesPermissionState = newState
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            shape = RoundedCornerShape(20.dp) // Slightly more rounded as per modern design
+        ) {
+            Column {
+                // Usage Permission Item
+                PermissionItem(
+                    title = stringResource(R.string.permissions_usage_title),
+                    description = stringResource(R.string.permissions_usage_desc),
+                    permissionState = usagePermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        if (enabled && !usagePermissionState.isGranted) {
+                            context.startActivity(
+                                PermissionRequestHandler.createUsageAccessIntent(context)
+                            )
                         }
-                    )
-                }
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Contacts Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.permissions_contacts_title),
+                    description = stringResource(R.string.permissions_contacts_desc),
+                    permissionState = contactsPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !contactsPermissionState.isGranted) {
+                            multiplePermissionsLauncher.launch(
+                                arrayOf(Manifest.permission.READ_CONTACTS)
+                            )
+                        }
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Files Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.permissions_files_title),
+                    description = stringResource(R.string.permissions_files_desc),
+                    permissionState = filesPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !filesPermissionState.isGranted) {
+                            handleFilesPermissionRequest(
+                                context = context,
+                                permissionState = filesPermissionState,
+                                runtimeLauncher = multiplePermissionsLauncher,
+                                allFilesLauncher = allFilesAccessLauncher,
+                                onStateUpdate = { newState ->
+                                    filesPermissionState = newState
+                                }
+                            )
+                        }
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Calling Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.permissions_calling_title),
+                    description = stringResource(R.string.permissions_calling_desc),
+                    permissionState = callingPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !callingPermissionState.isGranted) {
+                            multiplePermissionsLauncher.launch(
+                                arrayOf(Manifest.permission.CALL_PHONE)
+                            )
+                        }
+                    }
+                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(56.dp))
+
+        Text(
+            text = stringResource(R.string.permissions_privacy_notice),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 val hasUngrantedPermissions = !usagePermissionState.isGranted ||
                     !contactsPermissionState.isGranted ||
-                    !filesPermissionState.isGranted
+                    !filesPermissionState.isGranted ||
+                    !callingPermissionState.isGranted
                 
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
@@ -220,7 +303,8 @@ fun PermissionsScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 32.dp),
+                .padding(horizontal = 8.dp),
+            shape = RoundedCornerShape(24.dp), // Premium rounded button
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(
@@ -230,7 +314,7 @@ fun PermissionsScreen(
             )
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
     }
     
     // Permission reminder dialog
@@ -239,6 +323,7 @@ fun PermissionsScreen(
             usagePermissionState = usagePermissionState,
             contactsPermissionState = contactsPermissionState,
             filesPermissionState = filesPermissionState,
+            callingPermissionState = callingPermissionState,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
                 showPermissionReminderDialog = false
@@ -256,13 +341,15 @@ private fun PermissionReminderDialog(
     usagePermissionState: PermissionState,
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
+    callingPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit
 ) {
     val permissionsList = listOfNotNull(
         stringResource(R.string.permissions_usage_title).takeIf { !usagePermissionState.isGranted },
         stringResource(R.string.permissions_contacts_title).takeIf { !contactsPermissionState.isGranted },
-        stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted }
+        stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
+        stringResource(R.string.permissions_calling_title).takeIf { !callingPermissionState.isGranted }
     ).joinToString(", ")
     
     Dialog(

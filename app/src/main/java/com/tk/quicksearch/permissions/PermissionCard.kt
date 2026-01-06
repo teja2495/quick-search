@@ -54,68 +54,90 @@ fun PermissionCard(
         ),
         shape = RoundedCornerShape(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        PermissionItem(
+            title = title,
+            description = description,
+            permissionState = permissionState,
+            isMandatory = isMandatory,
+            onToggleChange = onToggleChange
+        )
+    }
+}
+
+/**
+ * An item component that displays a permission with its title, description, and toggle/status.
+ * Intended to be used inside a Card or other container.
+ */
+@Composable
+fun PermissionItem(
+    title: String,
+    description: String,
+    permissionState: PermissionState,
+    isMandatory: Boolean,
+    onToggleChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (isMandatory) {
-                        Text(
-                            text = stringResource(R.string.permissions_mandatory_indicator),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
                 Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                if (isMandatory) {
+                    Text(
+                        text = stringResource(R.string.permissions_mandatory_indicator),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
-            
-            if (permissionState.isGranted) {
-                // Show green checkmark when permission is granted
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = stringResource(R.string.permissions_granted),
-                    tint = GrantedCheckmarkColor,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .size(24.dp)
-                )
-            } else {
-                // Show toggle when permission is not granted
-                Switch(
-                    checked = permissionState.isEnabled,
-                    onCheckedChange = { newValue ->
-                        if (newValue) {
-                            // User wants to enable - request permission
-                            onToggleChange(true)
-                        } else if (!isMandatory) {
-                            // User wants to disable optional permission (just update UI state)
-                            onToggleChange(false)
-                        }
-                    },
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        if (permissionState.isGranted) {
+            // Show green checkmark when permission is granted
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = stringResource(R.string.permissions_granted),
+                tint = GrantedCheckmarkColor,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .size(24.dp)
+            )
+        } else {
+            // Show toggle when permission is not granted
+            Switch(
+                checked = permissionState.isEnabled,
+                onCheckedChange = { newValue ->
+                    if (newValue) {
+                        // User wants to enable - request permission
+                        onToggleChange(true)
+                    } else if (!isMandatory) {
+                        // User wants to disable optional permission (just update UI state)
+                        onToggleChange(false)
+                    }
+                },
+                modifier = Modifier.padding(start = 16.dp)
+            )
         }
     }
 }

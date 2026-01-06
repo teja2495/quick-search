@@ -462,17 +462,19 @@
     <!-- ============================================================================
          Permissions Screen
          ============================================================================ -->
-    <string name="permissions_screen_title">Welcome to Quick Search</string>
-    <string name="permissions_screen_subtitle">These permissions are optional, but they unlock extra features if you allow them.</string>
+    <string name="permissions_screen_title">Permissions</string>
+    <string name="permissions_screen_subtitle">These permissions unlock additional features. Your data stays on your device.</string>
     <string name="permissions_usage_title">Usage Access</string>
-    <string name="permissions_usage_desc">Show your recently used apps in suggestions.</string>
+    <string name="permissions_usage_desc">Required to show your recently used apps in suggestions.</string>
     <string name="permissions_contacts_title">Contacts</string>
-    <string name="permissions_contacts_desc">Search and quickly call or text your contacts.</string>
-    <string name="permissions_files_title">File Access</string>
-    <string name="permissions_files_desc">Search through your documents, photos, videos, and other files.</string>
+    <string name="permissions_contacts_desc">Required to search your contacts.</string>
+    <string name="permissions_files_title">Files Access</string>
+    <string name="permissions_files_desc">Required to search through your documents and other files.</string>
+    <string name="permissions_calling_title">Calling</string>
+    <string name="permissions_calling_desc">Required to call your contacts.</string>
     <string name="permissions_action_grant">Grant Permission</string>
+    <string name="permissions_privacy_notice"></string>
     <string name="permissions_action_continue">Continue</string>
-    <string name="permissions_action_skip">Skip for now</string>
     <string name="permissions_granted">Granted</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>
