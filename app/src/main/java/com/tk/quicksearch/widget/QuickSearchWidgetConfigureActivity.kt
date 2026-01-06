@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +23,8 @@ import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 
+import androidx.activity.SystemBarStyle
+
 /**
  * Activity for configuring widget preferences when a widget is added or reconfigured.
  */
@@ -30,6 +33,10 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
     private var appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
         setResult(Activity.RESULT_CANCELED)
 

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,11 +58,14 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        // Must be called before super.onCreate for edge-to-edge to work correctly on all versions
+        val statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        val navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        
         super.onCreate(savedInstanceState)
         
         initializePreferences()
-        setupWindow()
         // Initialize ViewModel early to start loading cached data immediately
         // This ensures cached apps are ready when UI renders
         searchViewModel
@@ -89,10 +92,6 @@ class MainActivity : ComponentActivity() {
 
     private fun initializePreferences() {
         userPreferences = UserAppPreferences(this)
-    }
-
-    private fun setupWindow() {
-        enableEdgeToEdge()
     }
 
     private fun setupContent() {
