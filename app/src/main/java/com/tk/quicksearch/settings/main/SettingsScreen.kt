@@ -266,8 +266,9 @@ fun SettingsScreen(
             )
 
             // App Version
-            Spacer(modifier = Modifier.height(72.dp))
-            SettingsVersionDisplay()
+            SettingsVersionDisplay(
+                modifier = Modifier.padding(top = 40.dp, bottom = 60.dp)
+            )
         }
 
         if (showIconPackDialog) {
