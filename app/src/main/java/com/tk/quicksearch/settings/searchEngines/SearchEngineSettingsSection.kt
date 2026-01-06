@@ -92,7 +92,7 @@ fun SearchEnginesSection(
     if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
         ShortcutHintBanner(
             onDismiss = onDismissShortcutHintBanner,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 18.dp)
         )
     }
 

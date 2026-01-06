@@ -47,14 +47,7 @@ class SearchEngineManager(
             if (engine == SearchEngine.DIRECT_SEARCH && enabled) {
                 val hasGeminiApiKey = !userPreferences.getGeminiApiKey().isNullOrBlank()
                 if (!hasGeminiApiKey) {
-                    // Show toast on main thread and don't enable the search engine
-                    scope.launch(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.settings_direct_search_api_key_required),
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                    // Don't enable the search engine without Gemini API key
                     return@launch
                 }
             }

@@ -340,7 +340,6 @@
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>
-    <string name="settings_direct_search_api_key_required">Please set up Gemini API key first to enable Direct Search</string>
     <string name="settings_direct_dial_title">Direct Dial</string>
     <string name="settings_direct_dial_desc">Place calls directly without opening the dialer. </string>
 

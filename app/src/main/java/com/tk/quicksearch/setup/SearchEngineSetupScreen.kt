@@ -114,8 +114,13 @@ fun SearchEngineSetupScreen(
         val scrollState = rememberScrollState()
         val hasAnimatedScroll = remember { mutableStateOf(false) }
 
-        // Local state for disabled engines (starts with defaults, updates on toggle)
-        var disabledEngines by remember { mutableStateOf<Set<SearchEngine>>(defaultDisabledEngines.toSet()) }
+        // Local state for disabled engines (starts with current state from viewModel, updates on toggle)
+        var disabledEngines by remember { mutableStateOf<Set<SearchEngine>>(uiState.disabledSearchEngines) }
+
+        // Update local state when UI state changes (e.g., when Gemini API key is set)
+        LaunchedEffect(uiState.disabledSearchEngines) {
+            disabledEngines = uiState.disabledSearchEngines
+        }
 
         // Auto-scroll animation to indicate list is scrollable
         LaunchedEffect(Unit) {

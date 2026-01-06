@@ -193,7 +193,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private var enabledFileTypes: Set<FileType> = emptySet()
     private var excludedFileExtensions: Set<String> = emptySet()
-    private var keyboardAlignedLayout: Boolean = true
+    private var keyboardAlignedLayout: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true

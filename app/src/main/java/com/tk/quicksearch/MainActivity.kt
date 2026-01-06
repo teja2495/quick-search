@@ -20,9 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -107,38 +110,66 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun MainContent() {
         val isFirstLaunch = userPreferences.isFirstLaunch()
-        var showPermissions by rememberSaveable { mutableStateOf(isFirstLaunch) }
-        var showSearchEngineSetup by rememberSaveable { mutableStateOf(false) }
+        var currentScreen by remember {
+            mutableStateOf(
+                when {
+                    isFirstLaunch -> AppScreen.Permissions
+                    else -> AppScreen.Main
+                }
+            )
+        }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
         var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
 
-        when {
-            showPermissions && isFirstLaunch -> {
-                PermissionsScreen(
-                    onPermissionsComplete = {
-                        showPermissions = false
-                        showSearchEngineSetup = true
-                        searchViewModel.handleOptionalPermissionChange()
+        AnimatedContent(
+            targetState = currentScreen,
+            transitionSpec = {
+                when {
+                    // Transitions within first launch flow (Permissions -> Setup)
+                    initialState == AppScreen.Permissions && targetState == AppScreen.SearchEngineSetup -> {
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> -width } + fadeOut()
                     }
-                )
-            }
-            showSearchEngineSetup && isFirstLaunch -> {
-                SearchEngineSetupScreen(
-                    onContinue = {
-                        userPreferences.setFirstLaunchCompleted()
-                        showSearchEngineSetup = false
-                    },
-                    viewModel = searchViewModel
-                )
-            }
-            else -> {
-                NavigationContent(
-                    destination = destination,
-                    onDestinationChange = { destination = it },
-                    settingsDetailType = settingsDetailType,
-                    onSettingsDetailTypeChange = { settingsDetailType = it },
-                    viewModel = searchViewModel
-                )
+                    // Transition from setup to main app (Setup -> Main)
+                    initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.Main -> {
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> -width } + fadeOut()
+                    }
+                    // Main app navigation (Main -> Main, but handled by NavigationContent internally)
+                    else -> {
+                        EnterTransition.None togetherWith ExitTransition.None
+                    }
+                }
+            },
+            label = "AppNavigation"
+        ) { targetScreen ->
+            when (targetScreen) {
+                AppScreen.Permissions -> {
+                    PermissionsScreen(
+                        onPermissionsComplete = {
+                            currentScreen = AppScreen.SearchEngineSetup
+                            searchViewModel.handleOptionalPermissionChange()
+                        }
+                    )
+                }
+                AppScreen.SearchEngineSetup -> {
+                    SearchEngineSetupScreen(
+                        onContinue = {
+                            userPreferences.setFirstLaunchCompleted()
+                            currentScreen = AppScreen.Main
+                        },
+                        viewModel = searchViewModel
+                    )
+                }
+                AppScreen.Main -> {
+                    NavigationContent(
+                        destination = destination,
+                        onDestinationChange = { destination = it },
+                        settingsDetailType = settingsDetailType,
+                        onSettingsDetailTypeChange = { settingsDetailType = it },
+                        viewModel = searchViewModel
+                    )
+                }
             }
         }
     }
@@ -295,4 +326,10 @@ class MainActivity : ComponentActivity() {
 private enum class RootDestination {
     Search,
     Settings
+}
+
+private enum class AppScreen {
+    Permissions,
+    SearchEngineSetup,
+    Main
 }
