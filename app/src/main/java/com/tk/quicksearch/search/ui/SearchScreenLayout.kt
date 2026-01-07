@@ -1,5 +1,8 @@
 package com.tk.quicksearch.search.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -66,7 +69,10 @@ fun SearchContentArea(
     scrollState: androidx.compose.foundation.ScrollState,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
-    onWebSuggestionClick: (String) -> Unit = {}
+    onWebSuggestionClick: (String) -> Unit = {},
+    showCalculator: Boolean = false,
+    showDirectSearch: Boolean = false,
+    DirectSearchState: DirectSearchState? = null
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
@@ -89,8 +95,8 @@ fun SearchContentArea(
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Ignore bottom alignment when direct answer card, calculator result, or empty state is showing
-        val verticalArrangement = if (alignResultsToBottom && !showCalculator) {
+        // Use bottom alignment when keyboard-aligned layout is enabled and no special states are showing
+        val verticalArrangement = if (alignResultsToBottom) {
             Arrangement.spacedBy(12.dp, Alignment.Bottom)
         } else {
             Arrangement.spacedBy(12.dp)
@@ -107,20 +113,6 @@ fun SearchContentArea(
                 .padding(vertical = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
-            if (showCalculator) {
-                CalculatorResult(
-                    calculatorState = state.calculatorState,
-                    showWallpaperBackground = state.showWallpaperBackground
-                )
-            }
-            if (showDirectSearch) {
-                DirectSearchResult(
-                    DirectSearchState = DirectSearchState,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    onPhoneNumberClick = onPhoneNumberClick,
-                    onEmailClick = onEmailClick
-                )
-            }
             ContentLayout(
                 modifier = Modifier.fillMaxWidth(),
                 state = state,
@@ -130,10 +122,15 @@ fun SearchContentArea(
                 settingsParams = settingsParams,
                 appsParams = appsParams,
                 onRequestUsagePermission = onRequestUsagePermission,
-                // Ignore keyboard-aligned layout when direct answer card or calculator is showing
+                // Pass calculator and direct search state to ContentLayout
                 minContentHeight = this@BoxWithConstraints.maxHeight,
-                isReversed = useKeyboardAlignedLayout && !showDirectSearch && !showCalculator,
-                hideResults = hideResultsForDirectSearch,
+                isReversed = useKeyboardAlignedLayout && !showDirectSearch,
+                hideResults = false, // Always show content layout, let it handle visibility internally
+                showCalculator = showCalculator,
+                showDirectSearch = showDirectSearch,
+                DirectSearchState = DirectSearchState,
+                onPhoneNumberClick = onPhoneNumberClick,
+                onEmailClick = onEmailClick,
                 onWebSuggestionClick = onWebSuggestionClick
             )
         }
@@ -156,6 +153,11 @@ fun ContentLayout(
     minContentHeight: Dp,
     isReversed: Boolean,
     hideResults: Boolean,
+    showCalculator: Boolean = false,
+    showDirectSearch: Boolean = false,
+    DirectSearchState: DirectSearchState? = null,
+    onPhoneNumberClick: (String) -> Unit = {},
+    onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {}
 ) {
     Column(
@@ -165,6 +167,24 @@ fun ContentLayout(
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
             InfoBanner(message = message)
+        }
+
+        // Show calculator result if present
+        if (showCalculator) {
+            CalculatorResult(
+                calculatorState = state.calculatorState,
+                showWallpaperBackground = state.showWallpaperBackground
+            )
+        }
+
+        // Show direct search result if present
+        if (showDirectSearch && DirectSearchState != null) {
+            DirectSearchResult(
+                DirectSearchState = DirectSearchState,
+                showWallpaperBackground = state.showWallpaperBackground,
+                onPhoneNumberClick = onPhoneNumberClick,
+                onEmailClick = onEmailClick
+            )
         }
 
         if (hideResults) {
@@ -179,9 +199,14 @@ fun ContentLayout(
                 shouldShowFilesSection(renderingState, filesParams) ||
                 shouldShowSettingsSection(renderingState)
 
-        if (hasQuery && !hasAnySearchContent) {
-            // Show web suggestions if available and enabled, otherwise show empty message
-            if (state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled) {
+        if (hasQuery && !hasAnySearchContent && !showCalculator) {
+            val showWebSuggestions = state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled
+
+            AnimatedVisibility(
+                visible = showWebSuggestions,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 WebSuggestionsSection(
                     suggestions = state.webSuggestions,
                     onSuggestionClick = onWebSuggestionClick,
@@ -190,7 +215,9 @@ fun ContentLayout(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 )
-            } else {
+            }
+
+            if (!showWebSuggestions) {
                 EmptyResultsMessage(
                     query = state.query,
                     enabledSections = renderingState.orderedSections,

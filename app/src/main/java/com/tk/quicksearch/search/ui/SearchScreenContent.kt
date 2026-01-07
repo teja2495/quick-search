@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchengines.SearchEngineIconsSection
@@ -161,14 +162,17 @@ internal fun SearchScreenContent(
             scrollState = scrollState,
             onPhoneNumberClick = onPhoneNumberClick,
             onEmailClick = onDirectSearchEmailClick,
-            onWebSuggestionClick = onWebSuggestionClick
+            onWebSuggestionClick = onWebSuggestionClick,
+            showCalculator = state.calculatorState.result != null,
+            showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
+            DirectSearchState = state.DirectSearchState
         )
 
         // Keyboard switch pill - appears above search engines
         if (expandedSection == ExpandedSection.NONE) {
             val pillText = if (manuallySwitchedToNumberKeyboard) {
                 stringResource(R.string.keyboard_switch_back)
-            } else if (hasMathExpression && state.calculatorEnabled) {
+            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() }) {
                 stringResource(R.string.keyboard_switch_to_number)
             } else {
                 null

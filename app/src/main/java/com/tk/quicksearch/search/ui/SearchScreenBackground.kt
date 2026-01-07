@@ -1,16 +1,22 @@
 package com.tk.quicksearch.search.ui
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
@@ -29,6 +35,17 @@ internal fun SearchScreenBackground(
         luminance < 0.5f
     }
 
+    // Track if the animation has already played (only animate first time)
+    var hasAnimated by remember { mutableStateOf(false) }
+    val shouldAnimate = showWallpaperBackground && wallpaperBitmap != null && !hasAnimated
+
+    // Animate fade-in only the first time wallpaper background becomes visible
+    val wallpaperAlpha = animateFloatAsState(
+        targetValue = if (shouldAnimate) 1f else if (showWallpaperBackground && wallpaperBitmap != null) 1f else 0f,
+        animationSpec = tween(durationMillis = 300),
+        label = "wallpaperFadeIn"
+    ) { hasAnimated = true }
+
     Box(modifier = modifier.fillMaxSize()) {
         // Blurred wallpaper background (only if enabled)
         if (showWallpaperBackground) {
@@ -38,7 +55,8 @@ internal fun SearchScreenBackground(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .blur(radius = 20.dp),
+                        .blur(radius = 20.dp)
+                        .graphicsLayer(alpha = wallpaperAlpha.value),
                     contentScale = ContentScale.FillBounds
                 )
 
@@ -48,6 +66,7 @@ internal fun SearchScreenBackground(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.Black.copy(alpha = 0.5f))
+                            .graphicsLayer(alpha = wallpaperAlpha.value)
                     )
                 } else {
                     // Light overlay in light mode
@@ -55,6 +74,7 @@ internal fun SearchScreenBackground(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.White.copy(alpha = 0.3f))
+                            .graphicsLayer(alpha = wallpaperAlpha.value)
                     )
                 }
             }

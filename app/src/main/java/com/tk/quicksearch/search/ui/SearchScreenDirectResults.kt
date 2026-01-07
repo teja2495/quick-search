@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.ui
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,15 +18,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -89,20 +99,7 @@ fun DirectSearchResult(
             ) {
                 when (DirectSearchState.status) {
                     DirectSearchStatus.Loading -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp
-                            )
-                            Text(
-                                text = stringResource(R.string.direct_search_loading),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        GeminiLoadingAnimation()
                     }
                     DirectSearchStatus.Success -> {
                         DirectSearchState.answer?.let { answer ->
@@ -179,6 +176,15 @@ fun CalculatorResult(
 
     val clipboardManager = LocalClipboardManager.current
 
+    // Track if the animation has already played (only animate first time)
+    var hasAnimated by remember { mutableStateOf(false) }
+    val shouldAnimate = result.isNotEmpty() && !hasAnimated
+    val resultAlpha = animateFloatAsState(
+        targetValue = if (shouldAnimate) 1f else 1f,
+        animationSpec = tween(durationMillis = 150),
+        label = "calculatorResultFadeIn"
+    ) { hasAnimated = true }
+
     val onLongClick = {
         clipboardManager.setText(AnnotatedString(result))
     }
@@ -208,6 +214,7 @@ fun CalculatorResult(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 175.dp)
+                    .graphicsLayer(alpha = resultAlpha.value)
                     .combinedClickable(
                         onClick = {},
                         onLongClick = onLongClick
@@ -225,6 +232,7 @@ fun CalculatorResult(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 175.dp)
+                    .graphicsLayer(alpha = resultAlpha.value)
                     .combinedClickable(
                         onClick = {},
                         onLongClick = onLongClick
@@ -234,6 +242,11 @@ fun CalculatorResult(
                 content()
             }
         }
+
+        CalculatorAttributionRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -262,6 +275,33 @@ private fun GeminiAttributionRow(
             modifier = Modifier
                 .height(12.dp)
                 .aspectRatio(288f / 65f)
+        )
+    }
+}
+
+/**
+ * Attribution row showing calculator branding.
+ */
+@Composable
+private fun CalculatorAttributionRow(
+    modifier: Modifier = Modifier,
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Row(
+        modifier = modifier.padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Calculate,
+            contentDescription = stringResource(R.string.calculator_toggle_title),
+            tint = contentColor,
+            modifier = Modifier.size(14.dp)
+        )
+        Text(
+            text = stringResource(R.string.calculator_toggle_title),
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor
         )
     }
 }
