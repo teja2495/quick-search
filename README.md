@@ -5,7 +5,6 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tk.quicksearch)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Support Development](https://img.shields.io/badge/Support%20Development-%E2%9D%A4%EF%B8%8F-yellow)](#☕-support-the-development)
 
 ## ✨ Key Features
 
