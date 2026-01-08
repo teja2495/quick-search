@@ -58,6 +58,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.searchengines.getDrawableResId
 
 @Composable
 internal fun PermissionDisabledCard(
@@ -107,6 +108,7 @@ internal fun PersistentSearchField(
     enabledEngines: List<SearchEngine>,
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
+    detectedShortcutEngine: SearchEngine? = null,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -179,12 +181,23 @@ internal fun PersistentSearchField(
             singleLine = false,
             maxLines = 3,
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(R.string.desc_search_icon),
-                    tint = iconAndTextColor,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
+                if (detectedShortcutEngine != null) {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(id = detectedShortcutEngine.getDrawableResId()),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(24.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(R.string.desc_search_icon),
+                        tint = iconAndTextColor,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
             },
             trailingIcon = {
                 Row(

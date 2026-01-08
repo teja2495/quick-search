@@ -124,6 +124,7 @@ internal fun SearchScreenContent(
             onSettingsClick = onSettingsClick,
             enabledEngines = enabledEngines,
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
+            detectedShortcutEngine = state.detectedShortcutEngine,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
 
@@ -136,9 +137,16 @@ internal fun SearchScreenContent(
                 if (firstApp != null) {
                     onAppClick(firstApp)
                 } else {
-                    val primaryEngine = enabledEngines.firstOrNull()
-                    if (primaryEngine != null && trimmedQuery.isNotBlank()) {
-                        onSearchEngineClick(trimmedQuery, primaryEngine)
+                    // Check if a shortcut is detected
+                    if (state.detectedShortcutEngine != null) {
+                        // Remove the shortcut (first word) from the query
+                        val queryWithoutShortcut = trimmedQuery.split("\\s+".toRegex()).drop(1).joinToString(" ")
+                        onSearchEngineClick(queryWithoutShortcut, state.detectedShortcutEngine)
+                    } else {
+                        val primaryEngine = enabledEngines.firstOrNull()
+                        if (primaryEngine != null && trimmedQuery.isNotBlank()) {
+                            onSearchEngineClick(trimmedQuery, primaryEngine)
+                        }
                     }
                 }
             }
