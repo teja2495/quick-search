@@ -113,8 +113,9 @@ Toggle and reorder search result sections:
 
 ### File Types
 Filter which file types to include in search:
-- Images, Videos, Audio
-- Documents, APKs, Other files
+- Photos & Videos
+- Documents
+- Other files
 
 ### Result Management
 - **Exclude Items**: Long press any result to hide it from future searches

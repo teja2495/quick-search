@@ -113,7 +113,7 @@
   - `SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files, Settings)
   - `AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
   - `ContactsSettingsSection.kt` - Messaging app preference (Messages/WhatsApp/Telegram), direct dial settings
-  - `FilesSettingsSection.kt` - File type filters (Images, Videos, Audio, Documents, APKs, Other)
+  - `FilesSettingsSection.kt` - File type filters (Photos & Videos, Documents, Other)
   - `searchEngines/` - Search engine settings:
     - `DirectSearchCard.kt` - Direct search configuration card
     - `SearchEngineDialogs.kt` - Dialogs for search engine configuration

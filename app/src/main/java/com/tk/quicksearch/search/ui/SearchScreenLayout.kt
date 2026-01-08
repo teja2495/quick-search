@@ -198,8 +198,9 @@ fun ContentLayout(
                 shouldShowContactsSection(renderingState, contactsParams) ||
                 shouldShowFilesSection(renderingState, filesParams) ||
                 shouldShowSettingsSection(renderingState)
+        val hasDirectSearchAnswer = showDirectSearch && DirectSearchState != null
 
-        if (hasQuery && !hasAnySearchContent && !showCalculator) {
+        if (hasQuery && !hasAnySearchContent && !showCalculator && !hasDirectSearchAnswer) {
             val showWebSuggestions = state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled
 
             AnimatedVisibility(
