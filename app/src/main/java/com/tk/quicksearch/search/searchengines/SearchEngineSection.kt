@@ -1,10 +1,13 @@
 package com.tk.quicksearch.search.searchengines
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -15,14 +18,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import com.tk.quicksearch.search.core.SearchEngine
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 /**
@@ -59,7 +67,8 @@ fun SearchEngineIconsSection(
     enabledEngines: List<SearchEngine>,
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onSearchEngineLongPress: () -> Unit,
-    externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null
+    externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
+    detectedShortcutEngine: SearchEngine? = null
 ) {
     if (enabledEngines.isEmpty()) return
 
@@ -83,13 +92,21 @@ fun SearchEngineIconsSection(
         color = backgroundColor,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
-        SearchEngineContent(
-            query = query,
-            enabledEngines = enabledEngines,
-            scrollState = scrollState,
-            onSearchEngineClick = onSearchEngineClick,
-            onSearchEngineLongPress = onSearchEngineLongPress
-        )
+        if (detectedShortcutEngine != null) {
+            ShortcutSearchButton(
+                query = query,
+                searchEngine = detectedShortcutEngine,
+                onSearchEngineClick = onSearchEngineClick
+            )
+        } else {
+            SearchEngineContent(
+                query = query,
+                enabledEngines = enabledEngines,
+                scrollState = scrollState,
+                onSearchEngineClick = onSearchEngineClick,
+                onSearchEngineLongPress = onSearchEngineLongPress
+            )
+        }
     }
 }
 
@@ -186,5 +203,46 @@ private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.
     val totalSpacing = SearchEngineSectionConstants.SPACING * 
         (SearchEngineSectionConstants.ITEMS_PER_ROW - 1)
     return (maxWidth - totalSpacing) / SearchEngineSectionConstants.ITEMS_PER_ROW
+}
+
+/**
+ * "Search on" button displayed when a shortcut is detected.
+ */
+@Composable
+private fun ShortcutSearchButton(
+    query: String,
+    searchEngine: SearchEngine,
+    onSearchEngineClick: (String, SearchEngine) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clickable {
+                val queryWithoutShortcut = query.trim().split("\\s+".toRegex()).drop(1).joinToString(" ")
+                onSearchEngineClick(queryWithoutShortcut, searchEngine)
+            }
+            .padding(
+                horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING
+            ),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = searchEngine.getDrawableResId()),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = Color.Unspecified
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = stringResource(
+                com.tk.quicksearch.R.string.search_on_engine,
+                stringResource(searchEngine.getDisplayNameResId())
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
 }
 

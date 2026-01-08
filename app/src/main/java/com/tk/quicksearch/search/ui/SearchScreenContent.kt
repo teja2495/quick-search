@@ -202,6 +202,7 @@ internal fun SearchScreenContent(
                 onSearchEngineClick = onSearchEngineClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 externalScrollState = searchEngineScrollState,
+                detectedShortcutEngine = state.detectedShortcutEngine,
                 modifier = Modifier.imePadding()
             )
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {

@@ -72,7 +72,7 @@ private fun WebSuggestionsCard(
     onSuggestionClick: (String) -> Unit,
     showWallpaperBackground: Boolean = false
 ) {
-    val cardBackgroundColor = MaterialTheme.colorScheme.surface
+    val cardBackgroundColor = MaterialTheme.colorScheme.surfaceContainerLow
     
     val textColor = if (showWallpaperBackground) {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)

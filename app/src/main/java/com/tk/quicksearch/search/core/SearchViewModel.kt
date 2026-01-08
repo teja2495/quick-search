@@ -595,7 +595,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     settingResults = emptyList(),
                     DirectSearchState = DirectSearchState(),
                     calculatorState = CalculatorState(),
-                    webSuggestions = emptyList()
+                    webSuggestions = emptyList(),
+                    detectedShortcutEngine = null
                 ) 
             }
             return
@@ -604,16 +605,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Check if query is a math expression (only if calculator is enabled)
         val calculatorResult = calculatorHandler.processQuery(trimmedQuery)
 
-        // Check for shortcuts if enabled
-        val shortcutMatch = shortcutHandler.detectShortcut(trimmedQuery)
-        if (shortcutMatch != null) {
-            val (queryWithoutShortcut, engine) = shortcutMatch
-            // Show toast notification for shortcut trigger
-            android.widget.Toast.makeText(
-                getApplication(),
-                getApplication<Application>().getString(R.string.shortcut_triggered, getApplication<Application>().getString(engine.getDisplayNameResId())),
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+        // Check for shortcuts at the end of query (auto-execute)
+        val shortcutMatchAtEnd = shortcutHandler.detectShortcut(trimmedQuery)
+        if (shortcutMatchAtEnd != null) {
+            val (queryWithoutShortcut, engine) = shortcutMatchAtEnd
             // Automatically perform search with the detected engine
             navigationHandler.openSearchUrl(queryWithoutShortcut.trim(), engine, clearQueryAfterSearchEngine)
             // Update query to remove shortcut but keep the remaining query
@@ -624,6 +619,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
             return
         }
+
+        // Check for shortcuts at the start of query (show UI button)
+        val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
+        val detectedEngine = shortcutMatchAtStart?.second
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
         appSearchHandler.resetNoMatchPrefixIfNeeded(normalizedQuery)
@@ -646,7 +645,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 query = newQuery,
                 searchResults = matches,
                 calculatorState = calculatorResult,
-                webSuggestions = emptyList()
+                webSuggestions = emptyList(),
+                detectedShortcutEngine = detectedEngine
             )
         }
         

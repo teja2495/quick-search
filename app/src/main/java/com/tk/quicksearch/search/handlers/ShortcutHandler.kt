@@ -106,6 +106,32 @@ class ShortcutHandler(
         return null
     }
 
+    fun detectShortcutAtStart(query: String): Pair<String, SearchEngine>? {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) return null
+
+        // Look for shortcut at the start of the query
+        val words = trimmedQuery.split("\\s+".toRegex())
+        if (words.isEmpty()) return null
+
+        val firstWord = words.first().lowercase(Locale.getDefault())
+        
+        // Check each enabled search engine for matching shortcut
+        for (engine in SearchEngine.values()) {
+            if (engine == SearchEngine.DIRECT_SEARCH && directSearchHandler.getGeminiApiKey().isNullOrBlank()) continue
+            if (!isShortcutEnabled(engine)) continue
+            
+            val shortcutCode = getShortcutCode(engine).lowercase(Locale.getDefault())
+            if (firstWord == shortcutCode) {
+                // Extract query without the shortcut
+                val queryWithoutShortcut = words.drop(1).joinToString(" ")
+                return Pair(queryWithoutShortcut, engine)
+            }
+        }
+        
+        return null
+    }
+
     private fun normalizeShortcutCodeInput(input: String): String {
         return input.trim().lowercase(Locale.getDefault())
     }
