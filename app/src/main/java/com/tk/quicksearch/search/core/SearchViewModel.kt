@@ -198,6 +198,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true
     private var clearQueryAfterSearchEngine: Boolean = false
+    private var lockedShortcutEngine: SearchEngine? = null
     private var showAllResults: Boolean = false
     private var sortAppsByUsageEnabled: Boolean = false
     private var amazonDomain: String? = null
@@ -596,9 +597,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     DirectSearchState = DirectSearchState(),
                     calculatorState = CalculatorState(),
                     webSuggestions = emptyList(),
-                    detectedShortcutEngine = null
+                    detectedShortcutEngine = lockedShortcutEngine
                 ) 
             }
+            // Also reset locked shortcut when query is cleared completely (empty)
+            // But we don't null it out here if we are just transitioning? 
+            // Actually, if query is empty, it means we are cleared.
+            // Wait, if we stripped the shortcut, the query might not be empty immediately if there was trailing text.
+            // If the query becomes empty manually (user backspaced everything), we should probably clear the lock?
+            // User requirement: "clear the detected state only when user clears the query by tapping on x icon or when the app automatically clears the query using clearQuery function."
+            // So if user backspaces to empty, we might want to keep it? The requirement says "x icon" or "clearQuery".
+            // However, if the query is blank, showing a shortcut icon without query might be weird.
+            // Let's stick to the explicit clearQuery for now.
+            // But wait, onQueryChange handles the empty case at the top.
+            // If I backspace "hello world" to "", detectedEngine will be lockedShortcutEngine (Google).
+            // So detection stays.
             return
         }
 
@@ -621,8 +634,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         // Check for shortcuts at the start of query (show UI button)
-        val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
-        val detectedEngine = shortcutMatchAtStart?.second
+        var detectedEngine: SearchEngine? = lockedShortcutEngine
+        
+        // If we don't have a locked engine, try to detect one
+        if (detectedEngine == null) {
+            val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
+            if (shortcutMatchAtStart != null) {
+                detectedEngine = shortcutMatchAtStart.second
+                lockedShortcutEngine = detectedEngine
+                
+                // Strip the shortcut from the query and update recursively
+                val queryWithoutShortcut = shortcutMatchAtStart.first
+                onQueryChange(queryWithoutShortcut)
+                return
+            }
+        }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
         appSearchHandler.resetNoMatchPrefixIfNeeded(normalizedQuery)
@@ -672,7 +698,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
 
 
+    fun clearDetectedShortcut() {
+        lockedShortcutEngine = null
+        _uiState.update { it.copy(detectedShortcutEngine = null) }
+    }
+
     fun clearQuery() {
+        lockedShortcutEngine = null
         onQueryChange("")
     }
 

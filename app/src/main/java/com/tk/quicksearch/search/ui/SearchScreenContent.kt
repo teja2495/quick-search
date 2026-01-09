@@ -48,6 +48,7 @@ internal fun SearchScreenContent(
     expandedSection: ExpandedSection,
     manuallySwitchedToNumberKeyboard: Boolean,
     scrollState: androidx.compose.foundation.ScrollState,
+    onClearDetectedShortcut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Calculate enabled engines
@@ -212,6 +213,7 @@ internal fun SearchScreenContent(
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 externalScrollState = searchEngineScrollState,
                 detectedShortcutEngine = state.detectedShortcutEngine,
+                onClearDetectedShortcut = onClearDetectedShortcut,
                 modifier = Modifier.imePadding()
             )
         } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {

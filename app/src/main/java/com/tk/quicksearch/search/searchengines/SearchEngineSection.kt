@@ -18,10 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import com.tk.quicksearch.search.core.SearchEngine
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.R
 
 /**
  * Constants for search engine section layout.
@@ -68,7 +71,8 @@ fun SearchEngineIconsSection(
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
-    detectedShortcutEngine: SearchEngine? = null
+    detectedShortcutEngine: SearchEngine? = null,
+    onClearDetectedShortcut: () -> Unit = {}
 ) {
     if (enabledEngines.isEmpty()) return
 
@@ -96,7 +100,8 @@ fun SearchEngineIconsSection(
             ShortcutSearchButton(
                 query = query,
                 searchEngine = detectedShortcutEngine,
-                onSearchEngineClick = onSearchEngineClick
+                onSearchEngineClick = onSearchEngineClick,
+                onClearDetectedShortcut = onClearDetectedShortcut
             )
         } else {
             SearchEngineContent(
@@ -212,9 +217,10 @@ private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.
 private fun ShortcutSearchButton(
     query: String,
     searchEngine: SearchEngine,
-    onSearchEngineClick: (String, SearchEngine) -> Unit
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onClearDetectedShortcut: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
@@ -225,24 +231,44 @@ private fun ShortcutSearchButton(
             .padding(
                 horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING
             ),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        contentAlignment = Alignment.Center
     ) {
-        Icon(
-            painter = painterResource(id = searchEngine.getDrawableResId()),
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = Color.Unspecified
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = stringResource(
-                com.tk.quicksearch.R.string.search_on_engine,
-                stringResource(searchEngine.getDisplayNameResId())
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        // Centered Content (Icon + Text)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = searchEngine.getDrawableResId()),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = Color.Unspecified
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(
+                    com.tk.quicksearch.R.string.search_on_engine,
+                    stringResource(searchEngine.getDisplayNameResId())
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+
+        // Close Icon aligned to the right
+        IconButton(
+            onClick = onClearDetectedShortcut,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .size(24.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Close,
+                contentDescription = stringResource(R.string.desc_clear_search),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 

@@ -196,6 +196,7 @@ fun SearchRoute(
         onAppNicknameClick = { app ->
             // This will be handled by the dialog state in SearchScreen
         },
+        onClearDetectedShortcut = viewModel::clearDetectedShortcut,
         onContactNicknameClick = { contact ->
             // This will be handled by the dialog state in SearchScreen
         },
@@ -274,7 +275,8 @@ fun SearchScreen(
     onDismissDirectDialChoice: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
     onWebSuggestionClick: (String) -> Unit = {},
-    onSearchEngineOnboardingDismissed: () -> Unit = {}
+    onSearchEngineOnboardingDismissed: () -> Unit = {},
+    onClearDetectedShortcut: () -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -453,7 +455,8 @@ fun SearchScreen(
             },
             expandedSection = expandedSection,
             manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
-            scrollState = scrollState
+            scrollState = scrollState,
+            onClearDetectedShortcut = onClearDetectedShortcut
         )
 
         // Search engine onboarding overlay
