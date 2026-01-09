@@ -62,7 +62,7 @@ fun GeminiLoadingAnimation(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_gemini_sparkle),
+            painter = painterResource(id = R.drawable.ic_gemini_sparkle_animation),
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)

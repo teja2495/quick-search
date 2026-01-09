@@ -40,6 +40,7 @@
     <string name="direct_search_powered_by">Powered by </string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="error_open_email">No email app found to send mail.</string>
+    <string name="error_open_search_engine">Unable to open %1$s</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
     <string name="keyboard_switch_to_number">Switch to number keyboard</string>
     <string name="direct_answer_contact_name">Direct Answer</string>
@@ -502,6 +503,7 @@
     <string name="search_engine_chatgpt">ChatGPT</string>
     <string name="search_engine_perplexity">Perplexity</string>
     <string name="search_engine_grok">Grok</string>
+    <string name="search_engine_gemini">Gemini</string>
     <string name="search_engine_google_maps">Google Maps</string>
     <string name="search_engine_google_drive">Google Drive</string>
     <string name="search_engine_google_photos">Google Photos</string>

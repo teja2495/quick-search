@@ -5,16 +5,24 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.searchengines.buildSearchUrl
+import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.searchengines.getDisplayNameResId
 
 /**
  * Helper functions for creating and launching intents.
  */
 object IntentHelpers {
+
+    /**
+     * Package name for the Gemini app (formerly known as Bard).
+     */
+    private const val GEMINI_PACKAGE_NAME = "com.google.android.apps.bard"
 
     /**
      * Creates an intent with package URI and NEW_TASK flag.
@@ -117,14 +125,67 @@ object IntentHelpers {
      * Opens a search URL with the specified search engine.
      */
     fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine, amazonDomain: String? = null) {
+        if (searchEngine == SearchEngine.GEMINI) {
+            openGemini(context, query)
+            return
+        }
+
         val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
+            showSearchEngineOpenError(context, searchEngine)
+        } catch (exception: SecurityException) {
+            showSearchEngineOpenError(context, searchEngine)
+        }
+    }
+
+    /**
+     * Opens the Gemini app with the query using a share intent.
+     *
+     * Uses ACTION_SEND intent to com.google.android.apps.bard which reliably pre-fills the query.
+     * Assumes Gemini app is installed.
+     */
+    private fun openGemini(context: Application, query: String) {
+        if (query.isNotBlank()) {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, query)
+                setPackage(GEMINI_PACKAGE_NAME)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            if (shareIntent.resolveActivity(context.packageManager) != null) {
+                try {
+                    context.startActivity(shareIntent)
+                    return
+                } catch (e: ActivityNotFoundException) {
+                    Log.w("GeminiLaunch", "Share intent failed: ${e.message}")
+                } catch (e: SecurityException) {
+                    Log.w("GeminiLaunch", "Share intent security exception: ${e.message}")
+                }
+            } else {
+                Log.w("GeminiLaunch", "Gemini app not resolved - may not be installed")
+            }
+        }
+
+        // If share intent fails, just log it (no user-facing error)
+        Log.e("GeminiLaunch", "Failed to open Gemini app with query")
     }
 
 
+    private fun showSearchEngineOpenError(context: Application, searchEngine: SearchEngine) {
+        Toast.makeText(
+            context,
+            context.getString(
+                R.string.error_open_search_engine,
+                context.getString(searchEngine.getDisplayNameResId())
+            ),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
     /**
      * Opens a file with appropriate app.

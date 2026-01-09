@@ -47,6 +47,12 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
         urlTemplate = "https://chatgpt.com/?prompt=%s",
         defaultShortcutCode = "cgpt"
     ),
+    SearchEngine.GEMINI to SearchEngineMetadata(
+        drawableResId = R.drawable.ic_gemini_sparkle_search_engine,
+        contentDescription = "Gemini",
+        urlTemplate = "https://gemini.google.com/app?text=%s",
+        defaultShortcutCode = "gmi"
+    ),
     SearchEngine.PERPLEXITY to SearchEngineMetadata(
         drawableResId = R.drawable.perplexity,
         contentDescription = "Perplexity",
@@ -281,6 +287,7 @@ fun SearchEngine.getDisplayNameResId(): Int = when (this) {
     SearchEngine.CHATGPT -> R.string.search_engine_chatgpt
     SearchEngine.PERPLEXITY -> R.string.search_engine_perplexity
     SearchEngine.GROK -> R.string.search_engine_grok
+    SearchEngine.GEMINI -> R.string.search_engine_gemini
     SearchEngine.GOOGLE_MAPS -> R.string.search_engine_google_maps
     SearchEngine.GOOGLE_DRIVE -> R.string.search_engine_google_drive
     SearchEngine.GOOGLE_PHOTOS -> R.string.search_engine_google_photos

@@ -10,6 +10,7 @@ enum class SearchEngine {
     DIRECT_SEARCH,
     GOOGLE,
     CHATGPT,
+    GEMINI,
     PERPLEXITY,
     GROK,
     GOOGLE_MAPS,

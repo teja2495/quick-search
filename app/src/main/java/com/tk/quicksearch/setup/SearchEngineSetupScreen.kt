@@ -83,6 +83,7 @@ fun SearchEngineSetupScreen(
             SearchEngine.CHATGPT,
             SearchEngine.PERPLEXITY,
             SearchEngine.GROK,
+            SearchEngine.GEMINI,
             SearchEngine.GOOGLE_MAPS,
             SearchEngine.GOOGLE_DRIVE,
             SearchEngine.GOOGLE_PHOTOS,
