@@ -160,6 +160,12 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
         contentDescription = "AI mode",
         urlTemplate = "https://www.google.com/search?q=%s&udm=50",
         defaultShortcutCode = "gai"
+    ),
+    SearchEngine.STARTPAGE to SearchEngineMetadata(
+        drawableResId = R.drawable.startpage,
+        contentDescription = "Startpage",
+        urlTemplate = "https://www.startpage.com/sp/search?query=%s",
+        defaultShortcutCode = "stp"
     )
 )
 
@@ -216,6 +222,7 @@ fun buildSearchUrl(query: String, searchEngine: SearchEngine, amazonDomain: Stri
             SearchEngine.GOOGLE_PHOTOS -> "https://photos.google.com/"
             SearchEngine.FACEBOOK_MARKETPLACE -> "https://www.facebook.com/marketplace/"
             SearchEngine.YOU_COM -> "https://you.com"
+            SearchEngine.STARTPAGE -> "https://www.startpage.com"
             else -> null
         }
         if (homeUrl != null) {
@@ -303,6 +310,7 @@ fun SearchEngine.getDisplayNameResId(): Int = when (this) {
     SearchEngine.BING -> R.string.search_engine_bing
     SearchEngine.X -> R.string.search_engine_x
     SearchEngine.AI_MODE -> R.string.search_engine_ai_mode
+    SearchEngine.STARTPAGE -> R.string.search_engine_startpage
 }
 
 /**

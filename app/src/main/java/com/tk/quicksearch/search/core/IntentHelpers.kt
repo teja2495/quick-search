@@ -33,6 +33,11 @@ object IntentHelpers {
      * Package name for the You.com app.
      */
     private const val YOU_COM_PACKAGE_NAME = "com.you.browser"
+    
+    /**
+     * Package name for the Startpage app.
+     */
+    private const val STARTPAGE_PACKAGE_NAME = "com.startpage.app"
 
     /**
      * Creates an intent with package URI and NEW_TASK flag.
@@ -147,6 +152,10 @@ object IntentHelpers {
             }
             SearchEngine.YOU_COM -> {
                 openYouCom(context, query)
+                return
+            }
+            SearchEngine.STARTPAGE -> {
+                openStartpage(context, query)
                 return
             }
             else -> {} // Continue to web URL
@@ -271,6 +280,35 @@ object IntentHelpers {
         
         // Fallback to web URL
         openWebUrl(context, buildSearchUrl(query, SearchEngine.YOU_COM))
+    }
+
+    /**
+     * Opens Startpage app if installed, otherwise opens web URL.
+     */
+    private fun openStartpage(context: Application, query: String) {
+        // Check if app is installed
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(STARTPAGE_PACKAGE_NAME)
+        
+        if (launchIntent != null) {
+            // App is installed
+            if (query.isBlank()) {
+                // Just open the app
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (e: Exception) {
+                    Log.w("StartpageLaunch", "Failed to launch Startpage: ${e.message}")
+                }
+            } else {
+                // Try to open with search (using web URL)
+                openWebUrl(context, buildSearchUrl(query, SearchEngine.STARTPAGE))
+                return
+            }
+        }
+        
+        // Fallback to web URL
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.STARTPAGE))
     }
     
     /**

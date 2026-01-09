@@ -29,6 +29,7 @@ enum class SearchEngine {
     FACEBOOK_MARKETPLACE,
     YOU_COM,
     BING,
+    STARTPAGE,
 }
 
 enum class SearchSection {

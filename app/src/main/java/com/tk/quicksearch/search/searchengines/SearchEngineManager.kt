@@ -28,6 +28,7 @@ class SearchEngineManager(
         private const val SPOTIFY_PACKAGE = "com.spotify.music"
         private const val AMAZON_PACKAGE = "com.amazon.mShop.android.shopping"
         private const val YOU_COM_PACKAGE = "com.you.browser"
+        private const val STARTPAGE_PACKAGE = "com.startpage.app"
     }
 
     var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
@@ -177,6 +178,9 @@ class SearchEngineManager(
             }
             if (!isPackageInstalled(packageManager, YOU_COM_PACKAGE)) {
                 savedDisabled.add(SearchEngine.YOU_COM)
+            }
+            if (!isPackageInstalled(packageManager, STARTPAGE_PACKAGE)) {
+                savedDisabled.add(SearchEngine.STARTPAGE)
             }
             
             // Save default disabled engines for new users

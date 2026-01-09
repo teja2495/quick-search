@@ -521,6 +521,7 @@
     <string name="search_engine_x">X</string>
     <string name="search_engine_ai_mode">AI mode</string>
     <string name="search_engine_direct_search">Direct Search</string>
+    <string name="search_engine_startpage">Startpage</string>
 
     <!-- ============================================================================
          Search Engine Onboarding
