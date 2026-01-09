@@ -202,7 +202,8 @@ internal fun SearchScreenContent(
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded, or when search engine section is disabled
-        if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled) {
+        // Exception: always show when query starts with a search engine shortcut
+        if (expandedSection == ExpandedSection.NONE && (state.searchEngineSectionEnabled || state.detectedShortcutEngine != null)) {
             SearchEngineIconsSection(
                 query = state.query,
                 hasAppResults = renderingState.hasAppResults,
