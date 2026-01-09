@@ -19,8 +19,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 
 /**
  * Reusable section title component.
@@ -86,6 +88,7 @@ fun SettingsToggleRow(
     extraBottomPadding: Dp = 0.dp,
     showDivider: Boolean = true
 ) {
+    val view = LocalView.current
     val topPadding = DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
     val bottomPadding = DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding + extraBottomPadding
 
@@ -132,7 +135,10 @@ fun SettingsToggleRow(
 
             Switch(
                 checked = checked,
-                onCheckedChange = onCheckedChange
+                onCheckedChange = { newValue ->
+                    hapticToggle(view)()
+                    onCheckedChange(newValue)
+                }
             )
         }
 

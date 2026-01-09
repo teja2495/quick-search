@@ -22,7 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticToggle
 
 private val GrantedCheckmarkColor = Color(0xFF4CAF50)
 
@@ -77,6 +79,7 @@ fun PermissionItem(
     onToggleChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -128,6 +131,7 @@ fun PermissionItem(
             Switch(
                 checked = permissionState.isEnabled,
                 onCheckedChange = { newValue ->
+                    hapticToggle(view)()
                     if (newValue) {
                         // User wants to enable - request permission
                         onToggleChange(true)

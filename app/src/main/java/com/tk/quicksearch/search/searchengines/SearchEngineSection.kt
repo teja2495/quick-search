@@ -34,7 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticConfirm
 
 /**
  * Constants for search engine section layout.
@@ -220,11 +222,13 @@ private fun ShortcutSearchButton(
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onClearDetectedShortcut: () -> Unit
 ) {
+    val view = LocalView.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
             .clickable {
+                hapticConfirm(view)()
                 val queryWithoutShortcut = query.trim().split("\\s+".toRegex()).drop(1).joinToString(" ")
                 onSearchEngineClick(queryWithoutShortcut, searchEngine)
             }

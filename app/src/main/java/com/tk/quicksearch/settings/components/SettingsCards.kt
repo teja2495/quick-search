@@ -32,7 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.util.hapticConfirm
 
 /**
  * Combined navigation card for excluded items and additional settings with divider.
@@ -133,9 +136,13 @@ private fun RefreshOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Column(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable {
+                hapticConfirm(view)()
+                onClick()
+            }
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -235,6 +242,7 @@ fun WebSuggestionsToggleCard(
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
@@ -242,8 +250,8 @@ fun WebSuggestionsToggleCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onToggle(!enabled) }
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+            .clickable { onToggle(!enabled) }
+            .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -254,7 +262,10 @@ fun WebSuggestionsToggleCard(
             )
             Switch(
                 checked = enabled,
-                onCheckedChange = onToggle
+                onCheckedChange = { newValue ->
+                    hapticToggle(view)()
+                    onToggle(newValue)
+                }
             )
         }
     }
@@ -270,6 +281,7 @@ fun CombinedSearchEnginesCard(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
 ) {
+    val view = LocalView.current
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
@@ -328,7 +340,10 @@ fun CombinedSearchEnginesCard(
                 )
                 Switch(
                     checked = webSuggestionsEnabled,
-                    onCheckedChange = onWebSuggestionsToggle
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onWebSuggestionsToggle(enabled)
+                    }
                 )
             }
         }
@@ -348,6 +363,7 @@ fun CombinedAppearanceCard(
     onRefreshIconPacks: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
@@ -374,6 +390,7 @@ fun CombinedAppearanceCard(
                 Switch(
                     checked = showWallpaperBackground && hasFilePermission,
                     onCheckedChange = { enabled ->
+                        hapticToggle(view)()
                         onToggleShowWallpaperBackground(enabled)
                     }
                 )
@@ -399,7 +416,10 @@ fun CombinedAppearanceCard(
                 )
                 Switch(
                     checked = keyboardAlignedLayout,
-                    onCheckedChange = onToggleKeyboardAlignedLayout
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onToggleKeyboardAlignedLayout(enabled)
+                    }
                 )
             }
 
@@ -462,6 +482,7 @@ fun CalculatorToggleCard(
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
@@ -492,7 +513,10 @@ fun CalculatorToggleCard(
             }
             Switch(
                 checked = enabled,
-                onCheckedChange = onToggle
+                onCheckedChange = { newValue ->
+                    hapticToggle(view)()
+                    onToggle(newValue)
+                }
             )
         }
     }

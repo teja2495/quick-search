@@ -41,8 +41,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.util.hapticConfirm
 
 private const val INITIAL_RESULT_COUNT = 1
 private const val ROW_MIN_HEIGHT = 52
@@ -184,13 +186,17 @@ private fun SettingResultRow(
     hasNickname: Boolean
 ) {
     var showOptions by remember { mutableStateOf(false) }
+    val view = LocalView.current
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = ROW_MIN_HEIGHT.dp)
             .combinedClickable(
-                onClick = { onClick(shortcut) },
+                onClick = {
+                    hapticConfirm(view)()
+                    onClick(shortcut)
+                },
                 onLongClick = { showOptions = true }
             )
             .padding(vertical = 12.dp),

@@ -42,9 +42,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.util.FileUtils
+import com.tk.quicksearch.util.hapticConfirm
 
 // ============================================================================
 // Constants
@@ -286,13 +288,17 @@ private fun FileResultRow(
     hasNickname: Boolean = false
 ) {
     var showOptions by remember { mutableStateOf(false) }
-    
+    val view = LocalView.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = if (isExpanded) 0.dp else FILE_ROW_MIN_HEIGHT.dp)
             .combinedClickable(
-                onClick = { onClick(deviceFile) },
+                onClick = {
+                    hapticConfirm(view)()
+                    onClick(deviceFile)
+                },
                 onLongClick = { showOptions = true }
             )
             .padding(vertical = 12.dp),

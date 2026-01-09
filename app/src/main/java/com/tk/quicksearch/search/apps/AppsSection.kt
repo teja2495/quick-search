@@ -34,8 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.util.hapticConfirm
 
 private const val ROW_COUNT = 2
 private const val COLUMNS = 5
@@ -284,6 +286,7 @@ private fun AppIconSurface(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
+    val view = LocalView.current
     Surface(
         modifier = Modifier.size(64.dp),
         color = Color.Transparent,
@@ -294,7 +297,10 @@ private fun AppIconSurface(
             modifier = Modifier
                 .fillMaxSize()
                 .combinedClickable(
-                    onClick = onClick,
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick()
+                    },
                     onLongClick = onLongClick
                 ),
             contentAlignment = Alignment.Center

@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
@@ -235,6 +237,7 @@ private fun SettingsDetailScreen(
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null
 ) {
+    val view = LocalView.current
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
     var showClearAllConfirmation by remember { mutableStateOf(false) }
@@ -271,7 +274,10 @@ private fun SettingsDetailScreen(
                     {
                         Switch(
                             checked = state.searchEngineSectionEnabled,
-                            onCheckedChange = callbacks.onToggleSearchEngineSectionEnabled
+                            onCheckedChange = { enabled ->
+                                hapticToggle(view)()
+                                callbacks.onToggleSearchEngineSectionEnabled(enabled)
+                            }
                         )
                     }
                 } else {

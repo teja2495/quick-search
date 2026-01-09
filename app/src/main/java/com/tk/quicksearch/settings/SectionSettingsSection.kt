@@ -36,6 +36,7 @@ import androidx.core.view.ViewCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
 
 /**
@@ -172,6 +173,7 @@ private fun SectionRow(
     dragHandleModifier: Modifier,
     bottomPadding: Dp = DragConstants.rowVerticalPadding
 ) {
+    val view = LocalView.current
     val metadata = getSectionMetadata(section)
 
     Row(
@@ -211,7 +213,10 @@ private fun SectionRow(
 
         Switch(
             checked = isEnabled,
-            onCheckedChange = onToggle
+            onCheckedChange = { enabled ->
+                hapticToggle(view)()
+                onToggle(enabled)
+            }
         )
     }
 }

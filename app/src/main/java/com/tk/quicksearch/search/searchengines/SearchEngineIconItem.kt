@@ -17,6 +17,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
+import com.tk.quicksearch.util.hapticConfirm
 
 /**
  * Composable for displaying a single search engine icon item.
@@ -37,11 +39,15 @@ fun SearchEngineIconItem(
     onSearchEngineLongPress: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Box(
         modifier = modifier
             .width(itemWidth)
             .combinedClickable(
-                onClick = { onSearchEngineClick(query, engine) },
+                onClick = {
+                    hapticConfirm(view)()
+                    onSearchEngineClick(query, engine)
+                },
                 onLongClick = onSearchEngineLongPress
             ),
         contentAlignment = Alignment.Center

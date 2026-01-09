@@ -23,7 +23,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.EditShortcutDialog
 import com.tk.quicksearch.settings.searchEngines.SearchEngineDivider
@@ -140,6 +142,7 @@ private fun ShortcutRow(
     onToggle: (Boolean) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val view = LocalView.current
 
     val engineName = engine.getDisplayName()
     val drawableId = engine.getDrawableResId()
@@ -206,7 +209,10 @@ private fun ShortcutRow(
 
         Switch(
             checked = isEnabled,
-            onCheckedChange = onToggle
+            onCheckedChange = { enabled ->
+                hapticToggle(view)()
+                onToggle(enabled)
+            }
         )
     }
 }

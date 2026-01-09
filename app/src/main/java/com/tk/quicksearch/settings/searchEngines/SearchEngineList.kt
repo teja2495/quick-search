@@ -47,6 +47,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchengines.*
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
 
 /**
@@ -261,6 +262,7 @@ private fun SearchEngineRowContent(
     onMoveToTop: (() -> Unit)? = null,
     onMoveToBottom: (() -> Unit)? = null
 ) {
+    val view = LocalView.current
     val engineName = engine.getDisplayName()
     val drawableId = engine.getDrawableResId()
     var showMenu by remember { mutableStateOf(false) }
@@ -374,7 +376,10 @@ private fun SearchEngineRowContent(
         if (showToggle) {
             Switch(
                 checked = isEnabled,
-                onCheckedChange = onToggle,
+                onCheckedChange = { enabled ->
+                    hapticToggle(view)()
+                    onToggle(enabled)
+                },
                 enabled = switchEnabled
             )
         }

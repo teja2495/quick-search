@@ -15,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.FileType
+import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.settings.components.SettingsCard
 import com.tk.quicksearch.settings.components.SettingsSectionTitle
 import com.tk.quicksearch.settings.components.SettingsToggleRow
@@ -102,6 +104,7 @@ private fun FileTypeToggleRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -120,7 +123,10 @@ private fun FileTypeToggleRow(
         )
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = { enabled ->
+                hapticToggle(view)()
+                onCheckedChange(enabled)
+            }
         )
     }
 }

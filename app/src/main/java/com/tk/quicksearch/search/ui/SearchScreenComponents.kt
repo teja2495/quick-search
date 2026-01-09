@@ -54,11 +54,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchengines.getDrawableResId
+import com.tk.quicksearch.util.hapticStrong
 
 @Composable
 internal fun PermissionDisabledCard(
@@ -114,6 +116,7 @@ internal fun PersistentSearchField(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val view = LocalView.current
 
     // Set search bar background to black with slight transparency
     val searchBarBackground = Color.Black.copy(alpha = 0.5f)
@@ -215,7 +218,10 @@ internal fun PersistentSearchField(
                         }
                     }
                     if (query.isEmpty()) {
-                        IconButton(onClick = onSettingsClick) {
+                        IconButton(onClick = {
+                            hapticStrong(view)()
+                            onSettingsClick()
+                        }) {
                             Icon(
                                 imageVector = Icons.Rounded.Settings,
                                 contentDescription = stringResource(R.string.desc_open_settings),

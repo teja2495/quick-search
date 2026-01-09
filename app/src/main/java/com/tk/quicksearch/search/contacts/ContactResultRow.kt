@@ -50,9 +50,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.platform.LocalView
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
@@ -80,6 +82,7 @@ internal fun ContactResultRow(
     hasNickname: Boolean = false
 ) {
     var showOptions by remember { mutableStateOf(false) }
+    val view = LocalView.current
     val hasNumber = contactInfo.primaryNumber != null
 
     Box(
@@ -214,8 +217,12 @@ private fun ContactActionButtons(
     onCallClick: () -> Unit,
     onSmsClick: () -> Unit
 ) {
+    val view = LocalView.current
     IconButton(
-        onClick = onCallClick,
+        onClick = {
+            hapticConfirm(view)()
+            onCallClick()
+        },
         enabled = hasNumber,
         modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
     ) {
@@ -232,7 +239,10 @@ private fun ContactActionButtons(
     }
 
     IconButton(
-        onClick = onSmsClick,
+        onClick = {
+            hapticConfirm(view)()
+            onSmsClick()
+        },
         enabled = hasNumber,
         modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
     ) {

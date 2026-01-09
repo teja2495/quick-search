@@ -28,8 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.settings.components.SettingsCard
 import com.tk.quicksearch.settings.components.SettingsSectionTitle
 import com.tk.quicksearch.settings.components.SettingsToggleRow
@@ -120,6 +123,7 @@ private fun MergedMessagingCard(
     onToggleDirectDial: (Boolean) -> Unit,
     hasCallPermission: Boolean
 ) {
+    val view = LocalView.current
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
@@ -152,7 +156,10 @@ private fun MergedMessagingCard(
                 }
                 Switch(
                     checked = directDialEnabled && hasCallPermission,
-                    onCheckedChange = onToggleDirectDial
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onToggleDirectDial(enabled)
+                    }
                 )
             }
 
@@ -210,6 +217,7 @@ private fun MessagingOptionChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val view = LocalView.current
     val borderColor = if (selected) {
         MaterialTheme.colorScheme.primary
     } else {
@@ -232,7 +240,10 @@ private fun MessagingOptionChip(
             )
             .selectable(
                 selected = selected,
-                onClick = onClick,
+                onClick = {
+                    hapticConfirm(view)()
+                    onClick()
+                },
                 role = Role.RadioButton
             )
             .padding(vertical = MessagingSpacing.chipVerticalPadding, horizontal = MessagingSpacing.chipHorizontalPadding),
