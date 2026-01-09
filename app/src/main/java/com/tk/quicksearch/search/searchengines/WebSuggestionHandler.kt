@@ -37,6 +37,14 @@ class WebSuggestionHandler(
         webSuggestionsJob?.cancel()
         webSuggestionsJob = scope.launch(Dispatchers.IO) {
             try {
+                // Add delay to prevent immediate API calls while user is typing
+                delay(300L)
+                // Check if query version still matches after delay
+                if (activeQueryVersionProvider() != currentQueryVersion ||
+                    activeQueryProvider().trim() != query.trim()) {
+                    return@launch
+                }
+
                 val suggestions = WebSuggestionsUtils.getSuggestions(query)
                 withContext(Dispatchers.Main) {
                     // Only update if query hasn't changed
