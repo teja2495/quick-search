@@ -23,6 +23,16 @@ object IntentHelpers {
      * Package name for the Gemini app (formerly known as Bard).
      */
     private const val GEMINI_PACKAGE_NAME = "com.google.android.apps.bard"
+    
+    /**
+     * Package name for the Google Photos app.
+     */
+    private const val GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos"
+    
+    /**
+     * Package name for the You.com app.
+     */
+    private const val YOU_COM_PACKAGE_NAME = "com.you.browser"
 
     /**
      * Creates an intent with package URI and NEW_TASK flag.
@@ -125,9 +135,21 @@ object IntentHelpers {
      * Opens a search URL with the specified search engine.
      */
     fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine, amazonDomain: String? = null) {
-        if (searchEngine == SearchEngine.GEMINI) {
-            openGemini(context, query)
-            return
+        // Handle apps with native integrations
+        when (searchEngine) {
+            SearchEngine.GEMINI -> {
+                openGemini(context, query)
+                return
+            }
+            SearchEngine.GOOGLE_PHOTOS -> {
+                openGooglePhotos(context, query)
+                return
+            }
+            SearchEngine.YOU_COM -> {
+                openYouCom(context, query)
+                return
+            }
+            else -> {} // Continue to web URL
         }
 
         val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)
@@ -145,34 +167,126 @@ object IntentHelpers {
 
     /**
      * Opens the Gemini app with the query using a share intent.
+     * If query is empty, just launches the app.
      *
      * Uses ACTION_SEND intent to com.google.android.apps.bard which reliably pre-fills the query.
      * Assumes Gemini app is installed.
      */
     private fun openGemini(context: Application, query: String) {
-        if (query.isNotBlank()) {
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, query)
-                setPackage(GEMINI_PACKAGE_NAME)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            if (shareIntent.resolveActivity(context.packageManager) != null) {
+        // If query is blank, just open the app
+        if (query.isBlank()) {
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(GEMINI_PACKAGE_NAME)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 try {
-                    context.startActivity(shareIntent)
+                    context.startActivity(launchIntent)
                     return
                 } catch (e: ActivityNotFoundException) {
-                    Log.w("GeminiLaunch", "Share intent failed: ${e.message}")
+                    Log.w("GeminiLaunch", "Failed to launch Gemini app: ${e.message}")
                 } catch (e: SecurityException) {
-                    Log.w("GeminiLaunch", "Share intent security exception: ${e.message}")
+                    Log.w("GeminiLaunch", "Security exception launching Gemini: ${e.message}")
                 }
-            } else {
-                Log.w("GeminiLaunch", "Gemini app not resolved - may not be installed")
             }
+            Log.e("GeminiLaunch", "Failed to open Gemini app")
+            return
+        }
+        
+        // If query is not blank, use share intent to pre-fill it
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, query)
+            setPackage(GEMINI_PACKAGE_NAME)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (shareIntent.resolveActivity(context.packageManager) != null) {
+            try {
+                context.startActivity(shareIntent)
+                return
+            } catch (e: ActivityNotFoundException) {
+                Log.w("GeminiLaunch", "Share intent failed: ${e.message}")
+            } catch (e: SecurityException) {
+                Log.w("GeminiLaunch", "Share intent security exception: ${e.message}")
+            }
+        } else {
+            Log.w("GeminiLaunch", "Gemini app not resolved - may not be installed")
         }
 
         // If share intent fails, just log it (no user-facing error)
         Log.e("GeminiLaunch", "Failed to open Gemini app with query")
+    }
+    
+    /**
+     * Opens Google Photos app if installed, otherwise opens web URL.
+     */
+    private fun openGooglePhotos(context: Application, query: String) {
+        // Check if app is installed
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(GOOGLE_PHOTOS_PACKAGE_NAME)
+        
+        if (launchIntent != null) {
+            // App is installed
+            if (query.isBlank()) {
+                // Just open the app
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (e: Exception) {
+                    Log.w("GooglePhotosLaunch", "Failed to launch Google Photos: ${e.message}")
+                }
+            } else {
+                // Try to open with search (using web URL as Photos app doesn't have a direct search intent)
+                openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE_PHOTOS))
+                return
+            }
+        }
+        
+        // Fallback to web URL
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE_PHOTOS))
+    }
+    
+    /**
+     * Opens You.com app if installed, otherwise opens web URL.
+     */
+    private fun openYouCom(context: Application, query: String) {
+        // Check if app is installed
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(YOU_COM_PACKAGE_NAME)
+        
+        if (launchIntent != null) {
+            // App is installed
+            if (query.isBlank()) {
+                // Just open the app
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (e: Exception) {
+                    Log.w("YouComLaunch", "Failed to launch You.com: ${e.message}")
+                }
+            } else {
+                // Try to open with search (using web URL)
+                openWebUrl(context, buildSearchUrl(query, SearchEngine.YOU_COM))
+                return
+            }
+        }
+        
+        // Fallback to web URL
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.YOU_COM))
+    }
+    
+    /**
+     * Opens a web URL in a browser.
+     */
+    private fun openWebUrl(context: Application, url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w("OpenWebUrl", "Failed to open URL: ${e.message}")
+        } catch (e: SecurityException) {
+            Log.w("OpenWebUrl", "Security exception opening URL: ${e.message}")
+        }
     }
 
 

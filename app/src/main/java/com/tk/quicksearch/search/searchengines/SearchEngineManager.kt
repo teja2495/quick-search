@@ -26,6 +26,8 @@ class SearchEngineManager(
         private const val YOUTUBE_MUSIC_PACKAGE = "com.google.android.apps.youtube.music"
         private const val REDDIT_PACKAGE = "com.reddit.frontpage"
         private const val SPOTIFY_PACKAGE = "com.spotify.music"
+        private const val AMAZON_PACKAGE = "com.amazon.mShop.android.shopping"
+        private const val YOU_COM_PACKAGE = "com.you.browser"
     }
 
     var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
@@ -135,6 +137,7 @@ class SearchEngineManager(
     }
 
     private fun loadDisabledSearchEngines(): Set<SearchEngine> {
+        val hasPreference = userPreferences.hasDisabledSearchEnginesPreference()
         val disabledNames = userPreferences.getDisabledSearchEngines()
         val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
         val savedDisabled = disabledNames.mapNotNull { name ->
@@ -143,28 +146,37 @@ class SearchEngineManager(
         
         val packageManager = context.packageManager
         
-        // If no saved preferences, set default disabled engines
-        if (disabledNames.isEmpty()) {
+        // If no saved preferences (first-time user), set default disabled engines
+        if (!hasPreference) {
             // Always disabled by default
             savedDisabled.addAll(listOf(
                 SearchEngine.FACEBOOK_MARKETPLACE,
-                SearchEngine.YOU_COM,
+                SearchEngine.DUCKDUCKGO,
+                SearchEngine.BRAVE,
                 SearchEngine.BING,
-                SearchEngine.BRAVE
+                SearchEngine.AI_MODE,
+                SearchEngine.GOOGLE_DRIVE,
+                SearchEngine.GOOGLE_PHOTOS
             ))
             
             // Disable app-based engines if apps are not installed
+            if (!isPackageInstalled(packageManager, REDDIT_PACKAGE)) {
+                savedDisabled.add(SearchEngine.REDDIT)
+            }
+            if (!isPackageInstalled(packageManager, AMAZON_PACKAGE)) {
+                savedDisabled.add(SearchEngine.AMAZON)
+            }
             if (!isPackageInstalled(packageManager, X_PACKAGE)) {
                 savedDisabled.add(SearchEngine.X)
             }
             if (!isPackageInstalled(packageManager, YOUTUBE_MUSIC_PACKAGE)) {
                 savedDisabled.add(SearchEngine.YOUTUBE_MUSIC)
             }
-            if (!isPackageInstalled(packageManager, REDDIT_PACKAGE)) {
-                savedDisabled.add(SearchEngine.REDDIT)
-            }
             if (!isPackageInstalled(packageManager, SPOTIFY_PACKAGE)) {
                 savedDisabled.add(SearchEngine.SPOTIFY)
+            }
+            if (!isPackageInstalled(packageManager, YOU_COM_PACKAGE)) {
+                savedDisabled.add(SearchEngine.YOU_COM)
             }
             
             // Save default disabled engines for new users
@@ -175,24 +187,10 @@ class SearchEngineManager(
             }
             userPreferences.setDisabledSearchEngines(finalDisabled.map { it.name }.toSet())
             return finalDisabled
-        } else {
-            // For existing users, check if app-based engines should be disabled
-            // This handles the case where apps are uninstalled after initial setup
-            // Note: We don't save this automatically to avoid overriding user preferences
-            if (!isPackageInstalled(packageManager, X_PACKAGE)) {
-                savedDisabled.add(SearchEngine.X)
-            }
-            if (!isPackageInstalled(packageManager, YOUTUBE_MUSIC_PACKAGE)) {
-                savedDisabled.add(SearchEngine.YOUTUBE_MUSIC)
-            }
-            if (!isPackageInstalled(packageManager, REDDIT_PACKAGE)) {
-                savedDisabled.add(SearchEngine.REDDIT)
-            }
-            if (!isPackageInstalled(packageManager, SPOTIFY_PACKAGE)) {
-                savedDisabled.add(SearchEngine.SPOTIFY)
-            }
         }
         
+        // For existing users (who have saved preferences), respect their choices
+        // This includes users who enabled all engines (empty disabled set)
         return if (hasGemini) {
             savedDisabled
         } else {

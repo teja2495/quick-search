@@ -211,16 +211,15 @@ fun buildSearchUrl(query: String, searchEngine: SearchEngine, amazonDomain: Stri
             }
             SearchEngine.YOUTUBE -> "https://www.youtube.com"
             SearchEngine.REDDIT -> "https://www.reddit.com"
+            SearchEngine.GEMINI -> "https://gemini.google.com/app"
+            SearchEngine.GOOGLE_PLAY -> "https://play.google.com/store/apps"
+            SearchEngine.GOOGLE_PHOTOS -> "https://photos.google.com/"
+            SearchEngine.FACEBOOK_MARKETPLACE -> "https://www.facebook.com/marketplace/"
+            SearchEngine.YOU_COM -> "https://you.com"
             else -> null
         }
         if (homeUrl != null) {
             return homeUrl
-        }
-        
-        // Special handling for Google Play - keep query parameter with empty value
-        if (searchEngine == SearchEngine.GOOGLE_PLAY) {
-            val encodedQuery = Uri.encode("")
-            return metadata.urlTemplate.replace("%s", encodedQuery)
         }
         
         // For other engines, return base URL without query parameters

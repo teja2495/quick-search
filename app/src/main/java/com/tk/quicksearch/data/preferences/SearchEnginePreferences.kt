@@ -11,10 +11,19 @@ class SearchEnginePreferences(context: Context) : BasePreferences(context) {
     // Search Engine Preferences
     // ============================================================================
 
-    fun getDisabledSearchEngines(): Set<String> = getStringSet(KEY_DISABLED_SEARCH_ENGINES)
+    fun hasDisabledSearchEnginesPreference(): Boolean {
+        return prefs.contains(KEY_DISABLED_SEARCH_ENGINES)
+    }
+
+    fun getDisabledSearchEngines(): Set<String> {
+        // Create a defensive copy to avoid SharedPreferences StringSet bugs
+        return getStringSet(KEY_DISABLED_SEARCH_ENGINES).toSet()
+    }
 
     fun setDisabledSearchEngines(disabled: Set<String>) {
-        prefs.edit().putStringSet(KEY_DISABLED_SEARCH_ENGINES, disabled).apply()
+        // Create a new HashSet to ensure Android persists the changes correctly
+        // This is required due to a known Android bug with StringSet in SharedPreferences
+        prefs.edit().putStringSet(KEY_DISABLED_SEARCH_ENGINES, HashSet(disabled)).apply()
     }
 
     fun getSearchEngineOrder(): List<String> = getStringListPref(KEY_SEARCH_ENGINE_ORDER)

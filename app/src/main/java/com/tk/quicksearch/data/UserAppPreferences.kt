@@ -241,6 +241,8 @@ class UserAppPreferences(context: Context) {
     // Search Engine Preferences
     // ============================================================================
 
+    fun hasDisabledSearchEnginesPreference(): Boolean = searchEnginePreferences.hasDisabledSearchEnginesPreference()
+
     fun getDisabledSearchEngines(): Set<String> = searchEnginePreferences.getDisabledSearchEngines()
 
     fun setDisabledSearchEngines(disabled: Set<String>) = searchEnginePreferences.setDisabledSearchEngines(disabled)
