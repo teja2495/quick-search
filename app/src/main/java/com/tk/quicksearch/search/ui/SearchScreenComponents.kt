@@ -38,6 +38,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -45,6 +55,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -111,6 +128,7 @@ internal fun PersistentSearchField(
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutEngine: SearchEngine? = null,
+    showWelcomeAnimation: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -151,12 +169,179 @@ internal fun PersistentSearchField(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    // Animation constants
+    val animationDuration = 4000 
+    
+    // Animation state
+    // We use a linear progression 0 -> 1 to scan the gradient exactly once
+    val animationProgress = remember { Animatable(0f) }
+    
+    val glowAlpha = remember { Animatable(0f) }
+    // If we aren't showing the welcome animation, start with the standard UI (0.3f alpha)
+    val borderAlpha = remember { Animatable(if (showWelcomeAnimation) 0f else 0.3f) }
+
+    LaunchedEffect(showWelcomeAnimation) {
+        if (showWelcomeAnimation) {
+            // Setup Start State
+            glowAlpha.snapTo(1f)
+            borderAlpha.snapTo(0f)
+            animationProgress.snapTo(0f)
+
+            // Phase 1: Animate the gradient flow (0 -> 1)
+            // This scans the colors and arrives at the end (White)
+            animationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(animationDuration, easing = LinearEasing)
+            )
+
+            // Phase 2: Arrived at White. Make it permanent.
+            // We DO NOT snap border to 1f. We rely on the White Brush from Phase 1 to hold the white state.
+            // This maintains the "Glow" look during the hold.
+            
+            // Hold for a tiny beat (imperceptible, just ensures scan completion)
+            delay(50)
+
+            // Phase 3: Dissipate Heat / Cool Down
+            // Quicker fade out (500ms) to prevent lingering
+            launch {
+                glowAlpha.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                )
+            }
+            launch {
+                borderAlpha.animateTo(
+                    targetValue = 0.3f,
+                    animationSpec = tween(500, easing = LinearOutSlowInEasing)
+                )
+            }
+        }
+    }
+
+    // --- Color Palettes ---
+    
+    // 1. Northern Lights (Cool & Mystical) - Best for dark calm themes
+    val auroraColors = listOf(
+        Color(0xFF00E5FF), // Cyan Accent
+        Color(0xFF2979FF), // Royal Blue
+        Color(0xFF651FFF), // Deep Purple
+        Color(0xFFD500F9), // Neon Violet
+        Color(0xFF2979FF), // Back to Blue
+        Color(0xFF00E5FF)  // Back to Cyan loop
+    )
+
+    // 2. Electric Cyberpunk (Vibrant & High Energy) - Best for "expensive" tech look
+    val electricColors = listOf(
+        Color(0xFFD500F9), // Neon Purple
+        Color(0xFFFF00CC), // Hot Pink
+        Color(0xFFFF3D00), // Electric Orange
+        Color(0xFFFF00CC), // Hot Pink
+        Color(0xFFD500F9), // Neon Purple
+        Color(0xFF2979FF), // Electric Blue
+        Color(0xFFD500F9)  // Loop
+    )
+
+    // 3. Golden Luxury (Warm & Premium) - Best for "Gold" status feel
+    val goldenColors = listOf(
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFF9100), // Deep Orange
+        Color(0xFFFFEA00), // Bright Yellow
+        Color(0xFFFFD700), // Gold
+        Color(0xFFFFA000), // Amber
+        Color(0xFFFFD700)  // Loop
+    )
+
+    // 4. Google Brand Colors (Familiar & Playful)
+    // "Vibrant Path": High-fidelity spectrum to avoid muddy RGB blends
+    val googleColors = listOf(
+        Color(0xFF4285F4), // 1. Blue
+        Color(0xFF5E35B1), // 1.1 Indigo (Bridge to Purple)
+        Color(0xFF9C27B0), // 1.2 Purple (Bridge to Red)
+        Color(0xFFE91E63), // 1.3 Pink (Bridge to Red)
+        Color(0xFFEA4335), // 2. Red
+        Color(0xFFFF5722), // 2.1 Deep Orange
+        Color(0xFFFF9800), // 2.2 Orange
+        Color(0xFFFFC107), // 2.3 Amber
+        Color(0xFFFBBC05), // 3. Yellow
+        Color(0xFFD4E157), // 3.1 Lime
+        Color(0xFFCDDC39), // 3.2 Light Green
+        Color(0xFF34A853), // 4. Green
+        Color(0xFF00BFA5), // 4.1 Teal Accent
+        Color(0xFF00BCD4), // 4.2 Cyan
+        Color(0xFF03A9F4), // 4.3 Light Blue
+        Color(0xFF4285F4), // 5. Back to Blue
+        
+        // End Block: Solid White
+        // We need a long tail of white (>25% of total list) to ensure the screen is fully white 
+        // when the scan reaches the end.
+        Color.White, Color.White, Color.White, Color.White,
+        Color.White, Color.White, Color.White, Color.White,
+        Color.White, Color.White, Color.White, Color.White
+    )
+
+    // Select the active palette here (Change this to try others!)
+    val activeColors = googleColors
+
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .graphicsLayer() // GPU acceleration
+            .drawBehind {
+                val alpha = glowAlpha.value
+                if (alpha > 0f) {
+                    val strokeWidth = 2.dp.toPx()
+                    val cornerRadiusVal = 28.dp.toPx()
+                    
+ 
+                    
+                    // Calculate gradient movement based on animation progress
+                    // We want to SCAN the gradient from Start (Colors) to End (White)
+                    // At t=0, we want offset=0 (Start of colors aligned with left edge)
+                    // At t=1, we want to look at the End (White).
+                    // So we slide the brush to the LEFT (negative offset) until the end is visible.
+                    
+                    val gradientWidth = size.width * 4 // Ultra wide gradient
+                    
+                    // xOffset moves from 0 down to -3*width.
+                    // At -3*width, the brush starts 3 screens to the left.
+                    // The visible part [0, width] is at offset +3*width = [3*width, 4*width] of the gradient.
+                    // This is the last 25% of the gradient, which is White.
+                    val xOffset = -(animationProgress.value * size.width * 3)
+                    
+                    val brush = Brush.linearGradient(
+                        colors = activeColors,
+                        start = Offset(xOffset, 0f),
+                        end = Offset(xOffset + gradientWidth, 0f),
+                        // Tilt slightly for more dynamic look? No, straight looks cleaner for border
+                    )
+
+                    // 1. Draw "Outer Glow" (Simulated Blur)
+                    // We draw wider, lower alpha strokes behind
+                     drawRoundRect(
+                        brush = brush,
+                        cornerRadius = CornerRadius(cornerRadiusVal),
+                        style = Stroke(width = strokeWidth * 4f), // Wide spill
+                        alpha = alpha * 0.3f // Low opacity
+                    )
+                    drawRoundRect(
+                        brush = brush,
+                        cornerRadius = CornerRadius(cornerRadiusVal),
+                        style = Stroke(width = strokeWidth * 2f), // Medium spill
+                        alpha = alpha * 0.5f
+                    )
+
+                    // 2. Draw "Core" sharp line
+                    drawRoundRect(
+                        brush = brush,
+                        cornerRadius = CornerRadius(cornerRadiusVal),
+                        style = Stroke(width = strokeWidth),
+                        alpha = alpha
+                    )
+                }
+            }
             .border(
                 width = 2.dp,
-                color = Color.White.copy(alpha = 0.3f),
+                color = Color.White.copy(alpha = borderAlpha.value),
                 shape = RoundedCornerShape(28.dp)
             )
             .clip(RoundedCornerShape(28.dp))

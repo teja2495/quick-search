@@ -142,5 +142,6 @@ data class SearchUiState(
     val calculatorState: CalculatorState = CalculatorState(),
     val webSuggestions: List<String> = emptyList(),
     val showSearchEngineOnboarding: Boolean = false,
+    val showSearchBarWelcomeAnimation: Boolean = false,
     val detectedShortcutEngine: SearchEngine? = null
 )

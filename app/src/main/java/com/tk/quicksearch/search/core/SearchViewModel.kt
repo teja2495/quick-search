@@ -414,6 +414,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showSearchEngineOnboarding = searchEngineManager.searchEngineSectionEnabled &&
                         !userPreferences.hasSeenSearchEngineOnboarding() &&
                         userPreferences.getAppOpenCount() == 1,
+                    showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = calculatorHandler.isEnabled,
                     hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
@@ -453,6 +454,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // 4. Release notes
             releaseNotesHandler.checkForReleaseNotes()
         }
+    }
+
+    private fun shouldShowSearchBarWelcome(): Boolean {
+        // Show if not seen before, regardless of app open count.
+        // This ensures existing users also see the new feature once.
+        val hasSeen = userPreferences.hasSeenSearchBarWelcome()
+        
+        if (!hasSeen) {
+            userPreferences.setHasSeenSearchBarWelcome(true)
+            return true
+        }
+        return false
     }
 
     private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {

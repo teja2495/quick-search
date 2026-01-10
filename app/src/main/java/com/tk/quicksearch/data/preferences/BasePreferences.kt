@@ -248,6 +248,7 @@ abstract class BasePreferences(protected val context: Context) {
         const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
+        const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
 
         // Fresh install detection window (10 minutes)
         const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L

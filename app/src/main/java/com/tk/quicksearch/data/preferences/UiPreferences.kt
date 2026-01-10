@@ -112,6 +112,12 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
     }
 
+    fun hasSeenSearchBarWelcome(): Boolean = getBooleanPref(KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
+
+    fun setHasSeenSearchBarWelcome(seen: Boolean) {
+        setBooleanPref(KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen)
+    }
+
     fun getLastSeenVersionName(): String? = prefs.getString(KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {

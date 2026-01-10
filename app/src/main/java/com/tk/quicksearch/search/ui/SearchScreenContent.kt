@@ -126,6 +126,7 @@ internal fun SearchScreenContent(
             enabledEngines = enabledEngines,
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
             detectedShortcutEngine = state.detectedShortcutEngine,
+            showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
 

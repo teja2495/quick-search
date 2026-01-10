@@ -338,6 +338,10 @@ class UserAppPreferences(context: Context) {
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) = uiPreferences.setDirectSearchSetupExpanded(expanded)
 
+    fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
+
+    fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
+
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) = uiPreferences.setLastSeenVersionName(versionName)
