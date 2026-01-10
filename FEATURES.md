@@ -14,6 +14,31 @@
 - **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
 - **Horizontal Scroll** - Swipe horizontally to access additional search engines
 - **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
+- **Search Engine Shortcuts** - Add a search engine shortcut at the start or end of your query to quickly search with that search engine
+- **Supported Search Engines**:
+  - **Direct Search** (dsh) - AI-powered answers using Gemini API
+  - **Google** (ggl) - Default web search
+  - **ChatGPT** (cgpt) - OpenAI's conversational AI
+  - **Gemini** (gmi) - Google's AI assistant
+  - **Perplexity** (ppx) - AI-powered search with citations
+  - **Grok** (grk) - xAI's AI assistant
+  - **Google Maps** (mps) - Location and directions
+  - **Google Drive** (gdr) - File search in Google Drive
+  - **Google Photos** (gph) - Photo search and organization
+  - **Google Play** (gpl) - Android app search
+  - **YouTube** (ytb) - Video search and streaming
+  - **YouTube Music** (ytm) - Music streaming and discovery
+  - **Spotify** (sfy) - Music and podcast streaming
+  - **Reddit** (rdt) - Community discussions and content
+  - **Amazon** (amz) - E-commerce shopping
+  - **X (Twitter)** (twt) - Social media platform
+  - **Facebook Marketplace** (fbm) - Local buying and selling
+  - **Bing** (bng) - Microsoft's search engine
+  - **DuckDuckGo** (ddg) - Privacy-focused search
+  - **Brave** (brv) - Privacy-focused browser search
+  - **Startpage** (stp) - Privacy-focused search engine
+  - **You.com** (yu) - AI-powered search platform
+  - **AI Mode** (gai) - Google's AI-focused search
 - **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results
 
 ### Direct Search (Gemini API)

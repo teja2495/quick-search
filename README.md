@@ -84,7 +84,7 @@ cd quick-search
 - **Digital Assistant**: Set Quick Search as your device's default digital assistant for enhanced search integration
 
 ### Search Shortcuts
-Configure custom keyboard shortcuts for search engines:
+Configure custom keyboard shortcuts for search engines and add them at the start or end of your query to quickly trigger the respective search engine:
 - `ggl` → Google
 - `ytb` → YouTube
 - `mps` → Google Maps

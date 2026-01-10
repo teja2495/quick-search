@@ -501,7 +501,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Bug fixes &amp; stability improvements\nUI refinements\nPerformance optimisations\nReduced app size by 50%</string>
+    <string name="release_notes_points">Improved animations\nAdded haptics\nNew Search Engines: Gemini, Startpage\nSupport for adding search engine shortcuts at the start of the query.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">All Quick Search Features</string>
