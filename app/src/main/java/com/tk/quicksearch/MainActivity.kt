@@ -41,6 +41,7 @@ import com.tk.quicksearch.settings.main.SettingsDetailRoute
 import com.tk.quicksearch.settings.main.SettingsDetailType
 import com.tk.quicksearch.setup.SearchEngineSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.util.ReviewHelper
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.MicAction
@@ -80,6 +81,13 @@ class MainActivity : ComponentActivity() {
         // Defer wallpaper preload to after first frame to avoid blocking startup
         window.decorView.post {
             WallpaperUtils.preloadWallpaper(this)
+            
+            // Track first app open time and request review if eligible
+            // Only track after first launch is complete
+            if (!userPreferences.isFirstLaunch()) {
+                userPreferences.recordFirstAppOpenTime()
+                ReviewHelper.requestReviewIfEligible(this, userPreferences)
+            }
         }
     }
 

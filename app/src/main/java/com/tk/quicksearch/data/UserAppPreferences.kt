@@ -399,5 +399,22 @@ class UserAppPreferences(context: Context) {
 
     fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)
 
+    // ============================================================================
+    // In-App Review Preferences
+    // ============================================================================
+
+    fun getFirstAppOpenTime(): Long = uiPreferences.getFirstAppOpenTime()
+
+    fun recordFirstAppOpenTime() = uiPreferences.recordFirstAppOpenTime()
+
+    fun getLastReviewPromptTime(): Long = uiPreferences.getLastReviewPromptTime()
+
+    fun recordReviewPromptTime() = uiPreferences.recordReviewPromptTime()
+
+    fun getReviewPromptedCount(): Int = uiPreferences.getReviewPromptedCount()
+
+    fun incrementReviewPromptedCount() = uiPreferences.incrementReviewPromptedCount()
+
+    fun shouldShowReviewPrompt(): Boolean = uiPreferences.shouldShowReviewPrompt()
 
 }

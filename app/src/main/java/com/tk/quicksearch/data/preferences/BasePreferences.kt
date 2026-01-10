@@ -275,6 +275,11 @@ abstract class BasePreferences(protected val context: Context) {
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
 
+        // In-app review preferences keys
+        const val KEY_FIRST_APP_OPEN_TIME = "first_app_open_time"
+        const val KEY_LAST_REVIEW_PROMPT_TIME = "last_review_prompt_time"
+        const val KEY_REVIEW_PROMPTED_COUNT = "review_prompted_count"
+
         // Nickname preferences keys
         const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
         const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"

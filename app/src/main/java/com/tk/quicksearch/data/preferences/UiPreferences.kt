@@ -215,4 +215,61 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     fun setDisabledSections(disabled: Set<String>) {
         prefs.edit().putStringSet(KEY_DISABLED_SECTIONS, disabled).apply()
     }
+
+    // ============================================================================
+    // In-App Review Preferences
+    // ============================================================================
+
+    fun getFirstAppOpenTime(): Long {
+        return prefs.getLong(KEY_FIRST_APP_OPEN_TIME, 0L)
+    }
+
+    fun recordFirstAppOpenTime() {
+        if (getFirstAppOpenTime() == 0L) {
+            prefs.edit().putLong(KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis()).apply()
+        }
+    }
+
+    fun getLastReviewPromptTime(): Long {
+        return prefs.getLong(KEY_LAST_REVIEW_PROMPT_TIME, 0L)
+    }
+
+    fun recordReviewPromptTime() {
+        prefs.edit().putLong(KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis()).apply()
+    }
+
+    fun getReviewPromptedCount(): Int {
+        return prefs.getInt(KEY_REVIEW_PROMPTED_COUNT, 0)
+    }
+
+    fun incrementReviewPromptedCount() {
+        val currentCount = getReviewPromptedCount()
+        prefs.edit().putInt(KEY_REVIEW_PROMPTED_COUNT, currentCount + 1).apply()
+    }
+
+    fun shouldShowReviewPrompt(): Boolean {
+        val firstOpenTime = getFirstAppOpenTime()
+        val promptedCount = getReviewPromptedCount()
+        val lastPromptTime = getLastReviewPromptTime()
+        
+        // If never opened before, can't show review
+        if (firstOpenTime == 0L) {
+            return false
+        }
+        
+        val currentTime = System.currentTimeMillis()
+        val daysSinceFirstOpen = (currentTime - firstOpenTime) / (1000 * 60 * 60 * 24)
+        
+        return when (promptedCount) {
+            0 -> daysSinceFirstOpen >= 2  // First review after 2 days
+            1 -> {
+                if (lastPromptTime == 0L) false
+                else {
+                    val daysSinceLastPrompt = (currentTime - lastPromptTime) / (1000 * 60 * 60 * 24)
+                    daysSinceLastPrompt >= 4  // Second review 4 days after first
+                }
+            }
+            else -> false  // Never show after 2 prompts
+        }
+    }
 }

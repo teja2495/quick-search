@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.google.material)
     implementation(libs.androidx.security.crypto)
     implementation(libs.okhttp)
+    implementation("com.google.android.play:review-ktx:2.0.1")
 
     implementation(libs.reorderable)
     testImplementation(libs.junit)
