@@ -331,7 +331,7 @@
     <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
     <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
     <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
-    <string name="settings_shortcuts_hint_message">Tip: Add a shortcut code at the end of your query to instantly trigger that search engine.</string>
+    <string name="settings_shortcuts_hint_message">Tip: Add a search engine shortcut at the start or end of your query to quickly search with that engine.</string>
     <string name="shortcut_triggered">%1$s search shortcut triggered</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_shortcut_disabled">Shortcut disabled</string>
@@ -503,6 +503,8 @@
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string name="release_notes_points">Bug fixes &amp; stability improvements\nUI refinements\nPerformance optimisations\nReduced app size by 50%</string>
     <string name="release_notes_action_got_it">Got it</string>
+    <string name="release_notes_view_all_features">View all features</string>
+    <string name="settings_all_quick_search_features">All Quick Search Features</string>
 
     <!-- ============================================================================
          Search Engine Names

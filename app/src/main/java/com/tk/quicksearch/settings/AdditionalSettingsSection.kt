@@ -1,5 +1,8 @@
 package com.tk.quicksearch.settings.additional
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,7 +11,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.components.CombinedAssistantCard
@@ -96,6 +102,28 @@ fun AdditionalSettingsSection(
         onRefreshContacts = onRefreshContacts,
         onRefreshFiles = onRefreshFiles,
         modifier = Modifier.padding(top = 12.dp)
+    )
+
+    // All Quick Search Features link
+    val context = LocalContext.current
+
+    Text(
+        text = stringResource(R.string.settings_all_quick_search_features),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.primary
+        ),
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp)
+            .clickable {
+                val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (e: Exception) {
+                    // Handle exception if the URL can't be opened
+                }
+            }
     )
 
 }
