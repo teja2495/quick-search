@@ -23,6 +23,12 @@ class SecondarySearchOrchestrator(
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
     
+    // Track query prefixes that yielded no results to avoid redundant searches
+    private var lastQueryWithNoContacts: String? = null
+    private var lastQueryWithNoFiles: String? = null
+    private var lastQueryWithNoSettings: String? = null
+    private var lastQueryLength: Int = 0
+    
     companion object {
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
     }
@@ -31,6 +37,12 @@ class SecondarySearchOrchestrator(
         searchJob?.cancel()
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank() || trimmedQuery.length == 1) {
+            // Clear all no-results tracking when query is cleared
+            lastQueryWithNoContacts = null
+            lastQueryWithNoFiles = null
+            lastQueryWithNoSettings = null
+            lastQueryLength = 0
+            
             uiStateUpdater {
                 it.copy(
                     contactResults = emptyList(),
@@ -41,14 +53,41 @@ class SecondarySearchOrchestrator(
             return
         }
 
+        // Detect backspacing: if query is shorter, reset relevant no-results prefixes
+        val isBackspacing = trimmedQuery.length < lastQueryLength
+        if (isBackspacing) {
+            // Reset prefixes that are longer than current query
+            if (lastQueryWithNoContacts != null && trimmedQuery.length < lastQueryWithNoContacts!!.length) {
+                lastQueryWithNoContacts = null
+            }
+            if (lastQueryWithNoFiles != null && trimmedQuery.length < lastQueryWithNoFiles!!.length) {
+                lastQueryWithNoFiles = null
+            }
+            if (lastQueryWithNoSettings != null && trimmedQuery.length < lastQueryWithNoSettings!!.length) {
+                lastQueryWithNoSettings = null
+            }
+        }
+        
         val currentState = currentStateProvider()
         val canSearchContacts = currentState.hasContactPermission &&
             SearchSection.CONTACTS !in sectionManager.disabledSections
         val canSearchFiles = currentState.hasFilePermission &&
             SearchSection.FILES !in sectionManager.disabledSections
         val canSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
+        
+        // Skip searches if current query extends a previous no-results query
+        val shouldSkipContacts = !isBackspacing && 
+            lastQueryWithNoContacts != null && 
+            trimmedQuery.startsWith(lastQueryWithNoContacts!!)
+        val shouldSkipFiles = !isBackspacing && 
+            lastQueryWithNoFiles != null && 
+            trimmedQuery.startsWith(lastQueryWithNoFiles!!)
+        val shouldSkipSettings = !isBackspacing && 
+            lastQueryWithNoSettings != null && 
+            trimmedQuery.startsWith(lastQueryWithNoSettings!!)
             
         val currentVersion = ++queryVersion
+        lastQueryLength = trimmedQuery.length
 
         searchJob = scope.launch(Dispatchers.IO) {
             // Debounce expensive contact/file queries during rapid typing
@@ -58,13 +97,33 @@ class SecondarySearchOrchestrator(
             val unifiedResults = unifiedSearchHandler.performSearch(
                 query = trimmedQuery,
                 enabledFileTypes = currentState.enabledFileTypes,
-                canSearchContacts = canSearchContacts,
-                canSearchFiles = canSearchFiles,
-                canSearchSettings = canSearchSettings
+                canSearchContacts = canSearchContacts && !shouldSkipContacts,
+                canSearchFiles = canSearchFiles && !shouldSkipFiles,
+                canSearchSettings = canSearchSettings && !shouldSkipSettings
             )
 
             withContext(Dispatchers.Main) {
                 if (currentVersion == queryVersion) {
+                    // Update no-results tracking based on search results
+                    if (unifiedResults.contactResults.isEmpty() && !shouldSkipContacts) {
+                        lastQueryWithNoContacts = trimmedQuery
+                    } else if (unifiedResults.contactResults.isNotEmpty()) {
+                        // Clear if we got results
+                        lastQueryWithNoContacts = null
+                    }
+                    
+                    if (unifiedResults.fileResults.isEmpty() && !shouldSkipFiles) {
+                        lastQueryWithNoFiles = trimmedQuery
+                    } else if (unifiedResults.fileResults.isNotEmpty()) {
+                        lastQueryWithNoFiles = null
+                    }
+                    
+                    if (unifiedResults.settingResults.isEmpty() && !shouldSkipSettings) {
+                        lastQueryWithNoSettings = trimmedQuery
+                    } else if (unifiedResults.settingResults.isNotEmpty()) {
+                        lastQueryWithNoSettings = null
+                    }
+                    
                     val stateBeforeUpdate = currentStateProvider()
                     val hasAnyResults = unifiedResults.contactResults.isNotEmpty() || 
                         unifiedResults.fileResults.isNotEmpty() || 

@@ -202,6 +202,11 @@ fun ContentLayout(
 
         if (hasQuery && !hasAnySearchContent && !showCalculator && !hasDirectSearchAnswer) {
             val showWebSuggestions = state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled
+            // Only show "no results" when:
+            // 1. Web suggestions are disabled, OR
+            // 2. Web suggestions are enabled but returned empty (not currently showing)
+            // The EmptyResultsMessage has a 400ms delay which gives web suggestions time to load
+            val canShowEmptyMessage = !state.webSuggestionsEnabled || !showWebSuggestions
 
             AnimatedVisibility(
                 visible = showWebSuggestions,
@@ -218,7 +223,7 @@ fun ContentLayout(
                 )
             }
 
-            if (!showWebSuggestions) {
+            if (canShowEmptyMessage) {
                 EmptyResultsMessage(
                     query = state.query,
                     enabledSections = renderingState.orderedSections,

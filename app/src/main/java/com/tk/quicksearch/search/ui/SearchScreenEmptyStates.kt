@@ -26,7 +26,7 @@ fun EmptyResultsMessage(
 
     LaunchedEffect(query) {
         visible = false
-        delay(400) // Small delay to prevent flickering during search
+        delay(600) // Delay to prevent flickering - allows time for web suggestions to load
         visible = true
     }
 
