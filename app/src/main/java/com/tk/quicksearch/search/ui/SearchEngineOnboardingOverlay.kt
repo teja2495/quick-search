@@ -55,19 +55,8 @@ internal fun SearchEngineOnboardingOverlay(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isVisibleDelayed by remember { mutableStateOf(false) }
-
-    LaunchedEffect(visible) {
-        if (visible) {
-            delay(1500)
-            isVisibleDelayed = true
-        } else {
-            isVisibleDelayed = false
-        }
-    }
-
     AnimatedVisibility(
-        visible = isVisibleDelayed,
+        visible = visible,
         enter = fadeIn(),
         exit = fadeOut(),
         modifier = modifier

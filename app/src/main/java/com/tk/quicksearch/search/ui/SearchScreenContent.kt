@@ -65,7 +65,6 @@ internal fun SearchScreenContent(
     // Auto-scroll search engines during onboarding
     LaunchedEffect(state.showSearchEngineOnboarding) {
         if (state.showSearchEngineOnboarding) {
-            delay(1500) // Wait for overlay to appear
             // Smooth continuous scroll that loops
             while (true) {
                 // Check if we can scroll further

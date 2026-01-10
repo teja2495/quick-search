@@ -411,8 +411,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     sectionOrder = sectionManager.sectionOrder,
                     disabledSections = sectionManager.disabledSections,
                     searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-                    showSearchEngineOnboarding = searchEngineManager.searchEngineSectionEnabled && 
-                        !userPreferences.hasSeenSearchEngineOnboarding(),
+                    showSearchEngineOnboarding = searchEngineManager.searchEngineSectionEnabled &&
+                        !userPreferences.hasSeenSearchEngineOnboarding() &&
+                        userPreferences.getAppOpenCount() == 1,
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = calculatorHandler.isEnabled,
                     hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
