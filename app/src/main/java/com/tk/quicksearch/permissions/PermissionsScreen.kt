@@ -54,6 +54,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.ContactRepository
 import com.tk.quicksearch.data.FileSearchRepository
+import com.tk.quicksearch.setup.OnboardingHeader
 
 /**
  * Main permissions screen that allows users to grant optional permissions for enhanced functionality.
@@ -66,6 +67,8 @@ import com.tk.quicksearch.data.FileSearchRepository
 @Composable
 fun PermissionsScreen(
     onPermissionsComplete: () -> Unit,
+    currentStep: Int,
+    totalSteps: Int,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -154,27 +157,19 @@ fun PermissionsScreen(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-        
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.permissions_screen_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Start
-            )
+        OnboardingHeader(
+            title = stringResource(R.string.permissions_screen_title),
+            currentStep = currentStep,
+            totalSteps = totalSteps
+        )
 
-            Text(
-                text = stringResource(R.string.permissions_screen_subtitle),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start
-            )
-        }
+        Text(
+            text = stringResource(R.string.permissions_screen_subtitle),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.padding(top = 8.dp)
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 

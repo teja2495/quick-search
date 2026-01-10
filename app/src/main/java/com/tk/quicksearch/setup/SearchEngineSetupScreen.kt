@@ -42,6 +42,9 @@ import com.tk.quicksearch.search.core.SearchViewModel
 fun SearchEngineSetupScreen(
     onContinue: () -> Unit,
     viewModel: SearchViewModel,
+    currentStep: Int,
+    totalSteps: Int,
+    shouldShowFinalSetup: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,27 +56,19 @@ fun SearchEngineSetupScreen(
         horizontalAlignment = Alignment.Start
     ) {
         // Fixed title and subtitle at top
-        Spacer(modifier = Modifier.height(40.dp))
+        OnboardingHeader(
+            title = stringResource(R.string.setup_search_engines_title),
+            currentStep = currentStep,
+            totalSteps = totalSteps
+        )
 
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.setup_search_engines_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Start
-            )
-
-            Text(
-                text = stringResource(R.string.setup_search_engines_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start
-            )
-        }
+        Text(
+            text = stringResource(R.string.setup_search_engines_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.padding(top = 8.dp)
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -189,7 +184,13 @@ fun SearchEngineSetupScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(
-                text = stringResource(R.string.setup_action_continue),
+                text = stringResource(
+                    if (shouldShowFinalSetup) {
+                        R.string.setup_action_next
+                    } else {
+                        R.string.setup_action_start
+                    }
+                ),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )

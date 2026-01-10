@@ -347,7 +347,7 @@
     <!-- ============================================================================
          Settings - File Types
          ============================================================================ -->
-    <string name="settings_file_types_title">File Types</string>
+    <string name="settings_file_types_title">File Types in Results</string>
    <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
     <string name="file_type_documents">Documents</string>
     <string name="file_type_other">Other</string>
@@ -484,9 +484,17 @@
     <!-- ============================================================================
          Search Engine Setup
          ============================================================================ -->
-    <string name="setup_search_engines_title">Setup Search Engines</string>
+    <string name="setup_search_engines_title">Search Engines</string>
     <string name="setup_search_engines_subtitle">Enable search engines you need and reorder them as you like.</string>
     <string name="setup_action_continue">Done</string>
+    <string name="setup_action_next">Next</string>
+    <string name="setup_action_start">Start Searching!</string>
+
+    <!-- ============================================================================
+         Final Setup Screen
+         ============================================================================ -->
+    <string name="setup_final_title">Almost Done!</string>
+    <string name="setup_final_subtitle"></string>
 
     <!-- ============================================================================
          Release Notes

@@ -40,11 +40,13 @@ import com.tk.quicksearch.settings.main.SettingsRoute
 import com.tk.quicksearch.settings.main.SettingsDetailRoute
 import com.tk.quicksearch.settings.main.SettingsDetailType
 import com.tk.quicksearch.setup.SearchEngineSetupScreen
+import com.tk.quicksearch.setup.FinalSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.ReviewHelper
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.MicAction
+
 
 class MainActivity : ComponentActivity() {
 
@@ -129,6 +131,9 @@ class MainActivity : ComponentActivity() {
         }
         var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
         var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
+        
+        // Track whether we should show the final setup screen
+        var shouldShowFinalSetup by remember { mutableStateOf(false) }
 
         AnimatedContent(
             targetState = currentScreen,
@@ -139,8 +144,22 @@ class MainActivity : ComponentActivity() {
                         slideInHorizontally { width -> width } + fadeIn() togetherWith
                             slideOutHorizontally { width -> -width } + fadeOut()
                     }
-                    // Transition from setup to main app (Setup -> Main)
-                    initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.Main -> {
+                    // Transition from search engines to final setup (Setup -> FinalSetup)
+                    initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.FinalSetup -> {
+                        slideInHorizontally { width -> width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> -width } + fadeOut()
+                    }
+                    // Reverse transitions (Back navigation)
+                    initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.Permissions -> {
+                        slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> width } + fadeOut()
+                    }
+                    initialState == AppScreen.FinalSetup && targetState == AppScreen.SearchEngineSetup -> {
+                        slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                            slideOutHorizontally { width -> width } + fadeOut()
+                    }
+                    // Transition from setup to main app (Setup/FinalSetup -> Main)
+                    (initialState == AppScreen.SearchEngineSetup || initialState == AppScreen.FinalSetup) && targetState == AppScreen.Main -> {
                         slideInHorizontally { width -> width } + fadeIn() togetherWith
                             slideOutHorizontally { width -> -width } + fadeOut()
                     }
@@ -155,19 +174,79 @@ class MainActivity : ComponentActivity() {
             when (targetScreen) {
                 AppScreen.Permissions -> {
                     PermissionsScreen(
+                        currentStep = 1,
+                        totalSteps = if (shouldShowFinalSetup) 3 else 2,
                         onPermissionsComplete = {
+                            // Check if at least one permission (contacts or files) is granted
+                            val hasContactsPermission = checkSelfPermission(
+                                android.Manifest.permission.READ_CONTACTS
+                            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                            
+                            val hasFilesPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                android.os.Environment.isExternalStorageManager()
+                            } else {
+                                checkSelfPermission(
+                                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                            }
+                            
+                            shouldShowFinalSetup = hasContactsPermission || hasFilesPermission
                             currentScreen = AppScreen.SearchEngineSetup
                             searchViewModel.handleOptionalPermissionChange()
                         }
                     )
                 }
                 AppScreen.SearchEngineSetup -> {
+                    BackHandler {
+                        currentScreen = AppScreen.Permissions
+                    }
                     SearchEngineSetupScreen(
+                        currentStep = 2,
+                        totalSteps = if (shouldShowFinalSetup) 3 else 2,
+                        onContinue = {
+                            if (shouldShowFinalSetup) {
+                                currentScreen = AppScreen.FinalSetup
+                            } else {
+                                userPreferences.setFirstLaunchCompleted()
+                                currentScreen = AppScreen.Main
+                            }
+                        },
+                        viewModel = searchViewModel,
+                        shouldShowFinalSetup = shouldShowFinalSetup
+                    )
+                }
+                AppScreen.FinalSetup -> {
+                    BackHandler {
+                        currentScreen = AppScreen.SearchEngineSetup
+                    }
+                    // Check permissions for the final setup screen
+                    val hasContactsPermission = checkSelfPermission(
+                        android.Manifest.permission.READ_CONTACTS
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    
+                    val hasFilesPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        android.os.Environment.isExternalStorageManager()
+                    } else {
+                        checkSelfPermission(
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    }
+                    
+                    val hasCallPermission = checkSelfPermission(
+                        android.Manifest.permission.CALL_PHONE
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    
+                    FinalSetupScreen(
+                        currentStep = 3,
+                        totalSteps = 3,
                         onContinue = {
                             userPreferences.setFirstLaunchCompleted()
                             currentScreen = AppScreen.Main
                         },
-                        viewModel = searchViewModel
+                        viewModel = searchViewModel,
+                        hasContactsPermission = hasContactsPermission,
+                        hasFilesPermission = hasFilesPermission,
+                        hasCallPermission = hasCallPermission
                     )
                 }
                 AppScreen.Main -> {
@@ -340,5 +419,6 @@ private enum class RootDestination {
 private enum class AppScreen {
     Permissions,
     SearchEngineSetup,
+    FinalSetup,
     Main
 }
