@@ -264,7 +264,7 @@ private fun ContactActionButtons(
                     painter = painterResource(id = R.drawable.whatsapp),
                     contentDescription = stringResource(R.string.contacts_action_whatsapp),
                     tint = if (hasNumber) {
-                        Color.White
+                        Color.Unspecified
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
@@ -276,7 +276,7 @@ private fun ContactActionButtons(
                     painter = painterResource(id = R.drawable.telegram),
                     contentDescription = stringResource(R.string.contacts_action_telegram),
                     tint = if (hasNumber) {
-                        Color.White
+                        Color.Unspecified
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
