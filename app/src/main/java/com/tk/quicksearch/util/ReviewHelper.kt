@@ -13,8 +13,9 @@ object ReviewHelper {
     private const val TAG = "ReviewHelper"
 
     /**
-     * Requests an in-app review if the user is eligible based on days since first app open.
-     * Shows review prompt after 2 days (first prompt) and 4 days after first prompt (second prompt).
+     * Requests an in-app review if the user is eligible based on days and app opens.
+     * First prompt: at least 5 opens AND at least 2 days since first open.
+     * Second prompt: at least 4 days since first prompt AND at least 5 more opens.
      *
      * @param activity The activity context to show the review flow
      * @param userPreferences User preferences to check eligibility and track review prompts
@@ -35,8 +36,9 @@ object ReviewHelper {
                     
                     flow.addOnCompleteListener { _ ->
                         // The flow has finished. Whether the user actually reviewed or not,
-                        // we increment the prompted count and record the time so we don't show it again at this milestone.
+                        // we record the time, app open count, and increment prompted count.
                         userPreferences.recordReviewPromptTime()
+                        userPreferences.recordAppOpenCountAtPrompt()
                         userPreferences.incrementReviewPromptedCount()
                         Log.d(TAG, "Review flow completed. Prompted count: ${userPreferences.getReviewPromptedCount()}")
                     }
@@ -44,6 +46,7 @@ object ReviewHelper {
                     // If we couldn't get review info, still record to avoid repeated attempts
                     Log.w(TAG, "Failed to request review flow", task.exception)
                     userPreferences.recordReviewPromptTime()
+                    userPreferences.recordAppOpenCountAtPrompt()
                     userPreferences.incrementReviewPromptedCount()
                 }
             }
@@ -51,6 +54,7 @@ object ReviewHelper {
             // Gracefully handle any errors - review API should never crash the app
             Log.e(TAG, "Error requesting review", e)
             userPreferences.recordReviewPromptTime()
+            userPreferences.recordAppOpenCountAtPrompt()
             userPreferences.incrementReviewPromptedCount()
         }
     }

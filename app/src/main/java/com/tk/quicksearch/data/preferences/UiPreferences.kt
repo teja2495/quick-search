@@ -247,10 +247,30 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         prefs.edit().putInt(KEY_REVIEW_PROMPTED_COUNT, currentCount + 1).apply()
     }
 
+    fun getAppOpenCount(): Int {
+        return prefs.getInt(KEY_APP_OPEN_COUNT, 0)
+    }
+
+    fun incrementAppOpenCount() {
+        val currentCount = getAppOpenCount()
+        prefs.edit().putInt(KEY_APP_OPEN_COUNT, currentCount + 1).apply()
+    }
+
+    fun getAppOpenCountAtLastPrompt(): Int {
+        return prefs.getInt(KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, 0)
+    }
+
+    fun recordAppOpenCountAtPrompt() {
+        val currentOpenCount = getAppOpenCount()
+        prefs.edit().putInt(KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount).apply()
+    }
+
     fun shouldShowReviewPrompt(): Boolean {
         val firstOpenTime = getFirstAppOpenTime()
         val promptedCount = getReviewPromptedCount()
         val lastPromptTime = getLastReviewPromptTime()
+        val totalOpens = getAppOpenCount()
+        val opensAtLastPrompt = getAppOpenCountAtLastPrompt()
         
         // If never opened before, can't show review
         if (firstOpenTime == 0L) {
@@ -261,12 +281,17 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         val daysSinceFirstOpen = (currentTime - firstOpenTime) / (1000 * 60 * 60 * 24)
         
         return when (promptedCount) {
-            0 -> daysSinceFirstOpen >= 2  // First review after 2 days
+            0 -> {
+                // First review: at least 5 opens AND at least 2 days
+                daysSinceFirstOpen >= 2 && totalOpens >= 5
+            }
             1 -> {
                 if (lastPromptTime == 0L) false
                 else {
                     val daysSinceLastPrompt = (currentTime - lastPromptTime) / (1000 * 60 * 60 * 24)
-                    daysSinceLastPrompt >= 4  // Second review 4 days after first
+                    val opensSinceLastPrompt = totalOpens - opensAtLastPrompt
+                    // Second review: at least 4 days AND at least 5 more opens
+                    daysSinceLastPrompt >= 4 && opensSinceLastPrompt >= 5
                 }
             }
             else -> false  // Never show after 2 prompts

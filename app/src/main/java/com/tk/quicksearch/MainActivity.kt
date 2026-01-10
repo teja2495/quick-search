@@ -82,10 +82,11 @@ class MainActivity : ComponentActivity() {
         window.decorView.post {
             WallpaperUtils.preloadWallpaper(this)
             
-            // Track first app open time and request review if eligible
+            // Track first app open time and app open count, then request review if eligible
             // Only track after first launch is complete
             if (!userPreferences.isFirstLaunch()) {
                 userPreferences.recordFirstAppOpenTime()
+                userPreferences.incrementAppOpenCount()
                 ReviewHelper.requestReviewIfEligible(this, userPreferences)
             }
         }

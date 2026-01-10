@@ -415,6 +415,12 @@ class UserAppPreferences(context: Context) {
 
     fun incrementReviewPromptedCount() = uiPreferences.incrementReviewPromptedCount()
 
+    fun getAppOpenCount(): Int = uiPreferences.getAppOpenCount()
+
+    fun incrementAppOpenCount() = uiPreferences.incrementAppOpenCount()
+
+    fun recordAppOpenCountAtPrompt() = uiPreferences.recordAppOpenCountAtPrompt()
+
     fun shouldShowReviewPrompt(): Boolean = uiPreferences.shouldShowReviewPrompt()
 
 }
