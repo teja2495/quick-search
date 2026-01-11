@@ -50,6 +50,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import com.tk.quicksearch.search.ui.AppColors
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -659,9 +660,9 @@ private fun SearchEngineCard(
                 com.tk.quicksearch.util.hapticConfirm(view)()
                 IntentHelpers.openSearchUrl(context.applicationContext as android.app.Application, query, engine)
             },
-        colors = SearchResultColors.getCardColors(showWallpaperBackground),
+        colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
-        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground)
     ) {
         Row(
             modifier = Modifier
@@ -712,9 +713,9 @@ private fun CustomizeSearchEnginesCard(
                 // Navigation is handled by the onClick callback which should navigate to search engine settings
                 // This is passed down from MainActivity -> SearchRoute -> SearchScreenContent -> SearchContentArea -> NoResultsSearchEngineCards -> CustomizeSearchEnginesCard
             },
-        colors = SearchResultColors.getCardColors(showWallpaperBackground),
+        colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
-        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground)
     ) {
         Row(
             modifier = Modifier

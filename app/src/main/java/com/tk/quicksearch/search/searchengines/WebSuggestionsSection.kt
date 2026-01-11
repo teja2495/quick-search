@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.ui.SearchResultColors
+import com.tk.quicksearch.search.ui.AppColors
 import com.tk.quicksearch.R
 
 // ============================================================================
@@ -92,8 +92,8 @@ private fun WebSuggestionsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(CARD_CORNER_RADIUS.dp),
-        colors = SearchResultColors.getCardColors(showWallpaperBackground),
-        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
+        colors = AppColors.getCardColors(showWallpaperBackground),
+        elevation = AppColors.getCardElevation(showWallpaperBackground)
     ) {
         Column {
             suggestions.forEachIndexed { index, suggestion ->

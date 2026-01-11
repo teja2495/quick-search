@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -238,7 +239,7 @@ fun ContentLayout(
                 AnimatedVisibility(
                     visible = showWebSuggestions,
                     enter = fadeIn(),
-                    exit = fadeOut()
+                    exit = shrinkVertically()
                 ) {
                     WebSuggestionsSection(
                         suggestions = state.webSuggestions,
@@ -255,7 +256,7 @@ fun ContentLayout(
                 AnimatedVisibility(
                     visible = showWebSuggestions,
                     enter = fadeIn(),
-                    exit = fadeOut()
+                    exit = shrinkVertically()
                 ) {
                     WebSuggestionsSection(
                         suggestions = state.webSuggestions,

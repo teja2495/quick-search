@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
-import com.tk.quicksearch.search.ui.SearchResultColors
+import com.tk.quicksearch.search.ui.AppColors
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.util.FileUtils
@@ -165,9 +165,9 @@ private fun FilesResultCard(
         if (showWallpaperBackground) {
             Card(
                 modifier = cardModifier,
-                colors = SearchResultColors.getCardColors(showWallpaperBackground = true),
+                colors = AppColors.getCardColors(showWallpaperBackground = true),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = SearchResultColors.getCardElevation(showWallpaperBackground = true)
+                elevation = AppColors.getCardElevation(showWallpaperBackground = true)
             ) {
                 FileCardContent(
                     displayFiles = displayFiles,
@@ -186,9 +186,9 @@ private fun FilesResultCard(
         } else {
             ElevatedCard(
                 modifier = cardModifier,
-                colors = SearchResultColors.getCardColors(showWallpaperBackground = false),
+                colors = AppColors.getCardColors(showWallpaperBackground = false),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = SearchResultColors.getCardElevation(showWallpaperBackground = false)
+                elevation = AppColors.getCardElevation(showWallpaperBackground = false)
             ) {
                 FileCardContent(
                     displayFiles = displayFiles,

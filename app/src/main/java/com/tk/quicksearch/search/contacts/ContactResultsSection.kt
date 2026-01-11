@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.ui.SearchResultColors
+import com.tk.quicksearch.search.ui.AppColors
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
@@ -155,18 +155,18 @@ private fun ContactsResultCard(
         if (showWallpaperBackground) {
             Card(
                 modifier = cardModifier,
-                colors = SearchResultColors.getCardColors(showWallpaperBackground = true),
+                colors = AppColors.getCardColors(showWallpaperBackground = true),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = SearchResultColors.getCardElevation(showWallpaperBackground = true)
+                elevation = AppColors.getCardElevation(showWallpaperBackground = true)
             ) {
                 cardContent()
             }
         } else {
             ElevatedCard(
                 modifier = cardModifier,
-                colors = SearchResultColors.getCardColors(showWallpaperBackground = false),
+                colors = AppColors.getCardColors(showWallpaperBackground = false),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = SearchResultColors.getCardElevation(showWallpaperBackground = false)
+                elevation = AppColors.getCardElevation(showWallpaperBackground = false)
             ) {
                 cardContent()
             }
