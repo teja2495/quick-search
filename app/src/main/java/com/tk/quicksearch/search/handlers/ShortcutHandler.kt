@@ -4,6 +4,8 @@ import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchengines.DirectSearchHandler
+import com.tk.quicksearch.search.handlers.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.search.handlers.ShortcutValidator.isValidShortcutCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,13 +134,6 @@ class ShortcutHandler(
         return null
     }
 
-    private fun normalizeShortcutCodeInput(input: String): String {
-        return input.trim().lowercase(Locale.getDefault())
-    }
-
-    private fun isValidShortcutCode(code: String): Boolean {
-        return code.all { it.isLetterOrDigit() } && code.isNotEmpty() && code.length <= 5
-    }
     
     data class ShortcutsState(
         val shortcutsEnabled: Boolean,

@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchengines.*
+import com.tk.quicksearch.search.handlers.ShortcutValidator.isValidShortcutCode
+import com.tk.quicksearch.search.handlers.ShortcutValidator.normalizeShortcutCodeInput
 
 private const val DEFAULT_AMAZON_DOMAIN = "amazon.com"
 
