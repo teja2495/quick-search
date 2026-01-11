@@ -398,23 +398,10 @@ internal fun PersistentSearchField(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(end = 4.dp)
                 ) {
-                    // Single X icon that:
-                    // - Clears query when query is not empty
-                    // - Clears detected shortcut when query is empty but shortcut is detected
-                    // Otherwise show settings icon
+                    // Show X icon when query is not empty, otherwise show settings icon
+                    // (whether shortcut is detected or not when query is empty)
                     if (query.isNotEmpty()) {
                         IconButton(onClick = onClearQuery) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.desc_clear_search),
-                                tint = iconAndTextColor
-                            )
-                        }
-                    } else if (detectedShortcutEngine != null) {
-                        IconButton(onClick = {
-                            hapticStrong(view)()
-                            onClearDetectedShortcut()
-                        }) {
                             Icon(
                                 imageVector = Icons.Rounded.Close,
                                 contentDescription = stringResource(R.string.desc_clear_search),

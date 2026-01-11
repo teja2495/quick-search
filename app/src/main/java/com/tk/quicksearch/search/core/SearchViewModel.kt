@@ -1046,8 +1046,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     // performSecondarySearches moved to SecondarySearchOrchestrator
     
     fun onWebSuggestionTap(suggestion: String) {
-        // Copy the suggestion text to the search bar
-        onQueryChange(suggestion)
+        // Check if there's a detected shortcut engine and perform immediate search
+        val currentState = _uiState.value
+        val detectedEngine = currentState.detectedShortcutEngine
+
+        if (detectedEngine != null) {
+            // Perform search immediately in the detected search engine
+            navigationHandler.openSearchUrl(suggestion.trim(), detectedEngine, clearQueryAfterSearchEngine)
+        } else {
+            // No shortcut detected, copy the suggestion text to the search bar
+            onQueryChange(suggestion)
+        }
+
         // Mark that a web suggestion was selected so we can hide suggestions
         _uiState.update { it.copy(webSuggestionWasSelected = true) }
     }
