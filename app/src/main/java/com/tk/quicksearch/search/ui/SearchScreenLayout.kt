@@ -222,7 +222,7 @@ fun ContentLayout(
             // When results are at top (normal), show web suggestions first, then search engine cards
             if (isReversed) {
                 // Reversed layout: search engine cards first, then web suggestions at bottom
-                if (state.detectedShortcutEngine == null) {
+                if (state.detectedShortcutEngine == null && !state.searchEngineSectionEnabled) {
                     NoResultsSearchEngineCards(
                         query = state.query,
                         enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
@@ -230,9 +230,7 @@ fun ContentLayout(
                         onCustomizeClick = onCustomizeSearchEnginesClick,
                         isReversed = isReversed,
                         showWallpaperBackground = state.showWallpaperBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
@@ -247,9 +245,7 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = isReversed,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             } else {
@@ -264,13 +260,11 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = false,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                if (state.detectedShortcutEngine == null) {
+                if (state.detectedShortcutEngine == null && !state.searchEngineSectionEnabled) {
                     NoResultsSearchEngineCards(
                         query = state.query,
                         enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
@@ -278,9 +272,7 @@ fun ContentLayout(
                         onCustomizeClick = onCustomizeSearchEnginesClick,
                         isReversed = isReversed,
                         showWallpaperBackground = state.showWallpaperBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
