@@ -30,6 +30,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.settings.additional.AdditionalSettingsSection
+import com.tk.quicksearch.settings.appearance.SearchEngineAppearanceCard
 import com.tk.quicksearch.settings.apps.HiddenAppsSection
 import com.tk.quicksearch.settings.components.CalculatorToggleCard
 import com.tk.quicksearch.settings.components.CombinedAppearanceCard
@@ -148,6 +149,7 @@ fun SettingsScreen(
                     .padding(top = SettingsSpacing.sectionTopPadding)
                     .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
             )
+            
             val hasIconPacks = state.availableIconPacks.isNotEmpty()
             CombinedAppearanceCard(
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
@@ -185,6 +187,13 @@ fun SettingsScreen(
                         ).show()
                     }
                 }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SearchEngineAppearanceCard(
+                searchEngineSectionEnabled = state.searchEngineSectionEnabled,
+                onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled
             )
 
             // Contacts Section

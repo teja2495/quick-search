@@ -667,7 +667,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         appSearchHandler.resetNoMatchPrefixIfNeeded(normalizedQuery)
 
         val shouldSkipSearch = appSearchHandler.shouldSkipDueToNoMatchPrefix(normalizedQuery)
-        val matches = if (shouldSkipSearch) {
+        val matches = if (shouldSkipSearch || detectedEngine != null) {
             emptyList()
         } else {
             appSearchHandler.deriveMatches(trimmedQuery, cachedAllSearchableApps).also { results ->
@@ -691,7 +691,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         
         // Skip secondary searches if calculator result is shown
         if (calculatorResult.result == null) {
-            secondarySearchOrchestrator.performSecondarySearches(newQuery)
+            if (detectedEngine != null) {
+                secondarySearchOrchestrator.performWebSuggestionsOnly(newQuery)
+            } else {
+                secondarySearchOrchestrator.performSecondarySearches(newQuery)
+            }
         } else {
             // Clear search results when showing calculator
             _uiState.update { state ->

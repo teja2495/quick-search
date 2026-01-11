@@ -32,7 +32,7 @@ class SearchEnginePreferences(context: Context) : BasePreferences(context) {
         setStringListPref(KEY_SEARCH_ENGINE_ORDER, order)
     }
 
-    fun isSearchEngineSectionEnabled(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, false)
+    fun isSearchEngineSectionEnabled(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, true)
 
     fun setSearchEngineSectionEnabled(enabled: Boolean) {
         setBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, enabled)

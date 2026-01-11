@@ -24,7 +24,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.main.SettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.SearchEngineToggleCard
 import com.tk.quicksearch.settings.searchEngines.SearchEngineListCard
-import com.tk.quicksearch.settings.searchEngines.SearchEngineSectionToggleCard
 import com.tk.quicksearch.settings.searchEngines.ShortcutsSection
 import com.tk.quicksearch.search.core.*
 
@@ -88,15 +87,7 @@ fun SearchEnginesSection(
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded
         )
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Search Engine Section Toggle Card
-        SearchEngineSectionToggleCard(
-            searchEngineSectionEnabled = searchEngineSectionEnabled,
-            onToggleSearchEngineSectionEnabled = { enabled ->
-                onToggleSearchEngineSectionEnabled?.invoke(enabled)
-            }
-        )
+        Spacer(modifier = Modifier.height(16.dp)) // Increased spacing since we removed the card
         Spacer(modifier = Modifier.height(4.dp))
     }
 

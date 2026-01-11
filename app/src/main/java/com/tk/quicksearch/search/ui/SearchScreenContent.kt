@@ -209,21 +209,27 @@ internal fun SearchScreenContent(
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded, when search engine section is disabled,
         // or when a shortcut is detected
-        if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled && state.detectedShortcutEngine == null) {
-            SearchEngineIconsSection(
-                query = state.query,
-                hasAppResults = renderingState.hasAppResults,
-                enabledEngines = enabledEngines,
-                onSearchEngineClick = onSearchEngineClick,
-                onSearchEngineLongPress = onSearchEngineLongPress,
-                externalScrollState = searchEngineScrollState,
-                detectedShortcutEngine = state.detectedShortcutEngine,
-                onClearDetectedShortcut = onClearDetectedShortcut,
-                modifier = Modifier.imePadding()
-            )
-        } else if (expandedSection == ExpandedSection.NONE && (!state.searchEngineSectionEnabled || state.detectedShortcutEngine != null)) {
-            // Add padding when search engine section is disabled to prevent keyboard from covering content
-            Spacer(modifier = Modifier.imePadding())
+        // Fixed search engines section at the bottom (above keyboard, not scrollable)
+        // Hide when files or contacts are expanded
+        // Show if explicitly enabled OR if a shortcut is detected (to show the specific engine card)
+        if (expandedSection == ExpandedSection.NONE) {
+            if (state.searchEngineSectionEnabled || state.detectedShortcutEngine != null) {
+                SearchEngineIconsSection(
+                    query = state.query,
+                    hasAppResults = renderingState.hasAppResults,
+                    enabledEngines = enabledEngines,
+                    onSearchEngineClick = onSearchEngineClick,
+                    onSearchEngineLongPress = onSearchEngineLongPress,
+                    externalScrollState = searchEngineScrollState,
+                    detectedShortcutEngine = state.detectedShortcutEngine,
+                    onClearDetectedShortcut = onClearDetectedShortcut,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    modifier = Modifier.imePadding()
+                )
+            } else {
+                // Add padding when search engine section is disabled to prevent keyboard from covering content
+                Spacer(modifier = Modifier.imePadding())
+            }
         }
     }
 }

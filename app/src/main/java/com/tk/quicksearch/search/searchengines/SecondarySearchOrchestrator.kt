@@ -161,6 +161,45 @@ class SecondarySearchOrchestrator(
         }
     }
     
+    fun performWebSuggestionsOnly(query: String) {
+        searchJob?.cancel()
+        val trimmedQuery = query.trim()
+        val currentVersion = ++queryVersion
+        lastQueryLength = trimmedQuery.length
+
+        searchJob = scope.launch(Dispatchers.IO) {
+            // Debounce to match regular search behavior
+            delay(SECONDARY_SEARCH_DEBOUNCE_MS)
+            if (currentVersion != queryVersion) return@launch
+
+            withContext(Dispatchers.Main) {
+                // Clear all other results
+                uiStateUpdater { state ->
+                    state.copy(
+                        contactResults = emptyList(),
+                        fileResults = emptyList(),
+                        settingResults = emptyList()
+                    )
+                }
+
+                // Fetch web suggestions if enabled and query is long enough
+                if (webSuggestionHandler.isEnabled && trimmedQuery.length >= 2) {
+                    webSuggestionHandler.fetchWebSuggestions(
+                        trimmedQuery,
+                        currentVersion,
+                        activeQueryVersionProvider = { this@SecondarySearchOrchestrator.queryVersion },
+                        activeQueryProvider = { currentStateProvider().query }
+                    )
+                } else {
+                    webSuggestionHandler.cancelSuggestions()
+                    uiStateUpdater { state ->
+                        state.copy(webSuggestions = emptyList())
+                    }
+                }
+            }
+        }
+    }
+    
     fun cancel() {
         searchJob?.cancel()
     }

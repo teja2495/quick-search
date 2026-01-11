@@ -74,9 +74,10 @@ fun SearchEngineIconsSection(
     onSearchEngineLongPress: () -> Unit,
     externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
     detectedShortcutEngine: SearchEngine? = null,
-    onClearDetectedShortcut: () -> Unit = {}
+    onClearDetectedShortcut: () -> Unit = {},
+    showWallpaperBackground: Boolean = false
 ) {
-    if (enabledEngines.isEmpty()) return
+    if (enabledEngines.isEmpty() && detectedShortcutEngine == null) return
 
     val scrollState = externalScrollState ?: rememberLazyListState()
     
@@ -93,19 +94,28 @@ fun SearchEngineIconsSection(
         MaterialTheme.colorScheme.surface
     }
 
-    Surface(
-        modifier = modifier.extendToScreenEdges(),
-        color = backgroundColor,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-    ) {
-        if (detectedShortcutEngine != null) {
-            ShortcutSearchButton(
+    if (detectedShortcutEngine != null) {
+        // Check if query starts with the shortcut and remove it
+        // The shortcut corresponds to the detected engine
+        Box(
+            modifier = modifier
+                .extendToScreenEdges()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            com.tk.quicksearch.search.ui.SearchEngineCard(
+                engine = detectedShortcutEngine,
                 query = query,
-                searchEngine = detectedShortcutEngine,
-                onSearchEngineClick = onSearchEngineClick,
-                onClearDetectedShortcut = onClearDetectedShortcut
+                onClick = { onSearchEngineClick(query, detectedShortcutEngine) },
+                onClear = onClearDetectedShortcut,
+                showWallpaperBackground = showWallpaperBackground
             )
-        } else {
+        }
+    } else {
+        Surface(
+            modifier = modifier.extendToScreenEdges(),
+            color = backgroundColor,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        ) {
             SearchEngineContent(
                 query = query,
                 enabledEngines = enabledEngines,
@@ -212,67 +222,4 @@ private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.
     return (maxWidth - totalSpacing) / SearchEngineSectionConstants.ITEMS_PER_ROW
 }
 
-/**
- * "Search on" button displayed when a shortcut is detected.
- */
-@Composable
-private fun ShortcutSearchButton(
-    query: String,
-    searchEngine: SearchEngine,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
-    onClearDetectedShortcut: () -> Unit
-) {
-    val view = LocalView.current
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clickable {
-                hapticConfirm(view)()
-                val queryWithoutShortcut = query.trim().split("\\s+".toRegex()).drop(1).joinToString(" ")
-                onSearchEngineClick(queryWithoutShortcut, searchEngine)
-            }
-            .padding(
-                horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        // Centered Content (Icon + Text)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(id = searchEngine.getDrawableResId()),
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = stringResource(
-                    com.tk.quicksearch.R.string.search_on_engine,
-                    stringResource(searchEngine.getDisplayNameResId())
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-
-        // Close Icon aligned to the right
-        IconButton(
-            onClick = onClearDetectedShortcut,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .size(24.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Close,
-                contentDescription = stringResource(R.string.desc_clear_search),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-}
 

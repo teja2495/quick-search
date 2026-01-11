@@ -140,7 +140,8 @@ fun SearchContentArea(
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onEmailClick,
                 onWebSuggestionClick = onWebSuggestionClick,
-                onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick
+                onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+                onSearchEngineClick = onSearchEngineClick
             )
         }
     }
@@ -168,7 +169,8 @@ fun ContentLayout(
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
-    onCustomizeSearchEnginesClick: () -> Unit = {}
+    onCustomizeSearchEnginesClick: () -> Unit = {},
+    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> }
 ) {
     Column(
         modifier = modifier,
@@ -220,20 +222,19 @@ fun ContentLayout(
             // When results are at top (normal), show web suggestions first, then search engine cards
             if (isReversed) {
                 // Reversed layout: search engine cards first, then web suggestions at bottom
-                NoResultsSearchEngineCards(
-                    query = state.query,
-                    enabledEngines = state.detectedShortcutEngine?.let { listOf(it) } ?: state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
-                    onSearchEngineClick = { query, engine ->
-                        // TODO: Implement proper callback
-                        // For now, just show that the card was clicked
-                    },
-                    onCustomizeClick = onCustomizeSearchEnginesClick,
-                    isReversed = isReversed,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 2.dp)
-                )
+                if (state.detectedShortcutEngine == null) {
+                    NoResultsSearchEngineCards(
+                        query = state.query,
+                        enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
+                        onSearchEngineClick = onSearchEngineClick,
+                        onCustomizeClick = onCustomizeSearchEnginesClick,
+                        isReversed = isReversed,
+                        showWallpaperBackground = state.showWallpaperBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                    )
+                }
 
                 // Show web suggestions at the bottom when reversed
                 AnimatedVisibility(
@@ -269,20 +270,19 @@ fun ContentLayout(
                     )
                 }
 
-                NoResultsSearchEngineCards(
-                    query = state.query,
-                    enabledEngines = state.detectedShortcutEngine?.let { listOf(it) } ?: state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
-                    onSearchEngineClick = { query, engine ->
-                        // TODO: Implement proper callback
-                        // For now, just show that the card was clicked
-                    },
-                    onCustomizeClick = onCustomizeSearchEnginesClick,
-                    isReversed = isReversed,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 2.dp)
-                )
+                if (state.detectedShortcutEngine == null) {
+                    NoResultsSearchEngineCards(
+                        query = state.query,
+                        enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
+                        onSearchEngineClick = onSearchEngineClick,
+                        onCustomizeClick = onCustomizeSearchEnginesClick,
+                        isReversed = isReversed,
+                        showWallpaperBackground = state.showWallpaperBackground,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                    )
+                }
             }
 
             return

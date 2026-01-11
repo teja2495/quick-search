@@ -643,22 +643,23 @@ internal fun NoResultsSearchEngineCards(
  * Individual search engine card with icon and name.
  */
 @Composable
-private fun SearchEngineCard(
+internal fun SearchEngineCard(
     engine: SearchEngine,
     query: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
+    onClear: (() -> Unit)? = null
 ) {
     val view = LocalView.current
     val context = LocalContext.current
 
-            ElevatedCard(
+    ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
                 com.tk.quicksearch.util.hapticConfirm(view)()
-                IntentHelpers.openSearchUrl(context.applicationContext as android.app.Application, query, engine)
+                onClick()
             },
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
@@ -689,6 +690,20 @@ private fun SearchEngineCard(
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
+
+            if (onClear != null) {
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.desc_clear_search),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
         }
     }
 }
