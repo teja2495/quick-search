@@ -44,6 +44,7 @@ internal fun SearchScreenContent(
     onDirectSearchEmailClick: (String) -> Unit,
     onPhoneNumberClick: (String) -> Unit,
     onWebSuggestionClick: (String) -> Unit,
+    onCustomizeSearchEnginesClick: () -> Unit = {},
     onKeyboardSwitchToggle: () -> Unit,
     expandedSection: ExpandedSection,
     manuallySwitchedToNumberKeyboard: Boolean,
@@ -127,6 +128,7 @@ internal fun SearchScreenContent(
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
             detectedShortcutEngine = state.detectedShortcutEngine,
             showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
+            onClearDetectedShortcut = onClearDetectedShortcut,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
 
@@ -173,6 +175,8 @@ internal fun SearchScreenContent(
             onPhoneNumberClick = onPhoneNumberClick,
             onEmailClick = onDirectSearchEmailClick,
             onWebSuggestionClick = onWebSuggestionClick,
+            onSearchEngineClick = onSearchEngineClick,
+            onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             showCalculator = state.calculatorState.result != null,
             showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
             DirectSearchState = state.DirectSearchState
@@ -203,9 +207,9 @@ internal fun SearchScreenContent(
         }
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
-        // Hide when files or contacts are expanded, or when search engine section is disabled
-        // Exception: always show when query starts with a search engine shortcut
-        if (expandedSection == ExpandedSection.NONE && (state.searchEngineSectionEnabled || state.detectedShortcutEngine != null)) {
+        // Hide when files or contacts are expanded, when search engine section is disabled,
+        // or when a shortcut is detected
+        if (expandedSection == ExpandedSection.NONE && state.searchEngineSectionEnabled && state.detectedShortcutEngine == null) {
             SearchEngineIconsSection(
                 query = state.query,
                 hasAppResults = renderingState.hasAppResults,
@@ -217,7 +221,7 @@ internal fun SearchScreenContent(
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 modifier = Modifier.imePadding()
             )
-        } else if (expandedSection == ExpandedSection.NONE && !state.searchEngineSectionEnabled) {
+        } else if (expandedSection == ExpandedSection.NONE && (!state.searchEngineSectionEnabled || state.detectedShortcutEngine != null)) {
             // Add padding when search engine section is disabled to prevent keyboard from covering content
             Spacer(modifier = Modifier.imePadding())
         }

@@ -411,9 +411,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     sectionOrder = sectionManager.sectionOrder,
                     disabledSections = sectionManager.disabledSections,
                     searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
-                    showSearchEngineOnboarding = searchEngineManager.searchEngineSectionEnabled &&
-                        !userPreferences.hasSeenSearchEngineOnboarding() &&
-                        userPreferences.getAppOpenCount() == 1,
+                    showSearchEngineOnboarding = false,
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = calculatorHandler.isEnabled,
@@ -611,7 +609,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     DirectSearchState = DirectSearchState(),
                     calculatorState = CalculatorState(),
                     webSuggestions = emptyList(),
-                    detectedShortcutEngine = lockedShortcutEngine
+                    detectedShortcutEngine = lockedShortcutEngine,
+                    webSuggestionWasSelected = false
                 ) 
             }
             // Also reset locked shortcut when query is cleared completely (empty)
@@ -1045,6 +1044,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun onWebSuggestionTap(suggestion: String) {
         // Copy the suggestion text to the search bar
         onQueryChange(suggestion)
+        // Mark that a web suggestion was selected so we can hide suggestions
+        _uiState.update { it.copy(webSuggestionWasSelected = true) }
     }
 
     private fun refreshOptionalPermissions(): Boolean {

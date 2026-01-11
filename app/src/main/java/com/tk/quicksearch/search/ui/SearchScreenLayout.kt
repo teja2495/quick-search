@@ -11,15 +11,22 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchengines.*
 
 /**
@@ -70,6 +77,8 @@ fun SearchContentArea(
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
+    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> },
+    onCustomizeSearchEnginesClick: () -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
     DirectSearchState: DirectSearchState? = null
@@ -86,11 +95,9 @@ fun SearchContentArea(
             shouldShowContactsSection(renderingState, contactsParams) ||
             shouldShowFilesSection(renderingState, filesParams) ||
             shouldShowSettingsSection(renderingState)
-    val shouldShowEmptyResultsMessage = hasQuery && !hasAnySearchContent
     val alignResultsToBottom = useKeyboardAlignedLayout &&
         !showDirectSearch &&
-        !showCalculator &&
-        !shouldShowEmptyResultsMessage
+        !showCalculator
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
@@ -131,7 +138,8 @@ fun SearchContentArea(
                 DirectSearchState = DirectSearchState,
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onEmailClick,
-                onWebSuggestionClick = onWebSuggestionClick
+                onWebSuggestionClick = onWebSuggestionClick,
+                onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick
             )
         }
     }
@@ -158,11 +166,12 @@ fun ContentLayout(
     DirectSearchState: DirectSearchState? = null,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
-    onWebSuggestionClick: (String) -> Unit = {}
+    onWebSuggestionClick: (String) -> Unit = {},
+    onCustomizeSearchEnginesClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
@@ -201,36 +210,77 @@ fun ContentLayout(
         val hasDirectSearchAnswer = showDirectSearch && DirectSearchState != null
 
         if (hasQuery && !hasAnySearchContent && !showCalculator && !hasDirectSearchAnswer) {
-            val showWebSuggestions = state.webSuggestions.isNotEmpty() && state.webSuggestionsEnabled
-            // Only show "no results" when:
-            // 1. Web suggestions are disabled, OR
-            // 2. Web suggestions are enabled but returned empty (not currently showing)
-            // The EmptyResultsMessage has a 400ms delay which gives web suggestions time to load
-            val canShowEmptyMessage = !state.webSuggestionsEnabled || !showWebSuggestions
+            // Hide web suggestions if one was already selected
+            val showWebSuggestions = state.webSuggestions.isNotEmpty() &&
+                state.webSuggestionsEnabled &&
+                !state.webSuggestionWasSelected
 
-            AnimatedVisibility(
-                visible = showWebSuggestions,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                WebSuggestionsSection(
-                    suggestions = state.webSuggestions,
-                    onSuggestionClick = onWebSuggestionClick,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                )
-            }
-
-            if (canShowEmptyMessage) {
-                EmptyResultsMessage(
+            // When results are at bottom (reversed), show search engine cards first, then web suggestions
+            // When results are at top (normal), show web suggestions first, then search engine cards
+            if (isReversed) {
+                // Reversed layout: search engine cards first, then web suggestions at bottom
+                NoResultsSearchEngineCards(
                     query = state.query,
-                    enabledSections = renderingState.orderedSections,
+                    enabledEngines = state.detectedShortcutEngine?.let { listOf(it) } ?: state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
+                    onSearchEngineClick = { query, engine ->
+                        // TODO: Implement proper callback
+                        // For now, just show that the card was clicked
+                    },
+                    onCustomizeClick = onCustomizeSearchEnginesClick,
+                    isReversed = isReversed,
                     showWallpaperBackground = state.showWallpaperBackground,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .padding(horizontal = 12.dp, vertical = 2.dp)
+                )
+
+                // Show web suggestions at the bottom when reversed
+                AnimatedVisibility(
+                    visible = showWebSuggestions,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    WebSuggestionsSection(
+                        suggestions = state.webSuggestions,
+                        onSuggestionClick = onWebSuggestionClick,
+                        showWallpaperBackground = state.showWallpaperBackground,
+                        reverseOrder = isReversed,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                    )
+                }
+            } else {
+                // Normal layout: web suggestions first, then search engine cards
+                AnimatedVisibility(
+                    visible = showWebSuggestions,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    WebSuggestionsSection(
+                        suggestions = state.webSuggestions,
+                        onSuggestionClick = onWebSuggestionClick,
+                        showWallpaperBackground = state.showWallpaperBackground,
+                        reverseOrder = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 2.dp)
+                    )
+                }
+
+                NoResultsSearchEngineCards(
+                    query = state.query,
+                    enabledEngines = state.detectedShortcutEngine?.let { listOf(it) } ?: state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
+                    onSearchEngineClick = { query, engine ->
+                        // TODO: Implement proper callback
+                        // For now, just show that the card was clicked
+                    },
+                    onCustomizeClick = onCustomizeSearchEnginesClick,
+                    isReversed = isReversed,
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 2.dp)
                 )
             }
 

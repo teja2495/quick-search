@@ -400,28 +400,13 @@ fun CombinedAppearanceCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Results alignment toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onToggleKeyboardAlignedLayout(!keyboardAlignedLayout) }
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_layout_option_bottom),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = keyboardAlignedLayout,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onToggleKeyboardAlignedLayout(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_layout_option_bottom_title),
+                subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout,
+                showDivider = false
+            )
 
             // Divider
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.NorthWest
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.ui.SearchResultColors
 import com.tk.quicksearch.R
 
 // ============================================================================
@@ -46,16 +47,20 @@ fun WebSuggestionsSection(
     modifier: Modifier = Modifier,
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
+    reverseOrder: Boolean = false
 ) {
     if (suggestions.isEmpty()) return
+
+    // Reverse the suggestions list if requested
+    val orderedSuggestions = if (reverseOrder) suggestions.reversed() else suggestions
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         WebSuggestionsCard(
-            suggestions = suggestions,
+            suggestions = orderedSuggestions,
             onSuggestionClick = onSuggestionClick,
             showWallpaperBackground = showWallpaperBackground
         )
@@ -72,8 +77,6 @@ private fun WebSuggestionsCard(
     onSuggestionClick: (String) -> Unit,
     showWallpaperBackground: Boolean = false
 ) {
-    val cardBackgroundColor = MaterialTheme.colorScheme.surfaceContainerLow
-    
     val textColor = if (showWallpaperBackground) {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
     } else {
@@ -89,10 +92,8 @@ private fun WebSuggestionsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(CARD_CORNER_RADIUS.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = cardBackgroundColor
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = SearchResultColors.getCardColors(showWallpaperBackground),
+        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
     ) {
         Column {
             suggestions.forEachIndexed { index, suggestion ->
@@ -142,7 +143,7 @@ private fun WebSuggestionItem(
         horizontalArrangement = Arrangement.Start
     ) {
         Icon(
-            imageVector = Icons.Rounded.Search,
+            imageVector = Icons.Rounded.NorthWest,
             contentDescription = stringResource(R.string.desc_search_icon),
             tint = iconColor,
             modifier = Modifier

@@ -114,32 +114,30 @@ fun SearchEngineListCard(
                                     engine = engine,
                                     isEnabled = true,
                                     onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                                    dragHandleModifier = if (searchEngineSectionEnabled) {
-                                        Modifier.longPressDraggableHandle(
-                                            onDragStarted = {
-                                                ViewCompat.performHapticFeedback(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_START
-                                                )
-                                            },
-                                            onDragStopped = {
-                                                ViewCompat.performHapticFeedback(
-                                                    view,
-                                                    HapticFeedbackConstantsCompat.GESTURE_END
-                                                )
-                                            }
-                                        )
-                                    } else null,
-                                    allowDrag = searchEngineSectionEnabled,
+                                    dragHandleModifier = Modifier.longPressDraggableHandle(
+                                        onDragStarted = {
+                                            ViewCompat.performHapticFeedback(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_START
+                                            )
+                                        },
+                                        onDragStopped = {
+                                            ViewCompat.performHapticFeedback(
+                                                view,
+                                                HapticFeedbackConstantsCompat.GESTURE_END
+                                            )
+                                        }
+                                    ),
+                                    allowDrag = true,
                                     shortcutCode = shortcutCodes[engine] ?: "",
                                     shortcutEnabled = shortcutEnabled[engine] ?: true,
                                     onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
                                     onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
-                                    showToggle = searchEngineSectionEnabled,
-                                    switchEnabled = searchEngineSectionEnabled,
+                                    showToggle = true,
+                                    switchEnabled = true,
                                     amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
                                     onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
-                                    onMoveToTop = if (searchEngineSectionEnabled && index > 0) {
+                                    onMoveToTop = if (index > 0) {
                                         {
                                             val newOrder = enabledEngines.toMutableList().apply {
                                                 add(0, removeAt(index))
@@ -147,7 +145,7 @@ fun SearchEngineListCard(
                                             onReorderSearchEngines(newOrder + disabledEngines)
                                         }
                                     } else null,
-                                    onMoveToBottom = if (searchEngineSectionEnabled && index < enabledEngines.lastIndex) {
+                                    onMoveToBottom = if (index < enabledEngines.lastIndex) {
                                         {
                                             val newOrder = enabledEngines.toMutableList().apply {
                                                 add(enabledEngines.lastIndex, removeAt(index))
@@ -195,8 +193,8 @@ fun SearchEngineListCard(
                             shortcutEnabled = shortcutEnabled[engine] ?: true,
                             onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
                             onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
-                            showToggle = searchEngineSectionEnabled,
-                            switchEnabled = searchEngineSectionEnabled,
+                            showToggle = true,
+                            switchEnabled = true,
                             amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
                             onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
                             onMoveToTop = null,

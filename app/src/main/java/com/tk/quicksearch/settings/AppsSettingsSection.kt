@@ -54,7 +54,8 @@ fun AppLabelsSection(
 
         // Results alignment toggle (always shown)
         SettingsToggleRow(
-            title = stringResource(R.string.settings_layout_option_bottom),
+            title = stringResource(R.string.settings_layout_option_bottom_title),
+            subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
             checked = keyboardAlignedLayout,
             onCheckedChange = onToggleKeyboardAlignedLayout,
             isLastItem = true

@@ -341,6 +341,11 @@ class MainActivity : ComponentActivity() {
                             keyboardController?.hide()
                             onDestinationChange(RootDestination.Settings)
                             onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                        },
+                        onCustomizeSearchEnginesClick = {
+                            keyboardController?.hide()
+                            onDestinationChange(RootDestination.Settings)
+                            onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
                         }
                     )
                 }

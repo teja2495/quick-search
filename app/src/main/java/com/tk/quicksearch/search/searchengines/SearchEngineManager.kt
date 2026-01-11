@@ -84,7 +84,10 @@ class SearchEngineManager(
             searchEngineSectionEnabled = enabled
             userPreferences.setSearchEngineSectionEnabled(enabled)
             onStateUpdate { state ->
-                state.copy(searchEngineSectionEnabled = searchEngineSectionEnabled)
+                state.copy(
+                    searchEngineSectionEnabled = searchEngineSectionEnabled,
+                    showSearchEngineOnboarding = enabled && !userPreferences.hasSeenSearchEngineOnboarding()
+                )
             }
         }
     }

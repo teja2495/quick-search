@@ -111,9 +111,8 @@ fun SettingsDetailRoute(
     var directSearchSetupExpanded by remember(detailType) {
         mutableStateOf(
             if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                // If API key is set up, always start minimized
-                // If not set up, check user preference (defaults to expanded for first-time setup)
-                !uiState.hasGeminiApiKey && userPreferences.isDirectSearchSetupExpanded()
+                // Always start minimized in search engine settings screen
+                false
             } else {
                 true
             }
@@ -270,19 +269,7 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.ADDITIONAL_SETTINGS -> stringResource(R.string.settings_additional_settings_title)
                 },
                 onBack = callbacks.onBack,
-                trailingContent = if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                    {
-                        Switch(
-                            checked = state.searchEngineSectionEnabled,
-                            onCheckedChange = { enabled ->
-                                hapticToggle(view)()
-                                callbacks.onToggleSearchEngineSectionEnabled(enabled)
-                            }
-                        )
-                    }
-                } else {
-                    null
-                }
+                trailingContent = null
             )
 
             Column(
@@ -319,6 +306,7 @@ private fun SettingsDetailScreen(
                             onDismissShortcutHintBanner = onDismissShortcutHintBanner,
                             directSearchSetupExpanded = directSearchSetupExpanded,
                             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                            onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
                             showDirectSearchAtTop = true
                         )
                     }

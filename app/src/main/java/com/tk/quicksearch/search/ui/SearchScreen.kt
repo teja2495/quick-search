@@ -106,6 +106,7 @@ fun SearchRoute(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
+    onCustomizeSearchEnginesClick: () -> Unit = {},
     viewModel: SearchViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -217,7 +218,8 @@ fun SearchRoute(
         onWebSuggestionClick = { suggestion: String ->
             viewModel.onWebSuggestionTap(suggestion)
         },
-        onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed
+        onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
+        onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick
     )
 }
 
@@ -276,7 +278,8 @@ fun SearchScreen(
     onReleaseNotesAcknowledged: () -> Unit,
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineOnboardingDismissed: () -> Unit = {},
-    onClearDetectedShortcut: () -> Unit = {}
+    onClearDetectedShortcut: () -> Unit = {},
+    onCustomizeSearchEnginesClick: () -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -450,6 +453,7 @@ fun SearchScreen(
                 onCallContact(tempContact)
             },
             onWebSuggestionClick = onWebSuggestionClick,
+            onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onKeyboardSwitchToggle = {
                 manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard
             },

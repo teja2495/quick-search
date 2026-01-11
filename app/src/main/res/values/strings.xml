@@ -27,11 +27,6 @@
     <string name="search_results_subtitle">Matches for "%1$s"</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
-    <string name="search_empty_state_no_results">No %1$s found for your query.</string>
-    <string name="empty_state_section_apps">apps</string>
-    <string name="empty_state_section_contacts">contacts</string>
-    <string name="empty_state_section_files">files</string>
-    <string name="empty_state_section_settings">settings</string>
     <string name="direct_search_title">Direct Search</string>
     <string name="direct_search_loading">Getting answer\u2026</string>
     <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
@@ -42,6 +37,7 @@
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_open_search_engine">Unable to open %1$s</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
+    <string name="customize_search_engines">Customize Search Engines</string>
     <string name="keyboard_switch_to_number">Switch to number keyboard</string>
     <string name="direct_answer_contact_name">Direct Answer</string>
 
@@ -281,7 +277,8 @@
     <string name="settings_wallpaper_background_toggle">Wallpaper background</string>
     <string name="settings_layout_toggle">Appearance</string>
     <string name="settings_layout_option_top">Top</string>
-    <string name="settings_layout_option_bottom">Results at the bottom</string>
+    <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
+    <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_desc">Choose your preferred color theme.</string>
     <string name="settings_theme_option_system">System default</string>
@@ -305,6 +302,8 @@
     <string name="request_search_engine_text">Request a search engine</string>
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_search_engines_more_title">More</string>
+    <string name="settings_search_engines_section_toggle_title">Sticky Search Engines</string>
+    <string name="settings_search_engines_section_toggle_desc">Show search engines section above the keyboard</string>
     <string name="settings_amazon_domain_title">Amazon Domain</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>

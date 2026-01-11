@@ -2,6 +2,9 @@ package com.tk.quicksearch.settings.searchEngines
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -163,9 +166,13 @@ fun SearchEngineToggleCard(
                 }
             }
 
-            if (!isExpanded) return@Column
-
-            if (directSearchEnabled && geminiApiKeyLast4 != null) {
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column {
+                    if (directSearchEnabled && geminiApiKeyLast4 != null) {
                 Text(
                     text = stringResource(R.string.settings_gemini_api_key_display, geminiApiKeyLast4 ?: ""),
                     style = MaterialTheme.typography.bodyMedium,
@@ -392,6 +399,8 @@ fun SearchEngineToggleCard(
                         }
                     }
                 )
+            }
+                }
             }
         }
     }

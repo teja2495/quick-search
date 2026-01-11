@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -75,7 +76,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.searchengines.getDisplayNameResId
 import com.tk.quicksearch.search.searchengines.getDrawableResId
 import com.tk.quicksearch.util.hapticStrong
 
@@ -129,6 +132,7 @@ internal fun PersistentSearchField(
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutEngine: SearchEngine? = null,
     showWelcomeAnimation: Boolean = false,
+    onClearDetectedShortcut: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -142,7 +146,7 @@ internal fun PersistentSearchField(
     val iconAndTextColor = Color(0xFFE0E0E0)
 
     // Local text field value maintains cursor position even when state query changes from voice input.
-    var textFieldValue by remember { mutableStateOf(TextFieldValue(query)) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(query, TextRange(query.length))) }
 
     LaunchedEffect(query) {
         if (query != textFieldValue.text) {
@@ -393,6 +397,10 @@ internal fun PersistentSearchField(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.padding(end = 4.dp)
                 ) {
+                    // Single X icon that:
+                    // - Clears query when query is not empty
+                    // - Clears detected shortcut when query is empty but shortcut is detected
+                    // Otherwise show settings icon
                     if (query.isNotEmpty()) {
                         IconButton(onClick = onClearQuery) {
                             Icon(
@@ -401,8 +409,18 @@ internal fun PersistentSearchField(
                                 tint = iconAndTextColor
                             )
                         }
-                    }
-                    if (query.isEmpty()) {
+                    } else if (detectedShortcutEngine != null) {
+                        IconButton(onClick = {
+                            hapticStrong(view)()
+                            onClearDetectedShortcut()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.desc_clear_search),
+                                tint = iconAndTextColor
+                            )
+                        }
+                    } else {
                         IconButton(onClick = {
                             hapticStrong(view)()
                             onSettingsClick()
@@ -560,6 +578,168 @@ internal fun KeyboardSwitchPill(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+/**
+ * Section displaying search engine cards when there are no search results.
+ * Shows all enabled search engines as individual cards with icons.
+ */
+@Composable
+internal fun NoResultsSearchEngineCards(
+    query: String,
+    enabledEngines: List<SearchEngine>,
+    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onCustomizeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isReversed: Boolean = false,
+    showWallpaperBackground: Boolean = false
+) {
+    // Reverse the engine list when results are at the bottom
+    val orderedEngines = if (isReversed) {
+        enabledEngines.reversed()
+    } else {
+        enabledEngines
+    }
+
+    // Don't show customize card when only one engine is shown (shortcut detected)
+    val showCustomizeCard = enabledEngines.size > 1
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // When reversed (results at bottom), show customize card at the top
+        if (isReversed && showCustomizeCard) {
+            CustomizeSearchEnginesCard(
+                onClick = onCustomizeClick,
+                showWallpaperBackground = showWallpaperBackground
+            )
+        }
+
+        orderedEngines.forEach { engine ->
+            SearchEngineCard(
+                engine = engine,
+                query = query,
+                onClick = { onSearchEngineClick(query, engine) },
+                showWallpaperBackground = showWallpaperBackground
+            )
+        }
+
+        // When not reversed, show customize card at the bottom
+        if (!isReversed && showCustomizeCard) {
+            CustomizeSearchEnginesCard(
+                onClick = onCustomizeClick,
+                showWallpaperBackground = showWallpaperBackground
+            )
+        }
+    }
+}
+
+/**
+ * Individual search engine card with icon and name.
+ */
+@Composable
+private fun SearchEngineCard(
+    engine: SearchEngine,
+    query: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    showWallpaperBackground: Boolean = false
+) {
+    val view = LocalView.current
+    val context = LocalContext.current
+
+            ElevatedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                com.tk.quicksearch.util.hapticConfirm(view)()
+                IntentHelpers.openSearchUrl(context.applicationContext as android.app.Application, query, engine)
+            },
+        colors = SearchResultColors.getCardColors(showWallpaperBackground),
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Search engine icon
+            Icon(
+                painter = androidx.compose.ui.res.painterResource(id = engine.getDrawableResId()),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = Color.Unspecified
+            )
+
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+
+            // Search engine name
+            Text(
+                text = stringResource(R.string.search_on_engine, stringResource(engine.getDisplayNameResId())),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/**
+ * Card for customizing search engines - always available at the bottom.
+ */
+@Composable
+private fun CustomizeSearchEnginesCard(
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    showWallpaperBackground: Boolean = false
+) {
+    val view = LocalView.current
+
+    ElevatedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                com.tk.quicksearch.util.hapticConfirm(view)()
+                onClick()
+                // Navigation is handled by the onClick callback which should navigate to search engine settings
+                // This is passed down from MainActivity -> SearchRoute -> SearchScreenContent -> SearchContentArea -> NoResultsSearchEngineCards -> CustomizeSearchEnginesCard
+            },
+        colors = SearchResultColors.getCardColors(showWallpaperBackground),
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = SearchResultColors.getCardElevation(showWallpaperBackground)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Settings icon
+            Icon(
+                imageVector = Icons.Rounded.Settings,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+
+            // Customize text
+            Text(
+                text = stringResource(R.string.customize_search_engines),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
             )
         }
     }
