@@ -37,7 +37,7 @@ class SearchEngineManager(
     var disabledSearchEngines: Set<SearchEngine> = loadDisabledSearchEngines()
         private set
 
-    var searchEngineSectionEnabled: Boolean = userPreferences.isSearchEngineSectionEnabled()
+    var isSearchEngineCompactMode: Boolean = userPreferences.isSearchEngineCompactMode()
         private set
 
     fun getEnabledSearchEngines(): List<SearchEngine> {
@@ -79,13 +79,13 @@ class SearchEngineManager(
         }
     }
 
-    fun setSearchEngineSectionEnabled(enabled: Boolean) {
+    fun setSearchEngineCompactMode(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            searchEngineSectionEnabled = enabled
-            userPreferences.setSearchEngineSectionEnabled(enabled)
+            isSearchEngineCompactMode = enabled
+            userPreferences.setSearchEngineCompactMode(enabled)
             onStateUpdate { state ->
                 state.copy(
-                    searchEngineSectionEnabled = searchEngineSectionEnabled,
+                    isSearchEngineCompactMode = isSearchEngineCompactMode,
                     showSearchEngineOnboarding = enabled && !userPreferences.hasSeenSearchEngineOnboarding()
                 )
             }

@@ -251,9 +251,9 @@ class UserAppPreferences(context: Context) {
 
     fun setSearchEngineOrder(order: List<String>) = searchEnginePreferences.setSearchEngineOrder(order)
 
-    fun isSearchEngineSectionEnabled(): Boolean = searchEnginePreferences.isSearchEngineSectionEnabled()
+    fun isSearchEngineCompactMode(): Boolean = searchEnginePreferences.isSearchEngineCompactMode()
 
-    fun setSearchEngineSectionEnabled(enabled: Boolean) = searchEnginePreferences.setSearchEngineSectionEnabled(enabled)
+    fun setSearchEngineCompactMode(enabled: Boolean) = searchEnginePreferences.setSearchEngineCompactMode(enabled)
 
     fun hasSeenSearchEngineOnboarding(): Boolean = searchEnginePreferences.hasSeenSearchEngineOnboarding()
 

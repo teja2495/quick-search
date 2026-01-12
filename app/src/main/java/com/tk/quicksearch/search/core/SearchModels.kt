@@ -129,7 +129,7 @@ data class SearchUiState(
     val sortAppsByUsageEnabled: Boolean = false,
     val sectionOrder: List<SearchSection> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),
-    val searchEngineSectionEnabled: Boolean = true,
+    val isSearchEngineCompactMode: Boolean = false,
     val amazonDomain: String? = null,
     val webSuggestionsEnabled: Boolean = true,
     val calculatorEnabled: Boolean = true,

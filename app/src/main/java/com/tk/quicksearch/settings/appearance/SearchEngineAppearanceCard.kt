@@ -23,8 +23,8 @@ import com.tk.quicksearch.util.hapticToggle
  */
 @Composable
 fun SearchEngineAppearanceCard(
-    searchEngineSectionEnabled: Boolean,
-    onToggleSearchEngineSectionEnabled: (Boolean) -> Unit,
+    isSearchEngineCompactMode: Boolean,
+    onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
@@ -44,30 +44,30 @@ fun SearchEngineAppearanceCard(
                 text = stringResource(R.string.settings_search_engine_display_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 24.dp, end = 16.dp)
+                modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 16.dp)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                 SearchEngineDisplayOption(
-                    title = stringResource(R.string.settings_search_engine_display_sticky_title),
-                    description = stringResource(R.string.settings_search_engine_display_sticky_desc),
-                    selected = searchEngineSectionEnabled,
+                    title = stringResource(R.string.settings_search_engine_display_inline_title),
+                    description = stringResource(R.string.settings_search_engine_display_inline_desc),
+                    selected = !isSearchEngineCompactMode,
                     onClick = {
-                        if (!searchEngineSectionEnabled) {
+                        if (isSearchEngineCompactMode) {
                             hapticToggle(view)()
-                            onToggleSearchEngineSectionEnabled(true)
+                            onToggleSearchEngineCompactMode(false)
                         }
                     }
                 )
 
                 SearchEngineDisplayOption(
-                    title = stringResource(R.string.settings_search_engine_display_inline_title),
-                    description = stringResource(R.string.settings_search_engine_display_inline_desc),
-                    selected = !searchEngineSectionEnabled,
+                    title = stringResource(R.string.settings_search_engine_display_sticky_title),
+                    description = stringResource(R.string.settings_search_engine_display_sticky_desc),
+                    selected = isSearchEngineCompactMode,
                     onClick = {
-                        if (searchEngineSectionEnabled) {
+                        if (!isSearchEngineCompactMode) {
                             hapticToggle(view)()
-                            onToggleSearchEngineSectionEnabled(false)
+                            onToggleSearchEngineCompactMode(true)
                         }
                     }
                 )
@@ -103,7 +103,7 @@ private fun SearchEngineDisplayOption(
             )
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

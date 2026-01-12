@@ -90,7 +90,7 @@ fun SettingsDetailRoute(
         directDialEnabled = uiState.directDialEnabled,
         sectionOrder = uiState.sectionOrder,
         disabledSections = uiState.disabledSections,
-        searchEngineSectionEnabled = uiState.searchEngineSectionEnabled,
+        isSearchEngineCompactMode = uiState.isSearchEngineCompactMode,
         amazonDomain = uiState.amazonDomain,
         calculatorEnabled = uiState.calculatorEnabled,
         webSuggestionsEnabled = uiState.webSuggestionsEnabled,
@@ -111,8 +111,8 @@ fun SettingsDetailRoute(
     var directSearchSetupExpanded by remember(detailType) {
         mutableStateOf(
             if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                // Always start minimized in search engine settings screen
-                false
+                // Always start expanded in search engine settings screen
+                true
             } else {
                 true
             }
@@ -173,7 +173,7 @@ fun SettingsDetailRoute(
         onToggleDirectDial = viewModel::setDirectDialEnabled,
         onToggleSection = { _, _ -> },
         onReorderSections = viewModel::reorderSections,
-        onToggleSearchEngineSectionEnabled = viewModel::setSearchEngineSectionEnabled,
+        onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
         onSetAmazonDomain = viewModel::setAmazonDomain,
         onToggleCalculator = viewModel::setCalculatorEnabled,
         onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
@@ -293,7 +293,7 @@ private fun SettingsDetailScreen(
                             setShortcutCode = callbacks.setShortcutCode,
                             shortcutEnabled = state.shortcutEnabled,
                             setShortcutEnabled = callbacks.setShortcutEnabled,
-                            searchEngineSectionEnabled = state.searchEngineSectionEnabled,
+                            isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             amazonDomain = state.amazonDomain,
                             onSetAmazonDomain = callbacks.onSetAmazonDomain,
                             onSetGeminiApiKey = callbacks.onSetGeminiApiKey,
@@ -306,7 +306,7 @@ private fun SettingsDetailScreen(
                             onDismissShortcutHintBanner = onDismissShortcutHintBanner,
                             directSearchSetupExpanded = directSearchSetupExpanded,
                             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
-                            onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled,
+                            onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             showDirectSearchAtTop = true
                         )
                     }

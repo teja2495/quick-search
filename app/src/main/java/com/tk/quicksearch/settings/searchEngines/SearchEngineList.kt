@@ -64,7 +64,7 @@ fun SearchEngineListCard(
     setShortcutCode: ((SearchEngine, String) -> Unit)?,
     shortcutEnabled: Map<SearchEngine, Boolean>,
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
-    searchEngineSectionEnabled: Boolean,
+    isSearchEngineCompactMode: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     showRequestSearchEngine: Boolean = true

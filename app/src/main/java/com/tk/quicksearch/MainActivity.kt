@@ -333,7 +333,7 @@ class MainActivity : ComponentActivity() {
                     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                     SearchRoute(
                         viewModel = viewModel,
-                        onSettingsClick = { 
+                        onSettingsClick = {
                             keyboardController?.hide()
                             onDestinationChange(RootDestination.Settings)
                         },
@@ -346,6 +346,9 @@ class MainActivity : ComponentActivity() {
                             keyboardController?.hide()
                             onDestinationChange(RootDestination.Settings)
                             onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                        },
+                        onWelcomeAnimationCompleted = {
+                            viewModel.onSearchBarWelcomeAnimationCompleted()
                         }
                     )
                 }

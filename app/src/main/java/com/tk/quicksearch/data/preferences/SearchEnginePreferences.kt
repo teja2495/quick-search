@@ -32,10 +32,10 @@ class SearchEnginePreferences(context: Context) : BasePreferences(context) {
         setStringListPref(KEY_SEARCH_ENGINE_ORDER, order)
     }
 
-    fun isSearchEngineSectionEnabled(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, true)
+    fun isSearchEngineCompactMode(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_COMPACT_MODE, false)
 
-    fun setSearchEngineSectionEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_SEARCH_ENGINE_SECTION_ENABLED, enabled)
+    fun setSearchEngineCompactMode(enabled: Boolean) {
+        setBooleanPref(KEY_SEARCH_ENGINE_COMPACT_MODE, enabled)
     }
 
     fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)

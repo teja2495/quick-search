@@ -410,7 +410,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     shortcutEnabled = shortcutsState.shortcutEnabled,
                     sectionOrder = sectionManager.sectionOrder,
                     disabledSections = sectionManager.disabledSections,
-                    searchEngineSectionEnabled = searchEngineManager.searchEngineSectionEnabled,
+                    isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
                     showSearchEngineOnboarding = false,
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
@@ -458,12 +458,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Show if not seen before, regardless of app open count.
         // This ensures existing users also see the new feature once.
         val hasSeen = userPreferences.hasSeenSearchBarWelcome()
-        
+
         if (!hasSeen) {
             userPreferences.setHasSeenSearchBarWelcome(true)
             return true
         }
         return false
+    }
+
+    fun onSearchBarWelcomeAnimationCompleted() {
+        _uiState.update { it.copy(showSearchBarWelcomeAnimation = false) }
     }
 
     private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
@@ -903,7 +907,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun getEnabledSearchEngines(): List<SearchEngine> = searchEngineManager.getEnabledSearchEngines()
     fun setSearchEngineEnabled(engine: SearchEngine, enabled: Boolean) = searchEngineManager.setSearchEngineEnabled(engine, enabled)
     fun reorderSearchEngines(newOrder: List<SearchEngine>) = searchEngineManager.reorderSearchEngines(newOrder)
-    fun setSearchEngineSectionEnabled(enabled: Boolean) = searchEngineManager.setSearchEngineSectionEnabled(enabled)
+    fun setSearchEngineCompactMode(enabled: Boolean) = searchEngineManager.setSearchEngineCompactMode(enabled)
 
     fun setFileTypeEnabled(fileType: FileType, enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -46,6 +46,7 @@ internal fun SearchScreenContent(
     onWebSuggestionClick: (String) -> Unit,
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onKeyboardSwitchToggle: () -> Unit,
+    onWelcomeAnimationCompleted: (() -> Unit)? = null,
     expandedSection: ExpandedSection,
     manuallySwitchedToNumberKeyboard: Boolean,
     scrollState: androidx.compose.foundation.ScrollState,
@@ -129,6 +130,7 @@ internal fun SearchScreenContent(
             detectedShortcutEngine = state.detectedShortcutEngine,
             showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
             onClearDetectedShortcut = onClearDetectedShortcut,
+            onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
 
@@ -213,7 +215,7 @@ internal fun SearchScreenContent(
         // Hide when files or contacts are expanded
         // Show if explicitly enabled OR if a shortcut is detected (to show the specific engine card)
         if (expandedSection == ExpandedSection.NONE) {
-            if (state.searchEngineSectionEnabled || state.detectedShortcutEngine != null) {
+            if (state.isSearchEngineCompactMode || state.detectedShortcutEngine != null) {
                 SearchEngineIconsSection(
                     query = state.query,
                     hasAppResults = renderingState.hasAppResults,

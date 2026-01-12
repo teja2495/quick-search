@@ -134,6 +134,7 @@ internal fun PersistentSearchField(
     detectedShortcutEngine: SearchEngine? = null,
     showWelcomeAnimation: Boolean = false,
     onClearDetectedShortcut: () -> Unit = {},
+    onWelcomeAnimationCompleted: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -220,6 +221,10 @@ internal fun PersistentSearchField(
                     animationSpec = tween(500, easing = LinearOutSlowInEasing)
                 )
             }
+
+            // Wait for fade out to complete, then reset the animation flag
+            delay(500)
+            onWelcomeAnimationCompleted?.invoke()
         }
     }
 
@@ -644,6 +649,7 @@ internal fun SearchEngineCard(
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
+            .clip(MaterialTheme.shapes.extraLarge)
             .clickable {
                 com.tk.quicksearch.util.hapticConfirm(view)()
                 onClick()
@@ -709,6 +715,7 @@ private fun CustomizeSearchEnginesCard(
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
+            .clip(MaterialTheme.shapes.extraLarge)
             .clickable {
                 com.tk.quicksearch.util.hapticConfirm(view)()
                 onClick()

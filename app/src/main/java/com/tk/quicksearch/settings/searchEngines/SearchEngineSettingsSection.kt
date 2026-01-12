@@ -41,8 +41,8 @@ fun SearchEnginesSection(
     setShortcutCode: ((SearchEngine, String) -> Unit)? = null,
     shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
     setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)? = null,
-    searchEngineSectionEnabled: Boolean = true,
-    onToggleSearchEngineSectionEnabled: ((Boolean) -> Unit)? = null,
+    isSearchEngineCompactMode: Boolean = true,
+    onToggleSearchEngineCompactMode: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onSetGeminiApiKey: ((String?) -> Unit)? = null,
@@ -87,8 +87,7 @@ fun SearchEnginesSection(
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded
         )
-        Spacer(modifier = Modifier.height(16.dp)) // Increased spacing since we removed the card
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
     }
 
     if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
@@ -112,7 +111,7 @@ fun SearchEnginesSection(
         setShortcutCode = setShortcutCode,
         shortcutEnabled = shortcutEnabled,
         setShortcutEnabled = setShortcutEnabled,
-        searchEngineSectionEnabled = searchEngineSectionEnabled,
+        isSearchEngineCompactMode = isSearchEngineCompactMode,
         amazonDomain = amazonDomain,
         onSetAmazonDomain = onSetAmazonDomain,
         showRequestSearchEngine = showRequestSearchEngine

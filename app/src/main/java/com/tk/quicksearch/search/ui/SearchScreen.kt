@@ -107,7 +107,8 @@ fun SearchRoute(
     onSettingsClick: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    viewModel: SearchViewModel = viewModel()
+    viewModel: SearchViewModel = viewModel(),
+    onWelcomeAnimationCompleted: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -219,7 +220,8 @@ fun SearchRoute(
             viewModel.onWebSuggestionTap(suggestion)
         },
         onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
-        onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick
+        onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+        onWelcomeAnimationCompleted = onWelcomeAnimationCompleted
     )
 }
 
@@ -258,6 +260,7 @@ fun SearchScreen(
     onSearchEngineClick: (String, SearchEngine) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
+    onWelcomeAnimationCompleted: (() -> Unit)? = null,
     onOpenAppSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -442,6 +445,7 @@ fun SearchScreen(
             onSearchEngineClick = onSearchEngineClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
             onDirectSearchEmailClick = onDirectSearchEmailClick,
+            onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onPhoneNumberClick = { phoneNumber ->
                 // Create a temporary ContactInfo to use the call functionality
                 val tempContact = ContactInfo(

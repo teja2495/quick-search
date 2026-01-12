@@ -222,7 +222,7 @@ fun ContentLayout(
             // When results are at top (normal), show web suggestions first, then search engine cards
             if (isReversed) {
                 // Reversed layout: search engine cards first, then web suggestions at bottom
-                if (state.detectedShortcutEngine == null && !state.searchEngineSectionEnabled) {
+                if (state.detectedShortcutEngine == null && !state.isSearchEngineCompactMode) {
                     NoResultsSearchEngineCards(
                         query = state.query,
                         enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
@@ -266,7 +266,7 @@ fun ContentLayout(
                     )
                 }
 
-                if (state.detectedShortcutEngine == null && !state.searchEngineSectionEnabled) {
+                if (state.detectedShortcutEngine == null && !state.isSearchEngineCompactMode) {
                     NoResultsSearchEngineCards(
                         query = state.query,
                         enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },

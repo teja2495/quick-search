@@ -192,8 +192,8 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             SearchEngineAppearanceCard(
-                searchEngineSectionEnabled = state.searchEngineSectionEnabled,
-                onToggleSearchEngineSectionEnabled = callbacks.onToggleSearchEngineSectionEnabled
+                isSearchEngineCompactMode = state.isSearchEngineCompactMode,
+                onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode
             )
 
             // Contacts Section
