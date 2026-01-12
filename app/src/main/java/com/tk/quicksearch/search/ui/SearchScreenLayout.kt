@@ -18,10 +18,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
@@ -275,6 +280,40 @@ fun ContentLayout(
                         isReversed = isReversed,
                         showWallpaperBackground = state.showWallpaperBackground,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            // Show "No results" message when search engine compact mode is enabled
+            // and web suggestions API was called but returned no results or web suggestions are disabled
+            val shouldShowNoResults = state.isSearchEngineCompactMode && (
+                !state.webSuggestionsEnabled ||
+                (state.webSuggestionsEnabled && state.query.trim().length >= 2 && state.webSuggestions.isEmpty())
+            )
+
+            // Add delay before showing no results text to avoid flashing before web suggestions load
+            var showNoResultsText by remember { mutableStateOf(false) }
+            LaunchedEffect(shouldShowNoResults, state.query) {
+                if (shouldShowNoResults) {
+                    delay(1000L) // 300ms delay to match web suggestions delay
+                    showNoResultsText = true
+                } else {
+                    showNoResultsText = false
+                }
+            }
+
+            if (showNoResultsText) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_results_found),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
             }

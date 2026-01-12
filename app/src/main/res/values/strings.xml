@@ -567,4 +567,9 @@
          Calculator
          ============================================================================ -->
     <string name="calculator_toggle_title">Calculator</string>
+
+    <!-- ============================================================================
+         No Results
+         ============================================================================ -->
+    <string name="no_results_found">No results found. Try tapping a search engine below to search the web.</string>
 </resources>
