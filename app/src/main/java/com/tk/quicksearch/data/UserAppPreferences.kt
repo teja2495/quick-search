@@ -427,4 +427,14 @@ class UserAppPreferences(context: Context) {
 
     fun shouldShowReviewPrompt(): Boolean = uiPreferences.shouldShowReviewPrompt()
 
+    // ============================================================================
+    // In-App Update Session Tracking
+    // ============================================================================
+
+    fun hasShownUpdateCheckThisSession(): Boolean = uiPreferences.hasShownUpdateCheckThisSession()
+
+    fun setUpdateCheckShownThisSession() = uiPreferences.setUpdateCheckShownThisSession()
+
+    fun resetUpdateCheckSession() = uiPreferences.resetUpdateCheckSession()
+
 }

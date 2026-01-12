@@ -303,4 +303,31 @@ class UiPreferences(context: Context) : BasePreferences(context) {
             else -> false  // Never show after 2 prompts
         }
     }
+
+    // ============================================================================
+    // In-App Update Session Tracking
+    // ============================================================================
+
+    /**
+     * Check if an update check was performed this session.
+     * This is used to avoid showing both update and review prompts in the same session.
+     */
+    fun hasShownUpdateCheckThisSession(): Boolean {
+        return prefs.getBoolean(KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
+    }
+
+    /**
+     * Mark that an update check was shown this session.
+     */
+    fun setUpdateCheckShownThisSession() {
+        prefs.edit().putBoolean(KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true).apply()
+    }
+
+    /**
+     * Reset the update check session flag.
+     * Should be called when the app starts.
+     */
+    fun resetUpdateCheckSession() {
+        prefs.edit().putBoolean(KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false).apply()
+    }
 }

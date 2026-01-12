@@ -43,6 +43,7 @@ import com.tk.quicksearch.setup.SearchEngineSetupScreen
 import com.tk.quicksearch.setup.FinalSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.ReviewHelper
+import com.tk.quicksearch.util.UpdateHelper
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.MicAction
@@ -84,12 +85,23 @@ class MainActivity : ComponentActivity() {
         window.decorView.post {
             WallpaperUtils.preloadWallpaper(this)
             
-            // Track first app open time and app open count, then request review if eligible
+            // Track first app open time and app open count
             // Only track after first launch is complete
             if (!userPreferences.isFirstLaunch()) {
                 userPreferences.recordFirstAppOpenTime()
                 userPreferences.incrementAppOpenCount()
-                ReviewHelper.requestReviewIfEligible(this, userPreferences)
+                
+                // Reset update check session flag at app start
+                userPreferences.resetUpdateCheckSession()
+                
+                // Check for app updates first (higher priority)
+                UpdateHelper.checkForUpdates(this, userPreferences)
+                
+                // Only show review prompt if no update check was performed
+                // This prevents both prompts from appearing simultaneously
+                if (!userPreferences.hasShownUpdateCheckThisSession()) {
+                    ReviewHelper.requestReviewIfEligible(this, userPreferences)
+                }
             }
         }
     }

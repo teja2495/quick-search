@@ -283,6 +283,9 @@ abstract class BasePreferences(protected val context: Context) {
         const val KEY_APP_OPEN_COUNT = "app_open_count"
         const val KEY_APP_OPEN_COUNT_AT_LAST_PROMPT = "app_open_count_at_last_prompt"
 
+        // In-app update session tracking keys
+        const val KEY_UPDATE_CHECK_SHOWN_THIS_SESSION = "update_check_shown_this_session"
+
         // Nickname preferences keys
         const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
         const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
