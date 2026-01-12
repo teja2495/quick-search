@@ -303,11 +303,11 @@
     <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_search_engines_more_title">More</string>
 
-    <string name="settings_search_engine_display_title">Search Engine Layout</string>
-    <string name="settings_search_engine_display_sticky_title">Sticky</string>
-    <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard</string>
+    <string name="settings_search_engine_display_title">Search Engines Style</string>
+    <string name="settings_search_engine_display_sticky_title">Compact</string>
+    <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard as a horizontal list</string>
     <string name="settings_search_engine_display_inline_title">Inline</string>
-    <string name="settings_search_engine_display_inline_desc">Shown in the result area when needed</string>
+    <string name="settings_search_engine_display_inline_desc">Shown as a vertical list when there are no results</string>
     <string name="settings_amazon_domain_title">Amazon Domain</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>

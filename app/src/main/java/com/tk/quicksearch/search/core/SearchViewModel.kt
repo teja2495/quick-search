@@ -628,8 +628,22 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
 
-        // Check if query is a math expression (only if calculator is enabled)
-        val calculatorResult = calculatorHandler.processQuery(trimmedQuery)
+        // Check for shortcuts at the start of query (show UI button) BEFORE calculator processing
+        var detectedEngine: SearchEngine? = lockedShortcutEngine
+
+        // If we don't have a locked engine, try to detect one
+        if (detectedEngine == null) {
+            val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
+            if (shortcutMatchAtStart != null) {
+                detectedEngine = shortcutMatchAtStart.second
+                lockedShortcutEngine = detectedEngine
+
+                // Strip the shortcut from the query and update recursively
+                val queryWithoutShortcut = shortcutMatchAtStart.first
+                onQueryChange(queryWithoutShortcut)
+                return
+            }
+        }
 
         // Check for shortcuts at the end of query (auto-execute)
         val shortcutMatchAtEnd = shortcutHandler.detectShortcut(trimmedQuery)
@@ -646,21 +660,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             return
         }
 
-        // Check for shortcuts at the start of query (show UI button)
-        var detectedEngine: SearchEngine? = lockedShortcutEngine
-        
-        // If we don't have a locked engine, try to detect one
-        if (detectedEngine == null) {
-            val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
-            if (shortcutMatchAtStart != null) {
-                detectedEngine = shortcutMatchAtStart.second
-                lockedShortcutEngine = detectedEngine
-                
-                // Strip the shortcut from the query and update recursively
-                val queryWithoutShortcut = shortcutMatchAtStart.first
-                onQueryChange(queryWithoutShortcut)
-                return
-            }
+        // Check if query is a math expression (only if calculator is enabled)
+        // Only process calculator if no shortcut was detected at start
+        val calculatorResult = if (detectedEngine == null) {
+            calculatorHandler.processQuery(trimmedQuery)
+        } else {
+            CalculatorState()
         }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())

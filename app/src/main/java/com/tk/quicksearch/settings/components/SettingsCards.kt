@@ -405,7 +405,8 @@ fun CombinedAppearanceCard(
                 subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
                 checked = keyboardAlignedLayout,
                 onCheckedChange = onToggleKeyboardAlignedLayout,
-                showDivider = false
+                showDivider = false,
+                extraVerticalPadding = 8.dp,
             )
 
             // Divider

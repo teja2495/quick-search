@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.NorthWest
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -48,7 +49,8 @@ fun WebSuggestionsSection(
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit,
     showWallpaperBackground: Boolean = false,
-    reverseOrder: Boolean = false
+    reverseOrder: Boolean = false,
+    isShortcutDetected: Boolean = false
 ) {
     if (suggestions.isEmpty()) return
 
@@ -62,7 +64,8 @@ fun WebSuggestionsSection(
         WebSuggestionsCard(
             suggestions = orderedSuggestions,
             onSuggestionClick = onSuggestionClick,
-            showWallpaperBackground = showWallpaperBackground
+            showWallpaperBackground = showWallpaperBackground,
+            isShortcutDetected = isShortcutDetected
         )
     }
 }
@@ -75,7 +78,8 @@ fun WebSuggestionsSection(
 private fun WebSuggestionsCard(
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
+    isShortcutDetected: Boolean = false
 ) {
     val textColor = if (showWallpaperBackground) {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
@@ -102,7 +106,8 @@ private fun WebSuggestionsCard(
                     onClick = { onSuggestionClick(suggestion) },
                     textColor = textColor,
                     iconColor = iconColor,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isShortcutDetected = isShortcutDetected
                 )
                 
                 // Add divider between items, but not after the last one
@@ -127,7 +132,8 @@ private fun WebSuggestionItem(
     onClick: () -> Unit,
     textColor: Color,
     iconColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isShortcutDetected: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -143,7 +149,7 @@ private fun WebSuggestionItem(
         horizontalArrangement = Arrangement.Start
     ) {
         Icon(
-            imageVector = Icons.Rounded.NorthWest,
+            imageVector = if (isShortcutDetected) Icons.Rounded.Search else Icons.Rounded.NorthWest,
             contentDescription = stringResource(R.string.desc_search_icon),
             tint = iconColor,
             modifier = Modifier

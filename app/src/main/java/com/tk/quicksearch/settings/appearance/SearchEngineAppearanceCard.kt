@@ -37,14 +37,14 @@ fun SearchEngineAppearanceCard(
         Column(
              modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-             verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(vertical = 12.dp),
+             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = stringResource(R.string.settings_search_engine_display_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(start = 24.dp, end = 16.dp)
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
@@ -87,7 +87,7 @@ private fun SearchEngineDisplayOption(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {

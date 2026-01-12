@@ -85,12 +85,11 @@ fun SettingsToggleRow(
     isFirstItem: Boolean = false,
     isLastItem: Boolean = false,
     extraVerticalPadding: Dp = 0.dp,
-    extraBottomPadding: Dp = 0.dp,
     showDivider: Boolean = true
 ) {
     val view = LocalView.current
     val topPadding = DesignTokens.cardItemTopPadding(isFirstItem) + extraVerticalPadding
-    val bottomPadding = DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding + extraBottomPadding
+    val bottomPadding = DesignTokens.cardItemBottomPadding(isLastItem) + extraVerticalPadding
 
     Column {
         Row(

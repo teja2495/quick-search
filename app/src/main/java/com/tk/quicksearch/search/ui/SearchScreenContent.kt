@@ -186,7 +186,7 @@ internal fun SearchScreenContent(
         if (expandedSection == ExpandedSection.NONE) {
             val pillText = if (manuallySwitchedToNumberKeyboard) {
                 stringResource(R.string.keyboard_switch_back)
-            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() }) {
+            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() } && state.detectedShortcutEngine == null) {
                 stringResource(R.string.keyboard_switch_to_number)
             } else {
                 null
@@ -200,7 +200,7 @@ internal fun SearchScreenContent(
                     KeyboardSwitchPill(
                         text = it,
                         onClick = onKeyboardSwitchToggle,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
                     )
                 }
             }

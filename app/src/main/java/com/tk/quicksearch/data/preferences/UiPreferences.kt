@@ -74,7 +74,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
     }
 
-    fun shouldClearQueryAfterSearchEngine(): Boolean = getBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, false)
+    fun shouldClearQueryAfterSearchEngine(): Boolean = getBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, true)
 
     fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
         setBooleanPref(KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, clearQuery)

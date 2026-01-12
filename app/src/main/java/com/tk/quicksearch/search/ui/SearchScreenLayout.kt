@@ -89,7 +89,7 @@ fun SearchContentArea(
     val DirectSearchState = state.DirectSearchState
     val showDirectSearch = DirectSearchState.status != DirectSearchStatus.Idle
     val showCalculator = state.calculatorState.result != null
-    val hideResultsForDirectSearch = showDirectSearch || showCalculator
+    val hideOtherResults = showDirectSearch || showCalculator
     val hasQuery = state.query.isNotBlank()
     val hasAnySearchContent =
         shouldShowAppsSection(renderingState) ||
@@ -133,7 +133,7 @@ fun SearchContentArea(
                 // Pass calculator and direct search state to ContentLayout
                 minContentHeight = this@BoxWithConstraints.maxHeight,
                 isReversed = useKeyboardAlignedLayout && !showDirectSearch,
-                hideResults = false, // Always show content layout, let it handle visibility internally
+                hideResults = hideOtherResults,
                 showCalculator = showCalculator,
                 showDirectSearch = showDirectSearch,
                 DirectSearchState = DirectSearchState,
@@ -245,6 +245,7 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = isReversed,
+                        isShortcutDetected = state.detectedShortcutEngine != null,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -260,6 +261,7 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = false,
+                        isShortcutDetected = state.detectedShortcutEngine != null,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
