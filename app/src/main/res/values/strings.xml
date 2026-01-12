@@ -504,7 +504,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Improved animations\nAdded haptics\nNew Search Engines: Gemini, Startpage\nSupport for adding search engine shortcuts at the start of the query.</string>
+    <string name="release_notes_points">Added a new default search engine style: Inline. You can switch back to the older style in settings in "Appearance" section.\nAdded support for search engine shortcuts at the start of a query.\nAdded new search engines: Gemini and Startpage.\nImproved animations.\nAdded haptic feedback.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">All Quick Search Features</string>
