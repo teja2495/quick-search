@@ -84,7 +84,7 @@ cd quick-search
 - **Digital Assistant**: Set Quick Search as your device's default digital assistant for enhanced search integration
 
 ### Search Shortcuts
-Configure custom keyboard shortcuts for search engines and add them at the start or end of your query to quickly trigger the respective search engine:
+Configure custom keyboard shortcuts for search engines and add them at the start of a query to quickly trigger the respective search engine:
 - `ggl` → Google
 - `ytb` → YouTube
 - `mps` → Google Maps
@@ -99,7 +99,7 @@ Enable AI-powered answers by:
 ## ⚙️ Configuration
 
 ### Search Engines
-- **Supported**: Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, X/Twitter, You.com, YouTube Music
+- **Supported**: Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music
 - **Customizable**: Reorder, enable/disable, and set shortcuts
 - **Direct Search**: AI answers with Gemini API integration
 

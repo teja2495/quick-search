@@ -1,7 +1,8 @@
 **Project Context**: Android app (Kotlin + Jetpack Compose, Material 3, MVVM). Package: `com.tk.quicksearch`. Quick launcher that searches **apps, contacts, device files, device settings, web, and provides calculator functionality** from a single screen.
 
 **Structure**:
-- `MainActivity.kt` - Entry point, edge-to-edge setup, dark theme status bar, in-app nav between Search and Settings, first-launch permissions screen
+- `MainActivity.kt` - Entry point, edge-to-edge setup, dark theme status bar, in-app nav between Search and Settings, first-launch permissions screen, app review/update checks
+- `navigation/NavigationManager.kt` - Centralized navigation management with animated transitions between screens
 - `tiles/QuickSearchTileService.kt` - Quick Settings tile that launches the app
 - `tiles/QuickSettingsTileUtils.kt` - Utilities for Quick Settings tile management
 - `model/AppInfo.kt` - App data model with `matches()` for search, supports nicknames
@@ -28,6 +29,10 @@
 - `permissions/PermissionCard.kt` - Reusable permission card component with toggle and status
 - `permissions/PermissionRequestHandler.kt` - Handles permission request intents and state checks
 - `permissions/PermissionState.kt` - Data class for permission state (granted, enabled, denied)
+|- `setup/` - First-launch onboarding flow:
+  - `SearchEngineSetupScreen.kt` - Search engine configuration during onboarding
+  - `FinalSetupScreen.kt` - Final setup with messaging preferences and file types
+  - `OnboardingHeader.kt` - Reusable header component for setup screens
 - `search/` - Organized into logical subdirectories for search functionality:
   - `apps/` - App search and display components:
     - `AppIconLoader.kt` - Async app icon loading
@@ -110,6 +115,8 @@
     - `SettingsRoute.kt` - Settings routing
     - `SettingsScreen.kt` - Settings screen orchestration
     - `SettingsScreenHelpers.kt` - Settings state and callback data classes, helper functions
+  - `appearance/` - Visual customization settings:
+    - `SearchEngineAppearanceCard.kt` - Search engine display mode toggle (inline vs sticky)
   - `SectionSettingsSection.kt` - Section ordering and enable/disable controls (Apps, Contacts, Files, Settings)
   - `AppsSettingsSection.kt` - App labels toggle, keyboard-aligned layout toggle, section titles toggle
   - `ContactsSettingsSection.kt` - Messaging app preference (Messages/WhatsApp/Telegram), direct dial settings
@@ -151,6 +158,9 @@
   - `FileUtils.kt` - File operation utilities
   - `TelegramContactUtils.kt` - Telegram contact integration utilities
   - `WebSuggestionsUtils.kt` - Web search suggestions from Google Suggest API
+  - `HapticUtils.kt` - Haptic feedback utilities for different interaction types
+  - `ReviewHelper.kt` - In-app review flow management using Google Play Review API
+  - `UpdateHelper.kt` - In-app update flow management using Google Play App Update API
 - `ui/theme/` - Material 3 theme (Color.kt, Theme.kt, Type.kt)
 
 **Key Details**:
@@ -165,7 +175,7 @@
 - Sections: Apps, Contacts, Files, Settings - can be reordered and individually enabled/disabled
 - Layout modes: Normal layout (pinned items first) vs keyboard-aligned layout (search results first)
 - Direct Search: Gemini-powered AI answers with optional personal context
-- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode, Direct Search, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, X/Twitter, You.com, YouTube Music
+- Search engines (configurable order + enable/disable): Google, ChatGPT, Perplexity, Grok, Google Maps, Google Play, Reddit, YouTube, Amazon, AI Mode, Direct Search, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, X/Twitter, You.com, YouTube Music, Startpage
 - Search engine shortcuts: Customizable shortcut codes per engine (e.g., "g" for Google)
 - Personal Context: Optional context sent to Gemini API for personalized Direct Search answers
 - Nicknames: Custom names for apps that can be searched
@@ -173,8 +183,12 @@
 - Quick Settings Tile: Quick Settings tile for instant app launch
 - Assistant Integration: Detects when app is set as default digital assistant
 - Icon Pack Support: Integration with icon pack launchers
+- Search Engine Display Mode: Choose between inline (scrolls with content) or sticky (fixed at bottom) search engine layout
 - Feedback System: In-app feedback options (email, Play Store rating)
 - Release Notes: In-app release notes display
+- Onboarding Flow: Multi-step first-launch setup (Permissions → Search Engine Setup → Final Setup with messaging/file preferences)
+- App Review/Update System: Automatic prompts for Play Store reviews and app updates based on usage patterns
+- Haptic Feedback: Context-aware haptic feedback for different interaction types (confirm, toggle, strong)
 - Permissions:
   - Mandatory: `PACKAGE_USAGE_STATS` (usage access) - required to continue
   - Optional: `READ_CONTACTS`, `READ_EXTERNAL_STORAGE` (pre-R), `MANAGE_EXTERNAL_STORAGE` (R+), `CALL_PHONE` (for direct dial)
@@ -187,4 +201,4 @@
 - App caching: App list cached to SharedPreferences for instant loading on startup
 - Encrypted preferences: Gemini API keys stored securely using EncryptedSharedPreferences
 
-**Config**: Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`. Min SDK 24, Target/Compile SDK 36. Uses Jetpack Glance for widgets, Compose BOM 2024.09.00, Material 3.
+**Config**: Gradle Kotlin DSL, version catalog in `gradle/libs.versions.toml`. Min SDK 24, Target/Compile SDK 36, Version 1.2.3 (Code 14). Uses Jetpack Glance for widgets, Compose BOM 2025.12.01, Material 3. Includes Play Review API and App Update API for in-app review/update flows.

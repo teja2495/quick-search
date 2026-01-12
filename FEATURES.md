@@ -14,7 +14,7 @@
 - **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
 - **Horizontal Scroll** - Swipe horizontally to access additional search engines
 - **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
-- **Search Engine Shortcuts** - Add a search engine shortcut at the start or end of your query to quickly search with that search engine
+- **Search Engine Shortcuts** - Add a search engine shortcut at the start of your query to quickly search with that search engine
 - **Supported Search Engines**:
   - **Direct Search** (dsh) - AI-powered answers using Gemini API
   - **Google** (ggl) - Default web search
