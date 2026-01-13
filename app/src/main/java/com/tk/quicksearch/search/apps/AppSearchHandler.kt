@@ -5,7 +5,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.search.core.SearchRankingUtils
+import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

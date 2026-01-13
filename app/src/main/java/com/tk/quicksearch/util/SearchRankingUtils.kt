@@ -1,10 +1,10 @@
-package com.tk.quicksearch.search.core
+package com.tk.quicksearch.util
 
 import java.util.Locale
 
 /**
  * Utility object for calculating search result ranking priorities.
- * 
+ *
  * Priority levels (lower is better):
  * 1. Result starts with query
  * 2. Any word in the text starts with query
@@ -12,14 +12,14 @@ import java.util.Locale
  * 4. No match
  */
 object SearchRankingUtils {
-    
+
     private const val PRIORITY_STARTS_WITH = 1
     private const val PRIORITY_WORD_STARTS_WITH = 2
     private const val PRIORITY_CONTAINS = 3
     private const val PRIORITY_NO_MATCH = 4
-    
+
     private val WHITESPACE_REGEX = "\\s+".toRegex()
-    
+
     /**
      * Calculates the match priority for a given text and query.
      * Returns a lower number for higher priority matches.
@@ -34,7 +34,7 @@ object SearchRankingUtils {
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
-        
+
         return calculateMatchPriority(text, normalizedQuery, queryTokens)
     }
 
@@ -43,8 +43,8 @@ object SearchRankingUtils {
      * Use this in tight loops to avoid re-normalizing the query.
      */
     fun calculateMatchPriority(
-        text: String, 
-        normalizedQuery: String, 
+        text: String,
+        normalizedQuery: String,
         queryTokens: List<String>
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
@@ -80,10 +80,10 @@ object SearchRankingUtils {
         // Priority 4: No match
         return PRIORITY_NO_MATCH
     }
-    
+
     /**
      * Checks if any word in the text starts with the query, primary token, or any query token.
-     * 
+     *
      * @param textWords Words from the normalized text
      * @param normalizedQuery The full normalized query
      * @param primaryToken The last token of multi-word queries (or full query for single-word)
@@ -113,7 +113,7 @@ object SearchRankingUtils {
                    token.isNotBlank() && normalizedText.contains(token)
                })
     }
-    
+
     /**
      * Calculates match priority while giving an optional nickname the highest boost.
      * Nickname matches get priority 0 (higher than any text match).
@@ -132,7 +132,7 @@ object SearchRankingUtils {
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
-        
+
         return calculateMatchPriorityWithNickname(primaryText, nickname, normalizedQuery, queryTokens)
     }
 
@@ -155,11 +155,11 @@ object SearchRankingUtils {
 
         return calculateMatchPriority(primaryText, normalizedQuery, queryTokens)
     }
-    
+
     /**
      * Gets the best match priority from multiple text fields.
      * Returns the highest priority (lowest number) among all fields.
-     * 
+     *
      * @param query The search query
      * @param textFields Variable number of text fields to check
      * @return The best (lowest) priority found
@@ -170,10 +170,9 @@ object SearchRankingUtils {
 
     /**
      * Checks if the given priority represents a non-match (lowest priority).
-     * 
+     *
      * @param priority The priority to check
      * @return true if priority is PRIORITY_NO_MATCH
      */
     fun isOtherMatch(priority: Int): Boolean = priority == PRIORITY_NO_MATCH
 }
-

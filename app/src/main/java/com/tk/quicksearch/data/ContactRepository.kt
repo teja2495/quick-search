@@ -11,7 +11,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.ContactMethodMimeTypes
 import com.tk.quicksearch.util.PhoneNumberUtils
-import com.tk.quicksearch.search.core.SearchRankingUtils
+import com.tk.quicksearch.util.SearchRankingUtils
 import java.util.Locale
 
 /**

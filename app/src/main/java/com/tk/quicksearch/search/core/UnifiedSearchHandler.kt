@@ -8,7 +8,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.util.FileUtils
-import com.tk.quicksearch.search.core.SearchRankingUtils
+import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

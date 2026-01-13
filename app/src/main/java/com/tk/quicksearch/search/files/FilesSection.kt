@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
-import com.tk.quicksearch.search.ui.AppColors
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.search.ui.ContactUiConstants
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.ui
+package com.tk.quicksearch.ui.theme
 
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme

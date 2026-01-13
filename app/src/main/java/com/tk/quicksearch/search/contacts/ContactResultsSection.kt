@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.search.ui.AppColors
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.search.ui.SearchScreenConstants
 import com.tk.quicksearch.search.ui.ContactUiConstants
 import com.tk.quicksearch.model.ContactInfo
