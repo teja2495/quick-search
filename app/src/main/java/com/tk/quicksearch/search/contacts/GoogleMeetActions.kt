@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Toast
 import com.tk.quicksearch.R
 
 /**
@@ -17,18 +16,14 @@ object GoogleMeetActions {
      * Opens a Google Meet video call using the working method identified through testing.
      * Uses the custom action "com.google.android.apps.tachyon.action.CALL" which was confirmed to work.
      */
-    fun openGoogleMeet(context: Application, dataId: Long): Boolean {
+    fun openGoogleMeet(context: Application, dataId: Long, onShowToast: ((Int) -> Unit)? = null): Boolean {
         return try {
             val pm = context.packageManager
 
             val meetPackage = "com.google.android.apps.tachyon"
 
             if (pm.getLaunchIntentForPackage(meetPackage) == null) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_google_meet_not_installed),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_google_meet_not_installed)
                 return false
             }
 
@@ -53,11 +48,7 @@ object GoogleMeetActions {
 
             if (phoneNumber.isNullOrBlank()) {
                 Log.w("ContactIntentHelpers", "No phone number found, cannot make call")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_google_meet_no_phone),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_google_meet_no_phone)
                 return false
             }
 
@@ -73,21 +64,13 @@ object GoogleMeetActions {
                 return true
             } else {
                 Log.w("ContactIntentHelpers", "Google Meet custom action not resolved - app may not be installed or updated")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_google_meet_call_failed),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_google_meet_call_failed)
                 return false
             }
 
         } catch (e: Exception) {
             Log.e("ContactIntentHelpers", "Failed to open Google Meet video call", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_google_meet_video_call_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_google_meet_video_call_failed)
             false
         }
     }

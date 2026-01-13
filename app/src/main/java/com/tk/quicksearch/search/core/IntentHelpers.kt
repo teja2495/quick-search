@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.DeviceFile
@@ -94,15 +93,11 @@ object IntentHelpers {
     /**
      * Launches an app by package name.
      */
-    fun launchApp(context: Application, appInfo: AppInfo) {
+    fun launchApp(context: Application, appInfo: AppInfo, onShowToast: ((Int, String?) -> Unit)? = null) {
         val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
 
         if (launchIntent == null) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_launch_app, appInfo.appName),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
             return
         }
 
@@ -113,14 +108,10 @@ object IntentHelpers {
     /**
      * Requests uninstall for an app.
      */
-    fun requestUninstall(context: Application, appInfo: AppInfo) {
+    fun requestUninstall(context: Application, appInfo: AppInfo, onShowToast: ((Int, String?) -> Unit)? = null) {
         val packageName = appInfo.packageName
         if (packageName == context.packageName) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_uninstall_self),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_uninstall_self, null)
             return
         }
 
@@ -128,18 +119,14 @@ object IntentHelpers {
             val intent = createPackageIntent(Intent.ACTION_DELETE, packageName)
             context.startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_uninstall_app, appInfo.appName),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_uninstall_app, appInfo.appName)
         }
     }
 
     /**
      * Opens a search URL with the specified search engine.
      */
-    fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine, amazonDomain: String? = null) {
+    fun openSearchUrl(context: Application, query: String, searchEngine: SearchEngine, amazonDomain: String? = null, onShowToast: ((Int, String?) -> Unit)? = null) {
         // Handle apps with native integrations
         when (searchEngine) {
             SearchEngine.GEMINI -> {
@@ -168,9 +155,9 @@ object IntentHelpers {
         try {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
-            showSearchEngineOpenError(context, searchEngine)
+            onShowToast?.invoke(R.string.error_open_search_engine, context.getString(searchEngine.getDisplayNameResId()))
         } catch (exception: SecurityException) {
-            showSearchEngineOpenError(context, searchEngine)
+            onShowToast?.invoke(R.string.error_open_search_engine, context.getString(searchEngine.getDisplayNameResId()))
         }
     }
 
@@ -328,21 +315,11 @@ object IntentHelpers {
     }
 
 
-    private fun showSearchEngineOpenError(context: Application, searchEngine: SearchEngine) {
-        Toast.makeText(
-            context,
-            context.getString(
-                R.string.error_open_search_engine,
-                context.getString(searchEngine.getDisplayNameResId())
-            ),
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 
     /**
      * Opens a file with appropriate app.
      */
-    fun openFile(context: Application, deviceFile: DeviceFile) {
+    fun openFile(context: Application, deviceFile: DeviceFile, onShowToast: ((Int, String?) -> Unit)? = null) {
         val mimeType = deviceFile.mimeType ?: "*/*"
 
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -353,18 +330,11 @@ object IntentHelpers {
         try {
             context.startActivity(viewIntent)
         } catch (exception: ActivityNotFoundException) {
-            showFileOpenError(context, deviceFile.displayName)
+            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
         } catch (exception: SecurityException) {
-            showFileOpenError(context, deviceFile.displayName)
+            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
         }
     }
 
-    private fun showFileOpenError(context: Application, fileName: String) {
-        Toast.makeText(
-            context,
-            context.getString(R.string.error_open_file, fileName),
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 
 }

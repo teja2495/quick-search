@@ -126,6 +126,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             onAppsUpdated = { this.refreshDerivedState() },
             onLoadingStateChanged = { isLoading, error ->
                 _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
+            },
+            onShowToast = { stringResId ->
+                android.widget.Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(stringResId),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
         )
     }
@@ -135,7 +142,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             context = application.applicationContext,
             repository = settingsShortcutRepository,
             userPreferences = userPreferences,
-            scope = viewModelScope
+            scope = viewModelScope,
+            onShowToast = { stringResId, formatArg ->
+                val message = if (formatArg != null) {
+                    getApplication<Application>().getString(stringResId, formatArg)
+                } else {
+                    getApplication<Application>().getString(stringResId)
+                }
+                android.widget.Toast.makeText(
+                    getApplication(),
+                    message,
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
         )
     }
 
@@ -163,7 +182,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             settingsSearchHandler = settingsSearchHandler,
             onRequestDirectSearch = { query -> directSearchHandler.requestDirectSearch(query) },
             onClearQuery = this::onNavigationTriggered,
-            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine
+            clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
+            onShowToast = { stringResId ->
+                android.widget.Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(stringResId),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
         )
     }
 
@@ -223,7 +249,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         getClearQueryAfterSearchEngine = { clearQueryAfterSearchEngine },
         getCurrentState = { _uiState.value },
         uiStateUpdater = { update -> _uiState.update(update) },
-        clearQuery = this::onNavigationTriggered
+        clearQuery = this::onNavigationTriggered,
+        onShowToast = { stringResId ->
+            android.widget.Toast.makeText(
+                getApplication(),
+                getApplication<Application>().getString(stringResId),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
     )
 
     init {

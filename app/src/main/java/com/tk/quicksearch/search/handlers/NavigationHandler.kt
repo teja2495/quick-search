@@ -20,7 +20,8 @@ class NavigationHandler(
     private val settingsSearchHandler: SettingsSearchHandler,
     private val onRequestDirectSearch: (String) -> Unit,
     private val onClearQuery: () -> Unit,
-    private val clearQueryAfterSearchEngine: Boolean
+    private val clearQueryAfterSearchEngine: Boolean,
+    private val onShowToast: (Int) -> Unit
 ) {
     private val context: Context get() = application.applicationContext
 
@@ -50,7 +51,14 @@ class NavigationHandler(
     }
 
     fun launchApp(appInfo: AppInfo) {
-        IntentHelpers.launchApp(application, appInfo)
+        IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
+            val message = if (formatArg != null) {
+                application.getString(stringResId, formatArg)
+            } else {
+                application.getString(stringResId)
+            }
+            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
         userPreferences.incrementAppLaunchCount(appInfo.packageName)
         onClearQuery()
     }
@@ -60,7 +68,14 @@ class NavigationHandler(
     }
 
     fun requestUninstall(appInfo: AppInfo) {
-        IntentHelpers.requestUninstall(application, appInfo)
+        IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
+            val message = if (formatArg != null) {
+                application.getString(stringResId, formatArg)
+            } else {
+                application.getString(stringResId)
+            }
+            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun openSearchUrl(query: String, searchEngine: SearchEngine, clearQueryAfterSearchEngine: Boolean) {
@@ -74,7 +89,14 @@ class NavigationHandler(
         } else {
             null
         }
-        IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain)
+        IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) { stringResId, formatArg ->
+            val message = if (formatArg != null) {
+                application.getString(stringResId, formatArg)
+            } else {
+                application.getString(stringResId)
+            }
+            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
 
         // Save the query to recent queries
         if (trimmedQuery.isNotEmpty()) {
@@ -92,7 +114,14 @@ class NavigationHandler(
     }
 
     fun openFile(deviceFile: DeviceFile) {
-        IntentHelpers.openFile(application, deviceFile)
+        IntentHelpers.openFile(application, deviceFile) { stringResId, formatArg ->
+            val message = if (formatArg != null) {
+                application.getString(stringResId, formatArg)
+            } else {
+                application.getString(stringResId)
+            }
+            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
         if (clearQueryAfterSearchEngine) {
             onClearQuery()
         }
@@ -104,13 +133,13 @@ class NavigationHandler(
     }
 
     fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {
-        ContactIntentHelpers.openContact(application, contactInfo)
+        ContactIntentHelpers.openContact(application, contactInfo, onShowToast)
         if (clearQueryAfter) {
             onClearQuery()
         }
     }
 
     fun openEmail(email: String) {
-        ContactIntentHelpers.composeEmail(application, email)
+        ContactIntentHelpers.composeEmail(application, email, onShowToast)
     }
 }

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.ContactsContract
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
@@ -19,14 +18,10 @@ object ContactBasicActions {
     /**
      * Opens a contact's details.
      */
-    fun openContact(context: Application, contactInfo: ContactInfo) {
+    fun openContact(context: Application, contactInfo: ContactInfo, onShowToast: ((Int) -> Unit)? = null) {
         val lookupUri = ContactsContract.Contacts.getLookupUri(contactInfo.contactId, contactInfo.lookupKey)
         if (lookupUri == null) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_contact),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_open_contact)
             return
         }
         val intent = Intent(Intent.ACTION_VIEW, lookupUri).apply {
@@ -88,7 +83,7 @@ object ContactBasicActions {
     /**
      * Opens the default email app with a prefilled recipient.
      */
-    fun composeEmail(context: Application, email: String) {
+    fun composeEmail(context: Application, email: String, onShowToast: ((Int) -> Unit)? = null) {
         if (email.isBlank()) return
 
         val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -99,11 +94,7 @@ object ContactBasicActions {
         runCatching {
             context.startActivity(intent)
         }.onFailure {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_email),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_open_email)
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.settings
 
 import android.content.Context
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.SettingsShortcutRepository
 import com.tk.quicksearch.data.UserAppPreferences
@@ -22,7 +21,8 @@ class SettingsSearchHandler(
     private val context: Context,
     private val repository: SettingsShortcutRepository,
     private val userPreferences: UserAppPreferences,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val onShowToast: ((Int, String?) -> Unit)? = null
 ) {
     private var availableSettings: List<SettingShortcut> = emptyList()
 
@@ -143,11 +143,7 @@ class SettingsSearchHandler(
             val intent = repository.buildIntent(setting)
             context.startActivity(intent)
         }.onFailure {
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_open_setting, setting.title),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_open_setting, setting.title)
         }
     }
 }

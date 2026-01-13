@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactMethodMimeTypes
 import com.tk.quicksearch.util.PhoneNumberUtils
@@ -20,7 +19,7 @@ object TelegramActions {
      * Opens Telegram chat using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openTelegramChat(context: Application, dataId: Long?) {
+    fun openTelegramChat(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null) {
         if (dataId == null) {
             Log.w("IntentHelpers", "No dataId provided for Telegram chat, using fallback")
             // Fallback to old method - this shouldn't happen in normal flow
@@ -44,19 +43,11 @@ object TelegramActions {
                 context.startActivity(intent)
             } else {
                 Log.w("IntentHelpers", "Telegram chat intent cannot be resolved")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_telegram_not_installed),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_telegram_not_installed)
             }
         } catch (e: Exception) {
             Log.e("IntentHelpers", "Failed to open Telegram chat", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_telegram_chat_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_chat_failed)
         }
     }
 
@@ -64,25 +55,17 @@ object TelegramActions {
      * Opens Telegram chat for a phone number with comprehensive fallback methods.
      * Uses multiple approaches to ensure maximum compatibility.
      */
-    fun openTelegramChat(context: Application, phoneNumber: String) {
+    fun openTelegramChat(context: Application, phoneNumber: String, onShowToast: ((Int) -> Unit)? = null) {
         if (!PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) {
             Log.w("IntentHelpers", "Invalid phone number for Telegram: $phoneNumber")
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_telegram_invalid_phone),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_invalid_phone)
             return
         }
 
         val cleanNumber = PhoneNumberUtils.cleanPhoneNumber(phoneNumber)
         if (cleanNumber == null) {
             Log.w("IntentHelpers", "Could not clean phone number for Telegram: $phoneNumber")
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_telegram_process_phone),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_process_phone)
             return
         }
 
@@ -115,11 +98,7 @@ object TelegramActions {
             context.startActivity(webIntent)
         } catch (e: Exception) {
             Log.w("IntentHelpers", "Telegram web fallback failed", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_telegram_web_fallback_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_web_fallback_failed)
         }
     }
 
@@ -127,7 +106,7 @@ object TelegramActions {
      * Initiates a Telegram call using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openTelegramCall(context: Application, dataId: Long?): Boolean {
+    fun openTelegramCall(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null): Boolean {
         if (dataId == null) {
             Log.w("MessagingService", "No dataId provided for Telegram call")
             return false
@@ -151,20 +130,12 @@ object TelegramActions {
                 return true
             } else {
                 Log.w("MessagingService", "Telegram call intent cannot be resolved")
-                Toast.makeText(
-                    context,
-                    "Telegram is not installed or doesn't support voice calls",
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_telegram_not_installed)
                 return false
             }
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to initiate Telegram call", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_telegram_call_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_call_failed)
             return false
         }
     }
@@ -207,7 +178,7 @@ object TelegramActions {
     /**
      * Initiates a Telegram call for a phone number (legacy method for backward compatibility).
      */
-    fun openTelegramCall(context: Application, phoneNumber: String) {
+    fun openTelegramCall(context: Application, phoneNumber: String, onShowToast: ((Int) -> Unit)? = null) {
         if (phoneNumber.isBlank()) return
 
         val normalizedNumber = phoneNumber.trim()
@@ -225,11 +196,7 @@ object TelegramActions {
         try {
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(
-                context,
-                "Telegram is not installed",
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_telegram_not_installed)
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.apps
 
 import android.content.Context
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.UserAppPreferences
@@ -19,7 +18,8 @@ class AppSearchHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val onAppsUpdated: () -> Unit,
-    private val onLoadingStateChanged: (Boolean, String?) -> Unit
+    private val onLoadingStateChanged: (Boolean, String?) -> Unit,
+    private val onShowToast: (Int) -> Unit
 ) {
 
     var cachedApps: List<AppInfo> = emptyList()
@@ -70,13 +70,7 @@ class AppSearchHandler(
                     }
 
                     if (showToast) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.apps_refreshed_successfully),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        onShowToast(R.string.apps_refreshed_successfully)
                     }
                 }
                 .onFailure { error ->
@@ -84,13 +78,7 @@ class AppSearchHandler(
                     onLoadingStateChanged(false, error.localizedMessage ?: fallbackMessage)
                     
                     if (showToast) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.failed_to_refresh_apps),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        onShowToast(R.string.failed_to_refresh_apps)
                     }
                 }
         }
@@ -105,13 +93,7 @@ class AppSearchHandler(
             onLoadingStateChanged(true, null)
             onAppsUpdated() // VM will see empty cachedApps
             
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.settings_cache_cleared_toast),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            onShowToast(R.string.settings_cache_cleared_toast)
             refreshApps()
         }
     }

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import com.tk.quicksearch.R
 
 /**
@@ -15,7 +14,7 @@ object CustomAppActions {
     /**
      * Opens a video call app with the specified package and data.
      */
-    fun openVideoCall(context: Application, data: String, packageName: String) {
+    fun openVideoCall(context: Application, data: String, packageName: String, onShowToast: ((Int) -> Unit)? = null) {
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setData(Uri.parse("tel:$data"))
@@ -25,11 +24,7 @@ object CustomAppActions {
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open video call", e)
-            Toast.makeText(
-                context,
-                "Failed to open video call",
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_google_meet_video_call_failed)
         }
     }
 
@@ -65,7 +60,7 @@ object CustomAppActions {
     /**
      * Opens a custom app with MIME type (fallback method).
      */
-    fun openCustomApp(context: Application, data: String, mimeType: String, packageName: String?) {
+    fun openCustomApp(context: Application, data: String, mimeType: String, packageName: String?, onShowToast: ((Int) -> Unit)? = null) {
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(Uri.parse(data), mimeType)
@@ -75,11 +70,7 @@ object CustomAppActions {
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open custom app", e)
-            Toast.makeText(
-                context,
-                "Failed to open app",
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_launch_app)
         }
     }
 }

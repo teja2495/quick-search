@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactMethodMimeTypes
 import com.tk.quicksearch.util.PhoneNumberUtils
@@ -19,7 +18,7 @@ object WhatsAppActions {
      * Opens WhatsApp chat using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openWhatsAppChat(context: Application, dataId: Long?) {
+    fun openWhatsAppChat(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null) {
         if (dataId == null) {
             Log.w("MessagingService", "No dataId provided for WhatsApp chat, using fallback")
             // Fallback to old method - this shouldn't happen in normal flow
@@ -43,19 +42,11 @@ object WhatsAppActions {
                 context.startActivity(intent)
             } else {
                 Log.w("MessagingService", "WhatsApp chat intent cannot be resolved")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_whatsapp_not_installed),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_whatsapp_not_installed)
             }
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open WhatsApp chat", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_whatsapp_chat_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_whatsapp_chat_failed)
         }
     }
 
@@ -116,7 +107,7 @@ object WhatsAppActions {
      * Initiates a WhatsApp call using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openWhatsAppCall(context: Application, dataId: Long?): Boolean {
+    fun openWhatsAppCall(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null): Boolean {
         if (dataId == null) {
             Log.w("MessagingService", "No dataId provided for WhatsApp call")
             return false
@@ -140,20 +131,12 @@ object WhatsAppActions {
                 return true
             } else {
                 Log.w("MessagingService", "WhatsApp call intent cannot be resolved")
-                Toast.makeText(
-                    context,
-                    "WhatsApp is not installed or doesn't support voice calls",
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_whatsapp_not_installed)
                 return false
             }
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to initiate WhatsApp call", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_whatsapp_call_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_whatsapp_call_failed)
             return false
         }
     }
@@ -161,7 +144,7 @@ object WhatsAppActions {
     /**
      * Opens a WhatsApp video call using the specific dataId and MIME type pattern.
      */
-    fun openWhatsAppVideoCall(context: Application, dataId: Long): Boolean {
+    fun openWhatsAppVideoCall(context: Application, dataId: Long, onShowToast: ((Int) -> Unit)? = null): Boolean {
         return try {
             val mime = "vnd.android.cursor.item/vnd.com.whatsapp.video.call"
             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -178,20 +161,12 @@ object WhatsAppActions {
                 true
             } else {
                 Log.w("MessagingService", "No activity found to handle WhatsApp video call")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_whatsapp_video_call_unavailable),
-                    Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(R.string.error_whatsapp_video_call_unavailable)
                 false
             }
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open WhatsApp video call", e)
-            Toast.makeText(
-                context,
-                context.getString(R.string.error_whatsapp_video_call_failed),
-                Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.error_whatsapp_video_call_failed)
             false
         }
     }
