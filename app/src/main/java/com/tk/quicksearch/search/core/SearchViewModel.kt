@@ -77,6 +77,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
         _uiState.update(updater)
+        // Update visibility states after any UI state change
+        updateVisibilityStates()
     }
 
 
@@ -1064,6 +1066,139 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update {
                 it.copy(personalContext = context?.trim().orEmpty())
             }
+        }
+    }
+
+    /**
+     * Computes the overall screen visibility state based on current data and permissions.
+     */
+    private fun computeScreenVisibilityState(state: SearchUiState): ScreenVisibilityState {
+        return when {
+            state.isInitializing -> ScreenVisibilityState.Initializing
+            state.isLoading -> ScreenVisibilityState.Loading
+            state.errorMessage != null -> ScreenVisibilityState.Error(state.errorMessage, canRetry = true)
+            !state.hasUsagePermission -> ScreenVisibilityState.NoPermissions
+            state.query.isBlank() && state.recentApps.isEmpty() && state.pinnedApps.isEmpty() -> ScreenVisibilityState.Empty
+            else -> ScreenVisibilityState.Content
+        }
+    }
+
+    /**
+     * Computes the apps section visibility state.
+     */
+    private fun computeAppsSectionVisibility(state: SearchUiState): AppsSectionVisibility {
+        val sectionEnabled = SearchSection.APPS !in state.disabledSections
+
+        return when {
+            !sectionEnabled -> AppsSectionVisibility.Hidden
+            state.isInitializing || state.isLoading -> AppsSectionVisibility.Loading
+            state.query.isBlank() -> {
+                val hasContent = state.recentApps.isNotEmpty() || state.pinnedApps.isNotEmpty()
+                if (hasContent) {
+                    AppsSectionVisibility.ShowingResults(hasPinned = state.pinnedApps.isNotEmpty())
+                } else {
+                    AppsSectionVisibility.NoResults
+                }
+            }
+            else -> {
+                val hasResults = state.searchResults.isNotEmpty()
+                val hasPinned = state.pinnedApps.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    AppsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    AppsSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the contacts section visibility state.
+     */
+    private fun computeContactsSectionVisibility(state: SearchUiState): ContactsSectionVisibility {
+        val sectionEnabled = SearchSection.CONTACTS !in state.disabledSections
+
+        return when {
+            !sectionEnabled -> ContactsSectionVisibility.Hidden
+            !state.hasContactPermission -> ContactsSectionVisibility.NoPermission
+            else -> {
+                val hasResults = state.contactResults.isNotEmpty()
+                val hasPinned = state.pinnedContacts.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    ContactsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    ContactsSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the files section visibility state.
+     */
+    private fun computeFilesSectionVisibility(state: SearchUiState): FilesSectionVisibility {
+        val sectionEnabled = SearchSection.FILES !in state.disabledSections
+
+        return when {
+            !sectionEnabled -> FilesSectionVisibility.Hidden
+            !state.hasFilePermission -> FilesSectionVisibility.NoPermission
+            else -> {
+                val hasResults = state.fileResults.isNotEmpty()
+                val hasPinned = state.pinnedFiles.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    FilesSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    FilesSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the settings section visibility state.
+     */
+    private fun computeSettingsSectionVisibility(state: SearchUiState): SettingsSectionVisibility {
+        val sectionEnabled = SearchSection.SETTINGS !in state.disabledSections
+
+        return when {
+            !sectionEnabled -> SettingsSectionVisibility.Hidden
+            else -> {
+                val hasResults = state.settingResults.isNotEmpty()
+                val hasPinned = state.pinnedSettings.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    SettingsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    SettingsSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
+    /**
+     * Computes the search engines visibility state.
+     */
+    private fun computeSearchEnginesVisibility(state: SearchUiState): SearchEnginesVisibility {
+        return when {
+            state.detectedShortcutEngine != null -> SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutEngine)
+            state.isSearchEngineCompactMode -> SearchEnginesVisibility.Compact
+            else -> SearchEnginesVisibility.Full
+        }
+    }
+
+    /**
+     * Updates all visibility states in the UI state.
+     * Call this whenever the underlying data changes that could affect visibility.
+     */
+    private fun updateVisibilityStates() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                screenState = computeScreenVisibilityState(currentState),
+                appsSectionState = computeAppsSectionVisibility(currentState),
+                contactsSectionState = computeContactsSectionVisibility(currentState),
+                filesSectionState = computeFilesSectionVisibility(currentState),
+                settingsSectionState = computeSettingsSectionVisibility(currentState),
+                searchEnginesState = computeSearchEnginesVisibility(currentState)
+            )
         }
     }
 

@@ -79,14 +79,67 @@ enum class DirectDialOption {
     DIALER
 }
 
+// Sealed classes for visibility states
+sealed class ScreenVisibilityState {
+    object Initializing : ScreenVisibilityState()
+    object Loading : ScreenVisibilityState()
+    data class Error(val message: String, val canRetry: Boolean = false) : ScreenVisibilityState()
+    object Empty : ScreenVisibilityState()
+    object Content : ScreenVisibilityState()
+    object NoPermissions : ScreenVisibilityState()
+}
+
+sealed class AppsSectionVisibility {
+    object Hidden : AppsSectionVisibility()
+    object Loading : AppsSectionVisibility()
+    object NoResults : AppsSectionVisibility()
+    data class ShowingResults(val hasPinned: Boolean = false) : AppsSectionVisibility()
+}
+
+sealed class ContactsSectionVisibility {
+    object Hidden : ContactsSectionVisibility()
+    object NoPermission : ContactsSectionVisibility()
+    object NoResults : ContactsSectionVisibility()
+    data class ShowingResults(val hasPinned: Boolean = false) : ContactsSectionVisibility()
+}
+
+sealed class FilesSectionVisibility {
+    object Hidden : FilesSectionVisibility()
+    object NoPermission : FilesSectionVisibility()
+    object NoResults : FilesSectionVisibility()
+    data class ShowingResults(val hasPinned: Boolean = false) : FilesSectionVisibility()
+}
+
+sealed class SettingsSectionVisibility {
+    object Hidden : SettingsSectionVisibility()
+    object NoResults : SettingsSectionVisibility()
+    data class ShowingResults(val hasPinned: Boolean = false) : SettingsSectionVisibility()
+}
+
+sealed class SearchEnginesVisibility {
+    object Hidden : SearchEnginesVisibility()
+    object Compact : SearchEnginesVisibility()
+    object Full : SearchEnginesVisibility()
+    data class ShortcutDetected(val engine: SearchEngine) : SearchEnginesVisibility()
+}
+
 data class SearchUiState(
-    val isInitializing: Boolean = true,
+    // Core state
     val query: String = "",
     val hasUsagePermission: Boolean = false,
     val hasContactPermission: Boolean = false,
     val hasFilePermission: Boolean = false,
     val hasCallPermission: Boolean = false,
-    val isLoading: Boolean = true,
+
+    // Visibility states (replaces scattered boolean flags)
+    val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
+    val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
+    val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
+    val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
+    val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
+    val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
+
+    // Data (unchanged)
     val recentApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
     val searchResults: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
     val pinnedApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
@@ -101,9 +154,17 @@ data class SearchUiState(
     val excludedContacts: List<com.tk.quicksearch.model.ContactInfo> = emptyList(),
     val excludedFiles: List<com.tk.quicksearch.model.DeviceFile> = emptyList(),
     val excludedSettings: List<com.tk.quicksearch.model.SettingShortcut> = emptyList(),
+
+    // Metadata
     val indexedAppCount: Int = 0,
     val cacheLastUpdatedMillis: Long = 0L,
+
+    // Legacy fields (keeping for backward compatibility during migration)
+    val isInitializing: Boolean = true,
+    val isLoading: Boolean = true,
     val errorMessage: String? = null,
+
+    // UI configuration (unchanged)
     val searchEngineOrder: List<SearchEngine> = emptyList(),
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,

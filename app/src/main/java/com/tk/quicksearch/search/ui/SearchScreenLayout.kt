@@ -36,6 +36,7 @@ import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchEngines.*
+import com.tk.quicksearch.search.ui.hasAnySectionContent
 
 /**
  * Data class holding all the state needed for section rendering.
@@ -187,9 +188,9 @@ fun ContentLayout(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // Show error banner if there's an error message
-        state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
-            InfoBanner(message = message)
+        // Show error banner based on screen visibility state
+        if (state.screenState is ScreenVisibilityState.Error) {
+            InfoBanner(message = (state.screenState as ScreenVisibilityState.Error).message)
         }
 
         // Show calculator result if present
@@ -216,11 +217,7 @@ fun ContentLayout(
 
         val hasQuery = state.query.isNotBlank()
         val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
-        val hasAnySearchContent =
-            shouldShowAppsSection(renderingState) ||
-                shouldShowContactsSection(renderingState, contactsParams) ||
-                shouldShowFilesSection(renderingState, filesParams) ||
-                shouldShowSettingsSection(renderingState)
+        val hasAnySearchContent = hasAnySectionContent(state)
         val hasDirectSearchAnswer = showDirectSearch && DirectSearchState != null
 
         // Determine whether to show recent queries (when empty) or web suggestions (when query but no results)
@@ -344,6 +341,7 @@ fun ContentLayout(
                 // Keyboard-aligned (reversed): search results first (when hasQuery), then other pinned items, then recent queries, then apps at bottom
                 if (hasQuery) {
                     SearchResultsSections(
+                        state = state,
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
@@ -392,7 +390,11 @@ fun ContentLayout(
                                 }
                                 
                                 // Render apps section at the bottom for reversed layout
-                                if (shouldShowPinned && shouldShowAppsSection(renderingState)) {
+                                val shouldRenderPinnedApps = shouldShowPinned && when (state.appsSectionState) {
+                                    is AppsSectionVisibility.ShowingResults -> true
+                                    else -> false
+                                }
+                                if (shouldRenderPinnedApps) {
                                     val appsContext = SectionRenderContext(
                                         shouldRenderApps = true
                                     )
@@ -400,11 +402,24 @@ fun ContentLayout(
                                 }
                             }
                             else -> {
-                                // Render other pinned sections
+                                // Render other pinned sections using new visibility states
+                                val shouldRenderFiles = shouldShowPinned && when (state.filesSectionState) {
+                                    is FilesSectionVisibility.ShowingResults -> section == SearchSection.FILES
+                                    else -> false
+                                }
+                                val shouldRenderContacts = shouldShowPinned && when (state.contactsSectionState) {
+                                    is ContactsSectionVisibility.ShowingResults -> section == SearchSection.CONTACTS
+                                    else -> false
+                                }
+                                val shouldRenderSettings = shouldShowPinned && when (state.settingsSectionState) {
+                                    is SettingsSectionVisibility.ShowingResults -> section == SearchSection.SETTINGS
+                                    else -> false
+                                }
+
                                 val pinnedContext = SectionRenderContext(
-                                    shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles && section == SearchSection.FILES,
-                                    shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts && section == SearchSection.CONTACTS,
-                                    shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings && section == SearchSection.SETTINGS,
+                                    shouldRenderFiles = shouldRenderFiles,
+                                    shouldRenderContacts = shouldRenderContacts,
+                                    shouldRenderSettings = shouldRenderSettings,
                                     shouldRenderApps = false,
                                     isFilesExpanded = true,
                                     isContactsExpanded = true,
@@ -417,7 +432,7 @@ fun ContentLayout(
                                     showAllSettingsResults = true,
                                     showFilesExpandControls = false,
                                     showContactsExpandControls = false,
-                                   showSettingsExpandControls = false,
+                                    showSettingsExpandControls = false,
                                     filesExpandClick = {},
                                     contactsExpandClick = {},
                                     settingsExpandClick = {}
@@ -449,7 +464,11 @@ fun ContentLayout(
                             when (section) {
                                 SearchSection.APPS -> {
                                     // Render apps section
-                                    if (shouldShowPinned && shouldShowAppsSection(renderingState)) {
+                                    val shouldRenderPinnedApps = shouldShowPinned && when (state.appsSectionState) {
+                                        is AppsSectionVisibility.ShowingResults -> true
+                                        else -> false
+                                    }
+                                    if (shouldRenderPinnedApps) {
                                         val appsContext = SectionRenderContext(
                                             shouldRenderApps = true
                                         )
@@ -506,6 +525,7 @@ fun ContentLayout(
                     }
                     !hasQuery -> {
                         ExpandedPinnedSections(
+                            state = state,
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
@@ -515,6 +535,7 @@ fun ContentLayout(
                 }
                 if (hasQuery) {
                     SearchResultsSections(
+                        state = state,
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,

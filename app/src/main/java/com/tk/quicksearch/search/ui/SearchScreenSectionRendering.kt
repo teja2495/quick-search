@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.core.*
  */
 @Composable
 fun SearchResultsSections(
+    state: SearchUiState,
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
@@ -20,11 +21,29 @@ fun SearchResultsSections(
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
 
+    // Use new visibility states to determine what should render
+    val shouldRenderApps = when (state.appsSectionState) {
+        is AppsSectionVisibility.ShowingResults -> !isSettingsExpanded
+        else -> false
+    }
+    val shouldRenderContacts = when (state.contactsSectionState) {
+        is ContactsSectionVisibility.ShowingResults -> !isFilesExpanded && !isSettingsExpanded
+        else -> false
+    }
+    val shouldRenderFiles = when (state.filesSectionState) {
+        is FilesSectionVisibility.ShowingResults -> !isContactsExpanded && !isSettingsExpanded
+        else -> false
+    }
+    val shouldRenderSettings = when (state.settingsSectionState) {
+        is SettingsSectionVisibility.ShowingResults -> !isFilesExpanded && !isContactsExpanded
+        else -> false
+    }
+
     val context = SectionRenderContext(
-        shouldRenderFiles = shouldShowFilesSection(renderingState, filesParams) && !isContactsExpanded && !isSettingsExpanded,
-        shouldRenderContacts = shouldShowContactsSection(renderingState, contactsParams) && !isFilesExpanded && !isSettingsExpanded,
-        shouldRenderApps = shouldShowAppsSection(renderingState) && !isSettingsExpanded,
-        shouldRenderSettings = shouldShowSettingsSection(renderingState) && !isFilesExpanded && !isContactsExpanded,
+        shouldRenderFiles = shouldRenderFiles,
+        shouldRenderContacts = shouldRenderContacts,
+        shouldRenderApps = shouldRenderApps,
+        shouldRenderSettings = shouldRenderSettings,
         isFilesExpanded = isFilesExpanded,
         isContactsExpanded = isContactsExpanded,
         isSettingsExpanded = isSettingsExpanded,
@@ -61,6 +80,7 @@ fun SearchResultsSections(
  */
 @Composable
 fun PinnedItemsSections(
+    state: SearchUiState,
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
@@ -70,11 +90,29 @@ fun PinnedItemsSections(
 ) {
     val shouldShowPinned = !renderingState.isSearching
 
+    // Use new visibility states for pinned items rendering
+    val shouldRenderFiles = shouldShowPinned && when (state.filesSectionState) {
+        is FilesSectionVisibility.ShowingResults -> renderingState.hasPinnedFiles
+        else -> false
+    }
+    val shouldRenderContacts = shouldShowPinned && when (state.contactsSectionState) {
+        is ContactsSectionVisibility.ShowingResults -> renderingState.hasPinnedContacts
+        else -> false
+    }
+    val shouldRenderApps = shouldShowPinned && when (state.appsSectionState) {
+        is AppsSectionVisibility.ShowingResults -> true
+        else -> false
+    }
+    val shouldRenderSettings = shouldShowPinned && when (state.settingsSectionState) {
+        is SettingsSectionVisibility.ShowingResults -> renderingState.hasPinnedSettings
+        else -> false
+    }
+
     val context = SectionRenderContext(
-        shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles,
-        shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts,
-        shouldRenderApps = shouldShowPinned && shouldShowAppsSection(renderingState),
-        shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings,
+        shouldRenderFiles = shouldRenderFiles,
+        shouldRenderContacts = shouldRenderContacts,
+        shouldRenderApps = shouldRenderApps,
+        shouldRenderSettings = shouldRenderSettings,
         isFilesExpanded = true,
         isContactsExpanded = true,
         isSettingsExpanded = true,
@@ -111,6 +149,7 @@ fun PinnedItemsSections(
  */
 @Composable
 fun ExpandedPinnedSections(
+    state: SearchUiState,
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
@@ -120,10 +159,24 @@ fun ExpandedPinnedSections(
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
 
+    // Use new visibility states for expanded pinned sections
+    val shouldRenderFiles = isFilesExpanded && when (state.filesSectionState) {
+        is FilesSectionVisibility.ShowingResults -> renderingState.hasPinnedFiles
+        else -> false
+    }
+    val shouldRenderContacts = isContactsExpanded && when (state.contactsSectionState) {
+        is ContactsSectionVisibility.ShowingResults -> renderingState.hasPinnedContacts
+        else -> false
+    }
+    val shouldRenderSettings = isSettingsExpanded && when (state.settingsSectionState) {
+        is SettingsSectionVisibility.ShowingResults -> renderingState.hasPinnedSettings
+        else -> false
+    }
+
     val context = SectionRenderContext(
-        shouldRenderFiles = isFilesExpanded && renderingState.hasPinnedFiles && renderingState.shouldShowFiles,
-        shouldRenderContacts = isContactsExpanded && renderingState.hasPinnedContacts && renderingState.shouldShowContacts,
-        shouldRenderSettings = isSettingsExpanded && renderingState.hasPinnedSettings && renderingState.shouldShowSettings,
+        shouldRenderFiles = shouldRenderFiles,
+        shouldRenderContacts = shouldRenderContacts,
+        shouldRenderSettings = shouldRenderSettings,
         shouldRenderApps = false, // Apps section doesn't need expansion handling
         isFilesExpanded = true,
         isContactsExpanded = true,

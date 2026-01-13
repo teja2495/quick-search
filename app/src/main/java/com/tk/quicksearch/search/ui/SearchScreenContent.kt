@@ -24,6 +24,7 @@ import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchEngines.SearchEngineIconsSection
+import com.tk.quicksearch.search.ui.SearchEnginesVisibility
 import com.tk.quicksearch.util.CalculatorUtils
 
 @Composable
@@ -215,25 +216,54 @@ internal fun SearchScreenContent(
         // or when a shortcut is detected
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
         // Hide when files or contacts are expanded
-        // Show if explicitly enabled OR if a shortcut is detected (to show the specific engine card)
         if (expandedSection == ExpandedSection.NONE) {
-            if (state.isSearchEngineCompactMode || state.detectedShortcutEngine != null) {
-                SearchEngineIconsSection(
-                    query = state.query,
-                    hasAppResults = renderingState.hasAppResults,
-                    enabledEngines = enabledEngines,
-                    onSearchEngineClick = onSearchEngineClick,
-                    onSearchEngineLongPress = onSearchEngineLongPress,
-                    externalScrollState = searchEngineScrollState,
-                    detectedShortcutEngine = state.detectedShortcutEngine,
-                    onClearDetectedShortcut = onClearDetectedShortcut,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    modifier = Modifier.imePadding()
-                )
-            } else {
-                // Add padding when search engine section is disabled to prevent keyboard from covering content
-                Spacer(modifier = Modifier.imePadding())
-            }
+            SearchEnginesVisibility(
+                enginesState = state.searchEnginesState,
+                modifier = Modifier.imePadding(),
+                compactContent = {
+                    SearchEngineIconsSection(
+                        query = state.query,
+                        hasAppResults = renderingState.hasAppResults,
+                        enabledEngines = enabledEngines,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        externalScrollState = searchEngineScrollState,
+                        detectedShortcutEngine = state.detectedShortcutEngine,
+                        onClearDetectedShortcut = onClearDetectedShortcut,
+                        showWallpaperBackground = state.showWallpaperBackground
+                    )
+                },
+                fullContent = {
+                    SearchEngineIconsSection(
+                        query = state.query,
+                        hasAppResults = renderingState.hasAppResults,
+                        enabledEngines = enabledEngines,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        externalScrollState = searchEngineScrollState,
+                        detectedShortcutEngine = state.detectedShortcutEngine,
+                        onClearDetectedShortcut = onClearDetectedShortcut,
+                        showWallpaperBackground = state.showWallpaperBackground
+                    )
+                },
+                shortcutContent = { engine ->
+                    SearchEngineIconsSection(
+                        query = state.query,
+                        hasAppResults = renderingState.hasAppResults,
+                        enabledEngines = enabledEngines,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        externalScrollState = searchEngineScrollState,
+                        detectedShortcutEngine = engine,
+                        onClearDetectedShortcut = onClearDetectedShortcut,
+                        showWallpaperBackground = state.showWallpaperBackground
+                    )
+                },
+                hiddenContent = {
+                    // Add padding when search engines are hidden to prevent keyboard from covering content
+                    Spacer(modifier = Modifier.imePadding())
+                }
+            )
         }
     }
 }
