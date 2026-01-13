@@ -29,44 +29,6 @@ import com.tk.quicksearch.util.hapticToggle
 private val GrantedCheckmarkColor = Color(0xFF4CAF50)
 
 /**
- * A card component that displays a permission with its title, description, and toggle/status.
- * Shows a green checkmark if permission is granted, otherwise shows a toggle switch.
- * Displays an asterisk (*) if the permission is mandatory.
- *
- * @param title Permission title text
- * @param description Permission description text
- * @param permissionState Current permission state
- * @param isMandatory Whether this permission is required (shows asterisk)
- * @param onToggleChange Callback when user toggles permission on/off
- * @param modifier Modifier for the card
- */
-@Composable
-fun PermissionCard(
-    title: String,
-    description: String,
-    permissionState: PermissionState,
-    isMandatory: Boolean,
-    onToggleChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        PermissionItem(
-            title = title,
-            description = description,
-            permissionState = permissionState,
-            isMandatory = isMandatory,
-            onToggleChange = onToggleChange
-        )
-    }
-}
-
-/**
  * An item component that displays a permission with its title, description, and toggle/status.
  * Intended to be used inside a Card or other container.
  */
@@ -117,7 +79,6 @@ fun PermissionItem(
         }
         
         if (permissionState.isGranted) {
-            // Show green checkmark when permission is granted
             Icon(
                 imageVector = Icons.Rounded.CheckCircle,
                 contentDescription = stringResource(R.string.permissions_granted),
@@ -127,7 +88,6 @@ fun PermissionItem(
                     .size(24.dp)
             )
         } else {
-            // Show toggle when permission is not granted
             Switch(
                 checked = permissionState.isEnabled,
                 onCheckedChange = { newValue ->

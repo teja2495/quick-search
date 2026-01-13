@@ -63,8 +63,6 @@ class QuickSearchWidget : GlanceAppWidget() {
         val config = prefs.toWidgetPreferences()
         val context = LocalContext.current
         val widgetSize = LocalSize.current
-        
-        // Calculate dimensions
         val defaultWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
         val widgetPadding = 0.dp
@@ -72,9 +70,6 @@ class QuickSearchWidget : GlanceAppWidget() {
         // Force fixed height regardless of grid size
         val heightDp = defaultHeight
         val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
-        
-        // Calculate displayed dimensions (widget size minus padding)
-        // The bitmap should match the displayed size to avoid stretching
         val displayedWidthDp = widthDp - (widgetPadding * 2)
         val displayedHeightDp = heightDp - (widgetPadding * 2)
         
@@ -83,18 +78,13 @@ class QuickSearchWidget : GlanceAppWidget() {
         val heightPx = (displayedHeightDp.value * density).roundToInt().coerceAtLeast(1)
         val borderWidthPx = (config.borderWidthDp * density).roundToInt()
         val cornerRadiusPx = config.borderRadiusDp * density
-        
-        // Calculate colors
         val colors = calculateColors(config, borderWidthPx)
-        
-        // Check if current configuration matches defaults for background properties
-        // If so, use the XML drawable to prevent stretching artifacts on initial render
+
         val hasDefaultBackground = config.borderRadiusDp == WidgetDefaults.BORDER_RADIUS_DP &&
                 config.borderWidthDp == WidgetDefaults.BORDER_WIDTH_DP &&
                 config.backgroundAlpha == WidgetDefaults.BACKGROUND_ALPHA &&
                 !config.backgroundColorIsWhite
-        
-        // Create bitmap background only if not using default
+
         val backgroundBitmap = if (!hasDefaultBackground) {
             WidgetBitmapUtils.createWidgetBitmap(
                 widthPx = widthPx,
@@ -107,8 +97,7 @@ class QuickSearchWidget : GlanceAppWidget() {
         } else {
             null
         }
-        
-        // Create launch intent
+
         val launchIntent = createLaunchIntent(context)
         val voiceLaunchIntent = createLaunchIntent(
             context = context,

@@ -32,9 +32,6 @@ class FileSearchRepository(
         private const val DATE_MODIFIED_SORT = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
     }
 
-    /**
-     * Checks if the app has permission to access external storage.
-     */
     fun hasPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
@@ -46,10 +43,6 @@ class FileSearchRepository(
         }
     }
 
-    /**
-     * Retrieves files by their URIs. Used for pinned/excluded files.
-     * Returns files sorted alphabetically by display name.
-     */
     fun getFilesByUris(uris: Set<String>): List<DeviceFile> {
         if (uris.isEmpty() || !hasPermission()) return emptyList()
 
@@ -78,10 +71,6 @@ class FileSearchRepository(
         return results.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
     }
 
-    /**
-     * Searches for files matching the query string.
-     * Returns files sorted by match priority and then alphabetically.
-     */
     fun searchFiles(query: String, limit: Int): List<DeviceFile> {
         if (query.isBlank() || !hasPermission()) return emptyList()
 
@@ -120,9 +109,6 @@ class FileSearchRepository(
         )
     }
 
-    /**
-     * Normalizes a search query by trimming, lowercasing, and escaping special SQL characters.
-     */
     private fun normalizeQuery(query: String): String {
         return query
             .trim()
@@ -131,9 +117,6 @@ class FileSearchRepository(
             .replace("_", "")
     }
 
-    /**
-     * Gets the appropriate MediaStore Files content URI based on Android version.
-     */
     private fun getFilesContentUri(): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
@@ -142,16 +125,10 @@ class FileSearchRepository(
         }
     }
 
-    /**
-     * Parses a URI string safely, returning null if parsing fails.
-     */
     private fun parseUri(uriString: String): Uri? {
         return runCatching { Uri.parse(uriString) }.getOrNull()
     }
 
-    /**
-     * Data class to hold column indices for efficient cursor access.
-     */
     private data class ColumnIndices(
         val idIndex: Int,
         val nameIndex: Int,
@@ -159,9 +136,6 @@ class FileSearchRepository(
         val modifiedIndex: Int
     )
 
-    /**
-     * Retrieves column indices from a cursor.
-     */
     private fun getColumnIndices(cursor: Cursor): ColumnIndices {
         return ColumnIndices(
             idIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID),

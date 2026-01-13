@@ -28,17 +28,14 @@ object UpdateHelper {
             val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
             appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-                // Mark that we've checked for updates this session
                 userPreferences.setUpdateCheckShownThisSession()
-                
-                // Check if update is available
+
                 val updateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 val isFlexibleUpdateAllowed = appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
-                
+
                 if (updateAvailable && isFlexibleUpdateAllowed) {
                     Log.d(TAG, "Update available, showing flexible update prompt")
-                    
-                    // Request flexible update - user can dismiss and continue using the app
+
                     appUpdateManager.startUpdateFlow(
                         appUpdateInfo,
                         activity,

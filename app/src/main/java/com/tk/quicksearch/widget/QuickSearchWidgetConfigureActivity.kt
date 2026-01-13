@@ -60,17 +60,11 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Gets the GlanceId for the given appWidgetId, or null if not found.
-     */
     private suspend fun getGlanceId(appWidgetId: Int): GlanceId? {
         val manager = GlanceAppWidgetManager(this)
         return manager.getGlanceIdBy(appWidgetId)
     }
 
-    /**
-     * Loads widget preferences from storage for the given appWidgetId.
-     */
     private suspend fun loadWidgetPreferences(appWidgetId: Int): QuickSearchWidgetPreferences {
         val glanceId = getGlanceId(appWidgetId) ?: return QuickSearchWidgetPreferences.Default
 
@@ -82,9 +76,6 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         return prefs.toWidgetPreferences()
     }
 
-    /**
-     * Saves widget preferences and updates the widget display.
-     */
     private suspend fun saveWidgetPreferences(
         appWidgetId: Int,
         prefs: QuickSearchWidgetPreferences
@@ -100,9 +91,6 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         QuickSearchWidget().update(this, glanceId)
     }
 
-    /**
-     * Creates the result intent with the appWidgetId.
-     */
     private fun createResultIntent(): Intent {
         return Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }

@@ -8,15 +8,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 
-/**
- * Utility functions for SearchEngine-related mappings and conversions.
- * Centralizes duplicate code across the codebase.
- */
 
-/**
- * Data class holding metadata for a search engine.
- * This centralizes all engine-specific information in one place.
- */
 private data class SearchEngineMetadata(
     @DrawableRes val drawableResId: Int,
     val contentDescription: String,
@@ -24,10 +16,6 @@ private data class SearchEngineMetadata(
     val defaultShortcutCode: String
 )
 
-/**
- * Centralized mapping of SearchEngine enum to its metadata.
- * Adding a new engine only requires updating this map.
- */
 private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = mapOf(
     SearchEngine.DIRECT_SEARCH to SearchEngineMetadata(
         drawableResId = R.drawable.direct_search,
@@ -169,17 +157,11 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
     )
 )
 
-/**
- * Maps SearchEngine enum to its corresponding drawable resource ID.
- */
 @DrawableRes
 fun SearchEngine.getDrawableResId(): Int =
     SEARCH_ENGINE_METADATA[this]?.drawableResId
         ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
 
-/**
- * Maps SearchEngine enum to its content description string.
- */
 fun SearchEngine.getContentDescription(): String =
     SEARCH_ENGINE_METADATA[this]?.contentDescription
         ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
@@ -262,19 +244,11 @@ fun buildSearchUrl(query: String, searchEngine: SearchEngine, amazonDomain: Stri
     return templateToUse.replace("%s", encodedQuery)
 }
 
-/**
- * Gets the default shortcut code for a search engine.
- * 
- * @return The default shortcut code string, or null if not found
- */
 fun SearchEngine.getDefaultShortcutCode(): String =
     SEARCH_ENGINE_METADATA[this]?.defaultShortcutCode
         ?: throw IllegalArgumentException("Unknown SearchEngine: $this")
 
 
-/**
- * Maps SearchEngine enum to its string resource ID for display name.
- */
 @StringRes
 fun SearchEngine.getDisplayNameResId(): Int = when (this) {
     SearchEngine.DIRECT_SEARCH -> R.string.search_engine_direct_search
@@ -302,10 +276,6 @@ fun SearchEngine.getDisplayNameResId(): Int = when (this) {
     SearchEngine.STARTPAGE -> R.string.search_engine_startpage
 }
 
-/**
- * Gets the display name for a search engine.
- * This is a Composable function that requires string resources.
- */
 @Composable
 fun SearchEngine.getDisplayName(): String = stringResource(getDisplayNameResId())
 

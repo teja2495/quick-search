@@ -19,7 +19,6 @@ enum class MicAction(val value: String) {
     DIGITAL_ASSISTANT("digital_assistant")
 }
 
-// Default values
 internal object WidgetDefaults {
     val BORDER_COLOR = Color.Black
     val BORDER_COLOR_ARGB = BORDER_COLOR.toArgb()
@@ -38,7 +37,6 @@ internal object WidgetDefaults {
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
 }
 
-// Value ranges for validation
 private object WidgetRanges {
     const val BORDER_RADIUS_MIN = 0f
     const val BORDER_RADIUS_MAX = 30f
@@ -48,7 +46,6 @@ private object WidgetRanges {
     const val BACKGROUND_ALPHA_MAX = 1f
 }
 
-// Preference keys
 private object WidgetKeys {
     val BORDER_COLOR = intPreferencesKey("quick_search_widget_border_color")
     val BORDER_RADIUS = floatPreferencesKey("quick_search_widget_border_radius")
@@ -88,9 +85,6 @@ data class QuickSearchWidgetPreferences(
         val Default = QuickSearchWidgetPreferences()
     }
 
-    /**
-     * Returns a copy of this preferences object with values coerced to valid ranges.
-     */
     fun coerceToValidRanges(): QuickSearchWidgetPreferences {
         return copy(
             borderRadiusDp = borderRadiusDp.coerceIn(
@@ -109,9 +103,6 @@ data class QuickSearchWidgetPreferences(
     }
 }
 
-/**
- * Converts Preferences to QuickSearchWidgetPreferences, applying defaults and validation.
- */
 fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
     val backgroundIsWhite = this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE]
         ?: WidgetDefaults.BACKGROUND_COLOR_IS_WHITE
@@ -136,9 +127,6 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
     ).coerceToValidRanges()
 }
 
-/**
- * Applies widget preferences to MutablePreferences, with validation.
- */
 fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferences) {
     val validated = config.coerceToValidRanges()
     this[WidgetKeys.BORDER_COLOR] = validated.borderColor

@@ -11,10 +11,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
 
-/**
- * Handles secondary search operations (contacts and files).
- * Simplifies the complex search logic and makes it more maintainable.
- */
 class SearchOperations(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository
@@ -34,27 +30,11 @@ class SearchOperations(
         )
     }
     
-    /**
-     * Search result data class.
-     */
     data class SearchResult(
         val contacts: List<ContactInfo>,
         val files: List<DeviceFile>
     )
     
-    /**
-     * Performs searches for contacts and files in parallel.
-     *
-     * @param query The search query
-     * @param canSearchContacts Whether contacts search is enabled
-     * @param canSearchFiles Whether files search is enabled
-     * @param enabledFileTypes Set of enabled file types
-     * @param excludedContactIds Set of excluded contact IDs
-     * @param excludedFileUris Set of excluded file URIs
-     * @param excludedFileExtensions Set of excluded file extensions
-     * @param scope Coroutine scope for async operations
-     * @return SearchResult containing contacts and files
-     */
     suspend fun performSearches(
         query: String,
         canSearchContacts: Boolean,
@@ -102,9 +82,6 @@ class SearchOperations(
         }
     }
     
-    /**
-     * Searches contacts with filtering.
-     */
     private suspend fun searchContacts(
         query: String,
         excludedContactIds: Set<Long>,
@@ -114,9 +91,6 @@ class SearchOperations(
             .filterNot { excludedContactIds.contains(it.contactId) }
     }
     
-    /**
-     * Searches files with filtering by enabled types and exclusions.
-     */
     private suspend fun searchFiles(
         query: String,
         enabledFileTypes: Set<FileType>,
@@ -137,9 +111,6 @@ class SearchOperations(
             .take(FILE_RESULT_LIMIT)
     }
 
-    /**
-     * Checks if a file is an APK file.
-     */
     private fun isApkFile(deviceFile: DeviceFile): Boolean {
         val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
         if (mime == "application/vnd.android.package-archive") {
@@ -149,9 +120,6 @@ class SearchOperations(
         return name.endsWith(".apk")
     }
 
-    /**
-     * Checks if a file is a system or internal file that should be hidden.
-     */
     private fun isSystemFile(deviceFile: DeviceFile): Boolean {
         val name = deviceFile.displayName
         // Check for hidden files (starting with dot)

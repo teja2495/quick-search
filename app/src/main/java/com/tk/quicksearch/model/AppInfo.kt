@@ -14,15 +14,3 @@ data class AppInfo(
     val isSystemApp: Boolean
 )
 
-/**
- * Returns true when the current app matches the provided search query.
- */
-fun AppInfo.matches(query: String): Boolean {
-    if (query.isBlank()) return true
-
-    val locale = Locale.getDefault()
-    val normalizedQuery = query.trim().lowercase(locale)
-    val normalizedAppName = appName.lowercase(locale)
-
-    return normalizedAppName.contains(normalizedQuery)
-}

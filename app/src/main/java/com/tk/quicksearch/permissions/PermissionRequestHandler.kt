@@ -11,14 +11,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-/**
- * Handles permission requests for different permission types.
- */
 object PermissionRequestHandler {
     
-    /**
-     * Creates an intent to open Usage Access settings.
-     */
     fun createUsageAccessIntent(context: Context): Intent {
         return Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
             data = Uri.parse("package:${context.packageName}")
@@ -26,25 +20,16 @@ object PermissionRequestHandler {
         }
     }
     
-    /**
-     * Creates an intent to request all files access (Android R+).
-     */
     fun createAllFilesAccessIntent(context: Context): Intent {
         return Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
             data = Uri.parse("package:${context.packageName}")
         }
     }
     
-    /**
-     * Fallback intent for all files access if the primary intent fails.
-     */
     fun createAllFilesAccessFallbackIntent(): Intent {
         return Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
     }
     
-    /**
-     * Creates an intent to open app settings (for denied permissions).
-     */
     fun createAppSettingsIntent(context: Context): Intent {
         return Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.parse("package:${context.packageName}")
@@ -52,9 +37,6 @@ object PermissionRequestHandler {
         }
     }
     
-    /**
-     * Checks if files permission is granted.
-     */
     fun checkFilesPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
@@ -66,19 +48,6 @@ object PermissionRequestHandler {
         }
     }
     
-    /**
-     * Checks if contacts permission is granted.
-     */
-    fun checkContactsPermission(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_CONTACTS
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    }
-    
-    /**
-     * Checks if call phone permission is granted.
-     */
     fun checkCallPermission(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -86,13 +55,6 @@ object PermissionRequestHandler {
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
     }
     
-    /**
-     * Determines if files permission request should open settings instead of showing runtime dialog.
-     *
-     * @param context Android context
-     * @param wasPreviouslyDenied Whether the permission was previously denied by the user
-     * @return true if settings should be opened, false if runtime permission dialog can be shown
-     */
     fun shouldOpenSettingsForFiles(
         context: Context,
         wasPreviouslyDenied: Boolean
@@ -112,9 +74,6 @@ object PermissionRequestHandler {
     }
     
     
-    /**
-     * Launches all files access request with fallback handling.
-     */
     fun launchAllFilesAccessRequest(
         launcher: ActivityResultLauncher<Intent>,
         context: Context

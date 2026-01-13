@@ -97,9 +97,6 @@ class ContactRepository(
 
     // ==================== Public API ====================
 
-    /**
-     * Checks if the app has been granted READ_CONTACTS permission.
-     */
     fun hasPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -108,8 +105,6 @@ class ContactRepository(
     }
 
     /**
-     * Retrieves contacts by their IDs.
-     * 
      * @param contactIds Set of contact IDs to retrieve
      * @return List of contacts sorted alphabetically by display name
      */
@@ -128,8 +123,6 @@ class ContactRepository(
     }
 
     /**
-     * Searches for contacts matching the given query.
-     * 
      * @param query Search query string
      * @param limit Maximum number of unique contacts to return
      * @return List of contacts sorted by match priority, then alphabetically
@@ -149,9 +142,6 @@ class ContactRepository(
 
     // ==================== Private Helpers ====================
 
-    /**
-     * Queries contacts by their IDs from the contacts provider.
-     */
     private fun queryContactsByIds(contactIds: Set<Long>): LinkedHashMap<Long, MutableContact> {
         val selection = buildInClause(
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
@@ -169,10 +159,6 @@ class ContactRepository(
         return cursor.use { processPhoneCursor(it) }
     }
 
-    /**
-     * Queries contacts matching the search query.
-     * Stops after reaching the specified limit of unique contacts.
-     */
     private fun queryContactsBySearch(
         normalizedQuery: String,
         limit: Int
@@ -191,12 +177,6 @@ class ContactRepository(
         return cursor.use { processPhoneCursor(it, limit) }
     }
 
-    /**
-     * Processes a phone number cursor and builds a map of contacts.
-     * 
-     * @param cursor Cursor containing phone number data
-     * @param limit Optional limit on number of unique contacts (null = no limit)
-     */
     private fun processPhoneCursor(
         cursor: Cursor,
         limit: Int? = null
@@ -232,9 +212,6 @@ class ContactRepository(
         return contacts
     }
 
-    /**
-     * Fetches photo URIs for the given contacts and updates them in place.
-     */
     private fun fetchPhotoUris(contacts: LinkedHashMap<Long, MutableContact>) {
         if (contacts.isEmpty()) return
 
@@ -336,9 +313,6 @@ class ContactRepository(
         }
     }
 
-    /**
-     * Parses a contact method from Data table row.
-     */
     private fun parseContactMethod(
         mimeType: String,
         data1: String,
@@ -406,32 +380,6 @@ class ContactRepository(
     }
     
     /**
-     * Converts phone/email type codes to human-readable labels.
-     */
-    private fun typeToLabel(type: Int, customLabel: String?): String {
-        return when (type) {
-            ContactsContract.CommonDataKinds.Phone.TYPE_HOME -> "Home"
-            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE -> "Mobile"
-            ContactsContract.CommonDataKinds.Phone.TYPE_WORK -> "Work"
-            ContactsContract.CommonDataKinds.Phone.TYPE_MAIN -> "Main"
-            ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM -> customLabel ?: "Other"
-            else -> "Other"
-        }
-    }
-    
-    /**
-     * Checks if Google Meet is available on the device.
-     */
-    private fun isGoogleMeetAvailable(): Boolean {
-        return try {
-            context.packageManager.getPackageInfo("com.google.android.apps.tachyon", 0)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    /**
      * Attempts to extract package name from custom MIME type.
      * Format: vnd.android.cursor.item/vnd.com.package.name.xxx
      */
@@ -448,9 +396,6 @@ class ContactRepository(
         }
     }
 
-    /**
-     * Normalizes a search query by trimming, lowercasing, and removing SQL wildcards.
-     */
     private fun normalizeSearchQuery(query: String): String {
         return query
             .trim()
@@ -459,10 +404,6 @@ class ContactRepository(
             .replace("_", "")
     }
 
-    /**
-     * Builds a safe IN clause for SQL queries.
-     * Since contact IDs are Long values, we can safely join them.
-     */
     private fun buildInClause(columnName: String, ids: Collection<Long>): String {
         val idList = ids.joinToString(",")
         return "$columnName IN ($idList)"
@@ -532,9 +473,6 @@ class ContactRepository(
         }
     }
 
-    /**
-     * Data class for building contacts before converting to ContactInfo.
-     */
     private data class MutableContact(
         val contactId: Long,
         val lookupKey: String,
@@ -566,9 +504,6 @@ class ContactRepository(
         }
     }
 
-    /**
-     * Holds column indices for phone number cursor to avoid repeated lookups.
-     */
     private data class PhoneColumnIndices(
         val idIndex: Int,
         val lookupIndex: Int,

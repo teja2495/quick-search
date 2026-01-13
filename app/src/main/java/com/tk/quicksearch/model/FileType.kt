@@ -13,11 +13,9 @@ enum class FileType {
  * Utility functions for categorizing files by MIME type.
  */
 object FileTypeUtils {
-    
-    // MIME type prefixes for media files
+
     private val MEDIA_PREFIXES = setOf("image/", "video/")
-    
-    // MIME type prefixes for document files
+
     private val DOCUMENT_PREFIXES = setOf(
         "application/pdf",
         "application/msword",
@@ -34,10 +32,6 @@ object FileTypeUtils {
     )
     
     
-    /**
-     * Determines the file type category based on MIME type.
-     * Returns OTHER if MIME type is null or doesn't match known categories.
-     */
     fun getFileType(mimeType: String?): FileType {
         if (mimeType == null) return FileType.OTHER
         
@@ -50,23 +44,14 @@ object FileTypeUtils {
         }
     }
     
-    /**
-     * Checks if the MIME type represents a media file (image or video).
-     */
     private fun isMediaType(normalizedMime: String): Boolean {
         return MEDIA_PREFIXES.any { normalizedMime.startsWith(it) }
     }
-    
-    /**
-     * Checks if the MIME type represents a document file.
-     */
+
     private fun isDocumentType(normalizedMime: String): Boolean {
         return DOCUMENT_PREFIXES.any { normalizedMime.startsWith(it) }
     }
     
-    /**
-     * Gets the file type for a DeviceFile.
-     */
     fun getFileType(file: DeviceFile): FileType {
         return getFileType(file.mimeType)
     }

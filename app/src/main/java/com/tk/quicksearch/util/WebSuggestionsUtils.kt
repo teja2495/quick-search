@@ -48,7 +48,6 @@ object WebSuggestionsUtils {
             for (i in 0 until maxSuggestions) {
                 val suggestion = suggestionsArray.getString(i)
                 if (suggestion.isNotBlank()) {
-                    // Capitalize first letter of each suggestion
                     val capitalizedSuggestion = suggestion.replaceFirstChar { it.uppercase() }
 
                     // Skip the first suggestion if it matches the query (case-insensitive)

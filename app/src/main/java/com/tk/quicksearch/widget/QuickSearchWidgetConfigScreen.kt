@@ -149,9 +149,6 @@ fun QuickSearchWidgetConfigScreen(
     }
 }
 
-/**
- * Loading state displayed while widget preferences are being loaded.
- */
 @Composable
 private fun WidgetLoadingState(innerPadding: PaddingValues) {
     Box(
@@ -198,9 +195,6 @@ private fun WidgetSlidersSection(
     }
 }
 
-/**
- * Formats border width value for display.
- */
 private fun formatBorderWidth(value: Float): String {
     return if (value == 0f) {
         "0 dp"
@@ -371,9 +365,6 @@ private fun ToggleRow(
     }
 }
 
-/**
- * Creates an annotated string with a clickable link for the specified text.
- */
 @Composable
 private fun createClickableText(
     fullText: String,
@@ -412,9 +403,6 @@ private fun createClickableText(
     }
 }
 
-/**
- * Segmented button row for choosing between white and black colors.
- */
 @Composable
 private fun ColorChoiceSegmentedButtonRow(
     selectedIsWhite: Boolean,
@@ -442,9 +430,6 @@ private fun ColorChoiceSegmentedButtonRow(
     }
 }
 
-/**
- * Segmented button row for choosing between left and center icon alignment.
- */
 @Composable
 private fun AlignmentChoiceSegmentedButtonRow(
     selectedAlignLeft: Boolean,
@@ -472,9 +457,6 @@ private fun AlignmentChoiceSegmentedButtonRow(
     }
 }
 
-/**
- * Segmented button row for choosing between mic actions.
- */
 @Composable
 private fun MicActionChoiceSegmentedButtonRow(
     selectedAction: MicAction,

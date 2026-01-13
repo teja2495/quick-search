@@ -68,13 +68,6 @@ object WallpaperUtils {
         }
     }
     
-    /**
-     * Clears the cached wallpaper bitmap.
-     * Call this if the wallpaper might have changed.
-     */
-    fun clearCache() {
-        cachedBitmap = null
-    }
     
     /**
      * Converts a Drawable to a Bitmap.

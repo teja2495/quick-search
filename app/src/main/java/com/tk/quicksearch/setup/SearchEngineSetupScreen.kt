@@ -55,7 +55,6 @@ fun SearchEngineSetupScreen(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        // Fixed title and subtitle at top
         OnboardingHeader(
             title = stringResource(R.string.setup_search_engines_title),
             currentStep = currentStep,
@@ -72,7 +71,6 @@ fun SearchEngineSetupScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Base default enabled search engines (same as main settings)
         val baseDefaultEnabledEngines = setOf(
             SearchEngine.GOOGLE,
             SearchEngine.CHATGPT,
@@ -90,7 +88,6 @@ fun SearchEngineSetupScreen(
             SearchEngine.DUCKDUCKGO
         )
 
-        // Add Direct Search to enabled engines if Gemini API key is set up
         val defaultEnabledEngines = if (uiState.geminiApiKeyLast4.isNullOrBlank()) {
             baseDefaultEnabledEngines
         } else {
@@ -104,16 +101,12 @@ fun SearchEngineSetupScreen(
             // Move Direct Search to the top when API key is set up
             listOf(SearchEngine.DIRECT_SEARCH) + baseEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }
         }
-        val defaultDisabledEngines = SearchEngine.values().toSet() - defaultEnabledEngines
 
-        // Scrollable search engines list with Direct Search card included
         val scrollState = rememberScrollState()
         val hasAnimatedScroll = remember { mutableStateOf(false) }
 
-        // Local state for disabled engines (starts with current state from viewModel, updates on toggle)
         var disabledEngines by remember { mutableStateOf<Set<SearchEngine>>(uiState.disabledSearchEngines) }
 
-        // Update local state when UI state changes (e.g., when Gemini API key is set)
         LaunchedEffect(uiState.disabledSearchEngines) {
             disabledEngines = uiState.disabledSearchEngines
         }
@@ -171,10 +164,8 @@ fun SearchEngineSetupScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
 
-        // Add padding above the Done button
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Fixed button at bottom
         Button(
             onClick = onContinue,
             modifier = Modifier

@@ -17,9 +17,6 @@ object WidgetColorUtils {
      */
     private val DARK_GREY = Color(0xFF424242)
 
-    /**
-     * Calculates the background color based on preferences.
-     */
     fun getBackgroundColor(
         backgroundColorIsWhite: Boolean,
         backgroundAlpha: Float
@@ -39,7 +36,6 @@ object WidgetColorUtils {
     }
 
     /**
-     * Calculates the text and icon color based on user selection and transparency.
      * Text and icons remain fully opaque (no transparency).
      */
     fun getTextIconColor(

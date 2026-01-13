@@ -126,6 +126,5 @@ object ContactMethodMimeTypes {
     const val PHONE = "vnd.android.cursor.item/phone_v2"
     const val EMAIL = "vnd.android.cursor.item/email_v2"
     const val IM = "vnd.android.cursor.item/im"
-    const val SIP_ADDRESS = "vnd.android.cursor.item/sip_address"
 }
 

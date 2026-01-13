@@ -16,7 +16,6 @@ class AppCache(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /**
-     * Loads cached app list from SharedPreferences.
      * @return List of cached apps, or null if no cache exists or if cache is corrupted.
      */
     fun loadCachedApps(): List<AppInfo>? {
@@ -34,7 +33,6 @@ class AppCache(context: Context) {
     }
 
     /**
-     * Saves app list to SharedPreferences as JSON.
      * @param apps The list of apps to cache.
      * @return true if the save operation succeeded, false otherwise.
      */
@@ -52,16 +50,12 @@ class AppCache(context: Context) {
     }
  
     /**
-     * Returns the timestamp when the cache was last updated.
      * @return Timestamp in milliseconds, or 0L if cache has never been updated.
      */
     fun getLastUpdateTime(): Long {
         return prefs.getLong(KEY_LAST_UPDATE, 0L)
     }
 
-    /**
-     * Clears all cached data.
-     */
     fun clearCache() {
         prefs.edit().clear().apply()
     }
@@ -80,9 +74,6 @@ class AppCache(context: Context) {
         private const val FIELD_LAUNCH_COUNT = "launchCount"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
 
-        /**
-         * Converts a JSONArray to a List<AppInfo>.
-         */
         private fun JSONArray.toAppInfoList(): List<AppInfo> {
             return List(length()) { index ->
                 val jsonObject = getJSONObject(index)
@@ -97,9 +88,6 @@ class AppCache(context: Context) {
             }
         }
 
-        /**
-         * Converts a List<AppInfo> to a JSONArray.
-         */
         private fun List<AppInfo>.toJsonArray(): JSONArray {
             return JSONArray().apply {
                 forEach { app ->

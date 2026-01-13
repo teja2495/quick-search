@@ -7,13 +7,7 @@ import android.graphics.RectF
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
-/**
- * Utility for creating widget background bitmaps with rounded corners and borders.
- */
 object WidgetBitmapUtils {
-    /**
-     * Creates a bitmap with background color and optional border.
-     */
     fun createWidgetBitmap(
         widthPx: Int,
         heightPx: Int,

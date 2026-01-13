@@ -15,18 +15,12 @@ class SettingsShortcutRepository(private val context: Context) {
 
     private val packageManager = context.packageManager
 
-    /**
-     * Returns all supported and resolvable shortcuts for this device.
-     */
     fun loadShortcuts(): List<SettingShortcut> {
         return allShortcuts()
             .filter { it.isSupported() }
             .filter { canResolve(it) }
     }
 
-    /**
-     * Builds an intent for the provided shortcut.
-     */
     fun buildIntent(shortcut: SettingShortcut): Intent {
         return shortcut.toIntent(context)
     }

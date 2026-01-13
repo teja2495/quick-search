@@ -60,25 +60,20 @@ fun MainContent(
     }
     var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
     var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
-
-    // Track whether we should show the final setup screen
     var shouldShowFinalSetup by remember { mutableStateOf(false) }
 
     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
             when {
-                // Transitions within first launch flow (Permissions -> Setup)
                 initialState == AppScreen.Permissions && targetState == AppScreen.SearchEngineSetup -> {
                     slideInHorizontally { width -> width } + fadeIn() togetherWith
                         slideOutHorizontally { width -> -width } + fadeOut()
                 }
-                // Transition from search engines to final setup (Setup -> FinalSetup)
                 initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.FinalSetup -> {
                     slideInHorizontally { width -> width } + fadeIn() togetherWith
                         slideOutHorizontally { width -> -width } + fadeOut()
                 }
-                // Reverse transitions (Back navigation)
                 initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.Permissions -> {
                     slideInHorizontally { width -> -width } + fadeIn() togetherWith
                         slideOutHorizontally { width -> width } + fadeOut()
@@ -87,12 +82,10 @@ fun MainContent(
                     slideInHorizontally { width -> -width } + fadeIn() togetherWith
                         slideOutHorizontally { width -> width } + fadeOut()
                 }
-                // Transition from setup to main app (Setup/FinalSetup -> Main)
                 (initialState == AppScreen.SearchEngineSetup || initialState == AppScreen.FinalSetup) && targetState == AppScreen.Main -> {
                     slideInHorizontally { width -> width } + fadeIn() togetherWith
                         slideOutHorizontally { width -> -width } + fadeOut()
                 }
-                // Main app navigation (Main -> Main, but handled by NavigationContent internally)
                 else -> {
                     EnterTransition.None togetherWith ExitTransition.None
                 }
@@ -106,7 +99,6 @@ fun MainContent(
                     currentStep = 1,
                     totalSteps = if (shouldShowFinalSetup) 3 else 2,
                     onPermissionsComplete = {
-                        // Check if at least one permission (contacts or files) is granted
                         val hasContactsPermission = context.checkSelfPermission(
                             android.Manifest.permission.READ_CONTACTS
                         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -149,7 +141,6 @@ fun MainContent(
                 BackHandler {
                     currentScreen = AppScreen.SearchEngineSetup
                 }
-                // Check permissions for the final setup screen
                 val hasContactsPermission = context.checkSelfPermission(
                     android.Manifest.permission.READ_CONTACTS
                 ) == android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -206,7 +197,6 @@ private fun NavigationContent(
     // Preserve scroll state for forward navigation but reset for back navigation
     val settingsScrollState = rememberScrollState()
 
-    // Reset scroll position when navigating back to search
     LaunchedEffect(destination) {
         if (destination == RootDestination.Search) {
             settingsScrollState.scrollTo(0)
@@ -232,11 +222,9 @@ private fun NavigationContent(
                     targetState = settingsDetailType,
                     transitionSpec = {
                         if (targetState != null) {
-                            // Navigate to Detail
                             slideInHorizontally { width -> width } + fadeIn() togetherWith
                                 slideOutHorizontally { width -> -width } + fadeOut()
                         } else {
-                            // Navigate back to Main Settings
                             slideInHorizontally { width -> -width } + fadeIn() togetherWith
                                 slideOutHorizontally { width -> width } + fadeOut()
                         }

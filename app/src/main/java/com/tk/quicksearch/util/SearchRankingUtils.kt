@@ -23,15 +23,7 @@ object SearchRankingUtils {
     /**
      * Calculates the match priority for a given text and query.
      * Returns a lower number for higher priority matches.
-     * 
-     * @param text The text to match against
-     * @param query The search query
-     * @return Priority level (1-4, where 1 is highest priority)
-     */
-    /**
-     * Calculates the match priority for a given text and query.
-     * Returns a lower number for higher priority matches.
-     * 
+     *
      * @param text The text to match against
      * @param query The search query
      * @return Priority level (1-4, where 1 is highest priority)

@@ -63,7 +63,6 @@ fun FinalSetupScreen(
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        // Fixed title and subtitle at top
         OnboardingHeader(
             title = stringResource(R.string.setup_final_title),
             currentStep = currentStep,
@@ -72,7 +71,6 @@ fun FinalSetupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Scrollable settings sections
         val scrollState = rememberScrollState()
         
         Column(
@@ -84,12 +82,10 @@ fun FinalSetupScreen(
         ) {
             // Show Direct Dial and/or Messaging App sections when contacts permission is granted
             if (hasContactsPermission) {
-                // Determine what to show based on call permission
                 val showDirectDial = hasCallPermission
                 val showMessagingApp = true // Always show when contacts permission is granted
                 
                 if (showDirectDial && showMessagingApp) {
-                    // Show the full MessagingSection with both options
                     MessagingSection(
                         messagingApp = uiState.messagingApp,
                         onSetMessagingApp = viewModel::setMessagingApp,
@@ -114,7 +110,6 @@ fun FinalSetupScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else if (showMessagingApp) {
-                    // Show only messaging app selection without direct dial
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = stringResource(R.string.settings_messaging_title),
@@ -241,10 +236,8 @@ fun FinalSetupScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Add padding above the button
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Fixed button at bottom
         Button(
             onClick = onContinue,
             modifier = Modifier

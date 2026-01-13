@@ -35,11 +35,6 @@ class AppUsageRepository(
 
     // ==================== Public API ====================
 
-    /**
-     * Checks if the app has been granted usage access permission.
-     * 
-     * @return true if usage access is granted, false otherwise
-     */
     fun hasUsageAccess(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
             ?: return false
@@ -65,23 +60,15 @@ class AppUsageRepository(
     /**
      * Loads app list from cache if available.
      * This is synchronous for instant loading during ViewModel initialization.
-     * 
+     *
      * @return Cached list of apps, or null if no cache exists
      */
     fun loadCachedApps(): List<AppInfo>? {
         return appCache.loadCachedApps()
     }
 
-    /**
-     * Returns the timestamp when the cache was last updated.
-     * 
-     * @return Timestamp in milliseconds, or 0L if cache has never been updated
-     */
     fun cacheLastUpdatedMillis(): Long = appCache.getLastUpdateTime()
 
-    /**
-     * Clears all cached app data.
-     */
     fun clearCache() {
         appCache.clearCache()
     }
@@ -112,18 +99,6 @@ class AppUsageRepository(
     }
 
     /**
-     * Extracts the most recently used apps from a list, sorted by usage time.
-     * 
-     * @param apps List of apps to extract from (may be unsorted)
-     * @param limit Maximum number of apps to return
-     * @return List of most recently used apps, up to the specified limit
-     */
-    fun extractMostUsedApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
-        if (apps.isEmpty() || limit <= 0) return emptyList()
-        return apps.sortedWith(AppInfoComparator).take(limit)
-    }
-
-    /**
      * Extracts the most recently opened apps from a list, sorted by last used timestamp.
      *
      * @param apps List of apps to extract from
@@ -137,9 +112,6 @@ class AppUsageRepository(
 
     // ==================== Private Helpers ====================
 
-    /**
-     * Queries the package manager for all launchable apps.
-     */
     private fun queryLaunchableApps(): List<ResolveInfo> {
         val launcherIntent = Intent(Intent.ACTION_MAIN, null).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)
@@ -156,9 +128,6 @@ class AppUsageRepository(
         }
     }
 
-    /**
-     * Creates an AppInfo object from a ResolveInfo and usage map.
-     */
     private fun createAppInfo(
         resolveInfo: ResolveInfo,
         usageMap: Map<String, UsageStats>,
@@ -193,19 +162,12 @@ class AppUsageRepository(
             ?: formatPackageNameAsLabel(packageName)
     }
 
-    /**
-     * Formats a package name into a readable label by extracting the last component
-     * and capitalizing the first letter.
-     */
     private fun formatPackageNameAsLabel(packageName: String): String {
         return packageName
             .substringAfterLast(".")
             .replaceFirstChar { it.titlecase(Locale.getDefault()) }
     }
 
-    /**
-     * Queries usage statistics for the last 30 days and aggregates them.
-     */
     private fun queryUsageStatsMap(): Map<String, UsageStats> {
         val manager = usageStatsManager ?: return emptyMap()
 

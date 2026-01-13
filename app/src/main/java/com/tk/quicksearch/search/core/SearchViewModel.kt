@@ -16,7 +16,6 @@ import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
-import com.tk.quicksearch.model.matches
 import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.apps.AppManagementHandler
 import com.tk.quicksearch.search.apps.AppSearchHandler
@@ -41,7 +40,6 @@ import com.tk.quicksearch.search.searchengines.WebSuggestionHandler
 import com.tk.quicksearch.search.searchengines.getDisplayNameResId
 import com.tk.quicksearch.search.settings.SettingsManagementHandler
 import com.tk.quicksearch.search.settings.SettingsSearchHandler
-import com.tk.quicksearch.util.CalculatorUtils // Keep if needed for static check, but likely moved
 import com.tk.quicksearch.util.FileUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
@@ -78,7 +76,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    // Management handlers - lazy initialize non-critical ones
     // Management handlers - lazy initialize non-critical ones
     val appManager by lazy { AppManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState) }
     val contactManager by lazy { ContactManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }

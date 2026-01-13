@@ -19,8 +19,7 @@ class SettingsManagementHandler(
 
     fun pinSetting(setting: SettingShortcut) {
         if (userPreferences.getExcludedSettingIds().contains(setting.id)) return
-        
-        // Update UI immediately
+
         onUiStateUpdate { state ->
             if (state.pinnedSettings.any { it.id == setting.id }) {
                 state
@@ -36,7 +35,6 @@ class SettingsManagementHandler(
     }
 
     fun unpinSetting(setting: SettingShortcut) {
-        // Update UI immediately
         onUiStateUpdate { state ->
             state.copy(
                 pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id }
@@ -49,7 +47,6 @@ class SettingsManagementHandler(
     }
 
     fun excludeSetting(setting: SettingShortcut) {
-        // Update UI immediately
         onUiStateUpdate { state ->
             state.copy(
                 settingResults = state.settingResults.filterNot { it.id == setting.id },
@@ -78,7 +75,6 @@ class SettingsManagementHandler(
     }
 
     fun removeExcludedSetting(setting: SettingShortcut) {
-        // Update UI immediately (optimistic)
         onUiStateUpdate { state ->
             state.copy(
                 excludedSettings = state.excludedSettings.filterNot { it.id == setting.id }

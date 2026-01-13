@@ -24,9 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 
-/**
- * Preview card showing how the widget will look with current settings.
- */
 @Composable
 fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
     val colors = calculatePreviewColors(state)
@@ -133,18 +130,12 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
     }
 }
 
-/**
- * Data class holding calculated colors for widget preview.
- */
 private data class PreviewColors(
     val background: Color,
     val border: Color,
     val textIcon: Color
 )
 
-/**
- * Calculates colors for widget preview based on current state.
- */
 @Composable
 private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): PreviewColors {
     val background = WidgetColorUtils.getBackgroundColor(

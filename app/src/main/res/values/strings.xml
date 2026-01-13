@@ -21,19 +21,11 @@
     <!-- ============================================================================
          Search Screen
          ============================================================================ -->
-    <string name="recent_apps_title">Recently used</string>
-    <string name="recent_apps_subtitle">Your latest launches stay pinned here for two quick rows.</string>
-    <string name="search_results_title">Matching apps</string>
-    <string name="search_results_subtitle">Matches for "%1$s"</string>
     <string name="empty_state_title">Nothing to show (yet)</string>
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
-    <string name="direct_search_title">Direct Search</string>
-    <string name="direct_search_loading">Getting answer\u2026</string>
     <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_search_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
-    <string name="direct_search_action_retry">Retry</string>
     <string name="direct_search_powered_by">Powered by </string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_open_search_engine">Unable to open %1$s</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
@@ -44,12 +36,9 @@
     <!-- ============================================================================
          Apps Section
          ============================================================================ -->
-    <string name="apps_section_title">Apps</string>
     <string name="usage_permission_title">Grant usage access</string>
     <string name="usage_permission_subtitle">If you want to see your recently used apps in suggestions, grant usage access.</string>
     <string name="settings_usage_permission_banner_message">Grant usage access to see app suggestions</string>
-    <string name="settings_contacts_permission_banner_message">Allow contacts permission to search through your contacts</string>
-    <string name="settings_files_permission_banner_message">Allow files permission to search through your documents and media</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="error_launch_app">Unable to open %1$s</string>
     <string name="error_uninstall_app">Unable to uninstall %1$s</string>
@@ -58,16 +47,12 @@
     <!-- ============================================================================
          Contacts Section
          ============================================================================ -->
-    <string name="contacts_section_title">Contacts</string>
     <string name="contacts_permission_title">Contacts search disabled</string>
     <string name="contacts_permission_subtitle">Grant Contacts permission to quickly search and act on people.</string>
     <string name="contacts_action_call">Call contact</string>
     <string name="contacts_action_sms">Message contact</string>
     <string name="contacts_action_whatsapp">WhatsApp contact</string>
     <string name="contacts_action_telegram">Telegram contact</string>
-    <string name="contacts_no_methods_available">No contact methods available</string>
-    <string name="contacts_action_google_meet">Google Meet</string>
-    <string name="contacts_action_view_in_contacts">View in contacts app</string>
     <string name="contacts_action_button_call">Call</string>
     <string name="contacts_action_button_message">Message</string>
     <string name="contacts_action_button_voice_call">Voice Call</string>
@@ -76,7 +61,7 @@
     <string name="contacts_action_button_meet">Meet</string>
     <string name="contacts_action_button_email">Email</string>
     <string name="contacts_action_button_contacts">Contacts</string>
-    <string name="contacts_action_view_contact">View contact</string>
+    <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_action_previous_number">Previous phone number</string>
     <string name="contacts_action_next_number">Next phone number</string>
     <string name="error_open_contact">Unable to open that contact</string>
@@ -102,17 +87,14 @@
     <!-- ============================================================================
          Files Section
          ============================================================================ -->
-    <string name="files_section_title">Files</string>
     <string name="files_permission_title">File search disabled</string>
     <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
-    <string name="files_action_open">Open file</string>
     <string name="error_open_file">Unable to open %1$s</string>
     <string name="error_open_setting">Unable to open %1$s</string>
 
     <!-- ============================================================================
          Settings Shortcuts
          ============================================================================ -->
-    <string name="settings_shortcuts_section_title">Settings</string>
     <string name="settings_shortcut_system">System settings</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_shortcut_bluetooth">Bluetooth</string>
@@ -154,7 +136,6 @@
          Common Actions
          ============================================================================ -->
     <string name="action_open_settings">Open settings</string>
-    <string name="action_grant_usage_access">Grant usage access permission to show recently used apps in suggestions</string>
     <string name="action_app_info">App Info</string>
     <string name="action_uninstall_app">Uninstall</string>
     <string name="action_hide_app">Exclude</string>
@@ -168,7 +149,6 @@
     <string name="action_remove">Remove</string>
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_edit_nickname">Edit Nickname</string>
-    <string name="action_remove_nickname">Remove nickname</string>
     <string name="action_expand_more">More</string>
     <string name="action_collapse">Collapse</string>
     <string name="permission_action_manage_android">Manage in Android settings</string>
@@ -197,11 +177,9 @@
     <string name="dialog_nickname_title_edit">Edit nickname</string>
     <string name="dialog_nickname_message">Enter a nickname for "%1$s". You can search for it using this nickname.</string>
     <string name="dialog_nickname_hint">Nickname</string>
-    <string name="dialog_nickname_remove">Remove</string>
     <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>
     <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Search feature.</string>
     <string name="dialog_direct_dial_title">Choose how to call</string>
-    <string name="dialog_direct_dial_message">How do you want to place calls?</string>
     <string name="dialog_direct_dial_option_direct">Call Directly</string>
     <string name="dialog_direct_dial_option_direct_desc">Place the call immediately (requires calling permission).</string>
     <string name="dialog_direct_dial_option_dialer">Open Dialer</string>
@@ -212,15 +190,10 @@
          Settings - General
          ============================================================================ -->
     <string name="settings_title">Settings</string>
-    <string name="settings_action_manage">Manage</string>
-    <string name="settings_action_refresh_now">Refresh now</string>
-    <string name="settings_action_clear_cache">Clear cache</string>
-    <string name="settings_action_open_system_settings">Open Android app settings</string>
     <string name="settings_action_move_up">Move to top</string>
     <string name="settings_action_move_down">Move to bottom</string>
     <string name="settings_action_reorder">Drag to reorder</string>
     <string name="settings_action_unhide_app">Unhide</string>
-    <string name="settings_action_edit_shortcut">Edit shortcut code</string>
     <string name="settings_action_clear_all">Clear All</string>
     <string name="settings_action_remove">Remove</string>
 
@@ -233,17 +206,11 @@
     <string name="settings_files_permission_title">Files</string>
     <string name="settings_call_permission_title">Calling</string>
     <string name="settings_usage_access_granted">Granted</string>
-    <string name="settings_usage_access_missing">Not granted</string>
     <string name="settings_permission_grant">Grant</string>
 
     <!-- ============================================================================
          Settings - App Index
          ============================================================================ -->
-    <string name="settings_section_index">App index</string>
-    <string name="settings_section_index_desc">The indexed list powers instant search results.</string>
-    <string name="settings_indexed_count">Indexed apps: %1$d</string>
-    <string name="settings_cache_last_updated">Last updated %1$s</string>
-    <string name="settings_cache_never_updated">Cache not created yet</string>
     <string name="settings_cache_cleared_toast">Cache cleared. Rebuilding app index\u2026</string>
     <string name="apps_refreshed_successfully">Apps refreshed successfully</string>
     <string name="contacts_refreshed_successfully">Contacts refreshed successfully</string>
@@ -253,10 +220,6 @@
     <!-- ============================================================================
          Settings - About
          ============================================================================ -->
-    <string name="settings_section_about">About</string>
-    <string name="settings_section_about_desc">Version details and Android controls.</string>
-    <string name="settings_app_version">Version %1$s</string>
-    <string name="settings_app_version_unknown">Unknown</string>
 
     <!-- ============================================================================
          Settings - Hidden Apps
@@ -269,21 +232,9 @@
          Settings - Appearance
          ============================================================================ -->
     <string name="settings_app_labels_title">Appearance</string>
-    <string name="settings_app_labels_desc">Choose whether app names show under icons.</string>
-    <string name="settings_app_labels_toggle">App Labels</string>
-    <string name="settings_app_labels_toggle_on_desc">App names appear below icons.</string>
-    <string name="settings_app_labels_toggle_off_desc">App names are hidden for a cleaner grid.</string>
-    <string name="settings_section_titles_toggle">Section Titles</string>
     <string name="settings_wallpaper_background_toggle">Wallpaper background</string>
-    <string name="settings_layout_toggle">Appearance</string>
-    <string name="settings_layout_option_top">Top</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
-    <string name="settings_theme_title">Theme</string>
-    <string name="settings_theme_desc">Choose your preferred color theme.</string>
-    <string name="settings_theme_option_system">System default</string>
-    <string name="settings_theme_option_light">Light</string>
-    <string name="settings_theme_option_dark">Dark</string>
     <string name="settings_icon_pack_title">Icon Pack</string>
     <string name="settings_icon_pack_selected_label">Current: %1$s</string>
     <string name="settings_icon_pack_empty">No icon packs found.</string>
@@ -300,7 +251,6 @@
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Customize your search engines (Google, ChatGPT, etc.).</string>
     <string name="request_search_engine_text">Request a search engine</string>
-    <string name="settings_search_engines_show_toggle">Show Search Engines</string>
     <string name="settings_search_engines_more_title">More</string>
 
     <string name="settings_search_engine_display_title">Search Engines Style</string>
@@ -308,19 +258,12 @@
     <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard as a horizontal list</string>
     <string name="settings_search_engine_display_inline_title">Inline</string>
     <string name="settings_search_engine_display_inline_desc">Shown as cards in the results area when there are no results</string>
-    <string name="settings_amazon_domain_title">Amazon Domain</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
-    <string name="settings_action_edit_amazon_domain">Edit Amazon Domain</string>
-    <string name="settings_gemini_api_key_title">Gemini API key</string>
-    <string name="settings_gemini_api_key_desc">Stored locally and used to power Direct Search.</string>
     <string name="settings_gemini_api_key_placeholder">Paste your API Key</string>
     <string name="settings_gemini_api_key_paste">Paste from clipboard</string>
-    <string name="settings_gemini_api_key_save">Save key</string>
     <string name="settings_gemini_api_key_add">Add Key</string>
-    <string name="settings_gemini_api_key_remove">Remove key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
-    <string name="settings_gemini_api_key_saved">Key saved</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_title">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want Gemini to use when generating answers.</string>
@@ -330,14 +273,8 @@
          ============================================================================ -->
     <string name="settings_shortcuts_title">Shortcuts</string>
     <string name="settings_shortcuts_desc">Adding shortcuts at the end of your query will start search instantly.</string>
-    <string name="settings_shortcuts_toggle">Shortcuts</string>
-    <string name="settings_shortcuts_toggle_on_desc">Add shortcuts at the end of your query to trigger search instantly.</string>
-    <string name="settings_shortcuts_toggle_off_desc">Shortcut codes are disabled.</string>
-    <string name="settings_shortcuts_hint">Adding a shortcut at the end of the query will trigger search instantly.</string>
     <string name="settings_shortcuts_hint_message">Tip: Add a search engine shortcut at the start or end of your query to quickly search with that engine.</string>
-    <string name="shortcut_triggered">%1$s search shortcut triggered</string>
     <string name="settings_shortcut_label">Shortcut:</string>
-    <string name="settings_shortcut_disabled">Shortcut disabled</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
     <string name="settings_direct_search_toggle">Direct Search Setup</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
@@ -401,7 +338,6 @@
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
-    <string name="settings_default_assistant_button">Set as Default Assistant</string>
     <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
     <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings tiles.</string>
     <string name="quick_settings_tile_label">Quick Search</string>
@@ -413,9 +349,6 @@
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
-    <string name="settings_excluded_items_more">More</string>
-    <string name="settings_excluded_items_show_less">Show Less</string>
-    <string name="excluded_item_type_app">App</string>
     <string name="excluded_item_type_app_suggestions">App (Suggestions)</string>
     <string name="excluded_item_type_app_results">App (Results)</string>
     <string name="excluded_item_type_contact">Contact</string>
@@ -428,13 +361,7 @@
          ============================================================================ -->
     <string name="widget_label_text">Quick Search</string>
     <string name="widget_settings_title">Quick Search Widget</string>
-    <string name="widget_preview_title">Live preview</string>
     <string name="widget_loading_state">Loading widget settings…</string>
-    <string name="widget_section_colors">Color presets</string>
-    <string name="widget_section_light_wallpapers">For light wallpapers</string>
-    <string name="widget_section_dark_wallpapers">For dark wallpapers</string>
-    <string name="widget_section_style">Style</string>
-    <string name="widget_section_text">Text</string>
     <string name="widget_slider_radius">Corner Radius</string>
     <string name="widget_slider_border">Border Thickness</string>
     <string name="widget_slider_transparency">Transparency</string>
@@ -452,14 +379,7 @@
     <string name="widget_background_white">White</string>
     <string name="widget_background_black">Black</string>
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
-    <string name="widget_action_save">Save widget</string>
     <string name="widget_action_cancel">Cancel</string>
-    <string name="widget_preset_dawn">Dawn Frost</string>
-    <string name="widget_preset_canvas">Soft Canvas</string>
-    <string name="widget_preset_sunrise">Warm Sunrise</string>
-    <string name="widget_preset_ember">Deep Ember</string>
-    <string name="widget_preset_midnight">Midnight Neon</string>
-    <string name="widget_preset_void">Carbon Mist</string>
     <string name="desc_voice_search_icon">Start voice search</string>
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
 
@@ -476,7 +396,6 @@
     <string name="permissions_files_desc">Required to search through your documents and other files.</string>
     <string name="permissions_calling_title">Calling</string>
     <string name="permissions_calling_desc">Required to call your contacts.</string>
-    <string name="permissions_action_grant">Grant Permission</string>
     <string name="permissions_privacy_notice"></string>
     <string name="permissions_action_continue">Continue</string>
     <string name="permissions_granted">Granted</string>
@@ -489,7 +408,6 @@
          ============================================================================ -->
     <string name="setup_search_engines_title">Search Engines</string>
     <string name="setup_search_engines_subtitle">Enable search engines you need and reorder them as you like.</string>
-    <string name="setup_action_continue">Done</string>
     <string name="setup_action_next">Next</string>
     <string name="setup_action_start">Start Searching!</string>
 
@@ -497,7 +415,6 @@
          Final Setup Screen
          ============================================================================ -->
     <string name="setup_final_title">Almost Done!</string>
-    <string name="setup_final_subtitle"></string>
 
     <!-- ============================================================================
          Release Notes
@@ -541,7 +458,6 @@
          ============================================================================ -->
     <string name="search_engine_onboarding_title">Search Engines</string>
     <string name="search_engine_onboarding_description">When you type your search query and tap on any of these search engines, it will trigger search within these apps. You can modify them by long pressing.</string>
-    <string name="search_engine_onboarding_got_it">Got it</string>
     <string name="search_on_engine">Search on %1$s</string>
 
     <!-- ============================================================================
