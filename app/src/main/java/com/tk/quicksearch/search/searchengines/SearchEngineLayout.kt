@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.searchengines
+package com.tk.quicksearch.search.searchEngines
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout

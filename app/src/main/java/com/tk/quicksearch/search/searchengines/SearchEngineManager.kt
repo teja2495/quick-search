@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.searchengines
+package com.tk.quicksearch.search.searchEngines
 
 import android.content.Context
 import android.content.pm.PackageManager

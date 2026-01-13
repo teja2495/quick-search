@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.handlers
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.searchengines.DirectSearchHandler
+import com.tk.quicksearch.search.searchEngines.DirectSearchHandler
 import com.tk.quicksearch.search.handlers.ShortcutValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.handlers.ShortcutValidator.isValidShortcutCode
 import kotlinx.coroutines.CoroutineScope

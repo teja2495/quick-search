@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.searchengines
+package com.tk.quicksearch.search.searchEngines
 
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchUiState

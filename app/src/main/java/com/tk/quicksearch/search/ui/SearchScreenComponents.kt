@@ -79,8 +79,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchengines.getDisplayNameResId
-import com.tk.quicksearch.search.searchengines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.search.searchEngines.getDrawableResId
 import com.tk.quicksearch.util.hapticStrong
 
 @Composable

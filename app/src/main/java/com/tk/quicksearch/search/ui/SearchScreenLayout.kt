@@ -35,7 +35,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchengines.*
+import com.tk.quicksearch.search.searchEngines.*
 
 /**
  * Data class holding all the state needed for section rendering.

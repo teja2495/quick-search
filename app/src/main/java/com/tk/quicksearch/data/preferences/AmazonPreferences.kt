@@ -2,7 +2,7 @@ package com.tk.quicksearch.data.preferences
 
 import android.content.Context
 
-import com.tk.quicksearch.search.searchengines.isValidAmazonDomain
+import com.tk.quicksearch.search.searchEngines.isValidAmazonDomain
 
 /**
  * Preferences for Amazon domain-related settings.

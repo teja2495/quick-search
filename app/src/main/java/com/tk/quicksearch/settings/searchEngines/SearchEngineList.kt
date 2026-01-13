@@ -45,7 +45,7 @@ import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchengines.*
+import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn

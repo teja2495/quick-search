@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.searchengines
+package com.tk.quicksearch.search.searchEngines
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

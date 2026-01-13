@@ -23,7 +23,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.searchengines.SearchEngineIconsSection
+import com.tk.quicksearch.search.searchEngines.SearchEngineIconsSection
 import com.tk.quicksearch.util.CalculatorUtils
 
 @Composable

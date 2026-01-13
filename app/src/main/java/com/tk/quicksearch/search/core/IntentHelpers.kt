@@ -9,9 +9,9 @@ import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.search.searchengines.buildSearchUrl
+import com.tk.quicksearch.search.searchEngines.buildSearchUrl
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchengines.getDisplayNameResId
+import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
 
 /**
  * Helper functions for creating and launching intents.

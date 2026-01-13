@@ -32,8 +32,8 @@ import com.tk.quicksearch.settings.searchEngines.SearchEngineDivider
 import com.tk.quicksearch.settings.searchEngines.SearchEngineSettingsSpacing
 import com.tk.quicksearch.settings.searchEngines.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.searchengines.getDisplayName
-import com.tk.quicksearch.search.searchengines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.getDisplayName
+import com.tk.quicksearch.search.searchEngines.getDrawableResId
 
 /**
  * Section for managing shortcuts separately.

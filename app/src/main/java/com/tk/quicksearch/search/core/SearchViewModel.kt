@@ -33,11 +33,11 @@ import com.tk.quicksearch.search.handlers.NavigationHandler
 import com.tk.quicksearch.search.handlers.PinningHandler
 import com.tk.quicksearch.search.handlers.ReleaseNotesHandler
 import com.tk.quicksearch.search.handlers.ShortcutHandler
-import com.tk.quicksearch.search.searchengines.DirectSearchHandler
-import com.tk.quicksearch.search.searchengines.SearchEngineManager
-import com.tk.quicksearch.search.searchengines.SecondarySearchOrchestrator
-import com.tk.quicksearch.search.searchengines.WebSuggestionHandler
-import com.tk.quicksearch.search.searchengines.getDisplayNameResId
+import com.tk.quicksearch.search.searchEngines.DirectSearchHandler
+import com.tk.quicksearch.search.searchEngines.SearchEngineManager
+import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
+import com.tk.quicksearch.search.searchEngines.WebSuggestionHandler
+import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
 import com.tk.quicksearch.search.settings.SettingsManagementHandler
 import com.tk.quicksearch.search.settings.SettingsSearchHandler
 import com.tk.quicksearch.util.FileUtils

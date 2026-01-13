@@ -3,7 +3,7 @@ package com.tk.quicksearch.data.preferences
 import android.content.Context
 
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchengines.getDefaultShortcutCode
+import com.tk.quicksearch.search.searchEngines.getDefaultShortcutCode
 import com.tk.quicksearch.search.handlers.ShortcutValidator.isValidShortcutCode
 import com.tk.quicksearch.search.handlers.ShortcutValidator.normalizeShortcutCodeInput
 
