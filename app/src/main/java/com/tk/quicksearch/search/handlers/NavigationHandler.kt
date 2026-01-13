@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.handlers
 
 import android.app.Application
 import android.content.Context
-import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
@@ -21,7 +20,7 @@ class NavigationHandler(
     private val onRequestDirectSearch: (String) -> Unit,
     private val onClearQuery: () -> Unit,
     private val clearQueryAfterSearchEngine: Boolean,
-    private val uiFeedbackService: com.tk.quicksearch.interfaces.UiFeedbackService
+    private val showToastCallback: (Int) -> Unit
 ) {
     private val context: Context get() = application.applicationContext
 
@@ -54,7 +53,7 @@ class NavigationHandler(
         IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
         userPreferences.incrementAppLaunchCount(appInfo.packageName)
         onClearQuery()
@@ -68,7 +67,7 @@ class NavigationHandler(
         IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
     }
 
@@ -86,7 +85,7 @@ class NavigationHandler(
         IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
 
         // Save the query to recent queries
@@ -108,7 +107,7 @@ class NavigationHandler(
         IntentHelpers.openFile(application, deviceFile) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
         if (clearQueryAfterSearchEngine) {
             onClearQuery()
@@ -122,7 +121,7 @@ class NavigationHandler(
 
     fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {
         ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
         if (clearQueryAfter) {
             onClearQuery()
@@ -131,7 +130,7 @@ class NavigationHandler(
 
     fun openEmail(email: String) {
         ContactIntentHelpers.composeEmail(application, email) { stringResId ->
-            uiFeedbackService.showToast(stringResId)
+            showToastCallback(stringResId)
         }
     }
 }

@@ -62,11 +62,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val settingsShortcutRepository by lazy { SettingsShortcutRepository(application.applicationContext) }
     private val userPreferences by lazy { UserAppPreferences(application.applicationContext) }
 
-    // New services - initialized after handlers
-    private lateinit var uiFeedbackService: com.tk.quicksearch.services.UiFeedbackServiceImpl
-    private lateinit var navigationService: com.tk.quicksearch.services.NavigationServiceImpl
-    private lateinit var permissionService: com.tk.quicksearch.services.PermissionServiceImpl
-    private lateinit var searchOperationsService: com.tk.quicksearch.services.SearchOperationsServiceImpl
 
     private val permissionManager by lazy { PermissionManager(contactRepository, fileRepository, userPreferences) }
     private val searchOperations by lazy { SearchOperations(contactRepository, fileRepository) }
@@ -136,7 +131,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             onLoadingStateChanged = { isLoading, error ->
                 _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
             },
-            uiFeedbackService = uiFeedbackService
+            showToastCallback = this::showToast
         )
     }
 
@@ -146,7 +141,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             repository = settingsShortcutRepository,
             userPreferences = userPreferences,
             scope = viewModelScope,
-            uiFeedbackService = uiFeedbackService
+            showToastCallback = this::showToast
         )
     }
 
@@ -210,6 +205,26 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         pendingNavigationClear = true
     }
 
+    private fun showToast(messageResId: Int) {
+        Toast.makeText(getApplication(), messageResId, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun hasContactPermission(): Boolean {
+        return contactRepository.hasPermission()
+    }
+
+    private fun hasFilePermission(): Boolean {
+        return fileRepository.hasPermission()
+    }
+
+    private fun hasCallPermission(): Boolean {
+        return PermissionRequestHandler.checkCallPermission(getApplication())
+    }
+
     fun handleOnStop() {
         if (pendingNavigationClear) {
             clearQuery()
@@ -222,9 +237,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun initializeServices() {
         val app = getApplication<Application>()
-        uiFeedbackService = com.tk.quicksearch.services.UiFeedbackServiceImpl(app.applicationContext)
 
-        // Initialize NavigationHandler with new service
+        // Initialize NavigationHandler
         navigationHandler = NavigationHandler(
             application = app,
             userPreferences = userPreferences,
@@ -232,28 +246,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             onRequestDirectSearch = { query -> directSearchHandler.requestDirectSearch(query) },
             onClearQuery = this::onNavigationTriggered,
             clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
-            uiFeedbackService = uiFeedbackService
-        )
-
-        navigationService = com.tk.quicksearch.services.NavigationServiceImpl(
-            app,
-            userPreferences,
-            settingsSearchHandler,
-            directSearchHandler::requestDirectSearch,
-            this::onNavigationTriggered,
-            clearQueryAfterSearchEngine,
-            uiFeedbackService
-        )
-        permissionService = com.tk.quicksearch.services.PermissionServiceImpl(
-            app,
-            contactRepository,
-            fileRepository,
-            userPreferences
-        )
-        searchOperationsService = com.tk.quicksearch.services.SearchOperationsServiceImpl(
-            contactRepository,
-            fileRepository,
-            userPreferences
+            showToastCallback = this::showToast
         )
 
         // Initialize ContactActionHandler with uiFeedbackService
@@ -267,7 +260,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             getCurrentState = { _uiState.value },
             uiStateUpdater = { update -> _uiState.update(update) },
             clearQuery = this::onNavigationTriggered,
-            uiFeedbackService = uiFeedbackService
+            showToastCallback = this::showToast
         )
     }
 
@@ -663,7 +656,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(contactResults = emptyList()) }
         // Show success toast only for user-triggered refreshes
         if (showToast) {
-            uiFeedbackService.showToast(R.string.contacts_refreshed_successfully)
+            showToast(R.string.contacts_refreshed_successfully)
         }
     }
 
@@ -673,7 +666,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(fileResults = emptyList()) }
         // Show success toast only for user-triggered refreshes
         if (showToast) {
-            uiFeedbackService.showToast(R.string.files_refreshed_successfully)
+            showToast(R.string.files_refreshed_successfully)
         }
     }
 
@@ -863,19 +856,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
 
     // Navigation Delegates
-    fun openUsageAccessSettings() = navigationService.openUsageAccessSettings()
-    fun openAppSettings() = navigationService.openAppSettings()
-    fun openAllFilesAccessSettings() = navigationService.openAllFilesAccessSettings()
-    fun openFilesPermissionSettings() = navigationService.openFilesPermissionSettings()
-    fun openContactPermissionSettings() = navigationService.openContactPermissionSettings()
-    fun launchApp(appInfo: AppInfo) = navigationService.launchApp(appInfo)
-    fun openAppInfo(appInfo: AppInfo) = navigationService.openAppInfo(appInfo)
-    fun requestUninstall(appInfo: AppInfo) = navigationService.requestUninstall(appInfo)
-    fun openSearchUrl(query: String, searchEngine: SearchEngine) = navigationService.openSearchUrl(query, searchEngine, clearQueryAfterSearchEngine)
-    fun searchIconPacks() = navigationService.searchIconPacks(clearQueryAfterSearchEngine)
-    fun openFile(deviceFile: DeviceFile) = navigationService.openFile(deviceFile)
-    fun openContact(contactInfo: ContactInfo) = navigationService.openContact(contactInfo, clearQueryAfterSearchEngine)
-    fun openEmail(email: String) = navigationService.openEmail(email)
+    fun openUsageAccessSettings() = navigationHandler.openUsageAccessSettings()
+    fun openAppSettings() = navigationHandler.openAppSettings()
+    fun openAllFilesAccessSettings() = navigationHandler.openAllFilesAccessSettings()
+    fun openFilesPermissionSettings() = navigationHandler.openFilesPermissionSettings()
+    fun openContactPermissionSettings() = navigationHandler.openContactPermissionSettings()
+    fun launchApp(appInfo: AppInfo) = navigationHandler.launchApp(appInfo)
+    fun openAppInfo(appInfo: AppInfo) = navigationHandler.openAppInfo(appInfo)
+    fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
+    fun openSearchUrl(query: String, searchEngine: SearchEngine) = navigationHandler.openSearchUrl(query, searchEngine, clearQueryAfterSearchEngine)
+    fun searchIconPacks() = navigationHandler.searchIconPacks(clearQueryAfterSearchEngine)
+    fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
+    fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo, clearQueryAfterSearchEngine)
+    fun openEmail(email: String) = navigationHandler.openEmail(email)
 
     // App Management Delegates
     fun hideApp(appInfo: AppInfo) = appManager.hideApp(appInfo, _uiState.value.query.isNotBlank())
@@ -937,7 +930,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             // If trying to enable, check if files permission is granted
-            if (showWallpaper && !permissionService.hasFilePermission()) {
+            if (showWallpaper && !hasFilePermission()) {
                 // Don't enable if files permission is not granted
                 // The caller should request permission first
                 return@launch
@@ -1179,9 +1172,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun refreshOptionalPermissions(): Boolean {
-        val hasContacts = permissionService.hasContactPermission()
-        val hasFiles = permissionService.hasFilePermission()
-        val hasCall = permissionService.hasCallPermission()
+        val hasContacts = hasContactPermission()
+        val hasFiles = hasFilePermission()
+        val hasCall = hasCallPermission()
         val previousState = _uiState.value
         val changed =
             previousState.hasContactPermission != hasContacts || 
