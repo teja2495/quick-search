@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.settings
+package com.tk.quicksearch.search.options
 
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.SettingShortcut

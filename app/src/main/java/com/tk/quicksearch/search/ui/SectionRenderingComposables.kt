@@ -8,7 +8,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.files.FileResultsSection
-import com.tk.quicksearch.search.settings.SettingsResultsSection
+import com.tk.quicksearch.search.options.SettingsResultsSection
 import com.tk.quicksearch.search.ui.AppsSectionParams
 import com.tk.quicksearch.search.ui.SettingsSectionParams
 

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.settings
+package com.tk.quicksearch.search.options
 
 import android.content.Context
 import com.tk.quicksearch.R

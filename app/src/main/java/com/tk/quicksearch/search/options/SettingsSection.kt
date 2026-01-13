@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.settings
+package com.tk.quicksearch.search.options
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable

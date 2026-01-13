@@ -38,8 +38,8 @@ import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.WebSuggestionHandler
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
-import com.tk.quicksearch.search.settings.SettingsManagementHandler
-import com.tk.quicksearch.search.settings.SettingsSearchHandler
+import com.tk.quicksearch.search.options.SettingsManagementHandler
+import com.tk.quicksearch.search.options.SettingsSearchHandler
 import com.tk.quicksearch.util.FileUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CancellationException

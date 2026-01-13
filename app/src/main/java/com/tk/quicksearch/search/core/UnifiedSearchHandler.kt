@@ -3,7 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.data.ContactRepository
 import com.tk.quicksearch.data.FileSearchRepository
 import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.search.settings.SettingsSearchHandler
+import com.tk.quicksearch.search.options.SettingsSearchHandler
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType

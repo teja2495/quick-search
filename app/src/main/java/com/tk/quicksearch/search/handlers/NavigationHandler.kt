@@ -10,7 +10,7 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.contacts.ContactIntentHelpers
-import com.tk.quicksearch.search.settings.SettingsSearchHandler
+import com.tk.quicksearch.search.options.SettingsSearchHandler
 import com.tk.quicksearch.model.SettingShortcut
 
 class NavigationHandler(
