@@ -9,6 +9,11 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
 
     companion object {
         private const val MAX_RECENT_QUERIES = 10
+
+        // Recent queries preferences keys
+        const val KEY_RECENT_QUERIES = "recent_queries"
+        const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
+        const val KEY_RECENT_QUERIES_COUNT = "recent_queries_count"
     }
 
     // ============================================================================
@@ -20,7 +25,7 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
      * Returns an empty list if no recent queries exist.
      */
     fun getRecentQueries(): List<String> {
-        return getStringListPref(KEY_RECENT_QUERIES)
+        return getStringListPref(RecentQueriesPreferences.KEY_RECENT_QUERIES)
     }
 
     /**
@@ -33,24 +38,24 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
         if (trimmedQuery.isEmpty()) return
 
         val currentQueries = getRecentQueries().toMutableList()
-        
+
         // Remove if it already exists (we'll add it to the front)
         currentQueries.remove(trimmedQuery)
-        
+
         // Add to the front
         currentQueries.add(0, trimmedQuery)
-        
+
         // Keep only the last MAX_RECENT_QUERIES
         val limitedQueries = currentQueries.take(MAX_RECENT_QUERIES)
-        
-        setStringListPref(KEY_RECENT_QUERIES, limitedQueries)
+
+        setStringListPref(RecentQueriesPreferences.KEY_RECENT_QUERIES, limitedQueries)
     }
 
     /**
      * Clear all recent queries.
      */
     fun clearRecentQueries() {
-        setStringListPref(KEY_RECENT_QUERIES, emptyList())
+        setStringListPref(RecentQueriesPreferences.KEY_RECENT_QUERIES, emptyList())
     }
 
     /**
@@ -59,7 +64,7 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
     fun deleteRecentQuery(query: String) {
         val currentQueries = getRecentQueries().toMutableList()
         currentQueries.remove(query)
-        setStringListPref(KEY_RECENT_QUERIES, currentQueries)
+        setStringListPref(RecentQueriesPreferences.KEY_RECENT_QUERIES, currentQueries)
     }
 
     /**
@@ -67,14 +72,14 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
      * Default is true.
      */
     fun areRecentQueriesEnabled(): Boolean {
-        return getBooleanPref(KEY_RECENT_QUERIES_ENABLED, true)
+        return getBooleanPref(RecentQueriesPreferences.KEY_RECENT_QUERIES_ENABLED, true)
     }
 
     /**
      * Set whether recent queries feature is enabled.
      */
     fun setRecentQueriesEnabled(enabled: Boolean) {
-        setBooleanPref(KEY_RECENT_QUERIES_ENABLED, enabled)
+        setBooleanPref(RecentQueriesPreferences.KEY_RECENT_QUERIES_ENABLED, enabled)
     }
 
     /**
@@ -82,13 +87,13 @@ class RecentQueriesPreferences(context: Context) : BasePreferences(context) {
      * Default is 3.
      */
     fun getRecentQueriesCount(): Int {
-        return prefs.getInt(KEY_RECENT_QUERIES_COUNT, 3)
+        return prefs.getInt(RecentQueriesPreferences.KEY_RECENT_QUERIES_COUNT, 3)
     }
 
     /**
      * Set the maximum number of recent queries to show.
      */
     fun setRecentQueriesCount(count: Int) {
-        prefs.edit().putInt(KEY_RECENT_QUERIES_COUNT, count).apply()
+        prefs.edit().putInt(RecentQueriesPreferences.KEY_RECENT_QUERIES_COUNT, count).apply()
     }
 }

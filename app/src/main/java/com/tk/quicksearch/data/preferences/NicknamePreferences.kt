@@ -14,11 +14,11 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     fun getAppNickname(packageName: String): String? {
-        return prefs.getString("$KEY_NICKNAME_APP_PREFIX$packageName", null)
+        return prefs.getString("${NicknamePreferences.KEY_NICKNAME_APP_PREFIX}$packageName", null)
     }
 
     fun setAppNickname(packageName: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_APP_PREFIX$packageName"
+        val key = "${NicknamePreferences.KEY_NICKNAME_APP_PREFIX}$packageName"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
         } else {
@@ -30,8 +30,8 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
         val allPrefs = prefs.all
         val nicknames = mutableMapOf<String, String>()
         for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_APP_PREFIX) && value is String) {
-                val packageName = key.removePrefix(KEY_NICKNAME_APP_PREFIX)
+            if (key.startsWith(NicknamePreferences.KEY_NICKNAME_APP_PREFIX) && value is String) {
+                val packageName = key.removePrefix(NicknamePreferences.KEY_NICKNAME_APP_PREFIX)
                 nicknames[packageName] = value
             }
         }
@@ -39,11 +39,11 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
     }
 
     fun getContactNickname(contactId: Long): String? {
-        return prefs.getString("$KEY_NICKNAME_CONTACT_PREFIX$contactId", null)
+        return prefs.getString("${NicknamePreferences.KEY_NICKNAME_CONTACT_PREFIX}$contactId", null)
     }
 
     fun setContactNickname(contactId: Long, nickname: String?) {
-        val key = "$KEY_NICKNAME_CONTACT_PREFIX$contactId"
+        val key = "${NicknamePreferences.KEY_NICKNAME_CONTACT_PREFIX}$contactId"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
         } else {
@@ -52,11 +52,11 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
     }
 
     fun getFileNickname(uri: String): String? {
-        return prefs.getString("$KEY_NICKNAME_FILE_PREFIX$uri", null)
+        return prefs.getString("${NicknamePreferences.KEY_NICKNAME_FILE_PREFIX}$uri", null)
     }
 
     fun setFileNickname(uri: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_FILE_PREFIX$uri"
+        val key = "${NicknamePreferences.KEY_NICKNAME_FILE_PREFIX}$uri"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
         } else {
@@ -65,11 +65,11 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
     }
 
     fun getSettingNickname(id: String): String? {
-        return prefs.getString("$KEY_NICKNAME_SETTING_PREFIX$id", null)
+        return prefs.getString("${NicknamePreferences.KEY_NICKNAME_SETTING_PREFIX}$id", null)
     }
 
     fun setSettingNickname(id: String, nickname: String?) {
-        val key = "$KEY_NICKNAME_SETTING_PREFIX$id"
+        val key = "${NicknamePreferences.KEY_NICKNAME_SETTING_PREFIX}$id"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
         } else {
@@ -88,10 +88,10 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
         val allPrefs = prefs.all
 
         for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_CONTACT_PREFIX) && value is String) {
+            if (key.startsWith(NicknamePreferences.KEY_NICKNAME_CONTACT_PREFIX) && value is String) {
                 val nickname = value.lowercase(Locale.getDefault())
                 if (nickname.contains(normalizedQuery)) {
-                    val contactIdStr = key.removePrefix(KEY_NICKNAME_CONTACT_PREFIX)
+                    val contactIdStr = key.removePrefix(NicknamePreferences.KEY_NICKNAME_CONTACT_PREFIX)
                     contactIdStr.toLongOrNull()?.let { matchingContactIds.add(it) }
                 }
             }
@@ -111,10 +111,10 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
         val allPrefs = prefs.all
 
         for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_FILE_PREFIX) && value is String) {
+            if (key.startsWith(NicknamePreferences.KEY_NICKNAME_FILE_PREFIX) && value is String) {
                 val nickname = value.lowercase(Locale.getDefault())
                 if (nickname.contains(normalizedQuery)) {
-                    val fileUri = key.removePrefix(KEY_NICKNAME_FILE_PREFIX)
+                    val fileUri = key.removePrefix(NicknamePreferences.KEY_NICKNAME_FILE_PREFIX)
                     matchingFileUris.add(fileUri)
                 }
             }
@@ -134,15 +134,23 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
         val allPrefs = prefs.all
 
         for ((key, value) in allPrefs) {
-            if (key.startsWith(KEY_NICKNAME_SETTING_PREFIX) && value is String) {
+            if (key.startsWith(NicknamePreferences.KEY_NICKNAME_SETTING_PREFIX) && value is String) {
                 val nickname = value.lowercase(Locale.getDefault())
                 if (nickname.contains(normalizedQuery)) {
-                    val id = key.removePrefix(KEY_NICKNAME_SETTING_PREFIX)
+                    val id = key.removePrefix(NicknamePreferences.KEY_NICKNAME_SETTING_PREFIX)
                     matchingSettingIds.add(id)
                 }
             }
         }
 
         return matchingSettingIds
+    }
+
+    companion object {
+        // Nickname preferences keys
+        const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
+        const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
+        const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
+        const val KEY_NICKNAME_SETTING_PREFIX = "nickname_setting_"
     }
 }

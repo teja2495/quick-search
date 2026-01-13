@@ -13,42 +13,42 @@ class FilePreferences(context: Context) : BasePreferences(context) {
     // File Preferences
     // ============================================================================
 
-    fun getPinnedFileUris(): Set<String> = getStringSet(KEY_PINNED_FILE_URIS)
+    fun getPinnedFileUris(): Set<String> = getStringSet(FilePreferences.KEY_PINNED_FILE_URIS)
 
-    fun getExcludedFileUris(): Set<String> = getStringSet(KEY_EXCLUDED_FILE_URIS)
+    fun getExcludedFileUris(): Set<String> = getStringSet(FilePreferences.KEY_EXCLUDED_FILE_URIS)
 
-    fun pinFile(uri: String): Set<String> = updateStringSet(KEY_PINNED_FILE_URIS) {
+    fun pinFile(uri: String): Set<String> = updateStringSet(FilePreferences.KEY_PINNED_FILE_URIS) {
         it.add(uri)
     }
 
-    fun unpinFile(uri: String): Set<String> = updateStringSet(KEY_PINNED_FILE_URIS) {
+    fun unpinFile(uri: String): Set<String> = updateStringSet(FilePreferences.KEY_PINNED_FILE_URIS) {
         it.remove(uri)
     }
 
-    fun excludeFile(uri: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_URIS) {
+    fun excludeFile(uri: String): Set<String> = updateStringSet(FilePreferences.KEY_EXCLUDED_FILE_URIS) {
         it.add(uri)
     }
 
-    fun removeExcludedFile(uri: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_URIS) {
+    fun removeExcludedFile(uri: String): Set<String> = updateStringSet(FilePreferences.KEY_EXCLUDED_FILE_URIS) {
         it.remove(uri)
     }
 
-    fun clearAllExcludedFiles(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_URIS)
+    fun clearAllExcludedFiles(): Set<String> = clearStringSet(FilePreferences.KEY_EXCLUDED_FILE_URIS)
 
-    fun getExcludedFileExtensions(): Set<String> = getStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+    fun getExcludedFileExtensions(): Set<String> = getStringSet(FilePreferences.KEY_EXCLUDED_FILE_EXTENSIONS)
 
-    fun addExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
+    fun addExcludedFileExtension(extension: String): Set<String> = updateStringSet(FilePreferences.KEY_EXCLUDED_FILE_EXTENSIONS) {
         it.add(extension.lowercase().removePrefix("."))
     }
 
-    fun removeExcludedFileExtension(extension: String): Set<String> = updateStringSet(KEY_EXCLUDED_FILE_EXTENSIONS) {
+    fun removeExcludedFileExtension(extension: String): Set<String> = updateStringSet(FilePreferences.KEY_EXCLUDED_FILE_EXTENSIONS) {
         it.remove(extension.lowercase().removePrefix("."))
     }
 
-    fun clearAllExcludedFileExtensions(): Set<String> = clearStringSet(KEY_EXCLUDED_FILE_EXTENSIONS)
+    fun clearAllExcludedFileExtensions(): Set<String> = clearStringSet(FilePreferences.KEY_EXCLUDED_FILE_EXTENSIONS)
 
     fun getEnabledFileTypes(): Set<FileType> {
-        val enabledNames = prefs.getStringSet(KEY_ENABLED_FILE_TYPES, null)
+        val enabledNames = prefs.getStringSet(FilePreferences.KEY_ENABLED_FILE_TYPES, null)
         return if (enabledNames == null) {
             // Default: all file types enabled except OTHER
             FileType.values().filter { it != FileType.OTHER }.toSet()
@@ -69,6 +69,14 @@ class FilePreferences(context: Context) : BasePreferences(context) {
     }
 
     fun setEnabledFileTypes(enabled: Set<FileType>) {
-        prefs.edit().putStringSet(KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
+        prefs.edit().putStringSet(FilePreferences.KEY_ENABLED_FILE_TYPES, enabled.map { it.name }.toSet()).apply()
+    }
+
+    companion object {
+        // File preferences keys
+        const val KEY_PINNED_FILE_URIS = "pinned_file_uris"
+        const val KEY_EXCLUDED_FILE_URIS = "excluded_file_uris"
+        const val KEY_EXCLUDED_FILE_EXTENSIONS = "excluded_file_extensions"
+        const val KEY_ENABLED_FILE_TYPES = "enabled_file_types"
     }
 }

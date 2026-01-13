@@ -49,7 +49,7 @@ data class SettingsScreenState(
     val isTelegramInstalled: Boolean,
     val showWallpaperBackground: Boolean,
     val selectedIconPackPackage: String? = null,
-    val availableIconPacks: List<IconPackInfo> = emptyList(),
+    val availableIconPacks: List<com.tk.quicksearch.search.core.IconPackInfo> = emptyList(),
     val clearQueryAfterSearchEngine: Boolean,
     val showAllResults: Boolean,
     val sortAppsByUsageEnabled: Boolean,

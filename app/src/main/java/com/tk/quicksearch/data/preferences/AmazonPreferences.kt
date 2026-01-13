@@ -14,12 +14,12 @@ class AmazonPreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     fun getAmazonDomain(): String? {
-        return prefs.getString(KEY_AMAZON_DOMAIN, null)
+        return prefs.getString(AmazonPreferences.KEY_AMAZON_DOMAIN, null)
     }
 
     fun setAmazonDomain(domain: String?) {
         if (domain.isNullOrBlank()) {
-            prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
+            prefs.edit().remove(AmazonPreferences.KEY_AMAZON_DOMAIN).apply()
         } else {
             // Normalize domain (remove protocol, www, trailing slashes)
             val normalizedDomain = domain.trim()
@@ -30,11 +30,16 @@ class AmazonPreferences(context: Context) : BasePreferences(context) {
 
             // Validate domain before saving
             if (isValidAmazonDomain(normalizedDomain)) {
-                prefs.edit().putString(KEY_AMAZON_DOMAIN, normalizedDomain).apply()
+                prefs.edit().putString(AmazonPreferences.KEY_AMAZON_DOMAIN, normalizedDomain).apply()
             } else {
                 // Invalid domain - don't save, just remove the existing one
-                prefs.edit().remove(KEY_AMAZON_DOMAIN).apply()
+                prefs.edit().remove(AmazonPreferences.KEY_AMAZON_DOMAIN).apply()
             }
         }
+    }
+
+    companion object {
+        // Amazon domain preferences keys
+        const val KEY_AMAZON_DOMAIN = "amazon_domain"
     }
 }
