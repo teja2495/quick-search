@@ -20,14 +20,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.permissions.PermissionsScreen
+import com.tk.quicksearch.onboarding.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.ui.SearchRoute
 import com.tk.quicksearch.settings.main.SettingsDetailRoute
 import com.tk.quicksearch.settings.main.SettingsDetailType
 import com.tk.quicksearch.settings.main.SettingsRoute
-import com.tk.quicksearch.setup.SearchEngineSetupScreen
-import com.tk.quicksearch.setup.FinalSetupScreen
+import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
+import com.tk.quicksearch.onboarding.FinalSetupScreen
 
 enum class RootDestination {
     Search,

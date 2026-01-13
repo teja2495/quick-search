@@ -6,7 +6,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.onboarding.PermissionRequestHandler
 import com.tk.quicksearch.search.contacts.ContactIntentHelpers
 import com.tk.quicksearch.search.core.DirectDialChoice
 import com.tk.quicksearch.search.core.DirectDialOption

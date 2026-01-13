@@ -1,4 +1,4 @@
-package com.tk.quicksearch.permissions
+package com.tk.quicksearch.onboarding
 
 import android.Manifest
 import android.content.Context
@@ -54,7 +54,6 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.ContactRepository
 import com.tk.quicksearch.data.FileSearchRepository
-import com.tk.quicksearch.setup.OnboardingHeader
 
 /**
  * Main permissions screen that allows users to grant optional permissions for enhanced functionality.

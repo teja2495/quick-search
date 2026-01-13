@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.ui
+package com.tk.quicksearch.onboarding
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

@@ -24,7 +24,7 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
-import com.tk.quicksearch.permissions.PermissionRequestHandler
+import com.tk.quicksearch.onboarding.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
 
 /**

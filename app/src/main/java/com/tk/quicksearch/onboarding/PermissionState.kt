@@ -1,4 +1,4 @@
-package com.tk.quicksearch.permissions
+package com.tk.quicksearch.onboarding
 
 /**
  * Represents the state of a permission in the UI.

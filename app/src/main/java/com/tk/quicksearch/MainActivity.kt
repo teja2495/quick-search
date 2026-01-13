@@ -14,14 +14,14 @@ import androidx.activity.viewModels
 
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.navigation.MainContent
-import com.tk.quicksearch.permissions.PermissionsScreen
+import com.tk.quicksearch.onboarding.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.ui.SearchRoute
 import com.tk.quicksearch.settings.main.SettingsRoute
 import com.tk.quicksearch.settings.main.SettingsDetailRoute
 import com.tk.quicksearch.settings.main.SettingsDetailType
-import com.tk.quicksearch.setup.SearchEngineSetupScreen
-import com.tk.quicksearch.setup.FinalSetupScreen
+import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
+import com.tk.quicksearch.onboarding.FinalSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.ReviewHelper
 import com.tk.quicksearch.util.UpdateHelper

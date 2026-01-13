@@ -1,4 +1,4 @@
-package com.tk.quicksearch.permissions
+package com.tk.quicksearch.onboarding
 
 import android.Manifest
 import android.content.Context

@@ -98,6 +98,7 @@ import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.search.contacts.PhoneNumberSelectionDialog
 import com.tk.quicksearch.search.contacts.DirectDialChoiceDialog
 import com.tk.quicksearch.search.contacts.ContactMethodsDialog
+import com.tk.quicksearch.onboarding.SearchEngineOnboardingOverlay
 
 
 @Composable

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.setup
+package com.tk.quicksearch.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
