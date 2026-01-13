@@ -1181,7 +1181,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return when {
             state.detectedShortcutEngine != null -> SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutEngine)
             state.isSearchEngineCompactMode -> SearchEnginesVisibility.Compact
-            else -> SearchEnginesVisibility.Full
+            else -> SearchEnginesVisibility.Hidden
         }
     }
 
