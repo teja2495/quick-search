@@ -76,6 +76,11 @@ class NavigationHandler(
         }
         IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain)
 
+        // Save the query to recent queries
+        if (trimmedQuery.isNotEmpty()) {
+            userPreferences.addRecentQuery(trimmedQuery)
+        }
+
         if (clearQueryAfterSearchEngine) {
             onClearQuery()
         }

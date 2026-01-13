@@ -356,9 +356,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                 showAllResults = showAllResults,
                 sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-                amazonDomain = amazonDomain
+                amazonDomain = amazonDomain,
+                recentQueriesEnabled = prefs.recentQueriesEnabled,
+                recentQueriesCount = userPreferences.getRecentQueriesCount(),
+                webSuggestionsCount = userPreferences.getWebSuggestionsCount()
             )
         }
+        
+        // Load recent queries on startup if enabled
+        refreshRecentQueries()
     }
 
     private fun initializeWithCacheMinimal(cachedAppsList: List<AppInfo>) {
@@ -496,6 +502,69 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val messagingApp: MessagingApp
     )
 
+    fun setCalculatorEnabled(enabled: Boolean) {
+        // Delegate to new CalculatorHandler once implemented
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setCalculatorEnabled(enabled)
+            _uiState.update { it.copy(calculatorEnabled = enabled) }
+        }
+    }
+
+    fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)
+
+    fun setWebSuggestionsCount(count: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setWebSuggestionsCount(count)
+            _uiState.update { it.copy(webSuggestionsCount = count) }
+        }
+    }
+
+    fun setRecentQueriesEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setRecentQueriesEnabled(enabled)
+            _uiState.update { it.copy(recentQueriesEnabled = enabled) }
+
+            // Refresh recent queries display if query is empty
+            if (_uiState.value.query.isEmpty()) {
+                refreshRecentQueries()
+            }
+        }
+    }
+
+    fun setRecentQueriesCount(count: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setRecentQueriesCount(count)
+            _uiState.update { it.copy(recentQueriesCount = count) }
+
+            // Refresh recent queries display if query is empty
+            if (_uiState.value.query.isEmpty()) {
+                refreshRecentQueries()
+            }
+        }
+    }
+
+    private fun refreshRecentQueries() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val queries = if (_uiState.value.recentQueriesEnabled) {
+                userPreferences.getRecentQueries().take(userPreferences.getRecentQueriesCount())
+            } else {
+                emptyList()
+            }
+            _uiState.update { it.copy(recentQueries = queries) }
+        }
+    }
+
+    fun onRecentQueryClick(query: String) {
+        onQueryChange(query)
+    }
+
+    fun deleteRecentQuery(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.deleteRecentQuery(query)
+            refreshRecentQueries()
+        }
+    }
+
     private fun updateBooleanPreference(
         value: Boolean,
         preferenceSetter: (Boolean) -> Unit,
@@ -617,6 +686,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     webSuggestionWasSelected = false
                 ) 
             }
+            // Load recent queries when query is empty
+            refreshRecentQueries()
             // Also reset locked shortcut when query is cleared completely (empty)
             // But we don't null it out here if we are just transitioning? 
             // Actually, if query is empty, it means we are cleared.
@@ -843,8 +914,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun refreshIconPacks() = iconPackHandler.refreshIconPacks()
     fun setIconPackPackage(packageName: String?) = iconPackHandler.setIconPackPackage(packageName)
-    fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)
-    fun setCalculatorEnabled(enabled: Boolean) = calculatorHandler.setEnabled(enabled)
     
     // Shortcuts
     fun setShortcutsEnabled(enabled: Boolean) = shortcutHandler.setShortcutsEnabled(enabled)

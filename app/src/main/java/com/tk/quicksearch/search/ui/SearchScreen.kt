@@ -221,6 +221,7 @@ fun SearchRoute(
         },
         onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
         onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+        onDeleteRecentQuery = viewModel::deleteRecentQuery,
         onWelcomeAnimationCompleted = onWelcomeAnimationCompleted
     )
 }
@@ -282,7 +283,8 @@ fun SearchScreen(
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineOnboardingDismissed: () -> Unit = {},
     onClearDetectedShortcut: () -> Unit = {},
-    onCustomizeSearchEnginesClick: () -> Unit = {}
+    onCustomizeSearchEnginesClick: () -> Unit = {},
+    onDeleteRecentQuery: (String) -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -418,7 +420,8 @@ fun SearchScreen(
         pinnedContacts = state.pinnedContacts,
         pinnedFiles = state.pinnedFiles,
         pinnedSettings = state.pinnedSettings,
-        orderedSections = derivedState.orderedSections
+        orderedSections = derivedState.orderedSections,
+        shortcutDetected = state.detectedShortcutEngine != null
     )
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -458,6 +461,7 @@ fun SearchScreen(
             },
             onWebSuggestionClick = onWebSuggestionClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onDeleteRecentQuery = onDeleteRecentQuery,
             onKeyboardSwitchToggle = {
                 manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard
             },

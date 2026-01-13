@@ -137,7 +137,13 @@ fun SettingsScreen(
                 searchEnginesDescription = stringResource(R.string.settings_search_engines_desc),
                 onSearchEnginesClick = { onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES) },
                 webSuggestionsEnabled = state.webSuggestionsEnabled,
-                onWebSuggestionsToggle = callbacks.onToggleWebSuggestions
+                onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
+                webSuggestionsCount = state.webSuggestionsCount,
+                onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
+                recentQueriesEnabled = state.recentQueriesEnabled,
+                onRecentQueriesToggle = callbacks.onToggleRecentQueries,
+                recentQueriesCount = state.recentQueriesCount,
+                onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange
             )
 
             // Appearance Section

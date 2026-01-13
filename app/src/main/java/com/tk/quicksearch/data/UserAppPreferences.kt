@@ -24,6 +24,7 @@ class UserAppPreferences(context: Context) {
     private val geminiPreferences by lazy { GeminiPreferences(context) }
     private val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
+    private val recentQueriesPreferences by lazy { RecentQueriesPreferences(context) }
 
     /**
      * Minimal preferences needed for first frame render - only layout-affecting values.
@@ -55,7 +56,8 @@ class UserAppPreferences(context: Context) {
         val amazonDomain: String?,
         val pinnedPackages: Set<String>,
         val suggestionHiddenPackages: Set<String>,
-        val resultHiddenPackages: Set<String>
+        val resultHiddenPackages: Set<String>,
+        val recentQueriesEnabled: Boolean
     )
 
     /**
@@ -77,7 +79,8 @@ class UserAppPreferences(context: Context) {
             amazonDomain = amazonPreferences.getAmazonDomain(),
             pinnedPackages = appPreferences.getPinnedPackages(),
             suggestionHiddenPackages = appPreferences.getSuggestionHiddenPackages(),
-            resultHiddenPackages = appPreferences.getResultHiddenPackages()
+            resultHiddenPackages = appPreferences.getResultHiddenPackages(),
+            recentQueriesEnabled = recentQueriesPreferences.areRecentQueriesEnabled()
         )
     }
 
@@ -364,6 +367,12 @@ class UserAppPreferences(context: Context) {
 
     fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 
+    fun getWebSuggestionsCount(): Int = uiPreferences.getWebSuggestionsCount()
+
+    fun setWebSuggestionsCount(count: Int) {
+        uiPreferences.setWebSuggestionsCount(count)
+    }
+
     fun setWebSuggestionsEnabled(enabled: Boolean) = uiPreferences.setWebSuggestionsEnabled(enabled)
 
     // ============================================================================
@@ -373,6 +382,28 @@ class UserAppPreferences(context: Context) {
     fun isCalculatorEnabled(): Boolean = uiPreferences.isCalculatorEnabled()
 
     fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
+
+    // ============================================================================
+    // Recent Queries Preferences
+    // ============================================================================
+
+    fun getRecentQueries(): List<String> = recentQueriesPreferences.getRecentQueries()
+
+    fun addRecentQuery(query: String) = recentQueriesPreferences.addRecentQuery(query)
+
+    fun clearRecentQueries() = recentQueriesPreferences.clearRecentQueries()
+
+    fun deleteRecentQuery(query: String) = recentQueriesPreferences.deleteRecentQuery(query)
+
+    fun areRecentQueriesEnabled(): Boolean = recentQueriesPreferences.areRecentQueriesEnabled()
+
+    fun getRecentQueriesCount(): Int = recentQueriesPreferences.getRecentQueriesCount()
+
+    fun setRecentQueriesCount(count: Int) {
+        recentQueriesPreferences.setRecentQueriesCount(count)
+    }
+
+    fun setRecentQueriesEnabled(enabled: Boolean) = recentQueriesPreferences.setRecentQueriesEnabled(enabled)
 
     // ============================================================================
     // Usage Permission Banner Preferences

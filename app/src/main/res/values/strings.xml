@@ -564,6 +564,11 @@
     <string name="web_search_suggestions_title">Web search suggestions</string>
 
     <!-- ============================================================================
+         Recent Queries
+         ============================================================================ -->
+    <string name="recent_queries_toggle_title">Recent Searches</string>
+
+    <!-- ============================================================================
          Calculator
          ============================================================================ -->
     <string name="calculator_toggle_title">Calculator</string>

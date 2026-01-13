@@ -34,7 +34,7 @@ internal object WidgetDefaults {
     // Default text/icon color inverts the background for readability:
     // white text on dark backgrounds, dark text on light backgrounds.
     const val TEXT_ICON_COLOR_IS_WHITE = false
-    const val ICON_ALIGN_LEFT = false
+    const val ICON_ALIGN_LEFT = true
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
 }
 

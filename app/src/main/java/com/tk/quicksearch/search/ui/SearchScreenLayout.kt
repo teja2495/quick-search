@@ -7,7 +7,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
@@ -63,7 +65,8 @@ data class SectionRenderingState(
     val pinnedContacts: List<ContactInfo>,
     val pinnedFiles: List<DeviceFile>,
     val pinnedSettings: List<SettingShortcut>,
-    val orderedSections: List<SearchSection>
+    val orderedSections: List<SearchSection>,
+    val shortcutDetected: Boolean = false
 )
 
 /**
@@ -85,6 +88,7 @@ fun SearchContentArea(
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> },
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onDeleteRecentQuery: (String) -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
     DirectSearchState: DirectSearchState? = null
@@ -123,7 +127,7 @@ fun SearchContentArea(
                     scrollState,
                     reverseScrolling = alignResultsToBottom
                 )
-                .padding(vertical = 12.dp),
+                .padding(top = 4.dp, bottom = 12.dp),
             verticalArrangement = verticalArrangement
         ) {
             ContentLayout(
@@ -146,7 +150,8 @@ fun SearchContentArea(
                 onEmailClick = onEmailClick,
                 onWebSuggestionClick = onWebSuggestionClick,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onSearchEngineClick = onSearchEngineClick
+                onSearchEngineClick = onSearchEngineClick,
+                onDeleteRecentQuery = onDeleteRecentQuery
             )
         }
     }
@@ -175,11 +180,12 @@ fun ContentLayout(
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> }
+    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> },
+    onDeleteRecentQuery: (String) -> Unit = {}
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         // Show error banner if there's an error message
         state.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
@@ -217,11 +223,21 @@ fun ContentLayout(
                 shouldShowSettingsSection(renderingState)
         val hasDirectSearchAnswer = showDirectSearch && DirectSearchState != null
 
+        // Determine whether to show recent queries (when empty) or web suggestions (when query but no results)
+        val showRecentQueries = !hasQuery && 
+                                 state.recentQueriesEnabled && 
+                                 state.recentQueries.isNotEmpty()
+        val showWebSuggestions = hasQuery && 
+                                  !hasAnySearchContent && 
+                                  !showCalculator && 
+                                  !hasDirectSearchAnswer &&
+                                  state.webSuggestions.isNotEmpty() &&
+                                  state.webSuggestionsEnabled &&
+                                  !state.webSuggestionWasSelected
+
+        // When query exists with no results, show web suggestions/search engines and return early
+        // Only show search engine list if inline style is enabled (!isSearchEngineCompactMode)
         if (hasQuery && !hasAnySearchContent && !showCalculator && !hasDirectSearchAnswer) {
-            // Hide web suggestions if one was already selected
-            val showWebSuggestions = state.webSuggestions.isNotEmpty() &&
-                state.webSuggestionsEnabled &&
-                !state.webSuggestionWasSelected
 
             // When results are at bottom (reversed), show search engine cards first, then web suggestions
             // When results are at top (normal), show web suggestions first, then search engine cards
@@ -251,6 +267,7 @@ fun ContentLayout(
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = isReversed,
                         isShortcutDetected = state.detectedShortcutEngine != null,
+                        isRecentQuery = false,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -267,6 +284,7 @@ fun ContentLayout(
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = false,
                         isShortcutDetected = state.detectedShortcutEngine != null,
+                        isRecentQuery = false,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -313,7 +331,7 @@ fun ContentLayout(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
                     )
                 }
             }
@@ -323,7 +341,7 @@ fun ContentLayout(
 
         when {
             isReversed -> {
-                // Keyboard-aligned: search results first, then pinned items
+                // Keyboard-aligned (reversed): search results first (when hasQuery), then other pinned items, then recent queries, then apps at bottom
                 if (hasQuery) {
                     SearchResultsSections(
                         renderingState = renderingState,
@@ -335,8 +353,11 @@ fun ContentLayout(
                         keyboardAlignedLayout = state.keyboardAlignedLayout
                     )
                 }
+                
                 if (!isExpanded) {
-                    PinnedItemsSections(
+                    val shouldShowPinned = !renderingState.isSearching
+                    
+                    val pinnedParams = SectionRenderParams(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
@@ -344,13 +365,76 @@ fun ContentLayout(
                         appsParams = appsParams,
                         isReversed = true
                     )
+                    
+                    val orderedSections = getOrderedSections(renderingState, true)
+                    
+                    orderedSections.forEach { section ->
+                        when (section) {
+                            SearchSection.APPS -> {
+                                // In reversed layout, show recent queries before apps (since apps will be at bottom)
+                                if (showRecentQueries) {
+                                    AnimatedVisibility(
+                                        visible = true,
+                                        enter = fadeIn(),
+                                        exit = shrinkVertically()
+                                    ) {
+                                        WebSuggestionsSection(
+                                            suggestions = state.recentQueries,
+                                            onSuggestionClick = onWebSuggestionClick,
+                                            showWallpaperBackground = state.showWallpaperBackground,
+                                            reverseOrder = isReversed,
+                                            isShortcutDetected = false,
+                                            isRecentQuery = true,
+                                            onDeleteRecentQuery = onDeleteRecentQuery,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                }
+                                
+                                // Render apps section at the bottom for reversed layout
+                                if (shouldShowPinned && shouldShowAppsSection(renderingState)) {
+                                    val appsContext = SectionRenderContext(
+                                        shouldRenderApps = true
+                                    )
+                                    renderSection(SearchSection.APPS, pinnedParams, appsContext)
+                                }
+                            }
+                            else -> {
+                                // Render other pinned sections
+                                val pinnedContext = SectionRenderContext(
+                                    shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles && section == SearchSection.FILES,
+                                    shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts && section == SearchSection.CONTACTS,
+                                    shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings && section == SearchSection.SETTINGS,
+                                    shouldRenderApps = false,
+                                    isFilesExpanded = true,
+                                    isContactsExpanded = true,
+                                    isSettingsExpanded = true,
+                                    filesList = renderingState.pinnedFiles,
+                                    contactsList = renderingState.pinnedContacts,
+                                    settingsList = renderingState.pinnedSettings,
+                                    showAllFilesResults = true,
+                                    showAllContactsResults = true,
+                                    showAllSettingsResults = true,
+                                    showFilesExpandControls = false,
+                                    showContactsExpandControls = false,
+                                   showSettingsExpandControls = false,
+                                    filesExpandClick = {},
+                                    contactsExpandClick = {},
+                                    settingsExpandClick = {}
+                                )
+                                renderSection(section, pinnedParams, pinnedContext)
+                            }
+                        }
+                    }
                 }
             }
             else -> {
                 // Top-aligned: pinned items first, then search results
                 when {
                     !isExpanded -> {
-                        PinnedItemsSections(
+                        val shouldShowPinned = !renderingState.isSearching
+                        
+                        val pinnedParams = SectionRenderParams(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
@@ -358,6 +442,67 @@ fun ContentLayout(
                             appsParams = appsParams,
                             isReversed = false
                         )
+                        
+                        val orderedSections = getOrderedSections(renderingState, false)
+                        
+                        orderedSections.forEach { section ->
+                            when (section) {
+                                SearchSection.APPS -> {
+                                    // Render apps section
+                                    if (shouldShowPinned && shouldShowAppsSection(renderingState)) {
+                                        val appsContext = SectionRenderContext(
+                                            shouldRenderApps = true
+                                        )
+                                        renderSection(SearchSection.APPS, pinnedParams, appsContext)
+                                    }
+                                    
+                                    // Show recent queries right after apps
+                                    if (showRecentQueries) {
+                                        AnimatedVisibility(
+                                            visible = true,
+                                            enter = fadeIn(),
+                                            exit = shrinkVertically()
+                                        ) {
+                                            WebSuggestionsSection(
+                                                suggestions = state.recentQueries,
+                                                onSuggestionClick = onWebSuggestionClick,
+                                                showWallpaperBackground = state.showWallpaperBackground,
+                                                reverseOrder = isReversed,
+                                                isShortcutDetected = false,
+                                                isRecentQuery = true,
+                                                onDeleteRecentQuery = onDeleteRecentQuery,
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    // Render other pinned sections
+                                    val pinnedContext = SectionRenderContext(
+                                        shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles && section == SearchSection.FILES,
+                                        shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts && section == SearchSection.CONTACTS,
+                                        shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings && section == SearchSection.SETTINGS,
+                                        shouldRenderApps = false,
+                                        isFilesExpanded = true,
+                                        isContactsExpanded = true,
+                                        isSettingsExpanded = true,
+                                        filesList = renderingState.pinnedFiles,
+                                        contactsList = renderingState.pinnedContacts,
+                                        settingsList = renderingState.pinnedSettings,
+                                        showAllFilesResults = true,
+                                        showAllContactsResults = true,
+                                        showAllSettingsResults = true,
+                                        showFilesExpandControls = false,
+                                        showContactsExpandControls = false,
+                                        showSettingsExpandControls = false,
+                                        filesExpandClick = {},
+                                        contactsExpandClick = {},
+                                        settingsExpandClick = {}
+                                    )
+                                    renderSection(section, pinnedParams, pinnedContext)
+                                }
+                            }
+                        }
                     }
                     !hasQuery -> {
                         ExpandedPinnedSections(

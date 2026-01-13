@@ -167,6 +167,21 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(KEY_WEB_SUGGESTIONS_ENABLED, enabled)
     }
 
+    /**
+     * Get the maximum number of web suggestions to show.
+     * Default is 3.
+     */
+    fun getWebSuggestionsCount(): Int {
+        return prefs.getInt(KEY_WEB_SUGGESTIONS_COUNT, 3)
+    }
+
+    /**
+     * Set the maximum number of web suggestions to show.
+     */
+    fun setWebSuggestionsCount(count: Int) {
+        prefs.edit().putInt(KEY_WEB_SUGGESTIONS_COUNT, count).apply()
+    }
+
     // ============================================================================
     // Calculator Preferences
     // ============================================================================

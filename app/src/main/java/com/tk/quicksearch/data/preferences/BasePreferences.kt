@@ -272,6 +272,12 @@ abstract class BasePreferences(protected val context: Context) {
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
+        const val KEY_WEB_SUGGESTIONS_COUNT = "web_suggestions_count"
+
+        // Recent queries preferences keys
+        const val KEY_RECENT_QUERIES = "recent_queries"
+        const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
+        const val KEY_RECENT_QUERIES_COUNT = "recent_queries_count"
 
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"

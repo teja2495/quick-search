@@ -132,6 +132,7 @@ data class SearchUiState(
     val isSearchEngineCompactMode: Boolean = false,
     val amazonDomain: String? = null,
     val webSuggestionsEnabled: Boolean = true,
+    val webSuggestionsCount: Int = 3,
     val calculatorEnabled: Boolean = true,
     val DirectSearchState: DirectSearchState = DirectSearchState(),
     val hasGeminiApiKey: Boolean = false,
@@ -144,5 +145,8 @@ data class SearchUiState(
     val showSearchEngineOnboarding: Boolean = false,
     val showSearchBarWelcomeAnimation: Boolean = false,
     val detectedShortcutEngine: SearchEngine? = null,
-    val webSuggestionWasSelected: Boolean = false
+    val webSuggestionWasSelected: Boolean = false,
+    val recentQueries: List<String> = emptyList(),
+    val recentQueriesEnabled: Boolean = true,
+    val recentQueriesCount: Int = 3
 )

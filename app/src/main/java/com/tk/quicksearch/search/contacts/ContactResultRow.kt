@@ -104,7 +104,7 @@ internal fun ContactResultRow(
                         },
                         onLongClick = { showOptions = true }
                     )
-                    .padding(vertical = 12.dp),
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

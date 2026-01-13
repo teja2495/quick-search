@@ -18,6 +18,14 @@ class ContactManagementHandler(
 ) {
 
     fun pinContact(contactInfo: ContactInfo) {
+        // Update UI immediately (optimistic)
+        onUiStateUpdate { state ->
+            if (state.pinnedContacts.any { it.contactId == contactInfo.contactId }) {
+                state
+            } else {
+                state.copy(pinnedContacts = state.pinnedContacts + contactInfo)
+            }
+        }
         scope.launch(Dispatchers.IO) {
             userPreferences.pinContact(contactInfo.contactId)
             onStateChanged()
@@ -57,6 +65,12 @@ class ContactManagementHandler(
     }
 
     fun removeExcludedContact(contactInfo: ContactInfo) {
+        // Update UI immediately (optimistic)
+        onUiStateUpdate { state ->
+            state.copy(
+                excludedContacts = state.excludedContacts.filterNot { it.contactId == contactInfo.contactId }
+            )
+        }
         scope.launch(Dispatchers.IO) {
             userPreferences.removeExcludedContact(contactInfo.contactId)
             onStateChanged()

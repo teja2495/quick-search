@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -22,6 +23,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -278,6 +280,12 @@ fun CombinedSearchEnginesCard(
     onSearchEnginesClick: () -> Unit,
     webSuggestionsEnabled: Boolean,
     onWebSuggestionsToggle: (Boolean) -> Unit,
+    webSuggestionsCount: Int,
+    onWebSuggestionsCountChange: (Int) -> Unit,
+    recentQueriesEnabled: Boolean,
+    onRecentQueriesToggle: (Boolean) -> Unit,
+    recentQueriesCount: Int,
+    onRecentQueriesCountChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
 ) {
@@ -345,6 +353,93 @@ fun CombinedSearchEnginesCard(
                         onWebSuggestionsToggle(enabled)
                     }
                 )
+            }
+
+            // Web Suggestions Count Slider (only show if enabled)
+            if (webSuggestionsEnabled) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Slider(
+                        value = webSuggestionsCount.toFloat(),
+                        onValueChange = { value ->
+                            onWebSuggestionsCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = webSuggestionsCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp)
+                    )
+                }
+
+                // Divider
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            } else {
+                // Divider (when slider is hidden)
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+
+            // Recent Queries Toggle Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onRecentQueriesToggle(!recentQueriesEnabled) }
+                    .padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.recent_queries_toggle_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = recentQueriesEnabled,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onRecentQueriesToggle(enabled)
+                    }
+                )
+            }
+
+            // Recent Queries Count Slider (only show if enabled)
+            if (recentQueriesEnabled) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Slider(
+                        value = recentQueriesCount.toFloat(),
+                        onValueChange = { value ->
+                            onRecentQueriesCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = recentQueriesCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp)
+                    )
+                }
             }
         }
     }

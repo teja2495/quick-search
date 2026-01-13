@@ -20,6 +20,14 @@ class FileManagementHandler(
 
     fun pinFile(deviceFile: DeviceFile) {
         val uriString = deviceFile.uri.toString()
+        // Update UI immediately (optimistic)
+        onUiStateUpdate { state ->
+            if (state.pinnedFiles.any { it.uri.toString() == uriString }) {
+                state
+            } else {
+                state.copy(pinnedFiles = state.pinnedFiles + deviceFile)
+            }
+        }
         scope.launch(Dispatchers.IO) {
             userPreferences.pinFile(uriString)
             onStateChanged()
@@ -100,6 +108,14 @@ class FileManagementHandler(
 
     fun removeExcludedFile(deviceFile: DeviceFile) {
         val uriString = deviceFile.uri.toString()
+
+        // Update UI immediately (optimistic)
+        onUiStateUpdate { state ->
+            state.copy(
+                excludedFiles = state.excludedFiles.filterNot { it.uri.toString() == uriString }
+            )
+        }
+
         scope.launch(Dispatchers.IO) {
             userPreferences.removeExcludedFile(uriString)
             onStateChanged()

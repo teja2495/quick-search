@@ -68,7 +68,8 @@ internal fun rememberDerivedState(
     val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
-    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles || hasPinnedSettings) {
+    val visibleRowCount = if (isSearching || hasPinnedContacts || hasPinnedFiles || hasPinnedSettings ||
+                               (!state.query.isNotBlank() && state.recentQueriesEnabled && state.recentQueries.isNotEmpty())) {
         SearchScreenConstants.SEARCH_ROW_COUNT
     } else {
         SearchScreenConstants.ROW_COUNT

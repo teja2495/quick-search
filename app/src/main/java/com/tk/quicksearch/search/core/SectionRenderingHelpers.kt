@@ -58,7 +58,8 @@ fun shouldShowSettingsSection(renderingState: SectionRenderingState): Boolean {
 fun shouldShowAppsSection(renderingState: SectionRenderingState): Boolean {
     return renderingState.hasAppResults &&
         renderingState.shouldShowApps &&
-        renderingState.expandedSection == ExpandedSection.NONE
+        renderingState.expandedSection == ExpandedSection.NONE &&
+        !renderingState.shortcutDetected
 }
 
 /**

@@ -15,6 +15,8 @@ class WebSuggestionHandler(
     private val userPreferences: UserAppPreferences,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
+    private val webSuggestionsCount: Int
+        get() = userPreferences.getWebSuggestionsCount()
     private var webSuggestionsJob: Job? = null
     var isEnabled: Boolean = userPreferences.areWebSuggestionsEnabled()
         private set
@@ -52,7 +54,7 @@ class WebSuggestionHandler(
                     if (activeQueryVersionProvider() == currentQueryVersion && 
                         activeQueryProvider().trim() == query.trim()) {
                         uiStateUpdater { state ->
-                            state.copy(webSuggestions = suggestions)
+                            state.copy(webSuggestions = suggestions.take(webSuggestionsCount))
                         }
                     }
                 }

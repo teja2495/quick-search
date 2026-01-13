@@ -19,6 +19,16 @@ class SettingsManagementHandler(
 
     fun pinSetting(setting: SettingShortcut) {
         if (userPreferences.getExcludedSettingIds().contains(setting.id)) return
+        
+        // Update UI immediately
+        onUiStateUpdate { state ->
+            if (state.pinnedSettings.any { it.id == setting.id }) {
+                state
+            } else {
+                state.copy(pinnedSettings = state.pinnedSettings + setting)
+            }
+        }
+
         scope.launch(Dispatchers.IO) {
             userPreferences.pinSetting(setting.id)
             onStateChanged()
@@ -26,6 +36,12 @@ class SettingsManagementHandler(
     }
 
     fun unpinSetting(setting: SettingShortcut) {
+        // Update UI immediately
+        onUiStateUpdate { state ->
+            state.copy(
+                pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id }
+            )
+        }
         scope.launch(Dispatchers.IO) {
             userPreferences.unpinSetting(setting.id)
             onStateChanged()
@@ -33,16 +49,18 @@ class SettingsManagementHandler(
     }
 
     fun excludeSetting(setting: SettingShortcut) {
+        // Update UI immediately
+        onUiStateUpdate { state ->
+            state.copy(
+                settingResults = state.settingResults.filterNot { it.id == setting.id },
+                pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id },
+                excludedSettings = state.excludedSettings + setting // Optimistically add to excluded
+            )
+        }
         scope.launch(Dispatchers.IO) {
             userPreferences.excludeSetting(setting.id)
             if (userPreferences.getPinnedSettingIds().contains(setting.id)) {
                 userPreferences.unpinSetting(setting.id)
-            }
-            onUiStateUpdate { state ->
-                state.copy(
-                    settingResults = state.settingResults.filterNot { it.id == setting.id },
-                    pinnedSettings = state.pinnedSettings.filterNot { it.id == setting.id }
-                )
             }
             onStateChanged()
         }
@@ -60,6 +78,13 @@ class SettingsManagementHandler(
     }
 
     fun removeExcludedSetting(setting: SettingShortcut) {
+        // Update UI immediately (optimistic)
+        onUiStateUpdate { state ->
+            state.copy(
+                excludedSettings = state.excludedSettings.filterNot { it.id == setting.id }
+            )
+        }
+
         scope.launch(Dispatchers.IO) {
             userPreferences.removeExcludedSetting(setting.id)
             onStateChanged()

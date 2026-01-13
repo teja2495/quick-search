@@ -45,6 +45,7 @@ internal fun SearchScreenContent(
     onPhoneNumberClick: (String) -> Unit,
     onWebSuggestionClick: (String) -> Unit,
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onDeleteRecentQuery: (String) -> Unit = {},
     onKeyboardSwitchToggle: () -> Unit,
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
     expandedSection: ExpandedSection,
@@ -179,6 +180,7 @@ internal fun SearchScreenContent(
             onWebSuggestionClick = onWebSuggestionClick,
             onSearchEngineClick = onSearchEngineClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onDeleteRecentQuery = onDeleteRecentQuery,
             showCalculator = state.calculatorState.result != null,
             showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
             DirectSearchState = state.DirectSearchState

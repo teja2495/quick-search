@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.files
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,8 +55,7 @@ import com.tk.quicksearch.util.hapticConfirm
 // ============================================================================
 
 private const val INITIAL_RESULT_COUNT = 1
-private const val FILE_ROW_MIN_HEIGHT = 52
-private const val FILE_ICON_SIZE = 24
+private const val FILE_ICON_SIZE = 25
 private const val FILE_ICON_START_PADDING = 4
 private const val EXPAND_BUTTON_HEIGHT = 28
 private const val EXPAND_BUTTON_TOP_PADDING = 2
@@ -234,7 +234,7 @@ private fun FileCardContent(
     onExpandClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+        modifier = Modifier.padding(horizontal = 12.dp)
     ) {
         displayFiles.forEachIndexed { index, file ->
             FileResultRow(
@@ -268,6 +268,8 @@ private fun FileCardContent(
     }
 }
 
+
+
 // ============================================================================
 // File Row
 // ============================================================================
@@ -288,10 +290,9 @@ private fun FileResultRow(
     var showOptions by remember { mutableStateOf(false) }
     val view = LocalView.current
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = if (isExpanded) 0.dp else FILE_ROW_MIN_HEIGHT.dp)
             .combinedClickable(
                 onClick = {
                     hapticConfirm(view)()
@@ -299,39 +300,40 @@ private fun FileResultRow(
                 },
                 onLongClick = { showOptions = true }
             )
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 16.dp)
     ) {
-        Icon(
-            imageVector = Icons.Rounded.InsertDriveFile,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier
-                .size(FILE_ICON_SIZE.dp)
-                .padding(start = FILE_ICON_START_PADDING.dp)
-        )
-        
-        Text(
-            text = deviceFile.displayName,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = if (isExpanded) Int.MAX_VALUE else 2,
-            overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis
-        )
-        
-        FileDropdownMenu(
-            expanded = showOptions,
-            onDismissRequest = { showOptions = false },
-            deviceFile = deviceFile,
-            isPinned = isPinned,
-            hasNickname = hasNickname,
-            onTogglePin = { onTogglePin(deviceFile) },
-            onExclude = { onExclude(deviceFile) },
-            onExcludeExtension = { onExcludeExtension(deviceFile) },
-            onNicknameClick = { onNicknameClick(deviceFile) }
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.InsertDriveFile,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier
+                    .size(FILE_ICON_SIZE.dp)
+                    .padding(start = FILE_ICON_START_PADDING.dp)
+            )
+
+            Text(
+                text = deviceFile.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+
+            FileDropdownMenu(
+                expanded = showOptions,
+                onDismissRequest = { showOptions = false },
+                deviceFile = deviceFile,
+                isPinned = isPinned,
+                hasNickname = hasNickname,
+                onTogglePin = { onTogglePin(deviceFile) },
+                onExclude = { onExclude(deviceFile) },
+                onExcludeExtension = { onExcludeExtension(deviceFile) },
+                onNicknameClick = { onNicknameClick(deviceFile) }
+            )
+        }
     }
 }
 
