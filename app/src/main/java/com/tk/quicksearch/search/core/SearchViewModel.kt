@@ -18,6 +18,7 @@ import com.tk.quicksearch.model.FileType
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.onboarding.PermissionRequestHandler
 import com.tk.quicksearch.search.apps.AppManagementHandler
+import com.tk.quicksearch.util.PackageConstants
 import com.tk.quicksearch.search.apps.AppSearchHandler
 import com.tk.quicksearch.search.contacts.ContactActionHandler
 import com.tk.quicksearch.search.contacts.ContactManagementHandler
@@ -519,14 +520,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
         val isWhatsAppInstalled = if (packageNames.isNotEmpty()) {
-            packageNames.contains(WHATSAPP_PACKAGE)
+            packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
         } else {
-            messagingHandler.isPackageInstalled(WHATSAPP_PACKAGE)
+            messagingHandler.isPackageInstalled(PackageConstants.WHATSAPP_PACKAGE)
         }
         val isTelegramInstalled = if (packageNames.isNotEmpty()) {
-            packageNames.contains(TELEGRAM_PACKAGE)
+            packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
         } else {
-            messagingHandler.isPackageInstalled(TELEGRAM_PACKAGE)
+            messagingHandler.isPackageInstalled(PackageConstants.TELEGRAM_PACKAGE)
         }
         val resolvedMessagingApp = messagingHandler.updateMessagingAvailability(
             whatsappInstalled = isWhatsAppInstalled,
@@ -1203,8 +1204,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     companion object {
-        private const val WHATSAPP_PACKAGE = "com.whatsapp"
-        private const val TELEGRAM_PACKAGE = "org.telegram.messenger"
         private const val GRID_ITEM_COUNT = 10
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
     }
@@ -1231,8 +1230,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
         val packageNames = apps.map { it.packageName }.toSet()
-        val isWhatsAppInstalled = packageNames.contains(WHATSAPP_PACKAGE)
-        val isTelegramInstalled = packageNames.contains(TELEGRAM_PACKAGE)
+        val isWhatsAppInstalled = packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
+        val isTelegramInstalled = packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
         val resolvedMessagingApp = messagingHandler.updateMessagingAvailability(
             whatsappInstalled = isWhatsAppInstalled,
             telegramInstalled = isTelegramInstalled,

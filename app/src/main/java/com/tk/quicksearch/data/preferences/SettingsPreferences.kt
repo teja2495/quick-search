@@ -11,31 +11,18 @@ class SettingsPreferences(context: Context) : BasePreferences(context) {
     // Settings Preferences
     // ============================================================================
 
-    fun getPinnedSettingIds(): Set<String> = getStringSet(SettingsPreferences.KEY_PINNED_SETTINGS)
+    fun getPinnedSettingIds(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED_SETTINGS)
 
-    fun getExcludedSettingIds(): Set<String> = getStringSet(SettingsPreferences.KEY_EXCLUDED_SETTINGS)
+    fun getExcludedSettingIds(): Set<String> = getExcludedStringItems(BasePreferences.KEY_EXCLUDED_SETTINGS)
 
-    fun pinSetting(id: String): Set<String> = updateStringSet(SettingsPreferences.KEY_PINNED_SETTINGS) {
-        it.add(id)
-    }
+    fun pinSetting(id: String): Set<String> = pinStringItem(BasePreferences.KEY_PINNED_SETTINGS, id)
 
-    fun unpinSetting(id: String): Set<String> = updateStringSet(SettingsPreferences.KEY_PINNED_SETTINGS) {
-        it.remove(id)
-    }
+    fun unpinSetting(id: String): Set<String> = unpinStringItem(BasePreferences.KEY_PINNED_SETTINGS, id)
 
-    fun excludeSetting(id: String): Set<String> = updateStringSet(SettingsPreferences.KEY_EXCLUDED_SETTINGS) {
-        it.add(id)
-    }
+    fun excludeSetting(id: String): Set<String> = excludeStringItem(BasePreferences.KEY_EXCLUDED_SETTINGS, id)
 
-    fun removeExcludedSetting(id: String): Set<String> = updateStringSet(SettingsPreferences.KEY_EXCLUDED_SETTINGS) {
-        it.remove(id)
-    }
+    fun removeExcludedSetting(id: String): Set<String> = removeExcludedStringItem(BasePreferences.KEY_EXCLUDED_SETTINGS, id)
 
-    fun clearAllExcludedSettings(): Set<String> = clearStringSet(SettingsPreferences.KEY_EXCLUDED_SETTINGS)
+    fun clearAllExcludedSettings(): Set<String> = clearAllExcludedStringItems(BasePreferences.KEY_EXCLUDED_SETTINGS)
 
-    companion object {
-        // Settings preferences keys
-        const val KEY_PINNED_SETTINGS = "pinned_settings"
-        const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
-    }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.util.PackageConstants
 
 import kotlinx.coroutines.flow.update
 
@@ -72,10 +73,5 @@ class MessagingHandler(
     fun isPackageInstalled(packageName: String): Boolean {
         val packageManager = application.packageManager
         return packageManager.getLaunchIntentForPackage(packageName) != null
-    }
-
-    companion object {
-        const val WHATSAPP_PACKAGE = "com.whatsapp"
-        const val TELEGRAM_PACKAGE = "org.telegram.messenger"
     }
 }

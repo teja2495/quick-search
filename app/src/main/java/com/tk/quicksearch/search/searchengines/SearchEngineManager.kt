@@ -7,6 +7,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.util.PackageConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,13 +23,6 @@ class SearchEngineManager(
 ) {
     
     companion object {
-        private const val X_PACKAGE = "com.twitter.android"
-        private const val YOUTUBE_MUSIC_PACKAGE = "com.google.android.apps.youtube.music"
-        private const val REDDIT_PACKAGE = "com.reddit.frontpage"
-        private const val SPOTIFY_PACKAGE = "com.spotify.music"
-        private const val AMAZON_PACKAGE = "com.amazon.mShop.android.shopping"
-        private const val YOU_COM_PACKAGE = "com.you.browser"
-        private const val STARTPAGE_PACKAGE = "com.startpage.app"
     }
 
     var searchEngineOrder: List<SearchEngine> = loadSearchEngineOrder()
@@ -164,25 +158,25 @@ class SearchEngineManager(
             ))
             
             // Disable app-based engines if apps are not installed
-            if (!isPackageInstalled(packageManager, REDDIT_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.REDDIT_PACKAGE)) {
                 savedDisabled.add(SearchEngine.REDDIT)
             }
-            if (!isPackageInstalled(packageManager, AMAZON_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.AMAZON_PACKAGE)) {
                 savedDisabled.add(SearchEngine.AMAZON)
             }
-            if (!isPackageInstalled(packageManager, X_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.X_PACKAGE)) {
                 savedDisabled.add(SearchEngine.X)
             }
-            if (!isPackageInstalled(packageManager, YOUTUBE_MUSIC_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.YOUTUBE_MUSIC_PACKAGE)) {
                 savedDisabled.add(SearchEngine.YOUTUBE_MUSIC)
             }
-            if (!isPackageInstalled(packageManager, SPOTIFY_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.SPOTIFY_PACKAGE)) {
                 savedDisabled.add(SearchEngine.SPOTIFY)
             }
-            if (!isPackageInstalled(packageManager, YOU_COM_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.YOU_COM_PACKAGE_NAME)) {
                 savedDisabled.add(SearchEngine.YOU_COM)
             }
-            if (!isPackageInstalled(packageManager, STARTPAGE_PACKAGE)) {
+            if (!isPackageInstalled(packageManager, PackageConstants.STARTPAGE_PACKAGE_NAME)) {
                 savedDisabled.add(SearchEngine.STARTPAGE)
             }
             

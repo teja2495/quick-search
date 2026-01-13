@@ -1,6 +1,5 @@
 package com.tk.quicksearch.data
 
-import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.app.usage.UsageStats
 import android.content.Context
@@ -9,9 +8,9 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
-import android.os.Process
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.util.PermissionUtils
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -35,27 +34,7 @@ class AppUsageRepository(
 
     // ==================== Public API ====================
 
-    fun hasUsageAccess(): Boolean {
-        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
-            ?: return false
-
-        val mode = appOps.unsafeCheckOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            Process.myUid(),
-            context.packageName
-        )
-
-        return when (mode) {
-            AppOpsManager.MODE_ALLOWED -> true
-            AppOpsManager.MODE_DEFAULT -> {
-                ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.PACKAGE_USAGE_STATS
-                ) == PackageManager.PERMISSION_GRANTED
-            }
-            else -> false
-        }
-    }
+    fun hasUsageAccess(): Boolean = PermissionUtils.hasUsageStatsPermission(context)
 
     /**
      * Loads app list from cache if available.

@@ -46,6 +46,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.search.ui.ContactUiConstants
+import com.tk.quicksearch.search.ui.SearchScreenConstants
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.util.FileUtils
@@ -55,7 +56,6 @@ import com.tk.quicksearch.util.hapticConfirm
 // Constants
 // ============================================================================
 
-private const val INITIAL_RESULT_COUNT = 1
 private const val FILE_ICON_SIZE = 25
 private const val FILE_ICON_START_PADDING = 4
 private const val EXPAND_BUTTON_TOP_PADDING = 2
@@ -145,14 +145,14 @@ private fun FilesResultCard(
     showWallpaperBackground: Boolean = false
 ) {
     val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand = showExpandControls && files.size > INITIAL_RESULT_COUNT
+    val canShowExpand = showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
     val shouldShowCollapseButton = isExpanded && showExpandControls
     
     val displayFiles = if (displayAsExpanded) {
         files
     } else {
-        files.take(INITIAL_RESULT_COUNT)
+        files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
     }
 
     Column(

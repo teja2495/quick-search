@@ -46,8 +46,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.search.ui.ContactUiConstants
+import com.tk.quicksearch.search.ui.SearchScreenConstants
 
-private const val INITIAL_RESULT_COUNT = 1
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 24
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
@@ -99,10 +99,10 @@ fun SettingsResultsSection(
     val displaySettings = if (isExpanded || showAllResults) {
         settings
     } else {
-        settings.take(INITIAL_RESULT_COUNT)
+        settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
     }
 
-    val canShowExpandControls = showExpandControls && settings.size > INITIAL_RESULT_COUNT
+    val canShowExpandControls = showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
     val shouldShowCollapseButton = isExpanded && showExpandControls
 

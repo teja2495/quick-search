@@ -12,31 +12,13 @@ import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.search.searchEngines.buildSearchUrl
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.util.PackageConstants
 
 /**
  * Helper functions for creating and launching intents.
  */
 object IntentHelpers {
 
-    /**
-     * Package name for the Gemini app (formerly known as Bard).
-     */
-    private const val GEMINI_PACKAGE_NAME = "com.google.android.apps.bard"
-    
-    /**
-     * Package name for the Google Photos app.
-     */
-    private const val GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos"
-    
-    /**
-     * Package name for the You.com app.
-     */
-    private const val YOU_COM_PACKAGE_NAME = "com.you.browser"
-    
-    /**
-     * Package name for the Startpage app.
-     */
-    private const val STARTPAGE_PACKAGE_NAME = "com.startpage.app"
 
     /**
      * Creates an intent with package URI and NEW_TASK flag.
@@ -171,7 +153,7 @@ object IntentHelpers {
     private fun openGemini(context: Application, query: String) {
         // If query is blank, just open the app
         if (query.isBlank()) {
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(GEMINI_PACKAGE_NAME)
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(PackageConstants.GEMINI_PACKAGE_NAME)
             if (launchIntent != null) {
                 launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 try {
@@ -191,7 +173,7 @@ object IntentHelpers {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, query)
-            setPackage(GEMINI_PACKAGE_NAME)
+            setPackage(PackageConstants.GEMINI_PACKAGE_NAME)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         if (shareIntent.resolveActivity(context.packageManager) != null) {
@@ -216,7 +198,7 @@ object IntentHelpers {
      */
     private fun openGooglePhotos(context: Application, query: String) {
         // Check if app is installed
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(GOOGLE_PHOTOS_PACKAGE_NAME)
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME)
         
         if (launchIntent != null) {
             // App is installed
@@ -245,7 +227,7 @@ object IntentHelpers {
      */
     private fun openYouCom(context: Application, query: String) {
         // Check if app is installed
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(YOU_COM_PACKAGE_NAME)
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(PackageConstants.YOU_COM_PACKAGE_NAME)
         
         if (launchIntent != null) {
             // App is installed
@@ -274,7 +256,7 @@ object IntentHelpers {
      */
     private fun openStartpage(context: Application, query: String) {
         // Check if app is installed
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(STARTPAGE_PACKAGE_NAME)
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(PackageConstants.STARTPAGE_PACKAGE_NAME)
         
         if (launchIntent != null) {
             // App is installed

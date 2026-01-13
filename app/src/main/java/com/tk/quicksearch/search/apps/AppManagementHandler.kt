@@ -2,8 +2,11 @@ package com.tk.quicksearch.search.apps
 
 import com.tk.quicksearch.data.UserAppPreferences
 import com.tk.quicksearch.model.AppInfo
+import com.tk.quicksearch.search.core.GenericManagementHandler
+import com.tk.quicksearch.search.core.ManagementHandler
+import com.tk.quicksearch.search.core.AppManagementConfig
+import com.tk.quicksearch.search.core.SearchUiState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -12,68 +15,48 @@ import kotlinx.coroutines.launch
 class AppManagementHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
-    private val onStateChanged: () -> Unit
+    private val onStateChanged: () -> Unit,
+    // AppManagementHandler doesn't use UI state updates like the others, so we provide no-op
+    onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit = {}
+) : ManagementHandler<AppInfo> by GenericManagementHandler(
+    AppManagementConfig(),
+    userPreferences,
+    scope,
+    onStateChanged,
+    onUiStateUpdate
 ) {
 
-    fun pinApp(appInfo: AppInfo) {
-        if (userPreferences.getSuggestionHiddenPackages().contains(appInfo.packageName)) return
-        scope.launch(Dispatchers.IO) {
-            userPreferences.pinPackage(appInfo.packageName)
-            onStateChanged()
-        }
-    }
-
-    fun unpinApp(appInfo: AppInfo) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.unpinPackage(appInfo.packageName)
-            onStateChanged()
-        }
-    }
-
+    // App-specific methods that extend beyond the base interface
     fun hideApp(appInfo: AppInfo, isSearching: Boolean) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch {
             if (isSearching) {
                 userPreferences.hidePackageInResults(appInfo.packageName)
             } else {
-                userPreferences.hidePackageInSuggestions(appInfo.packageName)
-                if (userPreferences.getPinnedPackages().contains(appInfo.packageName)) {
-                    userPreferences.unpinPackage(appInfo.packageName)
-                }
+                excludeItem(appInfo) // Use the base exclude logic for suggestions
             }
             onStateChanged()
         }
     }
 
-    fun unhideAppFromSuggestions(appInfo: AppInfo) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.unhidePackageInSuggestions(appInfo.packageName)
-            onStateChanged()
-        }
-    }
-
     fun unhideAppFromResults(appInfo: AppInfo) {
-        scope.launch(Dispatchers.IO) {
+        scope.launch {
             userPreferences.unhidePackageInResults(appInfo.packageName)
             onStateChanged()
         }
     }
 
-    fun setAppNickname(appInfo: AppInfo, nickname: String?) {
-        scope.launch(Dispatchers.IO) {
-            userPreferences.setAppNickname(appInfo.packageName, nickname)
-            onStateChanged()
-        }
-    }
-
-    fun getAppNickname(packageName: String): String? {
-        return userPreferences.getAppNickname(packageName)
-    }
-
     fun clearAllHiddenApps() {
-        scope.launch(Dispatchers.IO) {
+        scope.launch {
             userPreferences.clearAllHiddenAppsInSuggestions()
             userPreferences.clearAllHiddenAppsInResults()
             onStateChanged()
         }
     }
+
+    // Convenience methods that delegate to the interface
+    fun pinApp(appInfo: AppInfo) = pinItem(appInfo)
+    fun unpinApp(appInfo: AppInfo) = unpinItem(appInfo)
+    fun unhideAppFromSuggestions(appInfo: AppInfo) = removeExcludedItem(appInfo)
+    fun setAppNickname(appInfo: AppInfo, nickname: String?) = setItemNickname(appInfo, nickname)
+    fun getAppNickname(packageName: String): String? = getItemNickname(AppInfo("", packageName, 0L, 0L, 0, false))
 }

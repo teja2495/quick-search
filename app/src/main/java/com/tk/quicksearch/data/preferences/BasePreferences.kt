@@ -10,6 +10,141 @@ import androidx.security.crypto.MasterKey
 import com.tk.quicksearch.model.FileType
 
 /**
+ * Utility class containing common SharedPreferences operations.
+ */
+object PreferenceUtils {
+
+    // ============================================================================
+    // Generic CRUD Operations for Set-based Preferences
+    // ============================================================================
+
+    fun getStringSet(prefs: SharedPreferences, key: String): Set<String> {
+        return prefs.getStringSet(key, emptySet()).orEmpty()
+    }
+
+    fun getLongSet(prefs: SharedPreferences, key: String): Set<Long> {
+        return prefs.getStringSet(key, emptySet()).orEmpty()
+            .mapNotNull { it.toLongOrNull() }
+            .toSet()
+    }
+
+    fun getBooleanPref(prefs: SharedPreferences, key: String, defaultValue: Boolean): Boolean {
+        return prefs.getBoolean(key, defaultValue)
+    }
+
+    fun setBooleanPref(prefs: SharedPreferences, key: String, value: Boolean) {
+        prefs.edit().putBoolean(key, value).apply()
+    }
+
+    fun getStringListPref(prefs: SharedPreferences, key: String): List<String> {
+        val orderString = prefs.getString(key, null)
+        return if (orderString.isNullOrBlank()) {
+            emptyList()
+        } else {
+            orderString.split(",").filter { it.isNotBlank() }
+        }
+    }
+
+    fun setStringListPref(prefs: SharedPreferences, key: String, order: List<String>) {
+        prefs.edit().putString(key, order.joinToString(",")).apply()
+    }
+
+    fun updateStringSet(prefs: SharedPreferences, key: String, block: (MutableSet<String>) -> Unit): Set<String> {
+        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
+        block(current)
+        val snapshot = current.toSet()
+        prefs.edit().putStringSet(key, snapshot).apply()
+        return snapshot
+    }
+
+    fun updateLongSet(prefs: SharedPreferences, key: String, block: (MutableSet<String>) -> Unit): Set<Long> {
+        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
+        block(current)
+        val snapshot = current.toSet()
+        prefs.edit().putStringSet(key, snapshot).apply()
+        return snapshot.mapNotNull { it.toLongOrNull() }.toSet()
+    }
+
+    fun clearStringSet(prefs: SharedPreferences, key: String): Set<String> {
+        prefs.edit().putStringSet(key, emptySet()).apply()
+        return emptySet()
+    }
+
+    fun clearLongSet(prefs: SharedPreferences, key: String): Set<Long> {
+        prefs.edit().putStringSet(key, emptySet()).apply()
+        return emptySet()
+    }
+
+    // ============================================================================
+    // Generic CRUD Operations for Pinned/Excluded Items
+    // ============================================================================
+
+    fun getPinnedStringItems(prefs: SharedPreferences, key: String): Set<String> = getStringSet(prefs, key)
+
+    fun pinStringItem(prefs: SharedPreferences, key: String, itemId: String): Set<String> = updateStringSet(prefs, key) {
+        it.add(itemId)
+    }
+
+    fun unpinStringItem(prefs: SharedPreferences, key: String, itemId: String): Set<String> = updateStringSet(prefs, key) {
+        it.remove(itemId)
+    }
+
+    fun getExcludedStringItems(prefs: SharedPreferences, key: String): Set<String> = getStringSet(prefs, key)
+
+    fun excludeStringItem(prefs: SharedPreferences, key: String, itemId: String): Set<String> = updateStringSet(prefs, key) {
+        it.add(itemId)
+    }
+
+    fun removeExcludedStringItem(prefs: SharedPreferences, key: String, itemId: String): Set<String> = updateStringSet(prefs, key) {
+        it.remove(itemId)
+    }
+
+    fun clearAllExcludedStringItems(prefs: SharedPreferences, key: String): Set<String> = clearStringSet(prefs, key)
+
+    fun getPinnedLongItems(prefs: SharedPreferences, key: String): Set<Long> = getLongSet(prefs, key)
+
+    fun pinLongItem(prefs: SharedPreferences, key: String, itemId: Long): Set<Long> = updateLongSet(prefs, key) {
+        it.add(itemId.toString())
+    }
+
+    fun unpinLongItem(prefs: SharedPreferences, key: String, itemId: Long): Set<Long> = updateLongSet(prefs, key) {
+        it.remove(itemId.toString())
+    }
+
+    fun getExcludedLongItems(prefs: SharedPreferences, key: String): Set<Long> = getLongSet(prefs, key)
+
+    fun excludeLongItem(prefs: SharedPreferences, key: String, itemId: Long): Set<Long> = updateLongSet(prefs, key) {
+        it.add(itemId.toString())
+    }
+
+    fun removeExcludedLongItem(prefs: SharedPreferences, key: String, itemId: Long): Set<Long> = updateLongSet(prefs, key) {
+        it.remove(itemId.toString())
+    }
+
+    fun clearAllExcludedLongItems(prefs: SharedPreferences, key: String): Set<Long> = clearLongSet(prefs, key)
+
+    // ============================================================================
+    // File Type Migration Utility
+    // ============================================================================
+
+    fun migrateAndGetFileTypes(enabledNames: Set<String>): Set<FileType> {
+        val migratedNames = enabledNames.map { name ->
+            // Migrate old IMAGES or VIDEOS to PHOTOS_AND_VIDEOS
+            when (name) {
+                "IMAGES", "VIDEOS" -> "PHOTOS_AND_VIDEOS"
+                else -> name
+            }
+        }.toSet()
+
+        val result = migratedNames.mapNotNull { name ->
+            FileType.values().find { it.name == name }
+        }.toSet()
+
+        return result
+    }
+}
+
+/**
  * Base class containing shared utilities and constants for all preference classes.
  */
 abstract class BasePreferences(protected val context: Context) {
@@ -44,87 +179,109 @@ abstract class BasePreferences(protected val context: Context) {
     }
 
     // ============================================================================
-    // Shared Utility Functions
+    // Shared Utility Functions (delegated to PreferenceUtils)
     // ============================================================================
 
-    protected fun getStringSet(key: String): Set<String> {
-        return prefs.getStringSet(key, emptySet()).orEmpty()
-    }
+    protected fun getStringSet(key: String): Set<String> = PreferenceUtils.getStringSet(prefs, key)
 
-    protected fun getLongSet(key: String): Set<Long> {
-        return prefs.getStringSet(key, emptySet()).orEmpty()
-            .mapNotNull { it.toLongOrNull() }
-            .toSet()
-    }
+    protected fun getLongSet(key: String): Set<Long> = PreferenceUtils.getLongSet(prefs, key)
 
-    protected fun getBooleanPref(key: String, defaultValue: Boolean): Boolean {
-        return prefs.getBoolean(key, defaultValue)
-    }
+    protected fun getBooleanPref(key: String, defaultValue: Boolean): Boolean = PreferenceUtils.getBooleanPref(prefs, key, defaultValue)
 
-    protected fun setBooleanPref(key: String, value: Boolean) {
-        prefs.edit().putBoolean(key, value).apply()
-    }
+    protected fun setBooleanPref(key: String, value: Boolean) = PreferenceUtils.setBooleanPref(prefs, key, value)
 
-    protected fun getStringListPref(key: String): List<String> {
-        val orderString = prefs.getString(key, null)
-        return if (orderString.isNullOrBlank()) {
-            emptyList()
-        } else {
-            orderString.split(",").filter { it.isNotBlank() }
-        }
-    }
+    protected fun getStringListPref(key: String): List<String> = PreferenceUtils.getStringListPref(prefs, key)
 
-    protected fun setStringListPref(key: String, order: List<String>) {
-        prefs.edit().putString(key, order.joinToString(",")).apply()
-    }
+    protected fun setStringListPref(key: String, order: List<String>) = PreferenceUtils.setStringListPref(prefs, key, order)
 
-    protected inline fun updateStringSet(
-        key: String,
-        block: (MutableSet<String>) -> Unit
-    ): Set<String> {
-        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
-        block(current)
-        val snapshot = current.toSet()
-        prefs.edit().putStringSet(key, snapshot).apply()
-        return snapshot
-    }
+    protected fun updateStringSet(key: String, block: (MutableSet<String>) -> Unit): Set<String> = PreferenceUtils.updateStringSet(prefs, key, block)
 
-    protected inline fun updateLongSet(
-        key: String,
-        block: (MutableSet<String>) -> Unit
-    ): Set<Long> {
-        val current = prefs.getStringSet(key, emptySet()).orEmpty().toMutableSet()
-        block(current)
-        val snapshot = current.toSet()
-        prefs.edit().putStringSet(key, snapshot).apply()
-        return snapshot.mapNotNull { it.toLongOrNull() }.toSet()
-    }
+    protected fun updateLongSet(key: String, block: (MutableSet<String>) -> Unit): Set<Long> = PreferenceUtils.updateLongSet(prefs, key, block)
 
-    protected fun clearStringSet(key: String): Set<String> {
-        prefs.edit().putStringSet(key, emptySet()).apply()
-        return emptySet()
-    }
+    protected fun clearStringSet(key: String): Set<String> = PreferenceUtils.clearStringSet(prefs, key)
 
-    protected fun clearLongSet(key: String): Set<Long> {
-        prefs.edit().putStringSet(key, emptySet()).apply()
-        return emptySet()
-    }
+    protected fun clearLongSet(key: String): Set<Long> = PreferenceUtils.clearLongSet(prefs, key)
 
-    protected fun migrateAndGetFileTypes(enabledNames: Set<String>): Set<FileType> {
-        val migratedNames = enabledNames.map { name ->
-            // Migrate old IMAGES or VIDEOS to PHOTOS_AND_VIDEOS
-            when (name) {
-                "IMAGES", "VIDEOS" -> "PHOTOS_AND_VIDEOS"
-                else -> name
-            }
-        }.toSet()
+    // ============================================================================
+    // Common Preference Operations for Management
+    // ============================================================================
 
-        val result = migratedNames.mapNotNull { name ->
-            FileType.values().find { it.name == name }
-        }.toSet()
 
-        return result
-    }
+    // ============================================================================
+    // Generic CRUD Operations for Common Patterns (delegated to PreferenceUtils)
+    // ============================================================================
+
+    /**
+     * Generic getter for pinned items using string keys.
+     */
+    protected fun getPinnedStringItems(key: String): Set<String> = PreferenceUtils.getPinnedStringItems(prefs, key)
+
+    /**
+     * Generic pin operation for string-based items.
+     */
+    protected fun pinStringItem(key: String, itemId: String): Set<String> = PreferenceUtils.pinStringItem(prefs, key, itemId)
+
+    /**
+     * Generic unpin operation for string-based items.
+     */
+    protected fun unpinStringItem(key: String, itemId: String): Set<String> = PreferenceUtils.unpinStringItem(prefs, key, itemId)
+
+    /**
+     * Generic getter for excluded items using string keys.
+     */
+    protected fun getExcludedStringItems(key: String): Set<String> = PreferenceUtils.getExcludedStringItems(prefs, key)
+
+    /**
+     * Generic exclude operation for string-based items.
+     */
+    protected fun excludeStringItem(key: String, itemId: String): Set<String> = PreferenceUtils.excludeStringItem(prefs, key, itemId)
+
+    /**
+     * Generic remove excluded operation for string-based items.
+     */
+    protected fun removeExcludedStringItem(key: String, itemId: String): Set<String> = PreferenceUtils.removeExcludedStringItem(prefs, key, itemId)
+
+    /**
+     * Generic clear all excluded items operation for string keys.
+     */
+    protected fun clearAllExcludedStringItems(key: String): Set<String> = PreferenceUtils.clearAllExcludedStringItems(prefs, key)
+
+    /**
+     * Generic getter for pinned items using long keys.
+     */
+    protected fun getPinnedLongItems(key: String): Set<Long> = PreferenceUtils.getPinnedLongItems(prefs, key)
+
+    /**
+     * Generic pin operation for long-based items.
+     */
+    protected fun pinLongItem(key: String, itemId: Long): Set<Long> = PreferenceUtils.pinLongItem(prefs, key, itemId)
+
+    /**
+     * Generic unpin operation for long-based items.
+     */
+    protected fun unpinLongItem(key: String, itemId: Long): Set<Long> = PreferenceUtils.unpinLongItem(prefs, key, itemId)
+
+    /**
+     * Generic getter for excluded items using long keys.
+     */
+    protected fun getExcludedLongItems(key: String): Set<Long> = PreferenceUtils.getExcludedLongItems(prefs, key)
+
+    /**
+     * Generic exclude operation for long-based items.
+     */
+    protected fun excludeLongItem(key: String, itemId: Long): Set<Long> = PreferenceUtils.excludeLongItem(prefs, key, itemId)
+
+    /**
+     * Generic remove excluded operation for long-based items.
+     */
+    protected fun removeExcludedLongItem(key: String, itemId: Long): Set<Long> = PreferenceUtils.removeExcludedLongItem(prefs, key, itemId)
+
+    /**
+     * Generic clear all excluded items operation for long keys.
+     */
+    protected fun clearAllExcludedLongItems(key: String): Set<Long> = PreferenceUtils.clearAllExcludedLongItems(prefs, key)
+
+    protected fun migrateAndGetFileTypes(enabledNames: Set<String>): Set<FileType> = PreferenceUtils.migrateAndGetFileTypes(enabledNames)
 
     protected fun getCurrentInstallTime(): Long? {
         return try {

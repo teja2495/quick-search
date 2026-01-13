@@ -15,39 +15,35 @@ class AppPreferences(context: Context) : BasePreferences(context) {
     // App Preferences
     // ============================================================================
 
-    fun getSuggestionHiddenPackages(): Set<String> = getStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS)
+    fun getSuggestionHiddenPackages(): Set<String> = getStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS)
 
-    fun getResultHiddenPackages(): Set<String> = getStringSet(AppPreferences.KEY_HIDDEN_RESULTS)
+    fun getResultHiddenPackages(): Set<String> = getStringSet(BasePreferences.KEY_HIDDEN_RESULTS)
 
-    fun getPinnedPackages(): Set<String> = getStringSet(AppPreferences.KEY_PINNED)
+    fun getPinnedPackages(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED)
 
-    fun hidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS) {
+    fun hidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
         it.add(packageName)
     }
 
-    fun hidePackageInResults(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_HIDDEN_RESULTS) {
+    fun hidePackageInResults(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
         it.add(packageName)
     }
 
-    fun unhidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS) {
+    fun unhidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
         it.remove(packageName)
     }
 
-    fun unhidePackageInResults(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_HIDDEN_RESULTS) {
+    fun unhidePackageInResults(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
         it.remove(packageName)
     }
 
-    fun pinPackage(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_PINNED) {
-        it.add(packageName)
-    }
+    fun pinPackage(packageName: String): Set<String> = pinStringItem(BasePreferences.KEY_PINNED, packageName)
 
-    fun unpinPackage(packageName: String): Set<String> = updateStringSet(AppPreferences.KEY_PINNED) {
-        it.remove(packageName)
-    }
+    fun unpinPackage(packageName: String): Set<String> = unpinStringItem(BasePreferences.KEY_PINNED, packageName)
 
-    fun clearAllHiddenAppsInSuggestions(): Set<String> = clearStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS)
+    fun clearAllHiddenAppsInSuggestions(): Set<String> = clearStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS)
 
-    fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(AppPreferences.KEY_HIDDEN_RESULTS)
+    fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(BasePreferences.KEY_HIDDEN_RESULTS)
 
     fun getAppLaunchCount(packageName: String): Int {
         return prefs.getInt(PREFIX_LAUNCH_COUNT + packageName, 0)
@@ -67,12 +63,6 @@ class AppPreferences(context: Context) : BasePreferences(context) {
 
     companion object {
         private const val PREFIX_LAUNCH_COUNT = "launch_count_"
-
-        // App preferences keys
-        const val KEY_HIDDEN_LEGACY = "hidden_packages"
-        const val KEY_HIDDEN_SUGGESTIONS = "hidden_packages_suggestions"
-        const val KEY_HIDDEN_RESULTS = "hidden_packages_results"
-        const val KEY_PINNED = "pinned_packages"
     }
 
     // ============================================================================
@@ -80,25 +70,25 @@ class AppPreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     private fun migrateHiddenPackages() {
-        val legacyHidden = getStringSet(AppPreferences.KEY_HIDDEN_LEGACY)
-        val currentSuggestions = prefs.getStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS, null)
-        val currentResults = prefs.getStringSet(AppPreferences.KEY_HIDDEN_RESULTS, null)
+        val legacyHidden = getStringSet(BasePreferences.KEY_HIDDEN_LEGACY)
+        val currentSuggestions = prefs.getStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS, null)
+        val currentResults = prefs.getStringSet(BasePreferences.KEY_HIDDEN_RESULTS, null)
 
         if (legacyHidden.isEmpty()) {
             // Nothing to migrate; ensure legacy key is cleaned up if present
-            if (prefs.contains(AppPreferences.KEY_HIDDEN_LEGACY)) {
-                prefs.edit().remove(AppPreferences.KEY_HIDDEN_LEGACY).apply()
+            if (prefs.contains(BasePreferences.KEY_HIDDEN_LEGACY)) {
+                prefs.edit().remove(BasePreferences.KEY_HIDDEN_LEGACY).apply()
             }
             return
         }
 
         val editor = prefs.edit()
         if (currentSuggestions.isNullOrEmpty()) {
-            editor.putStringSet(AppPreferences.KEY_HIDDEN_SUGGESTIONS, legacyHidden)
+            editor.putStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS, legacyHidden)
         }
         if (currentResults.isNullOrEmpty()) {
-            editor.putStringSet(AppPreferences.KEY_HIDDEN_RESULTS, legacyHidden)
+            editor.putStringSet(BasePreferences.KEY_HIDDEN_RESULTS, legacyHidden)
         }
-        editor.remove(AppPreferences.KEY_HIDDEN_LEGACY).apply()
+        editor.remove(BasePreferences.KEY_HIDDEN_LEGACY).apply()
     }
 }

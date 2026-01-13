@@ -1,15 +1,13 @@
 package com.tk.quicksearch.data
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.provider.ContactsContract
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.ContactMethodMimeTypes
+import com.tk.quicksearch.util.PermissionUtils
 import com.tk.quicksearch.util.PhoneNumberUtils
 import com.tk.quicksearch.util.SearchRankingUtils
 import java.util.Locale
@@ -97,12 +95,7 @@ class ContactRepository(
 
     // ==================== Public API ====================
 
-    fun hasPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
+    fun hasPermission(): Boolean = PermissionUtils.hasContactsPermission(context)
 
     /**
      * @param contactIds Set of contact IDs to retrieve

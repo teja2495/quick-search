@@ -16,14 +16,14 @@ class ShortcutPreferences(context: Context) : BasePreferences(context) {
     // Shortcut Preferences
     // ============================================================================
 
-    fun areShortcutsEnabled(): Boolean = getBooleanPref(ShortcutPreferences.KEY_SHORTCUTS_ENABLED, true)
+    fun areShortcutsEnabled(): Boolean = getBooleanPref(BasePreferences.KEY_SHORTCUTS_ENABLED, true)
 
     fun setShortcutsEnabled(enabled: Boolean) {
-        setBooleanPref(ShortcutPreferences.KEY_SHORTCUTS_ENABLED, enabled)
+        setBooleanPref(BasePreferences.KEY_SHORTCUTS_ENABLED, enabled)
     }
 
     fun getShortcutCode(engine: SearchEngine): String {
-        val key = "${ShortcutPreferences.KEY_SHORTCUT_CODE_PREFIX}${engine.name}"
+        val key = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX}${engine.name}"
         val defaultCode = engine.getDefaultShortcutCode()
         val storedCode = prefs.getString(key, defaultCode) ?: defaultCode
         val normalizedCode = normalizeShortcutCodeInput(storedCode)
@@ -35,7 +35,7 @@ class ShortcutPreferences(context: Context) : BasePreferences(context) {
     }
 
     fun setShortcutCode(engine: SearchEngine, code: String) {
-        val key = "${ShortcutPreferences.KEY_SHORTCUT_CODE_PREFIX}${engine.name}"
+        val key = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX}${engine.name}"
         val normalizedCode = normalizeShortcutCodeInput(code)
         if (!isValidShortcutCode(normalizedCode)) {
             return
@@ -44,12 +44,12 @@ class ShortcutPreferences(context: Context) : BasePreferences(context) {
     }
 
     fun isShortcutEnabled(engine: SearchEngine): Boolean {
-        val key = "${ShortcutPreferences.KEY_SHORTCUT_ENABLED_PREFIX}${engine.name}"
+        val key = "${BasePreferences.KEY_SHORTCUT_ENABLED_PREFIX}${engine.name}"
         return getBooleanPref(key, true)
     }
 
     fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) {
-        val key = "${ShortcutPreferences.KEY_SHORTCUT_ENABLED_PREFIX}${engine.name}"
+        val key = "${BasePreferences.KEY_SHORTCUT_ENABLED_PREFIX}${engine.name}"
         setBooleanPref(key, enabled)
     }
 
@@ -57,10 +57,4 @@ class ShortcutPreferences(context: Context) : BasePreferences(context) {
         return SearchEngine.values().associateWith { getShortcutCode(it) }
     }
 
-    companion object {
-        // Shortcut preferences keys
-        const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"
-        const val KEY_SHORTCUT_CODE_PREFIX = "shortcut_code_"
-        const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
-    }
 }

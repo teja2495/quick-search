@@ -40,6 +40,50 @@ import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.util.hapticConfirm
 
 /**
+ * Reusable navigation section for settings cards.
+ * Shows a title, description, and chevron icon with click handling.
+ */
+@Composable
+private fun NavigationSection(
+    title: String,
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(contentPadding),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(
+            imageVector = Icons.Rounded.ChevronRight,
+            contentDescription = stringResource(R.string.desc_navigate_forward),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
+
+/**
  * Combined navigation card for excluded items and additional settings with divider.
  */
 @Composable
@@ -58,36 +102,12 @@ fun CombinedSettingsNavigationCard(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         // Excluded Items Section (always shown)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onExcludedItemsClick)
-                .padding(contentPadding),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = excludedItemsTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = excludedItemsDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Icon(
-                imageVector = Icons.Rounded.ChevronRight,
-                contentDescription = stringResource(R.string.desc_navigate_forward),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
+        NavigationSection(
+            title = excludedItemsTitle,
+            description = excludedItemsDescription,
+            onClick = onExcludedItemsClick,
+            contentPadding = contentPadding
+        )
 
         // Divider
         HorizontalDivider(
@@ -95,36 +115,12 @@ fun CombinedSettingsNavigationCard(
         )
 
         // Additional Settings Section (always shown)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onAdditionalSettingsClick)
-                .padding(contentPadding),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = additionalSettingsTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = additionalSettingsDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Icon(
-                imageVector = Icons.Rounded.ChevronRight,
-                contentDescription = stringResource(R.string.desc_navigate_forward),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
+        NavigationSection(
+            title = additionalSettingsTitle,
+            description = additionalSettingsDescription,
+            onClick = onAdditionalSettingsClick,
+            contentPadding = contentPadding
+        )
     }
 }
 
@@ -239,10 +235,12 @@ fun RefreshDataCard(
 }
 
 @Composable
-fun WebSuggestionsToggleCard(
+fun ToggleCard(
+    title: String,
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
     val view = LocalView.current
     ElevatedCard(
@@ -252,16 +250,29 @@ fun WebSuggestionsToggleCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-            .clickable { onToggle(!enabled) }
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+                .clickable { onToggle(!enabled) }
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = stringResource(R.string.web_search_suggestions_title),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                icon?.let {
+                    Icon(
+                        imageVector = it,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Switch(
                 checked = enabled,
                 onCheckedChange = { newValue ->
@@ -271,6 +282,20 @@ fun WebSuggestionsToggleCard(
             )
         }
     }
+}
+
+@Composable
+fun WebSuggestionsToggleCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ToggleCard(
+        title = stringResource(R.string.web_search_suggestions_title),
+        enabled = enabled,
+        onToggle = onToggle,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -296,36 +321,12 @@ fun CombinedSearchEnginesCard(
     ) {
         Column {
             // Search Engines Section (with navigation)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onSearchEnginesClick)
-                    .padding(contentPadding),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = searchEnginesTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = searchEnginesDescription,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            NavigationSection(
+                title = searchEnginesTitle,
+                description = searchEnginesDescription,
+                onClick = onSearchEnginesClick,
+                contentPadding = contentPadding
+            )
 
             // Divider
             HorizontalDivider(
@@ -563,44 +564,13 @@ fun CalculatorToggleCard(
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val view = LocalView.current
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggle(!enabled) }
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Calculate,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
-                Text(
-                    text = stringResource(R.string.calculator_toggle_title),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            Switch(
-                checked = enabled,
-                onCheckedChange = { newValue ->
-                    hapticToggle(view)()
-                    onToggle(newValue)
-                }
-            )
-        }
-    }
+    ToggleCard(
+        title = stringResource(R.string.calculator_toggle_title),
+        enabled = enabled,
+        onToggle = onToggle,
+        modifier = modifier,
+        icon = Icons.Rounded.Calculate
+    )
 }
 
 @Composable
@@ -616,77 +586,27 @@ fun CombinedAssistantCard(
     ) {
         Column {
             // Default Assistant Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onSetDefaultAssistant)
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_default_assistant_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(
-                            if (isDefaultAssistant) {
-                                R.string.settings_default_assistant_desc_change
-                            } else {
-                                R.string.settings_default_assistant_desc
-                            }
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            NavigationSection(
+                title = stringResource(R.string.settings_default_assistant_title),
+                description = stringResource(
+                    if (isDefaultAssistant) {
+                        R.string.settings_default_assistant_desc_change
+                    } else {
+                        R.string.settings_default_assistant_desc
+                    }
+                ),
+                onClick = onSetDefaultAssistant
+            )
 
             // Divider
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Quick Settings Tile Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onAddQuickSettingsTile)
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_quick_settings_tile_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_quick_settings_tile_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.desc_navigate_forward),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            NavigationSection(
+                title = stringResource(R.string.settings_quick_settings_tile_title),
+                description = stringResource(R.string.settings_quick_settings_tile_desc),
+                onClick = onAddQuickSettingsTile
+            )
         }
     }
 }
