@@ -123,10 +123,7 @@ fun SearchRoute(
         ).show()
     }
 
-    // Set the callback on the ViewModel
-    LaunchedEffect(viewModel, showToast) {
-        viewModel.setOnShowToast(showToast)
-    }
+    // UI feedback is now handled by UiFeedbackService in the ViewModel
 
     // Wrapper function that calls directly - performCall will handle permission check and fallback to dialer
     val callContactWithPermission: (ContactInfo) -> Unit = { contact ->

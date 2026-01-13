@@ -4,6 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.SettingsShortcutRepository
 import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.interfaces.UiFeedbackService
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +23,7 @@ class SettingsSearchHandler(
     private val repository: SettingsShortcutRepository,
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
-    private val onShowToast: ((Int, String?) -> Unit)? = null
+    private val uiFeedbackService: UiFeedbackService
 ) {
     private var availableSettings: List<SettingShortcut> = emptyList()
 
@@ -143,7 +144,7 @@ class SettingsSearchHandler(
             val intent = repository.buildIntent(setting)
             context.startActivity(intent)
         }.onFailure {
-            onShowToast?.invoke(R.string.error_open_setting, setting.title)
+            uiFeedbackService.showToast(R.string.error_open_setting)
         }
     }
 }

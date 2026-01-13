@@ -6,6 +6,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.interfaces.UiFeedbackService
 import com.tk.quicksearch.permissions.PermissionRequestHandler
 import com.tk.quicksearch.search.contacts.ContactIntentHelpers
 import com.tk.quicksearch.search.core.DirectDialChoice
@@ -28,12 +29,12 @@ class ContactActionHandler(
     private val getCurrentState: () -> SearchUiState,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit,
-    private val onShowToast: (Int) -> Unit
+    private val uiFeedbackService: UiFeedbackService
 ) {
 
     fun callContact(contactInfo: ContactInfo) {
         if (contactInfo.phoneNumbers.isEmpty()) {
-            onShowToast(R.string.error_missing_phone_number)
+            uiFeedbackService.showToast(R.string.error_missing_phone_number)
             return
         }
 
@@ -57,7 +58,7 @@ class ContactActionHandler(
 
     fun smsContact(contactInfo: ContactInfo) {
         if (contactInfo.phoneNumbers.isEmpty()) {
-            onShowToast(R.string.error_missing_phone_number)
+            uiFeedbackService.showToast(R.string.error_missing_phone_number)
             return
         }
 
@@ -174,7 +175,7 @@ class ContactActionHandler(
             // Handle WhatsApp call if present
             if (pendingWhatsAppCallDataId != null) {
                 val dataId = pendingWhatsAppCallDataId.toLongOrNull()
-                val success = ContactIntentHelpers.openWhatsAppCall(context, dataId, onShowToast)
+                val success = ContactIntentHelpers.openWhatsAppCall(context, dataId) { resId -> uiFeedbackService.showToast(resId) }
                 if (success) {
                     clearQueryIfEnabled()
                 }
@@ -186,7 +187,7 @@ class ContactActionHandler(
             }
             // If permission is denied for WhatsApp call, show error
             if (pendingWhatsAppCallDataId != null) {
-                onShowToast(R.string.error_whatsapp_call_permission)
+                uiFeedbackService.showToast(R.string.error_whatsapp_call_permission)
             }
         }
     }
@@ -210,7 +211,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.Email -> {
-                ContactIntentHelpers.composeEmail(context, method.data, onShowToast)
+                ContactIntentHelpers.composeEmail(context, method.data) { resId -> uiFeedbackService.showToast(resId) }
                 clearQueryIfEnabled()
             }
 
@@ -219,7 +220,7 @@ class ContactActionHandler(
             }
 
             is ContactMethod.WhatsAppMessage -> {
-                ContactIntentHelpers.openWhatsAppChat(context, method.dataId, onShowToast)
+                ContactIntentHelpers.openWhatsAppChat(context, method.dataId) { resId -> uiFeedbackService.showToast(resId) }
                 clearQueryIfEnabled()
             }
 
@@ -228,12 +229,12 @@ class ContactActionHandler(
             }
 
             is ContactMethod.TelegramMessage -> {
-                ContactIntentHelpers.openTelegramChat(context, method.dataId, onShowToast)
+                ContactIntentHelpers.openTelegramChat(context, method.dataId) { resId -> uiFeedbackService.showToast(resId) }
                 clearQueryIfEnabled()
             }
 
             is ContactMethod.TelegramCall -> {
-                val success = ContactIntentHelpers.openTelegramCall(context, method.dataId, onShowToast)
+                val success = ContactIntentHelpers.openTelegramCall(context, method.dataId) { resId -> uiFeedbackService.showToast(resId) }
                 if (success) {
                     clearQueryIfEnabled()
                 }
@@ -247,12 +248,12 @@ class ContactActionHandler(
             }
 
             is ContactMethod.VideoCall -> {
-                ContactIntentHelpers.openVideoCall(context, method.data, method.packageName, onShowToast)
+                ContactIntentHelpers.openVideoCall(context, method.data, method.packageName) { resId -> uiFeedbackService.showToast(resId) }
                 clearQueryIfEnabled()
             }
 
             is ContactMethod.GoogleMeet -> {
-                val success = ContactIntentHelpers.openGoogleMeet(context, method.dataId ?: return, onShowToast)
+                val success = ContactIntentHelpers.openGoogleMeet(context, method.dataId ?: return) { resId -> uiFeedbackService.showToast(resId) }
                 if (success) {
                     clearQueryIfEnabled()
                 }
@@ -261,18 +262,18 @@ class ContactActionHandler(
             is ContactMethod.CustomApp -> {
                 // Try to use dataId approach first, fallback to data approach
                 if (method.dataId != null) {
-                    val success = ContactIntentHelpers.openCustomAppWithDataId(context, method.dataId, method.mimeType, method.packageName, onShowToast)
+                    val success = ContactIntentHelpers.openCustomAppWithDataId(context, method.dataId, method.mimeType, method.packageName) { resId -> uiFeedbackService.showToast(resId) }
                     if (success) {
                         clearQueryIfEnabled()
                     }
                 } else {
-                    ContactIntentHelpers.openCustomApp(context, method.data, method.mimeType, method.packageName, onShowToast)
+                    ContactIntentHelpers.openCustomApp(context, method.data, method.mimeType, method.packageName) { resId -> uiFeedbackService.showToast(resId) }
                     clearQueryIfEnabled()
                 }
             }
 
             is ContactMethod.ViewInContactsApp -> {
-                ContactIntentHelpers.openContact(context, contactInfo, onShowToast)
+                ContactIntentHelpers.openContact(context, contactInfo) { resId -> uiFeedbackService.showToast(resId) }
                 clearQueryIfEnabled()
             }
         }
@@ -293,8 +294,8 @@ class ContactActionHandler(
     private fun performMessaging(number: String) {
         when (getMessagingApp()) {
             MessagingApp.MESSAGES -> performSms(number)
-            MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number, onShowToast)
-            MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number, onShowToast)
+            MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> uiFeedbackService.showToast(resId) }
+            MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number) { resId -> uiFeedbackService.showToast(resId) }
         }
     }
 
@@ -305,7 +306,7 @@ class ContactActionHandler(
     private fun handleWhatsAppCallWithPermission(dataId: Long?) {
         val hasPermission = PermissionRequestHandler.checkCallPermission(context)
         if (hasPermission) {
-            val success = ContactIntentHelpers.openWhatsAppCall(context, dataId, onShowToast)
+            val success = ContactIntentHelpers.openWhatsAppCall(context, dataId) { resId -> uiFeedbackService.showToast(resId) }
             if (success) {
                 clearQueryIfEnabled()
             }
@@ -322,13 +323,13 @@ class ContactActionHandler(
     private fun handleWhatsAppVideoCallWithPermission(dataId: Long?) {
         if (dataId == null) {
             Log.w("ContactActionHandler", "WhatsApp video call missing dataId")
-            onShowToast(R.string.error_whatsapp_video_call_missing_data)
+            uiFeedbackService.showToast(R.string.error_whatsapp_video_call_missing_data)
             return
         }
 
         val hasPermission = PermissionRequestHandler.checkCallPermission(context)
         if (hasPermission) {
-            val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId, onShowToast)
+            val success = ContactIntentHelpers.openWhatsAppVideoCall(context, dataId) { resId -> uiFeedbackService.showToast(resId) }
             if (success) {
                 clearQueryIfEnabled()
             }

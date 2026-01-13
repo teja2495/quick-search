@@ -1,43 +1,44 @@
-package com.tk.quicksearch.search.handlers
+package com.tk.quicksearch.services
 
 import android.app.Application
-import android.content.Context
-import android.widget.Toast
-import com.tk.quicksearch.R
 import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.interfaces.NavigationService
+import com.tk.quicksearch.interfaces.UiFeedbackService
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.search.core.IntentHelpers
+import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.contacts.ContactIntentHelpers
 import com.tk.quicksearch.search.settings.SettingsSearchHandler
-import com.tk.quicksearch.model.SettingShortcut
 
-class NavigationHandler(
+/**
+ * Implementation of NavigationService for handling navigation and intent operations
+ */
+class NavigationServiceImpl(
     private val application: Application,
     private val userPreferences: UserAppPreferences,
     private val settingsSearchHandler: SettingsSearchHandler,
     private val onRequestDirectSearch: (String) -> Unit,
     private val onClearQuery: () -> Unit,
     private val clearQueryAfterSearchEngine: Boolean,
-    private val uiFeedbackService: com.tk.quicksearch.interfaces.UiFeedbackService
-) {
-    private val context: Context get() = application.applicationContext
+    private val uiFeedbackService: UiFeedbackService
+) : NavigationService {
 
-    fun openUsageAccessSettings() {
+    override fun openUsageAccessSettings() {
         IntentHelpers.openUsageAccessSettings(application)
     }
 
-    fun openAppSettings() {
+    override fun openAppSettings() {
         IntentHelpers.openAppSettings(application)
     }
 
-    fun openAllFilesAccessSettings() {
+    override fun openAllFilesAccessSettings() {
         IntentHelpers.openAllFilesAccessSettings(application)
     }
 
-    fun openFilesPermissionSettings() {
+    override fun openFilesPermissionSettings() {
         val targetMethod = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             IntentHelpers::openAllFilesAccessSettings
         } else {
@@ -46,33 +47,29 @@ class NavigationHandler(
         targetMethod(application)
     }
 
-    fun openContactPermissionSettings() {
+    override fun openContactPermissionSettings() {
         IntentHelpers.openAppSettings(application)
     }
 
-    fun launchApp(appInfo: AppInfo) {
+    override fun launchApp(appInfo: AppInfo) {
         IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
             uiFeedbackService.showToast(stringResId)
         }
         userPreferences.incrementAppLaunchCount(appInfo.packageName)
         onClearQuery()
     }
 
-    fun openAppInfo(appInfo: AppInfo) {
+    override fun openAppInfo(appInfo: AppInfo) {
         IntentHelpers.openAppInfo(application, appInfo.packageName)
     }
 
-    fun requestUninstall(appInfo: AppInfo) {
+    override fun requestUninstall(appInfo: AppInfo) {
         IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
             uiFeedbackService.showToast(stringResId)
         }
     }
 
-    fun openSearchUrl(query: String, searchEngine: SearchEngine, clearQueryAfterSearchEngine: Boolean) {
+    override fun openSearchUrl(query: String, searchEngine: SearchEngine, clearQueryAfterSearchEngine: Boolean) {
         val trimmedQuery = query.trim()
         if (searchEngine == SearchEngine.DIRECT_SEARCH) {
             onRequestDirectSearch(trimmedQuery)
@@ -84,8 +81,6 @@ class NavigationHandler(
             null
         }
         IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) { stringResId, formatArg ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
             uiFeedbackService.showToast(stringResId)
         }
 
@@ -99,15 +94,13 @@ class NavigationHandler(
         }
     }
 
-    fun searchIconPacks(clearQueryAfter: Boolean = false) {
-        val query = application.getString(R.string.settings_icon_pack_search_query)
-        openSearchUrl(query, SearchEngine.GOOGLE_PLAY, clearQueryAfter)
+    override fun searchIconPacks(clearQueryAfterSearchEngine: Boolean) {
+        val query = application.getString(com.tk.quicksearch.R.string.settings_icon_pack_search_query)
+        openSearchUrl(query, SearchEngine.GOOGLE_PLAY, clearQueryAfterSearchEngine)
     }
 
-    fun openFile(deviceFile: DeviceFile) {
+    override fun openFile(deviceFile: DeviceFile) {
         IntentHelpers.openFile(application, deviceFile) { stringResId, formatArg ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
             uiFeedbackService.showToast(stringResId)
         }
         if (clearQueryAfterSearchEngine) {
@@ -115,12 +108,7 @@ class NavigationHandler(
         }
     }
 
-    fun openSetting(setting: SettingShortcut) {
-        settingsSearchHandler.openSetting(setting)
-        onClearQuery()
-    }
-
-    fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {
+    override fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {
         ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
             uiFeedbackService.showToast(stringResId)
         }
@@ -129,7 +117,7 @@ class NavigationHandler(
         }
     }
 
-    fun openEmail(email: String) {
+    override fun openEmail(email: String) {
         ContactIntentHelpers.composeEmail(application, email) { stringResId ->
             uiFeedbackService.showToast(stringResId)
         }

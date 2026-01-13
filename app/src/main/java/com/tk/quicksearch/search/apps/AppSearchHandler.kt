@@ -4,6 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.data.AppUsageRepository
 import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.interfaces.UiFeedbackService
 import com.tk.quicksearch.model.AppInfo
 import com.tk.quicksearch.util.SearchRankingUtils
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,7 @@ class AppSearchHandler(
     private val scope: CoroutineScope,
     private val onAppsUpdated: () -> Unit,
     private val onLoadingStateChanged: (Boolean, String?) -> Unit,
-    private val onShowToast: (Int) -> Unit
+    private val uiFeedbackService: UiFeedbackService
 ) {
 
     var cachedApps: List<AppInfo> = emptyList()
@@ -70,7 +71,7 @@ class AppSearchHandler(
                     }
 
                     if (showToast) {
-                        onShowToast(R.string.apps_refreshed_successfully)
+                        uiFeedbackService.showToast(R.string.apps_refreshed_successfully)
                     }
                 }
                 .onFailure { error ->
@@ -78,7 +79,7 @@ class AppSearchHandler(
                     onLoadingStateChanged(false, error.localizedMessage ?: fallbackMessage)
                     
                     if (showToast) {
-                        onShowToast(R.string.failed_to_refresh_apps)
+                        uiFeedbackService.showToast(R.string.failed_to_refresh_apps)
                     }
                 }
         }
@@ -93,7 +94,7 @@ class AppSearchHandler(
             onLoadingStateChanged(true, null)
             onAppsUpdated() // VM will see empty cachedApps
             
-            onShowToast(R.string.settings_cache_cleared_toast)
+            uiFeedbackService.showToast(R.string.settings_cache_cleared_toast)
             refreshApps()
         }
     }
