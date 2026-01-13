@@ -89,65 +89,22 @@ object AppColors {
     /** Dialog text color */
     val DialogText = Color.White
 
-    // ============================================================================
-    // TEXT COLORS
-    // ============================================================================
 
-    /** Primary text color for light backgrounds */
-    val TextPrimaryLight = Color(0xFF1C1B1FL)
-
-    /** Primary text color for dark backgrounds */
-    val TextPrimaryDark = Color.White
-
-    /** Secondary text color for dark backgrounds */
-    val TextSecondaryDark = Color.White.copy(alpha = 0.7f)
-
-    /** Tertiary text color for dark backgrounds */
-    val TextTertiaryDark = Color.White.copy(alpha = 0.3f)
-
-    /** Icon color for light backgrounds */
-    val IconLight = Color.White
-
-    /** Icon color for dark backgrounds with transparency */
-    val IconDarkTransparent = Color.White.copy(alpha = 0.7f)
 
     // ============================================================================
-    // WIDGET COLORS
+    // CARD THEMING UTILITIES
     // ============================================================================
 
-    /** Widget border color (always white with transparency) */
-    val WidgetBorder = Color.White
-
-    /** Widget dark grey text color for high contrast backgrounds */
-    val WidgetDarkGrey = Color(0xFF424242)
-
-    /** Widget background white */
-    val WidgetBackgroundWhite = Color.White
-
-    /** Widget background black */
-    val WidgetBackgroundBlack = Color.Black
-
-    // ============================================================================
-    // SEARCH RESULT COLORS (Legacy - kept for backward compatibility)
-    // ============================================================================
-
-    /** Wallpaper enabled background color for search results */
-    val WallpaperEnabledBackgroundColor = OverlayMedium
-
-    @Composable
-    fun getContainerColor(showWallpaperBackground: Boolean): Color {
-        return if (showWallpaperBackground) {
-            WallpaperEnabledBackgroundColor
-        } else {
-            MaterialTheme.colorScheme.surfaceContainer
-        }
-    }
-
+    /**
+     * Returns appropriate card colors based on wallpaper background setting.
+     * When wallpaper background is enabled, uses a semi-transparent overlay.
+     * When disabled, uses standard Material Design surface container color.
+     */
     @Composable
     fun getCardColors(showWallpaperBackground: Boolean): CardColors {
         return if (showWallpaperBackground) {
             CardDefaults.cardColors(
-                containerColor = WallpaperEnabledBackgroundColor
+                containerColor = OverlayMedium
             )
         } else {
             CardDefaults.elevatedCardColors(
@@ -156,17 +113,16 @@ object AppColors {
         }
     }
 
-    @Composable
-    fun getElevation(showWallpaperBackground: Boolean): Dp {
-        return if (showWallpaperBackground) 0.dp else 2.dp
-    }
-
+    /**
+     * Returns appropriate card elevation based on wallpaper background setting.
+     * Cards with wallpaper background use no elevation, others use standard elevation.
+     */
     @Composable
     fun getCardElevation(showWallpaperBackground: Boolean): CardElevation {
         return if (showWallpaperBackground) {
-             CardDefaults.cardElevation(defaultElevation = 0.dp)
+            CardDefaults.cardElevation(defaultElevation = 0.dp)
         } else {
-             CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         }
     }
 
