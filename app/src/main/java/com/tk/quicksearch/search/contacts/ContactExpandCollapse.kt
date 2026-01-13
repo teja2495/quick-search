@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.ui.ContactUiConstants
 
 // ============================================================================
 // Expand/Collapse Buttons
@@ -40,7 +41,7 @@ internal fun ExpandButton(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }
@@ -63,7 +64,7 @@ internal fun CollapseButton(
             imageVector = Icons.Rounded.ExpandLess,
             contentDescription = stringResource(R.string.desc_collapse),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }

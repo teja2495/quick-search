@@ -71,6 +71,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     @Volatile
     private var cachedAllSearchableApps: List<AppInfo> = emptyList()
 
+    // UI callback for showing toasts
+    private var onShowToast: ((Int) -> Unit)? = null
+
+    fun setOnShowToast(callback: (Int) -> Unit) {
+        onShowToast = callback
+    }
+
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
         _uiState.update(updater)
     }
@@ -128,11 +135,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
             },
             onShowToast = { stringResId ->
-                android.widget.Toast.makeText(
-                    getApplication(),
-                    getApplication<Application>().getString(stringResId),
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(stringResId)
             }
         )
     }
@@ -144,16 +147,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences = userPreferences,
             scope = viewModelScope,
             onShowToast = { stringResId, formatArg ->
-                val message = if (formatArg != null) {
-                    getApplication<Application>().getString(stringResId, formatArg)
-                } else {
-                    getApplication<Application>().getString(stringResId)
-                }
-                android.widget.Toast.makeText(
-                    getApplication(),
-                    message,
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
+                // For now, just show the string resource ID since we can't format from UI layer
+                // TODO: Consider passing formatted strings or extending the callback
+                onShowToast?.invoke(stringResId)
             }
         )
     }
@@ -184,11 +180,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             onClearQuery = this::onNavigationTriggered,
             clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
             onShowToast = { stringResId ->
-                android.widget.Toast.makeText(
-                    getApplication(),
-                    getApplication<Application>().getString(stringResId),
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
+                onShowToast?.invoke(stringResId)
             }
         )
     }
@@ -251,11 +243,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         uiStateUpdater = { update -> _uiState.update(update) },
         clearQuery = this::onNavigationTriggered,
         onShowToast = { stringResId ->
-            android.widget.Toast.makeText(
-                getApplication(),
-                getApplication<Application>().getString(stringResId),
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(stringResId)
         }
     )
 
@@ -389,7 +377,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 amazonDomain = amazonDomain,
                 recentQueriesEnabled = prefs.recentQueriesEnabled,
                 recentQueriesCount = userPreferences.getRecentQueriesCount(),
-                webSuggestionsCount = userPreferences.getWebSuggestionsCount()
+                webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
+                shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner()
             )
         }
         
@@ -647,11 +636,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(contactResults = emptyList()) }
         // Show success toast only for user-triggered refreshes
         if (showToast) {
-            android.widget.Toast.makeText(
-                getApplication(),
-                getApplication<Application>().getString(R.string.contacts_refreshed_successfully),
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.contacts_refreshed_successfully)
         }
     }
 
@@ -661,11 +646,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(fileResults = emptyList()) }
         // Show success toast only for user-triggered refreshes
         if (showToast) {
-            android.widget.Toast.makeText(
-                getApplication(),
-                getApplication<Application>().getString(R.string.files_refreshed_successfully),
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+            onShowToast?.invoke(R.string.files_refreshed_successfully)
         }
     }
 
@@ -1263,6 +1244,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         contactActionHandler.onCallPermissionResult(isGranted)
         // Refresh permission state after request result
         handleOptionalPermissionChange()
+    }
+
+    // Contact methods dialog helpers
+    fun getLastShownPhoneNumber(contactId: Long): String? {
+        return userPreferences.getLastShownPhoneNumber(contactId)
+    }
+
+    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) {
+        userPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
+    }
+
+    // Usage permission banner management
+    fun resetUsagePermissionBannerSessionDismissed() {
+        userPreferences.resetUsagePermissionBannerSessionDismissed()
+        _uiState.update { it.copy(shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner()) }
+    }
+
+    fun incrementUsagePermissionBannerDismissCount() {
+        userPreferences.incrementUsagePermissionBannerDismissCount()
+        _uiState.update { it.copy(shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner()) }
+    }
+
+    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
+        userPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
+        _uiState.update { it.copy(shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner()) }
     }
 
 

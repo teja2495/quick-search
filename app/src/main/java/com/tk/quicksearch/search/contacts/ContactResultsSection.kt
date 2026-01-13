@@ -19,6 +19,8 @@ import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.ui.AppColors
+import com.tk.quicksearch.search.ui.SearchScreenConstants
+import com.tk.quicksearch.search.ui.ContactUiConstants
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
@@ -118,14 +120,14 @@ private fun ContactsResultCard(
     showWallpaperBackground: Boolean = false
 ) {
     val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand = showExpandControls && contacts.size > INITIAL_RESULT_COUNT
+    val canShowExpand = showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
     val shouldShowCollapseButton = isExpanded && showExpandControls
 
     val displayContacts = if (displayAsExpanded) {
         contacts
     } else {
-        contacts.take(INITIAL_RESULT_COUNT)
+        contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
     }
 
     Column(
@@ -235,7 +237,7 @@ private fun ContactList(
                 onClick = onExpandClick,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .height(EXPAND_BUTTON_HEIGHT.dp)
+                    .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
                     .padding(top = 2.dp)
             )
         }

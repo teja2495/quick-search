@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.search.ui.AppColors
+import com.tk.quicksearch.search.ui.ContactUiConstants
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.util.FileUtils
@@ -57,9 +58,7 @@ import com.tk.quicksearch.util.hapticConfirm
 private const val INITIAL_RESULT_COUNT = 1
 private const val FILE_ICON_SIZE = 25
 private const val FILE_ICON_START_PADDING = 4
-private const val EXPAND_BUTTON_HEIGHT = 28
 private const val EXPAND_BUTTON_TOP_PADDING = 2
-private const val EXPAND_ICON_SIZE = 18
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private const val DROPDOWN_CORNER_RADIUS = 24
 
@@ -261,7 +260,7 @@ private fun FileCardContent(
                 onClick = onExpandClick,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .height(EXPAND_BUTTON_HEIGHT.dp)
+                    .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
                     .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
             )
         }
@@ -468,7 +467,7 @@ private fun ExpandButton(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }
@@ -491,7 +490,7 @@ private fun CollapseButton(
             imageVector = Icons.Rounded.ExpandLess,
             contentDescription = stringResource(R.string.desc_collapse),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }

@@ -45,12 +45,11 @@ import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.model.SettingShortcut
 import com.tk.quicksearch.util.hapticConfirm
+import com.tk.quicksearch.search.ui.ContactUiConstants
 
 private const val INITIAL_RESULT_COUNT = 1
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 24
-private const val EXPAND_BUTTON_HEIGHT = 28
-private const val EXPAND_ICON_SIZE = 18
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 
 @Composable
@@ -342,7 +341,7 @@ private fun ExpandButton(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }
@@ -365,7 +364,7 @@ private fun CollapseButton(
             imageVector = Icons.Rounded.ExpandLess,
             contentDescription = stringResource(R.string.desc_collapse),
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(EXPAND_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
         )
     }
 }

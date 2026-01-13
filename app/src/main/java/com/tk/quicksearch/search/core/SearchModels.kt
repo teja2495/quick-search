@@ -148,5 +148,6 @@ data class SearchUiState(
     val webSuggestionWasSelected: Boolean = false,
     val recentQueries: List<String> = emptyList(),
     val recentQueriesEnabled: Boolean = true,
-    val recentQueriesCount: Int = 3
+    val recentQueriesCount: Int = 3,
+    val shouldShowUsagePermissionBanner: Boolean = false
 )

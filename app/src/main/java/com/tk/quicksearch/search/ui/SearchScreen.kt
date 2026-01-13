@@ -107,12 +107,27 @@ fun SearchRoute(
     onSettingsClick: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onShowToast: (Int) -> Unit = {},
     viewModel: SearchViewModel = viewModel(),
     onWelcomeAnimationCompleted: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+
+    // Set up toast callback for ViewModel
+    val showToast: (Int) -> Unit = { stringResId ->
+        android.widget.Toast.makeText(
+            context,
+            context.getString(stringResId),
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    // Set the callback on the ViewModel
+    LaunchedEffect(viewModel, showToast) {
+        viewModel.setOnShowToast(showToast)
+    }
 
     // Wrapper function that calls directly - performCall will handle permission check and fallback to dialer
     val callContactWithPermission: (ContactInfo) -> Unit = { contact ->
@@ -505,6 +520,8 @@ fun SearchScreen(
         onSaveSettingNickname = { setting, nickname ->
             onSaveSettingNickname(setting, nickname)
             nicknameDialogState = null
-        }
+        },
+        getLastShownPhoneNumber = viewModel::getLastShownPhoneNumber,
+        setLastShownPhoneNumber = viewModel::setLastShownPhoneNumber
     )
 }

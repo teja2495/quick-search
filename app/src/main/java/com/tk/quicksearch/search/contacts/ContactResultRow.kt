@@ -58,6 +58,7 @@ import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.ui.ContactUiConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -92,7 +93,7 @@ internal fun ContactResultRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = CONTACT_ROW_MIN_HEIGHT.dp)
+                    .heightIn(min = ContactUiConstants.CONTACT_ROW_MIN_HEIGHT.dp)
                     .combinedClickable(
                         onClick = {
                             // Show contact methods bottom sheet if available, otherwise open contact
@@ -154,7 +155,7 @@ internal fun ContactAvatar(
     photoUri: String?,
     displayName: String,
     onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier.size(CONTACT_AVATAR_SIZE.dp)
+    modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp)
 ) {
     val context = LocalContext.current
     val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
@@ -224,7 +225,7 @@ private fun ContactActionButtons(
             onCallClick()
         },
         enabled = hasNumber,
-        modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
+        modifier = Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
     ) {
         Icon(
             imageVector = Icons.Rounded.Call,
@@ -234,7 +235,7 @@ private fun ContactActionButtons(
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             },
-            modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+            modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
         )
     }
 
@@ -244,7 +245,7 @@ private fun ContactActionButtons(
             onSmsClick()
         },
         enabled = hasNumber,
-        modifier = Modifier.size(ACTION_BUTTON_SIZE.dp)
+        modifier = Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
     ) {
         when (messagingApp) {
             MessagingApp.MESSAGES -> {
@@ -256,7 +257,7 @@ private fun ContactActionButtons(
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
                 )
             }
             MessagingApp.WHATSAPP -> {
@@ -268,7 +269,7 @@ private fun ContactActionButtons(
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
                 )
             }
             MessagingApp.TELEGRAM -> {
@@ -280,7 +281,7 @@ private fun ContactActionButtons(
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    modifier = Modifier.size(ACTION_ICON_SIZE.dp)
+                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
                 )
             }
         }

@@ -77,9 +77,7 @@ fun SettingsRoute(
         personalContext = uiState.personalContext
     )
 
-    val context = LocalContext.current
-    val userPreferences = remember { UserAppPreferences(context) }
-    var shouldShowBanner by remember { mutableStateOf(userPreferences.shouldShowUsagePermissionBanner()) }
+    var shouldShowBanner by remember { mutableStateOf(uiState.shouldShowUsagePermissionBanner) }
     val lifecycleOwner = LocalLifecycleOwner.current
     var pendingEnableDirectDial by remember { mutableStateOf(false) }
 
@@ -266,12 +264,12 @@ fun SettingsRoute(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    userPreferences.resetUsagePermissionBannerSessionDismissed()
-                    shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+                    viewModel.resetUsagePermissionBannerSessionDismissed()
+                    shouldShowBanner = viewModel.uiState.value.shouldShowUsagePermissionBanner
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     viewModel.handleOnResume()
-                    shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+                    shouldShowBanner = viewModel.uiState.value.shouldShowUsagePermissionBanner
                 }
                 else -> {}
             }
@@ -281,9 +279,9 @@ fun SettingsRoute(
     }
 
     val onDismissBanner = {
-        userPreferences.incrementUsagePermissionBannerDismissCount()
-        userPreferences.setUsagePermissionBannerSessionDismissed(true)
-        shouldShowBanner = userPreferences.shouldShowUsagePermissionBanner()
+        viewModel.incrementUsagePermissionBannerDismissCount()
+        viewModel.setUsagePermissionBannerSessionDismissed(true)
+        shouldShowBanner = viewModel.uiState.value.shouldShowUsagePermissionBanner
     }
 
     SettingsScreen(

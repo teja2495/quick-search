@@ -1,10 +1,9 @@
-package com.tk.quicksearch.search.contacts
+package com.tk.quicksearch.search.ui
 
 // ============================================================================
-// Constants
+// Contact UI Constants
 // ============================================================================
 
-const val INITIAL_RESULT_COUNT = 1
 const val CONTACT_ROW_MIN_HEIGHT = 52
 const val CONTACT_AVATAR_SIZE = 40
 const val ACTION_BUTTON_SIZE = 44

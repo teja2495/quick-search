@@ -30,7 +30,9 @@ internal fun SearchScreenDialogs(
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
-    onSaveSettingNickname: (SettingShortcut, String?) -> Unit
+    onSaveSettingNickname: (SettingShortcut, String?) -> Unit,
+    getLastShownPhoneNumber: (Long) -> String?,
+    setLastShownPhoneNumber: (Long, String) -> Unit
 ) {
     // Phone number selection dialog
     state.phoneNumberSelection?.let { selection ->
@@ -53,14 +55,12 @@ internal fun SearchScreenDialogs(
 
     // Contact methods dialog
     state.contactMethodsBottomSheet?.let { contactInfo ->
-        val context = LocalContext.current
-        val userPreferences = remember { com.tk.quicksearch.data.UserAppPreferences(context) }
         ContactMethodsDialog(
             contactInfo = contactInfo,
             onContactMethodClick = onContactMethodClick,
             onDismiss = onDismissContactMethods,
-            getLastShownPhoneNumber = { contactId -> userPreferences.getLastShownPhoneNumber(contactId) },
-            setLastShownPhoneNumber = { contactId, phoneNumber -> userPreferences.setLastShownPhoneNumber(contactId, phoneNumber) }
+            getLastShownPhoneNumber = getLastShownPhoneNumber,
+            setLastShownPhoneNumber = setLastShownPhoneNumber
         )
     }
 

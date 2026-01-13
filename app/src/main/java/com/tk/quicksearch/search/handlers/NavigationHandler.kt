@@ -52,12 +52,9 @@ class NavigationHandler(
 
     fun launchApp(appInfo: AppInfo) {
         IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
-            val message = if (formatArg != null) {
-                application.getString(stringResId, formatArg)
-            } else {
-                application.getString(stringResId)
-            }
-            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+            // For now, just show the string resource ID since we can't format from UI layer
+            // TODO: Consider passing formatted strings or extending the callback
+            onShowToast(stringResId)
         }
         userPreferences.incrementAppLaunchCount(appInfo.packageName)
         onClearQuery()
@@ -69,12 +66,9 @@ class NavigationHandler(
 
     fun requestUninstall(appInfo: AppInfo) {
         IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
-            val message = if (formatArg != null) {
-                application.getString(stringResId, formatArg)
-            } else {
-                application.getString(stringResId)
-            }
-            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+            // For now, just show the string resource ID since we can't format from UI layer
+            // TODO: Consider passing formatted strings or extending the callback
+            onShowToast(stringResId)
         }
     }
 
@@ -90,12 +84,9 @@ class NavigationHandler(
             null
         }
         IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) { stringResId, formatArg ->
-            val message = if (formatArg != null) {
-                application.getString(stringResId, formatArg)
-            } else {
-                application.getString(stringResId)
-            }
-            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+            // For now, just show the string resource ID since we can't format from UI layer
+            // TODO: Consider passing formatted strings or extending the callback
+            onShowToast(stringResId)
         }
 
         // Save the query to recent queries
@@ -115,12 +106,9 @@ class NavigationHandler(
 
     fun openFile(deviceFile: DeviceFile) {
         IntentHelpers.openFile(application, deviceFile) { stringResId, formatArg ->
-            val message = if (formatArg != null) {
-                application.getString(stringResId, formatArg)
-            } else {
-                application.getString(stringResId)
-            }
-            android.widget.Toast.makeText(application, message, android.widget.Toast.LENGTH_SHORT).show()
+            // For now, just show the string resource ID since we can't format from UI layer
+            // TODO: Consider passing formatted strings or extending the callback
+            onShowToast(stringResId)
         }
         if (clearQueryAfterSearchEngine) {
             onClearQuery()
