@@ -38,8 +38,8 @@ HSPLcom/tk/quicksearch/data/UserAppPreferences;->getPinnedPackages()Ljava/util/S
 HSPLcom/tk/quicksearch/data/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
 
 # Search Ranking Utils
-Lcom/tk/quicksearch/util/SearchRankingUtils;
-HSPLcom/tk/quicksearch/util/SearchRankingUtils;->calculateMatchPriorityWithNickname(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+Lcom/tk/quicksearch/search/core/SearchRankingUtils;
+HSPLcom/tk/quicksearch/search/core/SearchRankingUtils;->calculateMatchPriorityWithNickname(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
 # JSON Parsing (for cached apps)
 Lorg/json/JSONArray;

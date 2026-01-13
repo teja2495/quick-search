@@ -53,7 +53,7 @@ object WhatsAppActions {
     /**
      * Opens WhatsApp chat for a phone number (legacy method for backward compatibility).
      */
-    fun openWhatsAppChat(context: Application, phoneNumber: String) {
+    fun openWhatsAppChat(context: Application, phoneNumber: String, onShowToast: ((Int) -> Unit)? = null) {
         if (!PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) {
             Log.w("MessagingService", "Invalid phone number for WhatsApp: $phoneNumber")
             return

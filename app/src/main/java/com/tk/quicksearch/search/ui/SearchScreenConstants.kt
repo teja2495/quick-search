@@ -20,7 +20,7 @@ enum class ExpandedSection {
 /**
  * Constants for search screen layout.
  */
-private object SearchScreenConstants {
+internal object SearchScreenConstants {
     const val INITIAL_RESULT_COUNT = 1
     const val ROW_COUNT = 2
     const val SEARCH_ROW_COUNT = 1

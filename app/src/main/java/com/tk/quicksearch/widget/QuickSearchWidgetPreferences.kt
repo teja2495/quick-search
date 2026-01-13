@@ -9,15 +9,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.tk.quicksearch.search.ui.MicAction
 import kotlinx.parcelize.Parcelize
 
-/**
- * Defines the action to perform when the mic icon is tapped on the widget.
- */
-enum class MicAction(val value: String) {
-    DEFAULT_VOICE_SEARCH("default_voice_search"),
-    DIGITAL_ASSISTANT("digital_assistant")
-}
 
 internal object WidgetDefaults {
     val BORDER_COLOR = Color.Black

@@ -94,7 +94,6 @@ import com.tk.quicksearch.model.ContactInfo
 import com.tk.quicksearch.model.ContactMethod
 import com.tk.quicksearch.model.DeviceFile
 import com.tk.quicksearch.model.SettingShortcut
-import com.tk.quicksearch.util.CalculatorUtils
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.search.contacts.PhoneNumberSelectionDialog
 import com.tk.quicksearch.search.contacts.DirectDialChoiceDialog
@@ -228,6 +227,8 @@ fun SearchRoute(
         onSaveFileNickname = viewModel::setFileNickname,
         getSettingNickname = viewModel::getSettingNickname,
         onSaveSettingNickname = viewModel::setSettingNickname,
+        getLastShownPhoneNumber = viewModel::getLastShownPhoneNumber,
+        setLastShownPhoneNumber = viewModel::setLastShownPhoneNumber,
         onDirectDialChoiceSelected = viewModel::onDirectDialChoiceSelected,
         onDismissDirectDialChoice = viewModel::dismissDirectDialChoice,
         onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
@@ -292,6 +293,8 @@ fun SearchScreen(
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     getSettingNickname: (String) -> String?,
     onSaveSettingNickname: (SettingShortcut, String?) -> Unit,
+    getLastShownPhoneNumber: (Long) -> String?,
+    setLastShownPhoneNumber: (Long, String) -> Unit,
     onDirectDialChoiceSelected: (DirectDialOption, Boolean) -> Unit,
     onDismissDirectDialChoice: () -> Unit,
     onReleaseNotesAcknowledged: () -> Unit,
@@ -521,7 +524,7 @@ fun SearchScreen(
             onSaveSettingNickname(setting, nickname)
             nicknameDialogState = null
         },
-        getLastShownPhoneNumber = viewModel::getLastShownPhoneNumber,
-        setLastShownPhoneNumber = viewModel::setLastShownPhoneNumber
+        getLastShownPhoneNumber = getLastShownPhoneNumber,
+        setLastShownPhoneNumber = setLastShownPhoneNumber
     )
 }

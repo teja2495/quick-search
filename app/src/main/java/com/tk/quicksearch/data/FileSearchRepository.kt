@@ -12,7 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.util.SearchRankingUtils
+import com.tk.quicksearch.search.core.SearchRankingUtils
 import java.util.Locale
 
 class FileSearchRepository(

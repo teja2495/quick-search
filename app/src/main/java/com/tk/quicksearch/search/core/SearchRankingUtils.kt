@@ -1,4 +1,4 @@
-package com.tk.quicksearch.util
+package com.tk.quicksearch.search.core
 
 import java.util.Locale
 

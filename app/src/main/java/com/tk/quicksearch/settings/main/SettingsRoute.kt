@@ -36,6 +36,7 @@ fun SettingsRoute(
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = androidx.compose.foundation.rememberScrollState()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)

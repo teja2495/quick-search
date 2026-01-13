@@ -1,13 +1,10 @@
 package com.tk.quicksearch
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.speech.RecognizerIntent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -28,25 +25,21 @@ import com.tk.quicksearch.setup.FinalSetupScreen
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.ReviewHelper
 import com.tk.quicksearch.util.UpdateHelper
+import com.tk.quicksearch.search.ui.VoiceSearchHandler
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
-import com.tk.quicksearch.widget.MicAction
+import com.tk.quicksearch.search.ui.MicAction
 
 
 class MainActivity : ComponentActivity() {
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
+    private lateinit var voiceSearchHandler: VoiceSearchHandler
     private val voiceInputLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val data = result.data
-        val spokenText = data
-            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            ?.firstOrNull()
-        if (!spokenText.isNullOrBlank()) {
-            searchViewModel.onQueryChange(spokenText)
-        }
+        voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +51,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         initializePreferences()
+        initializeVoiceSearchHandler()
         // Initialize ViewModel early to start loading cached data immediately
         // This ensures cached apps are ready when UI renders
         searchViewModel
@@ -105,6 +99,10 @@ class MainActivity : ComponentActivity() {
         userPreferences = UserAppPreferences(this)
     }
 
+    private fun initializeVoiceSearchHandler() {
+        voiceSearchHandler = VoiceSearchHandler(this, voiceInputLauncher)
+    }
+
     private fun setupContent() {
         setContent {
             QuickSearchTheme {
@@ -138,48 +136,10 @@ class MainActivity : ComponentActivity() {
             val micAction = micActionString?.let { actionString ->
                 MicAction.entries.find { it.value == actionString }
             } ?: MicAction.DEFAULT_VOICE_SEARCH
-            handleMicAction(micAction)
+            voiceSearchHandler.handleMicAction(micAction)
         }
         // ACTION_ASSIST is handled implicitly - search interface is always ready
     }
 
-    private fun handleMicAction(micAction: MicAction) {
-        when (micAction) {
-            MicAction.DEFAULT_VOICE_SEARCH -> startVoiceInput()
-            MicAction.DIGITAL_ASSISTANT -> startDigitalAssistant()
-        }
-    }
-
-    private fun startVoiceInput() {
-        val voiceIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.widget_label_text))
-        }
-        try {
-            voiceInputLauncher.launch(voiceIntent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(
-                this,
-                R.string.voice_input_not_available,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    private fun startDigitalAssistant() {
-        val assistantIntent = Intent(Intent.ACTION_VOICE_COMMAND).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        if (assistantIntent.resolveActivity(packageManager) != null) {
-            startActivity(assistantIntent)
-            finish()
-        } else {
-            Toast.makeText(
-                this,
-                R.string.voice_input_not_available,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
 
 }

@@ -41,7 +41,7 @@ import com.tk.quicksearch.search.searchengines.getDisplayNameResId
 import com.tk.quicksearch.search.settings.SettingsManagementHandler
 import com.tk.quicksearch.search.settings.SettingsSearchHandler
 import com.tk.quicksearch.util.FileUtils
-import com.tk.quicksearch.util.SearchRankingUtils
+import com.tk.quicksearch.search.core.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
