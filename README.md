@@ -13,7 +13,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration
 - **Files**: Search device files (images, videos, documents, etc.)
 - **Settings**: Search Android system settings
-- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions
+- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions (choose how many to display)
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
 - **Gemini API**: Direct search can be enabled by configuring your own Gemini API key
 
@@ -31,6 +31,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Section Ordering**: Customize which content appears first
 - **Pinned Results**: Keep favorite results always visible
 - **Recent Apps**: Smart ranking based on usage patterns
+- **Recent Searches**: Show your recent search queries when the search bar is empty (choose how many to display, default is 3)
 - **Feedback System**: In-app feedback options and release notes
 
 ### 📱 Widget Support

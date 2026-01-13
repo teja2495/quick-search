@@ -39,7 +39,7 @@
   - **Startpage** (stp) - Privacy-focused search engine
   - **You.com** (yu) - AI-powered search platform
   - **AI Mode** (gai) - Google's AI-focused search
-- **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results
+- **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results (choose how many to display)
 
 ### Direct Search (Gemini API)
 - **AI-Powered Answers** - Configure your Gemini API key to see answers directly within Quick Search
@@ -53,6 +53,7 @@
 - **Enable/Disable Categories** - Toggle individual search result types on or off
 - **Auto-Expand Results** - Show all results at once without tapping "More" button (This option is available in additional settings)
 - **Sort Options** - Results are ordered by most-opened apps by default (can be disabled)
+- **Recent Searches** - Show your recent search queries when the search bar is empty (choose how many to display, default is 3)
 
 ### Visual Customization
 - **Wallpaper Integration** - Your default phone wallpaper automatically sets as the app's background (it needs files permission and can be disabled in settings)
