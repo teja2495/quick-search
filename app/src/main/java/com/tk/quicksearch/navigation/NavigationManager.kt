@@ -1,6 +1,7 @@
 package com.tk.quicksearch.navigation
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
@@ -18,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
@@ -157,6 +159,14 @@ fun MainContent(
                     android.Manifest.permission.CALL_PHONE
                 ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
+                val showToast: (String) -> Unit = { message ->
+                    Toast.makeText(
+                        context,
+                        message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
                 FinalSetupScreen(
                     currentStep = 3,
                     totalSteps = 3,
@@ -168,7 +178,8 @@ fun MainContent(
                     viewModel = searchViewModel,
                     hasContactsPermission = hasContactsPermission,
                     hasFilesPermission = hasFilesPermission,
-                    hasCallPermission = hasCallPermission
+                    hasCallPermission = hasCallPermission,
+                    onShowToast = showToast
                 )
             }
             AppScreen.Main -> {

@@ -30,6 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -52,9 +54,11 @@ fun FinalSetupScreen(
     hasCallPermission: Boolean,
     currentStep: Int,
     totalSteps: Int,
+    onShowToast: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     
     Column(
         modifier = modifier
@@ -96,15 +100,21 @@ fun FinalSetupScreen(
                         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                         isTelegramInstalled = uiState.isTelegramInstalled,
                         onMessagingAppSelected = { app ->
-                            // Handle installation check
-                            val needsInstall = when (app) {
-                                MessagingApp.WHATSAPP -> !uiState.isWhatsAppInstalled
-                                MessagingApp.TELEGRAM -> !uiState.isTelegramInstalled
-                                else -> false
+                            val isInstalled = when (app) {
+                                MessagingApp.MESSAGES -> true
+                                MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
+                                MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
                             }
                             
-                            if (!needsInstall) {
+                            if (isInstalled) {
                                 viewModel.setMessagingApp(app)
+                            } else {
+                                val appName = when (app) {
+                                    MessagingApp.WHATSAPP -> context.getString(R.string.settings_messaging_option_whatsapp)
+                                    MessagingApp.TELEGRAM -> context.getString(R.string.settings_messaging_option_telegram)
+                                    MessagingApp.MESSAGES -> ""
+                                }
+                                onShowToast(context.getString(R.string.settings_messaging_app_not_installed, appName))
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -152,14 +162,21 @@ fun FinalSetupScreen(
                                         FilterChip(
                                             selected = uiState.messagingApp == app,
                                             onClick = {
-                                                val needsInstall = when (app) {
-                                                    MessagingApp.WHATSAPP -> !uiState.isWhatsAppInstalled
-                                                    MessagingApp.TELEGRAM -> !uiState.isTelegramInstalled
-                                                    else -> false
+                                                val isInstalled = when (app) {
+                                                    MessagingApp.MESSAGES -> true
+                                                    MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
+                                                    MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
                                                 }
                                                 
-                                                if (!needsInstall) {
+                                                if (isInstalled) {
                                                     viewModel.setMessagingApp(app)
+                                                } else {
+                                                    val appName = when (app) {
+                                                        MessagingApp.WHATSAPP -> context.getString(R.string.settings_messaging_option_whatsapp)
+                                                        MessagingApp.TELEGRAM -> context.getString(R.string.settings_messaging_option_telegram)
+                                                        MessagingApp.MESSAGES -> ""
+                                                    }
+                                                    onShowToast(context.getString(R.string.settings_messaging_app_not_installed, appName))
                                                 }
                                             },
                                             label = {
