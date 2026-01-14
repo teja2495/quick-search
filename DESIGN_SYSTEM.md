@@ -10,10 +10,11 @@ This document describes the centralized design system for the Quick Search Andro
 2. [Design Tokens](#design-tokens)
 3. [Spacing System](#spacing-system)
 4. [Shape System](#shape-system)
-5. [Component Sizes](#component-sizes)
-6. [Common Components](#common-components)
-7. [Usage Guidelines](#usage-guidelines)
-8. [Migration Guide](#migration-guide)
+5. [Elevation System](#elevation-system)
+6. [Component Sizes](#component-sizes)
+7. [Common Components](#common-components)
+8. [Usage Guidelines](#usage-guidelines)
+9. [Migration Guide](#migration-guide)
 
 ---
 
@@ -26,10 +27,10 @@ The Quick Search design system is built on **DesignTokens** and **CommonComponen
 
 ### Benefits
 
-✅ **Consistency** - All UI elements follow the same spacing and styling rules  
-✅ **Maintainability** - Change values in one place to update the entire app  
-✅ **Developer Experience** - Autocomplete shows available tokens  
-✅ **Scalability** - Easy to add new tokens as the app grows  
+✅ **Consistency** - All UI elements follow the same spacing and styling rules
+✅ **Maintainability** - Change values in one place to update the entire app
+✅ **Developer Experience** - Autocomplete shows available tokens
+✅ **Scalability** - Easy to add new tokens as the app grows
 ✅ **Type Safety** - Compile-time errors prevent typos
 
 ---
@@ -52,20 +53,23 @@ Column(
 
 ## Spacing System
 
-The spacing system follows an **8-point grid** for visual harmony and consistency.
+The spacing system follows the **Material 3 4-point grid** for visual harmony.
 
 ### Universal Spacing Scale
 
 | Token | Value | Use Cases |
 |-------|-------|-----------|
-| `SpacingXXSmall` | 2dp | Minimal text spacing, very tight layouts |
+| `SpacingXXSmall` | 4dp | Minimal text spacing, very tight layouts (Aligned to 4dp grid) |
 | `SpacingXSmall` | 4dp | Small gaps between icons and text, minimal padding |
 | `SpacingSmall` | 8dp | Standard gaps between related elements, compact sections |
 | `SpacingMedium` | 12dp | Standard gaps between sections, moderate padding |
 | `SpacingLarge` | 16dp | Section spacing, standard card padding |
 | `SpacingXLarge` | 20dp | Large section padding, card content padding |
 | `SpacingXXLarge` | 24dp | Major section breaks, large padding |
+| `Spacing28` | 28dp | Specific container or break needs |
 | `SpacingHuge` | 32dp | Major visual breaks, special spacing needs |
+| `Spacing40` | 40dp | Major visual breaks |
+| `Spacing48` | 48dp | Major visual breaks |
 
 ### Examples
 
@@ -109,17 +113,19 @@ These are mapped to the universal scale for backward compatibility:
 
 ## Shape System
 
-All shapes use consistent corner radii for a cohesive look.
+All shapes use consistent corner radii following Material 3 guidelines.
 
 ### Shape Scale
 
 | Token | Radius | Use Cases |
 |-------|--------|-----------|
-| `ShapeSmall` | 12dp | Small chips, compact buttons |
-| `ShapeMedium` | 16dp | Standard cards, most UI elements |
-| `ShapeLarge` | 20dp | Large surfaces, important cards |
-| `ShapeXLarge` | 24dp | Extra large cards, buttons |
-| `ShapeXXLarge` | 28dp | Search bar, main UI cards |
+| `ShapeExtraSmall` | 4dp | Autocomplete menu, small containers |
+| `ShapeSmall` | 8dp | Chips, Dialogs, Small FAB |
+| `ShapeMedium` | 12dp | Cards, Small FAB |
+| `ShapeLarge` | 16dp | Large FAB, Extended FAB, Drawers |
+| `ShapeXLarge` | 28dp | Large Dialogs, Large Cards |
+| `ShapeXXLarge` | 28dp | Search Bar, Round Buttons |
+| `ShapeFull` | Circle | Fully rounded elements |
 
 ### Examples
 
@@ -145,8 +151,23 @@ Surface(
 
 | Token | Maps To | Radius |
 |-------|---------|--------|
-| `CardShape` | `ShapeMedium` | 16dp |
-| `ExtraLargeCardShape` | `ShapeXXLarge` | 28dp |
+| `CardShape` | `ShapeMedium` | 12dp |
+| `ExtraLargeCardShape` | `ShapeXLarge` | 28dp |
+
+---
+
+## Elevation System
+
+Follows Material 3 elevation levels.
+
+| Token | Value | Use Cases |
+|-------|-------|-----------|
+| `ElevationLevel0` | 0dp | Surface, No elevation |
+| `ElevationLevel1` | 1dp | Low elevation |
+| `ElevationLevel2` | 3dp | Standard Cards (Elevated) |
+| `ElevationLevel3` | 6dp | Moderate elevation |
+| `ElevationLevel4` | 8dp | Dialogs |
+| `ElevationLevel5` | 12dp | Modal sheets |
 
 ---
 
@@ -158,10 +179,10 @@ Consistent sizing for icons, borders, and other UI elements.
 
 | Token | Size | Use Cases |
 |-------|------|-----------|
-| `IconSizeSmall` | 20dp | Compact UI elements, small indicators |
-| `IconSize` | 24dp | Most UI icons, standard toolbar icons |
-| `LargeIconSize` | 28dp | Messaging options, prominent UI elements |
-| `IconSizeXLarge` | 52dp | App icons in grid (image size) |
+| `IconSizeSmall` | 20dp | Compact UI elements (4dp grid aligned) |
+| `IconSize` | 24dp | **Standard** UI icons |
+| `LargeIconSize` | 28dp | Messaging options, prominent items |
+| `IconSizeXLarge` | 52dp | App icons in grid |
 | `AppIconSize` | 64dp | App icon container size |
 
 ### Other Sizes
@@ -171,32 +192,6 @@ Consistent sizing for icons, borders, and other UI elements.
 | `BorderWidth` | 1dp | Standard borders, outlines |
 | `DividerThickness` | 0.5dp | Horizontal/vertical dividers |
 | `ButtonCornerRadius` | 24dp | Button shapes |
-
-### Examples
-
-```kotlin
-// Standard icon
-Icon(
-    imageVector = Icons.Rounded.Search,
-    contentDescription = "Search",
-    modifier = Modifier.size(DesignTokens.IconSize)
-)
-
-// Divider
-HorizontalDivider(
-    thickness = DesignTokens.DividerThickness,
-    color = MaterialTheme.colorScheme.outlineVariant
-)
-
-// Border
-Surface(
-    modifier = Modifier.border(
-        width = DesignTokens.BorderWidth,
-        color = Color.White.copy(alpha = 0.3f),
-        shape = DesignTokens.ShapeSmall
-    )
-) { /* content */ }
-```
 
 ---
 
@@ -299,6 +294,7 @@ SectionHeader(
 - Icon sizes
 - Divider thickness
 - Border widths
+- Elevations
 
 ❌ **Don't use design tokens for:**
 - Component-specific sizes that don't fit the scale
@@ -346,7 +342,7 @@ ElevatedCard(
 
 // ❌ Avoid - Hardcoded shape
 ElevatedCard(
-    shape = RoundedCornerShape(16.dp)
+    shape = RoundedCornerShape(12.dp)
 ) { /* content */ }
 ```
 
@@ -367,115 +363,51 @@ DesignTokens.IconSize
 
 ### Migrating Existing Code
 
-#### Step 1: Add Import
+#### Step 1: Spacing Updates
+Existing hardcoded `2.dp` should utilize `SpacingXXSmall` (now 4dp) or remain hardcoded if sub-grid precision is absolutely required.
 
-```kotlin
-import com.tk.quicksearch.ui.theme.DesignTokens
-```
-
-#### Step 2: Replace Hardcoded Values
-
-**Before:**
-```kotlin
-Column(
-    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp)
-)
-```
-
-**After:**
-```kotlin
-Column(
-    modifier = Modifier.padding(
-        horizontal = DesignTokens.SpacingXLarge,
-        vertical = DesignTokens.SpacingLarge
-    ),
-    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-)
-```
-
-#### Step 3: Replace Shapes
-
-**Before:**
-```kotlin
-Surface(
-    shape = RoundedCornerShape(16.dp)
-) { /* content */ }
-```
-
-**After:**
-```kotlin
-Surface(
-    shape = DesignTokens.ShapeMedium
-) { /* content */ }
-```
-
-#### Step 4: Replace Icon Sizes
-
-**Before:**
-```kotlin
-Icon(
-    imageVector = Icons.Rounded.Search,
-    modifier = Modifier.size(24.dp)
-)
-```
-
-**After:**
-```kotlin
-Icon(
-    imageVector = Icons.Rounded.Search,
-    modifier = Modifier.size(DesignTokens.IconSize)
-)
-```
+#### Step 2: Shape Updates
+Note that shape tokens have been rescaled to match Material 3:
+- Old `ShapeSmall` (12dp) users might want to switch to `ShapeMedium` (12dp) if they want to keep the same radius.
+- Old `ShapeMedium` (16dp) users might want to switch to `ShapeLarge` (16dp) if they want to keep the same radius.
+- However, adopting the new Semantic names (`ShapeSmall`, `ShapeMedium`) is better for long-term consistency.
 
 ### Common Replacements Reference
 
-| Hardcoded Value | Design Token |
-|-----------------|--------------|
-| `Modifier.padding(2.dp)` | `Modifier.padding(DesignTokens.SpacingXXSmall)` |
-| `Modifier.padding(4.dp)` | `Modifier.padding(DesignTokens.SpacingXSmall)` |
-| `Modifier.padding(8.dp)` | `Modifier.padding(DesignTokens.SpacingSmall)` |
-| `Modifier.padding(12.dp)` | `Modifier.padding(DesignTokens.SpacingMedium)` |
-| `Modifier.padding(16.dp)` | `Modifier.padding(DesignTokens.SpacingLarge)` |
-| `Modifier.padding(20.dp)` | `Modifier.padding(DesignTokens.SpacingXLarge)` |
-| `Modifier.padding(24.dp)` | `Modifier.padding(DesignTokens.SpacingXXLarge)` |
-| `Arrangement.spacedBy(8.dp)` | `Arrangement.spacedBy(DesignTokens.SpacingSmall)` |
-| `Arrangement.spacedBy(12.dp)` | `Arrangement.spacedBy(DesignTokens.SpacingMedium)` |
-| `RoundedCornerShape(12.dp)` | `DesignTokens.ShapeSmall` |
-| `RoundedCornerShape(16.dp)` | `DesignTokens.ShapeMedium` |
-| `RoundedCornerShape(20.dp)` | `DesignTokens.ShapeLarge` |
-| `RoundedCornerShape(24.dp)` | `DesignTokens.ShapeXLarge` |
-| `RoundedCornerShape(28.dp)` | `DesignTokens.ShapeXXLarge` |
-| `Modifier.size(20.dp)` | `Modifier.size(DesignTokens.IconSizeSmall)` |
-| `Modifier.size(24.dp)` | `Modifier.size(DesignTokens.IconSize)` |
-| `Modifier.size(28.dp)` | `Modifier.size(DesignTokens.LargeIconSize)` |
+| Hardcoded / Old | Design Token | New Value |
+|-----------------|--------------|-----------|
+| `2.dp` | `SpacingXXSmall` | **4dp** |
+| `4.dp` | `SpacingXSmall` | 4dp |
+| `8.dp` | `SpacingSmall` | 8dp |
+| `12.dp` | `SpacingMedium` | 12dp |
+| `16.dp` | `SpacingLarge` | 16dp |
+| `20.dp` | `SpacingXLarge` | 20dp |
+| `24.dp` | `SpacingXXLarge` | 24dp |
+| `28.dp` | `Spacing28` | 28dp |
+| `RoundedCornerShape(8.dp)` | `ShapeSmall` | 8dp |
+| `RoundedCornerShape(12.dp)` | `ShapeMedium` | 12dp |
+| `RoundedCornerShape(16.dp)` | `ShapeLarge` | 16dp |
+| `RoundedCornerShape(28.dp)` | `ShapeXLarge` | 28dp |
+| `Modifier.size(20.dp)` | `IconSizeSmall` | 20dp |
+| `Modifier.size(24.dp)` | `IconSize` | 24dp |
 
 ---
 
 ## Semantic Colors
 
-In addition to Material3 theme colors (`MaterialTheme.colorScheme`), we have semantic colors for specific use cases centralized in `DesignTokens`.
+In addition to Material3 theme colors (`MaterialTheme.colorScheme`), `DesignTokens` provides some semantic colors, primarily for specific brand actions.
+
+**Note:** Wherever possible, prefer using `MaterialTheme.colorScheme` (e.g., `primary`, `tertiary`, `error`) over hardcoded hex colors to support dynamic theming.
 
 ### Action Colors
 
-Standardized colors for common messaging and communication actions:
-
 | Token | Color | Hex | Use Cases |
 |-------|-------|-----|-----------|
-| `ColorPhone` | Material Green | `#4CAF50` | Phone call actions, success states, granted permissions |
-| `ColorSms` | Material Blue | `#2196F3` | SMS actions, information states |
-| `ColorWhatsApp` | WhatsApp Green | `#25D366` | WhatsApp calls, messages, video calls |
-| `ColorTelegram` | Telegram Blue | `#0088CC` | Telegram calls, messages, video calls |
-| `ColorEmail` | Material Orange | `#FF9800` | Email actions, warnings |
-| `ColorVideoCall` | Material Purple | `#9C27B0` | Generic video call actions |
-| `ColorCustom` | Blue Gray | `#607D8B` | Custom app actions, neutral states |
-| `ColorView` | Gray | `#9E9E9E` | View/open actions, secondary buttons |
-
-### UI Element Colors
-
-| Token | Color | Hex | Use Cases |
-|-------|-------|-----|-----------|
-| `ColorSearchText` | Light Gray | `#E0E0E0` | Search input text, icons on dark backgrounds |
+| `ColorPhone` | Material Green | `#4CAF50` | Phone call actions |
+| `ColorSms` | Material Blue | `#2196F3` | SMS actions |
+| `ColorWhatsApp` | WhatsApp Green | `#25D366` | WhatsApp brand |
+| `ColorTelegram` | Telegram Blue | `#0088CC` | Telegram brand |
+| `ColorEmail` | Material Orange | `#FF9800` | Email actions |
 
 ### Examples
 
@@ -483,164 +415,18 @@ Standardized colors for common messaging and communication actions:
 // Contact action button
 Icon(
     imageVector = Icons.Rounded.Phone,
-    tint = DesignTokens.ColorPhone
-)
-
-// WhatsApp icon
-Icon(
-    imageVector = Icons.Rounded.WhatsApp,
-    tint = DesignTokens.ColorWhatsApp
-)
-
-// Search text
-Text(
-    text = query,
-    color = DesignTokens.ColorSearchText
+    tint = DesignTokens.ColorPhone // Consider using a theme color if possible
 )
 ```
-
-### Best Practices
-
-✅ **Use semantic colors for actions**: Prefer `ColorPhone` over `Color(0xFF4CAF50)`  
-✅ **Consistent action colors**: All phone actions use the same green  
-✅ **Brand colors**: Use brand-specific colors (WhatsApp, Telegram) for those apps  
-❌ **Don't hardcode hex values**: Always use the named token
-
-### Advanced: AppColors
-
-For more complex theming needs (wallpaper backgrounds, overlays, gradients), use [`AppColors`](file:///Users/teja2495/Projects/quick-search/app/src/main/java/com/tk/quicksearch/ui/theme/AppColors.kt):
-
-```kotlin
-// Card colors based on wallpaper mode
-AppColors.getCardColors(showWallpaperBackground = true)
-
-// Overlays
-AppColors.OverlayMedium  // Black 40% opacity
-AppColors.OverlayHigh    // Black 50% opacity
-
-// Theme colors
-AppColors.ThemeDeepPurple  // Primary brand purple
-AppColors.ThemeNeonPurple  // Secondary brand purple
-```
-
----
-
-## Typography
-
-Typography is centralized in [`Type.kt`](file:///Users/teja2495/Projects/quick-search/app/src/main/java/com/tk/quicksearch/ui/theme/Type.kt).
-
-### Font Family
-
-The app uses **Google Sans** with various weights:
-- Regular
-- Medium
-- Bold
-
-### Text Styles
-
-Access via `MaterialTheme.typography`:
-
-```kotlin
-Text(
-    text = "Title",
-    style = MaterialTheme.typography.titleLarge
-)
-
-Text(
-    text = "Body text",
-    style = MaterialTheme.typography.bodyMedium
-)
-
-Text(
-    text = "Small caption",
-    style = MaterialTheme.typography.bodySmall
-)
-```
-
----
-
-## Colors
-
-Colors are centralized in [`AppColors.kt`](file:///Users/teja2495/Projects/quick-search/app/src/main/java/com/tk/quicksearch/ui/theme/AppColors.kt).
-
-### Card Colors
-
-```kotlin
-AppColors.getCardColors(showWallpaperBackground = false)
-AppColors.getCardColors(showWallpaperBackground = true)
-```
-
-### Material3 Theme
-
-Access via `MaterialTheme.colorScheme`:
-
-```kotlin
-Text(
-    text = "Text",
-    color = MaterialTheme.colorScheme.onSurface
-)
-
-Surface(
-    color = MaterialTheme.colorScheme.surfaceVariant
-) { /* content */ }
-```
-
----
-
-## File Structure
-
-```
-app/src/main/java/com/tk/quicksearch/
-├── ui/
-│   ├── theme/
-│   │   ├── DesignTokens.kt     ← Spacing, shapes, sizes
-│   │   ├── Type.kt              ← Typography
-│   │   ├── AppColors.kt         ← Colors
-│   │   └── Theme.kt             ← Material3 theme
-│   └── components/
-│       └── CommonComponents.kt  ← Reusable UI components
-```
-
----
-
-## Contributing
-
-When adding new UI components:
-
-1. **Check existing tokens** - Use existing spacing/shape tokens if possible
-2. **Add new tokens** - If you need a new value, add it to `DesignTokens.kt`
-3. **Document usage** - Add comments explaining when to use the new token
-4. **Use common components** - Reuse existing components from `CommonComponents.kt`
-5. **Update this guide** - Document new tokens or components
-
----
-
-## FAQ
-
-### Q: What if I need custom spacing that doesn't match the scale?
-
-A: Use hardcoded values for truly custom cases, but document why. Most UI should use the standard scale.
-
-### Q: Can I use legacy tokens like `CardHorizontalPadding`?
-
-A: Yes, but prefer universal tokens (`SpacingXLarge`) for new code.
-
-### Q: How do I know which spacing token to use?
-
-A: Follow the 8-point grid: 8dp increments (Small, Medium, Large). Use the "Use Cases" column in the spacing table as a guide.
-
-### Q: Should I use `MaterialTheme.shapes` or `DesignTokens`?
-
-A: Use `DesignTokens` shapes for consistency. `MaterialTheme.shapes.extraLarge` is equivalent to `DesignTokens.ShapeXXLarge`.
 
 ---
 
 ## Summary
 
-✅ Use `DesignTokens` for spacing, shapes, and sizes  
-✅ Use `CommonComponents` for reusable UI patterns  
-✅ Follow the 8-point grid for spacing  
-✅ Use semantic component names from the tables above  
-✅ Add comments when using custom values  
+✅ Use `DesignTokens` for spacing, shapes, and sizes
+✅ Use `CommonComponents` for reusable UI patterns
+✅ Follow the 4-point grid
+✅ Use semantic component names from the tables above
+✅ Prefer Theme colors over fixed colors
 
-This design system ensures **consistency**, **maintainability**, and a **premium user experience** across the entire Quick Search app!
+This design system ensures **consistency**, **maintainability**, and a **premium Material 3 user experience** across the entire Quick Search app!
