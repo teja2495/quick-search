@@ -26,6 +26,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.search.searchScreen.SearchEnginesVisibility
 import com.tk.quicksearch.search.calculator.CalculatorUtils
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 @Composable
 internal fun SearchScreenContent(
@@ -115,9 +116,9 @@ internal fun SearchScreenContent(
             .fillMaxSize()
             .safeDrawingPadding()
             .padding(
-                start = 20.dp,
-                top = 16.dp,
-                end = 20.dp
+                start = DesignTokens.SpacingXLarge,
+                top = DesignTokens.SpacingLarge,
+                end = DesignTokens.SpacingXLarge
             ),
         verticalArrangement = Arrangement.Top
     ) {
@@ -162,7 +163,7 @@ internal fun SearchScreenContent(
 
         // Add spacing between search bar and apps list when bottom aligned setting is off
         if (!state.keyboardAlignedLayout) {
-            Spacer(modifier = Modifier.padding(top = 8.dp))
+            Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingSmall))
         }
 
         // Scrollable content between search bar and search engines
@@ -205,7 +206,7 @@ internal fun SearchScreenContent(
                     KeyboardSwitchPill(
                         text = it,
                         onClick = onKeyboardSwitchToggle,
-                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
+                        modifier = Modifier.padding(top = DesignTokens.SpacingMedium, bottom = DesignTokens.SpacingMedium)
                     )
                 }
             }

@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.util.hapticConfirm
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 private const val ROW_COUNT = 2
 private const val COLUMNS = 5
@@ -102,7 +103,7 @@ fun AppGridView(
                 }
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (apps.isEmpty()) {
             Box {}
@@ -151,7 +152,7 @@ private fun AppGrid(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         val createAppActions = remember(onAppClick, onAppInfoClick, onUninstallClick, onHideApp, onPinApp, onUnpinApp, onNicknameClick) {
             { app: AppInfo ->
@@ -205,7 +206,7 @@ private fun AppGridRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)
     ) {
         repeat(COLUMNS) { columnIndex ->
             val app = apps.getOrNull(columnIndex)
@@ -289,10 +290,10 @@ private fun AppIconSurface(
 ) {
     val view = LocalView.current
     Surface(
-        modifier = Modifier.size(64.dp),
+        modifier = Modifier.size(DesignTokens.AppIconSize),
         color = Color.Transparent,
         tonalElevation = 0.dp,
-        shape = RoundedCornerShape(20.dp)
+        shape = DesignTokens.ShapeLarge
     ) {
         Box(
             modifier = Modifier
@@ -313,7 +314,7 @@ private fun AppIconSurface(
                         R.string.desc_launch_app,
                         appName
                     ),
-                    modifier = Modifier.size(52.dp)
+                    modifier = Modifier.size(DesignTokens.IconSizeXLarge)
                 )
             } else {
                 Text(
@@ -328,7 +329,7 @@ private fun AppIconSurface(
 
 @Composable
 private fun AppLabelText(appName: String) {
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
     Text(
         text = appName,
         style = MaterialTheme.typography.bodySmall,

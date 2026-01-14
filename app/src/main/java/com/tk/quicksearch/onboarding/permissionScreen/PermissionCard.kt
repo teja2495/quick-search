@@ -25,8 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.ui.theme.DesignTokens
 
-private val GrantedCheckmarkColor = Color(0xFF4CAF50)
+/**
+ * Color for granted checkmark - Material Green (same as phone action color)
+ */
+private val GrantedCheckmarkColor = DesignTokens.ColorPhone
 
 /**
  * An item component that displays a permission with its title, description, and toggle/status.
@@ -45,17 +49,17 @@ fun PermissionItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(DesignTokens.SpacingXLarge),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
             ) {
                 Text(
                     text = title,
@@ -84,8 +88,8 @@ fun PermissionItem(
                 contentDescription = stringResource(R.string.permissions_granted),
                 tint = GrantedCheckmarkColor,
                 modifier = Modifier
-                    .padding(start = 16.dp)
-                    .size(24.dp)
+                    .padding(start = DesignTokens.SpacingLarge)
+                    .size(DesignTokens.IconSize)
             )
         } else {
             Switch(
@@ -100,7 +104,7 @@ fun PermissionItem(
                         onToggleChange(false)
                     }
                 },
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = DesignTokens.SpacingLarge)
             )
         }
     }

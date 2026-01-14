@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.tk.quicksearch.ui.theme.AppColors
+import com.tk.quicksearch.ui.theme.DesignTokens
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -98,8 +99,8 @@ internal fun PermissionDisabledCard(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingXLarge, vertical = DesignTokens.SpacingLarge),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
         ) {
             Text(
                 text = title,
@@ -145,7 +146,7 @@ internal fun PersistentSearchField(
     // Set search bar background to black with slight transparency
     val searchBarBackground = Color.Black.copy(alpha = 0.5f)
     // Light color for icons and text on dark grey background
-    val iconAndTextColor = Color(0xFFE0E0E0)
+    val iconAndTextColor = DesignTokens.ColorSearchText
 
     // Local text field value maintains cursor position even when state query changes from voice input.
     var textFieldValue by remember { mutableStateOf(TextFieldValue(query, TextRange(query.length))) }
@@ -385,23 +386,23 @@ internal fun PersistentSearchField(
                         contentDescription = null,
                         tint = Color.Unspecified,
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(24.dp)
+                            .padding(start = DesignTokens.SpacingSmall)
+                            .size(DesignTokens.IconSize)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Search,
                         contentDescription = stringResource(R.string.desc_search_icon),
                         tint = iconAndTextColor,
-                        modifier = Modifier.padding(start = 4.dp)
+                        modifier = Modifier.padding(start = DesignTokens.SpacingXSmall)
                     )
                 }
             },
             trailingIcon = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(end = 4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+                    modifier = Modifier.padding(end = DesignTokens.SpacingXSmall)
                 ) {
                     // Show X icon when query is not empty, otherwise show settings icon
                     // (whether shortcut is detected or not when query is empty)
@@ -470,8 +471,8 @@ internal fun UsagePermissionCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(DesignTokens.SpacingXLarge),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -486,13 +487,13 @@ internal fun UsagePermissionCard(
                 )
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(DesignTokens.IconSize)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = stringResource(R.string.desc_close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(DesignTokens.IconSizeSmall)
                     )
                 }
             }
@@ -516,11 +517,11 @@ internal fun InfoBanner(message: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.errorContainer,
-        shape = RoundedCornerShape(20.dp)
+        shape = DesignTokens.ShapeLarge
     ) {
         Text(
             text = message,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge, vertical = DesignTokens.SpacingMedium),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onErrorContainer
         )
@@ -532,7 +533,7 @@ internal fun EmptyState() {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         Text(
             text = stringResource(R.string.empty_state_title),
@@ -555,14 +556,14 @@ internal fun KeyboardSwitchPill(
 ) {
     Surface(
         modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.ShapeMedium,
         color = Color.Black.copy(alpha = 0.4f),
         tonalElevation = 0.dp
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-                .height(24.dp),
+                .padding(horizontal = DesignTokens.SpacingMedium, vertical = 6.dp)
+                .height(DesignTokens.IconSize),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {

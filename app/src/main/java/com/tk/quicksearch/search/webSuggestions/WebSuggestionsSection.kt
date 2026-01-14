@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.R
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
 // Constants
@@ -66,7 +67,7 @@ fun WebSuggestionsSection(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = paddingTop, bottom = paddingBottom),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         WebSuggestionsCard(
             suggestions = orderedSuggestions,
@@ -128,7 +129,7 @@ private fun WebSuggestionsCard(
                 // Add divider between items, but not after the last one
                 if (index < suggestions.size - 1) {
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                         color = if (showWallpaperBackground) {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                         } else {
@@ -158,8 +159,8 @@ private fun WebSuggestionItem(
             .padding(
                 start = SUGGESTION_ICON_START_PADDING.dp,
                 end = SUGGESTION_TEXT_END_PADDING.dp,
-                top = 8.dp,
-                bottom = 8.dp
+                top = DesignTokens.SpacingSmall,
+                bottom = DesignTokens.SpacingSmall
             ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -200,7 +201,7 @@ private fun WebSuggestionItem(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = "Delete recent query",
                     tint = iconColor,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall)
                 )
             }
         }

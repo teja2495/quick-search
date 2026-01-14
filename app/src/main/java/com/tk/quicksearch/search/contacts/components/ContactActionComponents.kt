@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
 // Contact Action Button (Messaging App Style)
@@ -42,19 +43,19 @@ internal fun ContactActionButton(
     modifier: Modifier = Modifier
 ) {
     val iconColor = when (method) {
-        is ContactMethod.Phone -> Color(0xFF4CAF50)
-        is ContactMethod.Sms -> Color(0xFF2196F3)
+        is ContactMethod.Phone -> DesignTokens.ColorPhone
+        is ContactMethod.Sms -> DesignTokens.ColorSms
         is ContactMethod.WhatsAppCall,
         is ContactMethod.WhatsAppMessage,
-        is ContactMethod.WhatsAppVideoCall -> Color(0xFF25D366)
+        is ContactMethod.WhatsAppVideoCall -> DesignTokens.ColorWhatsApp
         is ContactMethod.TelegramMessage,
         is ContactMethod.TelegramCall,
-        is ContactMethod.TelegramVideoCall -> Color(0xFF0088CC)
+        is ContactMethod.TelegramVideoCall -> DesignTokens.ColorTelegram
         is ContactMethod.GoogleMeet -> Color.Unspecified
-        is ContactMethod.Email -> Color(0xFFFF9800)
-        is ContactMethod.VideoCall -> Color(0xFF9C27B0)
-        is ContactMethod.CustomApp -> Color(0xFF607D8B)
-        is ContactMethod.ViewInContactsApp -> Color(0xFF9E9E9E)
+        is ContactMethod.Email -> DesignTokens.ColorEmail
+        is ContactMethod.VideoCall -> DesignTokens.ColorVideoCall
+        is ContactMethod.CustomApp -> DesignTokens.ColorCustom
+        is ContactMethod.ViewInContactsApp -> DesignTokens.ColorView
     }
 
     Surface(
@@ -62,11 +63,11 @@ internal fun ContactActionButton(
             .width(90.dp)
             .clickable(onClick = onClick)
             .border(
-                width = 1.dp,
+                width = DesignTokens.BorderWidth,
                 color = Color.White.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(12.dp)
+                shape = DesignTokens.ShapeSmall
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.ShapeSmall,
         color = Color.White.copy(alpha = 0.1f)
     ) {
         Column(
@@ -97,7 +98,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Call,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.Sms -> {
@@ -105,7 +106,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Sms,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.WhatsAppCall -> {
@@ -113,7 +114,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.WhatsAppMessage -> {
@@ -121,7 +122,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.WhatsAppVideoCall -> {
@@ -129,7 +130,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.TelegramMessage -> {
@@ -137,7 +138,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.TelegramCall -> {
@@ -145,7 +146,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.TelegramVideoCall -> {
@@ -153,7 +154,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.GoogleMeet -> {
@@ -161,7 +162,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 painter = painterResource(id = R.drawable.google_meet),
                 contentDescription = null,
                 tint = Color.Unspecified,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.Email -> {
@@ -169,7 +170,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Email,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.VideoCall -> {
@@ -177,7 +178,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Call,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.CustomApp -> {
@@ -185,7 +186,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Person,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
         is ContactMethod.ViewInContactsApp -> {
@@ -193,7 +194,7 @@ private fun ContactActionIcon(method: ContactMethod, tint: Color) {
                 imageVector = Icons.Rounded.Person,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(DesignTokens.LargeIconSize)
             )
         }
     }

@@ -48,6 +48,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.util.hapticConfirm
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
 // Constants
@@ -88,7 +89,7 @@ fun FileResultsSection(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         when {
             hasPermission && files.isNotEmpty() -> {
@@ -154,7 +155,7 @@ private fun FilesResultCard(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         val cardModifier = Modifier.fillMaxWidth()
 
@@ -230,7 +231,7 @@ private fun FileCardContent(
     onExpandClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = 12.dp)
+        modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium)
     ) {
         displayFiles.forEachIndexed { index, file ->
             FileResultRow(
@@ -296,10 +297,10 @@ private fun FileResultRow(
                 },
                 onLongClick = { showOptions = true }
             )
-            .padding(vertical = 16.dp)
+            .padding(vertical = DesignTokens.SpacingLarge)
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -352,7 +353,7 @@ private fun FileDropdownMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
-        shape = RoundedCornerShape(DROPDOWN_CORNER_RADIUS.dp),
+        shape = DesignTokens.ShapeXLarge,
         properties = PopupProperties(focusable = false)
     ) {
         DropdownMenuItem(

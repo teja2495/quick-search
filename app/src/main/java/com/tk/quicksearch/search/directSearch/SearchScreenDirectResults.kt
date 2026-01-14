@@ -49,6 +49,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.directSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
  * Composable that displays direct search results with loading, success, and error states.
@@ -95,8 +96,8 @@ fun DirectSearchResult(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(DesignTokens.SpacingLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
             ) {
                 when (DirectSearchState.status) {
                     DirectSearchStatus.Loading -> {
@@ -129,7 +130,7 @@ fun DirectSearchResult(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {
             Card(
@@ -195,7 +196,7 @@ fun CalculatorResult(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(16.dp),
+                .padding(DesignTokens.SpacingLarge),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
@@ -208,7 +209,7 @@ fun CalculatorResult(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {
             Card(
@@ -260,7 +261,7 @@ private fun GeminiAttributionRow(
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -274,7 +275,7 @@ private fun GeminiAttributionRow(
             contentDescription = stringResource(R.string.direct_search_powered_by),
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .height(12.dp)
+                .height(DesignTokens.SpacingMedium)
                 .aspectRatio(288f / 65f)
         )
     }
@@ -289,7 +290,7 @@ private fun CalculatorAttributionRow(
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {

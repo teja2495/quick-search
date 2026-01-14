@@ -25,6 +25,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
 // Public API
@@ -59,7 +60,7 @@ fun ContactResultsSection(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         when {
             hasPermission && contacts.isNotEmpty() -> {
@@ -133,7 +134,7 @@ private fun ContactsResultCard(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         val cardModifier = Modifier.fillMaxWidth()
         val cardContent: @Composable () -> Unit = {
@@ -206,7 +207,7 @@ private fun ContactList(
     onExpandClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+        modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = DesignTokens.SpacingXSmall)
     ) {
         displayContacts.forEachIndexed { index, contactInfo ->
             key(contactInfo.contactId) {
@@ -239,7 +240,7 @@ private fun ContactList(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
-                    .padding(top = 2.dp)
+                    .padding(top = DesignTokens.SpacingXXSmall)
             )
         }
     }

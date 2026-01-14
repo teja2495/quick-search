@@ -39,8 +39,10 @@ import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.directSearch.DirectSearchResult
 import com.tk.quicksearch.search.directSearch.CalculatorResult
+import com.tk.quicksearch.search.directSearch.GeminiLoadingAnimation
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.search.searchScreen.hasAnySectionContent
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
  * Data class holding all the state needed for section rendering.
@@ -119,9 +121,9 @@ fun SearchContentArea(
     ) {
         // Use bottom alignment when keyboard-aligned layout is enabled and no special states are showing
         val verticalArrangement = if (alignResultsToBottom) {
-            Arrangement.spacedBy(12.dp, Alignment.Bottom)
+            Arrangement.spacedBy(DesignTokens.SpacingMedium, Alignment.Bottom)
         } else {
-            Arrangement.spacedBy(12.dp)
+            Arrangement.spacedBy(DesignTokens.SpacingMedium)
         }
 
         Column(
@@ -132,7 +134,7 @@ fun SearchContentArea(
                     scrollState,
                     reverseScrolling = alignResultsToBottom
                 )
-                .padding(top = 4.dp, bottom = 12.dp),
+                .padding(top = DesignTokens.SpacingXSmall, bottom = DesignTokens.SpacingMedium),
             verticalArrangement = verticalArrangement
         ) {
             ContentLayout(
@@ -325,14 +327,14 @@ fun ContentLayout(
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
                 ) {
                     Text(
                         text = stringResource(R.string.no_results_found),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
+                        modifier = Modifier.padding(top = DesignTokens.SpacingSmall, start = DesignTokens.SpacingLarge, end = DesignTokens.SpacingLarge)
                     )
                 }
             }
