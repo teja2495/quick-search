@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.data.ContactRepository
-import com.tk.quicksearch.data.FileSearchRepository
-import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.UserAppPreferences
 
 class PermissionManager(
     private val contactRepository: ContactRepository,

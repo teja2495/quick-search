@@ -1,14 +1,14 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.data.ContactRepository
-import com.tk.quicksearch.data.FileSearchRepository
-import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.search.options.SettingsSearchHandler
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.util.FileUtils
-import com.tk.quicksearch.util.SearchRankingUtils
+import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.search.utils.SearchRankingUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,14 +18,14 @@ import java.util.Locale
 data class UnifiedSearchResults(
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
-    val settingResults: List<com.tk.quicksearch.model.SettingShortcut> = emptyList()
+    val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList()
 )
 
 class UnifiedSearchHandler(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileSearchRepository,
     private val userPreferences: UserAppPreferences,
-    private val settingsSearchHandler: SettingsSearchHandler,
+    private val settingsSearchHandler: DeviceSettingsSearchHandler,
     private val searchOperations: SearchOperations
 ) {
 
@@ -131,7 +131,7 @@ class UnifiedSearchHandler(
         return if (nicknameOnlyUris.isNotEmpty()) {
             fileRepository.getFilesByUris(nicknameOnlyUris.toSet())
                 .filter { file ->
-                    val fileType = com.tk.quicksearch.model.FileTypeUtils.getFileType(file)
+                    val fileType = com.tk.quicksearch.search.models.FileTypeUtils.getFileType(file)
                     fileType in enabledFileTypes &&
                     !userPreferences.getExcludedFileUris().contains(file.uri.toString()) &&
                     !FileUtils.isFileExtensionExcluded(file.displayName, userPreferences.getExcludedFileExtensions()) &&

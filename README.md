@@ -32,7 +32,11 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Pinned Results**: Keep favorite results always visible
 - **Recent Apps**: Smart ranking based on usage patterns
 - **Recent Searches**: Show your recent search queries when the search bar is empty (choose how many to display, default is 3)
-- **Feedback System**: In-app feedback options and release notes
+- **Haptic Feedback**: Context-aware vibration feedback for different interactions (tap, toggle, etc.)
+- **In-App Updates**: Automatic prompts for app updates from Play Store
+- **In-App Reviews**: Smart prompts to rate the app based on usage patterns
+- **Release Notes**: View what's new in each version directly in the app
+- **Feedback System**: In-app feedback options via email
 
 ### 📱 Widget Support
 - Home screen widget with customizable appearance
@@ -100,9 +104,10 @@ Enable AI-powered answers by:
 ## ⚙️ Configuration
 
 ### Search Engines
-- **Supported**: Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music
+- **Supported** (22 total): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode
 - **Customizable**: Reorder, enable/disable, and set shortcuts
-- **Direct Search**: AI answers with Gemini API integration
+- **Direct Search**: AI answers with Gemini API integration and optional personal context
+- **Style**: Choose between inline (scrolls with content) or compact (fixed at bottom)
 
 ### Sections
 Toggle and reorder search result sections:
@@ -123,15 +128,18 @@ Filter which file types to include in search:
 - **File Type Filtering**: Exclude specific file types from search results
 
 ### Contact Preferences
-- Choose default messaging app (Messages, WhatsApp, Telegram, Google Meet)
+- Choose default messaging app (Messages, WhatsApp, Telegram)
+- Google Meet integration for video calls
 - Enable direct dial (call without opening dialer)
-- Set preferred numbers per contact
+- Set preferred numbers per contact ("Remember my choice")
 - Support for multiple phone numbers per contact
 
 ## 🔑 Permissions
 
+Quick Search follows a privacy-first approach with minimal required permissions.
+
 ### Required
-- **Usage Access**: Required to show recently used apps and usage statistics
+- **Usage Access** (`PACKAGE_USAGE_STATS`): Required to show recently used apps and usage statistics
 
 ### Optional
 - **Contacts**: Access contact names and phone numbers for contact search
@@ -153,41 +161,54 @@ Quick Search prioritizes your privacy. All search processing happens locally on 
 
 Built with modern Android development practices:
 
-- **Language**: Kotlin
-- **UI**: Jetpack Compose with Material 3
-- **Architecture**: MVVM with ViewModels and StateFlow
-- **Persistence**: SharedPreferences with encryption for sensitive data
+- **Language**: Kotlin 2.0.21
+- **UI**: Jetpack Compose with Material 3 (BOM 2025.12.01)
+- **Architecture**: MVVM with ViewModels and StateFlow (unidirectional data flow)
+- **State Management**: Single source of truth with sealed classes for type-safe states
+- **Persistence**: SharedPreferences with encryption for sensitive data (Gemini API keys)
 - **Widgets**: Jetpack Glance App Widget framework
-- **Build System**: Gradle Kotlin DSL with version catalogs
+- **Build System**: Gradle Kotlin DSL (8.12.3) with version catalogs
+- **Min SDK**: 24 (Android 7.0) | **Target SDK**: 36 (Android 15)
 
 ### Project Structure
 ```
-app/src/main/kotlin/com/tk/quicksearch/
-├── data/           # Repositories and data persistence
-│   └── preferences/ # Individual preference management
-├── model/          # Data models
+app/src/main/java/com/tk/quicksearch/
+├── app/            # Application entry point (MainActivity)
+├── navigation/     # Navigation management with animated transitions
+├── onboarding/     # First-launch setup flow
 ├── permissions/    # Permission handling
-├── search/         # Main search UI and logic
+├── search/         # Main search functionality
+│   ├── models/     # Data models (AppInfo, ContactInfo, etc.)
+│   ├── data/       # Repositories and preferences
+│   │   └── preferences/ # Modular preference classes
+│   ├── core/       # Core search logic and ViewModel
 │   ├── apps/       # App search components
-│   ├── contacts/   # Contact search components
-│   ├── core/       # Core search functionality
+│   ├── contacts/   # Contact search and messaging integration
 │   ├── files/      # File search components
-│   ├── handlers/   # Specialized handlers
-│   ├── managers/   # Managers (IconPackManager)
-│   ├── searchEngines/ # Search engine functionality
-│   ├── settings/   # Device settings search
-│   └── ui/         # Search UI components
+│   ├── deviceSettings/ # Device settings search
+│   ├── searchEngines/  # Search engine integration
+│   ├── calculator/ # Calculator functionality
+│   ├── searchScreen/   # Main search UI components
+│   ├── handlers/   # Specialized handlers (pinning, shortcuts)
+│   └── common/     # Shared utilities
 ├── settings/       # Settings screens
-│   ├── main/       # Main settings components
-│   ├── components/ # Shared settings components
-│   ├── permissions/# Permission settings
-│   └── searchEngines/ # Search engine settings
-├── setup/          # Search engine setup screens
-├── tiles/          # Quick Settings tile
-├── ui/theme/       # Material 3 theming
-├── util/           # Utility functions
-└── widget/         # Home screen widget
+│   ├── main/       # Main settings UI
+│   ├── appearance/ # Visual customization settings
+│   ├── searchEngines/ # Search engine configuration
+│   ├── components/ # Reusable settings components
+│   └── permissions/# Permission settings
+├── tile/           # Quick Settings tile service
+├── ui/theme/       # Material 3 theming and design tokens
+├── util/           # Utility functions (ranking, phone numbers, etc.)
+└── widget/         # Home screen widget (Glance)
 ```
+
+### Key Architectural Patterns
+- **Feature-based organization**: Code organized by feature domain
+- **Repository pattern**: Data layer abstraction
+- **Sealed classes**: Type-safe state management
+- **Three-phase initialization**: Optimized startup performance
+- **Modular preferences**: Specialized preference management classes
 
 
 ## ☕ Support the Development

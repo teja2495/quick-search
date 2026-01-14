@@ -19,11 +19,12 @@ import com.tk.quicksearch.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.ui.theme.AppColors
-import com.tk.quicksearch.search.ui.SearchScreenConstants
-import com.tk.quicksearch.search.ui.ContactUiConstants
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.ContactMethod
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.contacts.components.ContactResultRow
 
 // ============================================================================
 // Public API

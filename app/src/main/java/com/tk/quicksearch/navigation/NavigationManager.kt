@@ -19,13 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.onboarding.PermissionsScreen
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.ui.SearchRoute
-import com.tk.quicksearch.settings.main.SettingsDetailRoute
-import com.tk.quicksearch.settings.main.SettingsDetailType
-import com.tk.quicksearch.settings.main.SettingsRoute
+import com.tk.quicksearch.search.searchScreen.SearchRoute
+import com.tk.quicksearch.settings.settingsScreen.SettingsDetailRoute
+import com.tk.quicksearch.settings.settingsScreen.SettingsDetailType
+import com.tk.quicksearch.settings.settingsScreen.SettingsRoute
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.FinalSetupScreen
 

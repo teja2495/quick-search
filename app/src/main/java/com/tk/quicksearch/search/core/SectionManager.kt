@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.data.UserAppPreferences
+import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

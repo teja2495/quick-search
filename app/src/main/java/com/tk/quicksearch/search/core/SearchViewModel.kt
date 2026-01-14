@@ -5,44 +5,44 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tk.quicksearch.R
-import com.tk.quicksearch.data.AppUsageRepository
-import com.tk.quicksearch.data.ContactRepository
-import com.tk.quicksearch.data.FileSearchRepository
-import com.tk.quicksearch.data.SettingsShortcutRepository
-import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.ContactMethod
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.model.SettingShortcut
-import com.tk.quicksearch.onboarding.PermissionRequestHandler
-import com.tk.quicksearch.search.apps.AppManagementHandler
+import com.tk.quicksearch.search.data.AppUsageRepository
+import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
+import com.tk.quicksearch.search.apps.AppManagementService
 import com.tk.quicksearch.util.PackageConstants
-import com.tk.quicksearch.search.apps.AppSearchHandler
-import com.tk.quicksearch.search.contacts.ContactActionHandler
-import com.tk.quicksearch.search.contacts.ContactManagementHandler
-import com.tk.quicksearch.search.contacts.MessagingHandler
+import com.tk.quicksearch.search.apps.AppSearchManager
+import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
+import com.tk.quicksearch.search.contacts.utils.ContactManagementHandler
+import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.apps.prefetchAppIcons
-import com.tk.quicksearch.search.core.CalculatorHandler
+import com.tk.quicksearch.search.calculator.CalculatorHandler
 import com.tk.quicksearch.search.core.PermissionManager
 import com.tk.quicksearch.search.core.SearchOperations
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.files.FileManagementHandler
-import com.tk.quicksearch.search.handlers.IconPackHandler
-import com.tk.quicksearch.search.handlers.NavigationHandler
-import com.tk.quicksearch.search.handlers.PinningHandler
-import com.tk.quicksearch.search.handlers.ReleaseNotesHandler
-import com.tk.quicksearch.search.handlers.ShortcutHandler
-import com.tk.quicksearch.search.searchEngines.DirectSearchHandler
+import com.tk.quicksearch.search.apps.IconPackService
+import com.tk.quicksearch.navigation.NavigationHandler
+import com.tk.quicksearch.search.common.PinningHandler
+import com.tk.quicksearch.app.ReleaseNotesHandler
+import com.tk.quicksearch.search.searchEngines.ShortcutHandler
+import com.tk.quicksearch.search.directSearch.DirectSearchHandler
 import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
-import com.tk.quicksearch.search.searchEngines.WebSuggestionHandler
+import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
-import com.tk.quicksearch.search.options.SettingsManagementHandler
-import com.tk.quicksearch.search.options.SettingsSearchHandler
-import com.tk.quicksearch.util.FileUtils
-import com.tk.quicksearch.util.SearchRankingUtils
+import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
+import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
+import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.search.utils.SearchRankingUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -60,7 +60,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val repository by lazy { AppUsageRepository(application.applicationContext) }
     private val contactRepository by lazy { ContactRepository(application.applicationContext) }
     private val fileRepository by lazy { FileSearchRepository(application.applicationContext) }
-    private val settingsShortcutRepository by lazy { SettingsShortcutRepository(application.applicationContext) }
+    private val settingsShortcutRepository by lazy { DeviceSettingsRepository(application.applicationContext) }
     private val userPreferences by lazy { UserAppPreferences(application.applicationContext) }
 
 
@@ -84,13 +84,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
 
     // Management handlers - lazy initialize non-critical ones
-    val appManager by lazy { AppManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState) }
+    val appManager by lazy { AppManagementService(userPreferences, viewModelScope, this::refreshDerivedState) }
     val contactManager by lazy { ContactManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
     val fileManager by lazy { FileManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
-    val settingsManager by lazy { SettingsManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
+    val settingsManager by lazy { DeviceSettingsManagementHandler(userPreferences, viewModelScope, this::refreshDerivedState, this::updateUiState) }
     val searchEngineManager by lazy { SearchEngineManager(application.applicationContext, userPreferences, viewModelScope, this::updateUiState) }
     val sectionManager by lazy { SectionManager(userPreferences, permissionManager, viewModelScope, this::updateUiState) }
-    val iconPackHandler by lazy { IconPackHandler(application, userPreferences, viewModelScope, this::updateUiState) }
+    val iconPackHandler by lazy { IconPackService(application, userPreferences, viewModelScope, this::updateUiState) }
 
     // New Handlers - lazy initialize non-critical ones
     val messagingHandler by lazy { MessagingHandler(application, userPreferences, this::updateUiState) }
@@ -124,8 +124,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
     
-    val appSearchHandler by lazy {
-        AppSearchHandler(
+    val appSearchManager by lazy {
+        AppSearchManager(
             context = application.applicationContext,
             repository = repository,
             userPreferences = userPreferences,
@@ -139,7 +139,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     val settingsSearchHandler by lazy {
-        SettingsSearchHandler(
+        DeviceSettingsSearchHandler(
             context = application.applicationContext,
             repository = settingsShortcutRepository,
             userPreferences = userPreferences,
@@ -364,7 +364,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             applyStartupPreferences(startupPrefs)
             
             // Sync handlers with loaded prefs
-            appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
+            appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
             
             // Now we can compute the full state including pinned/hidden apps
             val lastUpdated = repository.cacheLastUpdatedMillis()
@@ -398,7 +398,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 showAllResults = showAllResults,
                 sortAppsByUsageEnabled = sortAppsByUsageEnabled,
                 amazonDomain = amazonDomain,
-                recentQueriesEnabled = prefs.recentQueriesEnabled,
+                recentQueriesEnabled = prefs.recentSearchesEnabled,
                 recentQueriesCount = userPreferences.getRecentQueriesCount(),
                 webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
                 shouldShowUsagePermissionBanner = userPreferences.shouldShowUsagePermissionBanner()
@@ -410,7 +410,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun initializeWithCacheMinimal(cachedAppsList: List<AppInfo>) {
-        appSearchHandler.initCache(cachedAppsList)
+        appSearchManager.initCache(cachedAppsList)
         val lastUpdated = repository.cacheLastUpdatedMillis()
         
         // Just show the raw list of apps first!
@@ -441,7 +441,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             
             // 2. Initialize messaging handler (needed for contacts)
             val messagingInfo = getMessagingAppInfo(
-                appSearchHandler.cachedApps.map { it.packageName }.toSet()
+                appSearchManager.cachedApps.map { it.packageName }.toSet()
             )
             
             // Update state with messaging info and correct search engine/section config
@@ -462,7 +462,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showSearchEngineOnboarding = false,
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
-                    calculatorEnabled = calculatorHandler.isEnabled,
+                    calculatorEnabled = userPreferences.isCalculatorEnabled(),
                     hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                     geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                     personalContext = directSearchHandler.getPersonalContext(),
@@ -619,7 +619,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun loadApps() {
-        appSearchHandler.loadApps()
+        appSearchManager.loadApps()
     }
 
     private fun loadSettingsShortcuts() {
@@ -650,7 +650,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun refreshApps(showToast: Boolean = false, forceUiUpdate: Boolean = false) {
-        appSearchHandler.refreshApps(showToast, forceUiUpdate)
+        appSearchManager.refreshApps(showToast, forceUiUpdate)
     }
 
     fun refreshContacts(showToast: Boolean = false) {
@@ -703,7 +703,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         if (trimmedQuery.isBlank()) {
-            appSearchHandler.setNoMatchPrefix(null)
+            appSearchManager.setNoMatchPrefix(null)
             searchJob?.cancel()
             webSuggestionHandler.cancelSuggestions()
             _uiState.update { 
@@ -778,15 +778,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
-        appSearchHandler.resetNoMatchPrefixIfNeeded(normalizedQuery)
+        appSearchManager.resetNoMatchPrefixIfNeeded(normalizedQuery)
 
-        val shouldSkipSearch = appSearchHandler.shouldSkipDueToNoMatchPrefix(normalizedQuery)
+        val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)
         val matches = if (shouldSkipSearch || detectedEngine != null) {
             emptyList()
         } else {
-            appSearchHandler.deriveMatches(trimmedQuery, cachedAllSearchableApps).also { results ->
+            appSearchManager.deriveMatches(trimmedQuery, cachedAllSearchableApps).also { results ->
                 if (results.isEmpty()) {
-                    appSearchHandler.setNoMatchPrefix(normalizedQuery)
+                    appSearchManager.setNoMatchPrefix(normalizedQuery)
                 }
             }
         }
@@ -882,7 +882,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun unpinApp(appInfo: AppInfo) = appManager.unpinApp(appInfo)
     fun setAppNickname(appInfo: AppInfo, nickname: String?) = appManager.setAppNickname(appInfo, nickname)
     fun getAppNickname(packageName: String): String? = appManager.getAppNickname(packageName)
-    fun clearCachedApps() = appSearchHandler.clearCachedApps()
+    fun clearCachedApps() = appSearchManager.clearCachedApps()
 
     // Contact Management Delegates
     fun pinContact(contactInfo: ContactInfo) = contactManager.pinContact(contactInfo)
@@ -911,14 +911,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun getFileNickname(uri: String): String? = fileManager.getFileNickname(uri)
 
     // Settings Management Delegates
-    fun pinSetting(setting: SettingShortcut) = settingsManager.pinSetting(setting)
-    fun unpinSetting(setting: SettingShortcut) = settingsManager.unpinSetting(setting)
-    fun excludeSetting(setting: SettingShortcut) = settingsManager.excludeSetting(setting)
-    fun setSettingNickname(setting: SettingShortcut, nickname: String?) = settingsManager.setSettingNickname(setting, nickname)
+    fun pinSetting(setting: DeviceSetting) = settingsManager.pinSetting(setting)
+    fun unpinSetting(setting: DeviceSetting) = settingsManager.unpinSetting(setting)
+    fun excludeSetting(setting: DeviceSetting) = settingsManager.excludeSetting(setting)
+    fun setSettingNickname(setting: DeviceSetting, nickname: String?) = settingsManager.setSettingNickname(setting, nickname)
     fun getSettingNickname(id: String): String? = settingsManager.getSettingNickname(id)
-    fun removeExcludedSetting(setting: SettingShortcut) = settingsManager.removeExcludedSetting(setting)
+    fun removeExcludedSetting(setting: DeviceSetting) = settingsManager.removeExcludedSetting(setting)
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
-    fun openSetting(setting: SettingShortcut) = settingsSearchHandler.openSetting(setting)
+    fun openSetting(setting: DeviceSetting) = settingsSearchHandler.openSetting(setting)
 
     // Global Actions
     fun clearAllExclusions() {
@@ -1004,7 +1004,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             preferenceSetter = userPreferences::setSortAppsByUsage,
             stateUpdater = { _uiState.update { state -> state.copy(sortAppsByUsageEnabled = it) } }
         )
-        appSearchHandler.setSortAppsByUsage(sortAppsByUsageEnabled)
+        appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
     }
 
     fun getEnabledSearchEngines(): List<SearchEngine> = searchEngineManager.getEnabledSearchEngines()
@@ -1213,18 +1213,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         isLoading: Boolean? = null
     ) {
         // Refresh nicknames cache to ensure we have the latest data
-        appSearchHandler.refreshNicknames()
+        appSearchManager.refreshNicknames()
         
-        val apps = appSearchHandler.cachedApps
-        val visibleAppList = appSearchHandler.availableApps()
+        val apps = appSearchManager.cachedApps
+        val visibleAppList = appSearchManager.availableApps()
         
         // Cache these to avoid multiple SharedPreferences reads
         val suggestionHiddenPackages = userPreferences.getSuggestionHiddenPackages()
         val resultHiddenPackages = userPreferences.getResultHiddenPackages()
         val pinnedPackages = userPreferences.getPinnedPackages()
         
-        val pinnedAppsForSuggestions = appSearchHandler.computePinnedApps(suggestionHiddenPackages)
-        val pinnedAppsForResults = appSearchHandler.computePinnedApps(resultHiddenPackages)
+        val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(suggestionHiddenPackages)
+        val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents = repository.extractRecentlyOpenedApps(recentsSource, GRID_ITEM_COUNT)
         val query = _uiState.value.query
@@ -1240,14 +1240,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         // Always update the searchable apps cache regardless of query state
         // Include both pinned and non-pinned apps in search, let ranking determine order
-        val nonPinnedApps = appSearchHandler.searchSourceApps()
+        val nonPinnedApps = appSearchManager.searchSourceApps()
         val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
         cachedAllSearchableApps = allSearchableApps
 
         val searchResults = if (trimmedQuery.isBlank()) {
             emptyList()
         } else {
-            appSearchHandler.deriveMatches(trimmedQuery, allSearchableApps)
+            appSearchManager.deriveMatches(trimmedQuery, allSearchableApps)
         }
         val suggestionHiddenAppList = apps
             .filter { suggestionHiddenPackages.contains(it.packageName) }

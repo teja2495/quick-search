@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.ui.ContactUiConstants
+import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 
 // ============================================================================
 // Expand/Collapse Buttons

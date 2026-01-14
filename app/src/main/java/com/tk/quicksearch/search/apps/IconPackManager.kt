@@ -108,11 +108,6 @@ object IconPackManager {
         return drawable.toBitmapSafely()
     }
 
-    fun clearCachesFor(iconPackPackage: String?) {
-        if (iconPackPackage.isNullOrBlank()) return
-        mappingCache.remove(iconPackPackage)
-        resourcesCache.remove(iconPackPackage)
-    }
 
     fun clearAllCaches() {
         mappingCache.clear()

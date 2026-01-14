@@ -7,8 +7,8 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import com.tk.quicksearch.R
-import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.model.DeviceFile
+import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchEngines.buildSearchUrl
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId

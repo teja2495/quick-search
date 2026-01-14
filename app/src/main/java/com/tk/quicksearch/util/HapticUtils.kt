@@ -1,6 +1,5 @@
 package com.tk.quicksearch.util
 
-import androidx.compose.ui.platform.LocalView
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 

@@ -8,7 +8,6 @@ object WidgetConfigConstants {
 
     val PREVIEW_HEIGHT = 64.dp
     val PREVIEW_ICON_SIZE = 20.dp
-    val PREVIEW_MIC_SPACE = 36.dp
 
     val SECTION_SPACING = 24.dp
     val PREVIEW_SECTION_SPACING = SECTION_SPACING
@@ -24,7 +23,6 @@ object WidgetConfigConstants {
     val BOTTOM_BAR_VERTICAL_PADDING = 12.dp
     val BOTTOM_BAR_BOTTOM_PADDING = 24.dp
     val BOTTOM_BUTTON_HEIGHT = 56.dp
-    val SCROLLABLE_SECTION_TOP_SPACING = 8.dp
     val SCROLLABLE_SECTION_BOTTOM_PADDING = 72.dp
 
     val LOADING_STATE_SPACING = 16.dp

@@ -1,15 +1,15 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.ui.AppsSectionParams
-import com.tk.quicksearch.search.ui.ContactsSectionParams
-import com.tk.quicksearch.search.ui.ExpandedSection
-import com.tk.quicksearch.search.ui.FilesSectionParams
-import com.tk.quicksearch.search.ui.SectionRenderingState
-import com.tk.quicksearch.search.ui.SettingsSectionParams
+import com.tk.quicksearch.search.searchScreen.AppsSectionParams
+import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
+import com.tk.quicksearch.search.searchScreen.ExpandedSection
+import com.tk.quicksearch.search.searchScreen.FilesSectionParams
+import com.tk.quicksearch.search.searchScreen.SectionRenderingState
+import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 
 
 // ============================================================================
@@ -108,7 +108,7 @@ fun getSettingsListForRendering(
     renderingState: SectionRenderingState,
     isSettingsExpanded: Boolean,
     keyboardAlignedLayout: Boolean
-): List<SettingShortcut> = getListForRendering(
+): List<DeviceSetting> = getListForRendering(
     list = renderingState.settingResults,
     isExpanded = isSettingsExpanded,
     autoExpand = renderingState.autoExpandSettings,
@@ -184,7 +184,7 @@ data class SectionRenderContext(
     val contactsExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
     val isSettingsExpanded: Boolean = false,
-    val settingsList: List<SettingShortcut> = emptyList(),
+    val settingsList: List<DeviceSetting> = emptyList(),
     val showAllSettingsResults: Boolean = false,
     val showSettingsExpandControls: Boolean = false,
     val settingsExpandClick: () -> Unit = {}

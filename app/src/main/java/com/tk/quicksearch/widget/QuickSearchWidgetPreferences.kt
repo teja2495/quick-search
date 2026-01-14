@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.tk.quicksearch.search.ui.MicAction
+import com.tk.quicksearch.widget.voiceSearch.MicAction
 import kotlinx.parcelize.Parcelize
 
 

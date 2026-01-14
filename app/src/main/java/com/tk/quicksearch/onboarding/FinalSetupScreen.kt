@@ -33,9 +33,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.settings.contacts.MessagingSection
-import com.tk.quicksearch.settings.files.FileTypesSection
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.settings.settingsScreen.MessagingSection
+import com.tk.quicksearch.settings.settingsScreen.FileTypesSection
 
 
 /**

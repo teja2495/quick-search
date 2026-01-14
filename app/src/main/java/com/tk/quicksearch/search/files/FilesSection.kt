@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,18 +37,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.ui.theme.AppColors
-import com.tk.quicksearch.search.ui.ContactUiConstants
-import com.tk.quicksearch.search.ui.SearchScreenConstants
+import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.R
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.util.FileUtils
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.util.hapticConfirm
 
 // ============================================================================

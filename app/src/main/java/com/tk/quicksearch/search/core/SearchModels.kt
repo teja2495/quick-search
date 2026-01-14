@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(
     val packageName: String,
@@ -65,7 +70,7 @@ data class CalculatorState(
 )
 
 data class PhoneNumberSelection(
-    val contactInfo: com.tk.quicksearch.model.ContactInfo,
+    val contactInfo: com.tk.quicksearch.search.models.ContactInfo,
     val isCall: Boolean // true for call, false for SMS
 )
 
@@ -140,20 +145,20 @@ data class SearchUiState(
     val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
 
     // Data (unchanged)
-    val recentApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
-    val searchResults: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
-    val pinnedApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
-    val suggestionExcludedApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
-    val resultExcludedApps: List<com.tk.quicksearch.model.AppInfo> = emptyList(),
-    val contactResults: List<com.tk.quicksearch.model.ContactInfo> = emptyList(),
-    val fileResults: List<com.tk.quicksearch.model.DeviceFile> = emptyList(),
-    val settingResults: List<com.tk.quicksearch.model.SettingShortcut> = emptyList(),
-    val pinnedContacts: List<com.tk.quicksearch.model.ContactInfo> = emptyList(),
-    val pinnedFiles: List<com.tk.quicksearch.model.DeviceFile> = emptyList(),
-    val pinnedSettings: List<com.tk.quicksearch.model.SettingShortcut> = emptyList(),
-    val excludedContacts: List<com.tk.quicksearch.model.ContactInfo> = emptyList(),
-    val excludedFiles: List<com.tk.quicksearch.model.DeviceFile> = emptyList(),
-    val excludedSettings: List<com.tk.quicksearch.model.SettingShortcut> = emptyList(),
+    val recentApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+    val searchResults: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+    val pinnedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+    val suggestionExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+    val resultExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+    val contactResults: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+    val fileResults: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+    val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
+    val pinnedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+    val pinnedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+    val pinnedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
+    val excludedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+    val excludedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+    val excludedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
 
     // Metadata
     val indexedAppCount: Int = 0,
@@ -169,11 +174,11 @@ data class SearchUiState(
     val disabledSearchEngines: Set<SearchEngine> = emptySet(),
     val phoneNumberSelection: PhoneNumberSelection? = null,
     val directDialChoice: DirectDialChoice? = null,
-    val contactMethodsBottomSheet: com.tk.quicksearch.model.ContactInfo? = null,
+    val contactMethodsBottomSheet: com.tk.quicksearch.search.models.ContactInfo? = null,
     val pendingDirectCallNumber: String? = null,
     val pendingWhatsAppCallDataId: String? = null,
     val directDialEnabled: Boolean = false,
-    val enabledFileTypes: Set<com.tk.quicksearch.model.FileType> = com.tk.quicksearch.model.FileType.values().toSet(),
+    val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> = com.tk.quicksearch.search.models.FileType.values().toSet(),
     val excludedFileExtensions: Set<String> = emptySet(),
     val keyboardAlignedLayout: Boolean = false,
     val shortcutsEnabled: Boolean = true,

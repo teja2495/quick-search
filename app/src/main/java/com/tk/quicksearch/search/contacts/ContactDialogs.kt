@@ -1,4 +1,4 @@
-package com.tk.quicksearch.search.contacts
+package com.tk.quicksearch.search.contacts.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,10 +51,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectDialOption
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.ContactMethod
-import com.tk.quicksearch.util.PhoneNumberUtils
-import com.tk.quicksearch.util.TelegramContactUtils
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
+import com.tk.quicksearch.search.contacts.components.ContactActionButton
+import com.tk.quicksearch.search.contacts.components.ContactAvatar
 import kotlin.reflect.KClass
 
 // ============================================================================

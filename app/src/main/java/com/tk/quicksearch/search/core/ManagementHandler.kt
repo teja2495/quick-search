@@ -1,10 +1,10 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.data.UserAppPreferences
-import com.tk.quicksearch.model.AppInfo
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.model.SettingShortcut
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.core.SearchUiState
 import kotlinx.coroutines.CoroutineScope
 
@@ -243,14 +243,14 @@ class ContactManagementConfig : ManagementHandlerConfig<ContactInfo> {
 }
 
 /**
- * Configuration for managing SettingShortcut items.
+ * Configuration for managing DeviceSetting items.
  */
-class SettingsManagementConfig : ManagementHandlerConfig<SettingShortcut> {
-    override fun getItemId(item: SettingShortcut): String = item.id
+class SettingsManagementConfig : ManagementHandlerConfig<DeviceSetting> {
+    override fun getItemId(item: DeviceSetting): String = item.id
 
-    override fun canPinItem(item: SettingShortcut): Boolean = true // Settings can always be pinned - validation done elsewhere
+    override fun canPinItem(item: DeviceSetting): Boolean = true // Settings can always be pinned - validation done elsewhere
 
-    override fun updateUiForPin(item: SettingShortcut, state: SearchUiState): SearchUiState {
+    override fun updateUiForPin(item: DeviceSetting, state: SearchUiState): SearchUiState {
         return if (state.pinnedSettings.any { it.id == item.id }) {
             state
         } else {
@@ -258,13 +258,13 @@ class SettingsManagementConfig : ManagementHandlerConfig<SettingShortcut> {
         }
     }
 
-    override fun updateUiForUnpin(item: SettingShortcut, state: SearchUiState): SearchUiState {
+    override fun updateUiForUnpin(item: DeviceSetting, state: SearchUiState): SearchUiState {
         return state.copy(
             pinnedSettings = state.pinnedSettings.filterNot { it.id == item.id }
         )
     }
 
-    override fun updateUiForExclude(item: SettingShortcut, state: SearchUiState): SearchUiState {
+    override fun updateUiForExclude(item: DeviceSetting, state: SearchUiState): SearchUiState {
         return state.copy(
             settingResults = state.settingResults.filterNot { it.id == item.id },
             pinnedSettings = state.pinnedSettings.filterNot { it.id == item.id },
@@ -272,36 +272,36 @@ class SettingsManagementConfig : ManagementHandlerConfig<SettingShortcut> {
         )
     }
 
-    override fun updateUiForRemoveExclusion(item: SettingShortcut, state: SearchUiState): SearchUiState {
+    override fun updateUiForRemoveExclusion(item: DeviceSetting, state: SearchUiState): SearchUiState {
         return state.copy(
             excludedSettings = state.excludedSettings.filterNot { it.id == item.id }
         )
     }
 
-    override fun pinItemInPreferences(item: SettingShortcut, preferences: UserAppPreferences) {
+    override fun pinItemInPreferences(item: DeviceSetting, preferences: UserAppPreferences) {
         preferences.pinSetting(item.id)
     }
 
-    override fun unpinItemInPreferences(item: SettingShortcut, preferences: UserAppPreferences) {
+    override fun unpinItemInPreferences(item: DeviceSetting, preferences: UserAppPreferences) {
         preferences.unpinSetting(item.id)
     }
 
-    override fun excludeItemInPreferences(item: SettingShortcut, preferences: UserAppPreferences) {
+    override fun excludeItemInPreferences(item: DeviceSetting, preferences: UserAppPreferences) {
         preferences.excludeSetting(item.id)
         if (preferences.getPinnedSettingIds().contains(item.id)) {
             preferences.unpinSetting(item.id)
         }
     }
 
-    override fun removeExcludedItemInPreferences(item: SettingShortcut, preferences: UserAppPreferences) {
+    override fun removeExcludedItemInPreferences(item: DeviceSetting, preferences: UserAppPreferences) {
         preferences.removeExcludedSetting(item.id)
     }
 
-    override fun setItemNicknameInPreferences(item: SettingShortcut, nickname: String?, preferences: UserAppPreferences) {
+    override fun setItemNicknameInPreferences(item: DeviceSetting, nickname: String?, preferences: UserAppPreferences) {
         preferences.setSettingNickname(item.id, nickname)
     }
 
-    override fun getItemNicknameFromPreferences(item: SettingShortcut, preferences: UserAppPreferences): String? {
+    override fun getItemNicknameFromPreferences(item: DeviceSetting, preferences: UserAppPreferences): String? {
         return preferences.getSettingNickname(item.id)
     }
 

@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.searchEngines.SearchEnginesSection
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchViewModel
 

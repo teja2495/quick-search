@@ -1,12 +1,12 @@
 package com.tk.quicksearch.search.core
 
-import com.tk.quicksearch.data.ContactRepository
-import com.tk.quicksearch.data.FileSearchRepository
-import com.tk.quicksearch.model.ContactInfo
-import com.tk.quicksearch.model.DeviceFile
-import com.tk.quicksearch.model.FileType
-import com.tk.quicksearch.model.FileTypeUtils
-import com.tk.quicksearch.util.FileUtils
+import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.FileSearchRepository
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.FileTypeUtils
+import com.tk.quicksearch.search.utils.FileUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale

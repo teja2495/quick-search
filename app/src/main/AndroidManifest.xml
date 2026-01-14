@@ -39,7 +39,7 @@
 
         <!-- Main Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".app.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:excludeFromRecents="true"
@@ -83,7 +83,7 @@
 
         <!-- Quick Settings Tile Service -->
         <service
-            android:name=".tiles.QuickSearchTileService"
+            android:name=".tile.QuickSearchTileService"
             android:exported="true"
             android:icon="@drawable/ic_widget_search"
             android:label="@string/quick_settings_tile_label"
