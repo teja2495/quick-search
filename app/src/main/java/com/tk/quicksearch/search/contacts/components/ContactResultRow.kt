@@ -19,9 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
@@ -532,9 +530,11 @@ private fun ContactDropdownMenu(
                         },
                         leadingIcon = {
                                 Icon(
-                                        imageVector =
-                                                if (isPinned) Icons.Rounded.Close
-                                                else Icons.Rounded.PushPin,
+                                        painter =
+                                                painterResource(
+                                                        if (isPinned) R.drawable.ic_unpin
+                                                        else R.drawable.ic_pin
+                                                ),
                                         contentDescription = null
                                 )
                         },

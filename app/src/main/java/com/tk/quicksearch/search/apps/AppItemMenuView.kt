@@ -1,11 +1,9 @@
 package com.tk.quicksearch.search.apps
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -15,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
@@ -25,7 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
  */
 private data class AppMenuItem(
     val textResId: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val icon: @Composable () -> Unit,
     val onClick: () -> Unit
 )
 
@@ -57,7 +56,7 @@ fun AppItemDropdownMenu(
             add(
                 AppMenuItem(
                     textResId = R.string.action_app_info,
-                    icon = Icons.Rounded.Info,
+                    icon = { Icon(imageVector = Icons.Rounded.Info, contentDescription = null) },
                     onClick = {
                         onDismiss()
                         onAppInfoClick()
@@ -67,7 +66,7 @@ fun AppItemDropdownMenu(
             add(
                 AppMenuItem(
                     textResId = R.string.action_hide_app,
-                    icon = Icons.Rounded.VisibilityOff,
+                    icon = { Icon(imageVector = Icons.Rounded.VisibilityOff, contentDescription = null) },
                     onClick = {
                         onDismiss()
                         onHideApp()
@@ -77,7 +76,14 @@ fun AppItemDropdownMenu(
             add(
                 AppMenuItem(
                     textResId = if (isPinned) R.string.action_unpin_app else R.string.action_pin_app,
-                    icon = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
+                    icon = {
+                        Icon(
+                            painter = painterResource(
+                                if (isPinned) R.drawable.ic_unpin else R.drawable.ic_pin
+                            ),
+                            contentDescription = null
+                        )
+                    },
                     onClick = {
                         onDismiss()
                         if (isPinned) {
@@ -91,7 +97,7 @@ fun AppItemDropdownMenu(
             add(
                 AppMenuItem(
                     textResId = if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname,
-                    icon = Icons.Rounded.Edit,
+                    icon = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
                     onClick = {
                         onDismiss()
                         onNicknameClick()
@@ -102,7 +108,7 @@ fun AppItemDropdownMenu(
                 add(
                     AppMenuItem(
                         textResId = R.string.action_uninstall_app,
-                        icon = Icons.Rounded.Delete,
+                        icon = { Icon(imageVector = Icons.Rounded.Delete, contentDescription = null) },
                         onClick = {
                             onDismiss()
                             onUninstallClick()
@@ -119,10 +125,7 @@ fun AppItemDropdownMenu(
             DropdownMenuItem(
                 text = { Text(text = stringResource(item.textResId)) },
                 leadingIcon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = null
-                    )
+                    item.icon()
                 },
                 onClick = item.onClick
             )

@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.ExpandLess
@@ -37,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -269,7 +268,9 @@ private fun SettingsDropdownMenu(
             },
             leadingIcon = {
                 Icon(
-                    imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
+                    painter = painterResource(
+                        if (isPinned) R.drawable.ic_unpin else R.drawable.ic_pin
+                    ),
                     contentDescription = null
                 )
             },
