@@ -8,7 +8,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.files.FileResultsSection
-import com.tk.quicksearch.settings.settingsScreen.SettingsResultsSection
+import com.tk.quicksearch.settings.settingsScreen.DeviceSettingsResultsSection
 
 // ============================================================================
 // Section Rendering Functions
@@ -134,7 +134,7 @@ private fun renderAppsSection(params: SectionRenderParams, context: SectionRende
 @Composable
 private fun renderSettingsSection(params: SectionRenderParams, context: SectionRenderContext) {
     if (context.shouldRenderSettings && params.settingsParams != null) {
-        SettingsResultsSection(
+        DeviceSettingsResultsSection(
                 settings = context.settingsList,
                 isExpanded = context.isSettingsExpanded,
                 pinnedSettingIds = params.settingsParams.pinnedSettingIds,

@@ -22,9 +22,6 @@ import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -48,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
@@ -498,88 +494,3 @@ private fun ContactActionIconForButton(
         }
 }
 
-// ============================================================================
-// Dropdown Menu
-// ============================================================================
-
-@Composable
-private fun ContactDropdownMenu(
-        expanded: Boolean,
-        onDismissRequest: () -> Unit,
-        isPinned: Boolean,
-        hasNickname: Boolean,
-        onTogglePin: () -> Unit,
-        onExclude: () -> Unit,
-        onNicknameClick: () -> Unit
-) {
-        DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = onDismissRequest,
-                shape = RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false)
-        ) {
-                DropdownMenuItem(
-                        text = {
-                                Text(
-                                        text =
-                                                stringResource(
-                                                        if (isPinned) R.string.action_unpin_generic
-                                                        else R.string.action_pin_generic
-                                                )
-                                )
-                        },
-                        leadingIcon = {
-                                Icon(
-                                        painter =
-                                                painterResource(
-                                                        if (isPinned) R.drawable.ic_unpin
-                                                        else R.drawable.ic_pin
-                                                ),
-                                        contentDescription = null
-                                )
-                        },
-                        onClick = {
-                                onDismissRequest()
-                                onTogglePin()
-                        }
-                )
-
-                HorizontalDivider()
-
-                DropdownMenuItem(
-                        text = {
-                                Text(
-                                        text =
-                                                stringResource(
-                                                        if (hasNickname)
-                                                                R.string.action_edit_nickname
-                                                        else R.string.action_add_nickname
-                                                )
-                                )
-                        },
-                        leadingIcon = {
-                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
-                        },
-                        onClick = {
-                                onDismissRequest()
-                                onNicknameClick()
-                        }
-                )
-
-                HorizontalDivider()
-
-                DropdownMenuItem(
-                        text = { Text(text = stringResource(R.string.action_exclude_generic)) },
-                        leadingIcon = {
-                                Icon(
-                                        imageVector = Icons.Rounded.VisibilityOff,
-                                        contentDescription = null
-                                )
-                        },
-                        onClick = {
-                                onDismissRequest()
-                                onExclude()
-                        }
-                )
-        }
-}

@@ -15,13 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -38,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
@@ -333,112 +328,6 @@ private fun FileResultRow(
     }
 }
 
-// ============================================================================
-// Dropdown Menu
-// ============================================================================
-
-@Composable
-private fun FileDropdownMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    deviceFile: DeviceFile,
-    isPinned: Boolean,
-    hasNickname: Boolean,
-    onTogglePin: () -> Unit,
-    onExclude: () -> Unit,
-    onExcludeExtension: () -> Unit,
-    onNicknameClick: () -> Unit
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        shape = DesignTokens.ShapeXLarge,
-        properties = PopupProperties(focusable = false)
-    ) {
-        DropdownMenuItem(
-            text = {
-                Text(
-                    text = stringResource(
-                        if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(
-                        if (isPinned) R.drawable.ic_unpin else R.drawable.ic_pin
-                    ),
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                onTogglePin()
-            }
-        )
-        
-        HorizontalDivider()
-        
-        DropdownMenuItem(
-            text = {
-                Text(
-                    text = stringResource(
-                        if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.Edit,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                onNicknameClick()
-            }
-        )
-        
-        HorizontalDivider()
-
-        DropdownMenuItem(
-            text = {
-                Text(text = stringResource(R.string.action_exclude_generic))
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.VisibilityOff,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                onExclude()
-            }
-        )
-
-        val fileExtension = FileUtils.getFileExtension(deviceFile.displayName)
-        if (fileExtension != null) {
-            HorizontalDivider()
-
-            DropdownMenuItem(
-                text = {
-                    Text(text = stringResource(R.string.action_exclude_extension, fileExtension))
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Rounded.VisibilityOff,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    onDismissRequest()
-                    onExcludeExtension()
-                }
-            )
-        }
-    }
-}
 
 // ============================================================================
 // Expand/Collapse Buttons
