@@ -108,7 +108,7 @@ fun PhoneNumberSelectionDialog(
                             onClick = { selectedNumber = number }
                         )
                         Text(
-                            text = number,
+                            text = PhoneNumberUtils.formatPhoneNumberForDisplay(number),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
@@ -357,7 +357,7 @@ fun ContactMethodsDialog(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(370.dp),
+                            .height(380.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Black
                         ),
@@ -366,8 +366,7 @@ fun ContactMethodsDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 24.dp)
-                                .verticalScroll(rememberScrollState()),
+                                .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 24.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -400,7 +399,7 @@ fun ContactMethodsDialog(
 
                                     // Phone number
                                     Text(
-                                        text = phoneNumber,
+                                        text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
                                         style = MaterialTheme.typography.titleMedium,
                                         color = Color.White,
                                         textAlign = TextAlign.Center,

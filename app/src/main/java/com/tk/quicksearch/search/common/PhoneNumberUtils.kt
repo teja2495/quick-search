@@ -98,4 +98,76 @@ object PhoneNumberUtils {
         // Return with + prefix if original had it, otherwise return digits only
         return if (hasPlus) "+$digits" else digits
     }
+
+    /**
+     * Formats a phone number for display in a user-friendly format.
+     * Examples:
+     * - "+1234567890" -> "+1 234 567 8900"
+     * - "1234567890" -> "(123) 456-7890" (for US/Canada numbers)
+     * - "12345678901" -> "1 234 567 8901" (for international numbers without +)
+     */
+    fun formatPhoneNumberForDisplay(phoneNumber: String): String {
+        if (phoneNumber.isBlank()) return phoneNumber
+
+        val digits = extractDigits(phoneNumber)
+        if (digits.isEmpty()) return phoneNumber
+
+        // If starts with +, format as international number
+        if (phoneNumber.trim().startsWith("+")) {
+            return formatInternationalNumber("+$digits")
+        }
+
+        // Check if it's a US/Canada number (10 digits, no country code)
+        if (digits.length == 10) {
+            return formatUSNumber(digits)
+        }
+
+        // For other numbers, add spaces every 3-4 digits
+        return formatInternationalNumber(digits)
+    }
+
+    /**
+     * Formats an international phone number with spaces.
+     * Example: "+1234567890" -> "+1 234 567 8900"
+     */
+    private fun formatInternationalNumber(number: String): String {
+        val digits = extractDigits(number)
+        val hasPlus = number.startsWith("+")
+
+        if (digits.length <= 3) return number
+
+        val formatted = StringBuilder()
+        if (hasPlus) formatted.append("+")
+
+        // Handle country code (1-3 digits)
+        val countryCodeLength = when {
+            digits.length >= 10 -> 1 // Common for +1, +7, etc.
+            digits.length >= 9 -> 2  // For +91, +44, etc.
+            else -> 3
+        }
+
+        formatted.append(digits.substring(0, countryCodeLength))
+        formatted.append(" ")
+
+        val remainingDigits = digits.substring(countryCodeLength)
+        var index = 0
+
+        // Group remaining digits in sets of 3-4
+        while (index < remainingDigits.length) {
+            val chunkSize = if (remainingDigits.length - index <= 4) 4 else 3
+            if (index > 0) formatted.append(" ")
+            formatted.append(remainingDigits.substring(index, (index + chunkSize).coerceAtMost(remainingDigits.length)))
+            index += chunkSize
+        }
+
+        return formatted.toString()
+    }
+
+    /**
+     * Formats a US/Canada phone number as (XXX) XXX-XXXX
+     */
+    private fun formatUSNumber(digits: String): String {
+        if (digits.length != 10) return digits
+        return "(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6)}"
+    }
 }

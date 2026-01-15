@@ -161,7 +161,7 @@ fun ContactActionPickerDialog(
 
                     // Card encompassing options with black background
                     Card(
-                            modifier = Modifier.fillMaxWidth().height(370.dp),
+                            modifier = Modifier.fillMaxWidth().height(380.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.Black),
                             shape = MaterialTheme.shapes.large
                     ) {
@@ -173,8 +173,7 @@ fun ContactActionPickerDialog(
                                                         top = 20.dp,
                                                         end = 16.dp,
                                                         bottom = 24.dp
-                                                )
-                                                .verticalScroll(rememberScrollState()),
+                                                ),
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -213,7 +212,7 @@ fun ContactActionPickerDialog(
 
                                     // Phone number
                                     Text(
-                                            text = phoneNumber,
+                                            text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
                                             style = MaterialTheme.typography.titleMedium,
                                             color = Color.White,
                                             textAlign = TextAlign.Center,

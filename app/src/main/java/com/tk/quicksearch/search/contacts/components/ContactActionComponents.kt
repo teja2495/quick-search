@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -63,6 +64,7 @@ internal fun ContactActionButton(
         Surface(
                 modifier =
                         modifier.width(90.dp)
+                                .height(80.dp)
                                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                                 .border(
                                         width = DesignTokens.BorderWidth,
