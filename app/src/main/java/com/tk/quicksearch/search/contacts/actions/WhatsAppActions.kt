@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 
 /**
@@ -14,9 +15,9 @@ import com.tk.quicksearch.search.utils.PhoneNumberUtils
 object WhatsAppActions {
 
     private const val WHATSAPP_PACKAGE = "com.whatsapp"
-    private const val WHATSAPP_MESSAGE_MIME = "vnd.android.cursor.item/vnd.com.whatsapp.voip.call"
-    private const val WHATSAPP_VOICE_CALL_MIME = "vnd.android.cursor.item/vnd.com.whatsapp.voip.call"
-    private const val WHATSAPP_VIDEO_CALL_MIME = "vnd.android.cursor.item/vnd.com.whatsapp.video.call"
+    private const val WHATSAPP_MESSAGE_MIME = ContactMethodMimeTypes.WHATSAPP_MESSAGE
+    private const val WHATSAPP_VOICE_CALL_MIME = ContactMethodMimeTypes.WHATSAPP_VOICE_CALL
+    private const val WHATSAPP_VIDEO_CALL_MIME = ContactMethodMimeTypes.WHATSAPP_VIDEO_CALL
 
     /**
      * Opens WhatsApp chat using the contact data URI approach.

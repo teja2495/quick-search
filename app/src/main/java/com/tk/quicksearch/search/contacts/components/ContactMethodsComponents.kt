@@ -89,10 +89,26 @@ private fun ContactMethodItem(
 private fun ContactMethodIcon(method: ContactMethod) {
     val (icon, tint) = when (method) {
         is ContactMethod.Phone -> Pair(Icons.Rounded.Call, Color.White)
-        is ContactMethod.Sms -> Pair(Icons.Rounded.Sms, Color.White)
+        is ContactMethod.Sms -> {
+            Icon(
+                imageVector = Icons.Rounded.Sms,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
+            )
+            return
+        }
         is ContactMethod.WhatsAppCall,
-        is ContactMethod.WhatsAppMessage,
         is ContactMethod.WhatsAppVideoCall -> {
+            Icon(
+                painter = painterResource(id = if (method is ContactMethod.WhatsAppVideoCall) R.drawable.whatsapp_video_call else R.drawable.whatsapp_call),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(24.dp)
+            )
+            return
+        }
+        is ContactMethod.WhatsAppMessage -> {
             Icon(
                 painter = painterResource(id = R.drawable.whatsapp),
                 contentDescription = null,
@@ -101,9 +117,17 @@ private fun ContactMethodIcon(method: ContactMethod) {
             )
             return
         }
-        is ContactMethod.TelegramMessage,
         is ContactMethod.TelegramCall,
         is ContactMethod.TelegramVideoCall -> {
+            Icon(
+                painter = painterResource(id = if (method is ContactMethod.TelegramVideoCall) R.drawable.telegram_video_call else R.drawable.telegram_call),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(24.dp)
+            )
+            return
+        }
+        is ContactMethod.TelegramMessage -> {
             Icon(
                 painter = painterResource(id = R.drawable.telegram),
                 contentDescription = null,

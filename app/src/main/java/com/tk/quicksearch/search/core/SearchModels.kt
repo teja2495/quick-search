@@ -1,15 +1,12 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 
 // IconPackInfo moved here to avoid circular imports
-data class IconPackInfo(
-    val packageName: String,
-    val label: String
-)
+data class IconPackInfo(val packageName: String, val label: String)
 
 enum class SearchEngine {
     DIRECT_SEARCH,
@@ -58,26 +55,20 @@ enum class DirectSearchStatus {
 }
 
 data class DirectSearchState(
-    val status: DirectSearchStatus = DirectSearchStatus.Idle,
-    val answer: String? = null,
-    val errorMessage: String? = null,
-    val activeQuery: String? = null
+        val status: DirectSearchStatus = DirectSearchStatus.Idle,
+        val answer: String? = null,
+        val errorMessage: String? = null,
+        val activeQuery: String? = null
 )
 
-data class CalculatorState(
-    val result: String? = null,
-    val expression: String? = null
-)
+data class CalculatorState(val result: String? = null, val expression: String? = null)
 
 data class PhoneNumberSelection(
-    val contactInfo: com.tk.quicksearch.search.models.ContactInfo,
-    val isCall: Boolean // true for call, false for SMS
+        val contactInfo: com.tk.quicksearch.search.models.ContactInfo,
+        val isCall: Boolean // true for call, false for SMS
 )
 
-data class DirectDialChoice(
-    val contactName: String,
-    val phoneNumber: String
-)
+data class DirectDialChoice(val contactName: String, val phoneNumber: String)
 
 enum class DirectDialOption {
     DIRECT_CALL,
@@ -129,91 +120,96 @@ sealed class SearchEnginesVisibility {
 }
 
 data class SearchUiState(
-    // Core state
-    val query: String = "",
-    val hasUsagePermission: Boolean = false,
-    val hasContactPermission: Boolean = false,
-    val hasFilePermission: Boolean = false,
-    val hasCallPermission: Boolean = false,
+        // Core state
+        val query: String = "",
+        val hasUsagePermission: Boolean = false,
+        val hasContactPermission: Boolean = false,
+        val hasFilePermission: Boolean = false,
+        val hasCallPermission: Boolean = false,
 
-    // Visibility states (replaces scattered boolean flags)
-    val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
-    val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
-    val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
-    val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
-    val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
-    val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
+        // Visibility states (replaces scattered boolean flags)
+        val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
+        val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
+        val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
+        val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
+        val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
+        val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
 
-    // Data (unchanged)
-    val recentApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
-    val searchResults: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
-    val pinnedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
-    val suggestionExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
-    val resultExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
-    val contactResults: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
-    val fileResults: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
-    val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
-    val pinnedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
-    val pinnedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
-    val pinnedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
-    val excludedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
-    val excludedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
-    val excludedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
+        // Data (unchanged)
+        val recentApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val searchResults: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val pinnedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val suggestionExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val resultExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val contactResults: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+        val fileResults: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+        val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
+                emptyList(),
+        val pinnedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+        val pinnedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+        val pinnedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
+                emptyList(),
+        val excludedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
+        val excludedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
+        val excludedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
+                emptyList(),
 
-    // Metadata
-    val indexedAppCount: Int = 0,
-    val cacheLastUpdatedMillis: Long = 0L,
+        // Metadata
+        val indexedAppCount: Int = 0,
+        val cacheLastUpdatedMillis: Long = 0L,
 
-    // Legacy fields (keeping for backward compatibility during migration)
-    val isInitializing: Boolean = true,
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null,
+        // Legacy fields (keeping for backward compatibility during migration)
+        val isInitializing: Boolean = true,
+        val isLoading: Boolean = true,
+        val errorMessage: String? = null,
 
-    // UI configuration (unchanged)
-    val searchEngineOrder: List<SearchEngine> = emptyList(),
-    val disabledSearchEngines: Set<SearchEngine> = emptySet(),
-    val phoneNumberSelection: PhoneNumberSelection? = null,
-    val directDialChoice: DirectDialChoice? = null,
-    val contactMethodsBottomSheet: com.tk.quicksearch.search.models.ContactInfo? = null,
-    val pendingDirectCallNumber: String? = null,
-    val pendingWhatsAppCallDataId: String? = null,
-    val directDialEnabled: Boolean = false,
-    val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> = com.tk.quicksearch.search.models.FileType.values().toSet(),
-    val excludedFileExtensions: Set<String> = emptySet(),
-    val keyboardAlignedLayout: Boolean = false,
-    val shortcutsEnabled: Boolean = true,
-    val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
-    val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
-    val messagingApp: MessagingApp = MessagingApp.MESSAGES,
-    val isWhatsAppInstalled: Boolean = false,
-    val isTelegramInstalled: Boolean = false,
-    val showWallpaperBackground: Boolean = true,
-    val clearQueryAfterSearchEngine: Boolean = false,
-    val showAllResults: Boolean = false,
-    val selectedIconPackPackage: String? = null,
-    val availableIconPacks: List<IconPackInfo> = emptyList(),
-    val sortAppsByUsageEnabled: Boolean = false,
-    val sectionOrder: List<SearchSection> = emptyList(),
-    val disabledSections: Set<SearchSection> = emptySet(),
-    val isSearchEngineCompactMode: Boolean = false,
-    val amazonDomain: String? = null,
-    val webSuggestionsEnabled: Boolean = true,
-    val webSuggestionsCount: Int = 3,
-    val calculatorEnabled: Boolean = true,
-    val DirectSearchState: DirectSearchState = DirectSearchState(),
-    val hasGeminiApiKey: Boolean = false,
-    val geminiApiKeyLast4: String? = null,
-    val personalContext: String = "",
-    val showReleaseNotesDialog: Boolean = false,
-    val releaseNotesVersionName: String? = null,
-    val calculatorState: CalculatorState = CalculatorState(),
-    val webSuggestions: List<String> = emptyList(),
-    val showSearchEngineOnboarding: Boolean = false,
-    val showSearchBarWelcomeAnimation: Boolean = false,
-    val detectedShortcutEngine: SearchEngine? = null,
-    val webSuggestionWasSelected: Boolean = false,
-    val recentQueries: List<String> = emptyList(),
-    val recentQueriesEnabled: Boolean = true,
-    val recentQueriesCount: Int = 3,
-    val shouldShowUsagePermissionBanner: Boolean = false
+        // UI configuration (unchanged)
+        val searchEngineOrder: List<SearchEngine> = emptyList(),
+        val disabledSearchEngines: Set<SearchEngine> = emptySet(),
+        val phoneNumberSelection: PhoneNumberSelection? = null,
+        val directDialChoice: DirectDialChoice? = null,
+        val contactMethodsBottomSheet: com.tk.quicksearch.search.models.ContactInfo? = null,
+        val pendingDirectCallNumber: String? = null,
+        val pendingWhatsAppCallDataId: String? = null,
+        val directDialEnabled: Boolean = false,
+        val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
+                com.tk.quicksearch.search.models.FileType.values().toSet(),
+        val excludedFileExtensions: Set<String> = emptySet(),
+        val keyboardAlignedLayout: Boolean = false,
+        val shortcutsEnabled: Boolean = true,
+        val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
+        val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
+        val messagingApp: MessagingApp = MessagingApp.MESSAGES,
+        val isWhatsAppInstalled: Boolean = false,
+        val isTelegramInstalled: Boolean = false,
+        val showWallpaperBackground: Boolean = true,
+        val clearQueryAfterSearchEngine: Boolean = false,
+        val showAllResults: Boolean = false,
+        val selectedIconPackPackage: String? = null,
+        val availableIconPacks: List<IconPackInfo> = emptyList(),
+        val sortAppsByUsageEnabled: Boolean = false,
+        val sectionOrder: List<SearchSection> = emptyList(),
+        val disabledSections: Set<SearchSection> = emptySet(),
+        val isSearchEngineCompactMode: Boolean = false,
+        val amazonDomain: String? = null,
+        val webSuggestionsEnabled: Boolean = true,
+        val webSuggestionsCount: Int = 3,
+        val calculatorEnabled: Boolean = true,
+        val DirectSearchState: DirectSearchState = DirectSearchState(),
+        val hasGeminiApiKey: Boolean = false,
+        val geminiApiKeyLast4: String? = null,
+        val personalContext: String = "",
+        val showReleaseNotesDialog: Boolean = false,
+        val releaseNotesVersionName: String? = null,
+        val calculatorState: CalculatorState = CalculatorState(),
+        val webSuggestions: List<String> = emptyList(),
+        val showSearchEngineOnboarding: Boolean = false,
+        val showSearchBarWelcomeAnimation: Boolean = false,
+        val detectedShortcutEngine: SearchEngine? = null,
+        val webSuggestionWasSelected: Boolean = false,
+        val recentQueries: List<String> = emptyList(),
+        val recentQueriesEnabled: Boolean = true,
+        val recentQueriesCount: Int = 3,
+        val shouldShowUsagePermissionBanner: Boolean = false,
+        val contactActionsVersion: Int = 0
 )

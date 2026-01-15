@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 
 /**
@@ -14,8 +15,6 @@ import com.tk.quicksearch.search.utils.PhoneNumberUtils
 object TelegramActions {
 
     private const val TELEGRAM_PACKAGE = "org.telegram.messenger"
-    private const val TELEGRAM_MESSAGE_MIME = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.contacts.chat"
-    private const val TELEGRAM_VOICE_CALL_MIME = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.contacts.call"
 
     /**
      * Opens Telegram chat using the contact data URI approach.
@@ -31,7 +30,7 @@ object TelegramActions {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(
                     Uri.parse("content://com.android.contacts/data/$dataId"),
-                    TELEGRAM_MESSAGE_MIME
+                    ContactMethodMimeTypes.TELEGRAM_MESSAGE
                 )
                 setPackage(TELEGRAM_PACKAGE)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -111,7 +110,7 @@ object TelegramActions {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(
                     Uri.parse("content://com.android.contacts/data/$dataId"),
-                    TELEGRAM_VOICE_CALL_MIME
+                    ContactMethodMimeTypes.TELEGRAM_CALL
                 )
                 setPackage(TELEGRAM_PACKAGE)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

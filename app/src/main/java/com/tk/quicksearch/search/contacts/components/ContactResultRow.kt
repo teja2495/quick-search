@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.contacts.components
 
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -26,13 +28,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -44,21 +44,18 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import androidx.compose.ui.platform.LocalView
-import android.graphics.BitmapFactory
-import android.net.Uri
 import com.tk.quicksearch.R
-import com.tk.quicksearch.util.hapticConfirm
+import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
-import com.tk.quicksearch.search.core.MessagingApp
-import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.util.hapticConfirm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -69,81 +66,107 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ContactResultRow(
-    contactInfo: ContactInfo,
-    messagingApp: MessagingApp,
-    onContactClick: (ContactInfo) -> Unit,
-    onShowContactMethods: (ContactInfo) -> Unit = {},
-    onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit,
-    onContactMethodClick: (ContactMethod) -> Unit,
-    isPinned: Boolean = false,
-    onTogglePin: (ContactInfo) -> Unit = {},
-    onExclude: (ContactInfo) -> Unit = {},
-    onNicknameClick: (ContactInfo) -> Unit = {},
-    hasNickname: Boolean = false
+        contactInfo: ContactInfo,
+        messagingApp: MessagingApp,
+        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
+        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
+        onContactClick: (ContactInfo) -> Unit,
+        onShowContactMethods: (ContactInfo) -> Unit = {},
+        onCallContact: (ContactInfo) -> Unit,
+        onSmsContact: (ContactInfo) -> Unit,
+        onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
+        onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
+        onCustomAction:
+                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
+                { _, _ ->
+                },
+        onContactMethodClick: (ContactMethod) -> Unit,
+        isPinned: Boolean = false,
+        onTogglePin: (ContactInfo) -> Unit = {},
+        onExclude: (ContactInfo) -> Unit = {},
+        onNicknameClick: (ContactInfo) -> Unit = {},
+        hasNickname: Boolean = false
 ) {
-    var showOptions by remember { mutableStateOf(false) }
-    val view = LocalView.current
-    val hasNumber = contactInfo.primaryNumber != null
+        var showOptions by remember { mutableStateOf(false) }
+        val view = LocalView.current
+        val hasNumber = contactInfo.primaryNumber != null
 
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = ContactUiConstants.CONTACT_ROW_MIN_HEIGHT.dp)
-                    .combinedClickable(
-                        onClick = {
-                            // Show contact methods bottom sheet if available, otherwise open contact
-                            if (contactInfo.hasContactMethods) {
-                                onShowContactMethods(contactInfo)
-                            } else {
-                                onContactClick(contactInfo)
-                            }
-                        },
-                        onLongClick = { showOptions = true }
-                    )
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ContactAvatar(
-                    photoUri = contactInfo.photoUri,
-                    displayName = contactInfo.displayName,
-                    onClick = { onContactClick(contactInfo) }
-                )
+        Box(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .heightIn(
+                                                        min =
+                                                                ContactUiConstants
+                                                                        .CONTACT_ROW_MIN_HEIGHT
+                                                                        .dp
+                                                )
+                                                .combinedClickable(
+                                                        onClick = {
+                                                                // Show contact methods bottom sheet
+                                                                // if available,
+                                                                // otherwise open contact
+                                                                if (contactInfo.hasContactMethods) {
+                                                                        onShowContactMethods(
+                                                                                contactInfo
+                                                                        )
+                                                                } else {
+                                                                        onContactClick(contactInfo)
+                                                                }
+                                                        },
+                                                        onLongClick = { showOptions = true }
+                                                )
+                                                .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                        ) {
+                                ContactAvatar(
+                                        photoUri = contactInfo.photoUri,
+                                        displayName = contactInfo.displayName,
+                                        onClick = { onContactClick(contactInfo) }
+                                )
 
-                Text(
-                    text = contactInfo.displayName,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                                Text(
+                                        text = contactInfo.displayName,
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                )
 
-                // Always show call and message action buttons
-                ContactActionButtons(
-                    hasNumber = hasNumber,
-                    messagingApp = messagingApp,
-                    onCallClick = { onCallContact(contactInfo) },
-                    onSmsClick = { onSmsContact(contactInfo) }
+                                // Always show call and message action buttons
+                                ContactActionButtons(
+                                        hasNumber = hasNumber,
+                                        messagingApp = messagingApp,
+                                        primaryAction = primaryAction,
+                                        secondaryAction = secondaryAction,
+                                        onCallClick = { onCallContact(contactInfo) },
+                                        onSmsClick = { onSmsContact(contactInfo) },
+                                        onPrimaryLongPress = {
+                                                onPrimaryActionLongPress(contactInfo)
+                                        },
+                                        onSecondaryLongPress = {
+                                                onSecondaryActionLongPress(contactInfo)
+                                        },
+                                        onCustomAction = { action ->
+                                                onCustomAction(contactInfo, action)
+                                        }
+                                )
+                        }
+                }
+
+                ContactDropdownMenu(
+                        expanded = showOptions,
+                        onDismissRequest = { showOptions = false },
+                        isPinned = isPinned,
+                        hasNickname = hasNickname,
+                        onTogglePin = { onTogglePin(contactInfo) },
+                        onExclude = { onExclude(contactInfo) },
+                        onNicknameClick = { onNicknameClick(contactInfo) }
                 )
-            }
         }
-
-        ContactDropdownMenu(
-            expanded = showOptions,
-            onDismissRequest = { showOptions = false },
-            isPinned = isPinned,
-            hasNickname = hasNickname,
-            onTogglePin = { onTogglePin(contactInfo) },
-            onExclude = { onExclude(contactInfo) },
-            onNicknameClick = { onNicknameClick(contactInfo) }
-        )
-    }
 }
 
 // ============================================================================
@@ -152,59 +175,73 @@ internal fun ContactResultRow(
 
 @Composable
 internal fun ContactAvatar(
-    photoUri: String?,
-    displayName: String,
-    onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp)
+        photoUri: String?,
+        displayName: String,
+        onClick: (() -> Unit)? = null,
+        modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp)
 ) {
-    val context = LocalContext.current
-    val contactPhoto by produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
-        value = photoUri?.let { uri ->
-            withContext(Dispatchers.IO) {
-                runCatching {
-                    val parsedUri = Uri.parse(uri)
-                    context.contentResolver.openInputStream(parsedUri)?.use { stream ->
-                        BitmapFactory.decodeStream(stream)?.asImageBitmap()
-                    }
-                }.getOrNull()
-            }
-        }
-    }
+        val context = LocalContext.current
+        val contactPhoto by
+                produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
+                        value =
+                                photoUri?.let { uri ->
+                                        withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                                val parsedUri = Uri.parse(uri)
+                                                                context.contentResolver
+                                                                        .openInputStream(parsedUri)
+                                                                        ?.use { stream ->
+                                                                                BitmapFactory
+                                                                                        .decodeStream(
+                                                                                                stream
+                                                                                        )
+                                                                                        ?.asImageBitmap()
+                                                                        }
+                                                        }
+                                                        .getOrNull()
+                                        }
+                                }
+                }
 
-    val placeholderInitials = remember(displayName) {
-        displayName.split(" ")
-            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
-            .take(2)
-            .joinToString("")
-    }
+        val placeholderInitials =
+                remember(displayName) {
+                        displayName
+                                .split(" ")
+                                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                .take(2)
+                                .joinToString("")
+                }
 
-    Surface(
-        modifier = modifier
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.primaryContainer
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Surface(
+                modifier =
+                        modifier.then(
+                                if (onClick != null) Modifier.clickable(onClick = onClick)
+                                else Modifier
+                        ),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
         ) {
-            contactPhoto?.let { photo ->
-                Image(
-                    bitmap = photo,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } ?: run {
-                Text(
-                    text = placeholderInitials,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        contactPhoto?.let { photo ->
+                                Image(
+                                        bitmap = photo,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                )
+                        }
+                                ?: run {
+                                        Text(
+                                                text = placeholderInitials,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color =
+                                                        MaterialTheme.colorScheme
+                                                                .onPrimaryContainer,
+                                                fontWeight = FontWeight.SemiBold
+                                        )
+                                }
+                }
         }
-    }
 }
 
 // ============================================================================
@@ -213,79 +250,254 @@ internal fun ContactAvatar(
 
 @Composable
 private fun ContactActionButtons(
-    hasNumber: Boolean,
-    messagingApp: MessagingApp,
-    onCallClick: () -> Unit,
-    onSmsClick: () -> Unit
+        hasNumber: Boolean,
+        messagingApp: MessagingApp,
+        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+        onCallClick: () -> Unit,
+        onSmsClick: () -> Unit,
+        onPrimaryLongPress: () -> Unit,
+        onSecondaryLongPress: () -> Unit,
+        onCustomAction: (com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit
 ) {
-    val view = LocalView.current
-    IconButton(
-        onClick = {
-            hapticConfirm(view)()
-            onCallClick()
-        },
-        enabled = hasNumber,
-        modifier = Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Call,
-            contentDescription = stringResource(R.string.contacts_action_call),
-            tint = if (hasNumber) {
-                Color.White
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-        )
-    }
+        val view = LocalView.current
 
-    IconButton(
-        onClick = {
-            hapticConfirm(view)()
-            onSmsClick()
-        },
-        enabled = hasNumber,
-        modifier = Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
-    ) {
-        when (messagingApp) {
-            MessagingApp.MESSAGES -> {
-                Icon(
-                    imageVector = Icons.Rounded.Sms,
-                    contentDescription = stringResource(R.string.contacts_action_sms),
-                    tint = if (hasNumber) {
-                        Color.White
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-                )
-            }
-            MessagingApp.WHATSAPP -> {
-                Icon(
-                    painter = painterResource(id = R.drawable.whatsapp),
-                    contentDescription = stringResource(R.string.contacts_action_whatsapp),
-                    tint = if (hasNumber) {
-                        Color.Unspecified
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-                )
-            }
-            MessagingApp.TELEGRAM -> {
-                Icon(
-                    painter = painterResource(id = R.drawable.telegram),
-                    contentDescription = stringResource(R.string.contacts_action_telegram),
-                    tint = if (hasNumber) {
-                        Color.Unspecified
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-                )
-            }
+        // Helper to render action button with consistent styling and long press support
+        @Composable
+        fun ActionButton(
+                icon: @Composable () -> Unit, // Icon content
+                contentDescription: String,
+                onClick: () -> Unit,
+                onLongClick: () -> Unit,
+                enabled: Boolean = true
+        ) {
+                Box(
+                        modifier =
+                                Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
+                                        .then(
+                                                if (enabled) {
+                                                        Modifier.combinedClickable(
+                                                                onClick = {
+                                                                        hapticConfirm(view)()
+                                                                        onClick()
+                                                                },
+                                                                onLongClick = {
+                                                                        hapticConfirm(view)()
+                                                                        onLongClick()
+                                                                }
+                                                        )
+                                                } else Modifier
+                                        ),
+                        contentAlignment = Alignment.Center
+                ) { icon() }
         }
-    }
+
+        // --- Primary Action (Left) ---
+        ActionButton(
+                icon = {
+                        if (primaryAction != null) {
+                                ContactActionIconForButton(
+                                        action = primaryAction,
+                                        enabled = hasNumber
+                                )
+                        } else {
+                                Icon(
+                                        imageVector = Icons.Rounded.Call, // Default phone icon
+                                        contentDescription =
+                                                stringResource(R.string.contacts_action_call),
+                                        tint =
+                                                if (hasNumber) Color.White
+                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier =
+                                                Modifier.size(
+                                                        ContactUiConstants.ACTION_ICON_SIZE.dp
+                                                )
+                                )
+                        }
+                },
+                contentDescription = stringResource(R.string.contacts_action_call),
+                onClick = {
+                        if (primaryAction != null) {
+                                onCustomAction(primaryAction)
+                        } else {
+                                onCallClick()
+                        }
+                },
+                onLongClick = onPrimaryLongPress,
+                enabled = hasNumber
+        )
+
+        // --- Secondary Action (Right) ---
+        ActionButton(
+                icon = {
+                        if (secondaryAction != null) {
+                                // Use custom icon logic
+                                ContactActionIconForButton(
+                                        action = secondaryAction,
+                                        enabled = hasNumber
+                                )
+                        } else {
+                                // Default messaging logic
+                                when (messagingApp) {
+                                        MessagingApp.MESSAGES -> {
+                                                        Icon(
+                                                                imageVector = Icons.Rounded.Sms,
+                                                                contentDescription =
+                                                                        stringResource(
+                                                                                R.string.contacts_action_sms
+                                                                ),
+                                                                tint =
+                                                                        if (hasNumber) Color.White
+                                                                        else
+                                                                                MaterialTheme.colorScheme
+                                                                                        .onSurfaceVariant,
+                                                                modifier =
+                                                                        Modifier.size(
+                                                                                (ContactUiConstants
+                                                                                        .ACTION_ICON_SIZE *
+                                                                                        0.9f)
+                                                                                        .dp
+                                                                        )
+                                                        )
+                                                }
+                                        MessagingApp.WHATSAPP -> {
+                                                Icon(
+                                                        painter =
+                                                                painterResource(
+                                                                        id = R.drawable.whatsapp
+                                                                ),
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_whatsapp
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant,
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        ContactUiConstants
+                                                                                .ACTION_ICON_SIZE
+                                                                                .dp
+                                                                )
+                                                )
+                                        }
+                                        MessagingApp.TELEGRAM -> {
+                                                Icon(
+                                                        painter =
+                                                                painterResource(
+                                                                        id = R.drawable.telegram
+                                                                ),
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_telegram
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant,
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        ContactUiConstants
+                                                                                .ACTION_ICON_SIZE
+                                                                                .dp
+                                                                )
+                                                )
+                                        }
+                                }
+                        }
+                },
+                contentDescription = stringResource(R.string.contacts_action_sms),
+                onClick = {
+                        if (secondaryAction != null) {
+                                onCustomAction(secondaryAction)
+                        } else {
+                                onSmsClick()
+                        }
+                },
+                onLongClick = onSecondaryLongPress,
+                enabled = hasNumber
+        )
+}
+
+@Composable
+private fun ContactActionIconForButton(
+        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
+        enabled: Boolean
+) {
+        val tint = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
+        val whiteTint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+        val modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
+        val smsModifier =
+                Modifier.size((ContactUiConstants.ACTION_ICON_SIZE * 0.9f).dp)
+
+        when (action) {
+                // Calls -> Phone Icon
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                        Icon(
+                                imageVector = Icons.Rounded.Call, // Explicit request for phone icon
+                                contentDescription = null,
+                                tint = whiteTint,
+                                modifier = modifier
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall,
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall -> {
+                        Icon(
+                                painter = painterResource(id = if (action is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall) R.drawable.whatsapp_video_call else R.drawable.whatsapp_call),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall,
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
+                        Icon(
+                                painter = painterResource(id = if (action is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall) R.drawable.telegram_video_call else R.drawable.telegram_call),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier
+                        )
+                }
+
+                // Messaging / Meet -> App Icon
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                        Icon(
+                                imageVector = Icons.Rounded.Sms,
+                                contentDescription = null,
+                                tint = whiteTint, // SMS icon usually white based on existing code
+                                modifier = smsModifier
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.whatsapp),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.telegram),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.google_meet),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier
+                        )
+                }
+        }
 }
 
 // ============================================================================
@@ -294,78 +506,80 @@ private fun ContactActionButtons(
 
 @Composable
 private fun ContactDropdownMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    isPinned: Boolean,
-    hasNickname: Boolean,
-    onTogglePin: () -> Unit,
-    onExclude: () -> Unit,
-    onNicknameClick: () -> Unit
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        isPinned: Boolean,
+        hasNickname: Boolean,
+        onTogglePin: () -> Unit,
+        onExclude: () -> Unit,
+        onNicknameClick: () -> Unit
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        shape = RoundedCornerShape(24.dp),
-        properties = PopupProperties(focusable = false)
-    ) {
-        DropdownMenuItem(
-            text = {
-                Text(
-                    text = stringResource(
-                        if (isPinned) R.string.action_unpin_generic else R.string.action_pin_generic
-                    )
+        DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = onDismissRequest,
+                shape = RoundedCornerShape(24.dp),
+                properties = PopupProperties(focusable = false)
+        ) {
+                DropdownMenuItem(
+                        text = {
+                                Text(
+                                        text =
+                                                stringResource(
+                                                        if (isPinned) R.string.action_unpin_generic
+                                                        else R.string.action_pin_generic
+                                                )
+                                )
+                        },
+                        leadingIcon = {
+                                Icon(
+                                        imageVector =
+                                                if (isPinned) Icons.Rounded.Close
+                                                else Icons.Rounded.PushPin,
+                                        contentDescription = null
+                                )
+                        },
+                        onClick = {
+                                onDismissRequest()
+                                onTogglePin()
+                        }
                 )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = if (isPinned) Icons.Rounded.Close else Icons.Rounded.PushPin,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                onTogglePin()
-            }
-        )
 
-        HorizontalDivider()
+                HorizontalDivider()
 
-        DropdownMenuItem(
-            text = {
-                Text(
-                    text = stringResource(
-                        if (hasNickname) R.string.action_edit_nickname else R.string.action_add_nickname
-                    )
+                DropdownMenuItem(
+                        text = {
+                                Text(
+                                        text =
+                                                stringResource(
+                                                        if (hasNickname)
+                                                                R.string.action_edit_nickname
+                                                        else R.string.action_add_nickname
+                                                )
+                                )
+                        },
+                        leadingIcon = {
+                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                        },
+                        onClick = {
+                                onDismissRequest()
+                                onNicknameClick()
+                        }
                 )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.Edit,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                onDismissRequest()
-                onNicknameClick()
-            }
-        )
 
-        HorizontalDivider()
+                HorizontalDivider()
 
-        DropdownMenuItem(
-            text = {
-                Text(text = stringResource(R.string.action_exclude_generic))
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.VisibilityOff,
-                    contentDescription = null
+                DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.action_exclude_generic)) },
+                        leadingIcon = {
+                                Icon(
+                                        imageVector = Icons.Rounded.VisibilityOff,
+                                        contentDescription = null
+                                )
+                        },
+                        onClick = {
+                                onDismissRequest()
+                                onExclude()
+                        }
                 )
-            },
-            onClick = {
-                onDismissRequest()
-                onExclude()
-            }
-        )
-    }
+        }
 }
