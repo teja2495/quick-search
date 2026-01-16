@@ -34,6 +34,7 @@ import com.tk.quicksearch.settings.settingsScreen.CalculatorToggleCard
 import com.tk.quicksearch.settings.settingsScreen.CombinedAppearanceCard
 import com.tk.quicksearch.settings.settingsScreen.CombinedSearchEnginesCard
 import com.tk.quicksearch.settings.settingsScreen.CombinedSettingsNavigationCard
+import com.tk.quicksearch.settings.settingsScreen.NavigationSectionCard
 import com.tk.quicksearch.settings.settingsScreen.SettingsHeader
 import com.tk.quicksearch.settings.settingsScreen.SettingsVersionDisplay
 import com.tk.quicksearch.settings.SettingsSpacing
@@ -116,6 +117,14 @@ fun SettingsScreen(
             CalculatorToggleCard(
                 enabled = state.calculatorEnabled,
                 onToggle = callbacks.onToggleCalculator,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            // App Shortcuts
+            NavigationSectionCard(
+                title = stringResource(R.string.settings_app_shortcuts_title),
+                description = stringResource(R.string.settings_app_shortcuts_desc),
+                onClick = { onNavigateToDetail(SettingsDetailType.APP_SHORTCUTS) },
                 modifier = Modifier.padding(top = 12.dp)
             )
 
@@ -245,7 +254,8 @@ fun SettingsScreen(
                                    state.resultExcludedApps.isNotEmpty() ||
                                    state.excludedContacts.isNotEmpty() ||
                                    state.excludedFiles.isNotEmpty() ||
-                                   state.excludedSettings.isNotEmpty()
+                                   state.excludedSettings.isNotEmpty() ||
+                                   state.excludedAppShortcuts.isNotEmpty()
                     if (hasItems) {
                         onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
                     } else {
@@ -297,6 +307,4 @@ fun SettingsScreen(
         }
     }
 }
-
-
 

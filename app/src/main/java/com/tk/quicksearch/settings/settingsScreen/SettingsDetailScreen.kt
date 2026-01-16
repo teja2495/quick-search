@@ -54,6 +54,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.additionalSettingsScreen.AdditionalSettingsScreen
 import com.tk.quicksearch.settings.excludedItemsScreen.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
+import com.tk.quicksearch.search.data.AppShortcutsScreen
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
 
@@ -72,6 +73,7 @@ fun SettingsDetailRoute(
         excludedContacts = uiState.excludedContacts,
         excludedFiles = uiState.excludedFiles,
         excludedSettings = uiState.excludedSettings,
+        excludedAppShortcuts = uiState.excludedAppShortcuts,
         searchEngineOrder = uiState.searchEngineOrder,
         disabledSearchEngines = uiState.disabledSearchEngines,
         enabledFileTypes = uiState.enabledFileTypes,
@@ -158,6 +160,7 @@ fun SettingsDetailRoute(
         onRemoveExcludedContact = viewModel::removeExcludedContact,
         onRemoveExcludedFile = viewModel::removeExcludedFile,
         onRemoveExcludedSetting = viewModel::removeExcludedSetting,
+        onRemoveExcludedAppShortcut = viewModel::removeExcludedAppShortcut,
         onClearAllExclusions = viewModel::clearAllExclusions,
         onToggleSearchEngine = viewModel::setSearchEngineEnabled,
         onReorderSearchEngines = viewModel::reorderSearchEngines,
@@ -249,11 +252,12 @@ private fun SettingsDetailScreen(
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     
     // Navigate back to settings when all excluded items are cleared
-    val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() || 
+    val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
                            state.resultExcludedApps.isNotEmpty() ||
-                           state.excludedContacts.isNotEmpty() || 
+                           state.excludedContacts.isNotEmpty() ||
                            state.excludedFiles.isNotEmpty() ||
-                           state.excludedSettings.isNotEmpty()
+                           state.excludedSettings.isNotEmpty() ||
+                           state.excludedAppShortcuts.isNotEmpty()
     LaunchedEffect(hasExcludedItems) {
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
             callbacks.onBack()
@@ -274,13 +278,22 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
                     SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
                     SettingsDetailType.ADDITIONAL_SETTINGS -> stringResource(R.string.settings_additional_settings_title)
+                    SettingsDetailType.APP_SHORTCUTS -> stringResource(R.string.settings_app_shortcuts_title)
                 },
                 onBack = callbacks.onBack,
                 trailingContent = null
             )
 
-            Column(
-                modifier = Modifier
+            val contentModifier = if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+                Modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = SettingsSpacing.contentHorizontalPadding,
+                        end = SettingsSpacing.contentHorizontalPadding,
+                        bottom = SettingsSpacing.sectionTopPadding
+                    )
+            } else {
+                Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .padding(
@@ -288,6 +301,10 @@ private fun SettingsDetailScreen(
                         end = SettingsSpacing.contentHorizontalPadding,
                         bottom = SettingsSpacing.sectionTopPadding
                     )
+            }
+
+            Column(
+                modifier = contentModifier
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {
@@ -325,12 +342,14 @@ private fun SettingsDetailScreen(
                             excludedFiles = state.excludedFiles,
                             excludedFileExtensions = state.excludedFileExtensions,
                             excludedSettings = state.excludedSettings,
+                            excludedAppShortcuts = state.excludedAppShortcuts,
                             onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
                             onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
                             onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
                             onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
                             onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
+                            onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
                             onClearAll = callbacks.onClearAllExclusions,
                             showTitle = false,
                             iconPackPackage = state.selectedIconPackPackage
@@ -351,6 +370,11 @@ private fun SettingsDetailScreen(
                             onRefreshContacts = { callbacks.onRefreshContacts(true) },
                             onRefreshFiles = { callbacks.onRefreshFiles(true) },
                             showTitle = false
+                        )
+                    }
+                    SettingsDetailType.APP_SHORTCUTS -> {
+                        AppShortcutsScreen(
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
@@ -432,6 +456,6 @@ private fun SettingsDetailHeader(
 enum class SettingsDetailType {
     SEARCH_ENGINES,
     EXCLUDED_ITEMS,
-    ADDITIONAL_SETTINGS
+    ADDITIONAL_SETTINGS,
+    APP_SHORTCUTS
 }
-

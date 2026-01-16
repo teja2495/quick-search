@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.searchScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -48,6 +50,24 @@ data class SettingsSectionParams(
         val showAllResults: Boolean,
         val showExpandControls: Boolean,
         val onExpandClick: () -> Unit,
+        val showWallpaperBackground: Boolean
+)
+
+/** Data class for App Shortcuts section parameters */
+data class AppShortcutsSectionParams(
+        val shortcuts: List<StaticShortcut>,
+        val isExpanded: Boolean,
+        val pinnedShortcutIds: Set<String>,
+        val excludedShortcutIds: Set<String>,
+        val onShortcutClick: (StaticShortcut) -> Unit,
+        val onTogglePin: (StaticShortcut) -> Unit,
+        val onExclude: (StaticShortcut) -> Unit,
+        val onInclude: (StaticShortcut) -> Unit,
+        val onAppInfoClick: (StaticShortcut) -> Unit,
+        val showAllResults: Boolean,
+        val showExpandControls: Boolean,
+        val onExpandClick: () -> Unit,
+        val iconPackPackage: String?,
         val showWallpaperBackground: Boolean
 )
 
@@ -126,6 +146,12 @@ internal fun buildSectionParams(
         onPinSetting: (DeviceSetting) -> Unit,
         onUnpinSetting: (DeviceSetting) -> Unit,
         onExcludeSetting: (DeviceSetting) -> Unit,
+        onAppShortcutClick: (StaticShortcut) -> Unit,
+        onPinAppShortcut: (StaticShortcut) -> Unit,
+        onUnpinAppShortcut: (StaticShortcut) -> Unit,
+        onExcludeAppShortcut: (StaticShortcut) -> Unit,
+        onIncludeAppShortcut: (StaticShortcut) -> Unit,
+        onAppShortcutAppInfoClick: (StaticShortcut) -> Unit,
         onContactClick: (ContactInfo) -> Unit,
         onShowContactMethods: (ContactInfo) -> Unit,
         onCallContact: (ContactInfo) -> Unit,
@@ -171,6 +197,12 @@ internal fun buildSectionParams(
                 onPinSetting,
                 onUnpinSetting,
                 onExcludeSetting,
+                onAppShortcutClick,
+                onPinAppShortcut,
+                onUnpinAppShortcut,
+                onExcludeAppShortcut,
+                onIncludeAppShortcut,
+                onAppShortcutAppInfoClick,
                 onContactClick,
                 onShowContactMethods,
                 onCallContact,
@@ -252,6 +284,42 @@ internal fun buildSectionParams(
                                                 onActionClick = onActionClick
                                         )
                                 },
+                                showWallpaperBackground = state.showWallpaperBackground
+                        )
+
+                val appShortcutParams =
+                        AppShortcutsSectionParams(
+                                shortcuts = state.appShortcutResults,
+                                isExpanded = expandedSection == ExpandedSection.APP_SHORTCUTS,
+                                pinnedShortcutIds = derivedState.pinnedAppShortcutIds,
+                                excludedShortcutIds =
+                                        state.excludedAppShortcuts
+                                                .map { shortcutKey(it) }
+                                                .toSet(),
+                                onShortcutClick = onAppShortcutClick,
+                                onTogglePin = { shortcut ->
+                                        if (derivedState.pinnedAppShortcutIds.contains(
+                                                        shortcutKey(shortcut)
+                                                )
+                                        ) {
+                                                onUnpinAppShortcut(shortcut)
+                                        } else {
+                                                onPinAppShortcut(shortcut)
+                                        }
+                                },
+                                onExclude = onExcludeAppShortcut,
+                                onInclude = onIncludeAppShortcut,
+                                onAppInfoClick = onAppShortcutAppInfoClick,
+                                showAllResults = derivedState.autoExpandAppShortcuts,
+                                showExpandControls = derivedState.hasMultipleExpandableSections,
+                                onExpandClick = {
+                                        onUpdateExpandedSection(
+                                                if (expandedSection == ExpandedSection.APP_SHORTCUTS)
+                                                        ExpandedSection.NONE
+                                                else ExpandedSection.APP_SHORTCUTS
+                                        )
+                                },
+                                iconPackPackage = state.selectedIconPackPackage,
                                 showWallpaperBackground = state.showWallpaperBackground
                         )
 
@@ -389,6 +457,7 @@ internal fun buildSectionParams(
 
                 SectionParams(
                         filesParams = filesParams,
+                        appShortcutsParams = appShortcutParams,
                         settingsParams = settingsParams,
                         contactsParams = contactsParams,
                         appsParams = appsParams
@@ -398,6 +467,7 @@ internal fun buildSectionParams(
 /** Data class to hold all section parameters */
 data class SectionParams(
         val filesParams: FilesSectionParams,
+        val appShortcutsParams: AppShortcutsSectionParams,
         val settingsParams: SettingsSectionParams,
         val contactsParams: ContactsSectionParams,
         val appsParams: AppsSectionParams

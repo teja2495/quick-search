@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
@@ -103,5 +104,6 @@ data class ExcludedItemsCallbacks(
     val onRemoveExcludedContact: (ContactInfo) -> Unit,
     val onRemoveExcludedFile: (DeviceFile) -> Unit,
     val onRemoveExcludedSetting: (DeviceSetting) -> Unit,
+    val onRemoveExcludedAppShortcut: (StaticShortcut) -> Unit,
     val onClearAllExclusions: () -> Unit
 )

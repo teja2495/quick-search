@@ -144,6 +144,7 @@
     <string name="action_pin_generic">Pin</string>
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
+    <string name="action_include_generic">Include</string>
     <string name="action_exclude_extension">Exclude .%s files</string>
     <string name="settings_excluded_extensions_title">Excluded File Extensions</string>
     <string name="action_remove">Remove</string>
@@ -255,6 +256,15 @@
     <string name="request_search_engine_text">Request a search engine</string>
     <string name="settings_search_engines_more_title">More</string>
 
+    <!-- ============================================================================
+         Settings - App Shortcuts
+         ============================================================================ -->
+    <string name="settings_app_shortcuts_title">App Shortcuts</string>
+    <string name="settings_app_shortcuts_desc">Browse shortcuts from your installed apps.</string>
+    <string name="settings_app_shortcuts_summary">You\'ve got %1$d apps that support shortcuts.</string>
+    <string name="settings_app_shortcuts_loading">Loading app shortcuts...</string>
+    <string name="settings_app_shortcuts_empty">No app shortcuts found.</string>
+
     <string name="settings_search_engine_display_title">Search Engines Style</string>
     <string name="settings_search_engine_display_sticky_title">Compact</string>
     <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard as a horizontal list</string>
@@ -321,6 +331,7 @@
          ============================================================================ -->
     <string name="settings_sections_title">Search Results</string>
     <string name="section_apps">Apps</string>
+    <string name="section_app_shortcuts">App Shortcuts</string>
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
     <string name="section_settings">Device Settings</string>
@@ -353,6 +364,7 @@
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>
     <string name="excluded_item_type_app_suggestions">App (Suggestions)</string>
     <string name="excluded_item_type_app_results">App (Results)</string>
+    <string name="excluded_item_type_app_shortcut">App Shortcut</string>
     <string name="excluded_item_type_contact">Contact</string>
     <string name="excluded_item_type_file">File</string>
     <string name="excluded_item_type_file_extension">File Extension</string>

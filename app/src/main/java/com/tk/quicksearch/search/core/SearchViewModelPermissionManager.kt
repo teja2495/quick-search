@@ -35,6 +35,7 @@ class PermissionManager(
             SearchSection.CONTACTS -> hasContactPermission()
             SearchSection.FILES -> hasFilePermission()
             SearchSection.APPS -> true
+            SearchSection.APP_SHORTCUTS -> true
             SearchSection.SETTINGS -> true
         }
     }

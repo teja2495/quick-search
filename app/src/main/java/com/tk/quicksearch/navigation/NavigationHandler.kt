@@ -63,6 +63,10 @@ class NavigationHandler(
         IntentHelpers.openAppInfo(application, appInfo.packageName)
     }
 
+    fun openAppInfo(packageName: String) {
+        IntentHelpers.openAppInfo(application, packageName)
+    }
+
     fun requestUninstall(appInfo: AppInfo) {
         IntentHelpers.requestUninstall(application, appInfo) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer

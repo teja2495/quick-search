@@ -28,6 +28,7 @@ class SecondarySearchOrchestrator(
     private var lastQueryWithNoContacts: String? = null
     private var lastQueryWithNoFiles: String? = null
     private var lastQueryWithNoSettings: String? = null
+    private var lastQueryWithNoAppShortcuts: String? = null
     private var lastQueryLength: Int = 0
     
     companion object {
@@ -42,13 +43,15 @@ class SecondarySearchOrchestrator(
             lastQueryWithNoContacts = null
             lastQueryWithNoFiles = null
             lastQueryWithNoSettings = null
+            lastQueryWithNoAppShortcuts = null
             lastQueryLength = 0
             
             uiStateUpdater {
                 it.copy(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
-                    settingResults = emptyList()
+                    settingResults = emptyList(),
+                    appShortcutResults = emptyList()
                 )
             }
             return
@@ -67,6 +70,9 @@ class SecondarySearchOrchestrator(
             if (lastQueryWithNoSettings != null && trimmedQuery.length < lastQueryWithNoSettings!!.length) {
                 lastQueryWithNoSettings = null
             }
+            if (lastQueryWithNoAppShortcuts != null && trimmedQuery.length < lastQueryWithNoAppShortcuts!!.length) {
+                lastQueryWithNoAppShortcuts = null
+            }
         }
         
         val currentState = currentStateProvider()
@@ -75,6 +81,7 @@ class SecondarySearchOrchestrator(
         val canSearchFiles = currentState.hasFilePermission &&
             SearchSection.FILES !in sectionManager.disabledSections
         val canSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
+        val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
         
         // Skip searches if current query extends a previous no-results query
         val shouldSkipContacts = !isBackspacing && 
@@ -86,6 +93,9 @@ class SecondarySearchOrchestrator(
         val shouldSkipSettings = !isBackspacing && 
             lastQueryWithNoSettings != null && 
             trimmedQuery.startsWith(lastQueryWithNoSettings!!)
+        val shouldSkipAppShortcuts = !isBackspacing &&
+            lastQueryWithNoAppShortcuts != null &&
+            trimmedQuery.startsWith(lastQueryWithNoAppShortcuts!!)
             
         val currentVersion = ++queryVersion
         lastQueryLength = trimmedQuery.length
@@ -100,7 +110,8 @@ class SecondarySearchOrchestrator(
                 enabledFileTypes = currentState.enabledFileTypes,
                 canSearchContacts = canSearchContacts && !shouldSkipContacts,
                 canSearchFiles = canSearchFiles && !shouldSkipFiles,
-                canSearchSettings = canSearchSettings && !shouldSkipSettings
+                canSearchSettings = canSearchSettings && !shouldSkipSettings,
+                canSearchAppShortcuts = canSearchAppShortcuts && !shouldSkipAppShortcuts
             )
 
             withContext(Dispatchers.Main) {
@@ -124,11 +135,18 @@ class SecondarySearchOrchestrator(
                     } else if (unifiedResults.settingResults.isNotEmpty()) {
                         lastQueryWithNoSettings = null
                     }
+
+                    if (unifiedResults.appShortcutResults.isEmpty() && !shouldSkipAppShortcuts) {
+                        lastQueryWithNoAppShortcuts = trimmedQuery
+                    } else if (unifiedResults.appShortcutResults.isNotEmpty()) {
+                        lastQueryWithNoAppShortcuts = null
+                    }
                     
                     val stateBeforeUpdate = currentStateProvider()
                     val hasAnyResults = unifiedResults.contactResults.isNotEmpty() || 
                         unifiedResults.fileResults.isNotEmpty() || 
                         unifiedResults.settingResults.isNotEmpty() ||
+                        unifiedResults.appShortcutResults.isNotEmpty() ||
                         stateBeforeUpdate.searchResults.isNotEmpty()
                     
                     uiStateUpdater { state ->
@@ -136,6 +154,7 @@ class SecondarySearchOrchestrator(
                             contactResults = unifiedResults.contactResults,
                             fileResults = unifiedResults.fileResults,
                             settingResults = unifiedResults.settingResults,
+                            appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = if (hasAnyResults) emptyList() else state.webSuggestions
                         )
                     }
@@ -179,7 +198,8 @@ class SecondarySearchOrchestrator(
                     state.copy(
                         contactResults = emptyList(),
                         fileResults = emptyList(),
-                        settingResults = emptyList()
+                        settingResults = emptyList(),
+                        appShortcutResults = emptyList()
                     )
                 }
 

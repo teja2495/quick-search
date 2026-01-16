@@ -73,21 +73,43 @@ class SectionManager(
         val savedOrder = userPreferences.getSectionOrder()
         val defaultOrder = listOf(
             SearchSection.APPS,
+            SearchSection.APP_SHORTCUTS,
             SearchSection.CONTACTS,
             SearchSection.FILES,
             SearchSection.SETTINGS
         )
 
         if (savedOrder.isEmpty()) {
-            // First time - use default order: Apps, Contacts, Files
+            // First time - use default order: Apps, App Shortcuts, Contacts, Files, Settings
             return defaultOrder
         }
 
-        // Merge saved order with any new sections that might have been added
+        // Merge saved order with any new sections that might have been added.
         val savedSections = savedOrder.mapNotNull { name ->
             SearchSection.values().find { it.name == name }
+        }.toMutableList()
+
+        if (savedSections.isEmpty()) {
+            return defaultOrder
         }
-        val newSections = SearchSection.values().filter { it !in savedSections }
-        return savedSections + newSections
+
+        val existingSections = savedSections.toMutableSet()
+        defaultOrder.forEach { section ->
+            if (!existingSections.contains(section)) {
+                val anchor =
+                    defaultOrder
+                        .takeWhile { it != section }
+                        .lastOrNull { existingSections.contains(it) }
+                val insertIndex = if (anchor == null) {
+                    0
+                } else {
+                    savedSections.indexOf(anchor) + 1
+                }
+                savedSections.add(insertIndex, section)
+                existingSections.add(section)
+            }
+        }
+
+        return savedSections
     }
 }

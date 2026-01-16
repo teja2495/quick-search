@@ -34,6 +34,7 @@ internal fun SearchScreenContent(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onQueryChanged: (String) -> Unit,
@@ -173,6 +174,7 @@ internal fun SearchScreenContent(
             renderingState = renderingState,
             contactsParams = contactsParams,
             filesParams = filesParams,
+            appShortcutsParams = appShortcutsParams,
             settingsParams = settingsParams,
             appsParams = appsParams,
             onRequestUsagePermission = onRequestUsagePermission,
@@ -185,7 +187,7 @@ internal fun SearchScreenContent(
             onDeleteRecentQuery = onDeleteRecentQuery,
             showCalculator = state.calculatorState.result != null,
             showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-            DirectSearchState = state.DirectSearchState
+            directSearchState = state.DirectSearchState
         )
 
         // Keyboard switch pill - appears above search engines

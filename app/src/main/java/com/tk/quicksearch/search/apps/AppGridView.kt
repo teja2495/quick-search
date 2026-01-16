@@ -17,12 +17,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +30,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.AppShortcutRepository
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -87,6 +91,25 @@ fun AppGridView(
     keyboardAlignedLayout: Boolean = false,
     isInitializing: Boolean = false
 ) {
+    val context = LocalContext.current
+    val shortcutRepository = remember(context) { AppShortcutRepository(context) }
+    var shortcuts by remember { mutableStateOf<List<StaticShortcut>>(emptyList()) }
+    val shortcutsByPackage = remember(shortcuts) {
+        shortcuts.groupBy { it.packageName }
+    }
+
+    LaunchedEffect(shortcutRepository) {
+        val cached = shortcutRepository.loadCachedShortcuts()
+        if (cached != null) {
+            shortcuts = cached
+        }
+
+        val loaded = runCatching { shortcutRepository.loadStaticShortcuts() }.getOrNull()
+        if (loaded != null) {
+            shortcuts = loaded
+        }
+    }
+
     Column(
         modifier = modifier
              .fillMaxWidth()
@@ -120,6 +143,7 @@ fun AppGridView(
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
                 showAppLabels = showAppLabels,
+                shortcutsByPackage = shortcutsByPackage,
                 rowCount = rowCount,
                 iconPackPackage = iconPackPackage,
                 keyboardAlignedLayout = keyboardAlignedLayout
@@ -141,6 +165,7 @@ private fun AppGrid(
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
+    shortcutsByPackage: Map<String, List<StaticShortcut>>,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String?,
     keyboardAlignedLayout: Boolean
@@ -186,6 +211,7 @@ private fun AppGrid(
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
                 showAppLabels = showAppLabels,
+                shortcutsByPackage = shortcutsByPackage,
                 iconPackPackage = iconPackPackage,
                 createAppActions = createAppActions,
                 createAppState = createAppState
@@ -200,6 +226,7 @@ private fun AppGridRow(
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
     showAppLabels: Boolean,
+    shortcutsByPackage: Map<String, List<StaticShortcut>>,
     iconPackPackage: String?,
     createAppActions: (AppInfo) -> AppActions,
     createAppState: (AppInfo) -> AppState
@@ -211,9 +238,11 @@ private fun AppGridRow(
         repeat(COLUMNS) { columnIndex ->
             val app = apps.getOrNull(columnIndex)
             if (app != null) {
+                val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
                 AppGridItem(
                     modifier = Modifier.weight(1f),
                     appInfo = app,
+                    shortcuts = appShortcuts,
                     appActions = createAppActions(app),
                     appState = createAppState(app),
                     iconPackPackage = iconPackPackage
@@ -230,10 +259,12 @@ private fun AppGridRow(
 private fun AppGridItem(
     modifier: Modifier = Modifier,
     appInfo: AppInfo,
+    shortcuts: List<StaticShortcut>,
     appActions: AppActions,
     appState: AppState,
     iconPackPackage: String?
 ) {
+    val context = LocalContext.current
     val iconBitmap = rememberAppIcon(
         packageName = appInfo.packageName,
         iconPackPackage = iconPackPackage
@@ -269,6 +300,8 @@ private fun AppGridItem(
             isPinned = appState.isPinned,
             showUninstall = appState.showUninstall,
             hasNickname = appState.hasNickname,
+            shortcuts = shortcuts,
+            onShortcutClick = { shortcut -> launchStaticShortcut(context, shortcut) },
             onAppInfoClick = appActions.onAppInfoClick,
             onHideApp = appActions.onHideApp,
             onPinApp = appActions.onPinApp,
@@ -340,4 +373,3 @@ private fun AppLabelText(appName: String) {
         modifier = Modifier.fillMaxWidth()
     )
 }
-

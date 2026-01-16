@@ -384,6 +384,10 @@ abstract class BasePreferences(protected val context: Context) {
         const val KEY_PINNED_SETTINGS = "pinned_settings"
         const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
 
+        // App shortcut preferences keys
+        const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"
+        const val KEY_EXCLUDED_APP_SHORTCUTS = "excluded_app_shortcuts"
+
         // Search engine preferences keys
         const val KEY_DISABLED_SEARCH_ENGINES = "disabled_search_engines"
         const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"

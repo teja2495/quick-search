@@ -36,6 +36,8 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.settings.SettingsCard
 import com.tk.quicksearch.settings.SettingsSpacing
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -63,18 +65,29 @@ fun ExcludedItemScreen(
     onRemoveExcludedFileExtension: (String) -> Unit,
     excludedSettings: List<DeviceSetting>,
     onRemoveExcludedSetting: (DeviceSetting) -> Unit,
+    excludedAppShortcuts: List<StaticShortcut>,
+    onRemoveExcludedAppShortcut: (StaticShortcut) -> Unit,
     onClearAll: () -> Unit,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier,
     iconPackPackage: String? = null
 ) {
-    val allItems = remember(suggestionExcludedApps, resultExcludedApps, excludedContacts, excludedFiles, excludedFileExtensions, excludedSettings) {
+    val allItems = remember(
+        suggestionExcludedApps,
+        resultExcludedApps,
+        excludedContacts,
+        excludedFiles,
+        excludedFileExtensions,
+        excludedSettings,
+        excludedAppShortcuts
+    ) {
         (suggestionExcludedApps.map { ExcludedItem.SuggestionApp(it) } +
          resultExcludedApps.map { ExcludedItem.ResultApp(it) } +
          excludedContacts.map { ExcludedItem.Contact(it) } +
          excludedFiles.map { ExcludedItem.File(it) } +
          excludedFileExtensions.map { ExcludedItem.FileExtension(it) } +
-         excludedSettings.map { ExcludedItem.Setting(it) })
+         excludedSettings.map { ExcludedItem.Setting(it) } +
+         excludedAppShortcuts.map { ExcludedItem.AppShortcut(it) })
             .sortedBy { it.displayName.lowercase() }
     }
     
@@ -127,6 +140,7 @@ fun ExcludedItemScreen(
                         is ExcludedItem.File -> onRemoveExcludedFile(item.deviceFile)
                         is ExcludedItem.FileExtension -> onRemoveExcludedFileExtension(item.extension)
                         is ExcludedItem.Setting -> onRemoveExcludedSetting(item.setting)
+                        is ExcludedItem.AppShortcut -> onRemoveExcludedAppShortcut(item.shortcut)
                     }
                 }
             )
@@ -244,12 +258,42 @@ private fun ExcludedItemIcon(
                 modifier = Modifier.size(DEFAULT_ICON_SIZE)
             )
         }
+        is ExcludedItem.AppShortcut -> {
+            AppShortcutIconPlaceholder(shortcut = item.shortcut, iconPackPackage = iconPackPackage)
+        }
         is ExcludedItem.SuggestionApp -> {
             AppIconPlaceholder(appInfo = item.appInfo, iconPackPackage = iconPackPackage)
         }
         is ExcludedItem.ResultApp -> {
             AppIconPlaceholder(appInfo = item.appInfo, iconPackPackage = iconPackPackage)
         }
+    }
+}
+
+@Composable
+private fun AppShortcutIconPlaceholder(
+    shortcut: StaticShortcut,
+    iconPackPackage: String?
+) {
+    val iconBitmap = rememberAppIcon(
+        packageName = shortcut.packageName,
+        iconPackPackage = iconPackPackage
+    )
+
+    if (iconBitmap != null) {
+        Image(
+            bitmap = iconBitmap,
+            contentDescription = null,
+            modifier = Modifier.size(DEFAULT_ICON_SIZE),
+            contentScale = ContentScale.Fit
+        )
+    } else {
+        Icon(
+            imageVector = Icons.Rounded.Apps,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(DEFAULT_ICON_SIZE)
+        )
     }
 }
 
@@ -343,5 +387,10 @@ private sealed class ExcludedItem {
     data class Setting(val setting: DeviceSetting) : ExcludedItem() {
         override val displayName: String = setting.title
         override val typeLabelRes: Int = R.string.excluded_item_type_setting
+    }
+
+    data class AppShortcut(val shortcut: StaticShortcut) : ExcludedItem() {
+        override val displayName: String = shortcutDisplayName(shortcut)
+        override val typeLabelRes: Int = R.string.excluded_item_type_app_shortcut
     }
 }

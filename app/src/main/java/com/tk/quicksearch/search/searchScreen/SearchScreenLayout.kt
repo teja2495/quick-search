@@ -51,24 +51,30 @@ data class SectionRenderingState(
     val isSearching: Boolean,
     val expandedSection: ExpandedSection,
     val hasAppResults: Boolean,
+    val hasAppShortcutResults: Boolean,
     val hasContactResults: Boolean,
     val hasFileResults: Boolean,
     val hasSettingResults: Boolean,
+    val hasPinnedAppShortcuts: Boolean,
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
     val hasPinnedSettings: Boolean,
     val shouldShowApps: Boolean,
+    val shouldShowAppShortcuts: Boolean,
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
     val shouldShowSettings: Boolean,
     val autoExpandFiles: Boolean,
     val autoExpandContacts: Boolean,
     val autoExpandSettings: Boolean,
+    val autoExpandAppShortcuts: Boolean,
     val hasMultipleExpandableSections: Boolean,
     val displayApps: List<AppInfo>,
+    val appShortcutResults: List<com.tk.quicksearch.search.data.StaticShortcut>,
     val contactResults: List<ContactInfo>,
     val fileResults: List<DeviceFile>,
     val settingResults: List<DeviceSetting>,
+    val pinnedAppShortcuts: List<com.tk.quicksearch.search.data.StaticShortcut>,
     val pinnedContacts: List<ContactInfo>,
     val pinnedFiles: List<DeviceFile>,
     val pinnedSettings: List<DeviceSetting>,
@@ -86,6 +92,7 @@ fun SearchContentArea(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
@@ -98,17 +105,15 @@ fun SearchContentArea(
     onDeleteRecentQuery: (String) -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
-    DirectSearchState: DirectSearchState? = null
+    directSearchState: DirectSearchState? = null
 ) {
     val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
         renderingState.expandedSection == ExpandedSection.NONE
-    val DirectSearchState = state.DirectSearchState
-    val showDirectSearch = DirectSearchState.status != DirectSearchStatus.Idle
-    val showCalculator = state.calculatorState.result != null
     val hideOtherResults = showDirectSearch || showCalculator
     val hasQuery = state.query.isNotBlank()
     val hasAnySearchContent =
         shouldShowAppsSection(renderingState) ||
+            shouldShowAppShortcutsSection(renderingState) ||
             shouldShowContactsSection(renderingState, contactsParams) ||
             shouldShowFilesSection(renderingState, filesParams) ||
             shouldShowSettingsSection(renderingState)
@@ -143,6 +148,7 @@ fun SearchContentArea(
                 renderingState = renderingState,
                 contactsParams = contactsParams,
                 filesParams = filesParams,
+                appShortcutsParams = appShortcutsParams,
                 settingsParams = settingsParams,
                 appsParams = appsParams,
                 onRequestUsagePermission = onRequestUsagePermission,
@@ -152,7 +158,7 @@ fun SearchContentArea(
                 hideResults = hideOtherResults,
                 showCalculator = showCalculator,
                 showDirectSearch = showDirectSearch,
-                DirectSearchState = DirectSearchState,
+                directSearchState = directSearchState,
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onEmailClick,
                 onWebSuggestionClick = onWebSuggestionClick,
@@ -174,6 +180,7 @@ fun ContentLayout(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
     onRequestUsagePermission: () -> Unit,
@@ -182,7 +189,7 @@ fun ContentLayout(
     hideResults: Boolean,
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
-    DirectSearchState: DirectSearchState? = null,
+    directSearchState: DirectSearchState? = null,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
@@ -208,9 +215,9 @@ fun ContentLayout(
         }
 
         // Show direct search result if present
-        if (showDirectSearch && DirectSearchState != null) {
+        if (showDirectSearch && directSearchState != null) {
             DirectSearchResult(
-                DirectSearchState = DirectSearchState,
+                DirectSearchState = directSearchState,
                 showWallpaperBackground = state.showWallpaperBackground,
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onEmailClick
@@ -224,7 +231,7 @@ fun ContentLayout(
         val hasQuery = state.query.isNotBlank()
         val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
         val hasAnySearchContent = hasAnySectionContent(state)
-        val hasDirectSearchAnswer = showDirectSearch && DirectSearchState != null
+        val hasDirectSearchAnswer = showDirectSearch && directSearchState != null
 
         // Determine whether to show recent queries (when empty) or web suggestions (when query but no results)
         val showRecentQueries = !hasQuery && 
@@ -351,6 +358,7 @@ fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
                         settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = true,
@@ -365,6 +373,7 @@ fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
                         settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = true
@@ -417,6 +426,10 @@ fun ContentLayout(
                                     is ContactsSectionVisibility.ShowingResults -> section == SearchSection.CONTACTS
                                     else -> false
                                 }
+                                val shouldRenderAppShortcuts = shouldShowPinned && when (state.appShortcutsSectionState) {
+                                    is AppShortcutsSectionVisibility.ShowingResults -> section == SearchSection.APP_SHORTCUTS
+                                    else -> false
+                                }
                                 val shouldRenderSettings = shouldShowPinned && when (state.settingsSectionState) {
                                     is SettingsSectionVisibility.ShowingResults -> section == SearchSection.SETTINGS
                                     else -> false
@@ -425,23 +438,29 @@ fun ContentLayout(
                                 val pinnedContext = SectionRenderContext(
                                     shouldRenderFiles = shouldRenderFiles,
                                     shouldRenderContacts = shouldRenderContacts,
+                                    shouldRenderAppShortcuts = shouldRenderAppShortcuts,
                                     shouldRenderSettings = shouldRenderSettings,
                                     shouldRenderApps = false,
                                     isFilesExpanded = true,
                                     isContactsExpanded = true,
                                     isSettingsExpanded = true,
+                                    isAppShortcutsExpanded = true,
                                     filesList = renderingState.pinnedFiles,
                                     contactsList = renderingState.pinnedContacts,
                                     settingsList = renderingState.pinnedSettings,
+                                    appShortcutsList = renderingState.pinnedAppShortcuts,
                                     showAllFilesResults = true,
                                     showAllContactsResults = true,
                                     showAllSettingsResults = true,
+                                    showAllAppShortcutsResults = true,
                                     showFilesExpandControls = false,
                                     showContactsExpandControls = false,
                                     showSettingsExpandControls = false,
+                                    showAppShortcutsExpandControls = false,
                                     filesExpandClick = {},
                                     contactsExpandClick = {},
-                                    settingsExpandClick = {}
+                                    settingsExpandClick = {},
+                                    appShortcutsExpandClick = {}
                                 )
                                 renderSection(section, pinnedParams, pinnedContext)
                             }
@@ -459,6 +478,7 @@ fun ContentLayout(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
+                            appShortcutsParams = appShortcutsParams,
                             settingsParams = settingsParams,
                             appsParams = appsParams,
                             isReversed = false
@@ -507,22 +527,28 @@ fun ContentLayout(
                                         shouldRenderFiles = shouldShowPinned && renderingState.hasPinnedFiles && renderingState.shouldShowFiles && section == SearchSection.FILES,
                                         shouldRenderContacts = shouldShowPinned && renderingState.hasPinnedContacts && renderingState.shouldShowContacts && section == SearchSection.CONTACTS,
                                         shouldRenderSettings = shouldShowPinned && renderingState.hasPinnedSettings && renderingState.shouldShowSettings && section == SearchSection.SETTINGS,
+                                        shouldRenderAppShortcuts = shouldShowPinned && renderingState.hasPinnedAppShortcuts && renderingState.shouldShowAppShortcuts && section == SearchSection.APP_SHORTCUTS,
                                         shouldRenderApps = false,
                                         isFilesExpanded = true,
                                         isContactsExpanded = true,
                                         isSettingsExpanded = true,
+                                        isAppShortcutsExpanded = true,
                                         filesList = renderingState.pinnedFiles,
                                         contactsList = renderingState.pinnedContacts,
                                         settingsList = renderingState.pinnedSettings,
+                                        appShortcutsList = renderingState.pinnedAppShortcuts,
                                         showAllFilesResults = true,
                                         showAllContactsResults = true,
                                         showAllSettingsResults = true,
+                                        showAllAppShortcutsResults = true,
                                         showFilesExpandControls = false,
                                         showContactsExpandControls = false,
                                         showSettingsExpandControls = false,
+                                        showAppShortcutsExpandControls = false,
                                         filesExpandClick = {},
                                         contactsExpandClick = {},
-                                        settingsExpandClick = {}
+                                        settingsExpandClick = {},
+                                        appShortcutsExpandClick = {}
                                     )
                                     renderSection(section, pinnedParams, pinnedContext)
                                 }
@@ -535,7 +561,8 @@ fun ContentLayout(
                             renderingState = renderingState,
                             contactsParams = contactsParams,
                             filesParams = filesParams,
-                            settingsParams = settingsParams
+                            settingsParams = settingsParams,
+                            appShortcutsParams = appShortcutsParams
                         )
                     }
                 }
@@ -545,6 +572,7 @@ fun ContentLayout(
                         renderingState = renderingState,
                         contactsParams = contactsParams,
                         filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
                         settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = false,
@@ -555,6 +583,3 @@ fun ContentLayout(
         }
     }
 }
-
-
-

@@ -3,8 +3,10 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.searchScreen.AppsSectionParams
+import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
@@ -54,6 +56,12 @@ fun shouldShowAppsSection(renderingState: SectionRenderingState): Boolean {
         renderingState.shouldShowApps &&
         renderingState.expandedSection == ExpandedSection.NONE &&
         !renderingState.shortcutDetected
+}
+
+fun shouldShowAppShortcutsSection(renderingState: SectionRenderingState): Boolean {
+    return renderingState.hasAppShortcutResults &&
+        renderingState.shouldShowAppShortcuts &&
+        renderingState.expandedSection == ExpandedSection.NONE
 }
 
 /**
@@ -115,6 +123,17 @@ fun getSettingsListForRendering(
     keyboardAlignedLayout = keyboardAlignedLayout
 )
 
+fun getAppShortcutListForRendering(
+    renderingState: SectionRenderingState,
+    isAppShortcutsExpanded: Boolean,
+    keyboardAlignedLayout: Boolean
+): List<StaticShortcut> = getListForRendering(
+    list = renderingState.appShortcutResults,
+    isExpanded = isAppShortcutsExpanded,
+    autoExpand = renderingState.autoExpandAppShortcuts,
+    keyboardAlignedLayout = keyboardAlignedLayout
+)
+
 /**
  * Generic helper for getting list in correct order based on expansion state.
  * Returns reversed view when expanded AND keyboard-aligned layout is enabled, original list otherwise.
@@ -161,6 +180,7 @@ data class SectionRenderParams(
     val contactsParams: ContactsSectionParams,
     val filesParams: FilesSectionParams,
     val settingsParams: SettingsSectionParams? = null,
+    val appShortcutsParams: AppShortcutsSectionParams? = null,
     val appsParams: AppsSectionParams? = null,
     val isReversed: Boolean
 )
@@ -172,16 +192,22 @@ data class SectionRenderContext(
     val shouldRenderFiles: Boolean = false,
     val shouldRenderContacts: Boolean = false,
     val shouldRenderApps: Boolean = false,
+    val shouldRenderAppShortcuts: Boolean = false,
     val isFilesExpanded: Boolean = false,
     val isContactsExpanded: Boolean = false,
+    val isAppShortcutsExpanded: Boolean = false,
     val filesList: List<DeviceFile> = emptyList(),
     val contactsList: List<ContactInfo> = emptyList(),
+    val appShortcutsList: List<StaticShortcut> = emptyList(),
     val showAllFilesResults: Boolean = false,
     val showAllContactsResults: Boolean = false,
+    val showAllAppShortcutsResults: Boolean = false,
     val showFilesExpandControls: Boolean = false,
     val showContactsExpandControls: Boolean = false,
+    val showAppShortcutsExpandControls: Boolean = false,
     val filesExpandClick: () -> Unit = {},
     val contactsExpandClick: () -> Unit = {},
+    val appShortcutsExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
     val isSettingsExpanded: Boolean = false,
     val settingsList: List<DeviceSetting> = emptyList(),
@@ -189,4 +215,3 @@ data class SectionRenderContext(
     val showSettingsExpandControls: Boolean = false,
     val settingsExpandClick: () -> Unit = {}
 )
-

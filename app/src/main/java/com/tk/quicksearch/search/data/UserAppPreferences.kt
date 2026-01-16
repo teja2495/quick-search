@@ -19,6 +19,7 @@ class UserAppPreferences(context: Context) {
     private val contactPreferences by lazy { ContactPreferences(context) }
     private val filePreferences by lazy { FilePreferences(context) }
     private val settingsPreferences by lazy { SettingsPreferences(context) }
+    private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val shortcutPreferences by lazy { ShortcutPreferences(context) }
@@ -202,6 +203,26 @@ class UserAppPreferences(context: Context) {
     fun removeExcludedSetting(id: String): Set<String> = settingsPreferences.removeExcludedSetting(id)
 
     fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
+
+    // ============================================================================
+    // App Shortcut Preferences
+    // ============================================================================
+
+    fun getPinnedAppShortcutIds(): Set<String> = appShortcutPreferences.getPinnedAppShortcutIds()
+
+    fun getExcludedAppShortcutIds(): Set<String> = appShortcutPreferences.getExcludedAppShortcutIds()
+
+    fun pinAppShortcut(id: String): Set<String> = appShortcutPreferences.pinAppShortcut(id)
+
+    fun unpinAppShortcut(id: String): Set<String> = appShortcutPreferences.unpinAppShortcut(id)
+
+    fun excludeAppShortcut(id: String): Set<String> = appShortcutPreferences.excludeAppShortcut(id)
+
+    fun removeExcludedAppShortcut(id: String): Set<String> =
+        appShortcutPreferences.removeExcludedAppShortcut(id)
+
+    fun clearAllExcludedAppShortcuts(): Set<String> =
+        appShortcutPreferences.clearAllExcludedAppShortcuts()
 
     // ============================================================================
     // Nickname Preferences

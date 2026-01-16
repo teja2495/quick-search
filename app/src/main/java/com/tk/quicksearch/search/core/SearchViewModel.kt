@@ -19,9 +19,14 @@ import com.tk.quicksearch.search.contacts.utils.ContactManagementHandler
 import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
 import com.tk.quicksearch.search.data.AppUsageRepository
+import com.tk.quicksearch.search.data.AppShortcutRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.launchStaticShortcut
+import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler
+import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -52,6 +57,9 @@ import kotlinx.coroutines.withContext
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository by lazy { AppUsageRepository(application.applicationContext) }
+    private val appShortcutRepository by lazy {
+        AppShortcutRepository(application.applicationContext)
+    }
     private val contactRepository by lazy { ContactRepository(application.applicationContext) }
     private val fileRepository by lazy { FileSearchRepository(application.applicationContext) }
     private val settingsShortcutRepository by lazy {
@@ -108,6 +116,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 userPreferences,
                 viewModelScope,
                 this::refreshDerivedState,
+                this::updateUiState
+        )
+    }
+    val appShortcutManager by lazy {
+        AppShortcutManagementHandler(
+                userPreferences,
+                viewModelScope,
+                this::refreshAppShortcutsState,
                 this::updateUiState
         )
     }
@@ -186,6 +202,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
+    val appShortcutSearchHandler by lazy {
+        AppShortcutSearchHandler(
+                repository = appShortcutRepository,
+                userPreferences = userPreferences
+        )
+    }
+
     val directSearchHandler by lazy {
         DirectSearchHandler(
                 context = application.applicationContext,
@@ -212,6 +235,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 fileRepository = fileRepository,
                 userPreferences = userPreferences,
                 settingsSearchHandler = settingsSearchHandler,
+                appShortcutSearchHandler = appShortcutSearchHandler,
                 searchOperations = searchOperations
         )
     }
@@ -506,6 +530,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             launch(Dispatchers.IO) { loadSettingsShortcuts() }
 
+            launch(Dispatchers.IO) { loadAppShortcuts() }
+
             launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
 
             launch(Dispatchers.IO) {
@@ -755,6 +781,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) { settingsSearchHandler.loadShortcuts() }
     }
 
+    private fun loadAppShortcuts() {
+        viewModelScope.launch(Dispatchers.IO) {
+            appShortcutSearchHandler.loadShortcuts()
+            withContext(Dispatchers.Main) {
+                refreshAppShortcutsState()
+            }
+        }
+    }
+
     private fun refreshSettingsState(updateResults: Boolean = true) {
         val currentResults = _uiState.value.settingResults
         val currentState =
@@ -772,6 +807,25 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     pinnedSettings = currentState.pinned,
                     excludedSettings = currentState.excluded,
                     settingResults = currentState.results
+            )
+        }
+    }
+
+    private fun refreshAppShortcutsState(updateResults: Boolean = true) {
+        val query = if (updateResults) _uiState.value.query else ""
+        val currentState =
+            appShortcutSearchHandler.getShortcutsState(
+                query = query,
+                isSectionEnabled =
+                    SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
+            )
+
+        updateUiState { state ->
+            state.copy(
+                pinnedAppShortcuts = currentState.pinned,
+                excludedAppShortcuts = currentState.excluded,
+                appShortcutResults =
+                    if (updateResults) currentState.results else state.appShortcutResults
             )
         }
     }
@@ -844,6 +898,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 it.copy(
                         query = "",
                         searchResults = emptyList(),
+                        appShortcutResults = emptyList(),
                         contactResults = emptyList(),
                         fileResults = emptyList(),
                         settingResults = emptyList(),
@@ -964,6 +1019,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         contactResults = emptyList(),
                         fileResults = emptyList(),
                         settingResults = emptyList(),
+                        appShortcutResults = emptyList(),
                         webSuggestions = emptyList()
                 )
             }
@@ -997,6 +1053,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         pinningHandler.loadPinnedContactsAndFiles()
         pinningHandler.loadExcludedContactsAndFiles()
         refreshSettingsState()
+        refreshAppShortcutsState()
     }
 
     // Navigation Delegates
@@ -1007,6 +1064,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun openContactPermissionSettings() = navigationHandler.openContactPermissionSettings()
     fun launchApp(appInfo: AppInfo) = navigationHandler.launchApp(appInfo)
     fun openAppInfo(appInfo: AppInfo) = navigationHandler.openAppInfo(appInfo)
+    fun openAppInfo(packageName: String) = navigationHandler.openAppInfo(packageName)
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
     fun openSearchUrl(query: String, searchEngine: SearchEngine) =
             navigationHandler.openSearchUrl(query, searchEngine, clearQueryAfterSearchEngine)
@@ -1015,6 +1073,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun openContact(contactInfo: ContactInfo) =
             navigationHandler.openContact(contactInfo, clearQueryAfterSearchEngine)
     fun openEmail(email: String) = navigationHandler.openEmail(email)
+    fun launchAppShortcut(shortcut: StaticShortcut) {
+        val error = launchStaticShortcut(getApplication(), shortcut)
+        if (error != null) {
+            showToast(error)
+        } else {
+            onNavigationTriggered()
+        }
+    }
 
     // App Management Delegates
     fun hideApp(appInfo: AppInfo) = appManager.hideApp(appInfo, _uiState.value.query.isNotBlank())
@@ -1069,14 +1135,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
     fun openSetting(setting: DeviceSetting) = settingsSearchHandler.openSetting(setting)
 
+    // App Shortcut Management Delegates
+    fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
+    fun unpinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.unpinShortcut(shortcut)
+    fun excludeAppShortcut(shortcut: StaticShortcut) = appShortcutManager.excludeShortcut(shortcut)
+    fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
+            appShortcutManager.removeExcludedShortcut(shortcut)
+
     // Global Actions
     fun clearAllExclusions() {
         contactManager.clearAllExcludedContacts()
         fileManager.clearAllExcludedFiles()
         appManager.clearAllHiddenApps()
         settingsManager.clearAllExcludedSettings()
+        appShortcutManager.clearAllExcludedShortcuts()
         pinningHandler.loadExcludedContactsAndFiles()
         refreshSettingsState(updateResults = false)
+        refreshAppShortcutsState(updateResults = false)
     }
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
@@ -1278,6 +1353,26 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /** Computes the app shortcuts section visibility state. */
+    private fun computeAppShortcutsSectionVisibility(
+        state: SearchUiState
+    ): AppShortcutsSectionVisibility {
+        val sectionEnabled = SearchSection.APP_SHORTCUTS !in state.disabledSections
+
+        return when {
+            !sectionEnabled -> AppShortcutsSectionVisibility.Hidden
+            else -> {
+                val hasResults = state.appShortcutResults.isNotEmpty()
+                val hasPinned = state.pinnedAppShortcuts.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    AppShortcutsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    AppShortcutsSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
     /** Computes the contacts section visibility state. */
     private fun computeContactsSectionVisibility(state: SearchUiState): ContactsSectionVisibility {
         val sectionEnabled = SearchSection.CONTACTS !in state.disabledSections
@@ -1353,6 +1448,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             currentState.copy(
                     screenState = computeScreenVisibilityState(currentState),
                     appsSectionState = computeAppsSectionVisibility(currentState),
+                    appShortcutsSectionState = computeAppShortcutsSectionVisibility(currentState),
                     contactsSectionState = computeContactsSectionVisibility(currentState),
                     filesSectionState = computeFilesSectionVisibility(currentState),
                     settingsSectionState = computeSettingsSectionVisibility(currentState),

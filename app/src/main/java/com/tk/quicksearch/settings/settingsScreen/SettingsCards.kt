@@ -123,6 +123,30 @@ private fun NavigationSection(
 }
 
 /**
+ * Single navigation card that matches the Search Engines section style.
+ */
+@Composable
+fun NavigationSectionCard(
+    title: String,
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+) {
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        NavigationSection(
+            title = title,
+            description = description,
+            onClick = onClick,
+            contentPadding = contentPadding
+        )
+    }
+}
+
+/**
  * Combined navigation card for search engines, web suggestions, and recent queries.
  */
 @Composable

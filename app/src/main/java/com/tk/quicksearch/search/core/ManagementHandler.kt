@@ -1,6 +1,8 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -307,6 +309,84 @@ class SettingsManagementConfig : ManagementHandlerConfig<DeviceSetting> {
 
     override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) {
         preferences.clearAllExcludedSettings()
+    }
+}
+
+/**
+ * Configuration for managing StaticShortcut items.
+ */
+class AppShortcutManagementConfig : ManagementHandlerConfig<StaticShortcut> {
+    override fun getItemId(item: StaticShortcut): String = shortcutKey(item)
+
+    override fun updateUiForPin(item: StaticShortcut, state: SearchUiState): SearchUiState {
+        val key = shortcutKey(item)
+        return if (state.pinnedAppShortcuts.any { shortcutKey(it) == key }) {
+            state
+        } else {
+            state.copy(pinnedAppShortcuts = state.pinnedAppShortcuts + item)
+        }
+    }
+
+    override fun updateUiForUnpin(item: StaticShortcut, state: SearchUiState): SearchUiState {
+        val key = shortcutKey(item)
+        return state.copy(
+            pinnedAppShortcuts = state.pinnedAppShortcuts.filterNot { shortcutKey(it) == key }
+        )
+    }
+
+    override fun updateUiForExclude(item: StaticShortcut, state: SearchUiState): SearchUiState {
+        val key = shortcutKey(item)
+        return state.copy(
+            appShortcutResults = state.appShortcutResults.filterNot { shortcutKey(it) == key },
+            pinnedAppShortcuts = state.pinnedAppShortcuts.filterNot { shortcutKey(it) == key },
+            excludedAppShortcuts = state.excludedAppShortcuts + item
+        )
+    }
+
+    override fun updateUiForRemoveExclusion(item: StaticShortcut, state: SearchUiState): SearchUiState {
+        val key = shortcutKey(item)
+        return state.copy(
+            excludedAppShortcuts = state.excludedAppShortcuts.filterNot { shortcutKey(it) == key }
+        )
+    }
+
+    override fun pinItemInPreferences(item: StaticShortcut, preferences: UserAppPreferences) {
+        preferences.pinAppShortcut(shortcutKey(item))
+    }
+
+    override fun unpinItemInPreferences(item: StaticShortcut, preferences: UserAppPreferences) {
+        preferences.unpinAppShortcut(shortcutKey(item))
+    }
+
+    override fun excludeItemInPreferences(item: StaticShortcut, preferences: UserAppPreferences) {
+        val key = shortcutKey(item)
+        preferences.excludeAppShortcut(key)
+        if (preferences.getPinnedAppShortcutIds().contains(key)) {
+            preferences.unpinAppShortcut(key)
+        }
+    }
+
+    override fun removeExcludedItemInPreferences(item: StaticShortcut, preferences: UserAppPreferences) {
+        preferences.removeExcludedAppShortcut(shortcutKey(item))
+    }
+
+    override fun setItemNicknameInPreferences(
+        item: StaticShortcut,
+        nickname: String?,
+        preferences: UserAppPreferences
+    ) {
+        // App shortcuts do not support nicknames yet.
+    }
+
+    override fun getItemNicknameFromPreferences(
+        item: StaticShortcut,
+        preferences: UserAppPreferences
+    ): String? {
+        return null
+    }
+
+    override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) {
+        preferences.clearAllExcludedAppShortcuts()
     }
 }
 

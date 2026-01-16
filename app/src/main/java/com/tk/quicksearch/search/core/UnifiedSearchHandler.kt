@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -18,7 +20,8 @@ import java.util.Locale
 data class UnifiedSearchResults(
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
-    val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList()
+    val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
+    val appShortcutResults: List<StaticShortcut> = emptyList()
 )
 
 class UnifiedSearchHandler(
@@ -26,6 +29,7 @@ class UnifiedSearchHandler(
     private val fileRepository: FileSearchRepository,
     private val userPreferences: UserAppPreferences,
     private val settingsSearchHandler: DeviceSettingsSearchHandler,
+    private val appShortcutSearchHandler: AppShortcutSearchHandler,
     private val searchOperations: SearchOperations
 ) {
 
@@ -34,7 +38,8 @@ class UnifiedSearchHandler(
         enabledFileTypes: Set<FileType>,
         canSearchContacts: Boolean,
         canSearchFiles: Boolean,
-        canSearchSettings: Boolean
+        canSearchSettings: Boolean,
+        canSearchAppShortcuts: Boolean
     ): UnifiedSearchResults = withContext(Dispatchers.IO) {
         val trimmedQuery = query.trim()
         if (shouldSkipSearch(trimmedQuery)) {
@@ -60,10 +65,17 @@ class UnifiedSearchHandler(
             emptyList()
         }
 
+        val appShortcutMatches = if (canSearchAppShortcuts) {
+            appShortcutSearchHandler.searchShortcuts(trimmedQuery)
+        } else {
+            emptyList()
+        }
+
         return@withContext UnifiedSearchResults(
             contactResults = filteredContacts,
             fileResults = filteredFiles,
-            settingResults = settingsMatches
+            settingResults = settingsMatches,
+            appShortcutResults = appShortcutMatches
         )
     }
 

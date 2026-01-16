@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.runtime.Composable
 import com.tk.quicksearch.search.apps.AppGridView
+import com.tk.quicksearch.search.appShortcuts.AppShortcutResultsSection
 import com.tk.quicksearch.search.contacts.ContactResultsSection
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
@@ -25,6 +26,7 @@ fun renderSection(
         SearchSection.FILES -> renderFilesSection(params, sectionContext)
         SearchSection.CONTACTS -> renderContactsSection(params, sectionContext)
         SearchSection.APPS -> renderAppsSection(params, sectionContext)
+        SearchSection.APP_SHORTCUTS -> renderAppShortcutsSection(params, sectionContext)
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
     }
 }
@@ -126,6 +128,30 @@ private fun renderAppsSection(params: SectionRenderParams, context: SectionRende
                 iconPackPackage = params.appsParams.iconPackPackage,
                 keyboardAlignedLayout = params.appsParams.keyboardAlignedLayout,
                 isInitializing = params.appsParams.isInitializing
+        )
+    }
+}
+
+/** Renders the app shortcuts section if it should be displayed. */
+@Composable
+private fun renderAppShortcutsSection(params: SectionRenderParams, context: SectionRenderContext) {
+    val appShortcutsParams = params.appShortcutsParams ?: return
+    if (context.shouldRenderAppShortcuts) {
+        AppShortcutResultsSection(
+            shortcuts = context.appShortcutsList,
+            isExpanded = context.isAppShortcutsExpanded,
+            pinnedShortcutIds = appShortcutsParams.pinnedShortcutIds,
+            excludedShortcutIds = appShortcutsParams.excludedShortcutIds,
+            onShortcutClick = appShortcutsParams.onShortcutClick,
+            onTogglePin = appShortcutsParams.onTogglePin,
+            onExclude = appShortcutsParams.onExclude,
+            onInclude = appShortcutsParams.onInclude,
+            onAppInfoClick = appShortcutsParams.onAppInfoClick,
+            showAllResults = context.showAllAppShortcutsResults,
+            showExpandControls = context.showAppShortcutsExpandControls,
+            onExpandClick = context.appShortcutsExpandClick,
+            iconPackPackage = appShortcutsParams.iconPackPackage,
+            showWallpaperBackground = appShortcutsParams.showWallpaperBackground
         )
     }
 }

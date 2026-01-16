@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.data.StaticShortcut
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(val packageName: String, val label: String)
@@ -36,6 +37,7 @@ enum class SearchEngine {
 
 enum class SearchSection {
     APPS,
+    APP_SHORTCUTS,
     CONTACTS,
     FILES,
     SETTINGS
@@ -92,6 +94,12 @@ sealed class AppsSectionVisibility {
     data class ShowingResults(val hasPinned: Boolean = false) : AppsSectionVisibility()
 }
 
+sealed class AppShortcutsSectionVisibility {
+    object Hidden : AppShortcutsSectionVisibility()
+    object NoResults : AppShortcutsSectionVisibility()
+    data class ShowingResults(val hasPinned: Boolean = false) : AppShortcutsSectionVisibility()
+}
+
 sealed class ContactsSectionVisibility {
     object Hidden : ContactsSectionVisibility()
     object NoPermission : ContactsSectionVisibility()
@@ -130,6 +138,7 @@ data class SearchUiState(
         // Visibility states (replaces scattered boolean flags)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
         val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
+        val appShortcutsSectionState: AppShortcutsSectionVisibility = AppShortcutsSectionVisibility.Hidden,
         val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
@@ -138,6 +147,7 @@ data class SearchUiState(
         // Data (unchanged)
         val recentApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
         val searchResults: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
+        val appShortcutResults: List<StaticShortcut> = emptyList(),
         val pinnedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
         val suggestionExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
         val resultExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
@@ -145,10 +155,12 @@ data class SearchUiState(
         val fileResults: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
         val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
+        val pinnedAppShortcuts: List<StaticShortcut> = emptyList(),
         val pinnedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
         val pinnedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
         val pinnedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
+        val excludedAppShortcuts: List<StaticShortcut> = emptyList(),
         val excludedContacts: List<com.tk.quicksearch.search.models.ContactInfo> = emptyList(),
         val excludedFiles: List<com.tk.quicksearch.search.models.DeviceFile> = emptyList(),
         val excludedSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =

@@ -261,6 +261,9 @@ fun hasAnySectionContent(state: SearchUiState): Boolean {
     return when (state.appsSectionState) {
         is AppsSectionVisibility.ShowingResults -> true
         else -> false
+    } || when (state.appShortcutsSectionState) {
+        is AppShortcutsSectionVisibility.ShowingResults -> true
+        else -> false
     } || when (state.contactsSectionState) {
         is ContactsSectionVisibility.ShowingResults -> true
         else -> false

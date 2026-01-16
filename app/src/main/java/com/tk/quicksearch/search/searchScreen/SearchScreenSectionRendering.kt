@@ -12,6 +12,7 @@ fun SearchResultsSections(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
     appsParams: AppsSectionParams,
     settingsParams: SettingsSectionParams,
     isReversed: Boolean,
@@ -20,22 +21,31 @@ fun SearchResultsSections(
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
+    val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
 
     // Use new visibility states to determine what should render
     val shouldRenderApps = when (state.appsSectionState) {
-        is AppsSectionVisibility.ShowingResults -> !isSettingsExpanded
+        is AppsSectionVisibility.ShowingResults -> !isSettingsExpanded && !isAppShortcutsExpanded
+        else -> false
+    }
+    val shouldRenderAppShortcuts = when (state.appShortcutsSectionState) {
+        is AppShortcutsSectionVisibility.ShowingResults ->
+            !isFilesExpanded && !isContactsExpanded && !isSettingsExpanded
         else -> false
     }
     val shouldRenderContacts = when (state.contactsSectionState) {
-        is ContactsSectionVisibility.ShowingResults -> !isFilesExpanded && !isSettingsExpanded
+        is ContactsSectionVisibility.ShowingResults ->
+            !isFilesExpanded && !isSettingsExpanded && !isAppShortcutsExpanded
         else -> false
     }
     val shouldRenderFiles = when (state.filesSectionState) {
-        is FilesSectionVisibility.ShowingResults -> !isContactsExpanded && !isSettingsExpanded
+        is FilesSectionVisibility.ShowingResults ->
+            !isContactsExpanded && !isSettingsExpanded && !isAppShortcutsExpanded
         else -> false
     }
     val shouldRenderSettings = when (state.settingsSectionState) {
-        is SettingsSectionVisibility.ShowingResults -> !isFilesExpanded && !isContactsExpanded
+        is SettingsSectionVisibility.ShowingResults ->
+            !isFilesExpanded && !isContactsExpanded && !isAppShortcutsExpanded
         else -> false
     }
 
@@ -43,28 +53,39 @@ fun SearchResultsSections(
         shouldRenderFiles = shouldRenderFiles,
         shouldRenderContacts = shouldRenderContacts,
         shouldRenderApps = shouldRenderApps,
+        shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderSettings = shouldRenderSettings,
         isFilesExpanded = isFilesExpanded,
         isContactsExpanded = isContactsExpanded,
         isSettingsExpanded = isSettingsExpanded,
+        isAppShortcutsExpanded = isAppShortcutsExpanded,
         filesList = getFileListForRendering(renderingState, isFilesExpanded, keyboardAlignedLayout),
         contactsList = getContactListForRendering(renderingState, isContactsExpanded, keyboardAlignedLayout),
         settingsList = getSettingsListForRendering(renderingState, isSettingsExpanded, keyboardAlignedLayout),
+        appShortcutsList = getAppShortcutListForRendering(
+            renderingState,
+            isAppShortcutsExpanded,
+            keyboardAlignedLayout
+        ),
         showAllFilesResults = renderingState.autoExpandFiles,
         showAllContactsResults = renderingState.autoExpandContacts,
         showAllSettingsResults = renderingState.autoExpandSettings,
+        showAllAppShortcutsResults = renderingState.autoExpandAppShortcuts,
         showFilesExpandControls = renderingState.hasMultipleExpandableSections,
         showContactsExpandControls = renderingState.hasMultipleExpandableSections,
         showSettingsExpandControls = renderingState.hasMultipleExpandableSections || renderingState.hasSettingResults,
+        showAppShortcutsExpandControls = renderingState.hasMultipleExpandableSections,
         filesExpandClick = filesParams.onExpandClick,
         contactsExpandClick = contactsParams.onExpandClick,
-        settingsExpandClick = settingsParams.onExpandClick
+        settingsExpandClick = settingsParams.onExpandClick,
+        appShortcutsExpandClick = appShortcutsParams.onExpandClick
     )
 
     val params = SectionRenderParams(
         renderingState = renderingState,
         contactsParams = contactsParams,
         filesParams = filesParams,
+        appShortcutsParams = appShortcutsParams,
         settingsParams = settingsParams,
         appsParams = appsParams,
         isReversed = isReversed
@@ -84,6 +105,7 @@ fun PinnedItemsSections(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
     appsParams: AppsSectionParams,
     settingsParams: SettingsSectionParams,
     isReversed: Boolean
@@ -103,6 +125,10 @@ fun PinnedItemsSections(
         is AppsSectionVisibility.ShowingResults -> true
         else -> false
     }
+    val shouldRenderAppShortcuts = shouldShowPinned && when (state.appShortcutsSectionState) {
+        is AppShortcutsSectionVisibility.ShowingResults -> renderingState.hasPinnedAppShortcuts
+        else -> false
+    }
     val shouldRenderSettings = shouldShowPinned && when (state.settingsSectionState) {
         is SettingsSectionVisibility.ShowingResults -> renderingState.hasPinnedSettings
         else -> false
@@ -112,28 +138,35 @@ fun PinnedItemsSections(
         shouldRenderFiles = shouldRenderFiles,
         shouldRenderContacts = shouldRenderContacts,
         shouldRenderApps = shouldRenderApps,
+        shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderSettings = shouldRenderSettings,
         isFilesExpanded = true,
         isContactsExpanded = true,
         isSettingsExpanded = true,
+        isAppShortcutsExpanded = true,
         filesList = renderingState.pinnedFiles,
         contactsList = renderingState.pinnedContacts,
         settingsList = renderingState.pinnedSettings,
+        appShortcutsList = renderingState.pinnedAppShortcuts,
         showAllFilesResults = true,
         showAllContactsResults = true,
         showAllSettingsResults = true,
+        showAllAppShortcutsResults = true,
         showFilesExpandControls = false,
         showContactsExpandControls = false,
         showSettingsExpandControls = false,
+        showAppShortcutsExpandControls = false,
         filesExpandClick = {},
         contactsExpandClick = {},
-        settingsExpandClick = {}
+        settingsExpandClick = {},
+        appShortcutsExpandClick = {}
     )
 
     val params = SectionRenderParams(
         renderingState = renderingState,
         contactsParams = contactsParams,
         filesParams = filesParams,
+        appShortcutsParams = appShortcutsParams,
         settingsParams = settingsParams,
         appsParams = appsParams,
         isReversed = isReversed
@@ -153,11 +186,13 @@ fun ExpandedPinnedSections(
     renderingState: SectionRenderingState,
     contactsParams: ContactsSectionParams,
     filesParams: FilesSectionParams,
-    settingsParams: SettingsSectionParams
+    settingsParams: SettingsSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams
 ) {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
+    val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
 
     // Use new visibility states for expanded pinned sections
     val shouldRenderFiles = isFilesExpanded && when (state.filesSectionState) {
@@ -166,6 +201,10 @@ fun ExpandedPinnedSections(
     }
     val shouldRenderContacts = isContactsExpanded && when (state.contactsSectionState) {
         is ContactsSectionVisibility.ShowingResults -> renderingState.hasPinnedContacts
+        else -> false
+    }
+    val shouldRenderAppShortcuts = isAppShortcutsExpanded && when (state.appShortcutsSectionState) {
+        is AppShortcutsSectionVisibility.ShowingResults -> renderingState.hasPinnedAppShortcuts
         else -> false
     }
     val shouldRenderSettings = isSettingsExpanded && when (state.settingsSectionState) {
@@ -177,16 +216,20 @@ fun ExpandedPinnedSections(
         shouldRenderFiles = shouldRenderFiles,
         shouldRenderContacts = shouldRenderContacts,
         shouldRenderSettings = shouldRenderSettings,
+        shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderApps = false, // Apps section doesn't need expansion handling
         isFilesExpanded = true,
         isContactsExpanded = true,
         isSettingsExpanded = true,
+        isAppShortcutsExpanded = true,
         filesList = renderingState.pinnedFiles,
         contactsList = renderingState.pinnedContacts,
         settingsList = renderingState.pinnedSettings,
+        appShortcutsList = renderingState.pinnedAppShortcuts,
         showAllFilesResults = true,
         showAllContactsResults = true,
         showAllSettingsResults = true,
+        showAllAppShortcutsResults = true,
         showFilesExpandControls = false,
         showContactsExpandControls = false,
         showSettingsExpandControls = false
@@ -197,6 +240,7 @@ fun ExpandedPinnedSections(
         contactsParams = contactsParams,
         filesParams = filesParams,
         settingsParams = settingsParams,
+        appShortcutsParams = appShortcutsParams,
         appsParams = null, // Apps section doesn't need expansion handling
         isReversed = false
     )
