@@ -18,7 +18,11 @@ class SearchOperations(
     
     companion object {
         private const val CONTACT_RESULT_LIMIT = 5
+        // Prefetch more than we display so ranking isn't biased by provider sort order.
+        private const val CONTACT_PREFETCH_MULTIPLIER = 10
         private const val FILE_RESULT_LIMIT = 5
+        // Prefetch more than we display so file ranking isn't biased by date order.
+        private const val FILE_PREFETCH_MULTIPLIER = 10
         private const val MIN_QUERY_LENGTH = 2
 
         // System/Internal file extensions to ignore
@@ -87,8 +91,16 @@ class SearchOperations(
         excludedContactIds: Set<Long>,
         limit: Int = CONTACT_RESULT_LIMIT
     ): List<ContactInfo> {
-        return contactRepository.searchContacts(query, limit)
+        val prefetchLimit = if (limit == Int.MAX_VALUE) {
+            Int.MAX_VALUE
+        } else {
+            limit * CONTACT_PREFETCH_MULTIPLIER
+        }
+
+        val results = contactRepository.searchContacts(query, prefetchLimit)
             .filterNot { excludedContactIds.contains(it.contactId) }
+
+        return if (limit == Int.MAX_VALUE) results else results.take(limit)
     }
     
     private suspend fun searchFiles(
@@ -98,8 +110,14 @@ class SearchOperations(
         excludedFileExtensions: Set<String>,
         limit: Int = FILE_RESULT_LIMIT * 2
     ): List<DeviceFile> {
-        val allFiles = fileRepository.searchFiles(query, limit)
-        return allFiles
+        val prefetchLimit = if (limit == Int.MAX_VALUE) {
+            Int.MAX_VALUE
+        } else {
+            limit * FILE_PREFETCH_MULTIPLIER
+        }
+
+        val allFiles = fileRepository.searchFiles(query, prefetchLimit)
+        val filtered = allFiles
             .filter { file ->
                 val fileType = FileTypeUtils.getFileType(file)
                 fileType in enabledFileTypes &&
@@ -109,7 +127,7 @@ class SearchOperations(
                 !isApkFile(file) &&
                 !isSystemFile(file)
             }
-            .take(FILE_RESULT_LIMIT)
+        return if (limit == Int.MAX_VALUE) filtered else filtered.take(FILE_RESULT_LIMIT)
     }
 
     private fun isApkFile(deviceFile: DeviceFile): Boolean {
