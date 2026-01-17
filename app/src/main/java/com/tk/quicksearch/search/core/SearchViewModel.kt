@@ -99,13 +99,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         previous: SearchUiState,
         updated: SearchUiState
     ): SearchUiState {
-        val hadNoContacts =
-            previous.contactResults.isEmpty() && previous.pinnedContacts.isEmpty()
         val hasContacts =
             updated.contactResults.isNotEmpty() || updated.pinnedContacts.isNotEmpty()
         val shouldShowHint =
-            hadNoContacts &&
-                hasContacts &&
+            hasContacts &&
                 updated.hasContactPermission &&
                 !updated.showContactActionHint &&
                 !userPreferences.hasSeenContactActionHint()
