@@ -118,6 +118,13 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen)
     }
 
+    fun hasSeenContactActionHint(): Boolean =
+            getBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, false)
+
+    fun setHasSeenContactActionHint(seen: Boolean) {
+        setBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, seen)
+    }
+
     fun getLastSeenVersionName(): String? = prefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
@@ -366,6 +373,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
+        const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
 
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"

@@ -100,6 +100,8 @@ private fun renderContactsSection(params: SectionRenderParams, context: SectionR
                 showAllResults = contactsParams.showAllResults,
                 showExpandControls = contactsParams.showExpandControls,
                 onExpandClick = contactsParams.onExpandClick,
+                showContactActionHint = contactsParams.showContactActionHint,
+                onContactActionHintDismissed = contactsParams.onContactActionHintDismissed,
                 permissionDisabledCard = contactsParams.permissionDisabledCard,
                 showWallpaperBackground = contactsParams.showWallpaperBackground
         )

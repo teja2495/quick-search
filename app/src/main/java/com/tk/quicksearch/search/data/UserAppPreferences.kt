@@ -367,6 +367,10 @@ class UserAppPreferences(context: Context) {
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
 
+    fun hasSeenContactActionHint(): Boolean = uiPreferences.hasSeenContactActionHint()
+
+    fun setHasSeenContactActionHint(seen: Boolean) = uiPreferences.setHasSeenContactActionHint(seen)
+
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) = uiPreferences.setLastSeenVersionName(versionName)

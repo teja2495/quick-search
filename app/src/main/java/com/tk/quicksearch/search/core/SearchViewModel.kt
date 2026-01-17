@@ -86,9 +86,34 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     // UI feedback is now handled by UiFeedbackService
 
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
-        _uiState.update(updater)
+        _uiState.update { state ->
+            val updated = updater(state)
+            applyContactActionHint(state, updated)
+        }
         // Update visibility states after any UI state change
         updateVisibilityStates()
+    }
+
+    private fun applyContactActionHint(
+        previous: SearchUiState,
+        updated: SearchUiState
+    ): SearchUiState {
+        val hadNoContacts =
+            previous.contactResults.isEmpty() && previous.pinnedContacts.isEmpty()
+        val hasContacts =
+            updated.contactResults.isNotEmpty() || updated.pinnedContacts.isNotEmpty()
+        val shouldShowHint =
+            hadNoContacts &&
+                hasContacts &&
+                updated.hasContactPermission &&
+                !updated.showContactActionHint &&
+                !userPreferences.hasSeenContactActionHint()
+
+        return if (shouldShowHint) {
+            updated.copy(showContactActionHint = true)
+        } else {
+            updated
+        }
     }
 
     // Management handlers - lazy initialize non-critical ones
@@ -1200,6 +1225,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setHasSeenSearchEngineOnboarding(true)
         }
+    }
+
+    fun onContactActionHintDismissed() {
+        userPreferences.setHasSeenContactActionHint(true)
+        updateUiState { it.copy(showContactActionHint = false) }
     }
 
     // Contact Actions

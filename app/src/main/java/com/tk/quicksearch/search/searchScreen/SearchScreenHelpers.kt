@@ -96,6 +96,8 @@ data class ContactsSectionParams(
         val onSecondaryActionLongPress: (ContactInfo) -> Unit,
         val onCustomAction:
                 (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+        val showContactActionHint: Boolean = false,
+        val onContactActionHintDismissed: () -> Unit = {},
         val onOpenAppSettings: () -> Unit,
         val showAllResults: Boolean,
         val showExpandControls: Boolean,
@@ -168,6 +170,7 @@ internal fun buildSectionParams(
         onSecondaryActionLongPress: (ContactInfo) -> Unit,
         onCustomAction:
                 (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+        onContactActionHintDismissed: () -> Unit,
         onOpenAppSettings: () -> Unit,
         onAppClick: (AppInfo) -> Unit,
         onAppInfoClick: (AppInfo) -> Unit,
@@ -217,6 +220,7 @@ internal fun buildSectionParams(
                 onPrimaryActionLongPress,
                 onSecondaryActionLongPress,
                 onCustomAction,
+                onContactActionHintDismissed,
                 onAppClick,
                 onAppInfoClick,
                 onUninstallClick,
@@ -401,6 +405,8 @@ internal fun buildSectionParams(
                                 onPrimaryActionLongPress = onPrimaryActionLongPress,
                                 onSecondaryActionLongPress = onSecondaryActionLongPress,
                                 onCustomAction = onCustomAction,
+                                showContactActionHint = state.showContactActionHint,
+                                onContactActionHintDismissed = onContactActionHintDismissed,
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = derivedState.autoExpandContacts,
                                 showExpandControls = derivedState.hasMultipleExpandableSections,

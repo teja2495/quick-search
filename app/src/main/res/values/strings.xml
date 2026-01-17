@@ -64,6 +64,7 @@
     <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_action_previous_number">Previous phone number</string>
     <string name="contacts_action_next_number">Next phone number</string>
+    <string name="contacts_action_hint_message">Tip: Long press any action here to customize it for individual contacts.</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
     <string name="error_whatsapp_call_permission">Phone permission required for WhatsApp calls</string>

@@ -1,20 +1,32 @@
 package com.tk.quicksearch.search.contacts
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
@@ -66,6 +78,8 @@ fun ContactResultsSection(
         showAllResults: Boolean = false,
         showExpandControls: Boolean = false,
         onExpandClick: () -> Unit,
+        showContactActionHint: Boolean = false,
+        onContactActionHintDismissed: () -> Unit = {},
         permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
         showWallpaperBackground: Boolean = false
 ) {
@@ -101,6 +115,9 @@ fun ContactResultsSection(
                                         onSecondaryActionLongPress = onSecondaryActionLongPress,
                                         onCustomAction = onCustomAction,
                                         onExpandClick = onExpandClick,
+                                        showContactActionHint = showContactActionHint,
+                                        onContactActionHintDismissed =
+                                                onContactActionHintDismissed,
                                         showWallpaperBackground = showWallpaperBackground
                                 )
                         }
@@ -146,6 +163,8 @@ private fun ContactsResultCard(
         onCustomAction:
                 (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
         onExpandClick: () -> Unit,
+        showContactActionHint: Boolean,
+        onContactActionHintDismissed: () -> Unit,
         showWallpaperBackground: Boolean = false
 ) {
         val displayAsExpanded = isExpanded || showAllResults
@@ -186,7 +205,10 @@ private fun ContactsResultCard(
                                 onSecondaryActionLongPress = onSecondaryActionLongPress,
                                 onCustomAction = onCustomAction,
                                 shouldShowExpandButton = shouldShowExpandButton,
-                                onExpandClick = onExpandClick
+                                onExpandClick = onExpandClick,
+                                showContactActionHint = showContactActionHint,
+                                onContactActionHintDismissed =
+                                        onContactActionHintDismissed
                         )
                 }
 
@@ -241,7 +263,9 @@ private fun ContactList(
         onCustomAction:
                 (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
         shouldShowExpandButton: Boolean,
-        onExpandClick: () -> Unit
+        onExpandClick: () -> Unit,
+        showContactActionHint: Boolean,
+        onContactActionHintDismissed: () -> Unit
 ) {
         Column(
                 modifier =
@@ -280,6 +304,14 @@ private fun ContactList(
                                         onCustomAction = onCustomAction
                                 )
                         }
+                        if (index == 0 && showContactActionHint) {
+                                ContactActionHintBubble(
+                                        onDismiss = onContactActionHintDismissed,
+                                        modifier = Modifier.padding(
+                                                top = DesignTokens.SpacingSmall
+                                        )
+                                )
+                        }
                         if (index != displayContacts.lastIndex) {
                                 HorizontalDivider(
                                         modifier = Modifier.fillMaxWidth(),
@@ -296,6 +328,185 @@ private fun ContactList(
                                                 .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
                                                 .padding(top = DesignTokens.SpacingXXSmall)
                         )
+                }
+        }
+}
+
+@Composable
+private fun ContactActionHintBubble(
+        onDismiss: () -> Unit,
+        modifier: Modifier = Modifier
+) {
+        val arrowHeight = 10.dp
+        val arrowWidth = 28.dp
+        val cornerRadius = 16.dp
+        val borderWidth = 1.5.dp
+        val arrowInset =
+                ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f +
+                        DesignTokens.SpacingSmall +
+                        24.dp
+
+        Box(
+                modifier =
+                        modifier.fillMaxWidth()
+                                .padding(bottom = DesignTokens.SpacingMedium)
+                                .drawBehind {
+                                        val arrowHeightPx = arrowHeight.toPx()
+                                        val arrowWidthPx = arrowWidth.toPx()
+                                        val cornerRadiusPx = cornerRadius.toPx()
+                                        val borderWidthPx = borderWidth.toPx()
+                                        val arrowInsetPx = arrowInset.toPx()
+
+                                        val rectTop = arrowHeightPx
+                                        val rect = Rect(0f, rectTop, size.width, size.height)
+
+                                        val minArrowCenter =
+                                                cornerRadiusPx + (arrowWidthPx / 2f)
+                                        val maxArrowCenter =
+                                                size.width -
+                                                        cornerRadiusPx -
+                                                        (arrowWidthPx / 2f)
+                                        val arrowCenterX =
+                                                (size.width - arrowInsetPx)
+                                                        .coerceIn(
+                                                                minArrowCenter,
+                                                                maxArrowCenter
+                                                        )
+
+                                        val path =
+                                                Path().apply {
+                                                        moveTo(cornerRadiusPx, rect.top)
+                                                        lineTo(
+                                                                arrowCenterX -
+                                                                        (arrowWidthPx / 2f),
+                                                                rect.top
+                                                        )
+                                                        lineTo(arrowCenterX, 0f)
+                                                        lineTo(
+                                                                arrowCenterX +
+                                                                        (arrowWidthPx / 2f),
+                                                                rect.top
+                                                        )
+                                                        lineTo(
+                                                                rect.width -
+                                                                        cornerRadiusPx,
+                                                                rect.top
+                                                        )
+                                                        arcTo(
+                                                                rect =
+                                                                        Rect(
+                                                                                rect.width -
+                                                                                        cornerRadiusPx *
+                                                                                        2f,
+                                                                                rect.top,
+                                                                                rect.width,
+                                                                                rect.top +
+                                                                                        cornerRadiusPx *
+                                                                                        2f
+                                                                        ),
+                                                                startAngleDegrees = 270f,
+                                                                sweepAngleDegrees = 90f,
+                                                                forceMoveTo = false
+                                                        )
+                                                        lineTo(
+                                                                rect.width,
+                                                                rect.bottom -
+                                                                        cornerRadiusPx
+                                                        )
+                                                        arcTo(
+                                                                rect =
+                                                                        Rect(
+                                                                                rect.width -
+                                                                                        cornerRadiusPx *
+                                                                                        2f,
+                                                                                rect.bottom -
+                                                                                        cornerRadiusPx *
+                                                                                        2f,
+                                                                                rect.width,
+                                                                                rect.bottom
+                                                                        ),
+                                                                startAngleDegrees = 0f,
+                                                                sweepAngleDegrees = 90f,
+                                                                forceMoveTo = false
+                                                        )
+                                                        lineTo(
+                                                                cornerRadiusPx,
+                                                                rect.bottom
+                                                        )
+                                                        arcTo(
+                                                                rect =
+                                                                        Rect(
+                                                                                0f,
+                                                                                rect.bottom -
+                                                                                        cornerRadiusPx *
+                                                                                        2f,
+                                                                                cornerRadiusPx *
+                                                                                        2f,
+                                                                                rect.bottom
+                                                                        ),
+                                                                startAngleDegrees = 90f,
+                                                                sweepAngleDegrees = 90f,
+                                                                forceMoveTo = false
+                                                        )
+                                                        lineTo(0f, rect.top + cornerRadiusPx)
+                                                        arcTo(
+                                                                rect =
+                                                                        Rect(
+                                                                                0f,
+                                                                                rect.top,
+                                                                                cornerRadiusPx *
+                                                                                        2f,
+                                                                                rect.top +
+                                                                                        cornerRadiusPx *
+                                                                                        2f
+                                                                        ),
+                                                                startAngleDegrees = 180f,
+                                                                sweepAngleDegrees = 90f,
+                                                                forceMoveTo = false
+                                                        )
+                                                        close()
+                                                }
+
+                                        drawPath(path = path, color = Color.Black)
+                                        drawPath(
+                                                path = path,
+                                                color = Color.White.copy(alpha = 0.3f),
+                                                style = Stroke(width = borderWidthPx)
+                                        )
+                                }
+        ) {
+                Box(
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .padding(top = arrowHeight)
+                                        .padding(
+                                                horizontal = DesignTokens.SpacingMedium,
+                                                vertical = DesignTokens.SpacingSmall
+                                        ),
+                        contentAlignment = Alignment.CenterStart
+                ) {
+                        Text(
+                                text = stringResource(R.string.contacts_action_hint_message),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                lineHeight =
+                                        MaterialTheme.typography.bodySmall.lineHeight *
+                                                1.2f,
+                                modifier =
+                                        Modifier.align(Alignment.CenterStart)
+                                                .padding(end = 28.dp)
+                        )
+                        IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier.align(Alignment.CenterEnd).size(28.dp)
+                        ) {
+                                Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = stringResource(R.string.desc_close),
+                                        tint = Color.White,
+                                        modifier = Modifier.size(18.dp)
+                                )
+                        }
                 }
         }
 }

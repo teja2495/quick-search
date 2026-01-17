@@ -217,6 +217,7 @@ data class SearchUiState(
         val webSuggestions: List<String> = emptyList(),
         val showSearchEngineOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
+        val showContactActionHint: Boolean = false,
         val detectedShortcutEngine: SearchEngine? = null,
         val webSuggestionWasSelected: Boolean = false,
         val recentQueries: List<String> = emptyList(),

@@ -186,6 +186,7 @@ fun SearchRoute(
                 viewModel.onWebSuggestionTap(suggestion)
             },
             onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
+            onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onDeleteRecentQuery = viewModel::deleteRecentQuery,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
@@ -263,6 +264,7 @@ fun SearchScreen(
         onReleaseNotesAcknowledged: () -> Unit,
         onWebSuggestionClick: (String) -> Unit = {},
         onSearchEngineOnboardingDismissed: () -> Unit = {},
+        onContactActionHintDismissed: () -> Unit = {},
         onClearDetectedShortcut: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
         onDeleteRecentQuery: (String) -> Unit = {},
@@ -389,6 +391,7 @@ fun SearchScreen(
                     onCustomAction = onCustomAction,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,
                     getSecondaryContactCardAction = getSecondaryContactCardAction,
+                    onContactActionHintDismissed = onContactActionHintDismissed,
                     onUpdateNicknameDialogState = { newState -> nicknameDialogState = newState },
                     onUpdateExpandedSection = { newSection ->
                         expandedSection = newSection
