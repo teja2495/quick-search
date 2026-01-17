@@ -35,6 +35,8 @@ fun AdditionalSettingsScreen(
     onToggleShowAllResults: (Boolean) -> Unit,
     sortAppsByUsageEnabled: Boolean,
     onToggleSortAppsByUsage: (Boolean) -> Unit,
+    fuzzyAppSearchEnabled: Boolean,
+    onToggleFuzzyAppSearch: (Boolean) -> Unit,
     onSetDefaultAssistant: () -> Unit,
     onAddQuickSettingsTile: () -> Unit = {},
     isDefaultAssistant: Boolean = false,
@@ -81,6 +83,13 @@ fun AdditionalSettingsScreen(
             title = stringResource(R.string.settings_sort_apps_b_usage_toggle),
             checked = sortAppsByUsageEnabled,
             onCheckedChange = onToggleSortAppsByUsage,
+        )
+
+        // Fuzzy app search toggle
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_fuzzy_app_search_toggle),
+            checked = fuzzyAppSearchEnabled,
+            onCheckedChange = onToggleFuzzyAppSearch,
             isLastItem = true
         )
     }

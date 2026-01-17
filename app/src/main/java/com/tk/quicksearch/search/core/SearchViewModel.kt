@@ -289,6 +289,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var lockedShortcutEngine: SearchEngine? = null
     private var showAllResults: Boolean = false
     private var sortAppsByUsageEnabled: Boolean = false
+    private var fuzzyAppSearchEnabled: Boolean = false
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
@@ -447,6 +448,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Sync handlers with loaded prefs
             appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
+            appSearchManager.setFuzzySearchEnabled(fuzzyAppSearchEnabled)
 
             // Now we can compute the full state including pinned/hidden apps
             val lastUpdated = repository.cacheLastUpdatedMillis()
@@ -469,6 +471,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         clearQueryAfterSearchEngine = prefs.clearQueryAfterSearchEngine
         showAllResults = prefs.showAllResults
         sortAppsByUsageEnabled = prefs.sortAppsByUsage
+        fuzzyAppSearchEnabled = prefs.fuzzyAppSearchEnabled
         amazonDomain = prefs.amazonDomain
 
         _uiState.update {
@@ -483,6 +486,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                     showAllResults = showAllResults,
                     sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+                    fuzzyAppSearchEnabled = fuzzyAppSearchEnabled,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     recentQueriesCount = userPreferences.getRecentQueriesCount(),
@@ -1298,6 +1302,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
         )
         appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
+    }
+
+    fun setFuzzyAppSearchEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setFuzzyAppSearchEnabled,
+                stateUpdater = {
+                    fuzzyAppSearchEnabled = it
+                    _uiState.update { state -> state.copy(fuzzyAppSearchEnabled = it) }
+                }
+        )
+        appSearchManager.setFuzzySearchEnabled(enabled)
+        appSearchManager.setNoMatchPrefix(null)
     }
 
     fun getEnabledSearchEngines(): List<SearchEngine> =

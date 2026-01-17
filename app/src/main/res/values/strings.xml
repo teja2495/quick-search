@@ -353,6 +353,7 @@
     <string name="settings_clear_query_after_search_engine_toggle">Clear query after search</string>
     <string name="settings_show_all_results_toggle">Auto-expand all results</string>
     <string name="settings_sort_apps_b_usage_toggle">Order apps by most used</string>
+    <string name="settings_fuzzy_app_search_toggle">Fuzzy app search</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>

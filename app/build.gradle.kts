@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.play.review.ktx)
     implementation(libs.play.app.update.ktx)
     implementation(libs.libphonenumber)
+    implementation(libs.fuzzywuzzy)
 
     implementation(libs.reorderable)
     testImplementation(libs.junit)

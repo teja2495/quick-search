@@ -17,6 +17,7 @@ playUpdate = "2.1.0"
 libphonenumber = "8.13.36"
 
 reorderable = "2.4.3"
+fuzzywuzzy = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,7 @@ play-app-update-ktx = { group = "com.google.android.play", name = "app-update-kt
 libphonenumber = { group = "com.googlecode.libphonenumber", name = "libphonenumber", version.ref = "libphonenumber" }
 
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+fuzzywuzzy = { module = "com.github.jens-muenker:fuzzywuzzy-kotlin", version.ref = "fuzzywuzzy" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

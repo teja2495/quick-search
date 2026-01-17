@@ -57,6 +57,7 @@ class UserAppPreferences(context: Context) {
         val clearQueryAfterSearchEngine: Boolean,
         val showAllResults: Boolean,
         val sortAppsByUsage: Boolean,
+        val fuzzyAppSearchEnabled: Boolean,
         val amazonDomain: String?,
         val pinnedPackages: Set<String>,
         val suggestionHiddenPackages: Set<String>,
@@ -82,6 +83,7 @@ class UserAppPreferences(context: Context) {
             clearQueryAfterSearchEngine = uiPreferences.shouldClearQueryAfterSearchEngine(),
             showAllResults = uiPreferences.shouldShowAllResults(),
             sortAppsByUsage = uiPreferences.shouldSortAppsByUsage(),
+            fuzzyAppSearchEnabled = uiPreferences.isFuzzyAppSearchEnabled(),
             amazonDomain = amazonPreferences.getAmazonDomain(),
             pinnedPackages = appPreferences.getPinnedPackages(),
             suggestionHiddenPackages = appPreferences.getSuggestionHiddenPackages(),
@@ -370,6 +372,10 @@ class UserAppPreferences(context: Context) {
     fun shouldSortAppsByUsage(): Boolean = uiPreferences.shouldSortAppsByUsage()
 
     fun setSortAppsByUsage(sortAppsByUsage: Boolean) = uiPreferences.setSortAppsByUsage(sortAppsByUsage)
+
+    fun isFuzzyAppSearchEnabled(): Boolean = uiPreferences.isFuzzyAppSearchEnabled()
+
+    fun setFuzzyAppSearchEnabled(enabled: Boolean) = uiPreferences.setFuzzyAppSearchEnabled(enabled)
 
     fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 

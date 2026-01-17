@@ -203,6 +203,7 @@ data class SearchUiState(
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
         val sortAppsByUsageEnabled: Boolean = false,
+        val fuzzyAppSearchEnabled: Boolean = false,
         val sectionOrder: List<SearchSection> = emptyList(),
         val disabledSections: Set<SearchSection> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
