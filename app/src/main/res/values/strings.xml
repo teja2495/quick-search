@@ -266,11 +266,6 @@
     <!-- ============================================================================
          Settings - App Shortcuts
          ============================================================================ -->
-    <string name="settings_app_shortcuts_title">App Shortcuts</string>
-    <string name="settings_app_shortcuts_desc">Browse shortcuts from your installed apps.</string>
-    <string name="settings_app_shortcuts_summary">You\'ve got %1$d apps that support shortcuts.</string>
-    <string name="settings_app_shortcuts_loading">Loading app shortcuts...</string>
-    <string name="settings_app_shortcuts_empty">No app shortcuts found.</string>
 
     <string name="settings_search_engine_display_title">Search Engines Style</string>
     <string name="settings_search_engine_display_sticky_title">Compact</string>

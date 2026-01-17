@@ -10,40 +10,21 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -53,9 +34,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import java.util.Locale
-import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.ui.theme.DesignTokens
 
 data class StaticShortcut(
     val packageName: String,
@@ -736,192 +714,6 @@ class AppShortcutRepository(
     companion object {
         private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
         private const val META_DATA_SHORTCUTS = "android.app.shortcuts"
-    }
-}
-
-private const val CHROME_PACKAGE = "com.android.chrome"
-
-private object AppShortcutSpacing {
-    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
-    val cardVerticalPadding = DesignTokens.CardVerticalPadding
-    val rowSpacing = DesignTokens.ItemRowSpacing
-    val messageSpacing = DesignTokens.TextColumnSpacing
-    val sectionSpacing = DesignTokens.SpacingSmall
-    val iconSize = 32.dp
-}
-
-@Composable
-fun AppShortcutsScreen(
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val repository = remember(context) { AppShortcutRepository(context) }
-    var isLoading by remember { mutableStateOf(true) }
-    var shortcuts by remember { mutableStateOf<List<StaticShortcut>>(emptyList()) }
-    val toggleStates = remember { mutableStateMapOf<String, Boolean>() }
-    val visibleShortcuts = remember(shortcuts) {
-        shortcuts.filterNot { it.packageName == CHROME_PACKAGE }
-    }
-    val shortcutsByApp = remember(visibleShortcuts) {
-        visibleShortcuts.groupBy { it.packageName }
-    }
-    val shortcutSections = remember(shortcutsByApp) { shortcutsByApp.entries.toList() }
-    val appCount = shortcutsByApp.size
-
-    LaunchedEffect(Unit) {
-        val cached = repository.loadCachedShortcuts()
-        if (cached != null) {
-            shortcuts = cached
-        }
-
-        isLoading = true
-        shortcuts = runCatching { repository.loadStaticShortcuts() }
-            .getOrElse { cached ?: emptyList() }
-        isLoading = false
-    }
-
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        if (visibleShortcuts.isNotEmpty()) {
-            item {
-                Text(
-                    text = stringResource(
-                        R.string.settings_app_shortcuts_summary,
-                        appCount
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        when {
-            isLoading && visibleShortcuts.isEmpty() -> {
-                item {
-                    Text(
-                        text = stringResource(R.string.settings_app_shortcuts_loading),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-            visibleShortcuts.isEmpty() -> {
-                item {
-                    Text(
-                        text = stringResource(R.string.settings_app_shortcuts_empty),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-            else -> {
-                items(
-                    items = shortcutSections,
-                    key = { it.key }
-                ) { entry ->
-                    val appShortcuts = entry.value
-                    AppShortcutSection(
-                        appLabel = appShortcuts.first().appLabel,
-                        shortcuts = appShortcuts,
-                        toggleStates = toggleStates,
-                        onShortcutClick = { shortcut ->
-                            launchStaticShortcut(context, shortcut)
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppShortcutSection(
-    appLabel: String,
-    shortcuts: List<StaticShortcut>,
-    toggleStates: MutableMap<String, Boolean>,
-    onShortcutClick: (StaticShortcut) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(AppShortcutSpacing.sectionSpacing)) {
-        Text(
-            text = appLabel,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        SettingsCard {
-            Column {
-                shortcuts.forEachIndexed { index, shortcut ->
-                    val toggleKey = shortcutKey(shortcut)
-                    key(toggleKey) {
-                        ShortcutRow(
-                            shortcut = shortcut,
-                            checked = toggleStates[toggleKey] ?: true,
-                            onCheckedChange = { enabled ->
-                                toggleStates[toggleKey] = enabled
-                            },
-                            onClick = { onShortcutClick(shortcut) }
-                        )
-                    }
-                    if (index < shortcuts.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ShortcutRow(
-    shortcut: StaticShortcut,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    onClick: () -> Unit
-) {
-    val displayName = shortcutDisplayName(shortcut)
-    val iconSize = AppShortcutSpacing.iconSize
-    val density = LocalDensity.current
-    val iconSizePx = remember(iconSize, density) {
-        with(density) { iconSize.roundToPx().coerceAtLeast(1) }
-    }
-    val iconBitmap = rememberShortcutIcon(shortcut, iconSizePx)
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = AppShortcutSpacing.cardHorizontalPadding,
-                vertical = AppShortcutSpacing.cardVerticalPadding
-            ),
-        verticalArrangement = Arrangement.spacedBy(AppShortcutSpacing.messageSpacing)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(AppShortcutSpacing.rowSpacing)
-        ) {
-            ShortcutIcon(
-                icon = iconBitmap,
-                displayName = displayName,
-                size = iconSize
-            )
-
-            Text(
-                text = displayName,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
-        }
-
     }
 }
 

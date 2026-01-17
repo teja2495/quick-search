@@ -120,14 +120,6 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 12.dp)
             )
 
-            // App Shortcuts
-            NavigationSectionCard(
-                title = stringResource(R.string.settings_app_shortcuts_title),
-                description = stringResource(R.string.settings_app_shortcuts_desc),
-                onClick = { onNavigateToDetail(SettingsDetailType.APP_SHORTCUTS) },
-                modifier = Modifier.padding(top = 12.dp)
-            )
-
             // Internet Search Section
             Text(
                 text = stringResource(R.string.settings_internet_search_title),
@@ -307,4 +299,3 @@ fun SettingsScreen(
         }
     }
 }
-

@@ -24,7 +24,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -54,7 +53,6 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.settings.additionalSettingsScreen.AdditionalSettingsScreen
 import com.tk.quicksearch.settings.excludedItemsScreen.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
-import com.tk.quicksearch.search.data.AppShortcutsScreen
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
 
@@ -278,30 +276,19 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
                     SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
                     SettingsDetailType.ADDITIONAL_SETTINGS -> stringResource(R.string.settings_additional_settings_title)
-                    SettingsDetailType.APP_SHORTCUTS -> stringResource(R.string.settings_app_shortcuts_title)
                 },
                 onBack = callbacks.onBack,
                 trailingContent = null
             )
 
-            val contentModifier = if (detailType == SettingsDetailType.APP_SHORTCUTS) {
-                Modifier
-                    .fillMaxSize()
-                    .padding(
-                        start = SettingsSpacing.contentHorizontalPadding,
-                        end = SettingsSpacing.contentHorizontalPadding,
-                        bottom = SettingsSpacing.sectionTopPadding
-                    )
-            } else {
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(
-                        start = SettingsSpacing.contentHorizontalPadding,
-                        end = SettingsSpacing.contentHorizontalPadding,
-                        bottom = SettingsSpacing.sectionTopPadding
-                    )
-            }
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(
+                    start = SettingsSpacing.contentHorizontalPadding,
+                    end = SettingsSpacing.contentHorizontalPadding,
+                    bottom = SettingsSpacing.sectionTopPadding
+                )
 
             Column(
                 modifier = contentModifier
@@ -370,11 +357,6 @@ private fun SettingsDetailScreen(
                             onRefreshContacts = { callbacks.onRefreshContacts(true) },
                             onRefreshFiles = { callbacks.onRefreshFiles(true) },
                             showTitle = false
-                        )
-                    }
-                    SettingsDetailType.APP_SHORTCUTS -> {
-                        AppShortcutsScreen(
-                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
@@ -456,6 +438,5 @@ private fun SettingsDetailHeader(
 enum class SettingsDetailType {
     SEARCH_ENGINES,
     EXCLUDED_ITEMS,
-    ADDITIONAL_SETTINGS,
-    APP_SHORTCUTS
+    ADDITIONAL_SETTINGS
 }

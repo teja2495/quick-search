@@ -1,8 +1,8 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.SearchSection
 
 /**
  * Preferences for UI-related settings such as layout, messaging app, banners, etc.
@@ -231,7 +231,12 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setStringListPref(UiPreferences.KEY_SECTION_ORDER, order)
     }
 
-    fun getDisabledSections(): Set<String> = getStringSet(UiPreferences.KEY_DISABLED_SECTIONS)
+    fun getDisabledSections(): Set<String> {
+        if (!prefs.contains(UiPreferences.KEY_DISABLED_SECTIONS)) {
+            return setOf(SearchSection.APP_SHORTCUTS.name)
+        }
+        return getStringSet(UiPreferences.KEY_DISABLED_SECTIONS)
+    }
 
     fun setDisabledSections(disabled: Set<String>) {
         prefs.edit().putStringSet(UiPreferences.KEY_DISABLED_SECTIONS, disabled).apply()
