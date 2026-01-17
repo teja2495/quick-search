@@ -244,6 +244,8 @@
          ============================================================================ -->
     <string name="settings_app_labels_title">Appearance</string>
     <string name="settings_wallpaper_background_toggle">Wallpaper background</string>
+    <string name="settings_wallpaper_transparency_label">Transparency</string>
+    <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
     <string name="settings_icon_pack_title">Icon Pack</string>

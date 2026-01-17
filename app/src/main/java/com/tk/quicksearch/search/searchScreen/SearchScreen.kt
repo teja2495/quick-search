@@ -444,7 +444,9 @@ fun SearchScreen(
         // Background
         SearchScreenBackground(
                 showWallpaperBackground = state.showWallpaperBackground,
-                wallpaperBitmap = wallpaperBitmap
+                wallpaperBitmap = wallpaperBitmap,
+                wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = state.wallpaperBlurRadius
         )
 
         // Main content

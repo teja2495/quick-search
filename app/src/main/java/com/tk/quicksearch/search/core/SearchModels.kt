@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(val packageName: String, val label: String)
@@ -195,6 +196,8 @@ data class SearchUiState(
         val isWhatsAppInstalled: Boolean = false,
         val isTelegramInstalled: Boolean = false,
         val showWallpaperBackground: Boolean = true,
+        val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
+        val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
         val clearQueryAfterSearchEngine: Boolean = false,
         val showAllResults: Boolean = false,
         val selectedIconPackPackage: String? = null,

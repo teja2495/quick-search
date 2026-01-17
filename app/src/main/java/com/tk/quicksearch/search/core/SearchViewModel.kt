@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler
@@ -282,6 +283,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true
+    private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
+    private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     private var clearQueryAfterSearchEngine: Boolean = false
     private var lockedShortcutEngine: SearchEngine? = null
     private var showAllResults: Boolean = false
@@ -461,6 +464,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         showWallpaperBackground = prefs.showWallpaperBackground
+        wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
+        wallpaperBlurRadius = prefs.wallpaperBlurRadius
         clearQueryAfterSearchEngine = prefs.clearQueryAfterSearchEngine
         showAllResults = prefs.showAllResults
         sortAppsByUsageEnabled = prefs.sortAppsByUsage
@@ -473,6 +478,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     keyboardAlignedLayout = keyboardAlignedLayout,
                     directDialEnabled = directDialEnabled,
                     showWallpaperBackground = showWallpaperBackground,
+                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = wallpaperBlurRadius,
                     clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                     showAllResults = showAllResults,
                     sortAppsByUsageEnabled = sortAppsByUsageEnabled,
@@ -1192,6 +1199,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             userPreferences.setShowWallpaperBackground(showWallpaper)
             showWallpaperBackground = showWallpaper
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
+        }
+    }
+
+    fun setWallpaperBackgroundAlpha(alpha: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val sanitizedAlpha = alpha.coerceIn(0f, 1f)
+            userPreferences.setWallpaperBackgroundAlpha(sanitizedAlpha)
+            wallpaperBackgroundAlpha = sanitizedAlpha
+            _uiState.update { it.copy(wallpaperBackgroundAlpha = sanitizedAlpha) }
+        }
+    }
+
+    fun setWallpaperBlurRadius(radius: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val sanitizedRadius = radius.coerceIn(0f, UiPreferences.MAX_WALLPAPER_BLUR_RADIUS)
+            userPreferences.setWallpaperBlurRadius(sanitizedRadius)
+            wallpaperBlurRadius = sanitizedRadius
+            _uiState.update { it.copy(wallpaperBlurRadius = sanitizedRadius) }
         }
     }
 

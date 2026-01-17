@@ -52,6 +52,8 @@ class UserAppPreferences(context: Context) {
         val hasSeenDirectDialChoice: Boolean,
         val hasSeenSearchEngineOnboarding: Boolean,
         val showWallpaperBackground: Boolean,
+        val wallpaperBackgroundAlpha: Float,
+        val wallpaperBlurRadius: Float,
         val clearQueryAfterSearchEngine: Boolean,
         val showAllResults: Boolean,
         val sortAppsByUsage: Boolean,
@@ -75,6 +77,8 @@ class UserAppPreferences(context: Context) {
             hasSeenDirectDialChoice = contactPreferences.hasSeenDirectDialChoice(),
             hasSeenSearchEngineOnboarding = searchEnginePreferences.hasSeenSearchEngineOnboarding(),
             showWallpaperBackground = uiPreferences.shouldShowWallpaperBackground(),
+            wallpaperBackgroundAlpha = uiPreferences.getWallpaperBackgroundAlpha(),
+            wallpaperBlurRadius = uiPreferences.getWallpaperBlurRadius(),
             clearQueryAfterSearchEngine = uiPreferences.shouldClearQueryAfterSearchEngine(),
             showAllResults = uiPreferences.shouldShowAllResults(),
             sortAppsByUsage = uiPreferences.shouldSortAppsByUsage(),
@@ -342,6 +346,14 @@ class UserAppPreferences(context: Context) {
     fun shouldShowWallpaperBackground(): Boolean = uiPreferences.shouldShowWallpaperBackground()
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) = uiPreferences.setShowWallpaperBackground(showWallpaper)
+
+    fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
+
+    fun setWallpaperBackgroundAlpha(alpha: Float) = uiPreferences.setWallpaperBackgroundAlpha(alpha)
+
+    fun getWallpaperBlurRadius(): Float = uiPreferences.getWallpaperBlurRadius()
+
+    fun setWallpaperBlurRadius(radius: Float) = uiPreferences.setWallpaperBlurRadius(radius)
 
     fun shouldClearQueryAfterSearchEngine(): Boolean = uiPreferences.shouldClearQueryAfterSearchEngine()
 

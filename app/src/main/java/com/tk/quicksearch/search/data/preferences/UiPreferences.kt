@@ -74,6 +74,38 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
     }
 
+    fun getWallpaperBackgroundAlpha(): Float {
+        return prefs.getFloat(
+            UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
+            UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
+        )
+    }
+
+    fun setWallpaperBackgroundAlpha(alpha: Float) {
+        prefs.edit()
+            .putFloat(
+                UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
+                alpha.coerceIn(0f, 1f)
+            )
+            .apply()
+    }
+
+    fun getWallpaperBlurRadius(): Float {
+        return prefs.getFloat(
+            UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+            UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
+        )
+    }
+
+    fun setWallpaperBlurRadius(radius: Float) {
+        prefs.edit()
+            .putFloat(
+                UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+                radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS)
+            )
+            .apply()
+    }
+
     fun shouldClearQueryAfterSearchEngine(): Boolean = getBooleanPref(UiPreferences.KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, true)
 
     fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
@@ -366,6 +398,8 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
+        const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
+        const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
         const val KEY_SHOW_ALL_RESULTS = "show_all_results"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
@@ -398,6 +432,10 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_RECENT_QUERIES = "recent_queries"
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
         const val KEY_RECENT_QUERIES_COUNT = "recent_queries_count"
+
+        const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA = 0.5f
+        const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
+        const val MAX_WALLPAPER_BLUR_RADIUS = 40f
 
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"

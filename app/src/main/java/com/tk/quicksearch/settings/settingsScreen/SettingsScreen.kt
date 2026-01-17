@@ -160,6 +160,8 @@ fun SettingsScreen(
                 keyboardAlignedLayout = state.keyboardAlignedLayout,
                 onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
                 showWallpaperBackground = state.showWallpaperBackground,
+                wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = state.wallpaperBlurRadius,
                 onToggleShowWallpaperBackground = { enabled ->
                     if (enabled && !hasFilePermission) {
                         // Request files permission when user tries to enable wallpaper
@@ -168,6 +170,8 @@ fun SettingsScreen(
                         callbacks.onToggleShowWallpaperBackground(enabled)
                     }
                 },
+                onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
+                onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
                 hasFilePermission = hasFilePermission,
                 iconPackTitle = stringResource(R.string.settings_icon_pack_title),
                 iconPackDescription = if (hasIconPacks) {

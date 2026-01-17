@@ -19,11 +19,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 
 @Composable
 internal fun SearchScreenBackground(
     showWallpaperBackground: Boolean,
     wallpaperBitmap: ImageBitmap?,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
     modifier: Modifier = Modifier
 ) {
     // Check if we're in dark mode by checking the background color luminance
@@ -38,6 +41,8 @@ internal fun SearchScreenBackground(
     // Track if the animation has already played (only animate first time)
     var hasAnimated by remember { mutableStateOf(false) }
     val shouldAnimate = showWallpaperBackground && wallpaperBitmap != null && !hasAnimated
+    val overlayAlpha = wallpaperBackgroundAlpha.coerceIn(0f, 1f)
+    val blurRadius = wallpaperBlurRadius.coerceIn(0f, UiPreferences.MAX_WALLPAPER_BLUR_RADIUS)
 
     // Animate fade-in only the first time wallpaper background becomes visible
     val wallpaperAlpha = animateFloatAsState(
@@ -55,7 +60,7 @@ internal fun SearchScreenBackground(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .blur(radius = 20.dp)
+                        .blur(radius = blurRadius.dp)
                         .graphicsLayer(alpha = wallpaperAlpha.value),
                     contentScale = ContentScale.FillBounds
                 )
@@ -65,7 +70,7 @@ internal fun SearchScreenBackground(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f))
+                            .background(Color.Black.copy(alpha = overlayAlpha))
                             .graphicsLayer(alpha = wallpaperAlpha.value)
                     )
                 } else {
@@ -73,7 +78,7 @@ internal fun SearchScreenBackground(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.White.copy(alpha = 0.3f))
+                            .background(Color.White.copy(alpha = overlayAlpha))
                             .graphicsLayer(alpha = wallpaperAlpha.value)
                     )
                 }

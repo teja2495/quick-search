@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -36,6 +37,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.settings.SettingsToggleRow
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 
 /**
  * Combined navigation card for excluded items and additional settings with divider.
@@ -305,7 +307,11 @@ fun CombinedAppearanceCard(
     keyboardAlignedLayout: Boolean,
     onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    onWallpaperBlurRadiusChange: (Float) -> Unit,
     hasFilePermission: Boolean = true,
     iconPackTitle: String,
     iconPackDescription: String,
@@ -344,6 +350,66 @@ fun CombinedAppearanceCard(
                         onToggleShowWallpaperBackground(enabled)
                     }
                 )
+            }
+
+            if (showWallpaperBackground && hasFilePermission) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_wallpaper_transparency_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Slider(
+                            value = wallpaperBackgroundAlpha,
+                            onValueChange = onWallpaperBackgroundAlphaChange,
+                            valueRange = 0f..1f,
+                            steps = 9,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                            textAlign = TextAlign.End
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.settings_wallpaper_blur_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Slider(
+                            value = wallpaperBlurRadius,
+                            onValueChange = onWallpaperBlurRadiusChange,
+                            valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
+                            steps = 7,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
             }
 
             // Divider
