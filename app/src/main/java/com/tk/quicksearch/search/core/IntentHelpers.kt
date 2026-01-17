@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import com.tk.quicksearch.R
@@ -19,6 +21,7 @@ import com.tk.quicksearch.util.PackageConstants
  */
 object IntentHelpers {
 
+    private const val EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY = "com.android.externalstorage.documents"
 
     /**
      * Creates an intent with package URI and NEW_TASK flag.
@@ -302,6 +305,11 @@ object IntentHelpers {
      * Opens a file with appropriate app.
      */
     fun openFile(context: Application, deviceFile: DeviceFile, onShowToast: ((Int, String?) -> Unit)? = null) {
+        if (deviceFile.isDirectory) {
+            openDirectory(context, deviceFile, onShowToast)
+            return
+        }
+
         val mimeType = deviceFile.mimeType ?: "*/*"
 
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -318,5 +326,79 @@ object IntentHelpers {
         }
     }
 
+    private fun openDirectory(
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null
+    ) {
+        val documentsUri = buildDocumentsDirectoryUri(deviceFile)
+        if (documentsUri != null) {
+            val documentsIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(documentsUri, DocumentsContract.Document.MIME_TYPE_DIR)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            try {
+                context.startActivity(documentsIntent)
+                return
+            } catch (_: ActivityNotFoundException) {
+            } catch (_: SecurityException) {
+            }
+        }
+
+        val primaryIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(deviceFile.uri, DocumentsContract.Document.MIME_TYPE_DIR)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        try {
+            context.startActivity(primaryIntent)
+            return
+        } catch (_: ActivityNotFoundException) {
+        } catch (_: SecurityException) {
+        }
+
+        val fallbackIntent = Intent(Intent.ACTION_VIEW).apply {
+            data = deviceFile.uri
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        try {
+            context.startActivity(fallbackIntent)
+        } catch (_: ActivityNotFoundException) {
+            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+        } catch (_: SecurityException) {
+            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+        }
+    }
+
+    private fun buildDocumentsDirectoryUri(deviceFile: DeviceFile): Uri? {
+        val relativePath = deviceFile.relativePath
+            ?.trim()
+            ?.trimStart('/')
+            ?.trimEnd('/')
+        val displayName = deviceFile.displayName.trim().trim('/')
+        if (displayName.isBlank()) return null
+
+        val basePath = when {
+            relativePath.isNullOrBlank() -> displayName
+            relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
+            else -> "$relativePath/$displayName"
+        }
+
+        val volumeId = toDocumentVolumeId(deviceFile.volumeName) ?: return null
+        val documentId = "$volumeId:$basePath"
+        return DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY, documentId)
+    }
+
+    private fun toDocumentVolumeId(volumeName: String?): String? {
+        if (volumeName.isNullOrBlank()) return "primary"
+        return when (volumeName) {
+            MediaStore.VOLUME_EXTERNAL_PRIMARY,
+            "external_primary",
+            "external" -> "primary"
+            else -> volumeName
+        }
+    }
 
 }

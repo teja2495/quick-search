@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -298,7 +299,11 @@ private fun FileResultRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = Icons.Rounded.InsertDriveFile,
+                imageVector = if (deviceFile.isDirectory) {
+                    Icons.Rounded.Folder
+                } else {
+                    Icons.Rounded.InsertDriveFile
+                },
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier

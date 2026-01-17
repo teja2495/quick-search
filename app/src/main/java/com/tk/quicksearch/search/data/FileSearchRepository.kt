@@ -19,14 +19,28 @@ class FileSearchRepository(
     private val contentResolver = context.contentResolver
 
     companion object {
-        private val FILE_PROJECTION = arrayOf(
-            MediaStore.Files.FileColumns._ID,
-            MediaStore.Files.FileColumns.DISPLAY_NAME,
-            MediaStore.Files.FileColumns.MIME_TYPE,
-            MediaStore.Files.FileColumns.DATE_MODIFIED
-        )
+        private const val COLUMN_FORMAT = "format"
+
+        private val FILE_PROJECTION = buildFileProjection()
 
         private const val DATE_MODIFIED_SORT = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+
+        private fun buildFileProjection(): Array<String> {
+            val projection = mutableListOf(
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
+                COLUMN_FORMAT
+            )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                projection.add(MediaStore.MediaColumns.RELATIVE_PATH)
+                projection.add(MediaStore.MediaColumns.VOLUME_NAME)
+            }
+
+            return projection.toTypedArray()
+        }
     }
 
     fun hasPermission(): Boolean = PermissionUtils.hasFileAccessPermission(context)
@@ -63,7 +77,7 @@ class FileSearchRepository(
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedQuery = normalizeQuery(query)
-        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND format != ${MtpConstants.FORMAT_ASSOCIATION} AND LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%'"
+        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND (format = ${MtpConstants.FORMAT_ASSOCIATION} OR LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%')"
         val selectionArgs = arrayOf("%$normalizedQuery%")
         val uri = getFilesContentUri()
 
@@ -121,7 +135,10 @@ class FileSearchRepository(
         val idIndex: Int,
         val nameIndex: Int,
         val mimeIndex: Int,
-        val modifiedIndex: Int
+        val modifiedIndex: Int,
+        val formatIndex: Int,
+        val relativePathIndex: Int,
+        val volumeNameIndex: Int
     )
 
     private fun getColumnIndices(cursor: Cursor): ColumnIndices {
@@ -129,7 +146,10 @@ class FileSearchRepository(
             idIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID),
             nameIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME),
             mimeIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE),
-            modifiedIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+            modifiedIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED),
+            formatIndex = cursor.getColumnIndex(COLUMN_FORMAT),
+            relativePathIndex = cursor.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH),
+            volumeNameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.VOLUME_NAME)
         )
     }
 
@@ -153,6 +173,19 @@ class FileSearchRepository(
         } else {
             cursor.getLong(columnIndices.modifiedIndex)
         }
+        val isDirectory = columnIndices.formatIndex != -1 &&
+            !cursor.isNull(columnIndices.formatIndex) &&
+            cursor.getInt(columnIndices.formatIndex) == MtpConstants.FORMAT_ASSOCIATION
+        val relativePath = if (columnIndices.relativePathIndex != -1 && !cursor.isNull(columnIndices.relativePathIndex)) {
+            cursor.getString(columnIndices.relativePathIndex)
+        } else {
+            null
+        }
+        val volumeName = if (columnIndices.volumeNameIndex != -1 && !cursor.isNull(columnIndices.volumeNameIndex)) {
+            cursor.getString(columnIndices.volumeNameIndex)
+        } else {
+            null
+        }
 
         // For URI-based queries, use the original URI to maintain consistency with pinned files.
         // For search queries, build the URI from the file ID.
@@ -167,9 +200,10 @@ class FileSearchRepository(
             uri = fileUri,
             displayName = name,
             mimeType = mimeType,
-            lastModified = modified
+            lastModified = modified,
+            isDirectory = isDirectory,
+            relativePath = relativePath,
+            volumeName = volumeName
         )
     }
 }
-
-

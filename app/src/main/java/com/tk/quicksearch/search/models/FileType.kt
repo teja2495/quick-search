@@ -53,6 +53,9 @@ object FileTypeUtils {
     }
     
     fun getFileType(file: DeviceFile): FileType {
+        if (file.isDirectory) {
+            return FileType.DOCUMENTS
+        }
         return getFileType(file.mimeType)
     }
 }

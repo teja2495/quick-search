@@ -9,5 +9,8 @@ data class DeviceFile(
     val uri: Uri,
     val displayName: String,
     val mimeType: String?,
-    val lastModified: Long
+    val lastModified: Long,
+    val isDirectory: Boolean,
+    val relativePath: String? = null,
+    val volumeName: String? = null
 )

@@ -57,6 +57,6 @@ class FileManagementHandler(
     fun excludeFile(deviceFile: DeviceFile) = excludeItem(deviceFile)
     fun removeExcludedFile(deviceFile: DeviceFile) = removeExcludedItem(deviceFile)
     fun setFileNickname(deviceFile: DeviceFile, nickname: String?) = setItemNickname(deviceFile, nickname)
-    fun getFileNickname(uri: String): String? = getItemNickname(DeviceFile(Uri.parse(uri), "", null, 0L))
+    fun getFileNickname(uri: String): String? = getItemNickname(DeviceFile(Uri.parse(uri), "", null, 0L, false))
     fun clearAllExcludedFiles() = clearAllExcludedItems()
 }

@@ -105,6 +105,7 @@ class SearchOperations(
                 fileType in enabledFileTypes &&
                 !excludedFileUris.contains(file.uri.toString()) &&
                 !FileUtils.isFileExtensionExcluded(file.displayName, excludedFileExtensions) &&
+                !isSystemFolder(file) &&
                 !isApkFile(file) &&
                 !isSystemFile(file)
             }
@@ -134,5 +135,12 @@ class SearchOperations(
         }
 
         return extension in SYSTEM_EXCLUDED_EXTENSIONS
+    }
+
+    private fun isSystemFolder(deviceFile: DeviceFile): Boolean {
+        if (!deviceFile.isDirectory) return false
+
+        val name = deviceFile.displayName.lowercase(Locale.getDefault())
+        return name.startsWith("com.")
     }
 }
