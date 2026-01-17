@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.mutableStateOf
 
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.navigation.MainContent
@@ -20,6 +21,7 @@ import com.tk.quicksearch.app.ReviewHelper
 import com.tk.quicksearch.app.UpdateHelper
 import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
 import com.tk.quicksearch.util.WallpaperUtils
+import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 
@@ -34,6 +36,8 @@ class MainActivity : ComponentActivity() {
     ) { result ->
         voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
     }
+    private val showReviewPromptDialog = mutableStateOf(false)
+    private val showFeedbackDialog = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Must be called before super.onCreate for edge-to-edge to work correctly on all versions
@@ -71,7 +75,9 @@ class MainActivity : ComponentActivity() {
                 // Only show review prompt if no update check was performed
                 // This prevents both prompts from appearing simultaneously
                 if (!userPreferences.hasShownUpdateCheckThisSession()) {
-                    ReviewHelper.requestReviewIfEligible(this, userPreferences)
+                    if (userPreferences.shouldShowReviewPrompt()) {
+                        showReviewPromptDialog.value = true
+                    }
                 }
             }
         }
@@ -105,6 +111,30 @@ class MainActivity : ComponentActivity() {
                     searchViewModel = searchViewModel,
                     onSearchBackPressed = { moveTaskToBack(true) }
                 )
+                if (showReviewPromptDialog.value) {
+                    EnjoyingAppDialog(
+                        onYes = {
+                            showReviewPromptDialog.value = false
+                            ReviewHelper.requestReviewIfEligible(this@MainActivity, userPreferences)
+                        },
+                        onNo = {
+                            showReviewPromptDialog.value = false
+                            showFeedbackDialog.value = true
+                            userPreferences.recordReviewPromptTime()
+                            userPreferences.recordAppOpenCountAtPrompt()
+                            userPreferences.incrementReviewPromptedCount()
+                        },
+                        onDismiss = { showReviewPromptDialog.value = false }
+                    )
+                }
+                if (showFeedbackDialog.value) {
+                    SendFeedbackDialog(
+                        onSend = { feedbackText ->
+                            FeedbackUtils.launchFeedbackEmail(this@MainActivity, feedbackText)
+                        },
+                        onDismiss = { showFeedbackDialog.value = false }
+                    )
+                }
             }
         }
     }

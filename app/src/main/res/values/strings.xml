@@ -180,6 +180,13 @@
     <string name="dialog_nickname_hint">Nickname</string>
     <string name="dialog_gemini_api_key_title">Enter Gemini API Key</string>
     <string name="dialog_gemini_api_key_message">Enter your Gemini API key to enable Direct Search feature.</string>
+    <string name="dialog_enjoying_app_title">Do you find this app useful?</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    <string name="dialog_feedback_title">Send feedback</string>
+    <string name="dialog_feedback_hint">Tell us what we can improve</string>
+    <string name="dialog_send">Send</string>
+    <string name="dialog_close">Close</string>
     <string name="dialog_direct_dial_title">Choose how to call</string>
     <string name="dialog_direct_dial_option_direct">Call Directly</string>
     <string name="dialog_direct_dial_option_direct_desc">Place the call immediately (requires calling permission).</string>

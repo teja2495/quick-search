@@ -64,10 +64,14 @@ class AppUsageRepository(
         val resolveInfos = queryLaunchableApps()
         val usageMap = queryUsageStatsMap()
         val currentPackageName = context.packageName
+        val defaultLauncherPackageName = getDefaultLauncherPackageName()
 
         val apps = resolveInfos
             .distinctBy { it.activityInfo.packageName }
-            .filter { it.activityInfo.packageName != currentPackageName }
+            .filter { resolveInfo ->
+                val packageName = resolveInfo.activityInfo.packageName
+                packageName != currentPackageName && packageName != defaultLauncherPackageName
+            }
             .map { resolveInfo ->
                 createAppInfo(resolveInfo, usageMap, launchCounts)
             }
@@ -105,6 +109,25 @@ class AppUsageRepository(
             @Suppress("DEPRECATION")
             packageManager.queryIntentActivities(launcherIntent, PackageManager.MATCH_ALL)
         }
+    }
+
+    private fun getDefaultLauncherPackageName(): String? {
+        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+        }
+
+        val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.resolveActivity(
+                homeIntent,
+                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        }
+
+        val packageName = resolveInfo?.activityInfo?.packageName
+        return packageName?.takeIf { it.isNotBlank() && it != "android" }
     }
 
     private fun createAppInfo(
@@ -169,4 +192,3 @@ class AppUsageRepository(
             .thenBy { it.appName.lowercase(Locale.getDefault()) }
     }
 }
-

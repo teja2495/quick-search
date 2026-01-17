@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.tk.quicksearch.search.models.FileType
+import org.json.JSONArray
+import org.json.JSONException
 
 /** Utility class containing common SharedPreferences operations. */
 object PreferenceUtils {
@@ -36,16 +38,29 @@ object PreferenceUtils {
     }
 
     fun getStringListPref(prefs: SharedPreferences, key: String): List<String> {
-        val orderString = prefs.getString(key, null)
-        return if (orderString.isNullOrBlank()) {
+        val stored = prefs.getString(key, null)
+        return if (stored.isNullOrBlank()) {
             emptyList()
-        } else {
-            orderString.split(",").filter { it.isNotBlank() }
+        } else try {
+            // Prefer JSON storage; fall back to legacy comma-separated values.
+            val jsonArray = JSONArray(stored)
+            val items = mutableListOf<String>()
+            for (index in 0 until jsonArray.length()) {
+                val item = jsonArray.optString(index)
+                if (item.isNotBlank()) {
+                    items.add(item)
+                }
+            }
+            items
+        } catch (_: JSONException) {
+            stored.split(",").filter { it.isNotBlank() }
         }
     }
 
     fun setStringListPref(prefs: SharedPreferences, key: String, order: List<String>) {
-        prefs.edit().putString(key, order.joinToString(",")).apply()
+        val jsonArray = JSONArray()
+        order.forEach { jsonArray.put(it) }
+        prefs.edit().putString(key, jsonArray.toString()).apply()
     }
 
     fun updateStringSet(

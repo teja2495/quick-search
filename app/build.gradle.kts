@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.play.review.ktx)
     implementation(libs.play.app.update.ktx)
+    implementation(libs.libphonenumber)
 
     implementation(libs.reorderable)
     testImplementation(libs.junit)

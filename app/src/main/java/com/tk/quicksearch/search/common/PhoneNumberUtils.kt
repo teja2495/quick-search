@@ -1,5 +1,9 @@
 package com.tk.quicksearch.search.utils
 
+import com.google.i18n.phonenumbers.NumberParseException
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import java.util.Locale
+
 /**
  * Utility functions for phone number normalization and duplicate detection.
  */
@@ -7,6 +11,7 @@ object PhoneNumberUtils {
 
     private const val MIN_COUNTRY_CODE_LENGTH = 1
     private const val MAX_COUNTRY_CODE_LENGTH = 3
+    private val phoneNumberUtil = PhoneNumberUtil.getInstance()
 
     /**
      * Extracts all digits from a phone number string.
@@ -109,20 +114,36 @@ object PhoneNumberUtils {
     fun formatPhoneNumberForDisplay(phoneNumber: String): String {
         if (phoneNumber.isBlank()) return phoneNumber
 
-        val digits = extractDigits(phoneNumber)
+        val trimmed = phoneNumber.trim()
+        val digits = extractDigits(trimmed)
         if (digits.isEmpty()) return phoneNumber
 
-        // If starts with +, format as international number
-        if (phoneNumber.trim().startsWith("+")) {
+        val region = Locale.getDefault().country
+        val regionCode = if (region.isNullOrBlank()) "ZZ" else region
+        val parseRegion = if (trimmed.startsWith("+")) "ZZ" else regionCode
+
+        return try {
+            val parsed = phoneNumberUtil.parse(trimmed, parseRegion)
+            val format = if (trimmed.startsWith("+")) {
+                PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL
+            } else {
+                PhoneNumberUtil.PhoneNumberFormat.NATIONAL
+            }
+            phoneNumberUtil.format(parsed, format)
+        } catch (e: NumberParseException) {
+            formatPhoneNumberFallback(trimmed, digits)
+        }
+    }
+
+    private fun formatPhoneNumberFallback(phoneNumber: String, digits: String): String {
+        if (phoneNumber.startsWith("+")) {
             return formatInternationalNumber("+$digits")
         }
 
-        // Check if it's a US/Canada number (10 digits, no country code)
         if (digits.length == 10) {
             return formatUSNumber(digits)
         }
 
-        // For other numbers, add spaces every 3-4 digits
         return formatInternationalNumber(digits)
     }
 

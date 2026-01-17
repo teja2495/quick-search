@@ -34,11 +34,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.SettingsCard
 import com.tk.quicksearch.settings.SettingsSectionTitle
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.FeedbackUtils
 
 // Constants for consistent spacing
 private object FeedbackSpacing {
@@ -69,36 +69,7 @@ fun FeedbackSection(
     val context = LocalContext.current
     
     val onSendFeedback = {
-        val versionName = try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName ?: "Unknown"
-        } catch (e: Exception) {
-            "Unknown"
-        }
-        
-        val androidVersion = android.os.Build.VERSION.RELEASE
-        val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-        
-        val emailBody = """
-            
-
-            
-            ---
-            Android Version: $androidVersion
-            Device: $deviceModel
-        """.trimIndent()
-
-        val subject = "Quick Search Feedback - v$versionName"
-
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}&body=${Uri.encode(emailBody)}")
-        }
-
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            // Handle case where no email app is installed
-        }
+        FeedbackUtils.launchFeedbackEmail(context, null)
     }
     
     val onRateApp = {
@@ -239,4 +210,3 @@ private fun FeedbackRow(
         }
     }
 }
-
