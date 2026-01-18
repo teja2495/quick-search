@@ -24,7 +24,6 @@ class ContactActionHandler(
     private val getMessagingApp: () -> MessagingApp,
     private val getDirectDialEnabled: () -> Boolean,
     private val getHasSeenDirectDialChoice: () -> Boolean,
-    private val getClearQueryAfterSearchEngine: () -> Boolean,
     private val getCurrentState: () -> SearchUiState,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit,
@@ -192,9 +191,8 @@ class ContactActionHandler(
     }
 
     private fun clearQueryIfEnabled() {
-        if (getClearQueryAfterSearchEngine()) {
-            clearQuery()
-        }
+        // Always clear query after contact action
+        clearQuery()
     }
 
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) {

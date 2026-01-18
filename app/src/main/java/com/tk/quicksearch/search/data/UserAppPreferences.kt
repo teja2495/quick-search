@@ -54,10 +54,7 @@ class UserAppPreferences(context: Context) {
         val showWallpaperBackground: Boolean,
         val wallpaperBackgroundAlpha: Float,
         val wallpaperBlurRadius: Float,
-        val clearQueryAfterSearchEngine: Boolean,
         val showAllResults: Boolean,
-        val sortAppsByUsage: Boolean,
-        val fuzzyAppSearchEnabled: Boolean,
         val amazonDomain: String?,
         val pinnedPackages: Set<String>,
         val suggestionHiddenPackages: Set<String>,
@@ -80,10 +77,7 @@ class UserAppPreferences(context: Context) {
             showWallpaperBackground = uiPreferences.shouldShowWallpaperBackground(),
             wallpaperBackgroundAlpha = uiPreferences.getWallpaperBackgroundAlpha(),
             wallpaperBlurRadius = uiPreferences.getWallpaperBlurRadius(),
-            clearQueryAfterSearchEngine = uiPreferences.shouldClearQueryAfterSearchEngine(),
             showAllResults = uiPreferences.shouldShowAllResults(),
-            sortAppsByUsage = uiPreferences.shouldSortAppsByUsage(),
-            fuzzyAppSearchEnabled = uiPreferences.isFuzzyAppSearchEnabled(),
             amazonDomain = amazonPreferences.getAmazonDomain(),
             pinnedPackages = appPreferences.getPinnedPackages(),
             suggestionHiddenPackages = appPreferences.getSuggestionHiddenPackages(),
@@ -369,13 +363,7 @@ class UserAppPreferences(context: Context) {
 
     fun setSelectedIconPackPackage(packageName: String?) = uiPreferences.setSelectedIconPackPackage(packageName)
 
-    fun shouldSortAppsByUsage(): Boolean = uiPreferences.shouldSortAppsByUsage()
 
-    fun setSortAppsByUsage(sortAppsByUsage: Boolean) = uiPreferences.setSortAppsByUsage(sortAppsByUsage)
-
-    fun isFuzzyAppSearchEnabled(): Boolean = uiPreferences.isFuzzyAppSearchEnabled()
-
-    fun setFuzzyAppSearchEnabled(enabled: Boolean) = uiPreferences.setFuzzyAppSearchEnabled(enabled)
 
     fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 

@@ -297,11 +297,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showWallpaperBackground: Boolean = true
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
-    private var clearQueryAfterSearchEngine: Boolean = false
     private var lockedShortcutEngine: SearchEngine? = null
     private var showAllResults: Boolean = false
-    private var sortAppsByUsageEnabled: Boolean = false
-    private var fuzzyAppSearchEnabled: Boolean = false
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
@@ -354,7 +351,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             directSearchHandler.requestDirectSearch(query)
                         },
                         onClearQuery = this::onNavigationTriggered,
-                        clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                         showToastCallback = this::showToast
                 )
 
@@ -366,7 +362,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         getMessagingApp = { messagingHandler.messagingApp },
                         getDirectDialEnabled = { directDialEnabled },
                         getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
-                        getClearQueryAfterSearchEngine = { clearQueryAfterSearchEngine },
                         getCurrentState = { _uiState.value },
                         uiStateUpdater = { update -> _uiState.update(update) },
                         clearQuery = this::onNavigationTriggered,
@@ -459,8 +454,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             applyStartupPreferences(startupPrefs)
 
             // Sync handlers with loaded prefs
-            appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
-            appSearchManager.setFuzzySearchEnabled(fuzzyAppSearchEnabled)
+            appSearchManager.setSortAppsByUsage(true)
+            appSearchManager.setFuzzySearchEnabled(true)
 
             // Now we can compute the full state including pinned/hidden apps
             val lastUpdated = repository.cacheLastUpdatedMillis()
@@ -480,10 +475,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showWallpaperBackground = prefs.showWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
-        clearQueryAfterSearchEngine = prefs.clearQueryAfterSearchEngine
         showAllResults = prefs.showAllResults
-        sortAppsByUsageEnabled = prefs.sortAppsByUsage
-        fuzzyAppSearchEnabled = fuzzySearchConfigManager.isAppFuzzySearchEnabled()
         amazonDomain = prefs.amazonDomain
 
         _uiState.update {
@@ -495,10 +487,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = wallpaperBlurRadius,
-                    clearQueryAfterSearchEngine = clearQueryAfterSearchEngine,
                     showAllResults = showAllResults,
-                    sortAppsByUsageEnabled = sortAppsByUsageEnabled,
-                    fuzzyAppSearchEnabled = fuzzyAppSearchEnabled,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     recentQueriesCount = userPreferences.getRecentQueriesCount(),
@@ -1004,8 +993,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // Automatically perform search with the detected engine
             navigationHandler.openSearchUrl(
                     queryWithoutShortcut.trim(),
-                    engine,
-                    clearQueryAfterSearchEngine
+                    engine
             )
             // Update query to remove shortcut but keep the remaining query
             if (queryWithoutShortcut.isBlank()) {
@@ -1115,11 +1103,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun openAppInfo(packageName: String) = navigationHandler.openAppInfo(packageName)
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
     fun openSearchUrl(query: String, searchEngine: SearchEngine) =
-            navigationHandler.openSearchUrl(query, searchEngine, clearQueryAfterSearchEngine)
-    fun searchIconPacks() = navigationHandler.searchIconPacks(clearQueryAfterSearchEngine)
+            navigationHandler.openSearchUrl(query, searchEngine)
+    fun searchIconPacks() = navigationHandler.searchIconPacks()
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
     fun openContact(contactInfo: ContactInfo) =
-            navigationHandler.openContact(contactInfo, clearQueryAfterSearchEngine)
+            navigationHandler.openContact(contactInfo)
     fun openEmail(email: String) = navigationHandler.openEmail(email)
     fun launchAppShortcut(shortcut: StaticShortcut) {
         val error = launchStaticShortcut(getApplication(), shortcut)
@@ -1283,16 +1271,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) =
             contactActionHandler.handleContactMethod(contactInfo, method)
 
-    fun setClearQueryAfterSearchEngine(clearQuery: Boolean) {
-        updateBooleanPreference(
-                value = clearQuery,
-                preferenceSetter = userPreferences::setClearQueryAfterSearchEngine,
-                stateUpdater = {
-                    clearQueryAfterSearchEngine = it
-                    _uiState.update { state -> state.copy(clearQueryAfterSearchEngine = it) }
-                }
-        )
-    }
 
     fun setShowAllResults(showAllResults: Boolean) {
         updateBooleanPreference(
@@ -1305,27 +1283,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    fun setSortAppsByUsageEnabled(sortAppsByUsageEnabled: Boolean) {
-        updateBooleanPreference(
-                value = sortAppsByUsageEnabled,
-                preferenceSetter = userPreferences::setSortAppsByUsage,
-                stateUpdater = {
-                    _uiState.update { state -> state.copy(sortAppsByUsageEnabled = it) }
-                }
-        )
-        appSearchManager.setSortAppsByUsage(sortAppsByUsageEnabled)
-    }
-
-    fun setFuzzyAppSearchEnabled(enabled: Boolean) {
-        val currentConfig = fuzzySearchConfigManager.getAppFuzzyConfig()
-        val updatedConfig = currentConfig.copy(enabled = enabled)
-        fuzzySearchConfigManager.updateAppFuzzyConfig(updatedConfig)
-
-        fuzzyAppSearchEnabled = enabled
-        _uiState.update { state -> state.copy(fuzzyAppSearchEnabled = enabled) }
-        appSearchManager.setFuzzySearchEnabled(enabled)
-        appSearchManager.setNoMatchPrefix(null)
-    }
 
     fun getEnabledSearchEngines(): List<SearchEngine> =
             searchEngineManager.getEnabledSearchEngines()
@@ -1634,8 +1591,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // Perform search immediately in the detected search engine
             navigationHandler.openSearchUrl(
                     suggestion.trim(),
-                    detectedEngine,
-                    clearQueryAfterSearchEngine
+                    detectedEngine
             )
         } else {
             // No shortcut detected, copy the suggestion text to the search bar

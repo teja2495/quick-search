@@ -29,14 +29,8 @@ import com.tk.quicksearch.ui.theme.DesignTokens
  */
 @Composable
 fun AdditionalSettingsScreen(
-    clearQueryAfterSearchEngine: Boolean,
-    onToggleClearQueryAfterSearchEngine: (Boolean) -> Unit,
     showAllResults: Boolean,
     onToggleShowAllResults: (Boolean) -> Unit,
-    sortAppsByUsageEnabled: Boolean,
-    onToggleSortAppsByUsage: (Boolean) -> Unit,
-    fuzzyAppSearchEnabled: Boolean,
-    onToggleFuzzyAppSearch: (Boolean) -> Unit,
     onSetDefaultAssistant: () -> Unit,
     onAddQuickSettingsTile: () -> Unit = {},
     isDefaultAssistant: Boolean = false,
@@ -63,33 +57,12 @@ fun AdditionalSettingsScreen(
     }
 
     SettingsCard(modifier = modifier) {
-        // Clear query after search engine toggle
-        SettingsToggleRow(
-            title = stringResource(R.string.settings_clear_query_after_search_engine_toggle),
-            checked = clearQueryAfterSearchEngine,
-            onCheckedChange = onToggleClearQueryAfterSearchEngine,
-            isFirstItem = true
-        )
-
         // Show all results toggle
         SettingsToggleRow(
             title = stringResource(R.string.settings_show_all_results_toggle),
             checked = showAllResults,
-            onCheckedChange = onToggleShowAllResults
-        )
-
-        // Sort apps by usage toggle
-        SettingsToggleRow(
-            title = stringResource(R.string.settings_sort_apps_b_usage_toggle),
-            checked = sortAppsByUsageEnabled,
-            onCheckedChange = onToggleSortAppsByUsage,
-        )
-
-        // Fuzzy app search toggle
-        SettingsToggleRow(
-            title = stringResource(R.string.settings_fuzzy_app_search_toggle),
-            checked = fuzzyAppSearchEnabled,
-            onCheckedChange = onToggleFuzzyAppSearch,
+            onCheckedChange = onToggleShowAllResults,
+            isFirstItem = true,
             isLastItem = true
         )
     }

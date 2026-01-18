@@ -19,7 +19,6 @@ class NavigationHandler(
     private val settingsSearchHandler: DeviceSettingsSearchHandler,
     private val onRequestDirectSearch: (String) -> Unit,
     private val onClearQuery: () -> Unit,
-    private val clearQueryAfterSearchEngine: Boolean,
     private val showToastCallback: (Int) -> Unit
 ) {
     private val context: Context get() = application.applicationContext
@@ -75,7 +74,7 @@ class NavigationHandler(
         }
     }
 
-    fun openSearchUrl(query: String, searchEngine: SearchEngine, clearQueryAfterSearchEngine: Boolean) {
+    fun openSearchUrl(query: String, searchEngine: SearchEngine) {
         val trimmedQuery = query.trim()
         if (searchEngine == SearchEngine.DIRECT_SEARCH) {
             onRequestDirectSearch(trimmedQuery)
@@ -97,14 +96,13 @@ class NavigationHandler(
             userPreferences.addRecentQuery(trimmedQuery)
         }
 
-        if (clearQueryAfterSearchEngine) {
-            onClearQuery()
-        }
+        // Always clear query after search
+        onClearQuery()
     }
 
-    fun searchIconPacks(clearQueryAfter: Boolean = false) {
+    fun searchIconPacks() {
         val query = application.getString(R.string.settings_icon_pack_search_query)
-        openSearchUrl(query, SearchEngine.GOOGLE_PLAY, clearQueryAfter)
+        openSearchUrl(query, SearchEngine.GOOGLE_PLAY)
     }
 
     fun openFile(deviceFile: DeviceFile) {
@@ -113,9 +111,8 @@ class NavigationHandler(
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
-        if (clearQueryAfterSearchEngine) {
-            onClearQuery()
-        }
+        // Always clear query after opening file
+        onClearQuery()
     }
 
     fun openSetting(setting: DeviceSetting) {
@@ -123,13 +120,12 @@ class NavigationHandler(
         onClearQuery()
     }
 
-    fun openContact(contactInfo: ContactInfo, clearQueryAfter: Boolean) {
+    fun openContact(contactInfo: ContactInfo) {
         ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
             showToastCallback(stringResId)
         }
-        if (clearQueryAfter) {
-            onClearQuery()
-        }
+        // Always clear query after opening contact
+        onClearQuery()
     }
 
     fun openEmail(email: String) {

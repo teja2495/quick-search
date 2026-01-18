@@ -104,34 +104,34 @@ class UiPreferencesFuzzySearchAdapter(
 ) : FuzzySearchPreferences {
 
     override fun isAppFuzzySearchEnabled(): Boolean {
-        return uiPreferences.isFuzzyAppSearchEnabled()
+        return true // Always enabled by default
     }
 
     override fun setAppFuzzySearchEnabled(enabled: Boolean) {
-        uiPreferences.setFuzzyAppSearchEnabled(enabled)
+        // No-op: always enabled
     }
 
     override fun getAppFuzzyMatchThreshold(): Int {
-        return uiPreferences.getFuzzyAppSearchMatchThreshold()
+        return 70 // Default threshold
     }
 
     override fun setAppFuzzyMatchThreshold(threshold: Int) {
-        uiPreferences.setFuzzyAppSearchMatchThreshold(threshold)
+        // No-op: always use default
     }
 
     override fun getAppFuzzyMinQueryLength(): Int {
-        return uiPreferences.getFuzzyAppSearchMinQueryLength()
+        return 3 // Default min length
     }
 
     override fun setAppFuzzyMinQueryLength(length: Int) {
-        uiPreferences.setFuzzyAppSearchMinQueryLength(length)
+        // No-op: always use default
     }
 
     override fun getAppFuzzyPriority(): Int {
-        return uiPreferences.getFuzzyAppSearchPriority()
+        return 5 // Default priority
     }
 
     override fun setAppFuzzyPriority(priority: Int) {
-        uiPreferences.setFuzzyAppSearchPriority(priority)
+        // No-op: always use default
     }
 }
