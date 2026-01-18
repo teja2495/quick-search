@@ -1,5 +1,6 @@
 package com.tk.quicksearch.onboarding
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,6 +64,7 @@ fun FinalSetupScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.Start

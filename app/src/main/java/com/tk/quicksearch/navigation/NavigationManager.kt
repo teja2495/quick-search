@@ -3,14 +3,6 @@ package com.tk.quicksearch.navigation
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,38 +56,7 @@ fun MainContent(
     var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
     var shouldShowFinalSetup by remember { mutableStateOf(false) }
 
-    AnimatedContent(
-        targetState = currentScreen,
-        transitionSpec = {
-            when {
-                initialState == AppScreen.Permissions && targetState == AppScreen.SearchEngineSetup -> {
-                    slideInHorizontally { width -> width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                }
-                initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.FinalSetup -> {
-                    slideInHorizontally { width -> width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                }
-                initialState == AppScreen.SearchEngineSetup && targetState == AppScreen.Permissions -> {
-                    slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> width } + fadeOut()
-                }
-                initialState == AppScreen.FinalSetup && targetState == AppScreen.SearchEngineSetup -> {
-                    slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> width } + fadeOut()
-                }
-                (initialState == AppScreen.SearchEngineSetup || initialState == AppScreen.FinalSetup) && targetState == AppScreen.Main -> {
-                    slideInHorizontally { width -> width } + fadeIn() togetherWith
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                }
-                else -> {
-                    EnterTransition.None togetherWith ExitTransition.None
-                }
-            }
-        },
-        label = "AppNavigation"
-    ) { targetScreen ->
-        when (targetScreen) {
+    when (currentScreen) {
             AppScreen.Permissions -> {
                 PermissionsScreen(
                     currentStep = 1,
@@ -193,7 +154,6 @@ fun MainContent(
                 )
             }
         }
-    }
 }
 
 @Composable
@@ -214,48 +174,21 @@ private fun NavigationContent(
         }
     }
 
-    AnimatedContent(
-        targetState = destination,
-        transitionSpec = {
-            if (targetState == RootDestination.Settings) {
-                slideInHorizontally { width -> width } + fadeIn() togetherWith
-                    slideOutHorizontally { width -> -width } + fadeOut()
-            } else {
-                slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                    slideOutHorizontally { width -> width } + fadeOut()
-            }
-        },
-        label = "RootNavigation"
-    ) { targetDestination ->
-        when (targetDestination) {
+    when (destination) {
             RootDestination.Settings -> {
-                AnimatedContent(
-                    targetState = settingsDetailType,
-                    transitionSpec = {
-                        if (targetState != null) {
-                            slideInHorizontally { width -> width } + fadeIn() togetherWith
-                                slideOutHorizontally { width -> -width } + fadeOut()
-                        } else {
-                            slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                                slideOutHorizontally { width -> width } + fadeOut()
-                        }
-                    },
-                    label = "SettingsNavigation"
-                ) { targetDetailType ->
-                    if (targetDetailType != null) {
-                        SettingsDetailRoute(
-                            onBack = { onSettingsDetailTypeChange(null) },
-                            viewModel = viewModel,
-                            detailType = targetDetailType
-                        )
-                    } else {
-                        SettingsRoute(
-                            onBack = { onDestinationChange(RootDestination.Search) },
-                            viewModel = viewModel,
-                            onNavigateToDetail = onSettingsDetailTypeChange,
-                            scrollState = settingsScrollState
-                        )
-                    }
+                if (settingsDetailType != null) {
+                    SettingsDetailRoute(
+                        onBack = { onSettingsDetailTypeChange(null) },
+                        viewModel = viewModel,
+                        detailType = settingsDetailType
+                    )
+                } else {
+                    SettingsRoute(
+                        onBack = { onDestinationChange(RootDestination.Search) },
+                        viewModel = viewModel,
+                        onNavigateToDetail = onSettingsDetailTypeChange,
+                        scrollState = settingsScrollState
+                    )
                 }
             }
             RootDestination.Search -> {
@@ -285,5 +218,4 @@ private fun NavigationContent(
                 )
             }
         }
-    }
 }

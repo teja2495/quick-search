@@ -32,6 +32,9 @@ class MainActivity : ComponentActivity() {
     private val showFeedbackDialog = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Set transparent background initially for seamless launch
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+
         // Must be called before super.onCreate for edge-to-edge to work correctly on all versions
         val statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
         val navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
