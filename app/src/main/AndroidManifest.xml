@@ -37,6 +37,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuickSearch">
 
+        <!-- Enable profiling for Android Profiler -->
+        <profileable
+            android:shell="true"
+            android:enabled="true" />
+
         <!-- Main Activity -->
         <activity
             android:name=".app.MainActivity"

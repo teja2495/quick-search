@@ -8,27 +8,26 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.app.ReleaseNotesHandler
 import com.tk.quicksearch.navigation.NavigationHandler
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
+import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler
+import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.apps.AppManagementService
 import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.apps.prefetchAppIcons
-import com.tk.quicksearch.search.fuzzy.FuzzySearchConfigurationManager
 import com.tk.quicksearch.search.calculator.CalculatorHandler
 import com.tk.quicksearch.search.common.PinningHandler
 import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
 import com.tk.quicksearch.search.contacts.utils.ContactManagementHandler
 import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
-import com.tk.quicksearch.search.data.AppUsageRepository
 import com.tk.quicksearch.search.data.AppShortcutRepository
+import com.tk.quicksearch.search.data.AppUsageRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
-import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.launchStaticShortcut
-import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler
-import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -36,6 +35,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.directSearch.DirectSearchHandler
 import com.tk.quicksearch.search.files.FileManagementHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
+import com.tk.quicksearch.search.fuzzy.FuzzySearchConfigurationManager
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
@@ -44,8 +44,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.ShortcutHandler
-import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -93,21 +93,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val updated = updater(state)
             applyContactActionHint(state, updated)
         }
-        // Update visibility states after any UI state change
-        updateVisibilityStates()
+        // Only update visibility states after startup completes to avoid lazy handler init during
+        // first paint
+        if (isStartupComplete) {
+            updateVisibilityStates()
+        }
     }
 
     private fun applyContactActionHint(
-        previous: SearchUiState,
-        updated: SearchUiState
+            previous: SearchUiState,
+            updated: SearchUiState
     ): SearchUiState {
-        val hasContacts =
-            updated.contactResults.isNotEmpty() || updated.pinnedContacts.isNotEmpty()
+        val hasContacts = updated.contactResults.isNotEmpty() || updated.pinnedContacts.isNotEmpty()
         val shouldShowHint =
-            hasContacts &&
-                updated.hasContactPermission &&
-                !updated.showContactActionHint &&
-                !userPreferences.hasSeenContactActionHint()
+                hasContacts &&
+                        updated.hasContactPermission &&
+                        !updated.showContactActionHint &&
+                        !userPreferences.hasSeenContactActionHint()
 
         return if (shouldShowHint) {
             updated.copy(showContactActionHint = true)
@@ -240,10 +242,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     val fileSearchHandler by lazy {
-        FileSearchHandler(
-                fileRepository = fileRepository,
-                userPreferences = userPreferences
-        )
+        FileSearchHandler(fileRepository = fileRepository, userPreferences = userPreferences)
     }
 
     val directSearchHandler by lazy {
@@ -303,6 +302,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
     private var pendingNavigationClear: Boolean = false
+    private var isStartupComplete: Boolean = false
 
     private fun onNavigationTriggered() {
         pendingNavigationClear = true
@@ -415,19 +415,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // This is just a fast JSON parse
         val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
 
-        // Prefetch icons immediately on this thread (IO) before switching to Main
-        // This ensures the bitmap cache is populated before the UI tries to render
-        if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-            val visibleApps = repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
-            val iconPack = userPreferences.getSelectedIconPackPackage()
-            prefetchAppIcons(
-                    context = getApplication(),
-                    packageNames = visibleApps.map { it.packageName },
-                    iconPackPackage = iconPack
-            )
-        }
-
-        // Apply immediately
+        // Apply immediately - DO NOT BLOCK on icon loading
         withContext(Dispatchers.Main) {
             _uiState.update {
                 it.copy(
@@ -440,6 +428,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
                 initializeWithCacheMinimal(cachedAppsList)
+            }
+        }
+
+        // Prefetch icons in background (non-blocking) after UI is shown
+        // Icons will lazy-load via rememberAppIcon() with placeholders until ready
+        if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val visibleApps =
+                        repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
+                val iconPack = userPreferences.getSelectedIconPackPackage()
+                prefetchAppIcons(
+                        context = getApplication(),
+                        packageNames = visibleApps.map { it.packageName },
+                        iconPackPackage = iconPack
+                )
             }
         }
     }
@@ -537,6 +540,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // accessing these handlers now is safe as UI is rendered
             val shortcutsState = shortcutHandler.getInitialState()
 
+            // Ensure SearchEngineManager is initialized on IO thread
+            searchEngineManager.ensureInitialized()
+
             _uiState.update { state ->
                 state.copy(
                         // Now safely access lazy handlers
@@ -575,13 +581,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 // Pinning handler loads contacts and files
                 pinningHandler.loadPinnedContactsAndFiles()
                 pinningHandler.loadExcludedContactsAndFiles()
-
-                // Now that heavy things are loaded, trigger a full refresh to ensure consistency
-                withContext(Dispatchers.Main) { refreshDerivedState() }
             }
 
             // 4. Release notes
             releaseNotesHandler.checkForReleaseNotes()
+
+            // 5. Startup complete - now compute visibility and refresh UI
+            withContext(Dispatchers.Main) {
+                isStartupComplete = true
+                updateVisibilityStates()
+                refreshDerivedState()
+            }
         }
     }
 
@@ -746,8 +756,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     methods.find { method ->
                         when (action) {
                             is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone ->
-                                    method is ContactMethod.Phone &&
-                                            matchesPhoneNumber(method)
+                                    method is ContactMethod.Phone && matchesPhoneNumber(method)
                             is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms ->
                                     method is ContactMethod.Sms && matchesPhoneNumber(method)
                             is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall ->
@@ -821,9 +830,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun loadAppShortcuts() {
         viewModelScope.launch(Dispatchers.IO) {
             appShortcutSearchHandler.loadShortcuts()
-            withContext(Dispatchers.Main) {
-                refreshAppShortcutsState()
-            }
+            withContext(Dispatchers.Main) { refreshAppShortcutsState() }
         }
     }
 
@@ -851,18 +858,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun refreshAppShortcutsState(updateResults: Boolean = true) {
         val query = if (updateResults) _uiState.value.query else ""
         val currentState =
-            appShortcutSearchHandler.getShortcutsState(
-                query = query,
-                isSectionEnabled =
-                    SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
-            )
+                appShortcutSearchHandler.getShortcutsState(
+                        query = query,
+                        isSectionEnabled =
+                                SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
+                )
 
         updateUiState { state ->
             state.copy(
-                pinnedAppShortcuts = currentState.pinned,
-                excludedAppShortcuts = currentState.excluded,
-                appShortcutResults =
-                    if (updateResults) currentState.results else state.appShortcutResults
+                    pinnedAppShortcuts = currentState.pinned,
+                    excludedAppShortcuts = currentState.excluded,
+                    appShortcutResults =
+                            if (updateResults) currentState.results else state.appShortcutResults
             )
         }
     }
@@ -991,10 +998,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (shortcutMatchAtEnd != null) {
             val (queryWithoutShortcut, engine) = shortcutMatchAtEnd
             // Automatically perform search with the detected engine
-            navigationHandler.openSearchUrl(
-                    queryWithoutShortcut.trim(),
-                    engine
-            )
+            navigationHandler.openSearchUrl(queryWithoutShortcut.trim(), engine)
             // Update query to remove shortcut but keep the remaining query
             if (queryWithoutShortcut.isBlank()) {
                 clearQuery()
@@ -1106,8 +1110,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             navigationHandler.openSearchUrl(query, searchEngine)
     fun searchIconPacks() = navigationHandler.searchIconPacks()
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
-    fun openContact(contactInfo: ContactInfo) =
-            navigationHandler.openContact(contactInfo)
+    fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo)
     fun openEmail(email: String) = navigationHandler.openEmail(email)
     fun launchAppShortcut(shortcut: StaticShortcut) {
         val error = launchStaticShortcut(getApplication(), shortcut)
@@ -1271,7 +1274,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) =
             contactActionHandler.handleContactMethod(contactInfo, method)
 
-
     fun setShowAllResults(showAllResults: Boolean) {
         updateBooleanPreference(
                 value = showAllResults,
@@ -1282,7 +1284,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
         )
     }
-
 
     fun getEnabledSearchEngines(): List<SearchEngine> =
             searchEngineManager.getEnabledSearchEngines()
@@ -1394,7 +1395,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     /** Computes the app shortcuts section visibility state. */
     private fun computeAppShortcutsSectionVisibility(
-        state: SearchUiState
+            state: SearchUiState
     ): AppShortcutsSectionVisibility {
         val sectionEnabled = SearchSection.APP_SHORTCUTS !in state.disabledSections
 
@@ -1589,10 +1590,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         if (detectedEngine != null) {
             // Perform search immediately in the detected search engine
-            navigationHandler.openSearchUrl(
-                    suggestion.trim(),
-                    detectedEngine
-            )
+            navigationHandler.openSearchUrl(suggestion.trim(), detectedEngine)
         } else {
             // No shortcut detected, copy the suggestion text to the search bar
             onQueryChange(suggestion)

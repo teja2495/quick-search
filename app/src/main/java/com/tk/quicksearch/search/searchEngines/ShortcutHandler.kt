@@ -1,41 +1,46 @@
 package com.tk.quicksearch.search.searchEngines
 
-import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.directSearch.DirectSearchHandler
-import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
+import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class ShortcutHandler(
-    private val userPreferences: UserAppPreferences,
-    private val scope: CoroutineScope,
-    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
-    private val directSearchHandler: DirectSearchHandler
+        private val userPreferences: UserAppPreferences,
+        private val scope: CoroutineScope,
+        private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
+        private val directSearchHandler: DirectSearchHandler
 ) {
     private var shortcutCodes: Map<SearchEngine, String> = emptyMap()
     private var shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap()
 
-    init {
-        // Ensure shortcuts are always enabled (legacy compatibility)
-        if (!userPreferences.areShortcutsEnabled()) {
-            userPreferences.setShortcutsEnabled(true)
-        }
-        shortcutCodes = userPreferences.getAllShortcutCodes()
-        shortcutEnabled = SearchEngine.values().associateWith {
-            userPreferences.isShortcutEnabled(it)
+    private var isInitialized = false
+
+    private fun ensureInitialized() {
+        if (!isInitialized) {
+            // Ensure shortcuts are always enabled (legacy compatibility)
+            if (!userPreferences.areShortcutsEnabled()) {
+                userPreferences.setShortcutsEnabled(true)
+            }
+            shortcutCodes = userPreferences.getAllShortcutCodes()
+            shortcutEnabled =
+                    SearchEngine.values().associateWith { userPreferences.isShortcutEnabled(it) }
+            isInitialized = true
         }
     }
 
     fun getInitialState(): ShortcutsState {
+        ensureInitialized()
         return ShortcutsState(
-            shortcutsEnabled = true,
-            shortcutCodes = shortcutCodes,
-            shortcutEnabled = shortcutEnabled
+                shortcutsEnabled = true,
+                shortcutCodes = shortcutCodes,
+                shortcutEnabled = shortcutEnabled
         )
     }
 
@@ -43,9 +48,7 @@ class ShortcutHandler(
         scope.launch(Dispatchers.IO) {
             // Shortcuts are always enabled
             userPreferences.setShortcutsEnabled(true)
-            uiStateUpdater {
-                it.copy(shortcutsEnabled = true)
-            }
+            uiStateUpdater { it.copy(shortcutsEnabled = true) }
         }
     }
 
@@ -57,9 +60,7 @@ class ShortcutHandler(
             }
             userPreferences.setShortcutCode(engine, normalizedCode)
             shortcutCodes = shortcutCodes.toMutableMap().apply { put(engine, normalizedCode) }
-            uiStateUpdater {
-                it.copy(shortcutCodes = shortcutCodes)
-            }
+            uiStateUpdater { it.copy(shortcutCodes = shortcutCodes) }
         }
     }
 
@@ -67,9 +68,7 @@ class ShortcutHandler(
         scope.launch(Dispatchers.IO) {
             userPreferences.setShortcutEnabled(engine, enabled)
             shortcutEnabled = shortcutEnabled.toMutableMap().apply { put(engine, enabled) }
-            uiStateUpdater {
-                it.copy(shortcutEnabled = shortcutEnabled)
-            }
+            uiStateUpdater { it.copy(shortcutEnabled = shortcutEnabled) }
         }
     }
 
@@ -94,7 +93,10 @@ class ShortcutHandler(
 
         // Check each enabled search engine for matching shortcut
         for (engine in SearchEngine.values()) {
-            if (engine == SearchEngine.DIRECT_SEARCH && directSearchHandler.getGeminiApiKey().isNullOrBlank()) continue
+            if (engine == SearchEngine.DIRECT_SEARCH &&
+                            directSearchHandler.getGeminiApiKey().isNullOrBlank()
+            )
+                    continue
             if (!isShortcutEnabled(engine)) continue
 
             val shortcutCode = getShortcutCode(engine).lowercase(Locale.getDefault())
@@ -120,7 +122,10 @@ class ShortcutHandler(
 
         // Check each enabled search engine for matching shortcut
         for (engine in SearchEngine.values()) {
-            if (engine == SearchEngine.DIRECT_SEARCH && directSearchHandler.getGeminiApiKey().isNullOrBlank()) continue
+            if (engine == SearchEngine.DIRECT_SEARCH &&
+                            directSearchHandler.getGeminiApiKey().isNullOrBlank()
+            )
+                    continue
             if (!isShortcutEnabled(engine)) continue
 
             val shortcutCode = getShortcutCode(engine).lowercase(Locale.getDefault())
@@ -134,10 +139,9 @@ class ShortcutHandler(
         return null
     }
 
-
     data class ShortcutsState(
-        val shortcutsEnabled: Boolean,
-        val shortcutCodes: Map<SearchEngine, String>,
-        val shortcutEnabled: Map<SearchEngine, Boolean>
+            val shortcutsEnabled: Boolean,
+            val shortcutCodes: Map<SearchEngine, String>,
+            val shortcutEnabled: Map<SearchEngine, Boolean>
     )
 }
