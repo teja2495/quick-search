@@ -12,6 +12,7 @@ import com.tk.quicksearch.search.apps.AppManagementService
 import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.apps.prefetchAppIcons
+import com.tk.quicksearch.search.fuzzy.FuzzySearchConfigurationManager
 import com.tk.quicksearch.search.calculator.CalculatorHandler
 import com.tk.quicksearch.search.common.PinningHandler
 import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
@@ -34,6 +35,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.directSearch.DirectSearchHandler
 import com.tk.quicksearch.search.files.FileManagementHandler
+import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
@@ -76,7 +78,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val permissionManager by lazy {
         PermissionManager(contactRepository, fileRepository, userPreferences)
     }
-    private val searchOperations by lazy { SearchOperations(contactRepository, fileRepository) }
+    private val searchOperations by lazy { SearchOperations(contactRepository) }
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
@@ -201,6 +203,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
+    val fuzzySearchConfigManager by lazy {
+        FuzzySearchConfigurationManager(userPreferences.uiPreferences)
+    }
+
     val appSearchManager by lazy {
         AppSearchManager(
                 context = application.applicationContext,
@@ -211,7 +217,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 onLoadingStateChanged = { isLoading, error ->
                     _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
                 },
-                showToastCallback = this::showToast
+                showToastCallback = this::showToast,
+                initialFuzzyConfig = fuzzySearchConfigManager.getAppFuzzyConfig()
         )
     }
 
@@ -228,6 +235,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     val appShortcutSearchHandler by lazy {
         AppShortcutSearchHandler(
                 repository = appShortcutRepository,
+                userPreferences = userPreferences
+        )
+    }
+
+    val fileSearchHandler by lazy {
+        FileSearchHandler(
+                fileRepository = fileRepository,
                 userPreferences = userPreferences
         )
     }
@@ -259,6 +273,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 userPreferences = userPreferences,
                 settingsSearchHandler = settingsSearchHandler,
                 appShortcutSearchHandler = appShortcutSearchHandler,
+                fileSearchHandler = fileSearchHandler,
                 searchOperations = searchOperations
         )
     }
@@ -468,7 +483,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         clearQueryAfterSearchEngine = prefs.clearQueryAfterSearchEngine
         showAllResults = prefs.showAllResults
         sortAppsByUsageEnabled = prefs.sortAppsByUsage
-        fuzzyAppSearchEnabled = prefs.fuzzyAppSearchEnabled
+        fuzzyAppSearchEnabled = fuzzySearchConfigManager.isAppFuzzySearchEnabled()
         amazonDomain = prefs.amazonDomain
 
         _uiState.update {
@@ -1302,14 +1317,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun setFuzzyAppSearchEnabled(enabled: Boolean) {
-        updateBooleanPreference(
-                value = enabled,
-                preferenceSetter = userPreferences::setFuzzyAppSearchEnabled,
-                stateUpdater = {
-                    fuzzyAppSearchEnabled = it
-                    _uiState.update { state -> state.copy(fuzzyAppSearchEnabled = it) }
-                }
-        )
+        val currentConfig = fuzzySearchConfigManager.getAppFuzzyConfig()
+        val updatedConfig = currentConfig.copy(enabled = enabled)
+        fuzzySearchConfigManager.updateAppFuzzyConfig(updatedConfig)
+
+        fuzzyAppSearchEnabled = enabled
+        _uiState.update { state -> state.copy(fuzzyAppSearchEnabled = enabled) }
         appSearchManager.setFuzzySearchEnabled(enabled)
         appSearchManager.setNoMatchPrefix(null)
     }

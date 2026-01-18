@@ -253,6 +253,25 @@ object DesignTokens {
     val SpringStiffness = 300f
 
     // ============================================================================
+    // WALLPAPER BACKGROUND CONSTANTS
+    // ============================================================================
+
+    /** Standard animation duration for wallpaper background fade-in */
+    val WallpaperFadeInDuration = 300
+
+    /** Luminance threshold for determining dark mode (0.5f = 50% luminance) */
+    val DarkModeLuminanceThreshold = 0.5f
+
+    /** Red channel coefficient for luminance calculation (ITU-R BT.709 standard) */
+    val LuminanceRedCoefficient = 0.299f
+
+    /** Green channel coefficient for luminance calculation (ITU-R BT.709 standard) */
+    val LuminanceGreenCoefficient = 0.587f
+
+    /** Blue channel coefficient for luminance calculation (ITU-R BT.709 standard) */
+    val LuminanceBlueCoefficient = 0.114f
+
+    // ============================================================================
     // UTILITY FUNCTIONS
     // ============================================================================
 

@@ -144,6 +144,24 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_FUZZY_APP_SEARCH, enabled)
     }
 
+    fun getFuzzyAppSearchMatchThreshold(): Int = prefs.getInt(UiPreferences.KEY_FUZZY_APP_SEARCH_THRESHOLD, 70)
+
+    fun setFuzzyAppSearchMatchThreshold(threshold: Int) {
+        prefs.edit().putInt(UiPreferences.KEY_FUZZY_APP_SEARCH_THRESHOLD, threshold).apply()
+    }
+
+    fun getFuzzyAppSearchMinQueryLength(): Int = prefs.getInt(UiPreferences.KEY_FUZZY_APP_SEARCH_MIN_LENGTH, 3)
+
+    fun setFuzzyAppSearchMinQueryLength(length: Int) {
+        prefs.edit().putInt(UiPreferences.KEY_FUZZY_APP_SEARCH_MIN_LENGTH, length).apply()
+    }
+
+    fun getFuzzyAppSearchPriority(): Int = prefs.getInt(UiPreferences.KEY_FUZZY_APP_SEARCH_PRIORITY, 5)
+
+    fun setFuzzyAppSearchPriority(priority: Int) {
+        prefs.edit().putInt(UiPreferences.KEY_FUZZY_APP_SEARCH_PRIORITY, priority).apply()
+    }
+
     fun isDirectSearchSetupExpanded(): Boolean = getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) {
@@ -411,6 +429,9 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
         const val KEY_FUZZY_APP_SEARCH = "fuzzy_app_search"
+        const val KEY_FUZZY_APP_SEARCH_THRESHOLD = "fuzzy_app_search_threshold"
+        const val KEY_FUZZY_APP_SEARCH_MIN_LENGTH = "fuzzy_app_search_min_length"
+        const val KEY_FUZZY_APP_SEARCH_PRIORITY = "fuzzy_app_search_priority"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"

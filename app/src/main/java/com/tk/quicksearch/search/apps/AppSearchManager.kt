@@ -4,13 +4,15 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.AppUsageRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
-import com.frosch2010.fuzzywuzzy_kotlin.FuzzySearch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
+
+private val WHITESPACE_REGEX = "\\s+".toRegex()
 
 class AppSearchManager(
     private val context: Context,
@@ -19,27 +21,21 @@ class AppSearchManager(
     private val scope: CoroutineScope,
     private val onAppsUpdated: () -> Unit,
     private val onLoadingStateChanged: (Boolean, String?) -> Unit,
-    private val showToastCallback: (Int) -> Unit
+    private val showToastCallback: (Int) -> Unit,
+    initialFuzzyConfig: FuzzySearchConfig = FuzzySearchConfig.DEFAULT_APP_CONFIG
 ) {
 
     var cachedApps: List<AppInfo> = emptyList()
         private set
-    
+
     private var noMatchPrefix: String? = null
     var sortAppsByUsageEnabled: Boolean = false
         private set
-    private var fuzzySearchEnabled: Boolean = false
+
+    private var fuzzySearchStrategy = FuzzyAppSearchStrategy(initialFuzzyConfig)
 
     companion object {
         private const val GRID_ITEM_COUNT = 10
-        private const val FUZZY_MATCH_THRESHOLD = 70
-        private const val FUZZY_MIN_QUERY_LENGTH = 3
-        private const val FUZZY_PRIORITY = 5
-        private const val ABBREVIATION_MAX_QUERY_LENGTH = 3
-        private const val SUBSEQUENCE_MAX_QUERY_LENGTH = 2
-        private val WHITESPACE_REGEX = "\\s+".toRegex()
-        private val NON_ALPHANUMERIC_REGEX = "[^A-Za-z0-9]+".toRegex()
-        private val CAMEL_CASE_REGEX = "([a-z])([A-Z])".toRegex()
     }
 
     fun initCache(initialApps: List<AppInfo>) {
@@ -113,7 +109,9 @@ class AppSearchManager(
     }
 
     fun setFuzzySearchEnabled(enabled: Boolean) {
-        fuzzySearchEnabled = enabled
+        fuzzySearchStrategy = FuzzyAppSearchStrategy(
+            fuzzySearchStrategy.config.copy(enabled = enabled)
+        )
     }
 
     fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
@@ -192,8 +190,8 @@ class AppSearchManager(
     )
 
     private fun calculateAppMatch(
-        app: AppInfo, 
-        normalizedQuery: String, 
+        app: AppInfo,
+        normalizedQuery: String,
         queryTokens: List<String>
     ): AppMatch? {
         // Use cached nickname to avoid SharedPreferences lookup per item
@@ -208,99 +206,17 @@ class AppSearchManager(
             return AppMatch(app, priority, 0, false)
         }
 
-        if (!fuzzySearchEnabled) {
-            return null
-        }
+        // Try fuzzy search if regular matching failed
+        val fuzzyMatches = fuzzySearchStrategy.findMatchesWithNicknames(
+            normalizedQuery,
+            listOf(app)
+        ) { cachedAppNicknames[it.packageName] }
 
-        val fuzzyScore = computeFuzzyScore(normalizedQuery, app.appName, nickname)
-        return if (fuzzyScore >= FUZZY_MATCH_THRESHOLD) {
-            AppMatch(app, priority = FUZZY_PRIORITY, fuzzyScore = fuzzyScore, isFuzzy = true)
-        } else {
-            null
+        return fuzzyMatches.firstOrNull()?.let { match ->
+            AppMatch(app, match.priority, match.score, true)
         }
     }
 
-    private fun computeFuzzyScore(
-        normalizedQuery: String,
-        appName: String,
-        nickname: String?
-    ): Int {
-        var bestScore = 0
-        val compactQuery = normalizedQuery.replace(WHITESPACE_REGEX, "")
-        if (compactQuery.length in 2..ABBREVIATION_MAX_QUERY_LENGTH) {
-            bestScore = maxOf(bestScore, computeAbbreviationScore(compactQuery, appName, nickname))
-        }
-
-        if (normalizedQuery.length >= FUZZY_MIN_QUERY_LENGTH) {
-            val normalizedAppName = appName.lowercase(Locale.getDefault())
-            val nicknameScore = nickname?.let {
-                FuzzySearch.tokenSetRatio(normalizedQuery, it.lowercase(Locale.getDefault()))
-            } ?: 0
-            val appNameScore = FuzzySearch.tokenSetRatio(normalizedQuery, normalizedAppName)
-            bestScore = maxOf(bestScore, appNameScore, nicknameScore)
-        }
-
-        return bestScore
-    }
-
-    private fun computeAbbreviationScore(query: String, appName: String, nickname: String?): Int {
-        if (query.length < 2) return 0
-
-        val appInitialism = buildInitialism(appName)
-        val nicknameInitialism = nickname?.let { buildInitialism(it) } ?: ""
-        var bestScore = 0
-
-        if (appInitialism.startsWith(query)) {
-            bestScore = 100
-        }
-        if (nicknameInitialism.startsWith(query)) {
-            bestScore = 100
-        }
-
-        if (bestScore == 0 && query.length <= SUBSEQUENCE_MAX_QUERY_LENGTH) {
-            val normalizedAppName = appName.lowercase(Locale.getDefault())
-            if (isSubsequence(query, normalizedAppName)) {
-                bestScore = maxOf(bestScore, 80)
-            }
-            if (nickname != null && isSubsequence(query, nickname.lowercase(Locale.getDefault()))) {
-                bestScore = maxOf(bestScore, 80)
-            }
-        }
-
-        return bestScore
-    }
-
-    private fun buildInitialism(text: String): String {
-        if (text.isBlank()) return ""
-
-        val separated = text.replace(CAMEL_CASE_REGEX, "$1 $2")
-        val tokens = separated.split(NON_ALPHANUMERIC_REGEX).filter { it.isNotBlank() }
-        if (tokens.isEmpty()) return ""
-
-        val builder = StringBuilder()
-        for (token in tokens) {
-            if (token.length > 1 && token.none { it.isLowerCase() }) {
-                builder.append(token.lowercase(Locale.getDefault()))
-            } else {
-                builder.append(token[0].lowercaseChar())
-            }
-        }
-
-        return builder.toString()
-    }
-
-    private fun isSubsequence(query: String, text: String): Boolean {
-        var index = 0
-        for (ch in text) {
-            if (ch == query[index]) {
-                index++
-                if (index == query.length) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
 
     private fun createAppComparator(): Comparator<AppMatch> {
         return Comparator { first, second ->

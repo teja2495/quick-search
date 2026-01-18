@@ -24,7 +24,7 @@ class UserAppPreferences(context: Context) {
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
     private val shortcutPreferences by lazy { ShortcutPreferences(context) }
     private val geminiPreferences by lazy { GeminiPreferences(context) }
-    private val uiPreferences by lazy { UiPreferences(context) }
+    val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
     private val recentSearchesPreferences by lazy { RecentSearchesPreferences(context) }
 

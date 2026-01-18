@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 @Composable
 internal fun SearchScreenBackground(
@@ -34,8 +35,10 @@ internal fun SearchScreenBackground(
     val isDarkMode = remember(backgroundColor) {
         // Calculate relative luminance (0 = black, 1 = white)
         // Using the standard formula: 0.299*R + 0.587*G + 0.114*B
-        val luminance = backgroundColor.red * 0.299f + backgroundColor.green * 0.587f + backgroundColor.blue * 0.114f
-        luminance < 0.5f
+        val luminance = backgroundColor.red * DesignTokens.LuminanceRedCoefficient +
+                       backgroundColor.green * DesignTokens.LuminanceGreenCoefficient +
+                       backgroundColor.blue * DesignTokens.LuminanceBlueCoefficient
+        luminance < DesignTokens.DarkModeLuminanceThreshold
     }
 
     // Track if the animation has already played (only animate first time)
@@ -47,7 +50,7 @@ internal fun SearchScreenBackground(
     // Animate fade-in only the first time wallpaper background becomes visible
     val wallpaperAlpha = animateFloatAsState(
         targetValue = if (shouldAnimate) 1f else if (showWallpaperBackground && wallpaperBitmap != null) 1f else 0f,
-        animationSpec = tween(durationMillis = 300),
+        animationSpec = tween(durationMillis = DesignTokens.WallpaperFadeInDuration),
         label = "wallpaperFadeIn"
     ) { hasAnimated = true }
 
