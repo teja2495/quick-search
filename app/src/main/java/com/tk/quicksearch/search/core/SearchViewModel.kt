@@ -292,6 +292,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private var enabledFileTypes: Set<FileType> = emptySet()
+    private var showFolders: Boolean = true
+    private var showSystemFiles: Boolean = false
+    private var showHiddenFiles: Boolean = false
     private var excludedFileExtensions: Set<String> = emptySet()
     private var keyboardAlignedLayout: Boolean = false
     private var directDialEnabled: Boolean = false
@@ -457,7 +460,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /** Phase 2: Load the rest of the startup preferences and compute derived state */
     private suspend fun loadRemainingStartupPreferences() {
         // Use pre-loaded startup config from Phase 1 (already batched)
-        val startupPrefs = startupConfig?.startupPreferences ?: userPreferences.getStartupPreferences()
+        val startupPrefs =
+                startupConfig?.startupPreferences ?: userPreferences.getStartupPreferences()
 
         // Apply preferences
         withContext(Dispatchers.Main) {
@@ -468,7 +472,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             appSearchManager.setFuzzySearchEnabled(true)
 
             // Now we can compute the full state including pinned/hidden apps
-            val lastUpdated = startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
+            val lastUpdated =
+                    startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
             refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
 
             // Fully initialized now
@@ -478,6 +483,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun applyStartupPreferences(prefs: UserAppPreferences.StartupPreferences) {
         enabledFileTypes = prefs.enabledFileTypes
+        showFolders = prefs.showFolders
+        showSystemFiles = prefs.showSystemFiles
+        showHiddenFiles = prefs.showHiddenFiles
         excludedFileExtensions = prefs.excludedFileExtensions
         keyboardAlignedLayout = prefs.keyboardAlignedLayout
         directDialEnabled = prefs.directDialEnabled
@@ -491,6 +499,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update {
             it.copy(
                     enabledFileTypes = enabledFileTypes,
+                    showFolders = showFolders,
+                    showSystemFiles = showSystemFiles,
+                    showHiddenFiles = showHiddenFiles,
                     excludedFileExtensions = excludedFileExtensions,
                     keyboardAlignedLayout = keyboardAlignedLayout,
                     directDialEnabled = directDialEnabled,
@@ -1310,6 +1321,48 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             enabledFileTypes = updated
             userPreferences.setEnabledFileTypes(enabledFileTypes)
             updateUiState { it.copy(enabledFileTypes = enabledFileTypes) }
+
+            // Re-run file search if there's an active query
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setShowFolders(show: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowFoldersInResults(show)
+            showFolders = show
+            updateUiState { it.copy(showFolders = show) }
+
+            // Re-run file search if there's an active query
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setShowSystemFiles(show: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowSystemFiles(show)
+            showSystemFiles = show
+            updateUiState { it.copy(showSystemFiles = show) }
+
+            // Re-run file search if there's an active query
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setShowHiddenFiles(show: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setShowHiddenFiles(show)
+            showHiddenFiles = show
+            updateUiState { it.copy(showHiddenFiles = show) }
 
             // Re-run file search if there's an active query
             val query = _uiState.value.query

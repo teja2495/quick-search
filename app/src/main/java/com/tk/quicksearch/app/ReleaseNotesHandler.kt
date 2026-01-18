@@ -46,6 +46,13 @@ class ReleaseNotesHandler(
             return
         }
 
+        // Reset file type preferences to defaults for existing users on version update
+        // This ensures Documents, Pictures, Videos, Music, and APKs are enabled by default
+        val newEnabledFileTypes = userPreferences.clearEnabledFileTypes()
+        uiStateUpdater { currentState ->
+            currentState.copy(enabledFileTypes = newEnabledFileTypes)
+        }
+
         uiStateUpdater {
             it.copy(
                 showReleaseNotesDialog = true,

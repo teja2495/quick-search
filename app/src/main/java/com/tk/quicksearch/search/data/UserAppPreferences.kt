@@ -14,778 +14,885 @@ import com.tk.quicksearch.search.recentSearches.RecentSearchesPreferences
  */
 class UserAppPreferences(private val context: Context) {
 
-    // Feature-specific preference managers - lazy to avoid blocking construction
-    private val appPreferences by lazy { AppPreferences(context) }
-    private val contactPreferences by lazy { ContactPreferences(context) }
-    private val filePreferences by lazy { FilePreferences(context) }
-    private val settingsPreferences by lazy { SettingsPreferences(context) }
-    private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
-    private val nicknamePreferences by lazy { NicknamePreferences(context) }
-    private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
-    private val shortcutPreferences by lazy { ShortcutPreferences(context) }
-    private val geminiPreferences by lazy { GeminiPreferences(context) }
-    val uiPreferences by lazy { UiPreferences(context) }
-    private val amazonPreferences by lazy { AmazonPreferences(context) }
-    private val recentSearchesPreferences by lazy { RecentSearchesPreferences(context) }
+        // Feature-specific preference managers - lazy to avoid blocking construction
+        private val appPreferences by lazy { AppPreferences(context) }
+        private val contactPreferences by lazy { ContactPreferences(context) }
+        private val filePreferences by lazy { FilePreferences(context) }
+        private val settingsPreferences by lazy { SettingsPreferences(context) }
+        private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
+        private val nicknamePreferences by lazy { NicknamePreferences(context) }
+        private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
+        private val shortcutPreferences by lazy { ShortcutPreferences(context) }
+        private val geminiPreferences by lazy { GeminiPreferences(context) }
+        val uiPreferences by lazy { UiPreferences(context) }
+        private val amazonPreferences by lazy { AmazonPreferences(context) }
+        private val recentSearchesPreferences by lazy { RecentSearchesPreferences(context) }
 
-    /** Minimal preferences needed for first frame render - only layout-affecting values. */
-    data class CriticalPreferences(val keyboardAlignedLayout: Boolean)
+        /** Minimal preferences needed for first frame render - only layout-affecting values. */
+        data class CriticalPreferences(val keyboardAlignedLayout: Boolean)
 
-    /**
-     * Optimized: Loads only critical preference using direct access. Uses the underlying
-     * SharedPreferences directly for minimal overhead.
-     */
-    fun getCriticalPreferences(): CriticalPreferences {
-        // Direct access to avoid lazy initialization overhead
-        val prefs =
-                context.getSharedPreferences(
-                        com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
-                        android.content.Context.MODE_PRIVATE
-                )
-        val keyboardAligned =
-                prefs.getBoolean(
-                        com.tk.quicksearch.search.data.preferences.UiPreferences
-                                .KEY_KEYBOARD_ALIGNED_LAYOUT,
-                        false
-                )
-        return CriticalPreferences(keyboardAlignedLayout = keyboardAligned)
-    }
+        /**
+         * Optimized: Loads only critical preference using direct access. Uses the underlying
+         * SharedPreferences directly for minimal overhead.
+         */
+        fun getCriticalPreferences(): CriticalPreferences {
+                // Direct access to avoid lazy initialization overhead
+                val prefs =
+                        context.getSharedPreferences(
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .PREFS_NAME,
+                                android.content.Context.MODE_PRIVATE
+                        )
+                val keyboardAligned =
+                        prefs.getBoolean(
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_KEYBOARD_ALIGNED_LAYOUT,
+                                false
+                        )
+                return CriticalPreferences(keyboardAlignedLayout = keyboardAligned)
+        }
 
-    /**
-     * Data class to hold all preferences needed during app startup for performance optimization.
-     */
-    data class StartupPreferences(
-            val enabledFileTypes: Set<FileType>,
-            val excludedFileExtensions: Set<String>,
-            val keyboardAlignedLayout: Boolean,
-            val directDialEnabled: Boolean,
-            val hasSeenDirectDialChoice: Boolean,
-            val hasSeenSearchEngineOnboarding: Boolean,
-            val showWallpaperBackground: Boolean,
-            val wallpaperBackgroundAlpha: Float,
-            val wallpaperBlurRadius: Float,
-            val showAllResults: Boolean,
-            val amazonDomain: String?,
-            val pinnedPackages: Set<String>,
-            val suggestionHiddenPackages: Set<String>,
-            val resultHiddenPackages: Set<String>,
-            val recentSearchesEnabled: Boolean
-    )
+        /**
+         * Data class to hold all preferences needed during app startup for performance
+         * optimization.
+         */
+        data class StartupPreferences(
+                val enabledFileTypes: Set<FileType>,
+                val showFolders: Boolean,
+                val showSystemFiles: Boolean,
+                val showHiddenFiles: Boolean,
+                val excludedFileExtensions: Set<String>,
+                val keyboardAlignedLayout: Boolean,
+                val directDialEnabled: Boolean,
+                val hasSeenDirectDialChoice: Boolean,
+                val hasSeenSearchEngineOnboarding: Boolean,
+                val showWallpaperBackground: Boolean,
+                val wallpaperBackgroundAlpha: Float,
+                val wallpaperBlurRadius: Float,
+                val showAllResults: Boolean,
+                val amazonDomain: String?,
+                val pinnedPackages: Set<String>,
+                val suggestionHiddenPackages: Set<String>,
+                val resultHiddenPackages: Set<String>,
+                val recentSearchesEnabled: Boolean
+        )
 
-    /**
-     * Consolidated startup configuration that includes all data needed for app initialization.
-     * This enables loading everything in a single batch operation for maximum performance.
-     */
-    data class StartupConfig(
-            // Critical preferences (needed immediately for layout)
-            val keyboardAlignedLayout: Boolean,
-            // Cached apps metadata
-            val cachedAppsLastUpdate: Long,
-            // Full startup preferences (loaded in background)
-            val startupPreferences: StartupPreferences
-    )
+        /**
+         * Consolidated startup configuration that includes all data needed for app initialization.
+         * This enables loading everything in a single batch operation for maximum performance.
+         */
+        data class StartupConfig(
+                // Critical preferences (needed immediately for layout)
+                val keyboardAlignedLayout: Boolean,
+                // Cached apps metadata
+                val cachedAppsLastUpdate: Long,
+                // Full startup preferences (loaded in background)
+                val startupPreferences: StartupPreferences
+        )
 
-    /**
-     * Loads all preferences needed during startup in a single batch operation. This reduces the
-     * number of SharedPreferences reads for better startup performance.
-     */
-    /**
-     * Optimized: Loads all preferences needed during startup in a single batch operation. Uses
-     * SharedPreferences.getAll() to minimize disk I/O operations.
-     */
-    fun getStartupPreferences(): StartupPreferences {
-        // Batch read all preferences at once
-        val prefs =
-                context.getSharedPreferences(
-                        com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
-                        android.content.Context.MODE_PRIVATE
-                )
-        val allPrefs = prefs.all
+        /**
+         * Loads all preferences needed during startup in a single batch operation. This reduces the
+         * number of SharedPreferences reads for better startup performance.
+         */
+        /**
+         * Optimized: Loads all preferences needed during startup in a single batch operation. Uses
+         * SharedPreferences.getAll() to minimize disk I/O operations.
+         */
+        fun getStartupPreferences(): StartupPreferences {
+                // Batch read all preferences at once
+                val prefs =
+                        context.getSharedPreferences(
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .PREFS_NAME,
+                                android.content.Context.MODE_PRIVATE
+                        )
+                val allPrefs = prefs.all
 
-        // Parse values from the batch read
-        val enabledFileTypesNames =
-                allPrefs[
-                        com.tk.quicksearch.search.data.preferences.BasePreferences
-                                .KEY_ENABLED_FILE_TYPES] as?
-                        Set<String>
-                        ?: emptySet()
-        val enabledFileTypes =
-                com.tk.quicksearch.search.data.preferences.PreferenceUtils.migrateAndGetFileTypes(
-                        enabledFileTypesNames
-                )
-
-        return StartupPreferences(
-                enabledFileTypes = enabledFileTypes,
-                excludedFileExtensions =
+                // Parse values from the batch read
+                val enabledFileTypesNames =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_EXCLUDED_FILE_EXTENSIONS] as?
+                                        .KEY_ENABLED_FILE_TYPES] as?
                                 Set<String>
-                                ?: emptySet(),
-                keyboardAlignedLayout =
+                val enabledFileTypes =
+                        if (enabledFileTypesNames == null) {
+                                // Default: all file types enabled except OTHER
+                                com.tk.quicksearch.search.models.FileType.values()
+                                        .filter { it != com.tk.quicksearch.search.models.FileType.OTHER }
+                                        .toSet()
+                        } else {
+                                com.tk.quicksearch.search.data.preferences.PreferenceUtils
+                                        .migrateAndGetFileTypes(enabledFileTypesNames)
+                        }
+
+                return StartupPreferences(
+                        enabledFileTypes = enabledFileTypes,
+                        showFolders =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_SHOW_FOLDERS_IN_RESULTS] as?
+                                        Boolean
+                                        ?: true,
+                        showSystemFiles =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_SHOW_SYSTEM_FILES] as?
+                                        Boolean
+                                        ?: false,
+                        showHiddenFiles =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_SHOW_HIDDEN_FILES] as?
+                                        Boolean
+                                        ?: false,
+                        excludedFileExtensions =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_EXCLUDED_FILE_EXTENSIONS] as?
+                                        Set<String>
+                                        ?: emptySet(),
+                        keyboardAlignedLayout =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_KEYBOARD_ALIGNED_LAYOUT] as?
+                                        Boolean
+                                        ?: false,
+                        directDialEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_DIRECT_DIAL_ENABLED] as?
+                                        Boolean
+                                        ?: false,
+                        hasSeenDirectDialChoice =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_DIRECT_DIAL_CHOICE_SHOWN] as?
+                                        Boolean
+                                        ?: false,
+                        hasSeenSearchEngineOnboarding =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_SEARCH_ENGINE_ONBOARDING_SEEN] as?
+                                        Boolean
+                                        ?: false,
+                        showWallpaperBackground =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_SHOW_WALLPAPER_BACKGROUND] as?
+                                        Boolean
+                                        ?: true,
+                        wallpaperBackgroundAlpha =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_WALLPAPER_BACKGROUND_ALPHA] as?
+                                        Float
+                                        ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
+                        wallpaperBlurRadius =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_WALLPAPER_BLUR_RADIUS] as?
+                                        Float
+                                        ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .DEFAULT_WALLPAPER_BLUR_RADIUS,
+                        showAllResults =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_SHOW_ALL_RESULTS] as?
+                                        Boolean
+                                        ?: false,
+                        amazonDomain =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_AMAZON_DOMAIN] as?
+                                        String,
+                        pinnedPackages =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_PINNED] as?
+                                        Set<String>
+                                        ?: emptySet(),
+                        suggestionHiddenPackages =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_HIDDEN_SUGGESTIONS] as?
+                                        Set<String>
+                                        ?: emptySet(),
+                        resultHiddenPackages =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_HIDDEN_RESULTS] as?
+                                        Set<String>
+                                        ?: emptySet(),
+                        recentSearchesEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_RECENT_QUERIES_ENABLED] as?
+                                        Boolean
+                                        ?: true
+                )
+        }
+
+        /**
+         * Loads all startup configuration in a single atomic operation for maximum performance.
+         * This consolidates critical preferences, cached apps data, and startup preferences into
+         * one batch read operation, minimizing disk I/O during app launch.
+         */
+        fun loadStartupConfig(): StartupConfig {
+                // Get user preferences in one batch read
+                val prefs =
+                        context.getSharedPreferences(
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .PREFS_NAME,
+                                android.content.Context.MODE_PRIVATE
+                        )
+                val allPrefs = prefs.all
+
+                // Get app cache metadata in separate read (different SharedPreferences file)
+                val appCachePrefs =
+                        context.getSharedPreferences(
+                                "app_cache",
+                                android.content.Context.MODE_PRIVATE
+                        )
+                val cachedAppsLastUpdate = appCachePrefs.getLong("last_update", 0L)
+
+                // Extract critical preference directly from batch read
+                val keyboardAlignedLayout =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_KEYBOARD_ALIGNED_LAYOUT] as?
                                 Boolean
-                                ?: false,
-                directDialEnabled =
+                                ?: false
+
+                // Build startup preferences from the same batch read
+                val enabledFileTypesNames =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_DIRECT_DIAL_ENABLED] as?
-                                Boolean
-                                ?: false,
-                hasSeenDirectDialChoice =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_DIRECT_DIAL_CHOICE_SHOWN] as?
-                                Boolean
-                                ?: false,
-                hasSeenSearchEngineOnboarding =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_SEARCH_ENGINE_ONBOARDING_SEEN] as?
-                                Boolean
-                                ?: false,
-                showWallpaperBackground =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_WALLPAPER_BACKGROUND] as?
-                                Boolean
-                                ?: true,
-                wallpaperBackgroundAlpha =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_WALLPAPER_BACKGROUND_ALPHA] as?
-                                Float
-                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
-                wallpaperBlurRadius =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_WALLPAPER_BLUR_RADIUS] as?
-                                Float
-                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .DEFAULT_WALLPAPER_BLUR_RADIUS,
-                showAllResults =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_ALL_RESULTS] as?
-                                Boolean
-                                ?: false,
-                amazonDomain =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_AMAZON_DOMAIN] as?
-                                String,
-                pinnedPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_PINNED] as?
+                                        .KEY_ENABLED_FILE_TYPES] as?
                                 Set<String>
-                                ?: emptySet(),
-                suggestionHiddenPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_HIDDEN_SUGGESTIONS] as?
-                                Set<String>
-                                ?: emptySet(),
-                resultHiddenPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_HIDDEN_RESULTS] as?
-                                Set<String>
-                                ?: emptySet(),
-                recentSearchesEnabled =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_RECENT_QUERIES_ENABLED] as?
-                                Boolean
-                                ?: true
-        )
-    }
+                val enabledFileTypes =
+                        if (enabledFileTypesNames == null) {
+                                // Default: all file types enabled except OTHER
+                                com.tk.quicksearch.search.models.FileType.values()
+                                        .filter { it != com.tk.quicksearch.search.models.FileType.OTHER }
+                                        .toSet()
+                        } else {
+                                com.tk.quicksearch.search.data.preferences.PreferenceUtils
+                                        .migrateAndGetFileTypes(enabledFileTypesNames)
+                        }
 
-    /**
-     * Loads all startup configuration in a single atomic operation for maximum performance.
-     * This consolidates critical preferences, cached apps data, and startup preferences
-     * into one batch read operation, minimizing disk I/O during app launch.
-     */
-    fun loadStartupConfig(): StartupConfig {
-        // Get user preferences in one batch read
-        val prefs = context.getSharedPreferences(
-                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
-                android.content.Context.MODE_PRIVATE
-        )
-        val allPrefs = prefs.all
+                val startupPreferences =
+                        StartupPreferences(
+                                enabledFileTypes = enabledFileTypes,
+                                showFolders =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences
+                                                        .KEY_SHOW_FOLDERS_IN_RESULTS] as?
+                                                Boolean
+                                                ?: true,
+                                showSystemFiles =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_SHOW_SYSTEM_FILES] as?
+                                                Boolean
+                                                ?: false,
+                                showHiddenFiles =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_SHOW_HIDDEN_FILES] as?
+                                                Boolean
+                                                ?: false,
+                                excludedFileExtensions =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences
+                                                        .KEY_EXCLUDED_FILE_EXTENSIONS] as?
+                                                Set<String>
+                                                ?: emptySet(),
+                                keyboardAlignedLayout = keyboardAlignedLayout,
+                                directDialEnabled =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences
+                                                        .KEY_DIRECT_DIAL_ENABLED] as?
+                                                Boolean
+                                                ?: true,
+                                hasSeenDirectDialChoice =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences
+                                                        .KEY_DIRECT_DIAL_CHOICE_SHOWN] as?
+                                                Boolean
+                                                ?: false,
+                                hasSeenSearchEngineOnboarding =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences
+                                                        .KEY_SEARCH_ENGINE_ONBOARDING_SEEN] as?
+                                                Boolean
+                                                ?: false,
+                                showWallpaperBackground =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .KEY_SHOW_WALLPAPER_BACKGROUND] as?
+                                                Boolean
+                                                ?: true,
+                                wallpaperBackgroundAlpha =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .KEY_WALLPAPER_BACKGROUND_ALPHA] as?
+                                                Float
+                                                ?: com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
+                                wallpaperBlurRadius =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .KEY_WALLPAPER_BLUR_RADIUS] as?
+                                                Float
+                                                ?: com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .DEFAULT_WALLPAPER_BLUR_RADIUS,
+                                showAllResults =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences.KEY_SHOW_ALL_RESULTS] as?
+                                                Boolean
+                                                ?: false,
+                                amazonDomain =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_AMAZON_DOMAIN] as?
+                                                String,
+                                pinnedPackages =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_PINNED] as?
+                                                Set<String>
+                                                ?: emptySet(),
+                                suggestionHiddenPackages =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_HIDDEN_SUGGESTIONS] as?
+                                                Set<String>
+                                                ?: emptySet(),
+                                resultHiddenPackages =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .BasePreferences.KEY_HIDDEN_RESULTS] as?
+                                                Set<String>
+                                                ?: emptySet(),
+                                recentSearchesEnabled =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .KEY_RECENT_QUERIES_ENABLED] as?
+                                                Boolean
+                                                ?: true
+                        )
 
-        // Get app cache metadata in separate read (different SharedPreferences file)
-        val appCachePrefs = context.getSharedPreferences(
-                "app_cache",
-                android.content.Context.MODE_PRIVATE
-        )
-        val cachedAppsLastUpdate = appCachePrefs.getLong("last_update", 0L)
-
-        // Extract critical preference directly from batch read
-        val keyboardAlignedLayout = allPrefs[
-                com.tk.quicksearch.search.data.preferences.UiPreferences
-                        .KEY_KEYBOARD_ALIGNED_LAYOUT] as? Boolean ?: false
-
-        // Build startup preferences from the same batch read
-        val enabledFileTypesNames =
-                allPrefs[
-                        com.tk.quicksearch.search.data.preferences.BasePreferences
-                                .KEY_ENABLED_FILE_TYPES] as?
-                        Set<String>
-                        ?: emptySet()
-        val enabledFileTypes =
-                com.tk.quicksearch.search.data.preferences.PreferenceUtils.migrateAndGetFileTypes(
-                        enabledFileTypesNames
+                return StartupConfig(
+                        keyboardAlignedLayout = keyboardAlignedLayout,
+                        cachedAppsLastUpdate = cachedAppsLastUpdate,
+                        startupPreferences = startupPreferences
                 )
+        }
 
-        val startupPreferences = StartupPreferences(
-                enabledFileTypes = enabledFileTypes,
-                excludedFileExtensions =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_EXCLUDED_FILE_EXTENSIONS] as?
-                                Set<String>
-                                ?: emptySet(),
-                keyboardAlignedLayout = keyboardAlignedLayout,
-                directDialEnabled =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_DIRECT_DIAL_ENABLED] as?
-                                Boolean
-                                ?: true,
-                hasSeenDirectDialChoice =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_DIRECT_DIAL_CHOICE_SHOWN] as?
-                                Boolean
-                                ?: false,
-                hasSeenSearchEngineOnboarding =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_SEARCH_ENGINE_ONBOARDING_SEEN] as?
-                                Boolean
-                                ?: false,
-                showWallpaperBackground =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_WALLPAPER_BACKGROUND] as?
-                                Boolean
-                                ?: true,
-                wallpaperBackgroundAlpha =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_WALLPAPER_BACKGROUND_ALPHA] as?
-                                Float
-                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
-                wallpaperBlurRadius =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_WALLPAPER_BLUR_RADIUS] as?
-                                Float
-                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .DEFAULT_WALLPAPER_BLUR_RADIUS,
-                showAllResults =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_ALL_RESULTS] as?
-                                Boolean
-                                ?: false,
-                amazonDomain =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_AMAZON_DOMAIN] as?
-                                String,
-                pinnedPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_PINNED] as?
-                                Set<String>
-                                ?: emptySet(),
-                suggestionHiddenPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_HIDDEN_SUGGESTIONS] as?
-                                Set<String>
-                                ?: emptySet(),
-                resultHiddenPackages =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.BasePreferences
-                                        .KEY_HIDDEN_RESULTS] as?
-                                Set<String>
-                                ?: emptySet(),
-                recentSearchesEnabled =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_RECENT_QUERIES_ENABLED] as?
-                                Boolean
-                                ?: true
-        )
-
-        return StartupConfig(
-                keyboardAlignedLayout = keyboardAlignedLayout,
-                cachedAppsLastUpdate = cachedAppsLastUpdate,
-                startupPreferences = startupPreferences
-        )
-    }
-
-    // ============================================================================
-    // App Preferences
-    // ============================================================================
-
-    fun getSuggestionHiddenPackages(): Set<String> = appPreferences.getSuggestionHiddenPackages()
-
-    fun getResultHiddenPackages(): Set<String> = appPreferences.getResultHiddenPackages()
-
-    fun getPinnedPackages(): Set<String> = appPreferences.getPinnedPackages()
+        // ============================================================================
+        // App Preferences
+        // ============================================================================
 
-    fun hidePackageInSuggestions(packageName: String): Set<String> =
-            appPreferences.hidePackageInSuggestions(packageName)
+        fun getSuggestionHiddenPackages(): Set<String> =
+                appPreferences.getSuggestionHiddenPackages()
 
-    fun hidePackageInResults(packageName: String): Set<String> =
-            appPreferences.hidePackageInResults(packageName)
+        fun getResultHiddenPackages(): Set<String> = appPreferences.getResultHiddenPackages()
 
-    fun unhidePackageInSuggestions(packageName: String): Set<String> =
-            appPreferences.unhidePackageInSuggestions(packageName)
+        fun getPinnedPackages(): Set<String> = appPreferences.getPinnedPackages()
 
-    fun unhidePackageInResults(packageName: String): Set<String> =
-            appPreferences.unhidePackageInResults(packageName)
+        fun hidePackageInSuggestions(packageName: String): Set<String> =
+                appPreferences.hidePackageInSuggestions(packageName)
 
-    fun pinPackage(packageName: String): Set<String> = appPreferences.pinPackage(packageName)
+        fun hidePackageInResults(packageName: String): Set<String> =
+                appPreferences.hidePackageInResults(packageName)
 
-    fun unpinPackage(packageName: String): Set<String> = appPreferences.unpinPackage(packageName)
+        fun unhidePackageInSuggestions(packageName: String): Set<String> =
+                appPreferences.unhidePackageInSuggestions(packageName)
 
-    fun clearAllHiddenAppsInSuggestions(): Set<String> =
-            appPreferences.clearAllHiddenAppsInSuggestions()
+        fun unhidePackageInResults(packageName: String): Set<String> =
+                appPreferences.unhidePackageInResults(packageName)
 
-    fun clearAllHiddenAppsInResults(): Set<String> = appPreferences.clearAllHiddenAppsInResults()
+        fun pinPackage(packageName: String): Set<String> = appPreferences.pinPackage(packageName)
 
-    fun getAppLaunchCount(packageName: String): Int = appPreferences.getAppLaunchCount(packageName)
+        fun unpinPackage(packageName: String): Set<String> =
+                appPreferences.unpinPackage(packageName)
 
-    fun incrementAppLaunchCount(packageName: String) =
-            appPreferences.incrementAppLaunchCount(packageName)
+        fun clearAllHiddenAppsInSuggestions(): Set<String> =
+                appPreferences.clearAllHiddenAppsInSuggestions()
 
-    fun getAllAppLaunchCounts(): Map<String, Int> = appPreferences.getAllAppLaunchCounts()
+        fun clearAllHiddenAppsInResults(): Set<String> =
+                appPreferences.clearAllHiddenAppsInResults()
 
-    // ============================================================================
-    // Contact Preferences
-    // ============================================================================
+        fun getAppLaunchCount(packageName: String): Int =
+                appPreferences.getAppLaunchCount(packageName)
 
-    fun getPinnedContactIds(): Set<Long> = contactPreferences.getPinnedContactIds()
+        fun incrementAppLaunchCount(packageName: String) =
+                appPreferences.incrementAppLaunchCount(packageName)
 
-    fun getExcludedContactIds(): Set<Long> = contactPreferences.getExcludedContactIds()
+        fun getAllAppLaunchCounts(): Map<String, Int> = appPreferences.getAllAppLaunchCounts()
 
-    fun pinContact(contactId: Long): Set<Long> = contactPreferences.pinContact(contactId)
+        // ============================================================================
+        // Contact Preferences
+        // ============================================================================
 
-    fun unpinContact(contactId: Long): Set<Long> = contactPreferences.unpinContact(contactId)
+        fun getPinnedContactIds(): Set<Long> = contactPreferences.getPinnedContactIds()
 
-    fun excludeContact(contactId: Long): Set<Long> = contactPreferences.excludeContact(contactId)
+        fun getExcludedContactIds(): Set<Long> = contactPreferences.getExcludedContactIds()
 
-    fun removeExcludedContact(contactId: Long): Set<Long> =
-            contactPreferences.removeExcludedContact(contactId)
+        fun pinContact(contactId: Long): Set<Long> = contactPreferences.pinContact(contactId)
 
-    fun clearAllExcludedContacts(): Set<Long> = contactPreferences.clearAllExcludedContacts()
+        fun unpinContact(contactId: Long): Set<Long> = contactPreferences.unpinContact(contactId)
 
-    fun getPreferredPhoneNumber(contactId: Long): String? =
-            contactPreferences.getPreferredPhoneNumber(contactId)
+        fun excludeContact(contactId: Long): Set<Long> =
+                contactPreferences.excludeContact(contactId)
 
-    fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) =
-            contactPreferences.setPreferredPhoneNumber(contactId, phoneNumber)
+        fun removeExcludedContact(contactId: Long): Set<Long> =
+                contactPreferences.removeExcludedContact(contactId)
 
-    fun getLastShownPhoneNumber(contactId: Long): String? =
-            contactPreferences.getLastShownPhoneNumber(contactId)
+        fun clearAllExcludedContacts(): Set<Long> = contactPreferences.clearAllExcludedContacts()
 
-    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) =
-            contactPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
+        fun getPreferredPhoneNumber(contactId: Long): String? =
+                contactPreferences.getPreferredPhoneNumber(contactId)
 
-    fun isDirectDialEnabled(): Boolean = contactPreferences.isDirectDialEnabled()
+        fun setPreferredPhoneNumber(contactId: Long, phoneNumber: String) =
+                contactPreferences.setPreferredPhoneNumber(contactId, phoneNumber)
 
-    fun setDirectDialEnabled(enabled: Boolean) = contactPreferences.setDirectDialEnabled(enabled)
+        fun getLastShownPhoneNumber(contactId: Long): String? =
+                contactPreferences.getLastShownPhoneNumber(contactId)
 
-    fun hasSeenDirectDialChoice(): Boolean = contactPreferences.hasSeenDirectDialChoice()
+        fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) =
+                contactPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
 
-    fun setHasSeenDirectDialChoice(seen: Boolean) =
-            contactPreferences.setHasSeenDirectDialChoice(seen)
+        fun isDirectDialEnabled(): Boolean = contactPreferences.isDirectDialEnabled()
 
-    fun isDirectDialManuallyDisabled(): Boolean = contactPreferences.isDirectDialManuallyDisabled()
+        fun setDirectDialEnabled(enabled: Boolean) =
+                contactPreferences.setDirectDialEnabled(enabled)
 
-    fun setDirectDialManuallyDisabled(disabled: Boolean) =
-            contactPreferences.setDirectDialManuallyDisabled(disabled)
+        fun hasSeenDirectDialChoice(): Boolean = contactPreferences.hasSeenDirectDialChoice()
 
-    // ============================================================================
-    // File Preferences
-    // ============================================================================
+        fun setHasSeenDirectDialChoice(seen: Boolean) =
+                contactPreferences.setHasSeenDirectDialChoice(seen)
 
-    fun getPinnedFileUris(): Set<String> = filePreferences.getPinnedFileUris()
+        fun isDirectDialManuallyDisabled(): Boolean =
+                contactPreferences.isDirectDialManuallyDisabled()
 
-    fun getExcludedFileUris(): Set<String> = filePreferences.getExcludedFileUris()
+        fun setDirectDialManuallyDisabled(disabled: Boolean) =
+                contactPreferences.setDirectDialManuallyDisabled(disabled)
 
-    fun pinFile(uri: String): Set<String> = filePreferences.pinFile(uri)
+        // ============================================================================
+        // File Preferences
+        // ============================================================================
 
-    fun unpinFile(uri: String): Set<String> = filePreferences.unpinFile(uri)
+        fun getPinnedFileUris(): Set<String> = filePreferences.getPinnedFileUris()
 
-    fun excludeFile(uri: String): Set<String> = filePreferences.excludeFile(uri)
+        fun getExcludedFileUris(): Set<String> = filePreferences.getExcludedFileUris()
 
-    fun removeExcludedFile(uri: String): Set<String> = filePreferences.removeExcludedFile(uri)
+        fun pinFile(uri: String): Set<String> = filePreferences.pinFile(uri)
 
-    fun clearAllExcludedFiles(): Set<String> = filePreferences.clearAllExcludedFiles()
+        fun unpinFile(uri: String): Set<String> = filePreferences.unpinFile(uri)
 
-    fun getExcludedFileExtensions(): Set<String> = filePreferences.getExcludedFileExtensions()
+        fun excludeFile(uri: String): Set<String> = filePreferences.excludeFile(uri)
 
-    fun addExcludedFileExtension(extension: String): Set<String> =
-            filePreferences.addExcludedFileExtension(extension)
+        fun removeExcludedFile(uri: String): Set<String> = filePreferences.removeExcludedFile(uri)
 
-    fun removeExcludedFileExtension(extension: String): Set<String> =
-            filePreferences.removeExcludedFileExtension(extension)
+        fun clearAllExcludedFiles(): Set<String> = filePreferences.clearAllExcludedFiles()
 
-    fun clearAllExcludedFileExtensions(): Set<String> =
-            filePreferences.clearAllExcludedFileExtensions()
+        fun getExcludedFileExtensions(): Set<String> = filePreferences.getExcludedFileExtensions()
 
-    fun getEnabledFileTypes(): Set<com.tk.quicksearch.search.models.FileType> =
-            filePreferences.getEnabledFileTypes()
+        fun addExcludedFileExtension(extension: String): Set<String> =
+                filePreferences.addExcludedFileExtension(extension)
 
-    fun setEnabledFileTypes(enabled: Set<com.tk.quicksearch.search.models.FileType>) =
-            filePreferences.setEnabledFileTypes(enabled)
+        fun removeExcludedFileExtension(extension: String): Set<String> =
+                filePreferences.removeExcludedFileExtension(extension)
 
-    // ============================================================================
-    // Settings Preferences
-    // ============================================================================
+        fun clearAllExcludedFileExtensions(): Set<String> =
+                filePreferences.clearAllExcludedFileExtensions()
 
-    fun getPinnedSettingIds(): Set<String> = settingsPreferences.getPinnedSettingIds()
+        fun getEnabledFileTypes(): Set<com.tk.quicksearch.search.models.FileType> =
+                filePreferences.getEnabledFileTypes()
 
-    fun getExcludedSettingIds(): Set<String> = settingsPreferences.getExcludedSettingIds()
+        fun setEnabledFileTypes(enabled: Set<com.tk.quicksearch.search.models.FileType>) =
+                filePreferences.setEnabledFileTypes(enabled)
 
-    fun pinSetting(id: String): Set<String> = settingsPreferences.pinSetting(id)
+        fun clearEnabledFileTypes(): Set<com.tk.quicksearch.search.models.FileType> =
+                filePreferences.clearEnabledFileTypes()
 
-    fun unpinSetting(id: String): Set<String> = settingsPreferences.unpinSetting(id)
+        fun getShowFoldersInResults(): Boolean = filePreferences.getShowFoldersInResults()
 
-    fun excludeSetting(id: String): Set<String> = settingsPreferences.excludeSetting(id)
+        fun setShowFoldersInResults(show: Boolean) = filePreferences.setShowFoldersInResults(show)
 
-    fun removeExcludedSetting(id: String): Set<String> =
-            settingsPreferences.removeExcludedSetting(id)
+        fun getShowSystemFiles(): Boolean = filePreferences.getShowSystemFiles()
 
-    fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
+        fun setShowSystemFiles(show: Boolean) = filePreferences.setShowSystemFiles(show)
 
-    // ============================================================================
-    // App Shortcut Preferences
-    // ============================================================================
+        fun getShowHiddenFiles(): Boolean = filePreferences.getShowHiddenFiles()
 
-    fun getPinnedAppShortcutIds(): Set<String> = appShortcutPreferences.getPinnedAppShortcutIds()
+        fun setShowHiddenFiles(show: Boolean) = filePreferences.setShowHiddenFiles(show)
 
-    fun getExcludedAppShortcutIds(): Set<String> =
-            appShortcutPreferences.getExcludedAppShortcutIds()
+        // ============================================================================
+        // Settings Preferences
+        // ============================================================================
 
-    fun pinAppShortcut(id: String): Set<String> = appShortcutPreferences.pinAppShortcut(id)
+        fun getPinnedSettingIds(): Set<String> = settingsPreferences.getPinnedSettingIds()
 
-    fun unpinAppShortcut(id: String): Set<String> = appShortcutPreferences.unpinAppShortcut(id)
+        fun getExcludedSettingIds(): Set<String> = settingsPreferences.getExcludedSettingIds()
 
-    fun excludeAppShortcut(id: String): Set<String> = appShortcutPreferences.excludeAppShortcut(id)
+        fun pinSetting(id: String): Set<String> = settingsPreferences.pinSetting(id)
 
-    fun removeExcludedAppShortcut(id: String): Set<String> =
-            appShortcutPreferences.removeExcludedAppShortcut(id)
+        fun unpinSetting(id: String): Set<String> = settingsPreferences.unpinSetting(id)
 
-    fun clearAllExcludedAppShortcuts(): Set<String> =
-            appShortcutPreferences.clearAllExcludedAppShortcuts()
+        fun excludeSetting(id: String): Set<String> = settingsPreferences.excludeSetting(id)
 
-    // ============================================================================
-    // Nickname Preferences
-    // ============================================================================
+        fun removeExcludedSetting(id: String): Set<String> =
+                settingsPreferences.removeExcludedSetting(id)
 
-    fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
+        fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
 
-    fun getAppNickname(packageName: String): String? =
-            nicknamePreferences.getAppNickname(packageName)
+        // ============================================================================
+        // App Shortcut Preferences
+        // ============================================================================
 
-    fun setAppNickname(packageName: String, nickname: String?) =
-            nicknamePreferences.setAppNickname(packageName, nickname)
+        fun getPinnedAppShortcutIds(): Set<String> =
+                appShortcutPreferences.getPinnedAppShortcutIds()
 
-    fun getContactNickname(contactId: Long): String? =
-            nicknamePreferences.getContactNickname(contactId)
+        fun getExcludedAppShortcutIds(): Set<String> =
+                appShortcutPreferences.getExcludedAppShortcutIds()
 
-    fun setContactNickname(contactId: Long, nickname: String?) =
-            nicknamePreferences.setContactNickname(contactId, nickname)
+        fun pinAppShortcut(id: String): Set<String> = appShortcutPreferences.pinAppShortcut(id)
 
-    fun getFileNickname(uri: String): String? = nicknamePreferences.getFileNickname(uri)
+        fun unpinAppShortcut(id: String): Set<String> = appShortcutPreferences.unpinAppShortcut(id)
 
-    fun setFileNickname(uri: String, nickname: String?) =
-            nicknamePreferences.setFileNickname(uri, nickname)
+        fun excludeAppShortcut(id: String): Set<String> =
+                appShortcutPreferences.excludeAppShortcut(id)
 
-    fun getSettingNickname(id: String): String? = nicknamePreferences.getSettingNickname(id)
+        fun removeExcludedAppShortcut(id: String): Set<String> =
+                appShortcutPreferences.removeExcludedAppShortcut(id)
 
-    fun setSettingNickname(id: String, nickname: String?) =
-            nicknamePreferences.setSettingNickname(id, nickname)
+        fun clearAllExcludedAppShortcuts(): Set<String> =
+                appShortcutPreferences.clearAllExcludedAppShortcuts()
 
-    /** Finds contact IDs that have nicknames matching the query. */
-    fun findContactsWithMatchingNickname(query: String): Set<Long> =
-            nicknamePreferences.findContactsWithMatchingNickname(query)
+        // ============================================================================
+        // Nickname Preferences
+        // ============================================================================
 
-    /** Finds file URIs that have nicknames matching the query. */
-    fun findFilesWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findFilesWithMatchingNickname(query)
+        fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
 
-    /** Finds settings that have nicknames matching the query. */
-    fun findSettingsWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findSettingsWithMatchingNickname(query)
+        fun getAppNickname(packageName: String): String? =
+                nicknamePreferences.getAppNickname(packageName)
 
-    // ============================================================================
-    // Search Engine Preferences
-    // ============================================================================
+        fun setAppNickname(packageName: String, nickname: String?) =
+                nicknamePreferences.setAppNickname(packageName, nickname)
 
-    fun hasDisabledSearchEnginesPreference(): Boolean =
-            searchEnginePreferences.hasDisabledSearchEnginesPreference()
+        fun getContactNickname(contactId: Long): String? =
+                nicknamePreferences.getContactNickname(contactId)
 
-    fun getDisabledSearchEngines(): Set<String> = searchEnginePreferences.getDisabledSearchEngines()
+        fun setContactNickname(contactId: Long, nickname: String?) =
+                nicknamePreferences.setContactNickname(contactId, nickname)
 
-    fun setDisabledSearchEngines(disabled: Set<String>) =
-            searchEnginePreferences.setDisabledSearchEngines(disabled)
+        fun getFileNickname(uri: String): String? = nicknamePreferences.getFileNickname(uri)
 
-    fun getSearchEngineOrder(): List<String> = searchEnginePreferences.getSearchEngineOrder()
+        fun setFileNickname(uri: String, nickname: String?) =
+                nicknamePreferences.setFileNickname(uri, nickname)
 
-    fun setSearchEngineOrder(order: List<String>) =
-            searchEnginePreferences.setSearchEngineOrder(order)
+        fun getSettingNickname(id: String): String? = nicknamePreferences.getSettingNickname(id)
 
-    fun isSearchEngineCompactMode(): Boolean = searchEnginePreferences.isSearchEngineCompactMode()
+        fun setSettingNickname(id: String, nickname: String?) =
+                nicknamePreferences.setSettingNickname(id, nickname)
 
-    fun setSearchEngineCompactMode(enabled: Boolean) =
-            searchEnginePreferences.setSearchEngineCompactMode(enabled)
+        /** Finds contact IDs that have nicknames matching the query. */
+        fun findContactsWithMatchingNickname(query: String): Set<Long> =
+                nicknamePreferences.findContactsWithMatchingNickname(query)
 
-    fun hasSeenSearchEngineOnboarding(): Boolean =
-            searchEnginePreferences.hasSeenSearchEngineOnboarding()
+        /** Finds file URIs that have nicknames matching the query. */
+        fun findFilesWithMatchingNickname(query: String): Set<String> =
+                nicknamePreferences.findFilesWithMatchingNickname(query)
 
-    fun setHasSeenSearchEngineOnboarding(seen: Boolean) =
-            searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
+        /** Finds settings that have nicknames matching the query. */
+        fun findSettingsWithMatchingNickname(query: String): Set<String> =
+                nicknamePreferences.findSettingsWithMatchingNickname(query)
 
-    // ============================================================================
-    // Shortcut Preferences
-    // ============================================================================
+        // ============================================================================
+        // Search Engine Preferences
+        // ============================================================================
 
-    fun areShortcutsEnabled(): Boolean = shortcutPreferences.areShortcutsEnabled()
+        fun hasDisabledSearchEnginesPreference(): Boolean =
+                searchEnginePreferences.hasDisabledSearchEnginesPreference()
 
-    fun setShortcutsEnabled(enabled: Boolean) = shortcutPreferences.setShortcutsEnabled(enabled)
+        fun getDisabledSearchEngines(): Set<String> =
+                searchEnginePreferences.getDisabledSearchEngines()
 
-    fun getShortcutCode(engine: SearchEngine): String = shortcutPreferences.getShortcutCode(engine)
+        fun setDisabledSearchEngines(disabled: Set<String>) =
+                searchEnginePreferences.setDisabledSearchEngines(disabled)
 
-    fun setShortcutCode(engine: SearchEngine, code: String) =
-            shortcutPreferences.setShortcutCode(engine, code)
+        fun getSearchEngineOrder(): List<String> = searchEnginePreferences.getSearchEngineOrder()
 
-    fun isShortcutEnabled(engine: SearchEngine): Boolean =
-            shortcutPreferences.isShortcutEnabled(engine)
+        fun setSearchEngineOrder(order: List<String>) =
+                searchEnginePreferences.setSearchEngineOrder(order)
 
-    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) =
-            shortcutPreferences.setShortcutEnabled(engine, enabled)
+        fun isSearchEngineCompactMode(): Boolean =
+                searchEnginePreferences.isSearchEngineCompactMode()
 
-    fun getAllShortcutCodes(): Map<SearchEngine, String> = shortcutPreferences.getAllShortcutCodes()
+        fun setSearchEngineCompactMode(enabled: Boolean) =
+                searchEnginePreferences.setSearchEngineCompactMode(enabled)
 
-    // ============================================================================
-    // Amazon Domain Preferences
-    // ============================================================================
+        fun hasSeenSearchEngineOnboarding(): Boolean =
+                searchEnginePreferences.hasSeenSearchEngineOnboarding()
 
-    fun getAmazonDomain(): String? = amazonPreferences.getAmazonDomain()
+        fun setHasSeenSearchEngineOnboarding(seen: Boolean) =
+                searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
 
-    fun setAmazonDomain(domain: String?) = amazonPreferences.setAmazonDomain(domain)
+        // ============================================================================
+        // Shortcut Preferences
+        // ============================================================================
 
-    // ============================================================================
-    // Gemini API Preferences
-    // ============================================================================
+        fun areShortcutsEnabled(): Boolean = shortcutPreferences.areShortcutsEnabled()
 
-    fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
+        fun setShortcutsEnabled(enabled: Boolean) = shortcutPreferences.setShortcutsEnabled(enabled)
 
-    fun setGeminiApiKey(key: String?) = geminiPreferences.setGeminiApiKey(key)
+        fun getShortcutCode(engine: SearchEngine): String =
+                shortcutPreferences.getShortcutCode(engine)
 
-    fun getPersonalContext(): String? = geminiPreferences.getPersonalContext()
+        fun setShortcutCode(engine: SearchEngine, code: String) =
+                shortcutPreferences.setShortcutCode(engine, code)
 
-    fun setPersonalContext(context: String?) = geminiPreferences.setPersonalContext(context)
+        fun isShortcutEnabled(engine: SearchEngine): Boolean =
+                shortcutPreferences.isShortcutEnabled(engine)
 
-    // ============================================================================
-    // UI Preferences
-    // ============================================================================
+        fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) =
+                shortcutPreferences.setShortcutEnabled(engine, enabled)
 
-    fun isKeyboardAlignedLayout(): Boolean = uiPreferences.isKeyboardAlignedLayout()
+        fun getAllShortcutCodes(): Map<SearchEngine, String> =
+                shortcutPreferences.getAllShortcutCodes()
 
-    fun setKeyboardAlignedLayout(enabled: Boolean) = uiPreferences.setKeyboardAlignedLayout(enabled)
+        // ============================================================================
+        // Amazon Domain Preferences
+        // ============================================================================
 
-    fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
+        fun getAmazonDomain(): String? = amazonPreferences.getAmazonDomain()
 
-    fun setMessagingApp(app: MessagingApp) = uiPreferences.setMessagingApp(app)
+        fun setAmazonDomain(domain: String?) = amazonPreferences.setAmazonDomain(domain)
 
-    fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()
+        // ============================================================================
+        // Gemini API Preferences
+        // ============================================================================
 
-    fun setFirstLaunchCompleted() = uiPreferences.setFirstLaunchCompleted()
+        fun getGeminiApiKey(): String? = geminiPreferences.getGeminiApiKey()
 
-    fun shouldShowWallpaperBackground(): Boolean = uiPreferences.shouldShowWallpaperBackground()
+        fun setGeminiApiKey(key: String?) = geminiPreferences.setGeminiApiKey(key)
 
-    fun setShowWallpaperBackground(showWallpaper: Boolean) =
-            uiPreferences.setShowWallpaperBackground(showWallpaper)
+        fun getPersonalContext(): String? = geminiPreferences.getPersonalContext()
 
-    fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
+        fun setPersonalContext(context: String?) = geminiPreferences.setPersonalContext(context)
 
-    fun setWallpaperBackgroundAlpha(alpha: Float) = uiPreferences.setWallpaperBackgroundAlpha(alpha)
+        // ============================================================================
+        // UI Preferences
+        // ============================================================================
 
-    fun getWallpaperBlurRadius(): Float = uiPreferences.getWallpaperBlurRadius()
+        fun isKeyboardAlignedLayout(): Boolean = uiPreferences.isKeyboardAlignedLayout()
 
-    fun setWallpaperBlurRadius(radius: Float) = uiPreferences.setWallpaperBlurRadius(radius)
+        fun setKeyboardAlignedLayout(enabled: Boolean) =
+                uiPreferences.setKeyboardAlignedLayout(enabled)
 
-    fun shouldClearQueryAfterSearchEngine(): Boolean =
-            uiPreferences.shouldClearQueryAfterSearchEngine()
+        fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 
-    fun setClearQueryAfterSearchEngine(clearQuery: Boolean) =
-            uiPreferences.setClearQueryAfterSearchEngine(clearQuery)
+        fun setMessagingApp(app: MessagingApp) = uiPreferences.setMessagingApp(app)
 
-    fun shouldShowAllResults(): Boolean = uiPreferences.shouldShowAllResults()
+        fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()
 
-    fun setShowAllResults(showAllResults: Boolean) = uiPreferences.setShowAllResults(showAllResults)
+        fun setFirstLaunchCompleted() = uiPreferences.setFirstLaunchCompleted()
 
-    fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
+        fun shouldShowWallpaperBackground(): Boolean = uiPreferences.shouldShowWallpaperBackground()
 
-    fun setSelectedIconPackPackage(packageName: String?) =
-            uiPreferences.setSelectedIconPackPackage(packageName)
+        fun setShowWallpaperBackground(showWallpaper: Boolean) =
+                uiPreferences.setShowWallpaperBackground(showWallpaper)
 
-    fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
+        fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
 
-    fun setDirectSearchSetupExpanded(expanded: Boolean) =
-            uiPreferences.setDirectSearchSetupExpanded(expanded)
+        fun setWallpaperBackgroundAlpha(alpha: Float) =
+                uiPreferences.setWallpaperBackgroundAlpha(alpha)
 
-    fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
+        fun getWallpaperBlurRadius(): Float = uiPreferences.getWallpaperBlurRadius()
 
-    fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
+        fun setWallpaperBlurRadius(radius: Float) = uiPreferences.setWallpaperBlurRadius(radius)
 
-    fun hasSeenContactActionHint(): Boolean = uiPreferences.hasSeenContactActionHint()
+        fun shouldClearQueryAfterSearchEngine(): Boolean =
+                uiPreferences.shouldClearQueryAfterSearchEngine()
 
-    fun setHasSeenContactActionHint(seen: Boolean) = uiPreferences.setHasSeenContactActionHint(seen)
+        fun setClearQueryAfterSearchEngine(clearQuery: Boolean) =
+                uiPreferences.setClearQueryAfterSearchEngine(clearQuery)
 
-    fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
+        fun shouldShowAllResults(): Boolean = uiPreferences.shouldShowAllResults()
 
-    fun setLastSeenVersionName(versionName: String?) =
-            uiPreferences.setLastSeenVersionName(versionName)
+        fun setShowAllResults(showAllResults: Boolean) =
+                uiPreferences.setShowAllResults(showAllResults)
 
-    fun getUsagePermissionBannerDismissCount(): Int =
-            uiPreferences.getUsagePermissionBannerDismissCount()
+        fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 
-    fun incrementUsagePermissionBannerDismissCount() =
-            uiPreferences.incrementUsagePermissionBannerDismissCount()
+        fun setSelectedIconPackPackage(packageName: String?) =
+                uiPreferences.setSelectedIconPackPackage(packageName)
 
-    fun isUsagePermissionBannerSessionDismissed(): Boolean =
-            uiPreferences.isUsagePermissionBannerSessionDismissed()
+        fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 
-    fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) =
-            uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
+        fun setDirectSearchSetupExpanded(expanded: Boolean) =
+                uiPreferences.setDirectSearchSetupExpanded(expanded)
 
-    fun resetUsagePermissionBannerSessionDismissed() =
-            uiPreferences.resetUsagePermissionBannerSessionDismissed()
+        fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
 
-    fun shouldShowUsagePermissionBanner(): Boolean = uiPreferences.shouldShowUsagePermissionBanner()
+        fun setHasSeenSearchBarWelcome(seen: Boolean) =
+                uiPreferences.setHasSeenSearchBarWelcome(seen)
 
-    // ============================================================================
-    // Web Search Suggestions Preferences
-    // ============================================================================
+        fun hasSeenContactActionHint(): Boolean = uiPreferences.hasSeenContactActionHint()
 
-    fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
+        fun setHasSeenContactActionHint(seen: Boolean) =
+                uiPreferences.setHasSeenContactActionHint(seen)
 
-    fun getWebSuggestionsCount(): Int = uiPreferences.getWebSuggestionsCount()
+        fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
-    fun setWebSuggestionsCount(count: Int) {
-        uiPreferences.setWebSuggestionsCount(count)
-    }
+        fun setLastSeenVersionName(versionName: String?) =
+                uiPreferences.setLastSeenVersionName(versionName)
 
-    fun setWebSuggestionsEnabled(enabled: Boolean) = uiPreferences.setWebSuggestionsEnabled(enabled)
+        fun getUsagePermissionBannerDismissCount(): Int =
+                uiPreferences.getUsagePermissionBannerDismissCount()
 
-    // ============================================================================
-    // Calculator Preferences
-    // ============================================================================
+        fun incrementUsagePermissionBannerDismissCount() =
+                uiPreferences.incrementUsagePermissionBannerDismissCount()
 
-    fun isCalculatorEnabled(): Boolean = uiPreferences.isCalculatorEnabled()
+        fun isUsagePermissionBannerSessionDismissed(): Boolean =
+                uiPreferences.isUsagePermissionBannerSessionDismissed()
 
-    fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
+        fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) =
+                uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
 
-    // ============================================================================
-    // Recent Queries Preferences
-    // ============================================================================
+        fun resetUsagePermissionBannerSessionDismissed() =
+                uiPreferences.resetUsagePermissionBannerSessionDismissed()
 
-    fun getRecentQueries(): List<String> = recentSearchesPreferences.getRecentQueries()
+        fun shouldShowUsagePermissionBanner(): Boolean =
+                uiPreferences.shouldShowUsagePermissionBanner()
 
-    fun addRecentQuery(query: String) = recentSearchesPreferences.addRecentQuery(query)
+        // ============================================================================
+        // Web Search Suggestions Preferences
+        // ============================================================================
 
-    fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
+        fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 
-    fun deleteRecentQuery(query: String) = recentSearchesPreferences.deleteRecentQuery(query)
+        fun getWebSuggestionsCount(): Int = uiPreferences.getWebSuggestionsCount()
 
-    fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
+        fun setWebSuggestionsCount(count: Int) {
+                uiPreferences.setWebSuggestionsCount(count)
+        }
 
-    fun getRecentQueriesCount(): Int = recentSearchesPreferences.getRecentQueriesCount()
+        fun setWebSuggestionsEnabled(enabled: Boolean) =
+                uiPreferences.setWebSuggestionsEnabled(enabled)
 
-    fun setRecentQueriesCount(count: Int) {
-        recentSearchesPreferences.setRecentQueriesCount(count)
-    }
+        // ============================================================================
+        // Calculator Preferences
+        // ============================================================================
 
-    fun setRecentQueriesEnabled(enabled: Boolean) =
-            recentSearchesPreferences.setRecentQueriesEnabled(enabled)
+        fun isCalculatorEnabled(): Boolean = uiPreferences.isCalculatorEnabled()
 
-    // ============================================================================
-    // Usage Permission Banner Preferences
-    // ============================================================================
+        fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
 
-    fun getShortcutHintBannerDismissCount(): Int = uiPreferences.getShortcutHintBannerDismissCount()
+        // ============================================================================
+        // Recent Queries Preferences
+        // ============================================================================
 
-    fun incrementShortcutHintBannerDismissCount() =
-            uiPreferences.incrementShortcutHintBannerDismissCount()
+        fun getRecentQueries(): List<String> = recentSearchesPreferences.getRecentQueries()
 
-    fun isShortcutHintBannerSessionDismissed(): Boolean =
-            uiPreferences.isShortcutHintBannerSessionDismissed()
+        fun addRecentQuery(query: String) = recentSearchesPreferences.addRecentQuery(query)
 
-    fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) =
-            uiPreferences.setShortcutHintBannerSessionDismissed(dismissed)
+        fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
 
-    fun resetShortcutHintBannerSessionDismissed() =
-            uiPreferences.resetShortcutHintBannerSessionDismissed()
+        fun deleteRecentQuery(query: String) = recentSearchesPreferences.deleteRecentQuery(query)
 
-    fun shouldShowShortcutHintBanner(): Boolean = uiPreferences.shouldShowShortcutHintBanner()
+        fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
 
-    // ============================================================================
-    // Section Preferences
-    // ============================================================================
+        fun getRecentQueriesCount(): Int = recentSearchesPreferences.getRecentQueriesCount()
 
-    fun getSectionOrder(): List<String> = uiPreferences.getSectionOrder()
+        fun setRecentQueriesCount(count: Int) {
+                recentSearchesPreferences.setRecentQueriesCount(count)
+        }
 
-    fun setSectionOrder(order: List<String>) = uiPreferences.setSectionOrder(order)
+        fun setRecentQueriesEnabled(enabled: Boolean) =
+                recentSearchesPreferences.setRecentQueriesEnabled(enabled)
 
-    fun getDisabledSections(): Set<String> = uiPreferences.getDisabledSections()
+        // ============================================================================
+        // Usage Permission Banner Preferences
+        // ============================================================================
 
-    fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)
+        fun getShortcutHintBannerDismissCount(): Int =
+                uiPreferences.getShortcutHintBannerDismissCount()
 
-    // ============================================================================
-    // In-App Review Preferences
-    // ============================================================================
+        fun incrementShortcutHintBannerDismissCount() =
+                uiPreferences.incrementShortcutHintBannerDismissCount()
 
-    fun getFirstAppOpenTime(): Long = uiPreferences.getFirstAppOpenTime()
+        fun isShortcutHintBannerSessionDismissed(): Boolean =
+                uiPreferences.isShortcutHintBannerSessionDismissed()
 
-    fun recordFirstAppOpenTime() = uiPreferences.recordFirstAppOpenTime()
+        fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) =
+                uiPreferences.setShortcutHintBannerSessionDismissed(dismissed)
 
-    fun getLastReviewPromptTime(): Long = uiPreferences.getLastReviewPromptTime()
+        fun resetShortcutHintBannerSessionDismissed() =
+                uiPreferences.resetShortcutHintBannerSessionDismissed()
 
-    fun recordReviewPromptTime() = uiPreferences.recordReviewPromptTime()
+        fun shouldShowShortcutHintBanner(): Boolean = uiPreferences.shouldShowShortcutHintBanner()
 
-    fun getReviewPromptedCount(): Int = uiPreferences.getReviewPromptedCount()
+        // ============================================================================
+        // Section Preferences
+        // ============================================================================
 
-    fun incrementReviewPromptedCount() = uiPreferences.incrementReviewPromptedCount()
+        fun getSectionOrder(): List<String> = uiPreferences.getSectionOrder()
 
-    fun getAppOpenCount(): Int = uiPreferences.getAppOpenCount()
+        fun setSectionOrder(order: List<String>) = uiPreferences.setSectionOrder(order)
 
-    fun incrementAppOpenCount() = uiPreferences.incrementAppOpenCount()
+        fun getDisabledSections(): Set<String> = uiPreferences.getDisabledSections()
 
-    fun recordAppOpenCountAtPrompt() = uiPreferences.recordAppOpenCountAtPrompt()
+        fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)
 
-    fun shouldShowReviewPrompt(): Boolean = uiPreferences.shouldShowReviewPrompt()
+        // ============================================================================
+        // In-App Review Preferences
+        // ============================================================================
 
-    // ============================================================================
-    // In-App Update Session Tracking
-    // ============================================================================
+        fun getFirstAppOpenTime(): Long = uiPreferences.getFirstAppOpenTime()
 
-    fun hasShownUpdateCheckThisSession(): Boolean = uiPreferences.hasShownUpdateCheckThisSession()
+        fun recordFirstAppOpenTime() = uiPreferences.recordFirstAppOpenTime()
 
-    fun setUpdateCheckShownThisSession() = uiPreferences.setUpdateCheckShownThisSession()
+        fun getLastReviewPromptTime(): Long = uiPreferences.getLastReviewPromptTime()
 
-    fun resetUpdateCheckSession() = uiPreferences.resetUpdateCheckSession()
+        fun recordReviewPromptTime() = uiPreferences.recordReviewPromptTime()
+
+        fun getReviewPromptedCount(): Int = uiPreferences.getReviewPromptedCount()
+
+        fun incrementReviewPromptedCount() = uiPreferences.incrementReviewPromptedCount()
+
+        fun getAppOpenCount(): Int = uiPreferences.getAppOpenCount()
+
+        fun incrementAppOpenCount() = uiPreferences.incrementAppOpenCount()
+
+        fun recordAppOpenCountAtPrompt() = uiPreferences.recordAppOpenCountAtPrompt()
+
+        fun shouldShowReviewPrompt(): Boolean = uiPreferences.shouldShowReviewPrompt()
+
+        // ============================================================================
+        // In-App Update Session Tracking
+        // ============================================================================
+
+        fun hasShownUpdateCheckThisSession(): Boolean =
+                uiPreferences.hasShownUpdateCheckThisSession()
+
+        fun setUpdateCheckShownThisSession() = uiPreferences.setUpdateCheckShownThisSession()
+
+        fun resetUpdateCheckSession() = uiPreferences.resetUpdateCheckSession()
 }

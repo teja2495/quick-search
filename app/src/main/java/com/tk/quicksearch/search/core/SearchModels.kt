@@ -1,11 +1,11 @@
 package com.tk.quicksearch.search.core
 
+import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.data.StaticShortcut
-import com.tk.quicksearch.search.data.preferences.UiPreferences
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(val packageName: String, val label: String)
@@ -139,7 +139,8 @@ data class SearchUiState(
         // Visibility states (replaces scattered boolean flags)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
         val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
-        val appShortcutsSectionState: AppShortcutsSectionVisibility = AppShortcutsSectionVisibility.Hidden,
+        val appShortcutsSectionState: AppShortcutsSectionVisibility =
+                AppShortcutsSectionVisibility.Hidden,
         val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
@@ -186,7 +187,10 @@ data class SearchUiState(
         val pendingWhatsAppCallDataId: String? = null,
         val directDialEnabled: Boolean = false,
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
-                com.tk.quicksearch.search.models.FileType.values().toSet(),
+                com.tk.quicksearch.search.models.FileType.values().filter { it != com.tk.quicksearch.search.models.FileType.OTHER }.toSet(),
+        val showFolders: Boolean = true,
+        val showSystemFiles: Boolean = false,
+        val showHiddenFiles: Boolean = false,
         val excludedFileExtensions: Set<String> = emptySet(),
         val keyboardAlignedLayout: Boolean = false,
         val shortcutsEnabled: Boolean = true,

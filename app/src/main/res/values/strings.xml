@@ -304,9 +304,15 @@
     <!-- ============================================================================
          Settings - File Types
          ============================================================================ -->
-    <string name="settings_file_types_title">File Types in Results</string>
-   <string name="file_type_photos_and_videos">Photos &amp; Videos</string>
+    <string name="settings_file_types_title">Files &amp; Folders</string>
+    <string name="settings_folders_toggle">Folders</string>
+    <string name="settings_system_files_toggle">System Files</string>
+    <string name="settings_hidden_files_toggle">Hidden Files</string>
     <string name="file_type_documents">Documents</string>
+    <string name="file_type_pictures">Pictures</string>
+    <string name="file_type_videos">Videos</string>
+    <string name="file_type_music">Music</string>
+    <string name="file_type_apks">APKs</string>
     <string name="file_type_other">Other</string>
 
     <!-- ============================================================================
