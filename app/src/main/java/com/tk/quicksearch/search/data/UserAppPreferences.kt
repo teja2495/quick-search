@@ -73,6 +73,19 @@ class UserAppPreferences(private val context: Context) {
     )
 
     /**
+     * Consolidated startup configuration that includes all data needed for app initialization.
+     * This enables loading everything in a single batch operation for maximum performance.
+     */
+    data class StartupConfig(
+            // Critical preferences (needed immediately for layout)
+            val keyboardAlignedLayout: Boolean,
+            // Cached apps metadata
+            val cachedAppsLastUpdate: Long,
+            // Full startup preferences (loaded in background)
+            val startupPreferences: StartupPreferences
+    )
+
+    /**
      * Loads all preferences needed during startup in a single batch operation. This reduces the
      * number of SharedPreferences reads for better startup performance.
      */
@@ -188,6 +201,134 @@ class UserAppPreferences(private val context: Context) {
                                         .KEY_RECENT_QUERIES_ENABLED] as?
                                 Boolean
                                 ?: true
+        )
+    }
+
+    /**
+     * Loads all startup configuration in a single atomic operation for maximum performance.
+     * This consolidates critical preferences, cached apps data, and startup preferences
+     * into one batch read operation, minimizing disk I/O during app launch.
+     */
+    fun loadStartupConfig(): StartupConfig {
+        // Get user preferences in one batch read
+        val prefs = context.getSharedPreferences(
+                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
+                android.content.Context.MODE_PRIVATE
+        )
+        val allPrefs = prefs.all
+
+        // Get app cache metadata in separate read (different SharedPreferences file)
+        val appCachePrefs = context.getSharedPreferences(
+                "app_cache",
+                android.content.Context.MODE_PRIVATE
+        )
+        val cachedAppsLastUpdate = appCachePrefs.getLong("last_update", 0L)
+
+        // Extract critical preference directly from batch read
+        val keyboardAlignedLayout = allPrefs[
+                com.tk.quicksearch.search.data.preferences.UiPreferences
+                        .KEY_KEYBOARD_ALIGNED_LAYOUT] as? Boolean ?: false
+
+        // Build startup preferences from the same batch read
+        val enabledFileTypesNames =
+                allPrefs[
+                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                .KEY_ENABLED_FILE_TYPES] as?
+                        Set<String>
+                        ?: emptySet()
+        val enabledFileTypes =
+                com.tk.quicksearch.search.data.preferences.PreferenceUtils.migrateAndGetFileTypes(
+                        enabledFileTypesNames
+                )
+
+        val startupPreferences = StartupPreferences(
+                enabledFileTypes = enabledFileTypes,
+                excludedFileExtensions =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_EXCLUDED_FILE_EXTENSIONS] as?
+                                Set<String>
+                                ?: emptySet(),
+                keyboardAlignedLayout = keyboardAlignedLayout,
+                directDialEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_DIRECT_DIAL_ENABLED] as?
+                                Boolean
+                                ?: true,
+                hasSeenDirectDialChoice =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_DIRECT_DIAL_CHOICE_SHOWN] as?
+                                Boolean
+                                ?: false,
+                hasSeenSearchEngineOnboarding =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_SEARCH_ENGINE_ONBOARDING_SEEN] as?
+                                Boolean
+                                ?: false,
+                showWallpaperBackground =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_SHOW_WALLPAPER_BACKGROUND] as?
+                                Boolean
+                                ?: true,
+                wallpaperBackgroundAlpha =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_WALLPAPER_BACKGROUND_ALPHA] as?
+                                Float
+                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
+                wallpaperBlurRadius =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_WALLPAPER_BLUR_RADIUS] as?
+                                Float
+                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .DEFAULT_WALLPAPER_BLUR_RADIUS,
+                showAllResults =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_SHOW_ALL_RESULTS] as?
+                                Boolean
+                                ?: false,
+                amazonDomain =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_AMAZON_DOMAIN] as?
+                                String,
+                pinnedPackages =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_PINNED] as?
+                                Set<String>
+                                ?: emptySet(),
+                suggestionHiddenPackages =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_HIDDEN_SUGGESTIONS] as?
+                                Set<String>
+                                ?: emptySet(),
+                resultHiddenPackages =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_HIDDEN_RESULTS] as?
+                                Set<String>
+                                ?: emptySet(),
+                recentSearchesEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_RECENT_QUERIES_ENABLED] as?
+                                Boolean
+                                ?: true
+        )
+
+        return StartupConfig(
+                keyboardAlignedLayout = keyboardAlignedLayout,
+                cachedAppsLastUpdate = cachedAppsLastUpdate,
+                startupPreferences = startupPreferences
         )
     }
 

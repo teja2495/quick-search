@@ -86,6 +86,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     // Cache searchable apps to avoid re-computing on every query change
     @Volatile private var cachedAllSearchableApps: List<AppInfo> = emptyList()
 
+    // Consolidated startup configuration loaded in single batch operation
+    @Volatile private var startupConfig: UserAppPreferences.StartupConfig? = null
+
     // UI feedback is now handled by UiFeedbackService
 
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
@@ -406,10 +409,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /** Phase 1: Load critical data (cache and essential prefs) */
     /** Phase 1: Load ONLY what's needed for the first paint (cache + minimal config) */
     private suspend fun loadCacheAndMinimalPrefs() {
-        // Load only the most critical preference for layout
-        // We skip the full preference load here
-        val criticalPrefs = userPreferences.getCriticalPreferences()
-        keyboardAlignedLayout = criticalPrefs.keyboardAlignedLayout
+        // Load consolidated startup config in single batch operation
+        val startupConfig = userPreferences.loadStartupConfig()
+
+        // Extract critical data for immediate use
+        keyboardAlignedLayout = startupConfig.keyboardAlignedLayout
 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
@@ -431,6 +435,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
+        // Store the full startup config for Phase 2
+        this.startupConfig = startupConfig
+
         // Prefetch icons in background (non-blocking) after UI is shown
         // Icons will lazy-load via rememberAppIcon() with placeholders until ready
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
@@ -449,8 +456,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     /** Phase 2: Load the rest of the startup preferences and compute derived state */
     private suspend fun loadRemainingStartupPreferences() {
-        // Load full startup preferences
-        val startupPrefs = userPreferences.getStartupPreferences()
+        // Use pre-loaded startup config from Phase 1 (already batched)
+        val startupPrefs = startupConfig?.startupPreferences ?: userPreferences.getStartupPreferences()
 
         // Apply preferences
         withContext(Dispatchers.Main) {
@@ -461,7 +468,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             appSearchManager.setFuzzySearchEnabled(true)
 
             // Now we can compute the full state including pinned/hidden apps
-            val lastUpdated = repository.cacheLastUpdatedMillis()
+            val lastUpdated = startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
             refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
 
             // Fully initialized now

@@ -9,6 +9,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.tk.quicksearch.navigation.MainContent
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -51,8 +54,12 @@ class MainActivity : ComponentActivity() {
         // This ensures cached apps are ready when UI renders
         searchViewModel
 
-        // Preload wallpaper immediately to avoid delay in UI
-        WallpaperUtils.preloadWallpaper(this)
+        // PRIORITY: Preload wallpaper immediately for seamless visual foundation
+        // This ensures wallpaper is available when SearchScreen renders, providing
+        // instant visual feedback alongside search bar and app list
+        lifecycleScope.launch(Dispatchers.IO) {
+            WallpaperUtils.preloadWallpaper(this@MainActivity)
+        }
 
         setupContent()
         refreshPermissionStateIfNeeded()
@@ -61,7 +68,6 @@ class MainActivity : ComponentActivity() {
         // Track first app open time and app open count
         // Only track after first launch is complete
         window.decorView.post {
-
             // Track first app open time and app open count
             // Only track after first launch is complete
             if (!userPreferences.isFirstLaunch()) {

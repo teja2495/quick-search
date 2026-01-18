@@ -103,6 +103,12 @@ Lcom/tk/quicksearch/util/CalculatorUtils;
 Lcom/tk/quicksearch/util/HapticUtils;
 Lcom/tk/quicksearch/util/AssistantUtils;
 
+# Wallpaper Utilities - Now called during immediate startup phase
+Lcom/tk/quicksearch/util/WallpaperUtils;
+HSPLcom/tk/quicksearch/util/WallpaperUtils;->preloadWallpaper(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/util/WallpaperUtils;->getCachedWallpaperBitmap()Landroid/graphics/Bitmap;
+HSPLcom/tk/quicksearch/util/WallpaperUtils;->getWallpaperBitmap(Landroid/content/Context;)Landroid/graphics/Bitmap;
+
 Lcom/tk/quicksearch/search/utils/PermissionUtils;
 HSPLcom/tk/quicksearch/search/utils/PermissionUtils;->hasFileAccessPermission(Landroid/content/Context;)Z
 
