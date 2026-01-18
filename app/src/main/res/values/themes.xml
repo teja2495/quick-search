@@ -3,12 +3,19 @@
 
     <!-- Base theme for the app -->
     <style name="Theme.QuickSearch" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Window background to match app UI for instant feel -->
-        <item name="android:windowBackground">@color/background</item>
-        <!-- Remove default splash screen lag/pop-in -->
-        <item name="android:windowSplashScreenAnimatedIcon">@null</item>
-        <item name="android:windowSplashScreenBackground">@color/background</item>
-        <item name="android:windowDisablePreview">false</item>
+        <!-- Window background transparent to eliminate blank screen -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+        <!-- Completely disable splash screen -->
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+
+        <!-- Enable transparency and disable animations -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
     </style>
 
 
