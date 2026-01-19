@@ -93,14 +93,17 @@ fun SectionSettingsSection(
     disabledSections: Set<SearchSection>,
     onToggleSection: (SearchSection, Boolean) -> Unit,
     onReorderSections: (List<SearchSection>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showTitle: Boolean = true
 ) {
-    Text(
-        text = stringResource(R.string.settings_sections_title),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
-    )
+    if (showTitle) {
+        Text(
+            text = stringResource(R.string.settings_sections_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+        )
+    }
 
     val view = LocalView.current
 

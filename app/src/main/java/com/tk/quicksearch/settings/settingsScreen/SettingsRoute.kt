@@ -156,6 +156,10 @@ fun SettingsRoute(
 
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
+    // Define permission request handlers
+    val onRequestUsagePermission = viewModel::openUsageAccessSettings
+    val onRequestFilePermission = viewModel::openFilesPermissionSettings
+
     val callbacks =
             SettingsScreenCallbacks(
                     onBack = onBack,
@@ -260,7 +264,11 @@ fun SettingsRoute(
                         } else {
                             viewModel.refreshFiles(showToast)
                         }
-                    }
+                    },
+                    onRequestUsagePermission = onRequestUsagePermission,
+                    onRequestContactPermission = onRequestContactPermission,
+                    onRequestFilePermission = onRequestFilePermission,
+                    onRequestCallPermission = onRequestCallPermission
             )
 
     // Callback for messaging app selection with installation check

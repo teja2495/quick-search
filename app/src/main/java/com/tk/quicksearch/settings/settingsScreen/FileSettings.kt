@@ -188,6 +188,7 @@ fun FileTypesSection(
         excludedExtensions: Set<String>,
         onRemoveExcludedExtension: (String) -> Unit,
         filesSectionEnabled: Boolean = true,
+        showTitle: Boolean = true,
         modifier: Modifier = Modifier
 ) {
         if (!filesSectionEnabled) {
@@ -195,10 +196,12 @@ fun FileTypesSection(
         }
 
         // Section title
-        SettingsSectionTitle(
-                title = stringResource(R.string.settings_file_types_title),
-                modifier = modifier
-        )
+        if (showTitle) {
+                SettingsSectionTitle(
+                        title = stringResource(R.string.settings_file_types_title),
+                        modifier = modifier
+                )
+        }
 
         // Card 1: Folders toggle
         SettingsCard {

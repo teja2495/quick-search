@@ -52,12 +52,15 @@ fun PermissionsSection(
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
+    showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        SettingsSectionTitle(
-            title = stringResource(R.string.settings_section_permissions)
-        )
+        if (showTitle) {
+                SettingsSectionTitle(
+                        title = stringResource(R.string.settings_section_permissions)
+                )
+        }
 
         SettingsCard {
             Column {

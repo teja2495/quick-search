@@ -243,7 +243,7 @@
          Settings - Appearance
          ============================================================================ -->
     <string name="settings_app_labels_title">Appearance</string>
-    <string name="settings_wallpaper_background_toggle">Wallpaper background</string>
+    <string name="settings_wallpaper_background_toggle">Wallpaper Background</string>
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
@@ -261,8 +261,22 @@
          Settings - Search Engines
          ============================================================================ -->
     <string name="settings_internet_search_title">Internet Search</string>
+    <string name="settings_search_results_title">Search Results</string>
+    <string name="settings_search_results_desc">Manage result types, web suggestions, and search history</string>
     <string name="settings_search_engines_title">Search Engines</string>
-    <string name="settings_search_engines_desc">Customize your search engines (Google, ChatGPT, etc.).</string>
+    <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, and icon packs</string>
+    <string name="settings_calls_texts_title">Calls &amp; Texts</string>
+    <string name="settings_calls_texts_desc">Configure direct dial and default messaging app</string>
+    <string name="settings_files_title">Files</string>
+    <string name="settings_files_desc">Control which file types appear in results</string>
+    <string name="settings_launch_options_title">Launch Options</string>
+    <string name="settings_launch_options_desc">Different ways to launch this app</string>
+    <string name="settings_permissions_title">Permissions</string>
+    <string name="settings_permissions_desc">Permissions this app needs to enable features</string>
+    <string name="settings_feedback_development_title">Feedback &amp; Development</string>
+    <string name="settings_feedback_development_desc">Send feedback, see app\'s source code</string>
     <string name="request_search_engine_text">Request a search engine</string>
     <string name="settings_search_engines_more_title">More</string>
 
@@ -356,7 +370,8 @@
     <string name="settings_excluded_items_empty">You have no excluded items.</string>
     <string name="settings_additional_settings_title">Additional Settings</string>
     <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
-    <string name="settings_show_all_results_toggle">Auto-expand all results</string>
+    <string name="settings_show_all_results_toggle">Auto-Expand Results</string>
+    <string name="settings_show_all_results_desc">Automatically expand all search result sections.</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
@@ -447,7 +462,8 @@
     <string name="release_notes_points">Recent searches will appear when you open the app.\nAdded a new default search engine style: Inline. You can switch back to the older style in settings in "Appearance" section.\nAdded support for search engine shortcuts at the start of a query.\nAdded new search engines: Gemini and Startpage.\nImproved animations &amp; added haptics.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
-    <string name="settings_all_quick_search_features">All Quick Search Features</string>
+    <string name="settings_all_quick_search_features">Features List</string>
+    <string name="settings_all_quick_search_features_desc">View the complete list of features and capabilities</string>
 
     <!-- ============================================================================
          Search Engine Names
@@ -488,7 +504,7 @@
          ============================================================================ -->
     <string name="settings_section_feedback">Feedback &amp; Development</string>
     <string name="settings_feedback_send_title">Send Feedback</string>
-    <string name="settings_feedback_send_desc">Bug Reports &amp; Feature Requests</string>
+    <string name="settings_feedback_send_desc">Report bugs or request features</string>
     <string name="settings_feedback_rate_title">Rate Quick Search</string>
     <string name="settings_feedback_rate_desc">Leave a 5 star rating if you find this app useful</string>
     <string name="settings_feedback_github_title">Development</string>
@@ -511,6 +527,7 @@
          Calculator
          ============================================================================ -->
     <string name="calculator_toggle_title">Calculator</string>
+    <string name="calculator_toggle_desc">Show calculator results for mathematical expressions.</string>
 
     <!-- ============================================================================
          No Results

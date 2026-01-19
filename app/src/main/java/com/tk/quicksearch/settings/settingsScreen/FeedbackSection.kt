@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
+import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -64,7 +66,8 @@ private data class FeedbackItem(
 
 @Composable
 fun FeedbackSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToPermissions: () -> Unit = {}
 ) {
     val context = LocalContext.current
     
@@ -103,20 +106,26 @@ fun FeedbackSection(
             // Handle case where browser is not available
         }
     }
+
+    val onOpenFeatures = {
+        val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Handle case where browser is not available
+        }
+    }
     
     Column(modifier = modifier) {
-        SettingsSectionTitle(
-            title = stringResource(R.string.settings_section_feedback)
-        )
-
         SettingsCard {
             Column {
                 val feedbackItems = listOf(
                     FeedbackItem(
-                        title = stringResource(R.string.settings_feedback_send_title),
-                        description = AnnotatedString(stringResource(R.string.settings_feedback_send_desc)),
-                        iconVector = Icons.Rounded.Email,
-                        onClick = onSendFeedback
+                        title = stringResource(R.string.settings_permissions_title),
+                        description = AnnotatedString(stringResource(R.string.settings_permissions_desc)),
+                        iconVector = Icons.Rounded.AdminPanelSettings,
+                        onClick = onNavigateToPermissions
                     ),
                     FeedbackItem(
                         title = stringResource(R.string.settings_feedback_rate_title),
@@ -125,11 +134,23 @@ fun FeedbackSection(
                         onClick = onRateApp
                     ),
                     FeedbackItem(
+                        title = stringResource(R.string.settings_feedback_send_title),
+                        description = AnnotatedString(stringResource(R.string.settings_feedback_send_desc)),
+                        iconVector = Icons.Rounded.Email,
+                        onClick = onSendFeedback
+                    ),
+                    FeedbackItem(
                         title = stringResource(R.string.settings_feedback_github_title),
                         description = AnnotatedString(stringResource(R.string.settings_feedback_github_desc)),
                         iconResId = R.drawable.ic_github,
                         iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                         onClick = onOpenGitHub
+                    ),
+                    FeedbackItem(
+                        title = stringResource(R.string.settings_all_quick_search_features),
+                        description = AnnotatedString(stringResource(R.string.settings_all_quick_search_features_desc)),
+                        iconVector = Icons.AutoMirrored.Rounded.FormatListBulleted,
+                        onClick = onOpenFeatures
                     )
                 )
                 

@@ -115,7 +115,11 @@ data class SettingsScreenCallbacks(
         val onSetDefaultAssistant: () -> Unit,
         val onRefreshApps: (Boolean) -> Unit,
         val onRefreshContacts: (Boolean) -> Unit,
-        val onRefreshFiles: (Boolean) -> Unit
+        val onRefreshFiles: (Boolean) -> Unit,
+        val onRequestUsagePermission: () -> Unit,
+        val onRequestContactPermission: () -> Unit,
+        val onRequestFilePermission: () -> Unit,
+        val onRequestCallPermission: () -> Unit
 )
 
 /**

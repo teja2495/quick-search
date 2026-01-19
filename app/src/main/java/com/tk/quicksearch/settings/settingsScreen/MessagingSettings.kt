@@ -83,6 +83,7 @@ fun MessagingSection(
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
     onMessagingAppSelected: ((MessagingApp) -> Unit)? = null,
+    showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     if (!contactsSectionEnabled) {
@@ -96,9 +97,11 @@ fun MessagingSection(
     }
 
     Column(modifier = modifier) {
-        SettingsSectionTitle(
-            title = stringResource(R.string.settings_messaging_title)
-        )
+        if (showTitle) {
+                SettingsSectionTitle(
+                        title = stringResource(R.string.settings_messaging_title)
+                )
+        }
 
         MergedMessagingCard(
             messagingOptions = messagingOptions,

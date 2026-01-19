@@ -1,8 +1,11 @@
 package com.tk.quicksearch.navigation
 
+import android.Manifest
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +58,32 @@ fun MainContent(
     var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
     var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
     var shouldShowFinalSetup by remember { mutableStateOf(false) }
+
+    // Permission request handlers for settings detail screens
+    val usagePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        searchViewModel.handleOptionalPermissionChange()
+    }
+
+    val contactPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        searchViewModel.handleOptionalPermissionChange()
+    }
+
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        searchViewModel.handleOptionalPermissionChange()
+    }
+
+    val filePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        searchViewModel.handleOptionalPermissionChange()
+    }
+
 
     when (currentScreen) {
             AppScreen.Permissions -> {

@@ -1,9 +1,13 @@
 package com.tk.quicksearch.settings.settingsScreen
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -22,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
@@ -31,6 +36,7 @@ import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCar
 import com.tk.quicksearch.settings.settingsScreen.permissions.PermissionsSection
 import com.tk.quicksearch.settings.settingsScreen.permissions.UsagePermissionBanner
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun SettingsScreen(
@@ -87,215 +93,54 @@ fun SettingsScreen(
                         onRequestPermission = onRequestUsagePermission,
                         onDismiss = onDismissBanner,
                         onCardClick = {
-                            coroutineScope.launch {
-                                scrollState.animateScrollTo(scrollState.maxValue)
-                            }
+                            onNavigateToDetail(SettingsDetailType.PERMISSIONS)
                         },
                         modifier = Modifier.padding(bottom = SettingsSpacing.sectionTopPadding)
                 )
             }
 
-            // Search Sections Section
-            SectionSettingsSection(
-                    sectionOrder = state.sectionOrder,
-                    disabledSections = state.disabledSections,
-                    onToggleSection = callbacks.onToggleSection,
-                    onReorderSections = callbacks.onReorderSections
-            )
-
-            // Calculator Toggle
-            CalculatorToggleCard(
-                    enabled = state.calculatorEnabled,
-                    onToggle = callbacks.onToggleCalculator,
-                    modifier = Modifier.padding(top = 12.dp)
-            )
-
-            // Internet Search Section
-            Text(
-                    text = stringResource(R.string.settings_internet_search_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                            Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-                                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
-            )
-
-            // Combined Search Engines and Web Suggestions Card
-            CombinedSearchEnginesCard(
+            // Search Results and Search Engines Card
+            CombinedSearchNavigationCard(
+                    searchResultsTitle = stringResource(R.string.settings_search_results_title),
+                    searchResultsDescription = stringResource(R.string.settings_search_results_desc),
                     searchEnginesTitle = stringResource(R.string.settings_search_engines_title),
-                    searchEnginesDescription =
-                            stringResource(R.string.settings_search_engines_desc),
+                    searchEnginesDescription = stringResource(R.string.settings_search_engines_desc),
+                    appearanceTitle = stringResource(R.string.settings_appearance_title),
+                    appearanceDescription = stringResource(R.string.settings_appearance_desc),
+                    callsTextsTitle = stringResource(R.string.settings_calls_texts_title),
+                    callsTextsDescription = stringResource(R.string.settings_calls_texts_desc),
+                    filesTitle = stringResource(R.string.settings_file_types_title),
+                    filesDescription = stringResource(R.string.settings_files_desc),
+                    launchOptionsTitle = stringResource(R.string.settings_launch_options_title),
+                    launchOptionsDescription = stringResource(R.string.settings_launch_options_desc),
+                    onSearchResultsClick = {
+                        onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
+                    },
                     onSearchEnginesClick = {
                         onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
                     },
-                    webSuggestionsEnabled = state.webSuggestionsEnabled,
-                    onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
-                    webSuggestionsCount = state.webSuggestionsCount,
-                    onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
-                    recentQueriesEnabled = state.recentQueriesEnabled,
-                    onRecentQueriesToggle = callbacks.onToggleRecentQueries,
-                    recentQueriesCount = state.recentQueriesCount,
-                    onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange
-            )
-
-            // Appearance Section
-            Text(
-                    text = stringResource(R.string.settings_app_labels_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                            Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-                                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
-            )
-
-            val hasIconPacks = state.availableIconPacks.isNotEmpty()
-            CombinedAppearanceCard(
-                    keyboardAlignedLayout = state.keyboardAlignedLayout,
-                    onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
-                    showWallpaperBackground = state.showWallpaperBackground,
-                    wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
-                    wallpaperBlurRadius = state.wallpaperBlurRadius,
-                    onToggleShowWallpaperBackground = { enabled ->
-                        if (enabled && !hasFilePermission) {
-                            // Request files permission when user tries to enable wallpaper
-                            onRequestFilePermission()
-                        } else {
-                            callbacks.onToggleShowWallpaperBackground(enabled)
-                        }
+                    onAppearanceClick = {
+                        onNavigateToDetail(SettingsDetailType.APPEARANCE)
                     },
-                    onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
-                    onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
-                    hasFilePermission = hasFilePermission,
-                    iconPackTitle = stringResource(R.string.settings_icon_pack_title),
-                    iconPackDescription =
-                            if (hasIconPacks) {
-                                stringResource(
-                                        R.string.settings_icon_pack_selected_label,
-                                        selectedIconPackLabel
-                                )
-                            } else {
-                                stringResource(R.string.settings_icon_pack_empty)
-                            },
-                    onIconPackClick = {
-                        if (hasIconPacks) {
-                            showIconPackDialog = true
-                        } else {
-                            callbacks.onSearchIconPacks()
-                        }
+                    onCallsTextsClick = {
+                        onNavigateToDetail(SettingsDetailType.CALLS_TEXTS)
                     },
-                    onRefreshIconPacks = {
-                        callbacks.onRefreshIconPacks()
-                        coroutineScope.launch {
-                            Toast.makeText(
-                                            context,
-                                            context.getString(
-                                                    R.string.settings_refreshing_icon_packs
-                                            ),
-                                            Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                        }
-                    }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SearchEngineAppearanceCard(
-                    isSearchEngineCompactMode = state.isSearchEngineCompactMode,
-                    onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode
-            )
-
-            // Contacts Section
-            MessagingSection(
-                    messagingApp = state.messagingApp,
-                    onSetMessagingApp = callbacks.onSetMessagingApp,
-                    directDialEnabled = state.directDialEnabled,
-                    onToggleDirectDial = callbacks.onToggleDirectDial,
-                    hasCallPermission = hasCallPermission,
-                    contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
-                    isWhatsAppInstalled = state.isWhatsAppInstalled,
-                    isTelegramInstalled = state.isTelegramInstalled,
-                    onMessagingAppSelected = onMessagingAppSelected,
-                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
-            // Files Section
-            FileTypesSection(
-                    enabledFileTypes = state.enabledFileTypes,
-                    onToggleFileType = callbacks.onToggleFileType,
-                    showFolders = state.showFolders,
-                    onToggleFolders = callbacks.onToggleFolders,
-                    showSystemFiles = state.showSystemFiles,
-                    onToggleSystemFiles = callbacks.onToggleSystemFiles,
-                    showHiddenFiles = state.showHiddenFiles,
-                    onToggleHiddenFiles = callbacks.onToggleHiddenFiles,
-                    excludedExtensions = state.excludedFileExtensions,
-                    onRemoveExcludedExtension = callbacks.onRemoveExcludedFileExtension,
-                    filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
-                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
-
-            // More Options Section
-            Text(
-                    text = stringResource(R.string.settings_more_options_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                            Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-                                    .padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
-            )
-
-            // Combined Excluded Items and Additional Settings Card
-            CombinedSettingsNavigationCard(
-                    excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
-                    excludedItemsDescription =
-                            stringResource(R.string.settings_excluded_items_desc),
-                    additionalSettingsTitle =
-                            stringResource(R.string.settings_additional_settings_title),
-                    additionalSettingsDescription =
-                            stringResource(R.string.settings_additional_settings_desc),
-                    onExcludedItemsClick = {
-                        val hasItems =
-                                state.suggestionExcludedApps.isNotEmpty() ||
-                                        state.resultExcludedApps.isNotEmpty() ||
-                                        state.excludedContacts.isNotEmpty() ||
-                                        state.excludedFiles.isNotEmpty() ||
-                                        state.excludedSettings.isNotEmpty() ||
-                                        state.excludedAppShortcuts.isNotEmpty()
-                        if (hasItems) {
-                            onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
-                        } else {
-                            Toast.makeText(
-                                            context,
-                                            context.getString(
-                                                    R.string.settings_excluded_items_empty
-                                            ),
-                                            Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                        }
+                    onFilesClick = {
+                        onNavigateToDetail(SettingsDetailType.FILES)
                     },
-                    onAdditionalSettingsClick = {
-                        onNavigateToDetail(SettingsDetailType.ADDITIONAL_SETTINGS)
+                    onLaunchOptionsClick = {
+                        onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
                     },
-                    contentPadding = SettingsSpacing.singleCardPadding
+                    modifier = Modifier.padding(bottom = SettingsSpacing.sectionTopPadding)
             )
 
-            // Permissions Section (at the bottom)
-            PermissionsSection(
-                    hasUsagePermission = hasUsagePermission,
-                    hasContactPermission = hasContactPermission,
-                    hasFilePermission = hasFilePermission,
-                    hasCallPermission = hasCallPermission,
-                    onRequestUsagePermission = onRequestUsagePermission,
-                    onRequestContactPermission = onRequestContactPermission,
-                    onRequestFilePermission = onRequestFilePermission,
-                    onRequestCallPermission = onRequestCallPermission,
-                    modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding)
-            )
 
             // Feedback Section
-            FeedbackSection(modifier = Modifier.padding(top = SettingsSpacing.sectionTopPadding))
+            FeedbackSection(
+                onNavigateToPermissions = {
+                    onNavigateToDetail(SettingsDetailType.PERMISSIONS)
+                }
+            )
 
             // App Version
             SettingsVersionDisplay(modifier = Modifier.padding(top = 40.dp, bottom = 60.dp))

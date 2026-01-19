@@ -14,9 +14,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.RocketLaunch
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -40,16 +46,163 @@ import com.tk.quicksearch.settings.SettingsToggleRow
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 
 /**
- * Combined navigation card for excluded items and additional settings with divider.
+ * Card for web suggestions and recent queries settings (without search engines navigation).
  */
 @Composable
-fun CombinedSettingsNavigationCard(
-    excludedItemsTitle: String,
-    excludedItemsDescription: String,
-    additionalSettingsTitle: String,
-    additionalSettingsDescription: String,
-    onExcludedItemsClick: () -> Unit,
-    onAdditionalSettingsClick: () -> Unit,
+fun WebSuggestionsCard(
+    webSuggestionsEnabled: Boolean,
+    onWebSuggestionsToggle: (Boolean) -> Unit,
+    webSuggestionsCount: Int,
+    onWebSuggestionsCountChange: (Int) -> Unit,
+    recentQueriesEnabled: Boolean,
+    onRecentQueriesToggle: (Boolean) -> Unit,
+    recentQueriesCount: Int,
+    onRecentQueriesCountChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+) {
+    val view = LocalView.current
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Web Search Suggestions Toggle Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onWebSuggestionsToggle(!webSuggestionsEnabled) }
+                    .padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.web_search_suggestions_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = webSuggestionsEnabled,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onWebSuggestionsToggle(enabled)
+                    }
+                )
+            }
+
+            // Web Suggestions Count Slider (only show if enabled)
+            if (webSuggestionsEnabled) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Slider(
+                        value = webSuggestionsCount.toFloat(),
+                        onValueChange = { value ->
+                            onWebSuggestionsCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = webSuggestionsCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp)
+                    )
+                }
+
+                // Divider
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            } else {
+                // Divider (when slider is hidden)
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+
+            // Recent Queries Toggle Section
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onRecentQueriesToggle(!recentQueriesEnabled) }
+                    .padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.recent_queries_toggle_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = recentQueriesEnabled,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onRecentQueriesToggle(enabled)
+                    }
+                )
+            }
+
+            // Recent Queries Count Slider (only show if enabled)
+            if (recentQueriesEnabled) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 0.dp, bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Slider(
+                        value = recentQueriesCount.toFloat(),
+                        onValueChange = { value ->
+                            onRecentQueriesCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = recentQueriesCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Combined navigation card with 5 options arranged in a vertical list.
+ */
+@Composable
+fun CombinedSearchNavigationCard(
+    searchResultsTitle: String,
+    searchResultsDescription: String,
+    searchEnginesTitle: String,
+    searchEnginesDescription: String,
+    appearanceTitle: String,
+    appearanceDescription: String,
+    callsTextsTitle: String,
+    callsTextsDescription: String,
+    filesTitle: String,
+    filesDescription: String,
+    launchOptionsTitle: String,
+    launchOptionsDescription: String,
+    onSearchResultsClick: () -> Unit,
+    onSearchEnginesClick: () -> Unit,
+    onAppearanceClick: () -> Unit,
+    onCallsTextsClick: () -> Unit,
+    onFilesClick: () -> Unit,
+    onLaunchOptionsClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
 ) {
@@ -57,39 +210,102 @@ fun CombinedSettingsNavigationCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        // Excluded Items Section (always shown)
-        NavigationSection(
-            title = excludedItemsTitle,
-            description = excludedItemsDescription,
-            onClick = onExcludedItemsClick,
-            contentPadding = contentPadding
-        )
+        Column {
+            // Appearance Section
+            NavigationSection(
+                title = appearanceTitle,
+                description = appearanceDescription,
+                onClick = onAppearanceClick,
+                icon = Icons.Rounded.Palette,
+                contentPadding = contentPadding
+            )
 
-        // Divider
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
 
-        // Additional Settings Section (always shown)
-        NavigationSection(
-            title = additionalSettingsTitle,
-            description = additionalSettingsDescription,
-            onClick = onAdditionalSettingsClick,
-            contentPadding = contentPadding
-        )
+            // Search Results Section
+            NavigationSection(
+                title = searchResultsTitle,
+                description = searchResultsDescription,
+                onClick = onSearchResultsClick,
+                icon = Icons.Rounded.Search,
+                contentPadding = contentPadding
+            )
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Search Engines Section
+            NavigationSection(
+                title = searchEnginesTitle,
+                description = searchEnginesDescription,
+                onClick = onSearchEnginesClick,
+                icon = Icons.AutoMirrored.Rounded.ManageSearch,
+                contentPadding = contentPadding
+            )
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Calls & Texts Section
+            NavigationSection(
+                title = callsTextsTitle,
+                description = callsTextsDescription,
+                onClick = onCallsTextsClick,
+                icon = Icons.Rounded.Phone,
+                contentPadding = contentPadding
+            )
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Files Section
+            NavigationSection(
+                title = filesTitle,
+                description = filesDescription,
+                onClick = onFilesClick,
+                icon = Icons.Rounded.Folder,
+                contentPadding = contentPadding
+            )
+
+            // Divider
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            // Launch Options Section
+            NavigationSection(
+                title = launchOptionsTitle,
+                description = launchOptionsDescription,
+                onClick = onLaunchOptionsClick,
+                icon = Icons.Rounded.RocketLaunch,
+                contentPadding = contentPadding
+            )
+        }
     }
 }
 
+
+
 /**
  * Reusable navigation section for settings cards.
- * Shows a title, description, and chevron icon with click handling.
+ * Shows an icon, title, description, and chevron icon with click handling.
  */
 @Composable
-private fun NavigationSection(
+fun NavigationSection(
     title: String,
     description: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
 ) {
     Row(
@@ -100,20 +316,33 @@ private fun NavigationSection(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
+        Row(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            icon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
@@ -300,12 +529,92 @@ fun CombinedSearchEnginesCard(
 }
 
 /**
- * Combined appearance card with keyboard alignment, wallpaper background, and icon pack settings.
+ * Combined card for keyboard alignment and icon pack settings.
+ */
+@Composable
+fun CombinedLayoutIconCard(
+    keyboardAlignedLayout: Boolean,
+    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    iconPackTitle: String,
+    iconPackDescription: String,
+    onIconPackClick: () -> Unit,
+    onRefreshIconPacks: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Results alignment toggle
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_layout_option_bottom_title),
+                subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
+                checked = keyboardAlignedLayout,
+                onCheckedChange = onToggleKeyboardAlignedLayout,
+                showDivider = false,
+                extraVerticalPadding = 8.dp,
+            )
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Icon Pack Section (with navigation)
+            val hasIconPacks = iconPackDescription != stringResource(R.string.settings_icon_pack_empty)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onIconPackClick)
+                    .padding(
+                        start = 24.dp,
+                        top = 16.dp,
+                        end = 24.dp,
+                        bottom = if (hasIconPacks) 16.dp else 20.dp
+                    ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = iconPackTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = iconPackDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = if (hasIconPacks) Icons.Rounded.ChevronRight else Icons.Rounded.Refresh,
+                    contentDescription = if (hasIconPacks) stringResource(R.string.desc_navigate_forward) else stringResource(R.string.settings_refresh_icon_packs),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .then(
+                            if (!hasIconPacks) Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = onRefreshIconPacks
+                            )
+                            else Modifier
+                        )
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Combined appearance card with wallpaper background settings.
  */
 @Composable
 fun CombinedAppearanceCard(
-    keyboardAlignedLayout: Boolean,
-    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
     wallpaperBackgroundAlpha: Float,
     wallpaperBlurRadius: Float,
@@ -313,10 +622,6 @@ fun CombinedAppearanceCard(
     onWallpaperBackgroundAlphaChange: (Float) -> Unit,
     onWallpaperBlurRadiusChange: (Float) -> Unit,
     hasFilePermission: Boolean = true,
-    iconPackTitle: String,
-    iconPackDescription: String,
-    onIconPackClick: () -> Unit,
-    onRefreshIconPacks: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
@@ -411,69 +716,6 @@ fun CombinedAppearanceCard(
                     }
                 }
             }
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Results alignment toggle
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_layout_option_bottom_title),
-                subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
-                checked = keyboardAlignedLayout,
-                onCheckedChange = onToggleKeyboardAlignedLayout,
-                showDivider = false,
-                extraVerticalPadding = 8.dp,
-            )
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Icon Pack Section (with navigation)
-            val hasIconPacks = iconPackDescription != stringResource(R.string.settings_icon_pack_empty)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onIconPackClick)
-                    .padding(
-                        start = 24.dp,
-                        top = 16.dp,
-                        end = 24.dp,
-                        bottom = if (hasIconPacks) 16.dp else 20.dp
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = iconPackTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = iconPackDescription,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    imageVector = if (hasIconPacks) Icons.Rounded.ChevronRight else Icons.Rounded.Refresh,
-                    contentDescription = if (hasIconPacks) stringResource(R.string.desc_navigate_forward) else stringResource(R.string.settings_refresh_icon_packs),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .then(
-                            if (!hasIconPacks) Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = onRefreshIconPacks
-                            )
-                            else Modifier
-                        )
-                )
-            }
         }
     }
 }
@@ -494,6 +736,109 @@ fun CalculatorToggleCard(
         modifier = modifier,
         icon = Icons.Rounded.Calculate
     )
+}
+
+/**
+ * Combined card for calculator toggle, auto expand results toggle, and excluded items navigation.
+ */
+@Composable
+fun CombinedExcludedItemsCard(
+    calculatorEnabled: Boolean,
+    onToggleCalculator: (Boolean) -> Unit,
+    showAllResults: Boolean,
+    onToggleShowAllResults: (Boolean) -> Unit,
+    excludedItemsTitle: String,
+    excludedItemsDescription: String,
+    onExcludedItemsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column {
+            // Calculator toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleCalculator(!calculatorEnabled) }
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.calculator_toggle_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.calculator_toggle_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = calculatorEnabled,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onToggleCalculator(enabled)
+                    }
+                )
+            }
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Auto expand results toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleShowAllResults(!showAllResults) }
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_show_all_results_toggle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_show_all_results_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = showAllResults,
+                    onCheckedChange = { enabled ->
+                        hapticToggle(view)()
+                        onToggleShowAllResults(enabled)
+                    }
+                )
+            }
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Excluded Items Section
+            NavigationSection(
+                title = excludedItemsTitle,
+                description = excludedItemsDescription,
+                onClick = onExcludedItemsClick,
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+            )
+        }
+    }
 }
 
 /**
