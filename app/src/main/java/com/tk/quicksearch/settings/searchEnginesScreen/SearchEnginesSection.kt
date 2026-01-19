@@ -33,14 +33,14 @@ import com.tk.quicksearch.search.core.*
  */
 @Composable
 fun SearchEnginesSection(
-    searchEngineOrder: List<SearchEngine>,
-    disabledSearchEngines: Set<SearchEngine>,
-    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
-    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
-    shortcutCodes: Map<SearchEngine, String> = emptyMap(),
-    setShortcutCode: ((SearchEngine, String) -> Unit)? = null,
-    shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
-    setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)? = null,
+    searchEngineOrder: List<SearchTarget>,
+    disabledSearchEngines: Set<String>,
+    onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
+    onReorderSearchEngines: (List<SearchTarget>) -> Unit,
+    shortcutCodes: Map<String, String> = emptyMap(),
+    setShortcutCode: ((SearchTarget, String) -> Unit)? = null,
+    shortcutEnabled: Map<String, Boolean> = emptyMap(),
+    setShortcutEnabled: ((SearchTarget, Boolean) -> Unit)? = null,
     isSearchEngineCompactMode: Boolean = true,
     onToggleSearchEngineCompactMode: ((Boolean) -> Unit)? = null,
     amazonDomain: String? = null,
@@ -100,7 +100,9 @@ fun SearchEnginesSection(
     val enginesToDisplay = if (directSearchAvailable) {
         searchEngineOrder
     } else {
-        searchEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }
+        searchEngineOrder.filterNot {
+            it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
+        }
     }
     SearchEngineListCard(
         searchEngineOrder = enginesToDisplay,

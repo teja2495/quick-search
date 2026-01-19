@@ -8,7 +8,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.core.MessagingApp
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchSection
 
 // ============================================================================
@@ -58,11 +58,11 @@ data class UiSettingsState(
 // ============================================================================
 
 data class SearchEngineSettingsState(
-    val searchEngineOrder: List<SearchEngine>,
-    val disabledSearchEngines: Set<SearchEngine>,
+    val searchEngineOrder: List<SearchTarget>,
+    val disabledSearchEngines: Set<String>,
     val isSearchEngineCompactMode: Boolean,
-    val shortcutCodes: Map<SearchEngine, String>,
-    val shortcutEnabled: Map<SearchEngine, Boolean>
+    val shortcutCodes: Map<String, String>,
+    val shortcutEnabled: Map<String, Boolean>
 )
 
 // ============================================================================

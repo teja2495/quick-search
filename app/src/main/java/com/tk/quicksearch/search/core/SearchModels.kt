@@ -36,6 +36,16 @@ enum class SearchEngine {
     STARTPAGE,
 }
 
+data class BrowserApp(
+        val packageName: String,
+        val label: String
+)
+
+sealed class SearchTarget {
+    data class Engine(val engine: SearchEngine) : SearchTarget()
+    data class Browser(val app: BrowserApp) : SearchTarget()
+}
+
 enum class SearchSection {
     APPS,
     APP_SHORTCUTS,
@@ -125,7 +135,7 @@ sealed class SearchEnginesVisibility {
     object Hidden : SearchEnginesVisibility()
     object Compact : SearchEnginesVisibility()
     object Full : SearchEnginesVisibility()
-    data class ShortcutDetected(val engine: SearchEngine) : SearchEnginesVisibility()
+    data class ShortcutDetected(val target: SearchTarget) : SearchEnginesVisibility()
 }
 
 data class SearchUiState(
@@ -178,8 +188,8 @@ data class SearchUiState(
         val errorMessage: String? = null,
 
         // UI configuration (unchanged)
-        val searchEngineOrder: List<SearchEngine> = emptyList(),
-        val disabledSearchEngines: Set<SearchEngine> = emptySet(),
+        val searchTargetsOrder: List<SearchTarget> = emptyList(),
+        val disabledSearchTargetIds: Set<String> = emptySet(),
         val phoneNumberSelection: PhoneNumberSelection? = null,
         val directDialChoice: DirectDialChoice? = null,
         val contactMethodsBottomSheet: com.tk.quicksearch.search.models.ContactInfo? = null,
@@ -194,8 +204,8 @@ data class SearchUiState(
         val excludedFileExtensions: Set<String> = emptySet(),
         val keyboardAlignedLayout: Boolean = false,
         val shortcutsEnabled: Boolean = true,
-        val shortcutCodes: Map<SearchEngine, String> = emptyMap(),
-        val shortcutEnabled: Map<SearchEngine, Boolean> = emptyMap(),
+        val shortcutCodes: Map<String, String> = emptyMap(),
+        val shortcutEnabled: Map<String, Boolean> = emptyMap(),
         val messagingApp: MessagingApp = MessagingApp.MESSAGES,
         val isWhatsAppInstalled: Boolean = false,
         val isTelegramInstalled: Boolean = false,
@@ -223,7 +233,7 @@ data class SearchUiState(
         val showSearchEngineOnboarding: Boolean = false,
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
-        val detectedShortcutEngine: SearchEngine? = null,
+        val detectedShortcutTarget: SearchTarget? = null,
         val webSuggestionWasSelected: Boolean = false,
         val recentQueries: List<String> = emptyList(),
         val recentQueriesEnabled: Boolean = true,

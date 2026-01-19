@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
@@ -98,6 +99,27 @@ class NavigationHandler(
 
         // Always clear query after search
         onClearQuery()
+    }
+
+    fun openSearchTarget(query: String, target: SearchTarget) {
+        when (target) {
+            is SearchTarget.Engine -> openSearchUrl(query, target.engine)
+            is SearchTarget.Browser -> {
+                val trimmedQuery = query.trim()
+                IntentHelpers.openBrowserSearch(
+                        application,
+                        trimmedQuery,
+                        target.app.packageName
+                ) { stringResId, _ ->
+                    showToastCallback(stringResId)
+                }
+
+                if (trimmedQuery.isNotEmpty()) {
+                    userPreferences.addRecentQuery(trimmedQuery)
+                }
+                onClearQuery()
+            }
+        }
     }
 
     fun searchIconPacks() {

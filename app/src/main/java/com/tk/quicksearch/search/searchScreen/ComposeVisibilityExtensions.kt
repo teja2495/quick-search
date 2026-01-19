@@ -210,7 +210,7 @@ fun SearchEnginesVisibility(
     hiddenContent: @Composable () -> Unit = {},
     compactContent: @Composable () -> Unit = {},
     fullContent: @Composable () -> Unit = {},
-    shortcutContent: @Composable (SearchEngine) -> Unit = {}
+    shortcutContent: @Composable (SearchTarget) -> Unit = {}
 ) {
     when (enginesState) {
         is SearchEnginesVisibility.Hidden -> {
@@ -243,7 +243,7 @@ fun SearchEnginesVisibility(
                 exit = fadeOut(),
                 modifier = modifier
             ) {
-                shortcutContent(enginesState.engine)
+                shortcutContent(enginesState.target)
             }
         }
     }

@@ -2,7 +2,6 @@ package com.tk.quicksearch.settings.searchEnginesScreen
 
 import android.content.Intent
 import android.net.Uri
-import android.view.View
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -44,9 +44,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
@@ -57,22 +60,24 @@ import sh.calvin.reorderable.ReorderableColumn
  */
 @Composable
 fun SearchEngineListCard(
-    searchEngineOrder: List<SearchEngine>,
-    disabledSearchEngines: Set<SearchEngine>,
-    onToggleSearchEngine: (SearchEngine, Boolean) -> Unit,
-    onReorderSearchEngines: (List<SearchEngine>) -> Unit,
-    shortcutCodes: Map<SearchEngine, String>,
-    setShortcutCode: ((SearchEngine, String) -> Unit)?,
-    shortcutEnabled: Map<SearchEngine, Boolean>,
-    setShortcutEnabled: ((SearchEngine, Boolean) -> Unit)?,
+    searchEngineOrder: List<SearchTarget>,
+    disabledSearchEngines: Set<String>,
+    onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
+    onReorderSearchEngines: (List<SearchTarget>) -> Unit,
+    shortcutCodes: Map<String, String>,
+    setShortcutCode: ((SearchTarget, String) -> Unit)?,
+    shortcutEnabled: Map<String, Boolean>,
+    setShortcutEnabled: ((SearchTarget, Boolean) -> Unit)?,
     isSearchEngineCompactMode: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     showRequestSearchEngine: Boolean = true
 ) {
     Column {
-        val enabledEngines = searchEngineOrder.filter { it !in disabledSearchEngines }
-        val disabledEngines = searchEngineOrder.filter { it in disabledSearchEngines }
+        val enabledEngines =
+                searchEngineOrder.filter { it.getId() !in disabledSearchEngines }
+        val disabledEngines =
+                searchEngineOrder.filter { it.getId() in disabledSearchEngines }
 
         if (enabledEngines.isNotEmpty()) {
             val view = LocalView.current
@@ -99,7 +104,7 @@ fun SearchEngineListCard(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { index, engine, isDragging ->
-                    key(engine) {
+                    key(engine.getId()) {
                         val elevation by animateDpAsState(
                             targetValue = if (isDragging) 4.dp else 0.dp,
                             label = "elevation"
@@ -111,6 +116,11 @@ fun SearchEngineListCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column {
+                                val engineInfo = (engine as? SearchTarget.Engine)?.engine
+                                val targetId = engine.getId()
+                                val shortcutCode = shortcutCodes[targetId].orEmpty()
+                                val isShortcutEnabled =
+                                        shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
                                 SearchEngineRowContent(
                                     engine = engine,
                                     isEnabled = true,
@@ -130,14 +140,27 @@ fun SearchEngineListCard(
                                         }
                                     ),
                                     allowDrag = true,
-                                    shortcutCode = shortcutCodes[engine] ?: "",
-                                    shortcutEnabled = shortcutEnabled[engine] ?: true,
-                                    onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
-                                    onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
+                                    shortcutCode = shortcutCode,
+                                    shortcutEnabled = isShortcutEnabled,
+                                    onShortcutCodeChange =
+                                            setShortcutCode?.let { { code -> it(engine, code) } },
+                                    onShortcutToggle = engineInfo?.let {
+                                        setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                    },
                                     showToggle = true,
                                     switchEnabled = true,
-                                    amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
-                                    onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
+                                    amazonDomain =
+                                            if (engineInfo == SearchEngine.AMAZON) {
+                                                amazonDomain
+                                            } else {
+                                                null
+                                            },
+                                    onSetAmazonDomain =
+                                            if (engineInfo == SearchEngine.AMAZON) {
+                                                onSetAmazonDomain
+                                            } else {
+                                                null
+                                            },
                                     onMoveToTop = if (index > 0) {
                                         {
                                             val newOrder = enabledEngines.toMutableList().apply {
@@ -184,20 +207,38 @@ fun SearchEngineListCard(
             ) {
                 Column {
                     disabledEngines.forEachIndexed { index, engine ->
+                        val engineInfo = (engine as? SearchTarget.Engine)?.engine
+                        val targetId = engine.getId()
+                        val shortcutCode = shortcutCodes[targetId].orEmpty()
+                        val isShortcutEnabled =
+                                shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
                         SearchEngineRowContent(
                             engine = engine,
                             isEnabled = false,
                             onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
                             dragHandleModifier = null,
                             allowDrag = false,
-                            shortcutCode = shortcutCodes[engine] ?: "",
-                            shortcutEnabled = shortcutEnabled[engine] ?: true,
-                            onShortcutCodeChange = setShortcutCode?.let { { code -> it(engine, code) } },
-                            onShortcutToggle = setShortcutEnabled?.let { { enabled -> it(engine, enabled) } },
+                            shortcutCode = shortcutCode,
+                            shortcutEnabled = isShortcutEnabled,
+                            onShortcutCodeChange =
+                                    setShortcutCode?.let { { code -> it(engine, code) } },
+                            onShortcutToggle = engineInfo?.let {
+                                setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                            },
                             showToggle = true,
                             switchEnabled = true,
-                            amazonDomain = if (engine == SearchEngine.AMAZON) amazonDomain else null,
-                            onSetAmazonDomain = if (engine == SearchEngine.AMAZON) onSetAmazonDomain else null,
+                            amazonDomain =
+                                    if (engineInfo == SearchEngine.AMAZON) {
+                                        amazonDomain
+                                    } else {
+                                        null
+                                    },
+                            onSetAmazonDomain =
+                                    if (engineInfo == SearchEngine.AMAZON) {
+                                        onSetAmazonDomain
+                                    } else {
+                                        null
+                                    },
                             onMoveToTop = null,
                             onMoveToBottom = null
                         )
@@ -245,7 +286,7 @@ fun SearchEngineListCard(
  */
 @Composable
 private fun SearchEngineRowContent(
-    engine: SearchEngine,
+    engine: SearchTarget,
     isEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
     dragHandleModifier: Modifier?,
@@ -262,8 +303,8 @@ private fun SearchEngineRowContent(
     onMoveToBottom: (() -> Unit)? = null
 ) {
     val view = LocalView.current
+    val engineInfo = (engine as? SearchTarget.Engine)?.engine
     val engineName = engine.getDisplayName()
-    val drawableId = engine.getDrawableResId()
     var showMenu by remember { mutableStateOf(false) }
 
     Row(
@@ -289,13 +330,35 @@ private fun SearchEngineRowContent(
         }
 
         // Search engine icon
-        Image(
-            painter = painterResource(id = drawableId),
-            contentDescription = engineName,
-            modifier = Modifier.size(DesignTokens.IconSize),
-            contentScale = ContentScale.Fit,
-            colorFilter = getSearchEngineIconColorFilter(engine)
-        )
+        when (engine) {
+            is SearchTarget.Engine -> {
+                Image(
+                    painter = painterResource(id = engine.engine.getDrawableResId()),
+                    contentDescription = engineName,
+                    modifier = Modifier.size(DesignTokens.IconSize),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = getSearchEngineIconColorFilter(engine.engine)
+                )
+            }
+            is SearchTarget.Browser -> {
+                val iconBitmap = rememberAppIcon(packageName = engine.app.packageName)
+                if (iconBitmap != null) {
+                    Image(
+                        bitmap = iconBitmap,
+                        contentDescription = engineName,
+                        modifier = Modifier.size(DesignTokens.IconSize),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Rounded.Public,
+                        contentDescription = engineName,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(DesignTokens.IconSize)
+                    )
+                }
+            }
+        }
 
         // Engine name and details
         Column(
@@ -307,7 +370,7 @@ private fun SearchEngineRowContent(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            if (shortcutCode.isNotEmpty()) {
+            if (onShortcutCodeChange != null) {
                 ShortcutCodeDisplay(
                     shortcutCode = shortcutCode,
                     isEnabled = shortcutEnabled,
@@ -316,7 +379,7 @@ private fun SearchEngineRowContent(
                     engineName = engineName
                 )
             }
-            if (engine == SearchEngine.AMAZON && onSetAmazonDomain != null) {
+            if (engineInfo == SearchEngine.AMAZON && onSetAmazonDomain != null) {
                 AmazonDomainLink(
                     amazonDomain = amazonDomain,
                     onSetAmazonDomain = onSetAmazonDomain

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.core.SearchViewModel
 
 /**
@@ -73,44 +73,17 @@ fun SearchEngineSetupScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        val baseDefaultEnabledEngines = setOf(
-            SearchEngine.GOOGLE,
-            SearchEngine.CHATGPT,
-            SearchEngine.PERPLEXITY,
-            SearchEngine.GROK,
-            SearchEngine.GEMINI,
-            SearchEngine.GOOGLE_MAPS,
-            SearchEngine.GOOGLE_DRIVE,
-            SearchEngine.GOOGLE_PHOTOS,
-            SearchEngine.GOOGLE_PLAY,
-            SearchEngine.REDDIT,
-            SearchEngine.YOUTUBE,
-            SearchEngine.SPOTIFY,
-            SearchEngine.AMAZON,
-            SearchEngine.DUCKDUCKGO
-        )
-
-        val defaultEnabledEngines = if (uiState.geminiApiKeyLast4.isNullOrBlank()) {
-            baseDefaultEnabledEngines
-        } else {
-            baseDefaultEnabledEngines + SearchEngine.DIRECT_SEARCH
-        }
-
-        val baseEngineOrder = SearchEngine.values().toList()
-        val allEngines = if (uiState.geminiApiKeyLast4.isNullOrBlank()) {
-            baseEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }
-        } else {
-            // Move Direct Search to the top when API key is set up
-            listOf(SearchEngine.DIRECT_SEARCH) + baseEngineOrder.filterNot { it == SearchEngine.DIRECT_SEARCH }
-        }
+        val allEngines = uiState.searchTargetsOrder
 
         val scrollState = rememberScrollState()
         val hasAnimatedScroll = remember { mutableStateOf(false) }
 
-        var disabledEngines by remember { mutableStateOf<Set<SearchEngine>>(uiState.disabledSearchEngines) }
+        var disabledEngines by remember {
+            mutableStateOf<Set<String>>(uiState.disabledSearchTargetIds)
+        }
 
-        LaunchedEffect(uiState.disabledSearchEngines) {
-            disabledEngines = uiState.disabledSearchEngines
+        LaunchedEffect(uiState.disabledSearchTargetIds) {
+            disabledEngines = uiState.disabledSearchTargetIds
         }
 
         // Auto-scroll animation to indicate list is scrollable
@@ -140,17 +113,16 @@ fun SearchEngineSetupScreen(
                 searchEngineOrder = allEngines,
                 disabledSearchEngines = disabledEngines,
                 onToggleSearchEngine = { engine, enabled ->
-                    // Update local state for immediate UI feedback
+                    val targetId = engine.getId()
                     disabledEngines = if (enabled) {
-                        disabledEngines.minus(engine)
+                        disabledEngines.minus(targetId)
                     } else {
-                        disabledEngines.plus(engine)
+                        disabledEngines.plus(targetId)
                     }
-                    // Also update viewModel to persist the change
-                    viewModel.setSearchEngineEnabled(engine, enabled)
+                    viewModel.setSearchTargetEnabled(engine, enabled)
                 },
                 onReorderSearchEngines = { newOrder ->
-                    viewModel.reorderSearchEngines(newOrder)
+                    viewModel.reorderSearchTargets(newOrder)
                 },
                 showTitle = false, // We have our own title
                 showRequestSearchEngine = false, // Hide request text in setup

@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
@@ -78,9 +80,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
 import com.tk.quicksearch.util.hapticStrong
 
@@ -129,10 +131,10 @@ internal fun PersistentSearchField(
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
     onSettingsClick: () -> Unit,
-    enabledEngines: List<SearchEngine>,
+    enabledTargets: List<SearchTarget>,
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
-    detectedShortcutEngine: SearchEngine? = null,
+    detectedShortcutTarget: SearchTarget? = null,
     showWelcomeAnimation: Boolean = false,
     onClearDetectedShortcut: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
@@ -380,15 +382,43 @@ internal fun PersistentSearchField(
             singleLine = false,
             maxLines = 3,
             leadingIcon = {
-                if (detectedShortcutEngine != null) {
-                    Icon(
-                        painter = androidx.compose.ui.res.painterResource(id = detectedShortcutEngine.getDrawableResId()),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .padding(start = DesignTokens.SpacingSmall)
-                            .size(DesignTokens.IconSize)
-                    )
+                if (detectedShortcutTarget != null) {
+                    when (detectedShortcutTarget) {
+                        is SearchTarget.Engine -> {
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(
+                                    id = detectedShortcutTarget.engine.getDrawableResId()
+                                ),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = Modifier
+                                    .padding(start = DesignTokens.SpacingSmall)
+                                    .size(DesignTokens.IconSize)
+                            )
+                        }
+                        is SearchTarget.Browser -> {
+                            val iconBitmap =
+                                    rememberAppIcon(packageName = detectedShortcutTarget.app.packageName)
+                            if (iconBitmap != null) {
+                                Image(
+                                    bitmap = iconBitmap,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = DesignTokens.SpacingSmall)
+                                        .size(DesignTokens.IconSize)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Rounded.Public,
+                                    contentDescription = null,
+                                    tint = iconAndTextColor,
+                                    modifier = Modifier
+                                        .padding(start = DesignTokens.SpacingSmall)
+                                        .size(DesignTokens.IconSize)
+                                )
+                            }
+                        }
+                    }
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Search,
@@ -437,8 +467,11 @@ internal fun PersistentSearchField(
                     onSearchAction()
                     if (query.isNotBlank()) {
                         // Only hide keyboard if the first engine is not DIRECT_ANSWER
-                        val firstEngine = enabledEngines.firstOrNull()
-                        if (firstEngine != SearchEngine.DIRECT_SEARCH) {
+                        val firstTarget = enabledTargets.firstOrNull()
+                        val keepKeyboard =
+                                (firstTarget as? SearchTarget.Engine)?.engine ==
+                                        SearchEngine.DIRECT_SEARCH
+                        if (!keepKeyboard) {
                             keyboardController?.hide()
                         }
                     }

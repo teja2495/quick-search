@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.searchEngines.compact
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -20,15 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.util.hapticConfirm
@@ -40,8 +42,8 @@ import com.tk.quicksearch.util.hapticConfirm
 @Composable
 fun NoResultsSearchEngineCards(
     query: String,
-    enabledEngines: List<SearchEngine>,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    enabledEngines: List<SearchTarget>,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
     onCustomizeClick: () -> Unit,
     modifier: Modifier = Modifier,
     isReversed: Boolean = false,
@@ -70,9 +72,8 @@ fun NoResultsSearchEngineCards(
         }
 
         orderedEngines.forEach { engine ->
-            SearchEngineCard(
-                engine = engine,
-                query = query,
+            SearchTargetCard(
+                target = engine,
                 onClick = { onSearchEngineClick(query, engine) },
                 showWallpaperBackground = showWallpaperBackground
             )
@@ -93,7 +94,7 @@ fun NoResultsSearchEngineCards(
  */
 @Composable
 fun SearchEngineCard(
-    engine: SearchEngine,
+    target: SearchTarget,
     query: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -101,7 +102,7 @@ fun SearchEngineCard(
     onClear: (() -> Unit)? = null
 ) {
     val view = LocalView.current
-    val context = LocalContext.current
+    val targetName = target.getDisplayName()
 
     ElevatedCard(
         modifier = modifier
@@ -122,19 +123,41 @@ fun SearchEngineCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            // Search engine icon
-            Icon(
-                painter = painterResource(id = engine.getDrawableResId()),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = Color.Unspecified
-            )
+            // Search target icon
+            when (target) {
+                is SearchTarget.Engine -> {
+                    Icon(
+                        painter = painterResource(id = target.engine.getDrawableResId()),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Unspecified
+                    )
+                }
+                is SearchTarget.Browser -> {
+                    val iconBitmap = rememberAppIcon(packageName = target.app.packageName)
+                    if (iconBitmap != null) {
+                        Image(
+                            bitmap = iconBitmap,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.Public,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
 
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
 
             // Search engine name
             Text(
-                text = stringResource(R.string.search_on_engine, stringResource(engine.getDisplayNameResId())),
+                text = stringResource(R.string.search_on_engine, targetName),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
@@ -154,6 +177,79 @@ fun SearchEngineCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SearchTargetCard(
+    target: SearchTarget,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    showWallpaperBackground: Boolean = false
+) {
+    val view = LocalView.current
+
+    ElevatedCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.extraLarge)
+            .clickable {
+                hapticConfirm(view)()
+                onClick()
+            },
+        colors = AppColors.getCardColors(showWallpaperBackground),
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = AppColors.getCardElevation(showWallpaperBackground)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            when (target) {
+                is SearchTarget.Engine -> {
+                    Icon(
+                        painter = painterResource(id = target.engine.getDrawableResId()),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Unspecified
+                    )
+                }
+                is SearchTarget.Browser -> {
+                    val iconBitmap = rememberAppIcon(packageName = target.app.packageName)
+                    if (iconBitmap != null) {
+                        Image(
+                            bitmap = iconBitmap,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.Public,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+
+            Text(
+                text = stringResource(
+                    R.string.search_on_engine,
+                    target.getDisplayName()
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

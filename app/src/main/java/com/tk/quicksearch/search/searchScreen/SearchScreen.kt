@@ -33,7 +33,6 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.DirectSearchState
 import com.tk.quicksearch.search.core.DirectSearchStatus
-import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -154,7 +153,7 @@ fun SearchRoute(
             onAppShortcutAppInfoClick = { shortcut -> viewModel.openAppInfo(shortcut.packageName) },
             onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
             onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
-            onSearchEngineClick = { query, engine -> viewModel.openSearchUrl(query, engine) },
+            onSearchTargetClick = { query, target -> viewModel.openSearchTarget(query, target) },
             onSearchEngineLongPress = onSearchEngineLongPress,
             onDirectSearchEmailClick = viewModel::openEmail,
             onOpenAppSettings = viewModel::openAppSettings,
@@ -238,7 +237,7 @@ fun SearchScreen(
         onExcludeAppShortcut: (StaticShortcut) -> Unit,
         onIncludeAppShortcut: (StaticShortcut) -> Unit,
         onAppShortcutAppInfoClick: (StaticShortcut) -> Unit,
-        onSearchEngineClick: (String, SearchEngine) -> Unit,
+        onSearchTargetClick: (String, SearchTarget) -> Unit,
         onSearchEngineLongPress: () -> Unit,
         onDirectSearchEmailClick: (String) -> Unit,
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
@@ -437,7 +436,7 @@ fun SearchScreen(
                     pinnedFiles = state.pinnedFiles,
                     pinnedSettings = state.pinnedSettings,
                     orderedSections = derivedState.orderedSections,
-                    shortcutDetected = state.detectedShortcutEngine != null
+                    shortcutDetected = state.detectedShortcutTarget != null
             )
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -464,7 +463,7 @@ fun SearchScreen(
                 onSettingsClick = onSettingsClick,
                 onAppClick = onAppClick,
                 onRequestUsagePermission = onRequestUsagePermission,
-                onSearchEngineClick = onSearchEngineClick,
+                onSearchTargetClick = onSearchTargetClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 onDirectSearchEmailClick = onDirectSearchEmailClick,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,

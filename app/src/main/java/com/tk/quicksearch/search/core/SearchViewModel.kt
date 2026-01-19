@@ -261,7 +261,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 userPreferences = userPreferences,
                 scope = viewModelScope,
                 uiStateUpdater = this::updateUiState,
-                directSearchHandler = directSearchHandler
+                directSearchHandler = directSearchHandler,
+                searchTargetsProvider = { searchEngineManager.searchTargetsOrder }
         )
     }
 
@@ -302,7 +303,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showWallpaperBackground: Boolean = true
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
-    private var lockedShortcutEngine: SearchEngine? = null
+    private var lockedShortcutTarget: SearchTarget? = null
     private var showAllResults: Boolean = false
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
@@ -564,8 +565,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update { state ->
                 state.copy(
                         // Now safely access lazy handlers
-                        searchEngineOrder = searchEngineManager.searchEngineOrder,
-                        disabledSearchEngines = searchEngineManager.disabledSearchEngines,
+                        searchTargetsOrder = searchEngineManager.searchTargetsOrder,
+                        disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
                         shortcutsEnabled = shortcutsState.shortcutsEnabled,
                         shortcutCodes = shortcutsState.shortcutCodes,
                         shortcutEnabled = shortcutsState.shortcutEnabled,
@@ -967,7 +968,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         DirectSearchState = DirectSearchState(),
                         calculatorState = CalculatorState(),
                         webSuggestions = emptyList(),
-                        detectedShortcutEngine = lockedShortcutEngine,
+                        detectedShortcutTarget = lockedShortcutTarget,
                         webSuggestionWasSelected = false
                 )
             }
@@ -988,21 +989,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // However, if the query is blank, showing a shortcut icon without query might be weird.
             // Let's stick to the explicit clearQuery for now.
             // But wait, onQueryChange handles the empty case at the top.
-            // If I backspace "hello world" to "", detectedEngine will be lockedShortcutEngine
+            // If I backspace "hello world" to "", detectedTarget will be lockedShortcutTarget
             // (Google).
             // So detection stays.
             return
         }
 
         // Check for shortcuts at the start of query (show UI button) BEFORE calculator processing
-        var detectedEngine: SearchEngine? = lockedShortcutEngine
+        var detectedTarget: SearchTarget? = lockedShortcutTarget
 
         // If we don't have a locked engine, try to detect one
-        if (detectedEngine == null) {
+        if (detectedTarget == null) {
             val shortcutMatchAtStart = shortcutHandler.detectShortcutAtStart(trimmedQuery)
             if (shortcutMatchAtStart != null) {
-                detectedEngine = shortcutMatchAtStart.second
-                lockedShortcutEngine = detectedEngine
+                detectedTarget = shortcutMatchAtStart.second
+                lockedShortcutTarget = detectedTarget
 
                 // Strip the shortcut from the query and update recursively
                 val queryWithoutShortcut = shortcutMatchAtStart.first
@@ -1014,9 +1015,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Check for shortcuts at the end of query (auto-execute)
         val shortcutMatchAtEnd = shortcutHandler.detectShortcut(trimmedQuery)
         if (shortcutMatchAtEnd != null) {
-            val (queryWithoutShortcut, engine) = shortcutMatchAtEnd
-            // Automatically perform search with the detected engine
-            navigationHandler.openSearchUrl(queryWithoutShortcut.trim(), engine)
+            val (queryWithoutShortcut, target) = shortcutMatchAtEnd
+            // Automatically perform search with the detected target
+            navigationHandler.openSearchTarget(queryWithoutShortcut.trim(), target)
             // Update query to remove shortcut but keep the remaining query
             if (queryWithoutShortcut.isBlank()) {
                 clearQuery()
@@ -1029,7 +1030,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Check if query is a math expression (only if calculator is enabled)
         // Only process calculator if no shortcut was detected at start
         val calculatorResult =
-                if (detectedEngine == null) {
+                if (detectedTarget == null) {
                     calculatorHandler.processQuery(trimmedQuery)
                 } else {
                     CalculatorState()
@@ -1040,7 +1041,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)
         val matches =
-                if (shouldSkipSearch || detectedEngine != null) {
+                if (shouldSkipSearch || detectedTarget != null) {
                     emptyList()
                 } else {
                     appSearchManager.deriveMatches(trimmedQuery, cachedAllSearchableApps).also {
@@ -1059,13 +1060,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     searchResults = matches,
                     calculatorState = calculatorResult,
                     webSuggestions = emptyList(),
-                    detectedShortcutEngine = detectedEngine
+                    detectedShortcutTarget = detectedTarget
             )
         }
 
         // Skip secondary searches if calculator result is shown
         if (calculatorResult.result == null) {
-            if (detectedEngine != null) {
+            if (detectedTarget != null) {
                 secondarySearchOrchestrator.performWebSuggestionsOnly(newQuery)
             } else {
                 secondarySearchOrchestrator.performSecondarySearches(newQuery)
@@ -1087,12 +1088,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     // Removed detectShortcut (unused)
 
     fun clearDetectedShortcut() {
-        lockedShortcutEngine = null
-        _uiState.update { it.copy(detectedShortcutEngine = null) }
+        lockedShortcutTarget = null
+        _uiState.update { it.copy(detectedShortcutTarget = null) }
     }
 
     fun clearQuery() {
-        lockedShortcutEngine = null
+        lockedShortcutTarget = null
         onQueryChange("")
     }
 
@@ -1112,6 +1113,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         pinningHandler.loadExcludedContactsAndFiles()
         refreshSettingsState()
         refreshAppShortcutsState()
+        viewModelScope.launch(Dispatchers.IO) {
+            searchEngineManager.ensureInitialized()
+            searchEngineManager.refreshBrowserTargets()
+        }
     }
 
     // Navigation Delegates
@@ -1126,6 +1131,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
     fun openSearchUrl(query: String, searchEngine: SearchEngine) =
             navigationHandler.openSearchUrl(query, searchEngine)
+    fun openSearchTarget(query: String, target: SearchTarget) =
+            navigationHandler.openSearchTarget(query, target)
     fun searchIconPacks() = navigationHandler.searchIconPacks()
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
     fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo)
@@ -1250,12 +1257,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Shortcuts
     fun setShortcutsEnabled(enabled: Boolean) = shortcutHandler.setShortcutsEnabled(enabled)
-    fun setShortcutCode(engine: SearchEngine, code: String) =
-            shortcutHandler.setShortcutCode(engine, code)
-    fun setShortcutEnabled(engine: SearchEngine, enabled: Boolean) =
-            shortcutHandler.setShortcutEnabled(engine, enabled)
-    fun getShortcutCode(engine: SearchEngine): String = shortcutHandler.getShortcutCode(engine)
-    fun isShortcutEnabled(engine: SearchEngine): Boolean = shortcutHandler.isShortcutEnabled(engine)
+    fun setShortcutCode(target: SearchTarget, code: String) =
+            shortcutHandler.setShortcutCode(target, code)
+    fun setShortcutEnabled(target: SearchTarget, enabled: Boolean) =
+            shortcutHandler.setShortcutEnabled(target, enabled)
+    fun getShortcutCode(target: SearchTarget): String = shortcutHandler.getShortcutCode(target)
+    fun isShortcutEnabled(target: SearchTarget): Boolean = shortcutHandler.isShortcutEnabled(target)
     fun areShortcutsEnabled(): Boolean = true
 
     // Sections
@@ -1303,12 +1310,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    fun getEnabledSearchEngines(): List<SearchEngine> =
-            searchEngineManager.getEnabledSearchEngines()
-    fun setSearchEngineEnabled(engine: SearchEngine, enabled: Boolean) =
-            searchEngineManager.setSearchEngineEnabled(engine, enabled)
-    fun reorderSearchEngines(newOrder: List<SearchEngine>) =
-            searchEngineManager.reorderSearchEngines(newOrder)
+    fun getEnabledSearchTargets(): List<SearchTarget> =
+            searchEngineManager.getEnabledSearchTargets()
+    fun setSearchTargetEnabled(target: SearchTarget, enabled: Boolean) =
+            searchEngineManager.setSearchTargetEnabled(target, enabled)
+    fun reorderSearchTargets(newOrder: List<SearchTarget>) =
+            searchEngineManager.reorderSearchTargets(newOrder)
     fun setSearchEngineCompactMode(enabled: Boolean) =
             searchEngineManager.setSearchEngineCompactMode(enabled)
 
@@ -1394,7 +1401,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             directSearchHandler.setGeminiApiKey(apiKey)
 
             val hasGemini = !apiKey.isNullOrBlank()
-            searchEngineManager.updateSearchEnginesForGemini(hasGemini)
+            searchEngineManager.updateSearchTargetsForGemini(hasGemini)
 
             _uiState.update {
                 it.copy(
@@ -1532,8 +1539,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /** Computes the search engines visibility state. */
     private fun computeSearchEnginesVisibility(state: SearchUiState): SearchEnginesVisibility {
         return when {
-            state.detectedShortcutEngine != null ->
-                    SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutEngine)
+            state.detectedShortcutTarget != null ->
+                    SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutTarget)
             state.isSearchEngineCompactMode -> SearchEnginesVisibility.Compact
             else -> SearchEnginesVisibility.Hidden
         }
@@ -1646,11 +1653,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun onWebSuggestionTap(suggestion: String) {
         // Check if there's a detected shortcut engine and perform immediate search
         val currentState = _uiState.value
-        val detectedEngine = currentState.detectedShortcutEngine
+        val detectedTarget = currentState.detectedShortcutTarget
 
-        if (detectedEngine != null) {
-            // Perform search immediately in the detected search engine
-            navigationHandler.openSearchUrl(suggestion.trim(), detectedEngine)
+        if (detectedTarget != null) {
+            // Perform search immediately in the detected search target
+            navigationHandler.openSearchTarget(suggestion.trim(), detectedTarget)
         } else {
             // No shortcut detected, copy the suggestion text to the search bar
             onQueryChange(suggestion)

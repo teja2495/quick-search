@@ -43,6 +43,26 @@ class ShortcutPreferences(context: Context) : BasePreferences(context) {
         prefs.edit().putString(key, normalizedCode).apply()
     }
 
+    fun getShortcutCode(targetId: String): String? {
+        val key = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX}$targetId"
+        val storedCode = prefs.getString(key, null) ?: return null
+        val normalizedCode = normalizeShortcutCodeInput(storedCode)
+        return if (isValidShortcutCode(normalizedCode)) {
+            normalizedCode
+        } else {
+            null
+        }
+    }
+
+    fun setShortcutCode(targetId: String, code: String) {
+        val key = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX}$targetId"
+        val normalizedCode = normalizeShortcutCodeInput(code)
+        if (!isValidShortcutCode(normalizedCode)) {
+            return
+        }
+        prefs.edit().putString(key, normalizedCode).apply()
+    }
+
     fun isShortcutEnabled(engine: SearchEngine): Boolean {
         val key = "${BasePreferences.KEY_SHORTCUT_ENABLED_PREFIX}${engine.name}"
         return getBooleanPref(key, true)

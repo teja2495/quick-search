@@ -127,7 +127,7 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> = ma
     ),
     SearchEngine.BRAVE to SearchEngineMetadata(
         drawableResId = R.drawable.brave,
-        contentDescription = "Brave",
+        contentDescription = "Brave Search",
         urlTemplate = "https://search.brave.com/search?q=%s",
         defaultShortcutCode = "brv"
     ),

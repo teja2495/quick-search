@@ -1,8 +1,12 @@
 package com.tk.quicksearch.search.searchEngines
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.util.PackageConstants
@@ -18,12 +22,14 @@ class SearchEngineManager(
         private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
 
-    companion object {}
+    companion object {
+        private const val BRAVE_BROWSER_PACKAGE = "com.brave.browser"
+    }
 
-    var searchEngineOrder: List<SearchEngine> = emptyList()
+    var searchTargetsOrder: List<SearchTarget> = emptyList()
         private set
 
-    var disabledSearchEngines: Set<SearchEngine> = emptySet()
+    var disabledSearchTargetIds: Set<String> = emptySet()
         private set
 
     var isSearchEngineCompactMode: Boolean = false
@@ -33,45 +39,58 @@ class SearchEngineManager(
 
     fun ensureInitialized() {
         if (!isInitialized) {
-            searchEngineOrder = loadSearchEngineOrder()
-            disabledSearchEngines = loadDisabledSearchEngines()
+            val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
+            val availableEngines = getAvailableEngines(hasGemini)
+            val availableBrowsers = loadInstalledBrowsers()
+            val savedOrder = userPreferences.getSearchEngineOrder()
+            searchTargetsOrder =
+                    loadSearchTargetsOrder(savedOrder, availableEngines, availableBrowsers, hasGemini)
+            disabledSearchTargetIds =
+                    loadDisabledSearchTargetIds(
+                            savedOrder,
+                            availableEngines,
+                            availableBrowsers,
+                            hasGemini
+                    )
             isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
             isInitialized = true
         }
     }
 
-    fun getEnabledSearchEngines(): List<SearchEngine> {
-        return searchEngineOrder.filter { it !in disabledSearchEngines }
+    fun getEnabledSearchTargets(): List<SearchTarget> {
+        return searchTargetsOrder.filter { it.getId() !in disabledSearchTargetIds }
     }
 
-    fun setSearchEngineEnabled(engine: SearchEngine, enabled: Boolean) {
+    fun setSearchTargetEnabled(target: SearchTarget, enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            // Check if trying to enable Direct Search without Gemini API key
-            if (engine == SearchEngine.DIRECT_SEARCH && enabled) {
+            if (target is SearchTarget.Engine &&
+                            target.engine == SearchEngine.DIRECT_SEARCH &&
+                            enabled
+            ) {
                 val hasGeminiApiKey = !userPreferences.getGeminiApiKey().isNullOrBlank()
                 if (!hasGeminiApiKey) {
-                    // Don't enable the search engine without Gemini API key
                     return@launch
                 }
             }
 
-            val disabled = disabledSearchEngines.toMutableSet()
+            val disabled = disabledSearchTargetIds.toMutableSet()
+            val id = target.getId()
             if (enabled) {
-                disabled.remove(engine)
+                disabled.remove(id)
             } else {
-                disabled.add(engine)
+                disabled.add(id)
             }
-            disabledSearchEngines = disabled
-            userPreferences.setDisabledSearchEngines(disabled.map { it.name }.toSet())
-            onStateUpdate { state -> state.copy(disabledSearchEngines = disabledSearchEngines) }
+            disabledSearchTargetIds = disabled
+            userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
+            onStateUpdate { state -> state.copy(disabledSearchTargetIds = disabledSearchTargetIds) }
         }
     }
 
-    fun reorderSearchEngines(newOrder: List<SearchEngine>) {
+    fun reorderSearchTargets(newOrder: List<SearchTarget>) {
         scope.launch(Dispatchers.IO) {
-            searchEngineOrder = newOrder
-            userPreferences.setSearchEngineOrder(newOrder.map { it.name })
-            onStateUpdate { state -> state.copy(searchEngineOrder = searchEngineOrder) }
+            searchTargetsOrder = newOrder
+            userPreferences.setSearchEngineOrder(newOrder.map { it.getId() })
+            onStateUpdate { state -> state.copy(searchTargetsOrder = searchTargetsOrder) }
         }
     }
 
@@ -89,71 +108,126 @@ class SearchEngineManager(
         }
     }
 
-    fun updateSearchEnginesForGemini(hasGemini: Boolean) {
-        val updatedOrder = applyDirectSearchAvailability(searchEngineOrder, hasGemini)
-        searchEngineOrder = updatedOrder
+    fun updateSearchTargetsForGemini(hasGemini: Boolean) {
+        val updatedOrder = applyDirectSearchAvailability(searchTargetsOrder, hasGemini)
+        searchTargetsOrder = updatedOrder
         if (!hasGemini) {
-            disabledSearchEngines =
-                    disabledSearchEngines.filterNot { it == SearchEngine.DIRECT_SEARCH }.toSet()
+            disabledSearchTargetIds =
+                    disabledSearchTargetIds.filterNot { it == SearchEngine.DIRECT_SEARCH.name }
+                            .toSet()
         }
-        userPreferences.setSearchEngineOrder(searchEngineOrder.map { it.name })
-        userPreferences.setDisabledSearchEngines(disabledSearchEngines.map { it.name }.toSet())
+        userPreferences.setSearchEngineOrder(searchTargetsOrder.map { it.getId() })
+        userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
         onStateUpdate { state ->
             state.copy(
-                    searchEngineOrder = searchEngineOrder,
-                    disabledSearchEngines = disabledSearchEngines
+                    searchTargetsOrder = searchTargetsOrder,
+                    disabledSearchTargetIds = disabledSearchTargetIds
             )
         }
     }
 
-    private fun loadSearchEngineOrder(): List<SearchEngine> {
-        val savedOrder = userPreferences.getSearchEngineOrder()
-        val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
-        val allEngines =
-                if (hasGemini) {
-                    SearchEngine.values().toList()
-                } else {
-                    SearchEngine.values().filterNot { it == SearchEngine.DIRECT_SEARCH }
+    fun refreshBrowserTargets() {
+        scope.launch(Dispatchers.IO) {
+            val availableBrowsers = loadInstalledBrowsers()
+            val existingBrowserIds =
+                    searchTargetsOrder.filterIsInstance<SearchTarget.Browser>()
+                            .map { buildBrowserId(it.app.packageName) }
+                            .toSet()
+            val updatedOrder = mergeBrowsers(searchTargetsOrder, availableBrowsers)
+            val browserIds =
+                    availableBrowsers.map { buildBrowserId(it.packageName) }.toSet()
+            val updatedDisabled =
+                    disabledSearchTargetIds.toMutableSet().apply {
+                        addAll(browserIds - existingBrowserIds)
+                    }
+            val cleanedDisabled =
+                    updatedDisabled.filterNot { id ->
+                        id.startsWith(BROWSER_ID_PREFIX) && id !in browserIds
+                    }
+                            .toSet()
+
+            if (updatedOrder != searchTargetsOrder || cleanedDisabled != disabledSearchTargetIds) {
+                searchTargetsOrder = updatedOrder
+                disabledSearchTargetIds = cleanedDisabled
+                userPreferences.setSearchEngineOrder(searchTargetsOrder.map { it.getId() })
+                userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
+                onStateUpdate { state ->
+                    state.copy(
+                            searchTargetsOrder = searchTargetsOrder,
+                            disabledSearchTargetIds = disabledSearchTargetIds
+                    )
                 }
+            }
+        }
+    }
+
+    private fun getAvailableEngines(hasGemini: Boolean): List<SearchEngine> =
+            if (hasGemini) {
+                SearchEngine.values().toList()
+            } else {
+                SearchEngine.values().filterNot { it == SearchEngine.DIRECT_SEARCH }
+            }
+
+    private fun loadSearchTargetsOrder(
+            savedOrder: List<String>,
+            availableEngines: List<SearchEngine>,
+            availableBrowsers: List<BrowserApp>,
+            hasGemini: Boolean
+    ): List<SearchTarget> {
+        val browserMap = availableBrowsers.associateBy { it.packageName }
 
         if (savedOrder.isEmpty()) {
-            // First time - use default order with all available engines
-            val defaultOrder = allEngines
-            userPreferences.setSearchEngineOrder(defaultOrder.map { it.name })
+            val defaultEngines = availableEngines.map { SearchTarget.Engine(it) }
+            val defaultBrowsers = availableBrowsers.map { SearchTarget.Browser(it) }
+            val defaultOrder = insertBrowsersAfterAnchor(defaultEngines, defaultBrowsers)
+            userPreferences.setSearchEngineOrder(defaultOrder.map { it.getId() })
             return defaultOrder
         }
 
-        // Merge saved order with any new engines that might have been added
-        val savedEngines =
-                savedOrder.mapNotNull { name -> SearchEngine.values().find { it.name == name } }
-        val mergedSaved = applyDirectSearchAvailability(savedEngines, hasGemini)
-        val newEngines = allEngines.filter { it !in mergedSaved }
-        val finalOrder = mergedSaved + newEngines
+        val savedTargets =
+                savedOrder.mapNotNull { id ->
+                    parseSearchTargetId(id, availableEngines, browserMap)
+                }
+        val directAdjusted = applyDirectSearchAvailability(savedTargets, hasGemini)
+        val withNewEngines = mergeMissingEngines(directAdjusted, availableEngines)
+        val finalOrder = mergeBrowsers(withNewEngines, availableBrowsers)
 
-        // Save the updated order if new engines were added
-        if (newEngines.isNotEmpty()) {
-            userPreferences.setSearchEngineOrder(finalOrder.map { it.name })
+        val savedIds = savedOrder
+        val finalIds = finalOrder.map { it.getId() }
+        if (savedIds != finalIds) {
+            userPreferences.setSearchEngineOrder(finalIds)
         }
 
         return finalOrder
     }
 
-    private fun loadDisabledSearchEngines(): Set<SearchEngine> {
+    private fun loadDisabledSearchTargetIds(
+            savedOrder: List<String>,
+            availableEngines: List<SearchEngine>,
+            availableBrowsers: List<BrowserApp>,
+            hasGemini: Boolean
+    ): Set<String> {
         val hasPreference = userPreferences.hasDisabledSearchEnginesPreference()
         val disabledNames = userPreferences.getDisabledSearchEngines()
-        val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
+        val engineNames = availableEngines.map { it.name }.toSet()
+        val browserIds =
+                availableBrowsers.map { buildBrowserId(it.packageName) }.toSet()
+        val hasBrowserTargetsInOrder = savedOrder.any { it.startsWith(BROWSER_ID_PREFIX) }
+
         val savedDisabled =
-                disabledNames
-                        .mapNotNull { name -> SearchEngine.values().find { it.name == name } }
+                disabledNames.filter { id ->
+                    when {
+                        id.startsWith(BROWSER_ID_PREFIX) -> id in browserIds
+                        else -> id in engineNames
+                    }
+                }
                         .toMutableSet()
 
         val packageManager = context.packageManager
 
-        // If no saved preferences (first-time user), set default disabled engines
         if (!hasPreference) {
-            // Always disabled by default
-            savedDisabled.addAll(
-                    listOf(
+            val defaultDisabled =
+                    mutableSetOf(
                             SearchEngine.FACEBOOK_MARKETPLACE,
                             SearchEngine.DUCKDUCKGO,
                             SearchEngine.BRAVE,
@@ -162,49 +236,181 @@ class SearchEngineManager(
                             SearchEngine.GOOGLE_DRIVE,
                             SearchEngine.GOOGLE_PHOTOS
                     )
-            )
 
-            // Disable app-based engines if apps are not installed
             if (!isPackageInstalled(packageManager, PackageConstants.REDDIT_PACKAGE)) {
-                savedDisabled.add(SearchEngine.REDDIT)
+                defaultDisabled.add(SearchEngine.REDDIT)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.AMAZON_PACKAGE)) {
-                savedDisabled.add(SearchEngine.AMAZON)
+                defaultDisabled.add(SearchEngine.AMAZON)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.X_PACKAGE)) {
-                savedDisabled.add(SearchEngine.X)
+                defaultDisabled.add(SearchEngine.X)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.YOUTUBE_MUSIC_PACKAGE)) {
-                savedDisabled.add(SearchEngine.YOUTUBE_MUSIC)
+                defaultDisabled.add(SearchEngine.YOUTUBE_MUSIC)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.SPOTIFY_PACKAGE)) {
-                savedDisabled.add(SearchEngine.SPOTIFY)
+                defaultDisabled.add(SearchEngine.SPOTIFY)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.YOU_COM_PACKAGE_NAME)) {
-                savedDisabled.add(SearchEngine.YOU_COM)
+                defaultDisabled.add(SearchEngine.YOU_COM)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.STARTPAGE_PACKAGE_NAME)) {
-                savedDisabled.add(SearchEngine.STARTPAGE)
+                defaultDisabled.add(SearchEngine.STARTPAGE)
             }
 
-            // Save default disabled engines for new users
-            val finalDisabled =
+            val filteredDefault =
                     if (hasGemini) {
-                        savedDisabled
+                        defaultDisabled
                     } else {
-                        savedDisabled.filterNot { it == SearchEngine.DIRECT_SEARCH }.toSet()
+                        defaultDisabled.filterNot { it == SearchEngine.DIRECT_SEARCH }.toSet()
                     }
-            userPreferences.setDisabledSearchEngines(finalDisabled.map { it.name }.toSet())
-            return finalDisabled
+
+            val disabledIds =
+                    filteredDefault.map { it.name }.toMutableSet().apply { addAll(browserIds) }
+            userPreferences.setDisabledSearchEngines(disabledIds)
+            return disabledIds
+        }
+        if (!hasBrowserTargetsInOrder) {
+            val updated = savedDisabled + browserIds
+            if (updated != savedDisabled) {
+                userPreferences.setDisabledSearchEngines(updated)
+            }
+            return updated
         }
 
-        // For existing users (who have saved preferences), respect their choices
-        // This includes users who enabled all engines (empty disabled set)
-        return if (hasGemini) {
-            savedDisabled
+        return savedDisabled.toSet()
+    }
+
+    private fun parseSearchTargetId(
+            id: String,
+            availableEngines: List<SearchEngine>,
+            browserMap: Map<String, BrowserApp>
+    ): SearchTarget? {
+        return if (id.startsWith(BROWSER_ID_PREFIX)) {
+            val packageName = id.removePrefix(BROWSER_ID_PREFIX)
+            val browser = browserMap[packageName] ?: return null
+            SearchTarget.Browser(browser)
         } else {
-            savedDisabled.filterNot { it == SearchEngine.DIRECT_SEARCH }.toSet()
+            val engine = availableEngines.firstOrNull { it.name == id } ?: return null
+            SearchTarget.Engine(engine)
         }
+    }
+
+    private fun mergeMissingEngines(
+            order: List<SearchTarget>,
+            availableEngines: List<SearchEngine>
+    ): List<SearchTarget> {
+        val existingEngines =
+                order.filterIsInstance<SearchTarget.Engine>().map { it.engine }.toSet()
+        val missingEngines =
+                availableEngines.filter { it !in existingEngines }.map { SearchTarget.Engine(it) }
+        return order + missingEngines
+    }
+
+    private fun mergeBrowsers(
+            order: List<SearchTarget>,
+            availableBrowsers: List<BrowserApp>
+    ): List<SearchTarget> {
+        val browserMap = availableBrowsers.associateBy { it.packageName }
+        val cleanedOrder =
+                order.mapNotNull { target ->
+                    when (target) {
+                        is SearchTarget.Browser -> {
+                            val refreshed = browserMap[target.app.packageName]
+                            refreshed?.let { SearchTarget.Browser(it) }
+                        }
+                        else -> target
+                    }
+                }
+
+        val existingPackages =
+                cleanedOrder.filterIsInstance<SearchTarget.Browser>()
+                        .map { it.app.packageName }
+                        .toSet()
+        val missingBrowsers =
+                availableBrowsers.filter { it.packageName !in existingPackages }
+                        .map { SearchTarget.Browser(it) }
+
+        return insertBrowsersAfterAnchor(cleanedOrder, missingBrowsers)
+    }
+
+    private fun insertBrowsersAfterAnchor(
+            order: List<SearchTarget>,
+            browsersToInsert: List<SearchTarget>
+    ): List<SearchTarget> {
+        if (browsersToInsert.isEmpty()) return order
+
+        val lastBrowserIndex = order.indexOfLast { it is SearchTarget.Browser }
+        val startpageIndex =
+                order.indexOfFirst {
+                    it is SearchTarget.Engine && it.engine == SearchEngine.STARTPAGE
+                }
+        val insertIndex =
+                when {
+                    lastBrowserIndex >= 0 -> lastBrowserIndex + 1
+                    startpageIndex >= 0 -> startpageIndex + 1
+                    else -> order.size
+                }
+
+        return order.toMutableList().apply { addAll(insertIndex, browsersToInsert) }
+    }
+
+    private fun buildBrowserId(packageName: String): String = "$BROWSER_ID_PREFIX$packageName"
+
+    private fun loadInstalledBrowsers(): List<BrowserApp> {
+        val packageManager = context.packageManager
+        val browserCategoryIntent =
+                Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_APP_BROWSER) }
+
+        val browserPackages =
+                queryBrowserPackages(packageManager, browserCategoryIntent)
+
+        return browserPackages
+                .mapNotNull { packageName ->
+                    val label =
+                            runCatching {
+                                val appInfo =
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            packageManager.getApplicationInfo(
+                                                    packageName,
+                                                    PackageManager.ApplicationInfoFlags.of(0)
+                                            )
+                                        } else {
+                                            @Suppress("DEPRECATION")
+                                            packageManager.getApplicationInfo(packageName, 0)
+                                        }
+                                packageManager.getApplicationLabel(appInfo).toString()
+                            }
+                                    .getOrNull()
+                    val displayLabel =
+                            when (packageName) {
+                                BRAVE_BROWSER_PACKAGE -> "Brave Browser"
+                                else -> label
+                            }
+                    displayLabel?.let { BrowserApp(packageName = packageName, label = it) }
+                }
+                .sortedBy { it.label.lowercase() }
+    }
+
+    private fun queryBrowserPackages(
+            packageManager: PackageManager,
+            intent: Intent
+    ): Set<String> {
+        return runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryIntentActivities(
+                        intent,
+                        PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            }
+        }
+                .getOrDefault(emptyList())
+                .mapNotNull { it.activityInfo?.packageName }
+                .toSet()
     }
 
     private fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
@@ -212,14 +418,18 @@ class SearchEngineManager(
     }
 
     private fun applyDirectSearchAvailability(
-            order: List<SearchEngine>,
+            order: List<SearchTarget>,
             hasGemini: Boolean
-    ): List<SearchEngine> {
-        val hasDirect = order.contains(SearchEngine.DIRECT_SEARCH)
-        val withoutDirect = order.filterNot { it == SearchEngine.DIRECT_SEARCH }
+    ): List<SearchTarget> {
+        val hasDirect =
+                order.any { it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH }
+        val withoutDirect =
+                order.filterNot {
+                    it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
+                }
         return when {
             hasGemini && hasDirect -> order
-            hasGemini -> listOf(SearchEngine.DIRECT_SEARCH) + withoutDirect
+            hasGemini -> listOf(SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)) + withoutDirect
             else -> withoutDirect
         }
     }

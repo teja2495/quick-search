@@ -668,6 +668,12 @@ class UserAppPreferences(private val context: Context) {
         fun setShortcutCode(engine: SearchEngine, code: String) =
                 shortcutPreferences.setShortcutCode(engine, code)
 
+        fun getShortcutCode(targetId: String): String? =
+                shortcutPreferences.getShortcutCode(targetId)
+
+        fun setShortcutCode(targetId: String, code: String) =
+                shortcutPreferences.setShortcutCode(targetId, code)
+
         fun isShortcutEnabled(engine: SearchEngine): Boolean =
                 shortcutPreferences.isShortcutEnabled(engine)
 

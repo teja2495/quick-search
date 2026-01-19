@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -21,11 +20,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.DirectSearchStatus
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.search.searchScreen.SearchEnginesVisibility
 import com.tk.quicksearch.search.calculator.CalculatorUtils
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 @Composable
@@ -42,7 +42,7 @@ internal fun SearchScreenContent(
     onSettingsClick: () -> Unit,
     onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
     onRequestUsagePermission: () -> Unit,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchTargetClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
     onPhoneNumberClick: (String) -> Unit,
@@ -58,11 +58,11 @@ internal fun SearchScreenContent(
     modifier: Modifier = Modifier
 ) {
     // Calculate enabled engines
-    val enabledEngines: List<SearchEngine> = remember(
-        state.searchEngineOrder,
-        state.disabledSearchEngines
+    val enabledTargets: List<SearchTarget> = remember(
+        state.searchTargetsOrder,
+        state.disabledSearchTargetIds
     ) {
-        state.searchEngineOrder.filter { it !in state.disabledSearchEngines }
+        state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
     }
 
     // Search engine scroll state for auto-scroll during onboarding
@@ -129,9 +129,9 @@ internal fun SearchScreenContent(
             onQueryChange = onQueryChanged,
             onClearQuery = onClearQuery,
             onSettingsClick = onSettingsClick,
-            enabledEngines = enabledEngines,
+            enabledTargets = enabledTargets,
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
-            detectedShortcutEngine = state.detectedShortcutEngine,
+            detectedShortcutTarget = state.detectedShortcutTarget,
             showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
             onClearDetectedShortcut = onClearDetectedShortcut,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
@@ -148,14 +148,17 @@ internal fun SearchScreenContent(
                     onAppClick(firstApp)
                 } else {
                     // Check if a shortcut is detected
-                    if (state.detectedShortcutEngine != null) {
+                    if (state.detectedShortcutTarget != null) {
                         // Remove the shortcut (first word) from the query
                         val queryWithoutShortcut = trimmedQuery.split("\\s+".toRegex()).drop(1).joinToString(" ")
-                        onSearchEngineClick(queryWithoutShortcut, state.detectedShortcutEngine)
+                        onSearchTargetClick(
+                            queryWithoutShortcut,
+                            state.detectedShortcutTarget
+                        )
                     } else {
-                        val primaryEngine = enabledEngines.firstOrNull()
-                        if (primaryEngine != null && trimmedQuery.isNotBlank()) {
-                            onSearchEngineClick(trimmedQuery, primaryEngine)
+                        val primaryTarget = enabledTargets.firstOrNull()
+                        if (primaryTarget != null && trimmedQuery.isNotBlank()) {
+                            onSearchTargetClick(trimmedQuery, primaryTarget)
                         }
                     }
                 }
@@ -182,7 +185,7 @@ internal fun SearchScreenContent(
             onPhoneNumberClick = onPhoneNumberClick,
             onEmailClick = onDirectSearchEmailClick,
             onWebSuggestionClick = onWebSuggestionClick,
-            onSearchEngineClick = onSearchEngineClick,
+            onSearchTargetClick = onSearchTargetClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onDeleteRecentQuery = onDeleteRecentQuery,
             showCalculator = state.calculatorState.result != null,
@@ -194,7 +197,7 @@ internal fun SearchScreenContent(
         if (expandedSection == ExpandedSection.NONE) {
             val pillText = if (manuallySwitchedToNumberKeyboard) {
                 stringResource(R.string.keyboard_switch_back)
-            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() } && state.detectedShortcutEngine == null) {
+            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() } && state.detectedShortcutTarget == null) {
                 stringResource(R.string.keyboard_switch_to_number)
             } else {
                 null
@@ -227,11 +230,11 @@ internal fun SearchScreenContent(
                     SearchEngineIconsSection(
                         query = state.query,
                         hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledEngines,
-                        onSearchEngineClick = onSearchEngineClick,
+                        enabledEngines = enabledTargets,
+                        onSearchEngineClick = onSearchTargetClick,
                         onSearchEngineLongPress = onSearchEngineLongPress,
                         externalScrollState = searchEngineScrollState,
-                        detectedShortcutEngine = state.detectedShortcutEngine,
+                        detectedShortcutTarget = state.detectedShortcutTarget,
                         onClearDetectedShortcut = onClearDetectedShortcut,
                         showWallpaperBackground = state.showWallpaperBackground
                     )
@@ -240,24 +243,24 @@ internal fun SearchScreenContent(
                     SearchEngineIconsSection(
                         query = state.query,
                         hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledEngines,
-                        onSearchEngineClick = onSearchEngineClick,
+                        enabledEngines = enabledTargets,
+                        onSearchEngineClick = onSearchTargetClick,
                         onSearchEngineLongPress = onSearchEngineLongPress,
                         externalScrollState = searchEngineScrollState,
-                        detectedShortcutEngine = state.detectedShortcutEngine,
+                        detectedShortcutTarget = state.detectedShortcutTarget,
                         onClearDetectedShortcut = onClearDetectedShortcut,
                         showWallpaperBackground = state.showWallpaperBackground
                     )
                 },
-                shortcutContent = { engine ->
+                shortcutContent = { target ->
                     SearchEngineIconsSection(
                         query = state.query,
                         hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledEngines,
-                        onSearchEngineClick = onSearchEngineClick,
+                        enabledEngines = enabledTargets,
+                        onSearchEngineClick = onSearchTargetClick,
                         onSearchEngineLongPress = onSearchEngineLongPress,
                         externalScrollState = searchEngineScrollState,
-                        detectedShortcutEngine = engine,
+                        detectedShortcutTarget = target,
                         onClearDetectedShortcut = onClearDetectedShortcut,
                         showWallpaperBackground = state.showWallpaperBackground
                     )

@@ -154,6 +154,41 @@ object IntentHelpers {
         }
     }
 
+    fun openBrowserSearch(
+            context: Application,
+            query: String,
+            browserPackageName: String,
+            onShowToast: ((Int, String?) -> Unit)? = null
+    ) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) {
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(browserPackageName)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {} catch (_: SecurityException) {}
+            }
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            return
+        }
+
+        val searchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+        val intent =
+                Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
+                    setPackage(browserPackageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+        try {
+            context.startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+        } catch (exception: SecurityException) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+        }
+    }
+
     /**
      * Opens the Gemini app with the query using a share intent. If query is empty, just launches
      * the app.

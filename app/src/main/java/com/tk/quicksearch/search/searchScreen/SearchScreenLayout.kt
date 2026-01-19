@@ -34,7 +34,6 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.directSearch.DirectSearchResult
@@ -100,7 +99,7 @@ fun SearchContentArea(
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
-    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> },
+    onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onDeleteRecentQuery: (String) -> Unit = {},
     showCalculator: Boolean = false,
@@ -163,7 +162,7 @@ fun SearchContentArea(
                 onEmailClick = onEmailClick,
                 onWebSuggestionClick = onWebSuggestionClick,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onSearchEngineClick = onSearchEngineClick,
+                onSearchTargetClick = onSearchTargetClick,
                 onDeleteRecentQuery = onDeleteRecentQuery
             )
         }
@@ -194,7 +193,7 @@ fun ContentLayout(
     onEmailClick: (String) -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
-    onSearchEngineClick: (String, SearchEngine) -> Unit = { _, _ -> },
+    onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentQuery: (String) -> Unit = {}
 ) {
     Column(
@@ -253,11 +252,14 @@ fun ContentLayout(
             // When results are at top (normal), show web suggestions first, then search engine cards
             if (isReversed) {
                 // Reversed layout: search engine cards first, then web suggestions at bottom
-                if (state.detectedShortcutEngine == null && !state.isSearchEngineCompactMode) {
+                if (state.detectedShortcutTarget == null && !state.isSearchEngineCompactMode) {
                     NoResultsSearchEngineCards(
                         query = state.query,
-                        enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
-                        onSearchEngineClick = onSearchEngineClick,
+                        enabledEngines =
+                                state.searchTargetsOrder.filter {
+                                    it.getId() !in state.disabledSearchTargetIds
+                                },
+                        onSearchEngineClick = onSearchTargetClick,
                         onCustomizeClick = onCustomizeSearchEnginesClick,
                         isReversed = isReversed,
                         showWallpaperBackground = state.showWallpaperBackground,
@@ -276,7 +278,7 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = isReversed,
-                        isShortcutDetected = state.detectedShortcutEngine != null,
+                        isShortcutDetected = state.detectedShortcutTarget != null,
                         isRecentQuery = false,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -293,17 +295,20 @@ fun ContentLayout(
                         onSuggestionClick = onWebSuggestionClick,
                         showWallpaperBackground = state.showWallpaperBackground,
                         reverseOrder = false,
-                        isShortcutDetected = state.detectedShortcutEngine != null,
+                        isShortcutDetected = state.detectedShortcutTarget != null,
                         isRecentQuery = false,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                if (state.detectedShortcutEngine == null && !state.isSearchEngineCompactMode) {
+                if (state.detectedShortcutTarget == null && !state.isSearchEngineCompactMode) {
                     NoResultsSearchEngineCards(
                         query = state.query,
-                        enabledEngines = state.searchEngineOrder.filter { it !in state.disabledSearchEngines },
-                        onSearchEngineClick = onSearchEngineClick,
+                        enabledEngines =
+                                state.searchTargetsOrder.filter {
+                                    it.getId() !in state.disabledSearchTargetIds
+                                },
+                        onSearchEngineClick = onSearchTargetClick,
                         onCustomizeClick = onCustomizeSearchEnginesClick,
                         isReversed = isReversed,
                         showWallpaperBackground = state.showWallpaperBackground,

@@ -75,7 +75,8 @@ fun EditShortcutDialog(
             )
         )
     }
-    var enabledState by remember(isEnabled) { mutableStateOf(isEnabled) }
+    val initialEnabledState = if (onToggle == null) true else isEnabled
+    var enabledState by remember(isEnabled, onToggle) { mutableStateOf(initialEnabledState) }
     val focusRequester = remember { FocusRequester() }
     val isValidShortcut = isValidShortcutCode(editingCode.text)
     val showShortcutError = editingCode.text.isNotEmpty() && !isValidShortcut

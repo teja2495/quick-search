@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
@@ -71,15 +71,15 @@ fun SearchEngineIconsSection(
     modifier: Modifier = Modifier,
     query: String,
     hasAppResults: Boolean,
-    enabledEngines: List<SearchEngine>,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    enabledEngines: List<SearchTarget>,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
     externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
-    detectedShortcutEngine: SearchEngine? = null,
+    detectedShortcutTarget: SearchTarget? = null,
     onClearDetectedShortcut: () -> Unit = {},
     showWallpaperBackground: Boolean = false
 ) {
-    if (enabledEngines.isEmpty() && detectedShortcutEngine == null) return
+    if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
 
     val scrollState = externalScrollState ?: rememberLazyListState()
     
@@ -96,7 +96,7 @@ fun SearchEngineIconsSection(
         MaterialTheme.colorScheme.surface
     }
 
-    if (detectedShortcutEngine != null) {
+    if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it
         // The shortcut corresponds to the detected engine
         Box(
@@ -105,9 +105,14 @@ fun SearchEngineIconsSection(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             SearchEngineCard(
-                engine = detectedShortcutEngine,
+                target = detectedShortcutTarget,
                 query = query,
-                onClick = { onSearchEngineClick(query, detectedShortcutEngine) },
+                onClick = {
+                    onSearchEngineClick(
+                        query,
+                        detectedShortcutTarget
+                    )
+                },
                 onClear = onClearDetectedShortcut,
                 showWallpaperBackground = showWallpaperBackground
             )
@@ -135,9 +140,9 @@ fun SearchEngineIconsSection(
 @Composable
 private fun SearchEngineContent(
     query: String,
-    enabledEngines: List<SearchEngine>,
+    enabledEngines: List<SearchTarget>,
     scrollState: androidx.compose.foundation.lazy.LazyListState,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit
 ) {
     Row(
@@ -184,9 +189,9 @@ private fun SearchIcon() {
 @Composable
 private fun ScrollableEngineIcons(
     query: String,
-    enabledEngines: List<SearchEngine>,
+    enabledEngines: List<SearchTarget>,
     scrollState: androidx.compose.foundation.lazy.LazyListState,
-    onSearchEngineClick: (String, SearchEngine) -> Unit,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit
 ) {
     BoxWithConstraints(
