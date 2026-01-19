@@ -56,7 +56,10 @@ fun PermissionsSettings(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        SettingsCard {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = DesignTokens.ExtraLargeCardShape
+        ) {
             Column {
                 val permissions = listOf(
                     PermissionItem(

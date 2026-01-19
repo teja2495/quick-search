@@ -64,14 +64,14 @@ fun SearchEnginesSection(
             text = stringResource(R.string.settings_search_engines_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
         )
 
         Text(
             text = stringResource(R.string.settings_search_engines_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+            modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
         )
     }
 

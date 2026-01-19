@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -16,59 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
-import com.tk.quicksearch.R
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
-
-/**
- * Reusable section title component.
- */
-@Composable
-fun SettingsSectionTitle(
-    title: String,
-    modifier: Modifier = Modifier,
-    description: String? = null
-) {
-    Column(modifier = modifier) {
-        if (title.isNotEmpty()) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
-            )
-        }
-
-        if (description != null) {
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
-            )
-        }
-    }
-}
-
-/**
- * Reusable settings card component with consistent styling.
- */
-@Composable
-fun SettingsCard(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = DesignTokens.ExtraLargeCardShape
-    ) {
-        content()
-    }
-}
 
 /**
  * Reusable toggle row component for settings cards.

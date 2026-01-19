@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.excludedItemsScreen
+package com.tk.quicksearch.settings.settingsDetailScreens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -89,7 +89,7 @@ fun ExcludedItemScreen(
          excludedAppShortcuts.map { ExcludedItem.AppShortcut(it) })
             .sortedBy { it.displayName.lowercase() }
     }
-    
+
     if (allItems.isEmpty()) {
         return
     }
@@ -101,26 +101,26 @@ fun ExcludedItemScreen(
                 text = stringResource(R.string.settings_excluded_items_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = modifier.padding(bottom = SettingsSpacing.sectionTitleBottomPadding)
+                modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
             )
 
             Text(
                 text = stringResource(R.string.settings_excluded_items_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+                modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
             )
         } else {
             Text(
                 text = stringResource(R.string.settings_excluded_items_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+                modifier = modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
             )
         }
 
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
-        
+
         // Items card
         ElevatedCard(
             modifier = Modifier
@@ -192,7 +192,7 @@ private fun ExcludedItemRow(
                 item = item,
                 iconPackPackage = iconPackPackage
             )
-            
+
             Column(modifier = Modifier.padding(vertical = ITEM_ROW_TEXT_VERTICAL_PADDING)) {
                 Text(
                     text = item.displayName,
@@ -208,7 +208,7 @@ private fun ExcludedItemRow(
                 )
             }
         }
-        
+
         IconButton(onClick = onRemove) {
             Icon(
                 imageVector = Icons.Rounded.Close,
@@ -305,7 +305,7 @@ private fun AppIconPlaceholder(
         packageName = appInfo.packageName,
         iconPackPackage = iconPackPackage
     )
-    
+
     if (iconBitmap != null) {
         Image(
             bitmap = iconBitmap,

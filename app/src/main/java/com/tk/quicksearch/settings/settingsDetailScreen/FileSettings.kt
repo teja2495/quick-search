@@ -196,14 +196,21 @@ fun FileTypesSection(
 
         // Section title
         if (showTitle) {
-                SettingsSectionTitle(
-                        title = stringResource(R.string.settings_file_types_title),
-                        modifier = modifier
-                )
+                Column(modifier = modifier) {
+                        Text(
+                                text = stringResource(R.string.settings_file_types_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+                        )
+                }
         }
 
         // Card 1: Folders toggle
-        SettingsCard {
+        ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.ExtraLargeCardShape
+        ) {
                 FileTypeToggleRow(
                         text = stringResource(R.string.settings_folders_toggle),
                         checked = showFolders,
@@ -215,7 +222,10 @@ fun FileTypesSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Card 2: File types with icons in specific order
-        SettingsCard {
+        ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.ExtraLargeCardShape
+        ) {
                 Column {
                         // Define the order: Documents, Pictures, Videos, Music, APKs, Other
                         val orderedFileTypes =
@@ -317,7 +327,10 @@ fun FileTypesSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Card 3: System Files & Hidden Files toggles
-        SettingsCard {
+        ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.ExtraLargeCardShape
+        ) {
                 Column {
                         FileTypeToggleRow(
                                 text = stringResource(R.string.settings_system_files_toggle),

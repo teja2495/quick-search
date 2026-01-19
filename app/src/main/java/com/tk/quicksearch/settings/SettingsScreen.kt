@@ -62,6 +62,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
@@ -71,6 +76,18 @@ import com.tk.quicksearch.util.hapticToggle
 import kotlinx.coroutines.launch
 import com.tk.quicksearch.settings.settingsDetailScreens.SettingsDetailType
 
+/**
+ * Retrieves the app version name from the package manager.
+ */
+@Composable
+fun getAppVersionName(): String? {
+    val context = LocalContext.current
+    return try {
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    } catch (e: Exception) {
+        null
+    }
+}
 
 @Composable
 fun SettingsScreen(
@@ -107,7 +124,7 @@ fun SettingsScreen(
                 modifier =
                         Modifier.fillMaxSize()
                                 .verticalScroll(scrollState)
-                                .padding(horizontal = SettingsSpacing.contentHorizontalPadding)
+                                .padding(horizontal = DesignTokens.ContentHorizontalPadding)
         ) {
             // Usage Permission Banner (at the top)
             // Show banner only if usage access permission is missing and user hasn't dismissed it
@@ -119,7 +136,7 @@ fun SettingsScreen(
                         onCardClick = {
                             onNavigateToDetail(SettingsDetailType.PERMISSIONS)
                         },
-                        modifier = Modifier.padding(bottom = SettingsSpacing.sectionTopPadding)
+                        modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)
                 )
             }
 
@@ -178,12 +195,12 @@ fun SettingsScreen(
             ElevatedCard(
                     modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = SettingsSpacing.sectionTopPadding),
+                            .padding(bottom = DesignTokens.SectionTopPadding),
                     shape = MaterialTheme.shapes.extraLarge
             ) {
                 Column {
                     navigationItems.forEachIndexed { index, item ->
-                        SettingsCardItemRow(
+                        SettingsNavigationRow(
                                 item = item,
                                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
                         )
@@ -226,7 +243,7 @@ fun NavigationSectionCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        SettingsCardItemRow(
+        SettingsNavigationRow(
             item = SettingsCardItem(
                 title = title,
                 description = description,
@@ -391,7 +408,7 @@ fun SettingsMoreOptions(
     ) {
         Column {
             feedbackItems.forEachIndexed { index, item ->
-                SettingsCardItemRow(
+                SettingsNavigationRow(
                     item = item,
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
                 )
@@ -454,6 +471,93 @@ fun UsagePermissionBanner(
                 )
             }
         }
+    }
+}
+
+/**
+ * Header component for the settings screen.
+ */
+@Composable
+fun SettingsHeader(onBack: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = DesignTokens.ContentHorizontalPadding,
+                vertical = DesignTokens.HeaderVerticalPadding
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Rounded.ArrowBack,
+                contentDescription = stringResource(R.string.desc_navigate_back),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
+        Text(
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Displays the app version and developer info in a card at the bottom of the settings screen.
+ */
+@Composable
+fun SettingsVersionDisplay(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val versionName = getAppVersionName() ?: "1.2.2"
+    val developerName = stringResource(R.string.settings_feedback_developer_name)
+    val developerDesc = stringResource(R.string.settings_feedback_developer_desc, developerName)
+
+    val annotatedDeveloperDesc = buildAnnotatedString {
+        val parts = developerDesc.split(developerName)
+        if (parts.size > 1) {
+            append(parts[0])
+            withStyle(style = SpanStyle(
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                fontWeight = FontWeight.Medium
+            )) {
+                append(developerName)
+            }
+            append(parts[1])
+        } else {
+            append(developerDesc)
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(R.string.settings_feedback_developer_title, stringResource(R.string.app_name), versionName),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = annotatedDeveloperDesc,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.clickable {
+                val url = "https://hihello.com/p/e11b6338-b4a5-49d8-93c8-03ac219de738"
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                } catch (e: Exception) {}
+            }
+        )
     }
 }
 

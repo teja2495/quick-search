@@ -50,13 +50,13 @@ fun ShortcutsSection(
         text = stringResource(R.string.settings_shortcuts_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = SettingsSpacing.sectionTopPadding, bottom = SettingsSpacing.sectionTitleBottomPadding)
+        modifier = modifier.padding(top = DesignTokens.SectionTopPadding, bottom = DesignTokens.SectionTitleBottomPadding)
     )
     Text(
         text = stringResource(R.string.settings_shortcuts_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = SettingsSpacing.sectionDescriptionBottomPadding)
+        modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
     )
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),

@@ -52,7 +52,8 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.settings.excludedItemsScreen.*
+import com.tk.quicksearch.settings.settingsDetailScreens.ExcludedItemSettings.ExcludedItemScreen
+import com.tk.quicksearch.settings.settingsDetailScreens.ExcludedItemSettings.ClearAllConfirmationDialog
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
@@ -248,7 +249,8 @@ fun SettingsDetailRoute(
         onDismissShortcutHintBanner = onDismissShortcutHint,
         isDefaultAssistant = isDefaultAssistant,
         directSearchSetupExpanded = directSearchSetupExpanded,
-        onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded
+        onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+        onNavigateToDetail = onNavigateToDetail
     )
 }
 
@@ -262,7 +264,8 @@ private fun SettingsDetailScreen(
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: () -> Unit = {},
     directSearchSetupExpanded: Boolean = true,
-    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null
+    onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {}
 ) {
     val view = LocalView.current
     BackHandler(onBack = callbacks.onBack)
@@ -311,9 +314,9 @@ private fun SettingsDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(
-                    start = SettingsSpacing.contentHorizontalPadding,
-                    end = SettingsSpacing.contentHorizontalPadding,
-                    bottom = SettingsSpacing.sectionTopPadding
+                    start = DesignTokens.ContentHorizontalPadding,
+                    end = DesignTokens.ContentHorizontalPadding,
+                    bottom = DesignTokens.SectionTopPadding
                 )
 
             Column(
@@ -371,7 +374,8 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.SEARCH_RESULTS -> {
                         SearchResultsSettingsSection(
                             state = state,
-                            callbacks = callbacks
+                            callbacks = callbacks,
+                            onNavigateToExcludedItems = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) }
                         )
                     }
                     SettingsDetailType.APPEARANCE -> {
@@ -508,8 +512,8 @@ private fun SettingsDetailHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = SettingsSpacing.headerHorizontalPadding,
-                vertical = SettingsSpacing.headerVerticalPadding
+                horizontal = DesignTokens.ContentHorizontalPadding,
+                vertical = DesignTokens.HeaderVerticalPadding
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -520,7 +524,7 @@ private fun SettingsDetailHeader(
                 tint = MaterialTheme.colorScheme.onSurface
             )
         }
-        Spacer(modifier = Modifier.width(SettingsSpacing.headerIconSpacing))
+        Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
@@ -528,7 +532,7 @@ private fun SettingsDetailHeader(
             modifier = Modifier.weight(1f)
         )
         trailingContent?.let {
-            Spacer(modifier = Modifier.width(SettingsSpacing.headerIconSpacing))
+            Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
             it()
         }
     }

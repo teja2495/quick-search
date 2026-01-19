@@ -39,7 +39,7 @@ data class SettingsCardItem(
  * Individual row for a settings card item.
  */
 @Composable
-fun SettingsCardItemRow(
+fun SettingsNavigationRow(
     item: SettingsCardItem,
     contentPadding: PaddingValues
 ) {

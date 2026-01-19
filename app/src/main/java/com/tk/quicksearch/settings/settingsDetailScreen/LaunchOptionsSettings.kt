@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsCardItem
-import com.tk.quicksearch.settings.shared.SettingsCardItemRow
+import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 
 /**
  * Launch Options settings screen with default assistant and quick settings tile settings.
@@ -30,7 +30,7 @@ fun LaunchOptionsSettings(
     ) {
         Column {
             // Default Assistant Section
-            SettingsCardItemRow(
+            SettingsNavigationRow(
                 item = SettingsCardItem(
                     title = stringResource(R.string.settings_default_assistant_title),
                     description = stringResource(
@@ -49,7 +49,7 @@ fun LaunchOptionsSettings(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Quick Settings Tile Section
-            SettingsCardItemRow(
+            SettingsNavigationRow(
                 item = SettingsCardItem(
                     title = stringResource(R.string.settings_quick_settings_tile_title),
                     description = stringResource(R.string.settings_quick_settings_tile_desc),

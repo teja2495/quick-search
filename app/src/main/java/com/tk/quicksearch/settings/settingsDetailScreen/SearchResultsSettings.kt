@@ -1,7 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreens
 
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -10,22 +8,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +23,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.excludedItemsScreen.ExcludedItemScreen
 import com.tk.quicksearch.util.hapticToggle
-import com.tk.quicksearch.settings.shared.*
 
 
 /**
@@ -193,7 +177,7 @@ fun CombinedExcludedItemsCard(
     onToggleShowAllResults: (Boolean) -> Unit,
     excludedItemsTitle: String,
     excludedItemsDescription: String,
-    onExcludedItemsClick: () -> Unit,
+    onNavigateToExcludedItems: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
@@ -275,11 +259,11 @@ fun CombinedExcludedItemsCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Excluded Items Section
-            SettingsCardItemRow(
+            SettingsNavigationRow(
                 item = SettingsCardItem(
                     title = excludedItemsTitle,
                     description = excludedItemsDescription,
-                    actionOnPress = onExcludedItemsClick
+                    actionOnPress = onNavigateToExcludedItems
                 ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
             )
@@ -294,6 +278,7 @@ fun CombinedExcludedItemsCard(
 fun SearchResultsSettingsSection(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
+    onNavigateToExcludedItems: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -320,7 +305,6 @@ fun SearchResultsSettingsSection(
         )
 
         // Combined Calculator, Auto Expand Results and Excluded Items Card
-        val context = LocalContext.current
         CombinedExcludedItemsCard(
             calculatorEnabled = state.calculatorEnabled,
             onToggleCalculator = callbacks.onToggleCalculator,
@@ -328,59 +312,9 @@ fun SearchResultsSettingsSection(
             onToggleShowAllResults = callbacks.onToggleShowAllResults,
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
-            onExcludedItemsClick = {
-                // Navigate to excluded items detail screen
-                // This would need to be handled by the parent component
-                // For now, show the inline screen if there are items, otherwise show toast
-                val hasItems =
-                    state.suggestionExcludedApps.isNotEmpty() ||
-                    state.resultExcludedApps.isNotEmpty() ||
-                    state.excludedContacts.isNotEmpty() ||
-                    state.excludedFiles.isNotEmpty() ||
-                    state.excludedSettings.isNotEmpty() ||
-                    state.excludedAppShortcuts.isNotEmpty()
-                if (hasItems) {
-                    // Could navigate to detail screen, but for now show inline
-                    // In a real implementation, this would navigate to SettingsDetailType.EXCLUDED_ITEMS
-                } else {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.settings_excluded_items_empty),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            },
+            onNavigateToExcludedItems = onNavigateToExcludedItems,
             modifier = Modifier.padding(top = 12.dp)
         )
 
-        // Show excluded items inline if there are any
-        val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
-                               state.resultExcludedApps.isNotEmpty() ||
-                               state.excludedContacts.isNotEmpty() ||
-                               state.excludedFiles.isNotEmpty() ||
-                               state.excludedSettings.isNotEmpty() ||
-                               state.excludedAppShortcuts.isNotEmpty()
-
-        if (hasExcludedItems) {
-            ExcludedItemScreen(
-                suggestionExcludedApps = state.suggestionExcludedApps,
-                resultExcludedApps = state.resultExcludedApps,
-                excludedContacts = state.excludedContacts,
-                excludedFiles = state.excludedFiles,
-                excludedFileExtensions = state.excludedFileExtensions,
-                excludedSettings = state.excludedSettings,
-                excludedAppShortcuts = state.excludedAppShortcuts,
-                onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
-                onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
-                onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
-                onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
-                onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                onClearAll = callbacks.onClearAllExclusions,
-                showTitle = false,
-                iconPackPackage = state.selectedIconPackPackage
-            )
-        }
     }
 }

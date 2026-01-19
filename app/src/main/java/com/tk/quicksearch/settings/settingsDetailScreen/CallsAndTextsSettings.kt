@@ -97,9 +97,14 @@ fun MessagingSection(
 
     Column(modifier = modifier) {
         if (showTitle) {
-                SettingsSectionTitle(
-                        title = stringResource(R.string.settings_messaging_title)
-                )
+                Column {
+                        Text(
+                                text = stringResource(R.string.settings_messaging_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+                        )
+                }
         }
 
         MergedMessagingCard(
@@ -135,7 +140,7 @@ private fun MergedMessagingCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(SettingsSpacing.singleCardPadding),
+                    .padding(DesignTokens.singleCardPadding()),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
