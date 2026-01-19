@@ -48,15 +48,6 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         prefs.edit().putString(UiPreferences.KEY_MESSAGING_APP, app.name).apply()
     }
 
-    @Deprecated("Use getMessagingApp() instead", ReplaceWith("getMessagingApp()"))
-    fun useWhatsAppForMessages(): Boolean {
-        return getMessagingApp() == MessagingApp.WHATSAPP
-    }
-
-    @Deprecated("Use setMessagingApp() instead", ReplaceWith("setMessagingApp(MessagingApp.WHATSAPP)"))
-    fun setUseWhatsAppForMessages(useWhatsApp: Boolean) {
-        setMessagingApp(if (useWhatsApp) MessagingApp.WHATSAPP else MessagingApp.MESSAGES)
-    }
 
     fun isFirstLaunch(): Boolean {
         syncInstallTimeWithBackup()
