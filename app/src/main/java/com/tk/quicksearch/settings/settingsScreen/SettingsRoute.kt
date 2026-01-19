@@ -271,38 +271,6 @@ fun SettingsRoute(
                     onRequestCallPermission = onRequestCallPermission
             )
 
-    // Callback for messaging app selection with installation check
-    val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
-        val isInstalled =
-                when (app) {
-                    MessagingApp.MESSAGES -> true // Messages is always available
-                    MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
-                    MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
-                }
-
-        if (isInstalled) {
-            callbacks.onSetMessagingApp(app)
-        } else {
-            val appName =
-                    when (app) {
-                        MessagingApp.WHATSAPP ->
-                                context.getString(R.string.settings_messaging_option_whatsapp)
-                        MessagingApp.TELEGRAM ->
-                                context.getString(R.string.settings_messaging_option_telegram)
-                        MessagingApp.MESSAGES ->
-                                context.getString(R.string.settings_messaging_option_messages)
-                    }
-            Toast.makeText(
-                            context,
-                            context.getString(
-                                    R.string.settings_messaging_app_not_installed,
-                                    appName
-                            ),
-                            Toast.LENGTH_SHORT
-                    )
-                    .show()
-        }
-    }
 
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes
     DisposableEffect(lifecycleOwner) {
@@ -334,7 +302,6 @@ fun SettingsRoute(
             state = state,
             callbacks = callbacks,
             hasUsagePermission = uiState.hasUsagePermission,
-            onMessagingAppSelected = onMessagingAppSelected,
             hasContactPermission = uiState.hasContactPermission,
             hasFilePermission = uiState.hasFilePermission,
             hasCallPermission = uiState.hasCallPermission,

@@ -58,12 +58,11 @@ import com.tk.quicksearch.settings.settingsScreen.NavigationSection
 import com.tk.quicksearch.settings.excludedItemsScreen.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
 import com.tk.quicksearch.settings.settingsScreen.SectionSettingsSection
-import com.tk.quicksearch.settings.settingsScreen.WebSuggestionsCard
 import com.tk.quicksearch.settings.settingsScreen.CombinedAppearanceCard
 import com.tk.quicksearch.settings.settingsScreen.CombinedLayoutIconCard
-import com.tk.quicksearch.settings.settingsScreen.CombinedExcludedItemsCard
+import com.tk.quicksearch.settings.settingsScreen.SearchResultsSettingsSection
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
-import com.tk.quicksearch.settings.settingsScreen.MessagingSection
+import com.tk.quicksearch.settings.settingsScreen.CallsTextsSettingsSection
 import com.tk.quicksearch.settings.settingsScreen.FileTypesSection
 import com.tk.quicksearch.settings.settingsScreen.permissions.PermissionsSection
 import com.tk.quicksearch.search.core.SearchSection
@@ -377,93 +376,10 @@ private fun SettingsDetailScreen(
                         )
                     }
                     SettingsDetailType.SEARCH_RESULTS -> {
-                        Column {
-                            // Search Sections Section
-                            SectionSettingsSection(
-                                sectionOrder = state.sectionOrder,
-                                disabledSections = state.disabledSections,
-                                onToggleSection = callbacks.onToggleSection,
-                                onReorderSections = callbacks.onReorderSections,
-                                showTitle = false
-                            )
-
-                            // Web Suggestions Card
-                            WebSuggestionsCard(
-                                webSuggestionsEnabled = state.webSuggestionsEnabled,
-                                onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
-                                webSuggestionsCount = state.webSuggestionsCount,
-                                onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
-                                recentQueriesEnabled = state.recentQueriesEnabled,
-                                onRecentQueriesToggle = callbacks.onToggleRecentQueries,
-                                recentQueriesCount = state.recentQueriesCount,
-                                onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange,
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
-
-                            // Combined Calculator, Auto Expand Results and Excluded Items Card
-                            val context = LocalContext.current
-                            CombinedExcludedItemsCard(
-                                calculatorEnabled = state.calculatorEnabled,
-                                onToggleCalculator = callbacks.onToggleCalculator,
-                                showAllResults = state.showAllResults,
-                                onToggleShowAllResults = callbacks.onToggleShowAllResults,
-                                excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
-                                excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
-                                onExcludedItemsClick = {
-                                    // Navigate to excluded items detail screen
-                                    // This would need to be handled by the parent component
-                                    // For now, show the inline screen if there are items, otherwise show toast
-                                    val hasItems =
-                                        state.suggestionExcludedApps.isNotEmpty() ||
-                                        state.resultExcludedApps.isNotEmpty() ||
-                                        state.excludedContacts.isNotEmpty() ||
-                                        state.excludedFiles.isNotEmpty() ||
-                                        state.excludedSettings.isNotEmpty() ||
-                                        state.excludedAppShortcuts.isNotEmpty()
-                                    if (hasItems) {
-                                        // Could navigate to detail screen, but for now show inline
-                                        // In a real implementation, this would navigate to SettingsDetailType.EXCLUDED_ITEMS
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            context.getString(R.string.settings_excluded_items_empty),
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                },
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
-
-                            // Show excluded items inline if there are any
-                            val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
-                                                   state.resultExcludedApps.isNotEmpty() ||
-                                                   state.excludedContacts.isNotEmpty() ||
-                                                   state.excludedFiles.isNotEmpty() ||
-                                                   state.excludedSettings.isNotEmpty() ||
-                                                   state.excludedAppShortcuts.isNotEmpty()
-
-                            if (hasExcludedItems) {
-                                ExcludedItemScreen(
-                                    suggestionExcludedApps = state.suggestionExcludedApps,
-                                    resultExcludedApps = state.resultExcludedApps,
-                                    excludedContacts = state.excludedContacts,
-                                    excludedFiles = state.excludedFiles,
-                                    excludedFileExtensions = state.excludedFileExtensions,
-                                    excludedSettings = state.excludedSettings,
-                                    excludedAppShortcuts = state.excludedAppShortcuts,
-                                    onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
-                                    onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
-                                    onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                                    onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                                    onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
-                                    onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
-                                    onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                                    onClearAll = callbacks.onClearAllExclusions,
-                                    showTitle = false,
-                                    iconPackPackage = state.selectedIconPackPackage
-                                )
-                            }
-                        }
+                        SearchResultsSettingsSection(
+                            state = state,
+                            callbacks = callbacks
+                        )
                     }
                     SettingsDetailType.APPEARANCE -> {
                         val appearanceContext = LocalContext.current
@@ -533,7 +449,7 @@ private fun SettingsDetailScreen(
                         }
                     }
                     SettingsDetailType.CALLS_TEXTS -> {
-                        MessagingSection(
+                        CallsTextsSettingsSection(
                             messagingApp = state.messagingApp,
                             onSetMessagingApp = callbacks.onSetMessagingApp,
                             directDialEnabled = state.directDialEnabled,
@@ -542,8 +458,6 @@ private fun SettingsDetailScreen(
                             contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
-                            onMessagingAppSelected = { /* Not available in detail screen */ },
-                            showTitle = false,
                             modifier = Modifier
                         )
                     }
@@ -565,7 +479,7 @@ private fun SettingsDetailScreen(
                         )
                     }
                     SettingsDetailType.LAUNCH_OPTIONS -> {
-                        LaunchOptionsSection(
+                        LaunchOptionsSettings(
                             isDefaultAssistant = isDefaultAssistant,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
                             onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
@@ -667,46 +581,6 @@ private fun SettingsDetailHeader(
     }
 }
 
-/**
- * Launch Options section with default assistant and quick settings tile settings.
- */
-@Composable
-fun LaunchOptionsSection(
-    isDefaultAssistant: Boolean,
-    onSetDefaultAssistant: () -> Unit,
-    onAddQuickSettingsTile: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Column {
-            // Default Assistant Section
-            NavigationSection(
-                title = stringResource(R.string.settings_default_assistant_title),
-                description = stringResource(
-                    if (isDefaultAssistant) {
-                        R.string.settings_default_assistant_desc_change
-                    } else {
-                        R.string.settings_default_assistant_desc
-                    }
-                ),
-                onClick = onSetDefaultAssistant
-            )
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Quick Settings Tile Section
-            NavigationSection(
-                title = stringResource(R.string.settings_quick_settings_tile_title),
-                description = stringResource(R.string.settings_quick_settings_tile_desc),
-                onClick = onAddQuickSettingsTile
-            )
-        }
-    }
-}
 
 /**
  * Enum to represent different types of settings detail screens.

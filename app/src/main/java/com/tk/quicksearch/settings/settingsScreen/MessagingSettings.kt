@@ -28,7 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.util.hapticToggle
@@ -290,4 +292,73 @@ private fun MessagingOptionIcon(app: MessagingApp) {
             )
         }
     }
+}
+
+/**
+ * Consolidated Calls & Texts settings section that includes all messaging-related logic.
+ * This combines the UI components with the business logic for messaging app selection and direct dial.
+ */
+@Composable
+fun CallsTextsSettingsSection(
+    messagingApp: MessagingApp,
+    onSetMessagingApp: (MessagingApp) -> Unit,
+    directDialEnabled: Boolean,
+    onToggleDirectDial: (Boolean) -> Unit,
+    hasCallPermission: Boolean,
+    contactsSectionEnabled: Boolean = true,
+    isWhatsAppInstalled: Boolean = false,
+    isTelegramInstalled: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    if (!contactsSectionEnabled) {
+        return
+    }
+
+    val context = LocalContext.current
+
+    // Callback for messaging app selection with installation check
+    val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
+        val isInstalled =
+            when (app) {
+                MessagingApp.MESSAGES -> true // Messages is always available
+                MessagingApp.WHATSAPP -> isWhatsAppInstalled
+                MessagingApp.TELEGRAM -> isTelegramInstalled
+            }
+
+        if (isInstalled) {
+            onSetMessagingApp(app)
+        } else {
+            val appName =
+                when (app) {
+                    MessagingApp.WHATSAPP ->
+                        context.getString(R.string.settings_messaging_option_whatsapp)
+                    MessagingApp.TELEGRAM ->
+                        context.getString(R.string.settings_messaging_option_telegram)
+                    MessagingApp.MESSAGES ->
+                        context.getString(R.string.settings_messaging_option_messages)
+                }
+            Toast.makeText(
+                context,
+                context.getString(
+                    R.string.settings_messaging_app_not_installed,
+                    appName
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    MessagingSection(
+        messagingApp = messagingApp,
+        onSetMessagingApp = onSetMessagingApp,
+        directDialEnabled = directDialEnabled,
+        onToggleDirectDial = onToggleDirectDial,
+        hasCallPermission = hasCallPermission,
+        contactsSectionEnabled = contactsSectionEnabled,
+        isWhatsAppInstalled = isWhatsAppInstalled,
+        isTelegramInstalled = isTelegramInstalled,
+        onMessagingAppSelected = onMessagingAppSelected,
+        showTitle = false,
+        modifier = modifier
+    )
 }
