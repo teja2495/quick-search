@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.search.searchEngines.compact.SearchEngineCard
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.util.hapticConfirm
 
 /**
@@ -45,12 +46,12 @@ import com.tk.quicksearch.util.hapticConfirm
  */
 private object SearchEngineSectionConstants {
     const val ITEMS_PER_ROW = 6
-    val ICON_SIZE = 24.dp
+    val ICON_SIZE = SearchTargetConstants.DEFAULT_ICON_SIZE
     val SPACING = 20.dp
-    val SEARCH_ICON_SIZE = 20.dp
-    val HORIZONTAL_PADDING = 16.dp
-    val VERTICAL_PADDING = 16.dp
-    val SEARCH_ICON_SPACING = 20.dp
+    val SEARCH_ICON_SIZE = SearchTargetConstants.SEARCH_ICON_SIZE
+    val HORIZONTAL_PADDING = SearchTargetConstants.HORIZONTAL_PADDING
+    val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
+    val SEARCH_ICON_SPACING = SearchTargetConstants.SEARCH_ICON_SPACING
 }
 
 /**

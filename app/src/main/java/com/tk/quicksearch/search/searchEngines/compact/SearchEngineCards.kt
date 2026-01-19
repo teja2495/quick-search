@@ -31,7 +31,9 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.getDisplayName
-import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.util.hapticConfirm
 
@@ -119,41 +121,18 @@ fun SearchEngineCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
             // Search target icon
-            when (target) {
-                is SearchTarget.Engine -> {
-                    Icon(
-                        painter = painterResource(id = target.engine.getDrawableResId()),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified
-                    )
-                }
-                is SearchTarget.Browser -> {
-                    val iconBitmap = rememberAppIcon(packageName = target.app.packageName)
-                    if (iconBitmap != null) {
-                        Image(
-                            bitmap = iconBitmap,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.Public,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            SearchTargetIcon(
+                target = target,
+                iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
+                style = IconRenderStyle.SIMPLE
+            )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             // Search engine name
             Text(
@@ -173,7 +152,7 @@ fun SearchEngineCard(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = stringResource(R.string.desc_clear_search),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(SearchTargetConstants.CLEAR_ICON_SIZE)
                     )
                 }
             }
@@ -205,40 +184,17 @@ private fun SearchTargetCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            when (target) {
-                is SearchTarget.Engine -> {
-                    Icon(
-                        painter = painterResource(id = target.engine.getDrawableResId()),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified
-                    )
-                }
-                is SearchTarget.Browser -> {
-                    val iconBitmap = rememberAppIcon(packageName = target.app.packageName)
-                    if (iconBitmap != null) {
-                        Image(
-                            bitmap = iconBitmap,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.Public,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            SearchTargetIcon(
+                target = target,
+                iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
+                style = IconRenderStyle.SIMPLE
+            )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             Text(
                 text = stringResource(
@@ -282,7 +238,7 @@ private fun CustomizeSearchEnginesCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -294,7 +250,7 @@ private fun CustomizeSearchEnginesCard(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(16.dp))
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             // Customize text
             Text(
