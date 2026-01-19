@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.shared
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -148,4 +148,3 @@ fun SettingsToggleRow(
         }
     }
 }
-

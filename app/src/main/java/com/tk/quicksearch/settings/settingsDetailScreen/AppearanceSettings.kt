@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.settingsDetailScreens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,16 +16,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -33,8 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.settings.SettingsToggleRow
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.hapticToggle
 
 
@@ -227,5 +235,183 @@ fun CombinedAppearanceCard(
                 }
             }
         }
+    }
+}
+
+/**
+ * Complete appearance settings section with all appearance-related components and dialogs.
+ */
+@Composable
+fun AppearanceSettingsSection(
+    keyboardAlignedLayout: Boolean,
+    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    showWallpaperBackground: Boolean,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
+    onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    onWallpaperBlurRadiusChange: (Float) -> Unit,
+    isSearchEngineCompactMode: Boolean,
+    onToggleSearchEngineCompactMode: (Boolean) -> Unit,
+    selectedIconPackPackage: String?,
+    availableIconPacks: List<IconPackInfo>,
+    onSelectIconPack: (String?) -> Unit,
+    onRefreshIconPacks: () -> Unit,
+    hasFilePermission: Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    val appearanceContext = androidx.compose.ui.platform.LocalContext.current
+    var showIconPackDialog by remember { mutableStateOf(false) }
+
+    val hasIconPacks = availableIconPacks.isNotEmpty()
+    val selectedIconPackLabel =
+        remember(selectedIconPackPackage, availableIconPacks) {
+            availableIconPacks
+                .firstOrNull { it.packageName == selectedIconPackPackage }
+                ?.label
+                ?: appearanceContext.getString(R.string.settings_icon_pack_option_system)
+        }
+
+    Column(modifier = modifier) {
+        // Wallpaper Background Card
+        CombinedAppearanceCard(
+            showWallpaperBackground = showWallpaperBackground,
+            wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+            wallpaperBlurRadius = wallpaperBlurRadius,
+            onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
+            onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+            onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+            hasFilePermission = hasFilePermission
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Search Engine Style Card
+        SearchEngineAppearanceCard(
+            isSearchEngineCompactMode = isSearchEngineCompactMode,
+            onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // One-Handed Mode and Icon Pack Card
+        CombinedLayoutIconCard(
+            keyboardAlignedLayout = keyboardAlignedLayout,
+            onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
+            iconPackTitle = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
+            iconPackDescription =
+                if (hasIconPacks) {
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_selected_label,
+                        selectedIconPackLabel
+                    )
+                } else {
+                    androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_empty)
+                },
+            onIconPackClick = {
+                if (hasIconPacks) {
+                    showIconPackDialog = true
+                } else {
+                    onRefreshIconPacks()
+                }
+            },
+            onRefreshIconPacks = onRefreshIconPacks
+        )
+    }
+
+    // Icon Pack Picker Dialog
+    if (showIconPackDialog) {
+        IconPackPickerDialog(
+            availableIconPacks = availableIconPacks,
+            selectedPackage = selectedIconPackPackage,
+            onSelect = { packageName: String? ->
+                onSelectIconPack(packageName)
+                showIconPackDialog = false
+            },
+            onDismiss = { showIconPackDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun IconPackPickerDialog(
+    availableIconPacks: List<IconPackInfo>,
+    selectedPackage: String?,
+    onSelect: (String?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_picker_title))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (availableIconPacks.isEmpty()) {
+                    Text(
+                        text = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IconPackOptionRow(
+                            label = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_option_system),
+                            selected = selectedPackage == null,
+                            onClick = { onSelect(null) }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        availableIconPacks.forEach { pack ->
+                            IconPackOptionRow(
+                                label = pack.label,
+                                selected = selectedPackage == pack.packageName,
+                                onClick = { onSelect(pack.packageName) }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(androidx.compose.ui.res.stringResource(R.string.dialog_done))
+            }
+        }
+    )
+}
+
+@Composable
+private fun IconPackOptionRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 6.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

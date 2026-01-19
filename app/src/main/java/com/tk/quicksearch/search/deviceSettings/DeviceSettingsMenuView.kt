@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.search.deviceSettings
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons

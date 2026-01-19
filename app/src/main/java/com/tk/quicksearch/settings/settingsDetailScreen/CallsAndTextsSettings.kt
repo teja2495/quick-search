@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,10 +35,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.util.hapticConfirm
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.settings.SettingsSectionTitle
-import com.tk.quicksearch.settings.SettingsToggleRow
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants for consistent spacing

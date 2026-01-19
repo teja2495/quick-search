@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings
+package com.tk.quicksearch.settings.shared
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable

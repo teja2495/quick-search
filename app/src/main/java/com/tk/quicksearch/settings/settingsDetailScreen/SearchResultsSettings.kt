@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.settingsDetailScreens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -41,9 +41,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.excludedItemsScreen.ExcludedItemScreen
 import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.settings.shared.*
 
 
 /**
@@ -274,10 +275,12 @@ fun CombinedExcludedItemsCard(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Excluded Items Section
-            NavigationSection(
-                title = excludedItemsTitle,
-                description = excludedItemsDescription,
-                onClick = onExcludedItemsClick,
+            SettingsCardItemRow(
+                item = SettingsCardItem(
+                    title = excludedItemsTitle,
+                    description = excludedItemsDescription,
+                    actionOnPress = onExcludedItemsClick
+                ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
             )
         }

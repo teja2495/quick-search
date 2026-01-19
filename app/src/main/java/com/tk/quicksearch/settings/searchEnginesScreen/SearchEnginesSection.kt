@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.search.directSearch.SearchEngineToggleCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineListCard
 import com.tk.quicksearch.settings.searchEnginesScreen.ShortcutsSection

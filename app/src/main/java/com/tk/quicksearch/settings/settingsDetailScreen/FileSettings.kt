@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,8 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.settings.SettingsSectionTitle
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 

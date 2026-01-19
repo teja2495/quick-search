@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
 import com.tk.quicksearch.util.hapticToggle
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.searchEnginesScreen.EditShortcutDialog
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineDivider
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineSettingsSpacing

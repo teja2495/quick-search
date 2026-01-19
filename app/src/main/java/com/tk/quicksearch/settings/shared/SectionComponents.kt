@@ -1,5 +1,13 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.shared
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,18 +32,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
+import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
@@ -135,7 +148,7 @@ fun SectionSettingsSection(
                     label = "elevation"
                 )
 
-                Surface(
+                androidx.compose.material3.Surface(
                     shadowElevation = elevation,
                     color = if (isDragging) MaterialTheme.colorScheme.surface else Color.Transparent,
                     modifier = Modifier.fillMaxWidth()
@@ -219,12 +232,140 @@ private fun SectionRow(
             modifier = Modifier.weight(1f)
         )
 
-        Switch(
+        androidx.compose.material3.Switch(
             checked = isEnabled,
             onCheckedChange = { enabled ->
                 hapticToggle(view)()
                 onToggle(enabled)
             }
         )
+    }
+}
+
+/**
+ * Handles permission requests and section toggling for the settings screen. Returns a callback
+ * function for toggling sections that handles permission requests.
+ */
+@Composable
+fun rememberSectionToggleHandler(
+    viewModel: SearchViewModel,
+    disabledSections: Set<SearchSection>
+): (SearchSection, Boolean) -> Unit {
+    val context = LocalContext.current
+    val pendingSectionEnable = remember { mutableStateOf<SearchSection?>(null) }
+
+    // Launcher for runtime permissions (contacts, files on pre-R)
+    val runtimePermissionsLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val contactsGranted = permissions[Manifest.permission.READ_CONTACTS] == true
+            val filesGranted =
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
+                } else {
+                    false
+                }
+
+            // Refresh permission state
+            viewModel.handleOptionalPermissionChange()
+
+                    // If permission was granted and we have a pending section, enable it
+                    pendingSectionEnable.value?.let { section ->
+                        when (section) {
+                            SearchSection.CONTACTS -> {
+                                if (contactsGranted) {
+                                    viewModel.setSectionEnabled(section, true)
+                                }
+                            }
+                            SearchSection.FILES -> {
+                                if (filesGranted ||
+                                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                                            Environment.isExternalStorageManager())
+                                ) {
+                                    viewModel.setSectionEnabled(section, true)
+                                }
+                            }
+                            else -> {}
+                        }
+                        pendingSectionEnable.value = null
+                    }
+        }
+
+    // Launcher for all files access (Android R+)
+    val allFilesAccessLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) {
+            val filesGranted = PermissionRequestHandler.checkFilesPermission(context)
+
+            // Refresh permission state
+            viewModel.handleOptionalPermissionChange()
+
+                    // If permission was granted and we have a pending section, enable it
+                if (pendingSectionEnable.value == SearchSection.FILES && filesGranted) {
+                    viewModel.setSectionEnabled(SearchSection.FILES, true)
+                    pendingSectionEnable.value = null
+                }
+        }
+
+    return androidx.compose.runtime.remember(viewModel, disabledSections) {
+        { section: SearchSection, enabled: Boolean ->
+            if (enabled) {
+                // Check if section can be enabled (has permissions)
+                if (viewModel.canEnableSection(section)) {
+                    viewModel.setSectionEnabled(section, true)
+                } else {
+                    // Request permissions based on section
+                    when (section) {
+                        SearchSection.CONTACTS -> {
+                            pendingSectionEnable.value = section
+                            runtimePermissionsLauncher.launch(
+                                arrayOf(Manifest.permission.READ_CONTACTS)
+                            )
+                        }
+                        SearchSection.FILES -> {
+                            pendingSectionEnable.value = section
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                PermissionRequestHandler.launchAllFilesAccessRequest(
+                                    allFilesAccessLauncher,
+                                    context
+                                )
+                            } else {
+                                runtimePermissionsLauncher.launch(
+                                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                )
+                            }
+                        }
+                        SearchSection.APPS -> {
+                            // Apps section doesn't require permissions
+                            viewModel.setSectionEnabled(section, true)
+                        }
+                        SearchSection.APP_SHORTCUTS -> {
+                            viewModel.setSectionEnabled(section, true)
+                        }
+                        SearchSection.SETTINGS -> {
+                            viewModel.setSectionEnabled(section, true)
+                        }
+                    }
+                }
+            } else {
+                // Check if disabling this section would leave no sections enabled
+                val enabledSectionsCount = SearchSection.values().count { it !in disabledSections }
+                if (enabledSectionsCount <= 1 && section !in disabledSections) {
+                    // This is the last enabled section, prevent disabling
+                    Toast.makeText(
+                        context,
+                        context.getString(
+                            R.string.settings_sections_at_least_one_required
+                        ),
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
+                } else {
+                    viewModel.setSectionEnabled(section, false)
+                }
+            }
+        }
     }
 }

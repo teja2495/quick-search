@@ -38,8 +38,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.shortcutDisplayName
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.settings.SettingsSpacing
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants

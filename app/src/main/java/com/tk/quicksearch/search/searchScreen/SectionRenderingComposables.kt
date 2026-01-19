@@ -9,7 +9,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.files.FileResultsSection
-import com.tk.quicksearch.settings.settingsScreen.DeviceSettingsResultsSection
+import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 
 // ============================================================================
 // Section Rendering Functions

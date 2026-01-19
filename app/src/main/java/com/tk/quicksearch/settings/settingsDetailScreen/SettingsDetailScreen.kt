@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen
+package com.tk.quicksearch.settings.settingsDetailScreens
 
 import android.content.Intent
 import android.widget.Toast
@@ -46,25 +46,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.settings.SettingsSpacing
-import com.tk.quicksearch.settings.SettingsToggleRow
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.settings.settingsScreen.NavigationSection
 import com.tk.quicksearch.settings.excludedItemsScreen.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
-import com.tk.quicksearch.settings.settingsScreen.SectionSettingsSection
-import com.tk.quicksearch.settings.settingsScreen.CombinedAppearanceCard
-import com.tk.quicksearch.settings.settingsScreen.CombinedLayoutIconCard
-import com.tk.quicksearch.settings.settingsScreen.SearchResultsSettingsSection
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
-import com.tk.quicksearch.settings.settingsScreen.CallsTextsSettingsSection
-import com.tk.quicksearch.settings.settingsScreen.FileTypesSection
-import com.tk.quicksearch.settings.settingsScreen.permissions.PermissionsSection
+import com.tk.quicksearch.settings.settingsDetailScreen.CallsTextsSettingsSection
+import com.tk.quicksearch.settings.settingsDetailScreen.FileTypesSection
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
@@ -384,69 +377,30 @@ private fun SettingsDetailScreen(
                     SettingsDetailType.APPEARANCE -> {
                         val appearanceContext = LocalContext.current
 
-                        Column {
-                            val hasIconPacks = state.availableIconPacks.isNotEmpty()
-                            val selectedIconPackLabel =
-                                remember(state.selectedIconPackPackage, state.availableIconPacks) {
-                                    state.availableIconPacks
-                                        .firstOrNull { it.packageName == state.selectedIconPackPackage }
-                                        ?.label
-                                        ?: appearanceContext.getString(R.string.settings_icon_pack_option_system)
-                                }
-
-                            // Wallpaper Background Card
-                            CombinedAppearanceCard(
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
-                                wallpaperBlurRadius = state.wallpaperBlurRadius,
-                                onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
-                                onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
-                                onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
-                                hasFilePermission = true // Assume permission is granted in detail screen
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Search Engine Style Card
-                            SearchEngineAppearanceCard(
-                                isSearchEngineCompactMode = state.isSearchEngineCompactMode,
-                                onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // One-Handed Mode and Icon Pack Card
-                            CombinedLayoutIconCard(
-                                keyboardAlignedLayout = state.keyboardAlignedLayout,
-                                onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
-                                iconPackTitle = stringResource(R.string.settings_icon_pack_title),
-                                iconPackDescription =
-                                    if (hasIconPacks) {
-                                        stringResource(
-                                            R.string.settings_icon_pack_selected_label,
-                                            selectedIconPackLabel
-                                        )
-                                    } else {
-                                        stringResource(R.string.settings_icon_pack_empty)
-                                    },
-                                onIconPackClick = {
-                                    if (hasIconPacks) {
-                                        // Could show icon pack dialog here, but for now just show toast
-                                        Toast.makeText(appearanceContext, "Icon pack selection not available in detail screen", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        callbacks.onSearchIconPacks()
-                                    }
-                                },
-                                onRefreshIconPacks = {
-                                    callbacks.onRefreshIconPacks()
-                                    Toast.makeText(
-                                        appearanceContext,
-                                        appearanceContext.getString(R.string.settings_refreshing_icon_packs),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            )
-                        }
+                        AppearanceSettingsSection(
+                            keyboardAlignedLayout = state.keyboardAlignedLayout,
+                            onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
+                            showWallpaperBackground = state.showWallpaperBackground,
+                            wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
+                            wallpaperBlurRadius = state.wallpaperBlurRadius,
+                            onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
+                            onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
+                            onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
+                            isSearchEngineCompactMode = state.isSearchEngineCompactMode,
+                            onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
+                            selectedIconPackPackage = state.selectedIconPackPackage,
+                            availableIconPacks = state.availableIconPacks,
+                            onSelectIconPack = callbacks.onSelectIconPack,
+                            onRefreshIconPacks = {
+                                callbacks.onRefreshIconPacks()
+                                Toast.makeText(
+                                    appearanceContext,
+                                    appearanceContext.getString(R.string.settings_refreshing_icon_packs),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            hasFilePermission = true // Assume permission is granted in detail screen
+                        )
                     }
                     SettingsDetailType.CALLS_TEXTS -> {
                         CallsTextsSettingsSection(
@@ -487,7 +441,7 @@ private fun SettingsDetailScreen(
                         )
                     }
                     SettingsDetailType.PERMISSIONS -> {
-                        PermissionsSection(
+                        PermissionsSettings(
                             hasUsagePermission = true, // Assume granted in detail screen
                             hasContactPermission = true, // Assume granted in detail screen
                             hasFilePermission = true, // Assume granted in detail screen
@@ -496,7 +450,6 @@ private fun SettingsDetailScreen(
                             onRequestContactPermission = { /* No-op in detail screen */ },
                             onRequestFilePermission = { /* No-op in detail screen */ },
                             onRequestCallPermission = { /* No-op in detail screen */ },
-                            showTitle = false,
                             modifier = Modifier
                         )
                     }
@@ -528,7 +481,7 @@ private fun SettingsDetailScreen(
                 )
             }
         }
-        
+
         // Clear All confirmation dialog
         if (showClearAllConfirmation && detailType == SettingsDetailType.EXCLUDED_ITEMS) {
             ClearAllConfirmationDialog(

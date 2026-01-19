@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsScreen.permissions
+package com.tk.quicksearch.settings.settingsDetailScreens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,26 +9,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.SettingsCard
-import com.tk.quicksearch.settings.SettingsSectionTitle
-import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.settings.shared.*
 
 private val GrantedPermissionColor = Color(0xFF4CAF50)
 
@@ -42,8 +40,11 @@ private data class PermissionItem(
     val onRequest: () -> Unit
 )
 
+/**
+ * Permissions settings screen with permission status and request options.
+ */
 @Composable
-fun PermissionsSection(
+fun PermissionsSettings(
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,
@@ -52,16 +53,9 @@ fun PermissionsSection(
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
-    showTitle: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        if (showTitle) {
-                SettingsSectionTitle(
-                        title = stringResource(R.string.settings_section_permissions)
-                )
-        }
-
         SettingsCard {
             Column {
                 val permissions = listOf(
@@ -90,13 +84,13 @@ fun PermissionsSection(
                         onRequest = onRequestCallPermission
                     )
                 )
-                
+
                 permissions.forEachIndexed { index, permission ->
                     PermissionRow(
                         permission = permission,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     if (index != permissions.lastIndex) {
                         HorizontalDivider(
                             color = MaterialTheme.colorScheme.outlineVariant
@@ -124,14 +118,14 @@ private fun PermissionRow(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(end = 12.dp)
         )
-        
+
         Text(
             text = permission.name,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
-        
+
         Box(
             modifier = Modifier
                 .widthIn(min = 80.dp)
@@ -156,4 +150,3 @@ private fun PermissionRow(
         }
     }
 }
-

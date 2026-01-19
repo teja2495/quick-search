@@ -34,10 +34,14 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RocketLaunch
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -61,13 +65,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
-import com.tk.quicksearch.settings.SettingsCardItem
-import com.tk.quicksearch.settings.SettingsCardItemRow
-import com.tk.quicksearch.settings.SettingsSpacing
-import com.tk.quicksearch.settings.settingsScreen.permissions.UsagePermissionBanner
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.hapticToggle
 import kotlinx.coroutines.launch
+import com.tk.quicksearch.settings.settingsDetailScreens.SettingsDetailType
 
 
 @Composable
@@ -91,15 +93,6 @@ fun SettingsScreen(
 ) {
     BackHandler(onBack = callbacks.onBack)
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    var showIconPackDialog by remember { mutableStateOf(false) }
-    val selectedIconPackLabel =
-            remember(state.selectedIconPackPackage, state.availableIconPacks) {
-                state.availableIconPacks
-                        .firstOrNull { it.packageName == state.selectedIconPackPackage }
-                        ?.label
-                        ?: context.getString(R.string.settings_icon_pack_option_system)
-            }
 
     Column(
             modifier =
@@ -215,49 +208,7 @@ fun SettingsScreen(
             // App Version
             SettingsVersionDisplay(modifier = Modifier.padding(top = 40.dp, bottom = 60.dp))
         }
-
-        if (showIconPackDialog) {
-            IconPackPickerDialog(
-                    availableIconPacks = state.availableIconPacks,
-                    selectedPackage = state.selectedIconPackPackage,
-                    onSelect = { packageName ->
-                        callbacks.onSelectIconPack(packageName)
-                        showIconPackDialog = false
-                    },
-                    onDismiss = { showIconPackDialog = false }
-            )
-        }
     }
-}
-
-
-
-
-
-/**
- * Reusable navigation section for settings cards.
- * Shows an icon, title, description, and chevron icon with click handling.
- */
-@Composable
-fun NavigationSection(
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
-) {
-    val item = SettingsCardItem(
-        title = title,
-        description = description,
-        icon = icon,
-        actionOnPress = onClick
-    )
-
-    SettingsCardItemRow(
-        item = item,
-        contentPadding = contentPadding
-    )
 }
 
 /**
@@ -275,10 +226,12 @@ fun NavigationSectionCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        NavigationSection(
-            title = title,
-            description = description,
-            onClick = onClick,
+        SettingsCardItemRow(
+            item = SettingsCardItem(
+                title = title,
+                description = description,
+                actionOnPress = onClick
+            ),
             contentPadding = contentPadding
         )
     }
@@ -452,3 +405,55 @@ fun SettingsMoreOptions(
         }
     }
 }
+
+@Composable
+fun UsagePermissionBanner(
+    onRequestPermission: () -> Unit,
+    onDismiss: () -> Unit,
+    onCardClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Content area - clickable for scrolling to permissions
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(onClick = onCardClick)
+                    .padding(end = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Banner only shows for usage access permission
+                Text(
+                    text = stringResource(R.string.settings_usage_permission_banner_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            // Close button - separate from content area to prevent click conflicts
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.Top)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_close),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+    }
+}
+

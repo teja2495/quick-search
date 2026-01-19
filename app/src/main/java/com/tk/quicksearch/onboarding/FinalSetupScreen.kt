@@ -44,7 +44,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.settings.settingsScreen.MessagingSection
+import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
 
 /** Gets the icon for a file type. */
 private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector {
