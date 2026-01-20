@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.directSearch.DirectSearchHandler
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
+import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutPrefix
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
 import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +86,11 @@ class ShortcutHandler(
                 return@launch
             }
             val id = target.getId()
+            // Filter out the current target's shortcut for validation
+            val existingShortcutsForValidation = shortcutCodes.filterKeys { it != id }
+            if (!isValidShortcutPrefix(normalizedCode, existingShortcutsForValidation)) {
+                return@launch
+            }
             when (target) {
                 is SearchTarget.Engine -> userPreferences.setShortcutCode(target.engine, normalizedCode)
                 is SearchTarget.Browser -> userPreferences.setShortcutCode(id, normalizedCode)

@@ -258,22 +258,48 @@ fun SearchEnginesVisibility(
  * This replaces the old hasAnySearchContent logic.
  */
 fun hasAnySectionContent(state: SearchUiState): Boolean {
-    return when (state.appsSectionState) {
+    val appsShowing = when (state.appsSectionState) {
         is AppsSectionVisibility.ShowingResults -> true
         else -> false
-    } || when (state.appShortcutsSectionState) {
+    }
+    val appShortcutsShowing = when (state.appShortcutsSectionState) {
         is AppShortcutsSectionVisibility.ShowingResults -> true
         else -> false
-    } || when (state.contactsSectionState) {
+    }
+    val contactsShowing = when (state.contactsSectionState) {
         is ContactsSectionVisibility.ShowingResults -> true
         else -> false
-    } || when (state.filesSectionState) {
+    }
+    val filesShowing = when (state.filesSectionState) {
         is FilesSectionVisibility.ShowingResults -> true
         else -> false
-    } || when (state.settingsSectionState) {
+    }
+    val settingsShowing = when (state.settingsSectionState) {
         is SettingsSectionVisibility.ShowingResults -> true
         else -> false
     }
+
+    val hasContent = appsShowing || appShortcutsShowing || contactsShowing || filesShowing || settingsShowing
+
+
+    return hasContent
+}
+
+/**
+ * Checks if there are any search results (dynamic results from searching),
+ * not including pinned/static content.
+ */
+fun hasAnySearchResults(state: SearchUiState): Boolean {
+    val hasAppResults = state.searchResults.isNotEmpty()
+    val hasContactResults = state.contactResults.isNotEmpty()
+    val hasFileResults = state.fileResults.isNotEmpty()
+    val hasSettingResults = state.settingResults.isNotEmpty()
+    val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
+
+    val hasResults = hasAppResults || hasContactResults || hasFileResults || hasSettingResults || hasAppShortcutResults
+
+
+    return hasResults
 }
 
 // ============================================================================

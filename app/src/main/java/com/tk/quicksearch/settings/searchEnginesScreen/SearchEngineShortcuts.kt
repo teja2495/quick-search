@@ -69,7 +69,8 @@ fun SearchEngineShortcuts(
                     shortcutCode = shortcutCodes[engine] ?: "",
                     isEnabled = shortcutEnabled[engine] ?: true,
                     onCodeChange = { code -> setShortcutCode(engine, code) },
-                    onToggle = { enabled -> setShortcutEnabled(engine, enabled) }
+                    onToggle = { enabled -> setShortcutEnabled(engine, enabled) },
+                    existingShortcuts = shortcutCodes.mapKeys { it.key.name }
                 )
                 if (index != SearchEngine.values().lastIndex) {
                     SearchEngineDivider()
@@ -88,7 +89,8 @@ internal fun ShortcutCodeDisplay(
     isEnabled: Boolean,
     onCodeChange: ((String) -> Unit)?,
     onToggle: ((Boolean) -> Unit)?,
-    engineName: String = ""
+    engineName: String = "",
+    existingShortcuts: Map<String, String> = emptyMap()
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -97,6 +99,7 @@ internal fun ShortcutCodeDisplay(
             engineName = engineName,
             currentCode = shortcutCode,
             isEnabled = isEnabled,
+            existingShortcuts = existingShortcuts,
             onSave = { code -> onCodeChange(code) },
             onToggle = onToggle,
             onDismiss = { showDialog = false }
@@ -139,7 +142,8 @@ private fun ShortcutRow(
     shortcutCode: String,
     isEnabled: Boolean,
     onCodeChange: (String) -> Unit,
-    onToggle: (Boolean) -> Unit
+    onToggle: (Boolean) -> Unit,
+    existingShortcuts: Map<String, String> = emptyMap()
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val view = LocalView.current
@@ -152,6 +156,7 @@ private fun ShortcutRow(
             engineName = engineName,
             currentCode = shortcutCode,
             isEnabled = isEnabled,
+            existingShortcuts = existingShortcuts,
             onSave = { code -> onCodeChange(code) },
             onToggle = { enabled -> onToggle(enabled) },
             onDismiss = { showDialog = false }

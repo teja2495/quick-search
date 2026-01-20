@@ -176,7 +176,8 @@ fun SearchEngineListCard(
                                             }
                                             onReorderSearchEngines(newOrder + disabledEngines)
                                         }
-                                    } else null
+                                    } else null,
+                                    existingShortcuts = shortcutCodes
                                 )
 
                                 if (index != enabledEngines.lastIndex) {
@@ -240,7 +241,8 @@ fun SearchEngineListCard(
                                         null
                                     },
                             onMoveToTop = null,
-                            onMoveToBottom = null
+                            onMoveToBottom = null,
+                            existingShortcuts = shortcutCodes
                         )
 
                         if (index != disabledEngines.lastIndex) {
@@ -300,7 +302,8 @@ private fun SearchEngineRowContent(
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onMoveToTop: (() -> Unit)? = null,
-    onMoveToBottom: (() -> Unit)? = null
+    onMoveToBottom: (() -> Unit)? = null,
+    existingShortcuts: Map<String, String> = emptyMap()
 ) {
     val view = LocalView.current
     val engineInfo = (engine as? SearchTarget.Engine)?.engine
@@ -376,7 +379,8 @@ private fun SearchEngineRowContent(
                     isEnabled = shortcutEnabled,
                     onCodeChange = onShortcutCodeChange,
                     onToggle = onShortcutToggle,
-                    engineName = engineName
+                    engineName = engineName,
+                    existingShortcuts = existingShortcuts
                 )
             }
             if (engineInfo == SearchEngine.AMAZON && onSetAmazonDomain != null) {

@@ -58,8 +58,8 @@ fun NoResultsSearchEngineCards(
         enabledEngines
     }
 
-    // Don't show customize card when only one engine is shown (shortcut detected)
-    val showCustomizeCard = enabledEngines.size > 1
+    // Show customize card when there are any enabled engines
+    val showCustomizeCard = enabledEngines.isNotEmpty()
 
     Column(
         modifier = modifier.fillMaxWidth(),

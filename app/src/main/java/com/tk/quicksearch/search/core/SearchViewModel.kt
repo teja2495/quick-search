@@ -946,6 +946,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun onQueryChange(newQuery: String) {
         val previousQuery = _uiState.value.query
+        // Prevent redundant updates
+        if (newQuery == previousQuery) return
+
         val trimmedQuery = newQuery.trim()
         val DirectSearchState = _uiState.value.DirectSearchState
         if (DirectSearchState.status != DirectSearchStatus.Idle && newQuery != previousQuery) {
@@ -960,7 +963,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             appSearchManager.setNoMatchPrefix(null)
             searchJob?.cancel()
             webSuggestionHandler.cancelSuggestions()
-            _uiState.update {
+            updateUiState {
                 it.copy(
                         query = "",
                         searchResults = emptyList(),
@@ -1057,7 +1060,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         // Clear web suggestions when query changes
         webSuggestionHandler.cancelSuggestions()
-        _uiState.update { state ->
+        updateUiState { state ->
             state.copy(
                     query = newQuery,
                     searchResults = matches,
@@ -1633,7 +1636,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isLoading = isLoading ?: state.isLoading,
                     messagingApp = resolvedMessagingApp,
                     isWhatsAppInstalled = isWhatsAppInstalled,
-                    isTelegramInstalled = isTelegramInstalled
+                    isTelegramInstalled = isTelegramInstalled,
+                    nicknameUpdateVersion = state.nicknameUpdateVersion + 1
             )
         }
 

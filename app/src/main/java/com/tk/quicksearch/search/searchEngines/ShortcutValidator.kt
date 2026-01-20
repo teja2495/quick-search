@@ -41,4 +41,23 @@ object ShortcutValidator {
                normalized.length <= 5 &&
                normalized.all { it.isLetterOrDigit() }
     }
+
+    /**
+     * Validates that a shortcut does not start with any existing shortcut.
+     * This prevents conflicts where a new shortcut would be triggered by an existing one.
+     *
+     * @param newShortcut The new shortcut to validate
+     * @param existingShortcuts Map of existing shortcuts (shortcut code -> target identifier)
+     * @return true if the shortcut is valid (doesn't start with any existing shortcut), false otherwise
+     */
+    fun isValidShortcutPrefix(newShortcut: String, existingShortcuts: Map<String, String>): Boolean {
+        val normalizedNew = normalizeShortcutCodeInput(newShortcut)
+        if (normalizedNew.isEmpty()) return true
+
+        // Check if any existing shortcut is a prefix of the new shortcut
+        return existingShortcuts.none { (_, existingCode) ->
+            val normalizedExisting = normalizeShortcutCodeInput(existingCode)
+            normalizedNew.startsWith(normalizedExisting) && normalizedNew != normalizedExisting
+        }
+    }
 }

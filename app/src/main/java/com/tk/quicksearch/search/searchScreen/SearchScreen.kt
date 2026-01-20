@@ -35,12 +35,12 @@ import com.tk.quicksearch.search.core.DirectSearchState
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.util.WallpaperUtils
@@ -58,6 +58,20 @@ fun SearchRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+
+    val nicknameUpdateVersion = uiState.nicknameUpdateVersion
+    val getAppNickname: (String) -> String? =
+            remember(nicknameUpdateVersion) {
+                { packageName -> viewModel.getAppNickname(packageName) }
+            }
+    val getContactNickname: (Long) -> String? =
+            remember(nicknameUpdateVersion) {
+                { contactId -> viewModel.getContactNickname(contactId) }
+            }
+    val getFileNickname: (String) -> String? =
+            remember(nicknameUpdateVersion) { { uri -> viewModel.getFileNickname(uri) } }
+    val getSettingNickname: (String) -> String? =
+            remember(nicknameUpdateVersion) { { id -> viewModel.getSettingNickname(id) } }
 
     // Set up toast callback for ViewModel
     val showToast: (Int) -> Unit = { stringResId ->
@@ -168,13 +182,13 @@ fun SearchRoute(
             onFileNicknameClick = { file ->
                 // This will be handled by the dialog state in SearchScreen
             },
-            getAppNickname = viewModel::getAppNickname,
-            getContactNickname = viewModel::getContactNickname,
-            getFileNickname = viewModel::getFileNickname,
+            getAppNickname = getAppNickname,
+            getContactNickname = getContactNickname,
+            getFileNickname = getFileNickname,
             onSaveAppNickname = viewModel::setAppNickname,
             onSaveContactNickname = viewModel::setContactNickname,
             onSaveFileNickname = viewModel::setFileNickname,
-            getSettingNickname = viewModel::getSettingNickname,
+            getSettingNickname = getSettingNickname,
             onSaveSettingNickname = viewModel::setSettingNickname,
             getLastShownPhoneNumber = viewModel::getLastShownPhoneNumber,
             setLastShownPhoneNumber = viewModel::setLastShownPhoneNumber,
@@ -296,9 +310,7 @@ fun SearchScreen(
     val scrollState = rememberScrollState()
     val showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle
     val alignResultsToBottom =
-            state.oneHandedMode &&
-                    expandedSection == ExpandedSection.NONE &&
-                    !showDirectSearch
+            state.oneHandedMode && expandedSection == ExpandedSection.NONE && !showDirectSearch
 
     // Nickname dialog state
     var nicknameDialogState by remember { mutableStateOf<NicknameDialogState?>(null) }

@@ -36,10 +36,7 @@ enum class SearchEngine {
     STARTPAGE,
 }
 
-data class BrowserApp(
-        val packageName: String,
-        val label: String
-)
+data class BrowserApp(val packageName: String, val label: String)
 
 sealed class SearchTarget {
     data class Engine(val engine: SearchEngine) : SearchTarget()
@@ -197,7 +194,9 @@ data class SearchUiState(
         val pendingWhatsAppCallDataId: String? = null,
         val directDialEnabled: Boolean = false,
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
-                com.tk.quicksearch.search.models.FileType.values().filter { it != com.tk.quicksearch.search.models.FileType.OTHER }.toSet(),
+                com.tk.quicksearch.search.models.FileType.values()
+                        .filter { it != com.tk.quicksearch.search.models.FileType.OTHER }
+                        .toSet(),
         val showFolders: Boolean = false,
         val showSystemFiles: Boolean = false,
         val showHiddenFiles: Boolean = false,
@@ -239,5 +238,6 @@ data class SearchUiState(
         val recentQueriesEnabled: Boolean = true,
         val recentQueriesCount: Int = 3,
         val shouldShowUsagePermissionBanner: Boolean = false,
-        val contactActionsVersion: Int = 0
+        val contactActionsVersion: Int = 0,
+        val nicknameUpdateVersion: Int = 0
 )

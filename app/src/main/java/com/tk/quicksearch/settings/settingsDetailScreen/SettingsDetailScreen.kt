@@ -210,6 +210,7 @@ internal fun SettingsDetailScreen(
                                     Toast.LENGTH_SHORT
                                 ).show()
                             },
+                            onSearchIconPacks = callbacks.onSearchIconPacks,
                             hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current)
                         )
                     }

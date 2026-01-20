@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
+import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
@@ -69,6 +71,23 @@ class SearchEngineManager(
             ) {
                 val hasGeminiApiKey = !userPreferences.getGeminiApiKey().isNullOrBlank()
                 if (!hasGeminiApiKey) {
+                    return@launch
+                }
+            }
+
+            // Prevent disabling the last enabled search engine
+            if (!enabled) {
+                val wouldBeDisabled = disabledSearchTargetIds.toMutableSet().apply { add(target.getId()) }
+                val remainingEnabledCount = searchTargetsOrder.count { it.getId() !in wouldBeDisabled }
+                if (remainingEnabledCount == 0) {
+                    // Show toast on main thread
+                    scope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            R.string.settings_search_engines_at_least_one_required,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                     return@launch
                 }
             }
@@ -161,12 +180,17 @@ class SearchEngineManager(
         }
     }
 
-    private fun getAvailableEngines(hasGemini: Boolean): List<SearchEngine> =
-            if (hasGemini) {
-                SearchEngine.values().toList()
-            } else {
-                SearchEngine.values().filterNot { it == SearchEngine.DIRECT_SEARCH }
+    private fun getAvailableEngines(hasGemini: Boolean): List<SearchEngine> {
+        val packageManager = context.packageManager
+        return SearchEngine.values().filter { engine ->
+            when (engine) {
+                SearchEngine.DIRECT_SEARCH -> hasGemini
+                SearchEngine.YOUTUBE_MUSIC -> isPackageInstalled(packageManager, PackageConstants.YOUTUBE_MUSIC_PACKAGE)
+                SearchEngine.SPOTIFY -> isPackageInstalled(packageManager, PackageConstants.SPOTIFY_PACKAGE)
+                else -> true
             }
+        }
+    }
 
     private fun loadSearchTargetsOrder(
             savedOrder: List<String>,
@@ -245,12 +269,6 @@ class SearchEngineManager(
             }
             if (!isPackageInstalled(packageManager, PackageConstants.X_PACKAGE)) {
                 defaultDisabled.add(SearchEngine.X)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.YOUTUBE_MUSIC_PACKAGE)) {
-                defaultDisabled.add(SearchEngine.YOUTUBE_MUSIC)
-            }
-            if (!isPackageInstalled(packageManager, PackageConstants.SPOTIFY_PACKAGE)) {
-                defaultDisabled.add(SearchEngine.SPOTIFY)
             }
             if (!isPackageInstalled(packageManager, PackageConstants.YOU_COM_PACKAGE_NAME)) {
                 defaultDisabled.add(SearchEngine.YOU_COM)

@@ -239,6 +239,7 @@ fun AppearanceSettingsSection(
     availableIconPacks: List<IconPackInfo>,
     onSelectIconPack: (String?) -> Unit,
     onRefreshIconPacks: () -> Unit,
+    onSearchIconPacks: () -> Unit,
     hasFilePermission: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -294,7 +295,7 @@ fun AppearanceSettingsSection(
                 if (hasIconPacks) {
                     showIconPackDialog = true
                 } else {
-                    onRefreshIconPacks()
+                    onSearchIconPacks()
                 }
             },
             onRefreshIconPacks = onRefreshIconPacks

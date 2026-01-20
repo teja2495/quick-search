@@ -43,6 +43,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
+import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutPrefix
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
 
 private const val DEFAULT_AMAZON_DOMAIN = "amazon.com"
@@ -62,6 +63,7 @@ fun EditShortcutDialog(
     engineName: String,
     currentCode: String,
     isEnabled: Boolean,
+    existingShortcuts: Map<String, String>,
     onSave: (String) -> Unit,
     onToggle: ((Boolean) -> Unit)?,
     onDismiss: () -> Unit
@@ -79,7 +81,8 @@ fun EditShortcutDialog(
     var enabledState by remember(isEnabled, onToggle) { mutableStateOf(initialEnabledState) }
     val focusRequester = remember { FocusRequester() }
     val isValidShortcut = isValidShortcutCode(editingCode.text)
-    val showShortcutError = editingCode.text.isNotEmpty() && !isValidShortcut
+    val isValidPrefix = isValidShortcutPrefix(editingCode.text, existingShortcuts)
+    val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidPrefix)
     
     LaunchedEffect(Unit) {
         if (enabledState) {
@@ -120,7 +123,7 @@ fun EditShortcutDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (isValidShortcut) {
+                            if (isValidShortcut && isValidPrefix) {
                                 onSave(editingCode.text)
                                 onDismiss()
                             }
@@ -132,8 +135,13 @@ fun EditShortcutDialog(
                     )
                 )
                 if (showShortcutError) {
+                    val errorMessage = when {
+                        !isValidShortcut -> stringResource(R.string.dialog_edit_shortcut_error_length)
+                        !isValidPrefix -> stringResource(R.string.dialog_edit_shortcut_error_prefix)
+                        else -> ""
+                    }
                     Text(
-                        text = stringResource(R.string.dialog_edit_shortcut_error_length),
+                        text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -164,12 +172,12 @@ fun EditShortcutDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (isValidShortcut) {
+                    if (isValidShortcut && isValidPrefix) {
                         onSave(editingCode.text)
                         onDismiss()
                     }
                 },
-                enabled = isValidShortcut
+                enabled = isValidShortcut && isValidPrefix
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }

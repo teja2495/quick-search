@@ -169,6 +169,7 @@
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
     <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
     <string name="dialog_edit_shortcut_error_length">Shortcut must be at least 2 characters.</string>
+    <string name="dialog_edit_shortcut_error_prefix">Shortcut cannot start with an existing shortcut.</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
@@ -265,6 +266,7 @@
     <string name="settings_search_results_desc">Manage result types, web suggestions, and search history</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
+    <string name="settings_search_engines_at_least_one_required">At least one search engine must remain enabled</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, and icon packs</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
