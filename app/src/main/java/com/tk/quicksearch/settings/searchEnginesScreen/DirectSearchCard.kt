@@ -50,6 +50,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 
 /**
@@ -108,8 +109,8 @@ fun DirectSearchSetupCard(
     ) {
         Column(
             modifier = Modifier.padding(
-                horizontal = SearchEngineSettingsSpacing.cardHorizontalPadding,
-                vertical = SearchEngineSettingsSpacing.cardTopPadding
+                horizontal = DesignTokens.CardHorizontalPadding,
+                vertical = DesignTokens.CardTopPadding
             )
         ) {
             Row(
@@ -173,7 +174,7 @@ fun DirectSearchSetupCard(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
+                                .padding(bottom = 8.dp),
                             horizontalArrangement = Arrangement.End
                         ) {
                             if (onSetPersonalContext != null) {
@@ -291,7 +292,7 @@ fun DirectSearchSetupCard(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
+                                    .padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -321,7 +322,7 @@ fun DirectSearchSetupCard(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = SearchEngineSettingsSpacing.apiKeyButtonBottomPadding),
+                                    .padding(bottom = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.End
                             ) {

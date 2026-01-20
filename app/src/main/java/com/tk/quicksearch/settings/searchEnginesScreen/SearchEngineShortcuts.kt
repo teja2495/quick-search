@@ -29,7 +29,6 @@ import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.searchEnginesScreen.EditShortcutDialog
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineDivider
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineSettingsSpacing
 import com.tk.quicksearch.settings.searchEnginesScreen.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchEngines.getDisplayName
@@ -163,8 +162,8 @@ private fun ShortcutRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = SearchEngineSettingsSpacing.rowHorizontalPadding,
-                vertical = SearchEngineSettingsSpacing.rowVerticalPadding
+                horizontal = DesignTokens.CardHorizontalPadding,
+                vertical = DesignTokens.CardVerticalPadding
             ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)

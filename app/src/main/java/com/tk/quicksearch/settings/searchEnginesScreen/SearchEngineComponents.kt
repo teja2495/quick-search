@@ -10,20 +10,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 
-/**
- * Constants for consistent spacing and styling in search engine settings.
- * @deprecated Use DesignTokens instead for new components.
- */
-object SearchEngineSettingsSpacing {
-    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
-    val cardVerticalPadding = DesignTokens.CardVerticalPadding
-    val cardTopPadding = DesignTokens.CardTopPadding
-    val cardBottomPadding = DesignTokens.CardBottomPadding
-    val apiKeyButtonBottomPadding = 8.dp
-    val rowHorizontalPadding = DesignTokens.CardHorizontalPadding
-    val rowVerticalPadding = DesignTokens.CardVerticalPadding
-    val itemHeight = DesignTokens.DraggableItemHeight
-}
 
 private const val AMAZON_ICON_SCALE_FACTOR = 0.3f
 private const val INVERSION_OFFSET = 255f
