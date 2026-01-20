@@ -137,38 +137,14 @@ private fun MergedMessagingCard(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Direct Dial Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(DesignTokens.singleCardPadding()),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = MessagingSpacing.toggleSpacing),
-                    verticalArrangement = Arrangement.spacedBy(MessagingSpacing.directDialColumnSpacing)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_direct_dial_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_direct_dial_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
-                    checked = directDialEnabled && hasCallPermission,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onToggleDirectDial(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_direct_dial_title),
+                subtitle = stringResource(R.string.settings_direct_dial_desc),
+                checked = directDialEnabled && hasCallPermission,
+                onCheckedChange = onToggleDirectDial,
+                isFirstItem = true,
+                isLastItem = false
+            )
 
             // Divider
             HorizontalDivider(

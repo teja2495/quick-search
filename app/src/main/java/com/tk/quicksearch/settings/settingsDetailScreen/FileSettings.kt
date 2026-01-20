@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -108,54 +109,6 @@ private fun ExcludedExtensionChip(
         )
 }
 
-/** Reusable toggle row component for file type settings. Provides consistent styling and layout. */
-@Composable
-private fun FileTypeToggleRow(
-        text: String,
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        modifier: Modifier = Modifier,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
-) {
-        val view = LocalView.current
-        Row(
-                modifier =
-                        modifier.fillMaxWidth()
-                                .padding(
-                                        horizontal = FileTypesSpacing.cardHorizontalPadding,
-                                        vertical = FileTypesSpacing.cardVerticalPadding
-                                ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-                Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                        if (icon != null) {
-                                Icon(
-                                        imageVector = icon,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(24.dp)
-                                )
-                        }
-                        Text(
-                                text = text,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface
-                        )
-                }
-                Switch(
-                        checked = checked,
-                        onCheckedChange = { enabled ->
-                                hapticToggle(view)()
-                                onCheckedChange(enabled)
-                        }
-                )
-        }
-}
 
 /**
  * Settings section for configuring which files and folders are included in search results.
@@ -211,11 +164,13 @@ fun FileTypesSection(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.ExtraLargeCardShape
         ) {
-                FileTypeToggleRow(
-                        text = stringResource(R.string.settings_folders_toggle),
+                SettingsToggleRow(
+                        title = stringResource(R.string.settings_folders_toggle),
                         checked = showFolders,
                         onCheckedChange = onToggleFolders,
-                        icon = Icons.Rounded.Folder
+                        leadingIcon = Icons.Rounded.Folder,
+                        isFirstItem = true,
+                        isLastItem = true
                 )
         }
 
@@ -239,21 +194,16 @@ fun FileTypesSection(
                                 )
 
                         orderedFileTypes.forEachIndexed { index, fileType ->
-                                FileTypeToggleRow(
-                                        text = getFileTypeDisplayName(fileType),
+                                SettingsToggleRow(
+                                        title = getFileTypeDisplayName(fileType),
                                         checked = fileType in enabledFileTypes,
                                         onCheckedChange = { enabled ->
                                                 onToggleFileType(fileType, enabled)
                                         },
-                                        icon = getFileTypeIcon(fileType)
+                                        leadingIcon = getFileTypeIcon(fileType),
+                                        isFirstItem = index == 0,
+                                        isLastItem = index == orderedFileTypes.lastIndex
                                 )
-
-                                // Add divider between items (not after the last one)
-                                if (index < orderedFileTypes.lastIndex) {
-                                        HorizontalDivider(
-                                                color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                }
                         }
 
                         // Excluded extensions section
@@ -332,20 +282,22 @@ fun FileTypesSection(
                 shape = DesignTokens.ExtraLargeCardShape
         ) {
                 Column {
-                        FileTypeToggleRow(
-                                text = stringResource(R.string.settings_system_files_toggle),
+                        SettingsToggleRow(
+                                title = stringResource(R.string.settings_system_files_toggle),
                                 checked = showSystemFiles,
                                 onCheckedChange = onToggleSystemFiles,
-                                icon = Icons.Rounded.Visibility
+                                leadingIcon = Icons.Rounded.Visibility,
+                                isFirstItem = true,
+                                isLastItem = false
                         )
 
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                        FileTypeToggleRow(
-                                text = stringResource(R.string.settings_hidden_files_toggle),
+                        SettingsToggleRow(
+                                title = stringResource(R.string.settings_hidden_files_toggle),
                                 checked = showHiddenFiles,
                                 onCheckedChange = onToggleHiddenFiles,
-                                icon = Icons.Rounded.VisibilityOff
+                                leadingIcon = Icons.Rounded.VisibilityOff,
+                                isFirstItem = false,
+                                isLastItem = true
                         )
                 }
         }

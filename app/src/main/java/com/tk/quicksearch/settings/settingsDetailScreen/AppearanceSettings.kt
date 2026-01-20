@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsDetailScreens
+package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -149,31 +149,13 @@ fun CombinedAppearanceCard(
     ) {
         Column {
             // Wallpaper background toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        // Always call the callback - it will handle permission request if needed
-                        onToggleShowWallpaperBackground(!showWallpaperBackground)
-                    }
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_wallpaper_background_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = showWallpaperBackground && hasFilePermission,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onToggleShowWallpaperBackground(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_wallpaper_background_toggle),
+                checked = showWallpaperBackground && hasFilePermission,
+                onCheckedChange = onToggleShowWallpaperBackground,
+                isFirstItem = true,
+                isLastItem = true
+            )
 
             if (showWallpaperBackground && hasFilePermission) {
                 Column(

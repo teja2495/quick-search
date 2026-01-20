@@ -22,17 +22,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.search.directSearch.SearchEngineToggleCard
+import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineListCard
-import com.tk.quicksearch.settings.searchEnginesScreen.ShortcutsSection
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
- * Main section for configuring search engines.
+ * Main feature for configuring search engines.
  * Allows reordering, enabling/disabling, and managing shortcuts.
  */
 @Composable
-fun SearchEnginesSection(
+fun SearchEngines(
     searchEngineOrder: List<SearchTarget>,
     disabledSearchEngines: Set<String>,
     onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
@@ -78,7 +78,7 @@ fun SearchEnginesSection(
     // Show Direct Search card at top or bottom based on the showDirectSearchAtTop parameter
 
     if (showDirectSearchAtTop && onSetGeminiApiKey != null) {
-        SearchEngineToggleCard(
+        DirectSearchSetupCard(
             directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,
@@ -122,7 +122,7 @@ fun SearchEnginesSection(
     // Show Direct Search card at bottom if not shown at top
     if (!showDirectSearchAtTop && onSetGeminiApiKey != null) {
         Spacer(modifier = Modifier.height(16.dp))
-        SearchEngineToggleCard(
+        DirectSearchSetupCard(
             directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,

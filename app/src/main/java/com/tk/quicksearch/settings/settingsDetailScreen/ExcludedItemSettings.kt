@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsDetailScreens
+package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

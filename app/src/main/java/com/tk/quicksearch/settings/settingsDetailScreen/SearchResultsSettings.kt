@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsDetailScreens
+package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -54,27 +54,13 @@ fun WebSuggestionsCard(
     ) {
         Column {
             // Web Search Suggestions Toggle Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onWebSuggestionsToggle(!webSuggestionsEnabled) }
-                    .padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.web_search_suggestions_title),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Switch(
-                    checked = webSuggestionsEnabled,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onWebSuggestionsToggle(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.web_search_suggestions_title),
+                checked = webSuggestionsEnabled,
+                onCheckedChange = onWebSuggestionsToggle,
+                isFirstItem = true,
+                isLastItem = false
+            )
 
             // Web Suggestions Count Slider (only show if enabled)
             if (webSuggestionsEnabled) {
@@ -114,27 +100,13 @@ fun WebSuggestionsCard(
             }
 
             // Recent Queries Toggle Section
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onRecentQueriesToggle(!recentQueriesEnabled) }
-                    .padding(contentPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.recent_queries_toggle_title),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Switch(
-                    checked = recentQueriesEnabled,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onRecentQueriesToggle(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.recent_queries_toggle_title),
+                checked = recentQueriesEnabled,
+                onCheckedChange = onRecentQueriesToggle,
+                isFirstItem = false,
+                isLastItem = false
+            )
 
             // Recent Queries Count Slider (only show if enabled)
             if (recentQueriesEnabled) {
@@ -187,73 +159,27 @@ fun CombinedExcludedItemsCard(
     ) {
         Column {
             // Calculator toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onToggleCalculator(!calculatorEnabled) }
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.calculator_toggle_title),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.calculator_toggle_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
-                    checked = calculatorEnabled,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onToggleCalculator(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.calculator_toggle_title),
+                subtitle = stringResource(R.string.calculator_toggle_desc),
+                checked = calculatorEnabled,
+                onCheckedChange = onToggleCalculator,
+                isFirstItem = false,
+                isLastItem = false
+            )
 
             // Divider
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Auto expand results toggle
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onToggleShowAllResults(!showAllResults) }
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_show_all_results_toggle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_show_all_results_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Switch(
-                    checked = showAllResults,
-                    onCheckedChange = { enabled ->
-                        hapticToggle(view)()
-                        onToggleShowAllResults(enabled)
-                    }
-                )
-            }
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_show_all_results_toggle),
+                subtitle = stringResource(R.string.settings_show_all_results_desc),
+                checked = showAllResults,
+                onCheckedChange = onToggleShowAllResults,
+                isFirstItem = false,
+                isLastItem = false
+            )
 
             // Divider
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

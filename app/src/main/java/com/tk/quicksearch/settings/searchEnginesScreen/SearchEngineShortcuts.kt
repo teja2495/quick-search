@@ -34,12 +34,13 @@ import com.tk.quicksearch.settings.searchEnginesScreen.getSearchEngineIconColorF
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
- * Section for managing shortcuts separately.
+ * Feature for managing search engine shortcuts.
  */
 @Composable
-fun ShortcutsSection(
+fun SearchEngineShortcuts(
     shortcutCodes: Map<SearchEngine, String>,
     setShortcutCode: (SearchEngine, String) -> Unit,
     shortcutEnabled: Map<SearchEngine, Boolean>,

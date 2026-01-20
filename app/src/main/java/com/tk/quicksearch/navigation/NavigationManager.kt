@@ -20,8 +20,8 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.SearchRoute
-import com.tk.quicksearch.settings.settingsDetailScreens.SettingsDetailRoute
-import com.tk.quicksearch.settings.settingsDetailScreens.SettingsDetailType
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.SettingsRoute
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.FinalSetupScreen

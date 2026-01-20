@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEnginesSection
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
 import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.core.SearchViewModel
 
@@ -109,7 +109,7 @@ fun SearchEngineSetupScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.Start
         ) {
-            SearchEnginesSection(
+            SearchEngines(
                 searchEngineOrder = allEngines,
                 disabledSearchEngines = disabledEngines,
                 onToggleSearchEngine = { engine, enabled ->

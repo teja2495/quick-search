@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
 import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.AdminPanelSettings
@@ -74,7 +75,8 @@ import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.hapticToggle
 import kotlinx.coroutines.launch
-import com.tk.quicksearch.settings.settingsDetailScreens.SettingsDetailType
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
  * Retrieves the app version name from the package manager.
@@ -259,58 +261,6 @@ fun NavigationSectionCard(
 
 
 
-/**
- * Generic toggle card component.
- */
-@Composable
-private fun ToggleCard(
-    title: String,
-    enabled: Boolean,
-    onToggle: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
-) {
-    val view = LocalView.current
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggle(!enabled) }
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                icon?.let {
-                    Icon(
-                        imageVector = it,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            Switch(
-                checked = enabled,
-                onCheckedChange = { newValue ->
-                    hapticToggle(view)()
-                    onToggle(newValue)
-                }
-            )
-        }
-    }
-}
 
 /**
  * More options section with navigation options for permissions, rating, feedback, GitHub, and features.
@@ -490,7 +440,7 @@ fun SettingsHeader(onBack: () -> Unit) {
     ) {
         IconButton(onClick = onBack) {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.desc_navigate_back),
                 tint = MaterialTheme.colorScheme.onSurface
             )
