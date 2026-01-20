@@ -71,12 +71,8 @@ fun CombinedLayoutIconCard(
                 subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
                 checked = oneHandedMode,
                 onCheckedChange = onToggleOneHandedMode,
-                showDivider = false,
                 extraVerticalPadding = 8.dp,
             )
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Icon Pack Section (with navigation)
             val hasIconPacks = iconPackDescription != stringResource(R.string.settings_icon_pack_empty)

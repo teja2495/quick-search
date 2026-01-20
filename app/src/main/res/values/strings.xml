@@ -368,12 +368,12 @@
          Settings - Excluded Items
          ============================================================================ -->
     <string name="settings_excluded_items_title">Excluded Items</string>
-    <string name="settings_excluded_items_desc">View and manage items excluded from search results &amp; suggestions.</string>
+    <string name="settings_excluded_items_desc">View and manage items you have excluded</string>
     <string name="settings_excluded_items_empty">You have no excluded items.</string>
     <string name="settings_additional_settings_title">Additional Settings</string>
     <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
     <string name="settings_show_all_results_toggle">Auto-Expand Results</string>
-    <string name="settings_show_all_results_desc">Automatically expand all search result sections.</string>
+    <string name="settings_show_all_results_desc">Automatically expand all search result sections</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
@@ -533,7 +533,7 @@
          Calculator
          ============================================================================ -->
     <string name="calculator_toggle_title">Calculator</string>
-    <string name="calculator_toggle_desc">Show calculator results for mathematical expressions.</string>
+    <string name="calculator_toggle_desc">Show calculator results for basic math expressions</string>
 
     <!-- ============================================================================
          No Results

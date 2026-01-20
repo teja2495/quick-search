@@ -146,11 +146,6 @@ private fun MergedMessagingCard(
                 isLastItem = false
             )
 
-            // Divider
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-
             // Messaging Options Section
             if (messagingOptions.isNotEmpty()) {
                 Column(

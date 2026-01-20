@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.UnfoldMore
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +63,8 @@ fun WebSuggestionsCard(
                 checked = webSuggestionsEnabled,
                 onCheckedChange = onWebSuggestionsToggle,
                 isFirstItem = true,
-                isLastItem = false
+                isLastItem = false,
+                showDivider = false
             )
 
             // Web Suggestions Count Slider (only show if enabled)
@@ -105,7 +110,8 @@ fun WebSuggestionsCard(
                 checked = recentQueriesEnabled,
                 onCheckedChange = onRecentQueriesToggle,
                 isFirstItem = false,
-                isLastItem = false
+                isLastItem = false,
+                showDivider = false
             )
 
             // Recent Queries Count Slider (only show if enabled)
@@ -164,12 +170,11 @@ fun CombinedExcludedItemsCard(
                 subtitle = stringResource(R.string.calculator_toggle_desc),
                 checked = calculatorEnabled,
                 onCheckedChange = onToggleCalculator,
+                leadingIcon = Icons.Rounded.Calculate,
                 isFirstItem = false,
-                isLastItem = false
+                isLastItem = false,
+                extraVerticalPadding = 4.dp
             )
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Auto expand results toggle
             SettingsToggleRow(
@@ -177,18 +182,18 @@ fun CombinedExcludedItemsCard(
                 subtitle = stringResource(R.string.settings_show_all_results_desc),
                 checked = showAllResults,
                 onCheckedChange = onToggleShowAllResults,
+                leadingIcon = Icons.Rounded.UnfoldMore,
                 isFirstItem = false,
-                isLastItem = false
+                isLastItem = false,
+                extraVerticalPadding = 4.dp
             )
-
-            // Divider
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Excluded Items Section
             SettingsNavigationRow(
                 item = SettingsCardItem(
                     title = excludedItemsTitle,
                     description = excludedItemsDescription,
+                    icon = Icons.Rounded.VisibilityOff,
                     actionOnPress = onNavigateToExcludedItems
                 ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)

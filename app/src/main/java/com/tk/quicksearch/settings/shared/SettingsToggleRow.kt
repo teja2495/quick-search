@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 
@@ -33,6 +34,9 @@ fun SettingsToggleRow(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     leadingIcon: ImageVector? = null,
+    titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    horizontalPadding: Dp = DesignTokens.SpacingXXLarge,
+    leadingIconSize: Dp = 20.dp,
     isFirstItem: Boolean = false,
     isLastItem: Boolean = false,
     extraVerticalPadding: Dp = 0.dp,
@@ -47,9 +51,9 @@ fun SettingsToggleRow(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(
-                    start = DesignTokens.CardHorizontalPadding,
+                    start = horizontalPadding,
                     top = topPadding,
-                    end = DesignTokens.CardHorizontalPadding,
+                    end = horizontalPadding,
                     bottom = bottomPadding
                 ),
             verticalAlignment = Alignment.CenterVertically,
@@ -60,7 +64,7 @@ fun SettingsToggleRow(
                     imageVector = it,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(DesignTokens.IconSize)
+                    modifier = Modifier.size(leadingIconSize)
                 )
             }
 
@@ -70,7 +74,7 @@ fun SettingsToggleRow(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = titleTextStyle,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
