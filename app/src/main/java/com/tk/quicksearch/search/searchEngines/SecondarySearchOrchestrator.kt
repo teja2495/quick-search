@@ -175,19 +175,12 @@ class SecondarySearchOrchestrator(
                                         contactResults = unifiedResults.contactResults,
                                         fileResults = unifiedResults.fileResults,
                                         settingResults = unifiedResults.settingResults,
-                                        appShortcutResults = unifiedResults.appShortcutResults,
-                                        webSuggestions =
-                                                if (hasAnyResults) emptyList()
-                                                else state.webSuggestions
+                                        appShortcutResults = unifiedResults.appShortcutResults
                                 )
                             }
 
-                            // Fetch web suggestions if there are no results, query is long enough,
-                            // and suggestions are enabled
-                            if (!hasAnyResults &&
-                                            trimmedQuery.length >= 2 &&
-                                            webSuggestionHandler.isEnabled
-                            ) {
+                            // Fetch web suggestions if query is long enough and suggestions are enabled
+                            if (trimmedQuery.length >= 2 && webSuggestionHandler.isEnabled) {
                                 webSuggestionHandler.fetchWebSuggestions(
                                         trimmedQuery,
                                         currentVersion,
@@ -197,12 +190,10 @@ class SecondarySearchOrchestrator(
                                         activeQueryProvider = { currentStateProvider().query }
                                 )
                             } else {
-                                // Clear suggestions if we have results
+                                // Clear suggestions if disabled or query too short
                                 webSuggestionHandler.cancelSuggestions()
-                                if (hasAnyResults) {
-                                    uiStateUpdater { state ->
-                                        state.copy(webSuggestions = emptyList())
-                                    }
+                                uiStateUpdater { state ->
+                                    state.copy(webSuggestions = emptyList())
                                 }
                             }
                         }

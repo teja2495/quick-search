@@ -21,6 +21,7 @@ import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 fun LaunchOptionsSettings(
     isDefaultAssistant: Boolean,
     onSetDefaultAssistant: () -> Unit,
+    onAddHomeScreenWidget: () -> Unit,
     onAddQuickSettingsTile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -41,6 +42,19 @@ fun LaunchOptionsSettings(
                         }
                     ),
                     actionOnPress = onSetDefaultAssistant
+                ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+            )
+
+            // Divider
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            // Home Screen Widget Section
+            SettingsNavigationRow(
+                item = SettingsCardItem(
+                    title = stringResource(R.string.settings_home_screen_widget_title),
+                    description = stringResource(R.string.settings_home_screen_widget_desc),
+                    actionOnPress = onAddHomeScreenWidget
                 ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
             )

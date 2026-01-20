@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -37,6 +40,14 @@ import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCard
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
+
+/** Custom shape that rounds only the top corners */
+private val TopRoundedShape = RoundedCornerShape(
+    topStart = 16.dp,
+    topEnd = 16.dp,
+    bottomStart = 0.dp,
+    bottomEnd = 0.dp
+)
 
 /** Data class holding all the state needed for section rendering. */
 data class SectionRenderingState(
@@ -108,6 +119,7 @@ fun SearchContentArea(
                     shouldShowFilesSection(renderingState, filesParams) ||
                     shouldShowSettingsSection(renderingState)
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
+    val hasAnySearchResults = hasAnySearchResults(state)
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         // Use bottom alignment when one-handed mode is enabled and no special states are showing
@@ -118,44 +130,94 @@ fun SearchContentArea(
                     Arrangement.spacedBy(DesignTokens.SpacingMedium)
                 }
 
+        // When there are no results and inline search engine style is not enabled,
+        // hide the scroll view and show only the no results text
+        val shouldHideScrollView = hasQuery && !hasAnySearchResults && state.isSearchEngineCompactMode
+
         Column(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .heightIn(min = maxHeight)
-                                .verticalScroll(
-                                        scrollState,
-                                        reverseScrolling = alignResultsToBottom
-                                )
-                                .padding(
-                                        top = DesignTokens.SpacingXSmall,
-                                        bottom = DesignTokens.SpacingMedium
+                                .clip(TopRoundedShape)
+                                .then(
+                                        if (shouldHideScrollView) {
+                                            Modifier.padding(
+                                                    bottom = DesignTokens.SpacingMedium
+                                            )
+                                        } else {
+                                            Modifier.verticalScroll(
+                                                    scrollState,
+                                                    reverseScrolling = alignResultsToBottom
+                                            ).padding(
+                                                    bottom = DesignTokens.SpacingMedium
+                                            )
+                                        }
                                 ),
-                verticalArrangement = verticalArrangement
+                verticalArrangement = if (shouldHideScrollView) Arrangement.Top else verticalArrangement
         ) {
-            ContentLayout(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = state,
-                    renderingState = renderingState,
-                    contactsParams = contactsParams,
-                    filesParams = filesParams,
-                    appShortcutsParams = appShortcutsParams,
-                    settingsParams = settingsParams,
-                    appsParams = appsParams,
-                    onRequestUsagePermission = onRequestUsagePermission,
-                    // Pass calculator and direct search state to ContentLayout
-                    minContentHeight = this@BoxWithConstraints.maxHeight,
-                    isReversed = useOneHandedMode && !showDirectSearch,
-                    hideResults = hideOtherResults,
-                    showCalculator = showCalculator,
-                    showDirectSearch = showDirectSearch,
-                    directSearchState = directSearchState,
-                    onPhoneNumberClick = onPhoneNumberClick,
-                    onEmailClick = onEmailClick,
-                    onWebSuggestionClick = onWebSuggestionClick,
-                    onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                    onSearchTargetClick = onSearchTargetClick,
-                    onDeleteRecentQuery = onDeleteRecentQuery
-            )
+            if (shouldHideScrollView) {
+                // Show only the no results text without scroll view
+                // Determine whether to show "No results" message when search engine compact mode is enabled
+                // and web suggestions API was called but returned no results or web suggestions are disabled
+                val shouldShowNoResults =
+                        state.isSearchEngineCompactMode &&
+                                (!state.webSuggestionsEnabled ||
+                                        (state.webSuggestionsEnabled &&
+                                                state.query.trim().length >= 2 &&
+                                                state.webSuggestions.isEmpty()))
+
+                // Add delay before showing no results text to avoid flashing before web suggestions load
+                var showNoResultsText by remember { mutableStateOf(false) }
+                LaunchedEffect(shouldShowNoResults, state.query) {
+                    if (shouldShowNoResults) {
+                        delay(500L) // Wait for web suggestions load
+                        showNoResultsText = true
+                    } else {
+                        showNoResultsText = false
+                    }
+                }
+
+                if (showNoResultsText) {
+                    Text(
+                            text = stringResource(R.string.no_results_found),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center,
+                            modifier =
+                                    Modifier.fillMaxWidth()
+                                            .padding(
+                                                    top = DesignTokens.SpacingSmall,
+                                                    start = DesignTokens.SpacingLarge,
+                                                    end = DesignTokens.SpacingLarge
+                                            )
+                    )
+                }
+            } else {
+                ContentLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = state,
+                        renderingState = renderingState,
+                        contactsParams = contactsParams,
+                        filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
+                        settingsParams = settingsParams,
+                        appsParams = appsParams,
+                        onRequestUsagePermission = onRequestUsagePermission,
+                        // Pass calculator and direct search state to ContentLayout
+                        minContentHeight = this@BoxWithConstraints.maxHeight,
+                        isReversed = useOneHandedMode && !showDirectSearch,
+                        hideResults = hideOtherResults,
+                        showCalculator = showCalculator,
+                        showDirectSearch = showDirectSearch,
+                        directSearchState = directSearchState,
+                        onPhoneNumberClick = onPhoneNumberClick,
+                        onEmailClick = onEmailClick,
+                        onWebSuggestionClick = onWebSuggestionClick,
+                        onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+                        onSearchTargetClick = onSearchTargetClick,
+                        onDeleteRecentQuery = onDeleteRecentQuery
+                )
+            }
         }
     }
 }
@@ -232,7 +294,6 @@ fun ContentLayout(
                         state.webSuggestions.isNotEmpty() &&
                         state.webSuggestionsEnabled &&
                         !state.webSuggestionWasSelected
-
 
         // When query exists with no results, show web suggestions and "no results" message
         if (hasQuery && !hasAnySearchResults && !showCalculator && !hasDirectSearchAnswer) {
@@ -317,8 +378,6 @@ fun ContentLayout(
                     )
                 }
             }
-
-            return
         }
 
         when {
@@ -327,7 +386,7 @@ fun ContentLayout(
                 // pinned items, then recent queries, then apps at bottom
                 if (hasQuery) {
                     // Show web suggestions at the top when there are also search results
-                    if (showWebSuggestions) {
+                    if (showWebSuggestions && hasAnySearchResults) {
                         AnimatedVisibility(
                                 visible = true,
                                 enter = fadeIn(),
@@ -626,7 +685,7 @@ fun ContentLayout(
                 }
                 if (hasQuery) {
                     // Show web suggestions at the top when there are also search results
-                    if (showWebSuggestions && !isReversed) {
+                    if (showWebSuggestions && !isReversed && hasAnySearchResults) {
                         AnimatedVisibility(
                                 visible = true,
                                 enter = fadeIn(),

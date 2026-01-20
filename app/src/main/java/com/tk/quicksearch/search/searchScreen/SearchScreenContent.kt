@@ -135,6 +135,7 @@ internal fun SearchScreenContent(
             showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
             onClearDetectedShortcut = onClearDetectedShortcut,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+            modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
             onSearchAction = {
                 val trimmedQuery = state.query.trim()
 

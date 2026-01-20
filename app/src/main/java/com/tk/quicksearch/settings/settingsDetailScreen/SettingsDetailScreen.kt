@@ -248,6 +248,7 @@ internal fun SettingsDetailScreen(
                         LaunchOptionsSettings(
                             isDefaultAssistant = isDefaultAssistant,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
+                            onAddHomeScreenWidget = callbacks.onAddHomeScreenWidget,
                             onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
                             modifier = Modifier
                         )

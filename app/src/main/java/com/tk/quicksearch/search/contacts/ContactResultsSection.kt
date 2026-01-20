@@ -340,11 +340,11 @@ private fun ContactActionHintBubble(
         val arrowHeight = 10.dp
         val arrowWidth = 28.dp
         val cornerRadius = 16.dp
-        val borderWidth = 1.5.dp
         val arrowInset =
                 ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f +
                         DesignTokens.SpacingSmall +
                         24.dp
+        val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
 
         Box(
                 modifier =
@@ -354,7 +354,6 @@ private fun ContactActionHintBubble(
                                         val arrowHeightPx = arrowHeight.toPx()
                                         val arrowWidthPx = arrowWidth.toPx()
                                         val cornerRadiusPx = cornerRadius.toPx()
-                                        val borderWidthPx = borderWidth.toPx()
                                         val arrowInsetPx = arrowInset.toPx()
 
                                         val rectTop = arrowHeightPx
@@ -467,12 +466,7 @@ private fun ContactActionHintBubble(
                                                         close()
                                                 }
 
-                                        drawPath(path = path, color = Color.Black)
-                                        drawPath(
-                                                path = path,
-                                                color = Color.White.copy(alpha = 0.3f),
-                                                style = Stroke(width = borderWidthPx)
-                                        )
+                                        drawPath(path = path, color = backgroundColor)
                                 }
         ) {
                 Box(
@@ -481,14 +475,14 @@ private fun ContactActionHintBubble(
                                         .padding(top = arrowHeight)
                                         .padding(
                                                 horizontal = DesignTokens.SpacingMedium,
-                                                vertical = DesignTokens.SpacingSmall
+                                                vertical = DesignTokens.SpacingMedium
                                         ),
                         contentAlignment = Alignment.CenterStart
                 ) {
                         Text(
                                 text = stringResource(R.string.contacts_action_hint_message),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 lineHeight =
                                         MaterialTheme.typography.bodySmall.lineHeight *
                                                 1.2f,
@@ -503,7 +497,7 @@ private fun ContactActionHintBubble(
                                 Icon(
                                         imageVector = Icons.Rounded.Close,
                                         contentDescription = stringResource(R.string.desc_close),
-                                        tint = Color.White,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                         modifier = Modifier.size(18.dp)
                                 )
                         }

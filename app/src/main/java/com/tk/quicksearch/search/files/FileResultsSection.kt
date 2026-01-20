@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -282,54 +283,56 @@ private fun FileResultRow(
     var showOptions by remember { mutableStateOf(false) }
     val view = LocalView.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = {
-                    hapticConfirm(view)()
-                    onClick(deviceFile)
-                },
-                onLongClick = { showOptions = true }
-            )
-            .padding(vertical = DesignTokens.SpacingLarge)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-            verticalAlignment = Alignment.CenterVertically
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick(deviceFile)
+                    },
+                    onLongClick = { showOptions = true }
+                )
+                .padding(vertical = DesignTokens.SpacingLarge)
         ) {
-            Icon(
-                imageVector = if (deviceFile.isDirectory) {
-                    Icons.Rounded.Folder
-                } else {
-                    Icons.Rounded.InsertDriveFile
-                },
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier
-                    .size(FILE_ICON_SIZE.dp)
-                    .padding(start = FILE_ICON_START_PADDING.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = if (deviceFile.isDirectory) {
+                        Icons.Rounded.Folder
+                    } else {
+                        Icons.Rounded.InsertDriveFile
+                    },
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier
+                        .size(FILE_ICON_SIZE.dp)
+                        .padding(start = FILE_ICON_START_PADDING.dp)
+                )
 
-            Text(
-                text = deviceFile.displayName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-
-            FileDropdownMenu(
-                expanded = showOptions,
-                onDismissRequest = { showOptions = false },
-                deviceFile = deviceFile,
-                isPinned = isPinned,
-                hasNickname = hasNickname,
-                onTogglePin = { onTogglePin(deviceFile) },
-                onExclude = { onExclude(deviceFile) },
-                onExcludeExtension = { onExcludeExtension(deviceFile) },
-                onNicknameClick = { onNicknameClick(deviceFile) }
-            )
+                Text(
+                    text = deviceFile.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
+
+        FileDropdownMenu(
+            expanded = showOptions,
+            onDismissRequest = { showOptions = false },
+            deviceFile = deviceFile,
+            isPinned = isPinned,
+            hasNickname = hasNickname,
+            onTogglePin = { onTogglePin(deviceFile) },
+            onExclude = { onExclude(deviceFile) },
+            onExcludeExtension = { onExcludeExtension(deviceFile) },
+            onNicknameClick = { onNicknameClick(deviceFile) }
+        )
     }
 }
 

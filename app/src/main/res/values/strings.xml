@@ -377,6 +377,8 @@
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
+    <string name="settings_home_screen_widget_title">Home Screen Widget</string>
+    <string name="settings_home_screen_widget_desc">Add Quick Search widget to your home screen.</string>
     <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
     <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings tiles.</string>
     <string name="quick_settings_tile_label">Quick Search</string>
@@ -385,6 +387,8 @@
     <string name="quick_settings_tile_not_added">Tile not added</string>
     <string name="quick_settings_tile_not_supported">Direct tile requests aren\'t supported on this Android version. Use Quick Settings edit to add it.</string>
     <string name="quick_settings_tile_error">Unable to request the Quick Settings tile. Try again.</string>
+    <string name="home_screen_widget_not_supported">Direct widget pinning isn\'t supported on this Android version. Add it from your home screen widgets list.</string>
+    <string name="home_screen_widget_error">Unable to request the widget. Try again.</string>
     <string name="settings_unable_to_open_settings">Unable to open settings</string>
     <string name="settings_excluded_items_clear_all">Clear all exclusions</string>
     <string name="settings_excluded_items_clear_all_confirmation">Are you sure you want to clear all excluded items? This action cannot be undone.</string>

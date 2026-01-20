@@ -58,6 +58,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
+import com.tk.quicksearch.widget.requestAddQuickSearchWidget
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
@@ -147,6 +148,7 @@ data class SettingsScreenCallbacks(
     val onRecentQueriesCountChange: (Int) -> Unit,
     val onSetGeminiApiKey: (String?) -> Unit,
     val onSetPersonalContext: (String?) -> Unit,
+    val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
     val onRefreshApps: (Boolean) -> Unit,
@@ -646,6 +648,7 @@ fun SettingsRoute(
         }
     }
 
+    val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
     // Define permission request handlers
@@ -692,6 +695,7 @@ fun SettingsRoute(
             onRecentQueriesCountChange = viewModel::setRecentQueriesCount,
             onSetGeminiApiKey = viewModel::setGeminiApiKey,
             onSetPersonalContext = viewModel::setPersonalContext,
+            onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
             onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
             onSetDefaultAssistant = {
                 try {

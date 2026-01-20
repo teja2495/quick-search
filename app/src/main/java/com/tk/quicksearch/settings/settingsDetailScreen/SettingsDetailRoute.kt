@@ -20,6 +20,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
+import com.tk.quicksearch.widget.requestAddQuickSearchWidget
 
 @Composable
 fun SettingsDetailRoute(
@@ -122,6 +123,9 @@ fun SettingsDetailRoute(
         shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
     }
 
+    val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
+
+    val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
     val callbacks = SettingsScreenCallbacks(
@@ -152,7 +156,7 @@ fun SettingsDetailRoute(
         onRefreshIconPacks = viewModel::refreshIconPacks,
         onToggleShowAllResults = viewModel::setShowAllResults,
         onToggleDirectDial = viewModel::setDirectDialEnabled,
-        onToggleSection = { _, _ -> },
+        onToggleSection = onToggleSection,
         onReorderSections = viewModel::reorderSections,
         onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
         onSetAmazonDomain = viewModel::setAmazonDomain,
@@ -163,6 +167,7 @@ fun SettingsDetailRoute(
         onRecentQueriesCountChange = viewModel::setRecentQueriesCount,
         onSetGeminiApiKey = viewModel::setGeminiApiKey,
         onSetPersonalContext = viewModel::setPersonalContext,
+        onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
         onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
         onSetDefaultAssistant = {
             try {

@@ -130,12 +130,7 @@ fun DirectSearchResult(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (oneHandedMode) Modifier.padding(top = DesignTokens.SpacingMedium)
-                else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {
@@ -215,12 +210,7 @@ fun CalculatorResult(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (oneHandedMode) Modifier.padding(top = DesignTokens.SpacingMedium)
-                else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {
