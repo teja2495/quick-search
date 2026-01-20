@@ -296,7 +296,7 @@ fun SearchScreen(
     val scrollState = rememberScrollState()
     val showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle
     val alignResultsToBottom =
-            state.keyboardAlignedLayout &&
+            state.oneHandedMode &&
                     expandedSection == ExpandedSection.NONE &&
                     !showDirectSearch
 
@@ -320,11 +320,11 @@ fun SearchScreen(
         expandedSection = ExpandedSection.NONE
     }
 
-    // Handle scroll behavior for keyboard-aligned layout
-    KeyboardAlignedScrollBehavior(
+    // Handle scroll behavior for one-handed mode
+    OneHandedModeScrollBehavior(
             scrollState = scrollState,
             expandedSection = expandedSection,
-            keyboardAlignedLayout = state.keyboardAlignedLayout,
+            oneHandedMode = state.oneHandedMode,
             query = state.query,
             displayAppsSize = derivedState.displayApps.size,
             contactResultsSize = state.contactResults.size,

@@ -29,7 +29,7 @@ class UserAppPreferences(private val context: Context) {
         private val recentSearchesPreferences by lazy { RecentSearchesPreferences(context) }
 
         /** Minimal preferences needed for first frame render - only layout-affecting values. */
-        data class CriticalPreferences(val keyboardAlignedLayout: Boolean)
+        data class CriticalPreferences(val oneHandedMode: Boolean)
 
         /**
          * Optimized: Loads only critical preference using direct access. Uses the underlying
@@ -43,13 +43,13 @@ class UserAppPreferences(private val context: Context) {
                                         .PREFS_NAME,
                                 android.content.Context.MODE_PRIVATE
                         )
-                val keyboardAligned =
+                val oneHandedMode =
                         prefs.getBoolean(
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_KEYBOARD_ALIGNED_LAYOUT,
+                                        .KEY_ONE_HANDED_MODE,
                                 false
                         )
-                return CriticalPreferences(keyboardAlignedLayout = keyboardAligned)
+                return CriticalPreferences(oneHandedMode = oneHandedMode)
         }
 
         /**
@@ -62,7 +62,7 @@ class UserAppPreferences(private val context: Context) {
                 val showSystemFiles: Boolean,
                 val showHiddenFiles: Boolean,
                 val excludedFileExtensions: Set<String>,
-                val keyboardAlignedLayout: Boolean,
+                val oneHandedMode: Boolean,
                 val directDialEnabled: Boolean,
                 val hasSeenDirectDialChoice: Boolean,
                 val hasSeenSearchEngineOnboarding: Boolean,
@@ -83,7 +83,7 @@ class UserAppPreferences(private val context: Context) {
          */
         data class StartupConfig(
                 // Critical preferences (needed immediately for layout)
-                val keyboardAlignedLayout: Boolean,
+                val oneHandedMode: Boolean,
                 // Cached apps metadata
                 val cachedAppsLastUpdate: Long,
                 // Full startup preferences (loaded in background)
@@ -151,10 +151,10 @@ class UserAppPreferences(private val context: Context) {
                                                 .KEY_EXCLUDED_FILE_EXTENSIONS] as?
                                         Set<String>
                                         ?: emptySet(),
-                        keyboardAlignedLayout =
+                        oneHandedMode =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
-                                                .KEY_KEYBOARD_ALIGNED_LAYOUT] as?
+                                                .KEY_ONE_HANDED_MODE] as?
                                         Boolean
                                         ?: false,
                         directDialEnabled =
@@ -257,10 +257,10 @@ class UserAppPreferences(private val context: Context) {
                 val cachedAppsLastUpdate = appCachePrefs.getLong("last_update", 0L)
 
                 // Extract critical preference directly from batch read
-                val keyboardAlignedLayout =
+                val oneHandedMode =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_KEYBOARD_ALIGNED_LAYOUT] as?
+                                        .KEY_ONE_HANDED_MODE] as?
                                 Boolean
                                 ?: false
 
@@ -310,7 +310,7 @@ class UserAppPreferences(private val context: Context) {
                                                         .KEY_EXCLUDED_FILE_EXTENSIONS] as?
                                                 Set<String>
                                                 ?: emptySet(),
-                                keyboardAlignedLayout = keyboardAlignedLayout,
+                                oneHandedMode = oneHandedMode,
                                 directDialEnabled =
                                         allPrefs[
                                                 com.tk.quicksearch.search.data.preferences
@@ -396,7 +396,7 @@ class UserAppPreferences(private val context: Context) {
                         )
 
                 return StartupConfig(
-                        keyboardAlignedLayout = keyboardAlignedLayout,
+                        oneHandedMode = oneHandedMode,
                         cachedAppsLastUpdate = cachedAppsLastUpdate,
                         startupPreferences = startupPreferences
                 )
@@ -707,10 +707,10 @@ class UserAppPreferences(private val context: Context) {
         // UI Preferences
         // ============================================================================
 
-        fun isKeyboardAlignedLayout(): Boolean = uiPreferences.isKeyboardAlignedLayout()
+        fun isOneHandedMode(): Boolean = uiPreferences.isOneHandedMode()
 
-        fun setKeyboardAlignedLayout(enabled: Boolean) =
-                uiPreferences.setKeyboardAlignedLayout(enabled)
+        fun setOneHandedMode(enabled: Boolean) =
+                uiPreferences.setOneHandedMode(enabled)
 
         fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 

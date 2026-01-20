@@ -428,7 +428,7 @@ abstract class BasePreferences(protected val context: Context) {
                 const val KEY_SHORTCUT_ENABLED_PREFIX = "shortcut_enabled_"
 
                 // UI preferences keys
-                const val KEY_KEYBOARD_ALIGNED_LAYOUT = "keyboard_aligned_layout"
+                const val KEY_ONE_HANDED_MODE = "one_handed_mode"
                 const val KEY_USE_WHATSAPP_FOR_MESSAGES =
                         "use_whatsapp_for_messages" // Deprecated, kept for migration
                 const val KEY_MESSAGING_APP = "messaging_app"

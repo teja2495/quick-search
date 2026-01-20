@@ -293,11 +293,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private var enabledFileTypes: Set<FileType> = emptySet()
-    private var showFolders: Boolean = true
+    private var showFolders: Boolean = false
     private var showSystemFiles: Boolean = false
     private var showHiddenFiles: Boolean = false
     private var excludedFileExtensions: Set<String> = emptySet()
-    private var keyboardAlignedLayout: Boolean = false
+    private var oneHandedMode: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true
@@ -417,7 +417,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val startupConfig = userPreferences.loadStartupConfig()
 
         // Extract critical data for immediate use
-        keyboardAlignedLayout = startupConfig.keyboardAlignedLayout
+        oneHandedMode = startupConfig.oneHandedMode
 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
@@ -427,7 +427,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         withContext(Dispatchers.Main) {
             _uiState.update {
                 it.copy(
-                        keyboardAlignedLayout = keyboardAlignedLayout,
+                        oneHandedMode = oneHandedMode,
                         // We don't have full prefs yet, so keep initializing flag true
                         // but show the apps we found in cache
                         isInitializing = true
@@ -488,7 +488,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showSystemFiles = prefs.showSystemFiles
         showHiddenFiles = prefs.showHiddenFiles
         excludedFileExtensions = prefs.excludedFileExtensions
-        keyboardAlignedLayout = prefs.keyboardAlignedLayout
+        oneHandedMode = prefs.oneHandedMode
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         showWallpaperBackground = prefs.showWallpaperBackground
@@ -504,7 +504,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showSystemFiles = showSystemFiles,
                     showHiddenFiles = showHiddenFiles,
                     excludedFileExtensions = excludedFileExtensions,
-                    keyboardAlignedLayout = keyboardAlignedLayout,
+                    oneHandedMode = oneHandedMode,
                     directDialEnabled = directDialEnabled,
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -539,7 +539,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     indexedAppCount = cachedAppsList.size,
 
                     // Critical: update these to prevent flashing
-                    keyboardAlignedLayout = keyboardAlignedLayout
+                    oneHandedMode = oneHandedMode
             )
         }
     }
@@ -843,7 +843,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun loadSettingsShortcuts() {
-        viewModelScope.launch(Dispatchers.IO) { settingsSearchHandler.loadShortcuts() }
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsSearchHandler.loadShortcuts()
+            withContext(Dispatchers.Main) { refreshSettingsState(updateResults = false) }
+        }
     }
 
     private fun loadAppShortcuts() {
@@ -1379,13 +1382,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun setKeyboardAlignedLayout(enabled: Boolean) {
+    fun setOneHandedMode(enabled: Boolean) {
         updateBooleanPreference(
                 value = enabled,
-                preferenceSetter = userPreferences::setKeyboardAlignedLayout,
+                preferenceSetter = userPreferences::setOneHandedMode,
                 stateUpdater = {
-                    keyboardAlignedLayout = it
-                    updateUiState { state -> state.copy(keyboardAlignedLayout = it) }
+                    oneHandedMode = it
+                    updateUiState { state -> state.copy(oneHandedMode = it) }
                 }
         )
     }

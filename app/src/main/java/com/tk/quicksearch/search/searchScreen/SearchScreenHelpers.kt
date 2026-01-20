@@ -129,7 +129,7 @@ data class AppsSectionParams(
         val showAppLabels: Boolean,
         val rowCount: Int,
         val iconPackPackage: String?,
-        val keyboardAlignedLayout: Boolean,
+        val oneHandedMode: Boolean,
         val isInitializing: Boolean
 )
 
@@ -457,7 +457,7 @@ internal fun buildSectionParams(
                                 showAppLabels = true,
                                 rowCount = derivedState.visibleRowCount,
                                 iconPackPackage = state.selectedIconPackPackage,
-                                keyboardAlignedLayout = state.keyboardAlignedLayout,
+                                oneHandedMode = state.oneHandedMode,
                                 isInitializing = state.isInitializing
                         )
 

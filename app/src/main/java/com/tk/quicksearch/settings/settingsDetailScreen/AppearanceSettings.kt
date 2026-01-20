@@ -51,8 +51,8 @@ import com.tk.quicksearch.util.hapticToggle
  */
 @Composable
 fun CombinedLayoutIconCard(
-    keyboardAlignedLayout: Boolean,
-    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    oneHandedMode: Boolean,
+    onToggleOneHandedMode: (Boolean) -> Unit,
     iconPackTitle: String,
     iconPackDescription: String,
     onIconPackClick: () -> Unit,
@@ -69,8 +69,8 @@ fun CombinedLayoutIconCard(
             SettingsToggleRow(
                 title = stringResource(R.string.settings_layout_option_bottom_title),
                 subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
-                checked = keyboardAlignedLayout,
-                onCheckedChange = onToggleKeyboardAlignedLayout,
+                checked = oneHandedMode,
+                onCheckedChange = onToggleOneHandedMode,
                 showDivider = false,
                 extraVerticalPadding = 8.dp,
             )
@@ -225,8 +225,8 @@ fun CombinedAppearanceCard(
  */
 @Composable
 fun AppearanceSettingsSection(
-    keyboardAlignedLayout: Boolean,
-    onToggleKeyboardAlignedLayout: (Boolean) -> Unit,
+    oneHandedMode: Boolean,
+    onToggleOneHandedMode: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
     wallpaperBackgroundAlpha: Float,
     wallpaperBlurRadius: Float,
@@ -278,8 +278,8 @@ fun AppearanceSettingsSection(
 
         // One-Handed Mode and Icon Pack Card
         CombinedLayoutIconCard(
-            keyboardAlignedLayout = keyboardAlignedLayout,
-            onToggleKeyboardAlignedLayout = onToggleKeyboardAlignedLayout,
+            oneHandedMode = oneHandedMode,
+            onToggleOneHandedMode = onToggleOneHandedMode,
             iconPackTitle = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
             iconPackDescription =
                 if (hasIconPacks) {

@@ -76,9 +76,9 @@ private suspend fun scrollToTop(scrollState: ScrollState, reverseScrolling: Bool
 // ============================================================================
 
 /**
- * Handles scroll behavior for keyboard-aligned layout.
+ * Handles scroll behavior for one-handed mode.
  * 
- * When keyboard-aligned layout is active:
+ * When one-handed mode is active:
  * - Content is bottom-aligned via reverse scrolling in the layout
  * - Scrolls to top when a section is expanded (showing expanded content near search bar)
  * 
@@ -86,10 +86,10 @@ private suspend fun scrollToTop(scrollState: ScrollState, reverseScrolling: Bool
  * to ensure proper positioning after layout updates.
  */
 @Composable
-fun KeyboardAlignedScrollBehavior(
+fun OneHandedModeScrollBehavior(
     scrollState: ScrollState,
     expandedSection: ExpandedSection,
-    keyboardAlignedLayout: Boolean,
+    oneHandedMode: Boolean,
     reverseScrolling: Boolean,
     query: String,
     displayAppsSize: Int,
@@ -118,10 +118,10 @@ fun KeyboardAlignedScrollBehavior(
         hasUsagePermission,
         errorMessage,
         expandedSection,
-        keyboardAlignedLayout,
+        oneHandedMode,
         reverseScrolling
     ) {
-        if (!keyboardAlignedLayout) return@LaunchedEffect
+        if (!oneHandedMode) return@LaunchedEffect
         
         // Wait for content to stabilize before scrolling
         waitForContentStabilization(scrollState)

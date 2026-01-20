@@ -45,6 +45,8 @@ import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.utils.PermissionUtils
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -187,8 +189,8 @@ internal fun SettingsDetailScreen(
                         val appearanceContext = LocalContext.current
 
                         AppearanceSettingsSection(
-                            keyboardAlignedLayout = state.keyboardAlignedLayout,
-                            onToggleKeyboardAlignedLayout = callbacks.onToggleKeyboardAlignedLayout,
+                            oneHandedMode = state.oneHandedMode,
+                            onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
                             showWallpaperBackground = state.showWallpaperBackground,
                             wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                             wallpaperBlurRadius = state.wallpaperBlurRadius,
@@ -208,7 +210,7 @@ internal fun SettingsDetailScreen(
                                     Toast.LENGTH_SHORT
                                 ).show()
                             },
-                            hasFilePermission = true // Assume permission is granted in detail screen
+                            hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current)
                         )
                     }
                     SettingsDetailType.CALLS_TEXTS -> {
@@ -217,7 +219,7 @@ internal fun SettingsDetailScreen(
                             onSetMessagingApp = callbacks.onSetMessagingApp,
                             directDialEnabled = state.directDialEnabled,
                             onToggleDirectDial = callbacks.onToggleDirectDial,
-                            hasCallPermission = true, // Assume permission is granted in detail screen
+                            hasCallPermission = PermissionRequestHandler.checkCallPermission(LocalContext.current),
                             contactsSectionEnabled = SearchSection.CONTACTS !in state.disabledSections,
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
@@ -251,14 +253,10 @@ internal fun SettingsDetailScreen(
                     }
                     SettingsDetailType.PERMISSIONS -> {
                         PermissionsSettings(
-                            hasUsagePermission = true, // Assume granted in detail screen
-                            hasContactPermission = true, // Assume granted in detail screen
-                            hasFilePermission = true, // Assume granted in detail screen
-                            hasCallPermission = true, // Assume granted in detail screen
-                            onRequestUsagePermission = { /* No-op in detail screen */ },
-                            onRequestContactPermission = { /* No-op in detail screen */ },
-                            onRequestFilePermission = { /* No-op in detail screen */ },
-                            onRequestCallPermission = { /* No-op in detail screen */ },
+                            onRequestUsagePermission = callbacks.onRequestUsagePermission,
+                            onRequestContactPermission = callbacks.onRequestContactPermission,
+                            onRequestFilePermission = callbacks.onRequestFilePermission,
+                            onRequestCallPermission = callbacks.onRequestCallPermission,
                             modifier = Modifier
                         )
                     }

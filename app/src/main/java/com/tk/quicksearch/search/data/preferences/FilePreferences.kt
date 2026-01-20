@@ -48,7 +48,7 @@ class FilePreferences(context: Context) : BasePreferences(context) {
                 clearStringSet(BasePreferences.KEY_EXCLUDED_FILE_EXTENSIONS)
 
         fun getShowFoldersInResults(): Boolean =
-                prefs.getBoolean(BasePreferences.KEY_SHOW_FOLDERS_IN_RESULTS, true)
+                prefs.getBoolean(BasePreferences.KEY_SHOW_FOLDERS_IN_RESULTS, false)
 
         fun setShowFoldersInResults(show: Boolean) =
                 prefs.edit().putBoolean(BasePreferences.KEY_SHOW_FOLDERS_IN_RESULTS, show).apply()

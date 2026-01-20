@@ -128,7 +128,7 @@ private fun renderAppsSection(params: SectionRenderParams, context: SectionRende
                 showAppLabels = params.appsParams.showAppLabels,
                 rowCount = params.appsParams.rowCount,
                 iconPackPackage = params.appsParams.iconPackPackage,
-                keyboardAlignedLayout = params.appsParams.keyboardAlignedLayout,
+                oneHandedMode = params.appsParams.oneHandedMode,
                 isInitializing = params.appsParams.isInitializing
         )
     }

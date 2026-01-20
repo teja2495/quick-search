@@ -88,7 +88,7 @@ fun AppGridView(
     modifier: Modifier = Modifier,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String? = null,
-    keyboardAlignedLayout: Boolean = false,
+    oneHandedMode: Boolean = false,
     isInitializing: Boolean = false
 ) {
     val context = LocalContext.current
@@ -146,7 +146,7 @@ fun AppGridView(
                 shortcutsByPackage = shortcutsByPackage,
                 rowCount = rowCount,
                 iconPackPackage = iconPackPackage,
-                keyboardAlignedLayout = keyboardAlignedLayout
+                oneHandedMode = oneHandedMode
             )
         }
     }
@@ -168,11 +168,11 @@ private fun AppGrid(
     shortcutsByPackage: Map<String, List<StaticShortcut>>,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String?,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ) {
-    val rows = remember(apps, rowCount, keyboardAlignedLayout) {
+    val rows = remember(apps, rowCount, oneHandedMode) {
         val chunked = apps.take(rowCount * COLUMNS).chunked(COLUMNS)
-        if (keyboardAlignedLayout) chunked.reversed() else chunked
+        if (oneHandedMode) chunked.reversed() else chunked
     }
 
     Column(

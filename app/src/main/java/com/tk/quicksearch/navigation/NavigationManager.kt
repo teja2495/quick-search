@@ -209,7 +209,8 @@ private fun NavigationContent(
                     SettingsDetailRoute(
                         onBack = { onSettingsDetailTypeChange(null) },
                         viewModel = viewModel,
-                        detailType = settingsDetailType
+                        detailType = settingsDetailType,
+                        onNavigateToDetail = onSettingsDetailTypeChange
                     )
                 } else {
                     SettingsRoute(

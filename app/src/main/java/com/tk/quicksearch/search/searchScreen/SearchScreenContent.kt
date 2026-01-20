@@ -166,7 +166,7 @@ internal fun SearchScreenContent(
         )
 
         // Add spacing between search bar and apps list when bottom aligned setting is off
-        if (!state.keyboardAlignedLayout) {
+        if (!state.oneHandedMode) {
             Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingSmall))
         }
 

@@ -84,68 +84,68 @@ private fun shouldShowSectionWithPermission(
 
 /**
  * Gets the appropriate contact list based on expansion state.
- * Returns reversed list when expanded AND keyboard-aligned layout is enabled, original order otherwise.
+ * Returns reversed list when expanded AND one-handed mode is enabled, original order otherwise.
  */
 fun getContactListForRendering(
     renderingState: SectionRenderingState,
     isContactsExpanded: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ): List<ContactInfo> = getListForRendering(
     list = renderingState.contactResults,
     isExpanded = isContactsExpanded,
     autoExpand = renderingState.autoExpandContacts,
-    keyboardAlignedLayout = keyboardAlignedLayout
+    oneHandedMode = oneHandedMode
 )
 
 /**
  * Gets the appropriate file list based on expansion state.
- * Returns reversed list when expanded AND keyboard-aligned layout is enabled, original order otherwise.
+ * Returns reversed list when expanded AND one-handed mode is enabled, original order otherwise.
  */
 fun getFileListForRendering(
     renderingState: SectionRenderingState,
     isFilesExpanded: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ): List<DeviceFile> = getListForRendering(
     list = renderingState.fileResults,
     isExpanded = isFilesExpanded,
     autoExpand = renderingState.autoExpandFiles,
-    keyboardAlignedLayout = keyboardAlignedLayout
+    oneHandedMode = oneHandedMode
 )
 
 fun getSettingsListForRendering(
     renderingState: SectionRenderingState,
     isSettingsExpanded: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ): List<DeviceSetting> = getListForRendering(
     list = renderingState.settingResults,
     isExpanded = isSettingsExpanded,
     autoExpand = renderingState.autoExpandSettings,
-    keyboardAlignedLayout = keyboardAlignedLayout
+    oneHandedMode = oneHandedMode
 )
 
 fun getAppShortcutListForRendering(
     renderingState: SectionRenderingState,
     isAppShortcutsExpanded: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ): List<StaticShortcut> = getListForRendering(
     list = renderingState.appShortcutResults,
     isExpanded = isAppShortcutsExpanded,
     autoExpand = renderingState.autoExpandAppShortcuts,
-    keyboardAlignedLayout = keyboardAlignedLayout
+    oneHandedMode = oneHandedMode
 )
 
 /**
  * Generic helper for getting list in correct order based on expansion state.
- * Returns reversed view when expanded AND keyboard-aligned layout is enabled, original list otherwise.
+ * Returns reversed view when expanded AND one-handed mode is enabled, original list otherwise.
  */
 private fun <T> getListForRendering(
     list: List<T>,
     isExpanded: Boolean,
     autoExpand: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ): List<T> {
     // Keep natural order when user expands a section; only reverse for auto-expanded
-    return if (!isExpanded && autoExpand && keyboardAlignedLayout) {
+    return if (!isExpanded && autoExpand && oneHandedMode) {
         list.reversed() // Returns a reversed view, more efficient than asReversed()
     } else {
         list

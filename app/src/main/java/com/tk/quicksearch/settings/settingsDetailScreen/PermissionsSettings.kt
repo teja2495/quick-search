@@ -25,11 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.search.utils.PermissionUtils
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 
 private val GrantedPermissionColor = Color(0xFF4CAF50)
 
@@ -45,19 +48,21 @@ private data class PermissionItem(
 
 /**
  * Permissions settings screen with permission status and request options.
+ * Permission status is checked actively using PermissionUtils.
  */
 @Composable
 fun PermissionsSettings(
-    hasUsagePermission: Boolean,
-    hasContactPermission: Boolean,
-    hasFilePermission: Boolean,
-    hasCallPermission: Boolean,
     onRequestUsagePermission: () -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val hasUsagePermission = remember { PermissionUtils.hasUsageStatsPermission(context) }
+    val hasContactPermission = remember { PermissionUtils.hasContactsPermission(context) }
+    val hasFilePermission = remember { PermissionUtils.hasFileAccessPermission(context) }
+    val hasCallPermission = remember { PermissionRequestHandler.checkCallPermission(context) }
     Column(modifier = modifier) {
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),

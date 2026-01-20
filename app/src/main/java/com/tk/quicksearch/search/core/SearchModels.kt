@@ -198,11 +198,11 @@ data class SearchUiState(
         val directDialEnabled: Boolean = false,
         val enabledFileTypes: Set<com.tk.quicksearch.search.models.FileType> =
                 com.tk.quicksearch.search.models.FileType.values().filter { it != com.tk.quicksearch.search.models.FileType.OTHER }.toSet(),
-        val showFolders: Boolean = true,
+        val showFolders: Boolean = false,
         val showSystemFiles: Boolean = false,
         val showHiddenFiles: Boolean = false,
         val excludedFileExtensions: Set<String> = emptySet(),
-        val keyboardAlignedLayout: Boolean = false,
+        val oneHandedMode: Boolean = false,
         val shortcutsEnabled: Boolean = true,
         val shortcutCodes: Map<String, String> = emptyMap(),
         val shortcutEnabled: Map<String, Boolean> = emptyMap(),

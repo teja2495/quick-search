@@ -16,7 +16,7 @@ fun SearchResultsSections(
     appsParams: AppsSectionParams,
     settingsParams: SettingsSectionParams,
     isReversed: Boolean,
-    keyboardAlignedLayout: Boolean
+    oneHandedMode: Boolean
 ) {
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
@@ -25,7 +25,7 @@ fun SearchResultsSections(
 
     // Use new visibility states to determine what should render
     val shouldRenderApps = when (state.appsSectionState) {
-        is AppsSectionVisibility.ShowingResults -> !isSettingsExpanded && !isAppShortcutsExpanded
+        is AppsSectionVisibility.ShowingResults -> !isFilesExpanded && !isContactsExpanded && !isSettingsExpanded && !isAppShortcutsExpanded
         else -> false
     }
     val shouldRenderAppShortcuts = when (state.appShortcutsSectionState) {
@@ -59,13 +59,13 @@ fun SearchResultsSections(
         isContactsExpanded = isContactsExpanded,
         isSettingsExpanded = isSettingsExpanded,
         isAppShortcutsExpanded = isAppShortcutsExpanded,
-        filesList = getFileListForRendering(renderingState, isFilesExpanded, keyboardAlignedLayout),
-        contactsList = getContactListForRendering(renderingState, isContactsExpanded, keyboardAlignedLayout),
-        settingsList = getSettingsListForRendering(renderingState, isSettingsExpanded, keyboardAlignedLayout),
+        filesList = getFileListForRendering(renderingState, isFilesExpanded, oneHandedMode),
+        contactsList = getContactListForRendering(renderingState, isContactsExpanded, oneHandedMode),
+        settingsList = getSettingsListForRendering(renderingState, isSettingsExpanded, oneHandedMode),
         appShortcutsList = getAppShortcutListForRendering(
             renderingState,
             isAppShortcutsExpanded,
-            keyboardAlignedLayout
+            oneHandedMode
         ),
         showAllFilesResults = renderingState.autoExpandFiles,
         showAllContactsResults = renderingState.autoExpandContacts,

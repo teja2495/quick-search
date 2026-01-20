@@ -58,6 +58,7 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 fun DirectSearchResult(
     DirectSearchState: DirectSearchState,
     showWallpaperBackground: Boolean = false,
+    oneHandedMode: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {}
 ) {
@@ -129,7 +130,12 @@ fun DirectSearchResult(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (oneHandedMode) Modifier.padding(top = DesignTokens.SpacingMedium)
+                else Modifier
+            ),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {
@@ -171,7 +177,8 @@ fun DirectSearchResult(
 @Composable
 fun CalculatorResult(
     calculatorState: CalculatorState,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
+    oneHandedMode: Boolean = false
 ) {
     val result = calculatorState.result
     if (result == null) return
@@ -208,7 +215,12 @@ fun CalculatorResult(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (oneHandedMode) Modifier.padding(top = DesignTokens.SpacingMedium)
+                else Modifier
+            ),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
     ) {
         if (showWallpaperBackground) {

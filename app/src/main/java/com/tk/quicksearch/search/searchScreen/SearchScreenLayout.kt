@@ -106,7 +106,7 @@ fun SearchContentArea(
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null
 ) {
-    val useKeyboardAlignedLayout = state.keyboardAlignedLayout &&
+    val useOneHandedMode = state.oneHandedMode &&
         renderingState.expandedSection == ExpandedSection.NONE
     val hideOtherResults = showDirectSearch || showCalculator
     val hasQuery = state.query.isNotBlank()
@@ -116,14 +116,14 @@ fun SearchContentArea(
             shouldShowContactsSection(renderingState, contactsParams) ||
             shouldShowFilesSection(renderingState, filesParams) ||
             shouldShowSettingsSection(renderingState)
-    val alignResultsToBottom = useKeyboardAlignedLayout &&
+    val alignResultsToBottom = useOneHandedMode &&
         !showDirectSearch &&
         !showCalculator
 
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Use bottom alignment when keyboard-aligned layout is enabled and no special states are showing
+        // Use bottom alignment when one-handed mode is enabled and no special states are showing
         val verticalArrangement = if (alignResultsToBottom) {
             Arrangement.spacedBy(DesignTokens.SpacingMedium, Alignment.Bottom)
         } else {
@@ -153,7 +153,7 @@ fun SearchContentArea(
                 onRequestUsagePermission = onRequestUsagePermission,
                 // Pass calculator and direct search state to ContentLayout
                 minContentHeight = this@BoxWithConstraints.maxHeight,
-                isReversed = useKeyboardAlignedLayout && !showDirectSearch,
+                isReversed = useOneHandedMode && !showDirectSearch,
                 hideResults = hideOtherResults,
                 showCalculator = showCalculator,
                 showDirectSearch = showDirectSearch,
@@ -170,7 +170,7 @@ fun SearchContentArea(
 }
 
 /**
- * Unified content layout that handles both keyboard-aligned and top-aligned layouts.
+ * Unified content layout that handles both one-handed mode and top-aligned layouts.
  */
 @Composable
 fun ContentLayout(
@@ -209,7 +209,8 @@ fun ContentLayout(
         if (showCalculator) {
             CalculatorResult(
                 calculatorState = state.calculatorState,
-                showWallpaperBackground = state.showWallpaperBackground
+                showWallpaperBackground = state.showWallpaperBackground,
+                oneHandedMode = state.oneHandedMode
             )
         }
 
@@ -218,6 +219,7 @@ fun ContentLayout(
             DirectSearchResult(
                 DirectSearchState = directSearchState,
                 showWallpaperBackground = state.showWallpaperBackground,
+                oneHandedMode = state.oneHandedMode,
                 onPhoneNumberClick = onPhoneNumberClick,
                 onEmailClick = onEmailClick
             )
@@ -367,7 +369,7 @@ fun ContentLayout(
                         settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = true,
-                        keyboardAlignedLayout = state.keyboardAlignedLayout
+                        oneHandedMode = state.oneHandedMode
                     )
                 }
                 
@@ -581,7 +583,7 @@ fun ContentLayout(
                         settingsParams = settingsParams,
                         appsParams = appsParams,
                         isReversed = false,
-                        keyboardAlignedLayout = state.keyboardAlignedLayout
+                        oneHandedMode = state.oneHandedMode
                     )
                 }
             }
