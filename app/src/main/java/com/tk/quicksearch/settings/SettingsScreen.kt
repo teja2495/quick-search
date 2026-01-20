@@ -73,6 +73,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.FeedbackUtils
+import com.tk.quicksearch.util.InAppBrowserUtils
 import com.tk.quicksearch.util.hapticToggle
 import kotlinx.coroutines.launch
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -310,12 +311,7 @@ fun SettingsMoreOptions(
 
     val onOpenFeatures = {
         val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            // Handle case where browser is not available
-        }
+        InAppBrowserUtils.openUrl(context, url)
     }
 
     val feedbackItems = listOf(

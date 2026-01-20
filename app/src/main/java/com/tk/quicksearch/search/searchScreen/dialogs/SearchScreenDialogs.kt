@@ -20,13 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import android.content.Intent
-import android.net.Uri
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.util.InAppBrowserUtils
 
 @Composable
 internal fun ReleaseNotesDialog(
@@ -90,11 +89,7 @@ internal fun ReleaseNotesDialog(
                     text = annotatedLink,
                     onClick = {
                         val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
-                        try {
-                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                        } catch (e: Exception) {
-                            // Handle exception if the URL can't be opened
-                        }
+                        InAppBrowserUtils.openUrl(context, url)
                     }
                 )
             }
