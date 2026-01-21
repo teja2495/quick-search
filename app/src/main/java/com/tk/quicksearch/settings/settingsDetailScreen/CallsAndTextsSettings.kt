@@ -1,5 +1,8 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -114,7 +117,8 @@ fun MessagingSection(
             onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
             directDialEnabled = directDialEnabled,
             onToggleDirectDial = onToggleDirectDial,
-            hasCallPermission = hasCallPermission
+            hasCallPermission = hasCallPermission,
+            onRequestCallPermission = {} // Not used since permission launcher is handled internally
         )
     }
 }
@@ -128,23 +132,45 @@ private fun MergedMessagingCard(
     onMessagingAppSelected: (MessagingApp) -> Unit,
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
-    hasCallPermission: Boolean
+    hasCallPermission: Boolean,
+    onRequestCallPermission: () -> Unit
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
+
+    val callPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                onToggleDirectDial(true)
+            }
+        }
+
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Direct Dial Section
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_direct_dial_title),
-                subtitle = stringResource(R.string.settings_direct_dial_desc),
-                checked = directDialEnabled && hasCallPermission,
-                onCheckedChange = onToggleDirectDial,
-                isFirstItem = true,
-                isLastItem = false
-            )
+            // Direct Dial Section - only show if call permission is granted
+            if (hasCallPermission) {
+                SettingsToggleRow(
+                    title = stringResource(R.string.settings_direct_dial_title),
+                    subtitle = stringResource(R.string.settings_direct_dial_desc),
+                    checked = directDialEnabled,
+                    onCheckedChange = { newValue ->
+                        if (newValue) {
+                            // Enable direct dial - permission is already granted
+                            onToggleDirectDial(true)
+                        } else {
+                            // Disable direct dial
+                            onToggleDirectDial(false)
+                        }
+                    },
+                    isFirstItem = true,
+                    isLastItem = false
+                )
+            }
 
             // Messaging Options Section
             if (messagingOptions.isNotEmpty()) {

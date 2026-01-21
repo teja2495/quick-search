@@ -74,6 +74,7 @@ internal fun SettingsDetailScreen(
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     onNavigateToDetail: (SettingsDetailType) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val view = LocalView.current
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
@@ -182,7 +183,17 @@ internal fun SettingsDetailScreen(
                         SearchResultsSettingsSection(
                             state = state,
                             callbacks = callbacks,
-                            onNavigateToExcludedItems = { onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS) }
+                            onNavigateToExcludedItems = {
+                                if (hasExcludedItems) {
+                                    onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.settings_excluded_items_empty),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         )
                     }
                     SettingsDetailType.APPEARANCE -> {

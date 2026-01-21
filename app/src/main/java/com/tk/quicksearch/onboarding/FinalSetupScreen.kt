@@ -103,151 +103,50 @@ fun FinalSetupScreen(
         ) {
             // Show Direct Dial and/or Messaging App sections when contacts permission is granted
             if (hasContactsPermission) {
-                val showDirectDial = hasCallPermission
-                val showMessagingApp = true // Always show when contacts permission is granted
-
-                if (showDirectDial && showMessagingApp) {
-                    MessagingSection(
-                            messagingApp = uiState.messagingApp,
-                            onSetMessagingApp = viewModel::setMessagingApp,
-                            directDialEnabled = uiState.directDialEnabled,
-                            onToggleDirectDial = viewModel::setDirectDialEnabled,
-                            hasCallPermission = hasCallPermission,
-                            contactsSectionEnabled = true,
-                            isWhatsAppInstalled = uiState.isWhatsAppInstalled,
-                            isTelegramInstalled = uiState.isTelegramInstalled,
-                            onMessagingAppSelected = { app ->
-                                val isInstalled =
-                                        when (app) {
-                                            MessagingApp.MESSAGES -> true
-                                            MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
-                                            MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
-                                        }
-
-                                if (isInstalled) {
-                                    viewModel.setMessagingApp(app)
-                                } else {
-                                    val appName =
-                                            when (app) {
-                                                MessagingApp.WHATSAPP ->
-                                                        context.getString(
-                                                                R.string
-                                                                        .settings_messaging_option_whatsapp
-                                                        )
-                                                MessagingApp.TELEGRAM ->
-                                                        context.getString(
-                                                                R.string
-                                                                        .settings_messaging_option_telegram
-                                                        )
-                                                MessagingApp.MESSAGES -> ""
-                                            }
-                                    onShowToast(
-                                            context.getString(
-                                                    R.string.settings_messaging_app_not_installed,
-                                                    appName
-                                            )
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                    )
-                } else if (showMessagingApp) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                                text = stringResource(R.string.settings_messaging_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                        )
-
-                        ElevatedCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = MaterialTheme.shapes.extraLarge
-                        ) {
-                            Column(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Text(
-                                        text =
-                                                stringResource(
-                                                        R.string.settings_messaging_card_title
-                                                ),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.padding(bottom = 4.dp)
-                                )
-
-                                val messagingOptions =
-                                        listOf(
-                                                MessagingApp.MESSAGES to
-                                                        R.string.settings_messaging_option_messages,
-                                                MessagingApp.WHATSAPP to
-                                                        R.string.settings_messaging_option_whatsapp,
-                                                MessagingApp.TELEGRAM to
-                                                        R.string.settings_messaging_option_telegram
-                                        )
-
-                                Row(
-                                        modifier = Modifier.fillMaxWidth().selectableGroup(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    messagingOptions.forEach { (app, labelRes) ->
-                                        FilterChip(
-                                                selected = uiState.messagingApp == app,
-                                                onClick = {
-                                                    val isInstalled =
-                                                            when (app) {
-                                                                MessagingApp.MESSAGES -> true
-                                                                MessagingApp.WHATSAPP ->
-                                                                        uiState.isWhatsAppInstalled
-                                                                MessagingApp.TELEGRAM ->
-                                                                        uiState.isTelegramInstalled
-                                                            }
-
-                                                    if (isInstalled) {
-                                                        viewModel.setMessagingApp(app)
-                                                    } else {
-                                                        val appName =
-                                                                when (app) {
-                                                                    MessagingApp.WHATSAPP ->
-                                                                            context.getString(
-                                                                                    R.string
-                                                                                            .settings_messaging_option_whatsapp
-                                                                            )
-                                                                    MessagingApp.TELEGRAM ->
-                                                                            context.getString(
-                                                                                    R.string
-                                                                                            .settings_messaging_option_telegram
-                                                                            )
-                                                                    MessagingApp.MESSAGES -> ""
-                                                                }
-                                                        onShowToast(
-                                                                context.getString(
-                                                                        R.string
-                                                                                .settings_messaging_app_not_installed,
-                                                                        appName
-                                                                )
-                                                        )
-                                                    }
-                                                },
-                                                label = {
-                                                    Text(
-                                                            text = stringResource(labelRes),
-                                                            style =
-                                                                    MaterialTheme.typography
-                                                                            .labelLarge
-                                                    )
-                                                },
-                                                modifier = Modifier.weight(1f)
-                                        )
+                MessagingSection(
+                        messagingApp = uiState.messagingApp,
+                        onSetMessagingApp = viewModel::setMessagingApp,
+                        directDialEnabled = uiState.directDialEnabled,
+                        onToggleDirectDial = viewModel::setDirectDialEnabled,
+                        hasCallPermission = hasCallPermission,
+                        contactsSectionEnabled = true,
+                        isWhatsAppInstalled = uiState.isWhatsAppInstalled,
+                        isTelegramInstalled = uiState.isTelegramInstalled,
+                        onMessagingAppSelected = { app ->
+                            val isInstalled =
+                                    when (app) {
+                                        MessagingApp.MESSAGES -> true
+                                        MessagingApp.WHATSAPP -> uiState.isWhatsAppInstalled
+                                        MessagingApp.TELEGRAM -> uiState.isTelegramInstalled
                                     }
-                                }
+
+                            if (isInstalled) {
+                                viewModel.setMessagingApp(app)
+                            } else {
+                                val appName =
+                                        when (app) {
+                                            MessagingApp.WHATSAPP ->
+                                                    context.getString(
+                                                            R.string
+                                                                    .settings_messaging_option_whatsapp
+                                                    )
+                                            MessagingApp.TELEGRAM ->
+                                                    context.getString(
+                                                            R.string
+                                                                    .settings_messaging_option_telegram
+                                                    )
+                                            MessagingApp.MESSAGES -> ""
+                                        }
+                                onShowToast(
+                                        context.getString(
+                                                R.string.settings_messaging_app_not_installed,
+                                                appName
+                                        )
+                                )
                             }
-                        }
-                    }
-                }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // Show file types section only if files permission is granted

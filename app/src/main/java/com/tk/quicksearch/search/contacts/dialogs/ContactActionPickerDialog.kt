@@ -51,11 +51,28 @@ import kotlin.reflect.KClass
 @Composable
 fun ContactActionPickerDialog(
         contactInfo: ContactInfo,
+        currentAction: ContactCardAction?,
         onActionSelected: (ContactCardAction) -> Unit,
         onDismiss: () -> Unit,
         getLastShownPhoneNumber: (Long) -> String? = { null },
         setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> }
 ) {
+    @Composable
+    fun getActionDisplayName(action: ContactCardAction?): String {
+        if (action == null) return ""
+        return when (action) {
+            is ContactCardAction.Phone -> stringResource(R.string.contacts_action_button_call)
+            is ContactCardAction.Sms -> stringResource(R.string.contacts_action_button_message)
+            is ContactCardAction.WhatsAppCall -> "WhatsApp Call"
+            is ContactCardAction.WhatsAppMessage -> "WhatsApp"
+            is ContactCardAction.WhatsAppVideoCall -> "WhatsApp Video"
+            is ContactCardAction.TelegramMessage -> "Telegram"
+            is ContactCardAction.TelegramCall -> "Telegram Call"
+            is ContactCardAction.TelegramVideoCall -> "Telegram Video"
+            is ContactCardAction.GoogleMeet -> "Google Meet"
+        }
+    }
+
     val hasMultipleNumbers = contactInfo.phoneNumbers.size > 1
 
     // Reorder phone numbers to show last shown number first (only for multiple numbers)
@@ -139,13 +156,14 @@ fun ContactActionPickerDialog(
                                 verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
-                                    text =
-                                            stringResource(
-                                                    R.string.dialog_choose_contact_action_title
-                                            ),
+                                    text = stringResource(
+                                            R.string.dialog_choose_contact_action_title,
+                                            "\"${getActionDisplayName(currentAction)}\""
+                                    ),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 16.dp)
                             )
                         }
 

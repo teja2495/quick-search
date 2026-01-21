@@ -47,6 +47,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionPickerDialog
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.DirectSearchState
 import com.tk.quicksearch.search.core.DirectSearchStatus
@@ -368,7 +369,7 @@ fun SearchRoute(
     }
 }
 
-data class ContactActionPickerDialogState(val contact: ContactInfo, val isPrimary: Boolean)
+data class ContactActionPickerDialogState(val contact: ContactInfo, val isPrimary: Boolean, val currentAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?)
 
 @Composable
 fun SearchScreen(
@@ -549,12 +550,30 @@ fun SearchScreen(
                     getSettingNickname = getSettingNickname,
                     getAppNickname = getAppNickname,
                     onPrimaryActionLongPress = { contact ->
+                        val currentAction = getPrimaryContactCardAction(contact.contactId)
+                        val defaultAction = if (currentAction == null) {
+                            // Default primary action is phone call
+                            contact.phoneNumbers.firstOrNull()?.let {
+                                com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(it)
+                            }
+                        } else currentAction
                         contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, true)
+                                ContactActionPickerDialogState(contact, true, defaultAction)
                     },
                     onSecondaryActionLongPress = { contact ->
+                        val currentAction = getSecondaryContactCardAction(contact.contactId)
+                        val defaultAction = if (currentAction == null) {
+                            // Default secondary action depends on messaging app
+                            contact.phoneNumbers.firstOrNull()?.let { phoneNumber ->
+                                when (state.messagingApp) {
+                                    MessagingApp.MESSAGES -> com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
+                                    MessagingApp.WHATSAPP -> com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(phoneNumber)
+                                    MessagingApp.TELEGRAM -> com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(phoneNumber)
+                                }
+                            }
+                        } else currentAction
                         contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, false)
+                                ContactActionPickerDialogState(contact, false, defaultAction as com.tk.quicksearch.search.contacts.models.ContactCardAction?)
                     },
                     onCustomAction = onCustomAction,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,
@@ -702,6 +721,7 @@ fun SearchScreen(
     contactActionPickerDialogState?.let { pickerState ->
         ContactActionPickerDialog(
                 contactInfo = pickerState.contact,
+                currentAction = pickerState.currentAction,
                 onActionSelected = { action ->
                     if (pickerState.isPrimary) {
                         onSavePrimaryContactCardAction(pickerState.contact.contactId, action)

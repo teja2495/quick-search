@@ -132,7 +132,7 @@ class UserAppPreferences(private val context: Context) {
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                                 .KEY_SHOW_FOLDERS_IN_RESULTS] as?
                                         Boolean
-                                        ?: true,
+                                        ?: false,
                         showSystemFiles =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -290,7 +290,7 @@ class UserAppPreferences(private val context: Context) {
                                                         .BasePreferences
                                                         .KEY_SHOW_FOLDERS_IN_RESULTS] as?
                                                 Boolean
-                                                ?: true,
+                                                ?: false,
                                 showSystemFiles =
                                         allPrefs[
                                                 com.tk.quicksearch.search.data.preferences

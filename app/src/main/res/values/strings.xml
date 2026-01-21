@@ -64,7 +64,7 @@
     <string name="contacts_no_methods_available">No contact methods available</string>
     <string name="contacts_action_previous_number">Previous phone number</string>
     <string name="contacts_action_next_number">Next phone number</string>
-    <string name="contacts_action_hint_message">Tip: Long press any action here to customize it for individual contacts.</string>
+    <string name="contacts_action_hint_message">Tip: Press and hold any action here to customize it for individual contacts.</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
     <string name="error_whatsapp_call_permission">Phone permission required for WhatsApp calls</string>
@@ -198,7 +198,7 @@
     <string name="dialog_direct_dial_option_dialer">Open Dialer</string>
     <string name="dialog_direct_dial_option_dialer_desc">Review the number in your dialer before calling.</string>
     <string name="dialog_direct_dial_change_later">You can change this anytime in Settings.</string>
-    <string name="dialog_choose_contact_action_title">Choose an action</string>
+    <string name="dialog_choose_contact_action_title">Choose an Action to Replace %1$s</string>
     <string name="error_action_not_available">Action not available</string>
 
     <!-- ============================================================================
