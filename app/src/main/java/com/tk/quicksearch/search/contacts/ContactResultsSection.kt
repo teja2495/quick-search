@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -19,14 +24,10 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
@@ -116,8 +117,7 @@ fun ContactResultsSection(
                                         onCustomAction = onCustomAction,
                                         onExpandClick = onExpandClick,
                                         showContactActionHint = showContactActionHint,
-                                        onContactActionHintDismissed =
-                                                onContactActionHintDismissed,
+                                        onContactActionHintDismissed = onContactActionHintDismissed,
                                         showWallpaperBackground = showWallpaperBackground
                                 )
                         }
@@ -180,37 +180,62 @@ private fun ContactsResultCard(
                         contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
                 }
 
+        val scrollState = androidx.compose.foundation.rememberScrollState()
+
         Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
         ) {
                 val cardModifier = Modifier.fillMaxWidth()
-                val cardContent: @Composable () -> Unit = {
-                        ContactList(
-                                displayContacts = displayContacts,
-                                messagingApp = messagingApp,
-                                onContactClick = onContactClick,
-                                onShowContactMethods = onShowContactMethods,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                onContactMethodClick = onContactMethodClick,
-                                pinnedContactIds = pinnedContactIds,
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onNicknameClick = onNicknameClick,
-                                getContactNickname = getContactNickname,
-                                getPrimaryContactCardAction = getPrimaryContactCardAction,
-                                getSecondaryContactCardAction = getSecondaryContactCardAction,
-                                onPrimaryActionLongPress = onPrimaryActionLongPress,
-                                onSecondaryActionLongPress = onSecondaryActionLongPress,
-                                onCustomAction = onCustomAction,
-                                shouldShowExpandButton = shouldShowExpandButton,
-                                onExpandClick = onExpandClick,
-                                showContactActionHint = showContactActionHint,
-                                onContactActionHintDismissed =
-                                        onContactActionHintDismissed
-                        )
-                }
+
+                val cardContent =
+                        @Composable
+                        {
+                                Column(
+                                        modifier =
+                                                Modifier.fillMaxWidth()
+                                                        .then(
+                                                                if (isExpanded)
+                                                                        Modifier.heightIn(
+                                                                                        max =
+                                                                                                SearchScreenConstants
+                                                                                                        .EXPANDED_CARD_MAX_HEIGHT
+                                                                                )
+                                                                                .verticalScroll(
+                                                                                        scrollState
+                                                                                )
+                                                                else Modifier
+                                                        )
+                                ) {
+                                        ContactList(
+                                                displayContacts = displayContacts,
+                                                messagingApp = messagingApp,
+                                                onContactClick = onContactClick,
+                                                onShowContactMethods = onShowContactMethods,
+                                                onCallContact = onCallContact,
+                                                onSmsContact = onSmsContact,
+                                                onContactMethodClick = onContactMethodClick,
+                                                pinnedContactIds = pinnedContactIds,
+                                                onTogglePin = onTogglePin,
+                                                onExclude = onExclude,
+                                                onNicknameClick = onNicknameClick,
+                                                getContactNickname = getContactNickname,
+                                                getPrimaryContactCardAction =
+                                                        getPrimaryContactCardAction,
+                                                getSecondaryContactCardAction =
+                                                        getSecondaryContactCardAction,
+                                                onPrimaryActionLongPress = onPrimaryActionLongPress,
+                                                onSecondaryActionLongPress =
+                                                        onSecondaryActionLongPress,
+                                                onCustomAction = onCustomAction,
+                                                shouldShowExpandButton = shouldShowExpandButton,
+                                                onExpandClick = onExpandClick,
+                                                showContactActionHint = showContactActionHint,
+                                                onContactActionHintDismissed =
+                                                        onContactActionHintDismissed
+                                        )
+                                }
+                        }
 
                 if (showWallpaperBackground) {
                         Card(
@@ -228,10 +253,6 @@ private fun ContactsResultCard(
                                 elevation =
                                         AppColors.getCardElevation(showWallpaperBackground = false)
                         ) { cardContent() }
-                }
-
-                if (shouldShowCollapseButton) {
-                        CollapseButton(onClick = onExpandClick, modifier = Modifier.fillMaxWidth())
                 }
         }
 }
@@ -307,9 +328,7 @@ private fun ContactList(
                         if (index == 0 && showContactActionHint) {
                                 ContactActionHintBubble(
                                         onDismiss = onContactActionHintDismissed,
-                                        modifier = Modifier.padding(
-                                                top = DesignTokens.SpacingSmall
-                                        )
+                                        modifier = Modifier.padding(top = DesignTokens.SpacingSmall)
                                 )
                         }
                         if (index != displayContacts.lastIndex) {
@@ -333,17 +352,12 @@ private fun ContactList(
 }
 
 @Composable
-private fun ContactActionHintBubble(
-        onDismiss: () -> Unit,
-        modifier: Modifier = Modifier
-) {
+private fun ContactActionHintBubble(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         val arrowHeight = 10.dp
         val arrowWidth = 28.dp
         val cornerRadius = 16.dp
         val arrowInset =
-                ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f +
-                        DesignTokens.SpacingSmall +
-                        24.dp
+                ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
         val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
 
         Box(
@@ -359,36 +373,29 @@ private fun ContactActionHintBubble(
                                         val rectTop = arrowHeightPx
                                         val rect = Rect(0f, rectTop, size.width, size.height)
 
-                                        val minArrowCenter =
-                                                cornerRadiusPx + (arrowWidthPx / 2f)
+                                        val minArrowCenter = cornerRadiusPx + (arrowWidthPx / 2f)
                                         val maxArrowCenter =
-                                                size.width -
-                                                        cornerRadiusPx -
-                                                        (arrowWidthPx / 2f)
+                                                size.width - cornerRadiusPx - (arrowWidthPx / 2f)
                                         val arrowCenterX =
-                                                (size.width - arrowInsetPx)
-                                                        .coerceIn(
-                                                                minArrowCenter,
-                                                                maxArrowCenter
-                                                        )
+                                                (size.width - arrowInsetPx).coerceIn(
+                                                        minArrowCenter,
+                                                        maxArrowCenter
+                                                )
 
                                         val path =
                                                 Path().apply {
                                                         moveTo(cornerRadiusPx, rect.top)
                                                         lineTo(
-                                                                arrowCenterX -
-                                                                        (arrowWidthPx / 2f),
+                                                                arrowCenterX - (arrowWidthPx / 2f),
                                                                 rect.top
                                                         )
                                                         lineTo(arrowCenterX, 0f)
                                                         lineTo(
-                                                                arrowCenterX +
-                                                                        (arrowWidthPx / 2f),
+                                                                arrowCenterX + (arrowWidthPx / 2f),
                                                                 rect.top
                                                         )
                                                         lineTo(
-                                                                rect.width -
-                                                                        cornerRadiusPx,
+                                                                rect.width - cornerRadiusPx,
                                                                 rect.top
                                                         )
                                                         arcTo(
@@ -396,12 +403,12 @@ private fun ContactActionHintBubble(
                                                                         Rect(
                                                                                 rect.width -
                                                                                         cornerRadiusPx *
-                                                                                        2f,
+                                                                                                2f,
                                                                                 rect.top,
                                                                                 rect.width,
                                                                                 rect.top +
                                                                                         cornerRadiusPx *
-                                                                                        2f
+                                                                                                2f
                                                                         ),
                                                                 startAngleDegrees = 270f,
                                                                 sweepAngleDegrees = 90f,
@@ -409,18 +416,17 @@ private fun ContactActionHintBubble(
                                                         )
                                                         lineTo(
                                                                 rect.width,
-                                                                rect.bottom -
-                                                                        cornerRadiusPx
+                                                                rect.bottom - cornerRadiusPx
                                                         )
                                                         arcTo(
                                                                 rect =
                                                                         Rect(
                                                                                 rect.width -
                                                                                         cornerRadiusPx *
-                                                                                        2f,
+                                                                                                2f,
                                                                                 rect.bottom -
                                                                                         cornerRadiusPx *
-                                                                                        2f,
+                                                                                                2f,
                                                                                 rect.width,
                                                                                 rect.bottom
                                                                         ),
@@ -428,19 +434,15 @@ private fun ContactActionHintBubble(
                                                                 sweepAngleDegrees = 90f,
                                                                 forceMoveTo = false
                                                         )
-                                                        lineTo(
-                                                                cornerRadiusPx,
-                                                                rect.bottom
-                                                        )
+                                                        lineTo(cornerRadiusPx, rect.bottom)
                                                         arcTo(
                                                                 rect =
                                                                         Rect(
                                                                                 0f,
                                                                                 rect.bottom -
                                                                                         cornerRadiusPx *
-                                                                                        2f,
-                                                                                cornerRadiusPx *
-                                                                                        2f,
+                                                                                                2f,
+                                                                                cornerRadiusPx * 2f,
                                                                                 rect.bottom
                                                                         ),
                                                                 startAngleDegrees = 90f,
@@ -453,11 +455,10 @@ private fun ContactActionHintBubble(
                                                                         Rect(
                                                                                 0f,
                                                                                 rect.top,
-                                                                                cornerRadiusPx *
-                                                                                        2f,
+                                                                                cornerRadiusPx * 2f,
                                                                                 rect.top +
                                                                                         cornerRadiusPx *
-                                                                                        2f
+                                                                                                2f
                                                                         ),
                                                                 startAngleDegrees = 180f,
                                                                 sweepAngleDegrees = 90f,
@@ -483,12 +484,9 @@ private fun ContactActionHintBubble(
                                 text = stringResource(R.string.contacts_action_hint_message),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                lineHeight =
-                                        MaterialTheme.typography.bodySmall.lineHeight *
-                                                1.2f,
+                                lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
                                 modifier =
-                                        Modifier.align(Alignment.CenterStart)
-                                                .padding(end = 28.dp)
+                                        Modifier.align(Alignment.CenterStart).padding(end = 28.dp)
                         )
                         IconButton(
                                 onClick = onDismiss,

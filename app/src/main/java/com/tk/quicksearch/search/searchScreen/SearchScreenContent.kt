@@ -13,57 +13,53 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.calculator.CalculatorUtils
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
-import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
-import com.tk.quicksearch.search.searchScreen.SearchEnginesVisibility
-import com.tk.quicksearch.search.calculator.CalculatorUtils
 import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
+import kotlinx.coroutines.delay
 
 @Composable
 internal fun SearchScreenContent(
-    state: SearchUiState,
-    renderingState: SectionRenderingState,
-    contactsParams: ContactsSectionParams,
-    filesParams: FilesSectionParams,
-    appShortcutsParams: AppShortcutsSectionParams,
-    settingsParams: SettingsSectionParams,
-    appsParams: AppsSectionParams,
-    onQueryChanged: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
-    onRequestUsagePermission: () -> Unit,
-    onSearchTargetClick: (String, SearchTarget) -> Unit,
-    onSearchEngineLongPress: () -> Unit,
-    onDirectSearchEmailClick: (String) -> Unit,
-    onPhoneNumberClick: (String) -> Unit,
-    onWebSuggestionClick: (String) -> Unit,
-    onCustomizeSearchEnginesClick: () -> Unit = {},
-    onDeleteRecentQuery: (String) -> Unit = {},
-    onKeyboardSwitchToggle: () -> Unit,
-    onWelcomeAnimationCompleted: (() -> Unit)? = null,
-    expandedSection: ExpandedSection,
-    manuallySwitchedToNumberKeyboard: Boolean,
-    scrollState: androidx.compose.foundation.ScrollState,
-    onClearDetectedShortcut: () -> Unit,
-    modifier: Modifier = Modifier
+        state: SearchUiState,
+        renderingState: SectionRenderingState,
+        contactsParams: ContactsSectionParams,
+        filesParams: FilesSectionParams,
+        appShortcutsParams: AppShortcutsSectionParams,
+        settingsParams: SettingsSectionParams,
+        appsParams: AppsSectionParams,
+        onQueryChanged: (String) -> Unit,
+        onClearQuery: () -> Unit,
+        onSettingsClick: () -> Unit,
+        onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
+        onRequestUsagePermission: () -> Unit,
+        onSearchTargetClick: (String, SearchTarget) -> Unit,
+        onSearchEngineLongPress: () -> Unit,
+        onDirectSearchEmailClick: (String) -> Unit,
+        onPhoneNumberClick: (String) -> Unit,
+        onWebSuggestionClick: (String) -> Unit,
+        onCustomizeSearchEnginesClick: () -> Unit = {},
+        onDeleteRecentQuery: (String) -> Unit = {},
+        onKeyboardSwitchToggle: () -> Unit,
+        onWelcomeAnimationCompleted: (() -> Unit)? = null,
+        expandedSection: ExpandedSection,
+        manuallySwitchedToNumberKeyboard: Boolean,
+        scrollState: androidx.compose.foundation.ScrollState,
+        onClearDetectedShortcut: () -> Unit,
+        modifier: Modifier = Modifier
 ) {
     // Calculate enabled engines
-    val enabledTargets: List<SearchTarget> = remember(
-        state.searchTargetsOrder,
-        state.disabledSearchTargetIds
-    ) {
-        state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
-    }
+    val enabledTargets: List<SearchTarget> =
+            remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
+                state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
+            }
 
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
@@ -75,11 +71,13 @@ internal fun SearchScreenContent(
             while (true) {
                 // Check if we can scroll further
                 val layoutInfo = searchEngineScrollState.layoutInfo
-                val canScrollForward = layoutInfo.visibleItemsInfo.lastOrNull()?.let { lastItem ->
-                    lastItem.index < layoutInfo.totalItemsCount - 1 || 
-                    lastItem.offset + lastItem.size > layoutInfo.viewportEndOffset
-                } ?: false
-                
+                val canScrollForward =
+                        layoutInfo.visibleItemsInfo.lastOrNull()?.let { lastItem ->
+                            lastItem.index < layoutInfo.totalItemsCount - 1 ||
+                                    lastItem.offset + lastItem.size > layoutInfo.viewportEndOffset
+                        }
+                                ?: false
+
                 if (!canScrollForward) {
                     // Reached the end, scroll back to start and continue
                     delay(500) // Pause briefly at the end
@@ -87,21 +85,18 @@ internal fun SearchScreenContent(
                     delay(500) // Pause briefly at the start
                     continue
                 }
-                
+
                 // Get current scroll position
                 val currentIndex = searchEngineScrollState.firstVisibleItemIndex
                 val currentOffset = searchEngineScrollState.firstVisibleItemScrollOffset
-                
+
                 // Increment by small amount for smooth scroll
                 val newOffset = currentOffset + 2
-                
+
                 // Smooth scroll
                 delay(30) // Small delay for smooth effect
-                
-                searchEngineScrollState.scrollToItem(
-                    index = currentIndex,
-                    scrollOffset = newOffset
-                )
+
+                searchEngineScrollState.scrollToItem(index = currentIndex, scrollOffset = newOffset)
             }
         } else {
             // When onboarding is dismissed, scroll back to start
@@ -113,57 +108,60 @@ internal fun SearchScreenContent(
     val hasMathExpression = CalculatorUtils.isMathExpression(state.query)
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(
-                start = DesignTokens.SpacingXLarge,
-                top = DesignTokens.SpacingLarge,
-                end = DesignTokens.SpacingXLarge
-            ),
-        verticalArrangement = Arrangement.Top
+            modifier =
+                    modifier.fillMaxSize()
+                            .safeDrawingPadding()
+                            .padding(
+                                    start = DesignTokens.SpacingXLarge,
+                                    top = DesignTokens.SpacingLarge,
+                                    end = DesignTokens.SpacingXLarge
+                            ),
+            verticalArrangement = Arrangement.Top
     ) {
         // Fixed search bar at the top
         PersistentSearchField(
-            query = state.query,
-            onQueryChange = onQueryChanged,
-            onClearQuery = onClearQuery,
-            onSettingsClick = onSettingsClick,
-            enabledTargets = enabledTargets,
-            shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
-            detectedShortcutTarget = state.detectedShortcutTarget,
-            showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
-            onClearDetectedShortcut = onClearDetectedShortcut,
-            onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
-            modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium),
-            onSearchAction = {
-                val trimmedQuery = state.query.trim()
+                query = state.query,
+                onQueryChange = onQueryChanged,
+                onClearQuery = onClearQuery,
+                onSettingsClick = onSettingsClick,
+                enabledTargets = enabledTargets,
+                shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
+                detectedShortcutTarget = state.detectedShortcutTarget,
+                showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
+                onClearDetectedShortcut = onClearDetectedShortcut,
+                onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+                modifier =
+                        Modifier.padding(
+                                bottom =
+                                        if (state.oneHandedMode) DesignTokens.SpacingMedium
+                                        else DesignTokens.SpacingXSmall
+                        ),
+                onSearchAction = {
+                    val trimmedQuery = state.query.trim()
 
-                // If query has trailing/leading spaces, trim it first
-                if (state.query != trimmedQuery) {
-                    onQueryChanged(trimmedQuery)
-                }
+                    // If query has trailing/leading spaces, trim it first
+                    if (state.query != trimmedQuery) {
+                        onQueryChanged(trimmedQuery)
+                    }
 
-                val firstApp = renderingState.displayApps.firstOrNull()
-                if (firstApp != null) {
-                    onAppClick(firstApp)
-                } else {
-                    // Check if a shortcut is detected
-                    if (state.detectedShortcutTarget != null) {
-                        // Remove the shortcut (first word) from the query
-                        val queryWithoutShortcut = trimmedQuery.split("\\s+".toRegex()).drop(1).joinToString(" ")
-                        onSearchTargetClick(
-                            queryWithoutShortcut,
-                            state.detectedShortcutTarget
-                        )
+                    val firstApp = renderingState.displayApps.firstOrNull()
+                    if (firstApp != null) {
+                        onAppClick(firstApp)
                     } else {
-                        val primaryTarget = enabledTargets.firstOrNull()
-                        if (primaryTarget != null && trimmedQuery.isNotBlank()) {
-                            onSearchTargetClick(trimmedQuery, primaryTarget)
+                        // Check if a shortcut is detected
+                        if (state.detectedShortcutTarget != null) {
+                            // Remove the shortcut (first word) from the query
+                            val queryWithoutShortcut =
+                                    trimmedQuery.split("\\s+".toRegex()).drop(1).joinToString(" ")
+                            onSearchTargetClick(queryWithoutShortcut, state.detectedShortcutTarget)
+                        } else {
+                            val primaryTarget = enabledTargets.firstOrNull()
+                            if (primaryTarget != null && trimmedQuery.isNotBlank()) {
+                                onSearchTargetClick(trimmedQuery, primaryTarget)
+                            }
                         }
                     }
                 }
-            }
         )
 
         // Add spacing between search bar and apps list when bottom aligned setting is off
@@ -173,46 +171,51 @@ internal fun SearchScreenContent(
 
         // Scrollable content between search bar and search engines
         SearchContentArea(
-            modifier = Modifier.weight(1f),
-            state = state,
-            renderingState = renderingState,
-            contactsParams = contactsParams,
-            filesParams = filesParams,
-            appShortcutsParams = appShortcutsParams,
-            settingsParams = settingsParams,
-            appsParams = appsParams,
-            onRequestUsagePermission = onRequestUsagePermission,
-            scrollState = scrollState,
-            onPhoneNumberClick = onPhoneNumberClick,
-            onEmailClick = onDirectSearchEmailClick,
-            onWebSuggestionClick = onWebSuggestionClick,
-            onSearchTargetClick = onSearchTargetClick,
-            onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-            onDeleteRecentQuery = onDeleteRecentQuery,
-            showCalculator = state.calculatorState.result != null,
-            showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-            directSearchState = state.DirectSearchState
+                modifier = Modifier.weight(1f),
+                state = state,
+                renderingState = renderingState,
+                contactsParams = contactsParams,
+                filesParams = filesParams,
+                appShortcutsParams = appShortcutsParams,
+                settingsParams = settingsParams,
+                appsParams = appsParams,
+                onRequestUsagePermission = onRequestUsagePermission,
+                scrollState = scrollState,
+                onPhoneNumberClick = onPhoneNumberClick,
+                onEmailClick = onDirectSearchEmailClick,
+                onWebSuggestionClick = onWebSuggestionClick,
+                onSearchTargetClick = onSearchTargetClick,
+                onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+                onDeleteRecentQuery = onDeleteRecentQuery,
+                showCalculator = state.calculatorState.result != null,
+                showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
+                directSearchState = state.DirectSearchState
         )
 
         // Keyboard switch pill - appears above search engines
         if (expandedSection == ExpandedSection.NONE) {
-            val pillText = if (manuallySwitchedToNumberKeyboard) {
-                stringResource(R.string.keyboard_switch_back)
-            } else if (state.query.isNotEmpty() && state.query.none { it.isLetter() } && state.detectedShortcutTarget == null) {
-                stringResource(R.string.keyboard_switch_to_number)
-            } else {
-                null
-            }
+            val pillText =
+                    if (manuallySwitchedToNumberKeyboard) {
+                        stringResource(R.string.keyboard_switch_back)
+                    } else if (state.query.isNotEmpty() &&
+                                    state.query.none { it.isLetter() } &&
+                                    state.detectedShortcutTarget == null
+                    ) {
+                        stringResource(R.string.keyboard_switch_to_number)
+                    } else {
+                        null
+                    }
 
             pillText?.let {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     KeyboardSwitchPill(
-                        text = it,
-                        onClick = onKeyboardSwitchToggle,
-                        modifier = Modifier.padding(top = DesignTokens.SpacingMedium, bottom = DesignTokens.SpacingMedium)
+                            text = it,
+                            onClick = onKeyboardSwitchToggle,
+                            modifier =
+                                    Modifier.padding(
+                                            top = DesignTokens.SpacingMedium,
+                                            bottom = DesignTokens.SpacingMedium
+                                    )
                     )
                 }
             }
@@ -225,51 +228,52 @@ internal fun SearchScreenContent(
         // Hide when files or contacts are expanded
         if (expandedSection == ExpandedSection.NONE) {
             SearchEnginesVisibility(
-                enginesState = state.searchEnginesState,
-                modifier = Modifier.imePadding(),
-                compactContent = {
-                    SearchEngineIconsSection(
-                        query = state.query,
-                        hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledTargets,
-                        onSearchEngineClick = onSearchTargetClick,
-                        onSearchEngineLongPress = onSearchEngineLongPress,
-                        externalScrollState = searchEngineScrollState,
-                        detectedShortcutTarget = state.detectedShortcutTarget,
-                        onClearDetectedShortcut = onClearDetectedShortcut,
-                        showWallpaperBackground = state.showWallpaperBackground
-                    )
-                },
-                fullContent = {
-                    SearchEngineIconsSection(
-                        query = state.query,
-                        hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledTargets,
-                        onSearchEngineClick = onSearchTargetClick,
-                        onSearchEngineLongPress = onSearchEngineLongPress,
-                        externalScrollState = searchEngineScrollState,
-                        detectedShortcutTarget = state.detectedShortcutTarget,
-                        onClearDetectedShortcut = onClearDetectedShortcut,
-                        showWallpaperBackground = state.showWallpaperBackground
-                    )
-                },
-                shortcutContent = { target ->
-                    SearchEngineIconsSection(
-                        query = state.query,
-                        hasAppResults = renderingState.hasAppResults,
-                        enabledEngines = enabledTargets,
-                        onSearchEngineClick = onSearchTargetClick,
-                        onSearchEngineLongPress = onSearchEngineLongPress,
-                        externalScrollState = searchEngineScrollState,
-                        detectedShortcutTarget = target,
-                        onClearDetectedShortcut = onClearDetectedShortcut,
-                        showWallpaperBackground = state.showWallpaperBackground
-                    )
-                },
-                hiddenContent = {
-                    // Add padding when search engines are hidden to prevent keyboard from covering content
-                    Spacer(modifier = Modifier.imePadding())
-                }
+                    enginesState = state.searchEnginesState,
+                    modifier = Modifier.imePadding(),
+                    compactContent = {
+                        SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = state.detectedShortcutTarget,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground
+                        )
+                    },
+                    fullContent = {
+                        SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = state.detectedShortcutTarget,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground
+                        )
+                    },
+                    shortcutContent = { target ->
+                        SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = target,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground
+                        )
+                    },
+                    hiddenContent = {
+                        // Add padding when search engines are hidden to prevent keyboard from
+                        // covering content
+                        Spacer(modifier = Modifier.imePadding())
+                    }
             )
         }
     }

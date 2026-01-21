@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.core
 
+import androidx.compose.runtime.Composable
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.ContactInfo
@@ -39,24 +40,24 @@ fun shouldShowContactsSection(
         )
 
 fun shouldShowSettingsSection(renderingState: SectionRenderingState): Boolean {
-    return renderingState.hasSettingResults &&
-            renderingState.shouldShowSettings &&
-            (renderingState.expandedSection == ExpandedSection.NONE ||
-                    renderingState.expandedSection == ExpandedSection.SETTINGS)
+        return renderingState.hasSettingResults &&
+                renderingState.shouldShowSettings &&
+                (renderingState.expandedSection == ExpandedSection.NONE ||
+                        renderingState.expandedSection == ExpandedSection.SETTINGS)
 }
 
 /** Determines if apps section should be shown. */
 fun shouldShowAppsSection(renderingState: SectionRenderingState): Boolean {
-    return renderingState.hasAppResults &&
-            renderingState.shouldShowApps &&
-            renderingState.expandedSection == ExpandedSection.NONE &&
-            !renderingState.shortcutDetected
+        return renderingState.hasAppResults &&
+                renderingState.shouldShowApps &&
+                renderingState.expandedSection == ExpandedSection.NONE &&
+                !renderingState.shortcutDetected
 }
 
 fun shouldShowAppShortcutsSection(renderingState: SectionRenderingState): Boolean {
-    return renderingState.hasAppShortcutResults &&
-            renderingState.shouldShowAppShortcuts &&
-            renderingState.expandedSection == ExpandedSection.NONE
+        return renderingState.hasAppShortcutResults &&
+                renderingState.shouldShowAppShortcuts &&
+                renderingState.expandedSection == ExpandedSection.NONE
 }
 
 /**
@@ -70,7 +71,7 @@ private fun shouldShowSectionWithPermission(
         hasPermission: Boolean,
         hasResults: Boolean
 ): Boolean {
-    return shouldShow && (!hasPermission || hasResults)
+        return shouldShow && (!hasPermission || hasResults)
 }
 
 // ============================================================================
@@ -143,12 +144,12 @@ private fun <T> getListForRendering(
         autoExpand: Boolean,
         oneHandedMode: Boolean
 ): List<T> {
-    // Keep natural order when user expands a section; only reverse for auto-expanded
-    return if (!isExpanded && autoExpand && oneHandedMode) {
-        list.reversed() // Returns a reversed view, more efficient than asReversed()
-    } else {
-        list
-    }
+        // Keep natural order when user expands a section; only reverse for auto-expanded
+        return if (!isExpanded && autoExpand && oneHandedMode) {
+                list.reversed() // Returns a reversed view, more efficient than asReversed()
+        } else {
+                list
+        }
 }
 
 /**
@@ -159,14 +160,176 @@ fun getOrderedSections(
         renderingState: SectionRenderingState,
         isReversed: Boolean
 ): List<SearchSection> {
-    // Always return sections in natural priority order
-    // In one-handed mode, reverseScrolling property handles visual reversal
-    return renderingState.orderedSections
+        // Always return sections in natural priority order
+        // In one-handed mode, reverseScrolling property handles visual reversal
+        return renderingState.orderedSections
 }
 
 // ============================================================================
 // Section Rendering Data Classes
 // ============================================================================
+
+@Composable
+fun rememberSectionRenderContext(
+        state: SearchUiState,
+        renderingState: SectionRenderingState,
+        filesParams: FilesSectionParams,
+        contactsParams: ContactsSectionParams,
+        settingsParams: SettingsSectionParams,
+        appShortcutsParams: AppShortcutsSectionParams,
+        appsParams: AppsSectionParams?,
+        isSearching: Boolean,
+        oneHandedMode: Boolean
+): SectionRenderContext {
+        val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
+        val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
+        val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
+        val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
+
+        // Determine visibility based on state (Search vs Pinned)
+        val shouldRenderApps: Boolean
+        val shouldRenderFiles: Boolean
+        val shouldRenderContacts: Boolean
+        val shouldRenderAppShortcuts: Boolean
+        val shouldRenderSettings: Boolean
+
+        if (isSearching) {
+                shouldRenderApps =
+                        when (state.appsSectionState) {
+                                is AppsSectionVisibility.ShowingResults ->
+                                        !isFilesExpanded &&
+                                                !isContactsExpanded &&
+                                                !isSettingsExpanded &&
+                                                !isAppShortcutsExpanded
+                                else -> false
+                        }
+                shouldRenderFiles =
+                        when (state.filesSectionState) {
+                                is FilesSectionVisibility.ShowingResults ->
+                                        !isContactsExpanded &&
+                                                !isSettingsExpanded &&
+                                                !isAppShortcutsExpanded
+                                else -> false
+                        }
+                shouldRenderContacts =
+                        when (state.contactsSectionState) {
+                                is ContactsSectionVisibility.ShowingResults ->
+                                        !isFilesExpanded &&
+                                                !isSettingsExpanded &&
+                                                !isAppShortcutsExpanded
+                                else -> false
+                        }
+                shouldRenderAppShortcuts =
+                        when (state.appShortcutsSectionState) {
+                                is AppShortcutsSectionVisibility.ShowingResults ->
+                                        !isFilesExpanded &&
+                                                !isContactsExpanded &&
+                                                !isSettingsExpanded
+                                else -> false
+                        }
+                shouldRenderSettings =
+                        when (state.settingsSectionState) {
+                                is SettingsSectionVisibility.ShowingResults ->
+                                        !isFilesExpanded &&
+                                                !isContactsExpanded &&
+                                                !isAppShortcutsExpanded
+                                else -> false
+                        }
+        } else {
+                // Pinned state
+                shouldRenderApps =
+                        when (state.appsSectionState) {
+                                is AppsSectionVisibility.ShowingResults -> true
+                                else -> false
+                        }
+                shouldRenderFiles =
+                        when (state.filesSectionState) {
+                                is FilesSectionVisibility.ShowingResults ->
+                                        renderingState.hasPinnedFiles
+                                else -> false
+                        }
+                shouldRenderContacts =
+                        when (state.contactsSectionState) {
+                                is ContactsSectionVisibility.ShowingResults ->
+                                        renderingState.hasPinnedContacts
+                                else -> false
+                        }
+                shouldRenderAppShortcuts =
+                        when (state.appShortcutsSectionState) {
+                                is AppShortcutsSectionVisibility.ShowingResults ->
+                                        renderingState.hasPinnedAppShortcuts
+                                else -> false
+                        }
+                shouldRenderSettings =
+                        when (state.settingsSectionState) {
+                                is SettingsSectionVisibility.ShowingResults ->
+                                        renderingState.hasPinnedSettings
+                                else -> false
+                        }
+        }
+
+        return SectionRenderContext(
+                shouldRenderFiles = shouldRenderFiles,
+                shouldRenderContacts = shouldRenderContacts,
+                shouldRenderApps = shouldRenderApps,
+                shouldRenderAppShortcuts = shouldRenderAppShortcuts,
+                shouldRenderSettings = shouldRenderSettings,
+                isFilesExpanded = isFilesExpanded || !isSearching,
+                isContactsExpanded = isContactsExpanded || !isSearching,
+                isSettingsExpanded = isSettingsExpanded || !isSearching,
+                isAppShortcutsExpanded = isAppShortcutsExpanded || !isSearching,
+                filesList =
+                        if (isSearching)
+                                getFileListForRendering(
+                                        renderingState,
+                                        isFilesExpanded,
+                                        oneHandedMode
+                                )
+                        else renderingState.pinnedFiles,
+                contactsList =
+                        if (isSearching)
+                                getContactListForRendering(
+                                        renderingState,
+                                        isContactsExpanded,
+                                        oneHandedMode
+                                )
+                        else renderingState.pinnedContacts,
+                settingsList =
+                        if (isSearching)
+                                getSettingsListForRendering(
+                                        renderingState,
+                                        isSettingsExpanded,
+                                        oneHandedMode
+                                )
+                        else renderingState.pinnedSettings,
+                appShortcutsList =
+                        if (isSearching)
+                                getAppShortcutListForRendering(
+                                        renderingState,
+                                        isAppShortcutsExpanded,
+                                        oneHandedMode
+                                )
+                        else renderingState.pinnedAppShortcuts,
+                showAllFilesResults = !isSearching,
+                showAllContactsResults = !isSearching,
+                showAllSettingsResults = !isSearching,
+                showAllAppShortcutsResults = !isSearching,
+                showFilesExpandControls =
+                        isSearching && renderingState.hasMultipleExpandableSections,
+                showContactsExpandControls =
+                        isSearching && renderingState.hasMultipleExpandableSections,
+                showSettingsExpandControls =
+                        isSearching &&
+                                (renderingState.hasMultipleExpandableSections ||
+                                        renderingState.hasSettingResults),
+                showAppShortcutsExpandControls =
+                        isSearching && renderingState.hasMultipleExpandableSections,
+                filesExpandClick = filesParams.onExpandClick,
+                contactsExpandClick = contactsParams.onExpandClick,
+                settingsExpandClick = settingsParams.onExpandClick,
+                appShortcutsExpandClick = appShortcutsParams.onExpandClick
+        )
+}
 
 /** Parameters for rendering a single section. */
 data class SectionRenderParams(

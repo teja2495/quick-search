@@ -230,6 +230,26 @@ fun SearchContentArea(
                                 )
                         }
                 }
+
+                if (renderingState.expandedSection != ExpandedSection.NONE) {
+                        com.tk.quicksearch.search.contacts.CollapseButton(
+                                onClick = {
+                                        when (renderingState.expandedSection) {
+                                                ExpandedSection.FILES -> filesParams.onExpandClick()
+                                                ExpandedSection.CONTACTS ->
+                                                        contactsParams.onExpandClick()
+                                                ExpandedSection.APP_SHORTCUTS ->
+                                                        appShortcutsParams.onExpandClick()
+                                                ExpandedSection.SETTINGS ->
+                                                        settingsParams.onExpandClick()
+                                                else -> {}
+                                        }
+                                },
+                                modifier =
+                                        Modifier.align(Alignment.BottomCenter)
+                                                .padding(bottom = 28.dp)
+                        )
+                }
         }
 }
 
@@ -258,614 +278,166 @@ fun ContentLayout(
         onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
         onDeleteRecentQuery: (String) -> Unit = {}
 ) {
+        // 1. Determine Layout Order based on ItemPriorityConfig
+        val hasQuery = state.query.isNotBlank()
+        val baseLayoutOrder = ItemPriorityConfig.getLayoutOrder(hasQuery)
+
+        // 2. Apply One-Handed Mode Reversal if needed
+        // User Requirement: "When one handed mode is enabled the same order is reversed."
+        // isReversed flag passed here reflects one-handed mode state.
+        val finalLayoutOrder = if (isReversed) baseLayoutOrder.reversed() else baseLayoutOrder
+
+        // 3. Prepare Shared Rendering Context and Params
+        // We reuse the extracted logic to determine visibility and expansion states
+        val sectionContext =
+                rememberSectionRenderContext(
+                        state = state,
+                        renderingState = renderingState,
+                        filesParams = filesParams,
+                        contactsParams = contactsParams,
+                        settingsParams = settingsParams,
+                        appShortcutsParams = appShortcutsParams,
+                        appsParams = appsParams,
+                        isSearching = hasQuery,
+                        oneHandedMode =
+                                state.oneHandedMode // This affects list reversal inside helpers
+                )
+
+        val sectionParams =
+                SectionRenderParams(
+                        renderingState = renderingState,
+                        contactsParams = contactsParams,
+                        filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
+                        settingsParams = settingsParams,
+                        appsParams = appsParams,
+                        isReversed = isReversed
+                )
+
+        // Pre-calculate common states
+        val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
+        val hasAnySearchResults = hasAnySearchResults(state)
+        val hasDirectSearchAnswer = showDirectSearch && directSearchState != null
+
+        // Web Suggestions Logic
+        val showWebSuggestions =
+                hasQuery &&
+                        !showCalculator &&
+                        !hasDirectSearchAnswer &&
+                        state.webSuggestions.isNotEmpty() &&
+                        state.webSuggestionsEnabled &&
+                        !state.webSuggestionWasSelected
+
+        // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
+        val showRecentQueries =
+                !hasQuery && state.recentQueriesEnabled && state.recentQueries.isNotEmpty()
+
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                // Show error banner based on screen visibility state
-                if (state.screenState is ScreenVisibilityState.Error) {
-                        InfoBanner(
-                                message = (state.screenState as ScreenVisibilityState.Error).message
-                        )
-                }
-
-                // Show calculator result if present
-                if (showCalculator) {
-                        CalculatorResult(
-                                calculatorState = state.calculatorState,
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                oneHandedMode = state.oneHandedMode
-                        )
-                }
-
-                // Show direct search result if present
-                if (showDirectSearch && directSearchState != null) {
-                        DirectSearchResult(
-                                DirectSearchState = directSearchState,
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                oneHandedMode = state.oneHandedMode,
-                                onPhoneNumberClick = onPhoneNumberClick,
-                                onEmailClick = onEmailClick
-                        )
-                }
-
-                if (hideResults) {
-                        return
-                }
-
-                val hasQuery = state.query.isNotBlank()
-                val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
-                val hasAnySearchContent = hasAnySectionContent(state)
-                val hasAnySearchResults = hasAnySearchResults(state)
-                val hasDirectSearchAnswer = showDirectSearch && directSearchState != null
-
-                // Determine whether to show recent queries (when empty) or web suggestions (when
-                // query but
-                // no results)
-                val showRecentQueries =
-                        !hasQuery && state.recentQueriesEnabled && state.recentQueries.isNotEmpty()
-                val showWebSuggestions =
-                        hasQuery &&
-                                !showCalculator &&
-                                !hasDirectSearchAnswer &&
-                                state.webSuggestions.isNotEmpty() &&
-                                state.webSuggestionsEnabled &&
-                                !state.webSuggestionWasSelected
-
-                // When query exists with no results, show web suggestions and "no results" message
-                if (hasQuery && !hasAnySearchResults && !showCalculator && !hasDirectSearchAnswer) {
-
-                        // When results are at bottom (reversed), show web suggestions at bottom
-                        // When results are at top (normal), show web suggestions first
-                        if (isReversed) {
-                                // Show web suggestions at the bottom when reversed
-                                AnimatedVisibility(
-                                        visible = showWebSuggestions,
-                                        enter = fadeIn(),
-                                        exit = shrinkVertically()
-                                ) {
-                                        WebSuggestionsSection(
-                                                suggestions = state.webSuggestions,
-                                                onSuggestionClick = onWebSuggestionClick,
-                                                showWallpaperBackground =
-                                                        state.showWallpaperBackground,
-                                                reverseOrder = isReversed,
-                                                isShortcutDetected =
-                                                        state.detectedShortcutTarget != null,
-                                                isRecentQuery = false,
-                                                modifier = Modifier.fillMaxWidth()
-                                        )
-                                }
-                        } else {
-                                // Normal layout: web suggestions first
-                                AnimatedVisibility(
-                                        visible = showWebSuggestions,
-                                        enter = fadeIn(),
-                                        exit = shrinkVertically()
-                                ) {
-                                        WebSuggestionsSection(
-                                                suggestions = state.webSuggestions,
-                                                onSuggestionClick = onWebSuggestionClick,
-                                                showWallpaperBackground =
-                                                        state.showWallpaperBackground,
-                                                reverseOrder = false,
-                                                isShortcutDetected =
-                                                        state.detectedShortcutTarget != null,
-                                                isRecentQuery = false,
-                                                modifier = Modifier.fillMaxWidth()
-                                        )
-                                }
-                        }
-
-                        // Show "No results" message when search engine compact mode is enabled
-                        // and web suggestions API was called but returned no results or web
-                        // suggestions are
-                        // disabled
-                        val shouldShowNoResults =
-                                state.isSearchEngineCompactMode &&
-                                        (!state.webSuggestionsEnabled ||
-                                                (state.webSuggestionsEnabled &&
-                                                        state.query.trim().length >= 2 &&
-                                                        state.webSuggestions.isEmpty()))
-
-                        // Add delay before showing no results text to avoid flashing before web
-                        // suggestions
-                        // load
-                        var showNoResultsText by remember { mutableStateOf(false) }
-                        LaunchedEffect(shouldShowNoResults, state.query) {
-                                if (shouldShowNoResults) {
-                                        delay(500L) // Wait for web suggestions load
-                                        showNoResultsText = true
-                                } else {
-                                        showNoResultsText = false
-                                }
-                        }
-
-                        if (showNoResultsText) {
-                                Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement =
-                                                Arrangement.spacedBy(DesignTokens.SpacingSmall)
-                                ) {
-                                        Text(
-                                                text = stringResource(R.string.no_results_found),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color =
-                                                        MaterialTheme.colorScheme.onSurface.copy(
-                                                                alpha = 0.6f
-                                                        ),
-                                                textAlign = TextAlign.Center,
-                                                modifier =
-                                                        Modifier.padding(
-                                                                top = DesignTokens.SpacingSmall,
-                                                                start = DesignTokens.SpacingLarge,
-                                                                end = DesignTokens.SpacingLarge
-                                                        )
-                                        )
-                                }
-                        }
-                }
-
-                when {
-                        isReversed -> {
-                                // One-handed mode (reversed): Items are laid out bottom-to-top for
-                                // thumb accessibility
-                                // Code order: search engines (top) -> web suggestions -> search
-                                // results -> pinned/apps (bottom)
-                                // Visual order (bottom to top): apps, search results, web
-                                // suggestions, search engines
-                                // Show inline search engines first in code (appears at top
-                                // visually)
-                                if (hasQuery && !state.isSearchEngineCompactMode) {
-                                        NoResultsSearchEngineCards(
-                                                query = state.query,
-                                                enabledEngines =
-                                                        state.searchTargetsOrder.filter {
-                                                                it.getId() !in
-                                                                        state.disabledSearchTargetIds
-                                                        },
-                                                onSearchEngineClick = onSearchTargetClick,
-                                                onCustomizeClick = onCustomizeSearchEnginesClick,
-                                                isReversed = true,
-                                                showWallpaperBackground =
-                                                        state.showWallpaperBackground,
-                                                modifier = Modifier.fillMaxWidth()
-                                        )
+                finalLayoutOrder.forEach { itemType ->
+                        // Check if this is a section item
+                        val isSectionItem =
+                                when (itemType) {
+                                        ItemPriorityConfig.ItemType.APPS_SECTION,
+                                        ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
+                                        ItemPriorityConfig.ItemType.FILES_SECTION,
+                                        ItemPriorityConfig.ItemType.CONTACTS_SECTION,
+                                        ItemPriorityConfig.ItemType.SETTINGS_SECTION -> true
+                                        else -> false
                                 }
 
-                                // Show web suggestions after search engines
-                                if (hasQuery && showWebSuggestions && hasAnySearchResults) {
-                                        AnimatedVisibility(
-                                                visible = true,
-                                                enter = fadeIn(),
-                                                exit = shrinkVertically()
-                                        ) {
-                                                WebSuggestionsSection(
-                                                        suggestions = state.webSuggestions,
-                                                        onSuggestionClick = onWebSuggestionClick,
+                        // If a section is expanded, we hide all OTHER non-section items.
+                        if (isExpanded && !isSectionItem) return@forEach
+
+                        when (itemType) {
+                                ItemPriorityConfig.ItemType.ERROR_BANNER -> {
+                                        if (state.screenState is ScreenVisibilityState.Error) {
+                                                InfoBanner(
+                                                        message =
+                                                                (state.screenState as
+                                                                                ScreenVisibilityState.Error)
+                                                                        .message
+                                                )
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.CALCULATOR_RESULT -> {
+                                        if (showCalculator) {
+                                                CalculatorResult(
+                                                        calculatorState = state.calculatorState,
                                                         showWallpaperBackground =
                                                                 state.showWallpaperBackground,
-                                                        reverseOrder = isReversed,
-                                                        isShortcutDetected =
-                                                                state.detectedShortcutTarget !=
-                                                                        null,
-                                                        isRecentQuery = false,
-                                                        modifier = Modifier.fillMaxWidth()
+                                                        oneHandedMode = state.oneHandedMode
+                                                )
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.DIRECT_SEARCH_RESULT -> {
+                                        if (showDirectSearch && directSearchState != null) {
+                                                DirectSearchResult(
+                                                        DirectSearchState = directSearchState,
+                                                        showWallpaperBackground =
+                                                                state.showWallpaperBackground,
+                                                        oneHandedMode = state.oneHandedMode,
+                                                        onPhoneNumberClick = onPhoneNumberClick,
+                                                        onEmailClick = onEmailClick
                                                 )
                                         }
                                 }
 
-                                // Show search results sections (in configured order)
-                                if (hasQuery) {
-                                        SearchResultsSections(
-                                                state = state,
-                                                renderingState = renderingState,
-                                                contactsParams = contactsParams,
-                                                filesParams = filesParams,
-                                                appShortcutsParams = appShortcutsParams,
-                                                settingsParams = settingsParams,
-                                                appsParams = appsParams,
-                                                isReversed = true,
-                                                oneHandedMode = state.oneHandedMode
-                                        )
-                                }
-
-                                if (!isExpanded) {
-                                        val shouldShowPinned = !renderingState.isSearching
-
-                                        val pinnedParams =
-                                                SectionRenderParams(
-                                                        renderingState = renderingState,
-                                                        contactsParams = contactsParams,
-                                                        filesParams = filesParams,
-                                                        appShortcutsParams = appShortcutsParams,
-                                                        settingsParams = settingsParams,
-                                                        appsParams = appsParams,
-                                                        isReversed = true
-                                                )
-
-                                        val orderedSections =
-                                                getOrderedSections(renderingState, true)
-
-                                        orderedSections.forEach { section ->
-                                                when (section) {
-                                                        SearchSection.APPS -> {
-                                                                // Render apps section (appears at
-                                                                // bottom in reversed layout)
-                                                                val shouldRenderPinnedApps =
-                                                                        shouldShowPinned &&
-                                                                                when (state.appsSectionState
-                                                                                ) {
-                                                                                        is AppsSectionVisibility.ShowingResults ->
-                                                                                                true
-                                                                                        else ->
-                                                                                                false
-                                                                                }
-                                                                if (shouldRenderPinnedApps) {
-                                                                        val appsContext =
-                                                                                SectionRenderContext(
-                                                                                        shouldRenderApps =
-                                                                                                true
-                                                                                )
-                                                                        renderSection(
-                                                                                SearchSection.APPS,
-                                                                                pinnedParams,
-                                                                                appsContext
-                                                                        )
-                                                                }
-
-                                                                // Show recent queries above apps
-                                                                if (showRecentQueries) {
-                                                                        AnimatedVisibility(
-                                                                                visible = true,
-                                                                                enter = fadeIn(),
-                                                                                exit =
-                                                                                        shrinkVertically()
-                                                                        ) {
-                                                                                WebSuggestionsSection(
-                                                                                        suggestions =
-                                                                                                state.recentQueries,
-                                                                                        onSuggestionClick =
-                                                                                                onWebSuggestionClick,
-                                                                                        showWallpaperBackground =
-                                                                                                state.showWallpaperBackground,
-                                                                                        reverseOrder =
-                                                                                                isReversed,
-                                                                                        isShortcutDetected =
-                                                                                                false,
-                                                                                        isRecentQuery =
-                                                                                                true,
-                                                                                        onDeleteRecentQuery =
-                                                                                                onDeleteRecentQuery,
-                                                                                        modifier =
-                                                                                                Modifier.fillMaxWidth()
-                                                                                )
-                                                                        }
-                                                                }
-                                                        }
-                                                        else -> {
-                                                                // Render other pinned sections
-                                                                // using new visibility states
-                                                                val shouldRenderFiles =
-                                                                        shouldShowPinned &&
-                                                                                when (state.filesSectionState
-                                                                                ) {
-                                                                                        is FilesSectionVisibility.ShowingResults ->
-                                                                                                section ==
-                                                                                                        SearchSection
-                                                                                                                .FILES
-                                                                                        else ->
-                                                                                                false
-                                                                                }
-                                                                val shouldRenderContacts =
-                                                                        shouldShowPinned &&
-                                                                                when (state.contactsSectionState
-                                                                                ) {
-                                                                                        is ContactsSectionVisibility.ShowingResults ->
-                                                                                                section ==
-                                                                                                        SearchSection
-                                                                                                                .CONTACTS
-                                                                                        else ->
-                                                                                                false
-                                                                                }
-                                                                val shouldRenderAppShortcuts =
-                                                                        shouldShowPinned &&
-                                                                                when (state.appShortcutsSectionState
-                                                                                ) {
-                                                                                        is AppShortcutsSectionVisibility.ShowingResults ->
-                                                                                                section ==
-                                                                                                        SearchSection
-                                                                                                                .APP_SHORTCUTS
-                                                                                        else ->
-                                                                                                false
-                                                                                }
-                                                                val shouldRenderSettings =
-                                                                        shouldShowPinned &&
-                                                                                when (state.settingsSectionState
-                                                                                ) {
-                                                                                        is SettingsSectionVisibility.ShowingResults ->
-                                                                                                section ==
-                                                                                                        SearchSection
-                                                                                                                .SETTINGS
-                                                                                        else ->
-                                                                                                false
-                                                                                }
-
-                                                                val pinnedContext =
-                                                                        SectionRenderContext(
-                                                                                shouldRenderFiles =
-                                                                                        shouldRenderFiles,
-                                                                                shouldRenderContacts =
-                                                                                        shouldRenderContacts,
-                                                                                shouldRenderAppShortcuts =
-                                                                                        shouldRenderAppShortcuts,
-                                                                                shouldRenderSettings =
-                                                                                        shouldRenderSettings,
-                                                                                shouldRenderApps =
-                                                                                        false,
-                                                                                isFilesExpanded =
-                                                                                        true,
-                                                                                isContactsExpanded =
-                                                                                        true,
-                                                                                isSettingsExpanded =
-                                                                                        true,
-                                                                                isAppShortcutsExpanded =
-                                                                                        true,
-                                                                                filesList =
-                                                                                        renderingState
-                                                                                                .pinnedFiles,
-                                                                                contactsList =
-                                                                                        renderingState
-                                                                                                .pinnedContacts,
-                                                                                settingsList =
-                                                                                        renderingState
-                                                                                                .pinnedSettings,
-                                                                                appShortcutsList =
-                                                                                        renderingState
-                                                                                                .pinnedAppShortcuts,
-                                                                                showAllFilesResults =
-                                                                                        true,
-                                                                                showAllContactsResults =
-                                                                                        true,
-                                                                                showAllSettingsResults =
-                                                                                        true,
-                                                                                showAllAppShortcutsResults =
-                                                                                        true,
-                                                                                showFilesExpandControls =
-                                                                                        false,
-                                                                                showContactsExpandControls =
-                                                                                        false,
-                                                                                showSettingsExpandControls =
-                                                                                        false,
-                                                                                showAppShortcutsExpandControls =
-                                                                                        false,
-                                                                                filesExpandClick = {
-                                                                                },
-                                                                                contactsExpandClick = {
-                                                                                },
-                                                                                settingsExpandClick = {
-                                                                                },
-                                                                                appShortcutsExpandClick = {
-                                                                                }
-                                                                        )
-                                                                renderSection(
-                                                                        section,
-                                                                        pinnedParams,
-                                                                        pinnedContext
-                                                                )
-                                                        }
-                                                }
-                                        }
-                                }
-                        }
-                        else -> {
-                                // Top-aligned: pinned items first, then search results
-                                when {
-                                        !isExpanded -> {
-                                                val shouldShowPinned = !renderingState.isSearching
-
-                                                val pinnedParams =
-                                                        SectionRenderParams(
-                                                                renderingState = renderingState,
-                                                                contactsParams = contactsParams,
-                                                                filesParams = filesParams,
-                                                                appShortcutsParams =
-                                                                        appShortcutsParams,
-                                                                settingsParams = settingsParams,
-                                                                appsParams = appsParams,
-                                                                isReversed = false
-                                                        )
-
-                                                val orderedSections =
-                                                        getOrderedSections(renderingState, false)
-
-                                                orderedSections.forEach { section ->
-                                                        when (section) {
-                                                                SearchSection.APPS -> {
-                                                                        // Render apps section
-                                                                        val shouldRenderPinnedApps =
-                                                                                shouldShowPinned &&
-                                                                                        when (state.appsSectionState
-                                                                                        ) {
-                                                                                                is AppsSectionVisibility.ShowingResults ->
-                                                                                                        true
-                                                                                                else ->
-                                                                                                        false
-                                                                                        }
-                                                                        if (shouldRenderPinnedApps
-                                                                        ) {
-                                                                                val appsContext =
-                                                                                        SectionRenderContext(
-                                                                                                shouldRenderApps =
-                                                                                                        true
-                                                                                        )
-                                                                                renderSection(
-                                                                                        SearchSection
-                                                                                                .APPS,
-                                                                                        pinnedParams,
-                                                                                        appsContext
-                                                                                )
-                                                                        }
-
-                                                                        // Show recent queries right
-                                                                        // after apps
-                                                                        if (showRecentQueries) {
-                                                                                AnimatedVisibility(
-                                                                                        visible =
-                                                                                                true,
-                                                                                        enter =
-                                                                                                fadeIn(),
-                                                                                        exit =
-                                                                                                shrinkVertically()
-                                                                                ) {
-                                                                                        WebSuggestionsSection(
-                                                                                                suggestions =
-                                                                                                        state.recentQueries,
-                                                                                                onSuggestionClick =
-                                                                                                        onWebSuggestionClick,
-                                                                                                showWallpaperBackground =
-                                                                                                        state.showWallpaperBackground,
-                                                                                                reverseOrder =
-                                                                                                        isReversed,
-                                                                                                isShortcutDetected =
-                                                                                                        false,
-                                                                                                isRecentQuery =
-                                                                                                        true,
-                                                                                                onDeleteRecentQuery =
-                                                                                                        onDeleteRecentQuery,
-                                                                                                modifier =
-                                                                                                        Modifier.fillMaxWidth()
-                                                                                        )
-                                                                                }
-                                                                        }
-                                                                }
-                                                                else -> {
-                                                                        // Render other pinned
-                                                                        // sections
-                                                                        val pinnedContext =
-                                                                                SectionRenderContext(
-                                                                                        shouldRenderFiles =
-                                                                                                shouldShowPinned &&
-                                                                                                        renderingState
-                                                                                                                .hasPinnedFiles &&
-                                                                                                        renderingState
-                                                                                                                .shouldShowFiles &&
-                                                                                                        section ==
-                                                                                                                SearchSection
-                                                                                                                        .FILES,
-                                                                                        shouldRenderContacts =
-                                                                                                shouldShowPinned &&
-                                                                                                        renderingState
-                                                                                                                .hasPinnedContacts &&
-                                                                                                        renderingState
-                                                                                                                .shouldShowContacts &&
-                                                                                                        section ==
-                                                                                                                SearchSection
-                                                                                                                        .CONTACTS,
-                                                                                        shouldRenderSettings =
-                                                                                                shouldShowPinned &&
-                                                                                                        renderingState
-                                                                                                                .hasPinnedSettings &&
-                                                                                                        renderingState
-                                                                                                                .shouldShowSettings &&
-                                                                                                        section ==
-                                                                                                                SearchSection
-                                                                                                                        .SETTINGS,
-                                                                                        shouldRenderAppShortcuts =
-                                                                                                shouldShowPinned &&
-                                                                                                        renderingState
-                                                                                                                .hasPinnedAppShortcuts &&
-                                                                                                        renderingState
-                                                                                                                .shouldShowAppShortcuts &&
-                                                                                                        section ==
-                                                                                                                SearchSection
-                                                                                                                        .APP_SHORTCUTS,
-                                                                                        shouldRenderApps =
-                                                                                                false,
-                                                                                        isFilesExpanded =
-                                                                                                true,
-                                                                                        isContactsExpanded =
-                                                                                                true,
-                                                                                        isSettingsExpanded =
-                                                                                                true,
-                                                                                        isAppShortcutsExpanded =
-                                                                                                true,
-                                                                                        filesList =
-                                                                                                renderingState
-                                                                                                        .pinnedFiles,
-                                                                                        contactsList =
-                                                                                                renderingState
-                                                                                                        .pinnedContacts,
-                                                                                        settingsList =
-                                                                                                renderingState
-                                                                                                        .pinnedSettings,
-                                                                                        appShortcutsList =
-                                                                                                renderingState
-                                                                                                        .pinnedAppShortcuts,
-                                                                                        showAllFilesResults =
-                                                                                                true,
-                                                                                        showAllContactsResults =
-                                                                                                true,
-                                                                                        showAllSettingsResults =
-                                                                                                true,
-                                                                                        showAllAppShortcutsResults =
-                                                                                                true,
-                                                                                        showFilesExpandControls =
-                                                                                                false,
-                                                                                        showContactsExpandControls =
-                                                                                                false,
-                                                                                        showSettingsExpandControls =
-                                                                                                false,
-                                                                                        showAppShortcutsExpandControls =
-                                                                                                false,
-                                                                                        filesExpandClick = {
-                                                                                        },
-                                                                                        contactsExpandClick = {
-                                                                                        },
-                                                                                        settingsExpandClick = {
-                                                                                        },
-                                                                                        appShortcutsExpandClick = {
-                                                                                        }
-                                                                                )
-                                                                        renderSection(
-                                                                                section,
-                                                                                pinnedParams,
-                                                                                pinnedContext
-                                                                        )
-                                                                }
-                                                        }
-                                                }
-                                        }
-                                        !hasQuery -> {
-                                                ExpandedPinnedSections(
-                                                        state = state,
-                                                        renderingState = renderingState,
-                                                        contactsParams = contactsParams,
-                                                        filesParams = filesParams,
-                                                        settingsParams = settingsParams,
-                                                        appShortcutsParams = appShortcutsParams
+                                // --- Sections ---
+                                // We delegate to renderSection provided by
+                                // SectionRenderingComposables
+                                // using the pre-calculated context.
+                                ItemPriorityConfig.ItemType.APPS_SECTION -> {
+                                        if (!hideResults) {
+                                                renderSection(
+                                                        SearchSection.APPS,
+                                                        sectionParams,
+                                                        sectionContext
                                                 )
                                         }
                                 }
-                                if (hasQuery) {
-                                        // Show search results sections first
-                                        SearchResultsSections(
-                                                state = state,
-                                                renderingState = renderingState,
-                                                contactsParams = contactsParams,
-                                                filesParams = filesParams,
-                                                appShortcutsParams = appShortcutsParams,
-                                                settingsParams = settingsParams,
-                                                appsParams = appsParams,
-                                                isReversed = false,
-                                                oneHandedMode = state.oneHandedMode
-                                        )
+                                ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> {
+                                        if (!hideResults) {
+                                                renderSection(
+                                                        SearchSection.APP_SHORTCUTS,
+                                                        sectionParams,
+                                                        sectionContext
+                                                )
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.FILES_SECTION -> {
+                                        if (!hideResults) {
+                                                renderSection(
+                                                        SearchSection.FILES,
+                                                        sectionParams,
+                                                        sectionContext
+                                                )
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.CONTACTS_SECTION -> {
+                                        if (!hideResults) {
+                                                renderSection(
+                                                        SearchSection.CONTACTS,
+                                                        sectionParams,
+                                                        sectionContext
+                                                )
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.SETTINGS_SECTION -> {
+                                        if (!hideResults) {
+                                                renderSection(
+                                                        SearchSection.SETTINGS,
+                                                        sectionParams,
+                                                        sectionContext
+                                                )
+                                        }
+                                }
 
-                                        // Show web suggestions below search results when there are
-                                        // also
-                                        // search results
-                                        if (showWebSuggestions && !isReversed && hasAnySearchResults
-                                        ) {
+                                // --- Suggestions & Engines ---
+                                ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
+                                        if (!hideResults && hasQuery) {
+                                                // Only show if logic approves
                                                 AnimatedVisibility(
-                                                        visible = true,
+                                                        visible = showWebSuggestions,
                                                         enter = fadeIn(),
                                                         exit = shrinkVertically()
                                                 ) {
@@ -875,7 +447,7 @@ fun ContentLayout(
                                                                         onWebSuggestionClick,
                                                                 showWallpaperBackground =
                                                                         state.showWallpaperBackground,
-                                                                reverseOrder = false,
+                                                                reverseOrder = isReversed,
                                                                 isShortcutDetected =
                                                                         state.detectedShortcutTarget !=
                                                                                 null,
@@ -884,10 +456,38 @@ fun ContentLayout(
                                                         )
                                                 }
                                         }
-
-                                        // Show inline search engines below web suggestions when
-                                        // inline mode is enabled
-                                        if (!state.isSearchEngineCompactMode) {
+                                }
+                                ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
+                                        if (!hideResults && showRecentQueries) {
+                                                AnimatedVisibility(
+                                                        visible = true, // showRecentQueries is
+                                                        // already checked
+                                                        enter = fadeIn(),
+                                                        exit = shrinkVertically()
+                                                ) {
+                                                        WebSuggestionsSection(
+                                                                suggestions = state.recentQueries,
+                                                                onSuggestionClick =
+                                                                        onWebSuggestionClick,
+                                                                showWallpaperBackground =
+                                                                        state.showWallpaperBackground,
+                                                                reverseOrder = isReversed,
+                                                                isShortcutDetected = false,
+                                                                isRecentQuery = true,
+                                                                onDeleteRecentQuery =
+                                                                        onDeleteRecentQuery,
+                                                                modifier = Modifier.fillMaxWidth()
+                                                        )
+                                                }
+                                        }
+                                }
+                                ItemPriorityConfig.ItemType.SEARCH_ENGINES_INLINE -> {
+                                        // Inline search engines.
+                                        // Condition: Not compact mode.
+                                        if (!hideResults &&
+                                                        hasQuery &&
+                                                        !state.isSearchEngineCompactMode
+                                        ) {
                                                 NoResultsSearchEngineCards(
                                                         query = state.query,
                                                         enabledEngines =
@@ -898,14 +498,75 @@ fun ContentLayout(
                                                         onSearchEngineClick = onSearchTargetClick,
                                                         onCustomizeClick =
                                                                 onCustomizeSearchEnginesClick,
-                                                        isReversed = false,
+                                                        isReversed = isReversed,
                                                         showWallpaperBackground =
                                                                 state.showWallpaperBackground,
                                                         modifier = Modifier.fillMaxWidth()
                                                 )
                                         }
                                 }
+                                ItemPriorityConfig.ItemType.SEARCH_ENGINES_COMPACT -> {
+                                        // If we ever need to render compact engines in the list, do
+                                        // it here.
+                                        // Currently checking isSearchEngineCompactMode to HIDE
+                                        // inline ones.
+                                        // If compact engines are intended to be in the list, add
+                                        // logic here.
+                                        // For now, config doesn't use this in
+                                        // SEARCHING_STATE_LAYOUT, but
+                                        // we handle it for completeness.
+                                }
+                                ItemPriorityConfig.ItemType.NO_RESULTS_MESSAGE -> {
+                                        if (!hideResults) {
+                                                NoResultsMessage(state)
+                                        }
+                                }
                         }
+                }
+        }
+}
+
+@Composable
+private fun NoResultsMessage(state: SearchUiState) {
+        // Determine whether to show "No results" message when search engine
+        // compact mode is enabled and web suggestions API was called but returned no results
+        val shouldShowNoResults =
+                state.isSearchEngineCompactMode &&
+                        (!state.webSuggestionsEnabled ||
+                                (state.webSuggestionsEnabled &&
+                                        state.query.trim().length >= 2 &&
+                                        state.webSuggestions.isEmpty()))
+
+        // Add delay before showing no results text to avoid flashing before
+        // web suggestions load
+        var showNoResultsText by remember { mutableStateOf(false) }
+        LaunchedEffect(shouldShowNoResults, state.query) {
+                if (shouldShowNoResults) {
+                        delay(500L) // Wait for web suggestions load
+                        showNoResultsText = true
+                } else {
+                        showNoResultsText = false
+                }
+        }
+
+        if (showNoResultsText) {
+                Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+                ) {
+                        Text(
+                                text = stringResource(R.string.no_results_found),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center,
+                                modifier =
+                                        Modifier.padding(
+                                                top = DesignTokens.SpacingSmall,
+                                                start = DesignTokens.SpacingLarge,
+                                                end = DesignTokens.SpacingLarge
+                                        )
+                        )
                 }
         }
 }
