@@ -126,7 +126,6 @@ data class AppsSectionParams(
         val onUnpinApp: (AppInfo) -> Unit,
         val onNicknameClick: (AppInfo) -> Unit,
         val getAppNickname: (String) -> String?,
-        val showAppLabels: Boolean,
         val rowCount: Int,
         val iconPackPackage: String?,
         val oneHandedMode: Boolean,
@@ -453,7 +452,6 @@ internal fun buildSectionParams(
                                         )
                                 },
                                 getAppNickname = getAppNickname,
-                                showAppLabels = true,
                                 rowCount = derivedState.visibleRowCount,
                                 iconPackPackage = state.selectedIconPackPackage,
                                 oneHandedMode = state.oneHandedMode,

@@ -84,7 +84,6 @@ fun AppGridView(
     onNicknameClick: (AppInfo) -> Unit,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
-    showAppLabels: Boolean,
     modifier: Modifier = Modifier,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String? = null,
@@ -142,7 +141,6 @@ fun AppGridView(
                 onNicknameClick = onNicknameClick,
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
-                showAppLabels = showAppLabels,
                 shortcutsByPackage = shortcutsByPackage,
                 rowCount = rowCount,
                 iconPackPackage = iconPackPackage,
@@ -164,7 +162,6 @@ private fun AppGrid(
     onNicknameClick: (AppInfo) -> Unit,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
-    showAppLabels: Boolean,
     shortcutsByPackage: Map<String, List<StaticShortcut>>,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String?,
@@ -193,13 +190,13 @@ private fun AppGrid(
             }
         }
         
-        val createAppState = remember(getAppNickname, pinnedPackageNames, showAppLabels) {
+        val createAppState = remember(getAppNickname, pinnedPackageNames) {
             { app: AppInfo ->
                 AppState(
                     hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
                     isPinned = pinnedPackageNames.contains(app.packageName),
                     showUninstall = !app.isSystemApp,
-                    showAppLabel = showAppLabels
+                    showAppLabel = true
                 )
             }
         }
@@ -210,7 +207,6 @@ private fun AppGrid(
                 apps = rowApps,
                 getAppNickname = getAppNickname,
                 pinnedPackageNames = pinnedPackageNames,
-                showAppLabels = showAppLabels,
                 shortcutsByPackage = shortcutsByPackage,
                 iconPackPackage = iconPackPackage,
                 createAppActions = createAppActions,
@@ -225,7 +221,6 @@ private fun AppGridRow(
     apps: List<AppInfo>,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
-    showAppLabels: Boolean,
     shortcutsByPackage: Map<String, List<StaticShortcut>>,
     iconPackPackage: String?,
     createAppActions: (AppInfo) -> AppActions,

@@ -125,7 +125,6 @@ private fun renderAppsSection(params: SectionRenderParams, context: SectionRende
                 onNicknameClick = params.appsParams.onNicknameClick,
                 getAppNickname = params.appsParams.getAppNickname,
                 pinnedPackageNames = params.appsParams.pinnedPackageNames,
-                showAppLabels = params.appsParams.showAppLabels,
                 rowCount = params.appsParams.rowCount,
                 iconPackPackage = params.appsParams.iconPackPackage,
                 oneHandedMode = params.appsParams.oneHandedMode,

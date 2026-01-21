@@ -54,7 +54,6 @@
 ## Customization & Settings
 
 ### Search Result Management
-- **Reorder Results** - Arrange search result categories according to your preference
 - **Enable/Disable Categories** - Toggle individual search result types on or off
 - **Auto-Expand Results** - Show all results at once without tapping "More" button (This option is available in additional settings)
 - **Sort Options** - Results are ordered by most-opened apps by default (can be disabled)
@@ -66,8 +65,6 @@
 - **Icon Pack Support** - Apply 3rd party icon packs to app suggestions and results
 - **One-Hand Mode** - Position search results at the bottom of the screen for easier reach (bottom-aligned layout)
 - **Section Titles** - Show/hide section headers (Apps, Contacts, Files, Settings)
-- **App Labels** - Toggle visibility of app names in suggestions
-
 ### Contact Features
 - **Comprehensive Contact Actions** - Tap any contact result to access all available options:
   - Call, SMS, Google Meet
