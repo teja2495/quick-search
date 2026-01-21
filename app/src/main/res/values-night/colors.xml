@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Search engine icon colors - white in dark mode -->
-    <color name="search_engine_icon_color">#FFFFFFFF</color>
-</resources>
-

@@ -268,7 +268,7 @@ internal fun buildSectionParams(
                                 },
                                 getFileNickname = getFileNickname,
                                 showAllResults = false,
-                                showExpandControls = derivedState.hasMultipleExpandableSections,
+                                showExpandControls = derivedState.isSearching,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
                                                 if (expandedSection == ExpandedSection.FILES)
@@ -297,9 +297,7 @@ internal fun buildSectionParams(
                                 isExpanded = expandedSection == ExpandedSection.APP_SHORTCUTS,
                                 pinnedShortcutIds = derivedState.pinnedAppShortcutIds,
                                 excludedShortcutIds =
-                                        state.excludedAppShortcuts
-                                                .map { shortcutKey(it) }
-                                                .toSet(),
+                                        state.excludedAppShortcuts.map { shortcutKey(it) }.toSet(),
                                 onShortcutClick = onAppShortcutClick,
                                 onTogglePin = { shortcut ->
                                         if (derivedState.pinnedAppShortcutIds.contains(
@@ -315,10 +313,11 @@ internal fun buildSectionParams(
                                 onInclude = onIncludeAppShortcut,
                                 onAppInfoClick = onAppShortcutAppInfoClick,
                                 showAllResults = false,
-                                showExpandControls = derivedState.hasMultipleExpandableSections,
+                                showExpandControls = derivedState.isSearching,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
-                                                if (expandedSection == ExpandedSection.APP_SHORTCUTS)
+                                                if (expandedSection == ExpandedSection.APP_SHORTCUTS
+                                                )
                                                         ExpandedSection.NONE
                                                 else ExpandedSection.APP_SHORTCUTS
                                         )
@@ -353,7 +352,7 @@ internal fun buildSectionParams(
                                 },
                                 getSettingNickname = getSettingNickname,
                                 showAllResults = false,
-                                showExpandControls = derivedState.hasMultipleExpandableSections,
+                                showExpandControls = derivedState.isSearching,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
                                                 if (expandedSection == ExpandedSection.SETTINGS)
@@ -409,7 +408,7 @@ internal fun buildSectionParams(
                                 onContactActionHintDismissed = onContactActionHintDismissed,
                                 onOpenAppSettings = onOpenAppSettings,
                                 showAllResults = false,
-                                showExpandControls = derivedState.hasMultipleExpandableSections,
+                                showExpandControls = derivedState.isSearching,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
                                                 if (expandedSection == ExpandedSection.CONTACTS)

@@ -314,16 +314,10 @@ fun rememberSectionRenderContext(
                 showAllContactsResults = !isSearching,
                 showAllSettingsResults = !isSearching,
                 showAllAppShortcutsResults = !isSearching,
-                showFilesExpandControls =
-                        isSearching && renderingState.hasMultipleExpandableSections,
-                showContactsExpandControls =
-                        isSearching && renderingState.hasMultipleExpandableSections,
-                showSettingsExpandControls =
-                        isSearching &&
-                                (renderingState.hasMultipleExpandableSections ||
-                                        renderingState.hasSettingResults),
-                showAppShortcutsExpandControls =
-                        isSearching && renderingState.hasMultipleExpandableSections,
+                showFilesExpandControls = isSearching,
+                showContactsExpandControls = isSearching,
+                showSettingsExpandControls = isSearching && renderingState.hasSettingResults,
+                showAppShortcutsExpandControls = isSearching,
                 filesExpandClick = filesParams.onExpandClick,
                 contactsExpandClick = contactsParams.onExpandClick,
                 settingsExpandClick = settingsParams.onExpandClick,
