@@ -10,8 +10,7 @@ import java.util.Locale
 class FuzzySearchEngine {
 
     companion object {
-        private const val ABBREVIATION_MAX_QUERY_LENGTH = 3
-        private const val SUBSEQUENCE_MAX_QUERY_LENGTH = 2
+        private const val ACRONYM_MAX_LENGTH = 4
         private val WHITESPACE_REGEX = "\\s+".toRegex()
         private val NON_ALPHANUMERIC_REGEX = "[^A-Za-z0-9]+".toRegex()
         private val CAMEL_CASE_REGEX = "([a-z])([A-Z])".toRegex()
@@ -32,88 +31,63 @@ class FuzzySearchEngine {
         targetNickname: String? = null,
         minQueryLength: Int = 3
     ): Int {
-        var bestScore = 0
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val trimmedQuery = query.trim()
+        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
 
-        // Abbreviation matching for short queries
-        val compactQuery = normalizedQuery.replace(WHITESPACE_REGEX, "")
-        if (compactQuery.length in 2..ABBREVIATION_MAX_QUERY_LENGTH) {
-            bestScore = maxOf(bestScore, computeAbbreviationScore(compactQuery, targetText, targetNickname))
+        // Acronym matching for short queries (2-4 characters)
+        if (trimmedQuery.length in 2..ACRONYM_MAX_LENGTH) {
+            val acronymScore = computeAcronymScore(normalizedQuery, targetText, targetNickname)
+            if (acronymScore > 0) return acronymScore
         }
 
-        // Token set ratio matching for longer queries
-        if (normalizedQuery.length >= minQueryLength) {
-            val normalizedTarget = targetText.lowercase(Locale.getDefault())
-            val targetScore = FuzzySearch.tokenSetRatio(normalizedQuery, normalizedTarget)
-            bestScore = maxOf(bestScore, targetScore)
+        if (trimmedQuery.length < minQueryLength) return 0
 
-            // Check nickname if available
-            targetNickname?.let { nickname ->
-                val nicknameScore = FuzzySearch.tokenSetRatio(normalizedQuery, nickname.lowercase(Locale.getDefault()))
-                bestScore = maxOf(bestScore, nicknameScore)
-            }
+        val normalizedTarget = targetText.lowercase(Locale.getDefault())
+
+        var bestScore = FuzzySearch.tokenSetRatio(normalizedQuery, normalizedTarget)
+
+        // Check nickname if available
+        targetNickname?.let { nickname ->
+            val nicknameScore = FuzzySearch.tokenSetRatio(normalizedQuery, nickname.lowercase(Locale.getDefault()))
+            bestScore = maxOf(bestScore, nicknameScore)
         }
 
         return bestScore
     }
 
     /**
-     * Computes abbreviation/initialism matching score.
+     * Computes acronym matching score for short queries.
      */
-    private fun computeAbbreviationScore(query: String, targetText: String, nickname: String?): Int {
-        if (query.length < 2) return 0
+    private fun computeAcronymScore(query: String, targetText: String, nickname: String?): Int {
+        val targetAcronym = buildAcronym(targetText)
+        if (targetAcronym == query) return 100
 
-        val targetInitialism = buildInitialism(targetText)
-        val nicknameInitialism = nickname?.let { buildInitialism(it) } ?: ""
-
-        return when {
-            targetInitialism.startsWith(query) -> 100
-            nicknameInitialism.startsWith(query) -> 100
-            query.length <= SUBSEQUENCE_MAX_QUERY_LENGTH &&
-            (isSubsequence(query, targetText.lowercase(Locale.getDefault())) ||
-             nickname?.let { isSubsequence(query, it.lowercase(Locale.getDefault())) } == true) -> 80
-            else -> 0
+        nickname?.let { nick ->
+            val nicknameAcronym = buildAcronym(nick)
+            if (nicknameAcronym == query) return 100
         }
+
+        return 0
     }
 
     /**
-     * Builds initialism from text (e.g., "WhatsApp" -> "wa", "Google Maps" -> "gm").
+     * Builds acronym from text (e.g., "YouTube" -> "yt", "YouTube Music" -> "ytm").
      */
-    private fun buildInitialism(text: String): String {
+    private fun buildAcronym(text: String): String {
         if (text.isBlank()) return ""
 
         val separated = text.replace(CAMEL_CASE_REGEX, "$1 $2")
-        val tokens = separated.split(NON_ALPHANUMERIC_REGEX).filter { it.isNotBlank() }
+        val tokens = separated.split(WHITESPACE_REGEX).flatMap { it.split(NON_ALPHANUMERIC_REGEX) }.filter { it.isNotBlank() }
 
         if (tokens.isEmpty()) return ""
 
         val builder = StringBuilder()
         for (token in tokens) {
-            if (token.length > 1 && token.none { it.isLowerCase() }) {
-                // All caps token (like "API") - use as-is but lowercase
-                builder.append(token.lowercase(Locale.getDefault()))
-            } else {
-                // Regular token - take first char
+            if (token.isNotEmpty()) {
                 builder.append(token[0].lowercaseChar())
             }
         }
 
         return builder.toString()
-    }
-
-    /**
-     * Checks if query is a subsequence of text (e.g., "wa" in "WhatsApp").
-     */
-    private fun isSubsequence(query: String, text: String): Boolean {
-        var index = 0
-        for (ch in text) {
-            if (ch == query[index]) {
-                index++
-                if (index == query.length) {
-                    return true
-                }
-            }
-        }
-        return false
     }
 }
