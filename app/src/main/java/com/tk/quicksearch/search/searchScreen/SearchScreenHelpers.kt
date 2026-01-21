@@ -267,7 +267,7 @@ internal fun buildSectionParams(
                                         )
                                 },
                                 getFileNickname = getFileNickname,
-                                showAllResults = derivedState.autoExpandFiles,
+                                showAllResults = false,
                                 showExpandControls = derivedState.hasMultipleExpandableSections,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
@@ -314,7 +314,7 @@ internal fun buildSectionParams(
                                 onExclude = onExcludeAppShortcut,
                                 onInclude = onIncludeAppShortcut,
                                 onAppInfoClick = onAppShortcutAppInfoClick,
-                                showAllResults = derivedState.autoExpandAppShortcuts,
+                                showAllResults = false,
                                 showExpandControls = derivedState.hasMultipleExpandableSections,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
@@ -352,7 +352,7 @@ internal fun buildSectionParams(
                                         )
                                 },
                                 getSettingNickname = getSettingNickname,
-                                showAllResults = derivedState.autoExpandSettings,
+                                showAllResults = false,
                                 showExpandControls = derivedState.hasMultipleExpandableSections,
                                 onExpandClick = {
                                         onUpdateExpandedSection(
@@ -408,7 +408,7 @@ internal fun buildSectionParams(
                                 showContactActionHint = state.showContactActionHint,
                                 onContactActionHintDismissed = onContactActionHintDismissed,
                                 onOpenAppSettings = onOpenAppSettings,
-                                showAllResults = derivedState.autoExpandContacts,
+                                showAllResults = false,
                                 showExpandControls = derivedState.hasMultipleExpandableSections,
                                 onExpandClick = {
                                         onUpdateExpandedSection(

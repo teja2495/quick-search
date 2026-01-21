@@ -304,7 +304,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     private var lockedShortcutTarget: SearchTarget? = null
-    private var showAllResults: Boolean = false
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
@@ -494,7 +493,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showWallpaperBackground = prefs.showWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
-        showAllResults = prefs.showAllResults
         amazonDomain = prefs.amazonDomain
 
         _uiState.update {
@@ -509,7 +507,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = wallpaperBlurRadius,
-                    showAllResults = showAllResults,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     recentQueriesCount = userPreferences.getRecentQueriesCount(),
@@ -1272,7 +1269,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun areShortcutsEnabled(): Boolean = true
 
     // Sections
-    fun reorderSections(newOrder: List<SearchSection>) = sectionManager.reorderSections(newOrder)
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) =
             sectionManager.setSectionEnabled(section, enabled)
     fun canEnableSection(section: SearchSection): Boolean = sectionManager.canEnableSection(section)
@@ -1304,17 +1300,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun dismissDirectDialChoice() = contactActionHandler.dismissDirectDialChoice()
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) =
             contactActionHandler.handleContactMethod(contactInfo, method)
-
-    fun setShowAllResults(showAllResults: Boolean) {
-        updateBooleanPreference(
-                value = showAllResults,
-                preferenceSetter = userPreferences::setShowAllResults,
-                stateUpdater = {
-                    this@SearchViewModel.showAllResults = it
-                    _uiState.update { state -> state.copy(showAllResults = it) }
-                }
-        )
-    }
 
     fun getEnabledSearchTargets(): List<SearchTarget> =
             searchEngineManager.getEnabledSearchTargets()

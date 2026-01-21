@@ -69,7 +69,6 @@ class UserAppPreferences(private val context: Context) {
                 val showWallpaperBackground: Boolean,
                 val wallpaperBackgroundAlpha: Float,
                 val wallpaperBlurRadius: Float,
-                val showAllResults: Boolean,
                 val amazonDomain: String?,
                 val pinnedPackages: Set<String>,
                 val suggestionHiddenPackages: Set<String>,
@@ -195,12 +194,6 @@ class UserAppPreferences(private val context: Context) {
                                         Float
                                         ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .DEFAULT_WALLPAPER_BLUR_RADIUS,
-                        showAllResults =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.UiPreferences
-                                                .KEY_SHOW_ALL_RESULTS] as?
-                                        Boolean
-                                        ?: false,
                         amazonDomain =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -357,12 +350,6 @@ class UserAppPreferences(private val context: Context) {
                                                 ?: com.tk.quicksearch.search.data.preferences
                                                         .UiPreferences
                                                         .DEFAULT_WALLPAPER_BLUR_RADIUS,
-                                showAllResults =
-                                        allPrefs[
-                                                com.tk.quicksearch.search.data.preferences
-                                                        .UiPreferences.KEY_SHOW_ALL_RESULTS] as?
-                                                Boolean
-                                                ?: false,
                                 amazonDomain =
                                         allPrefs[
                                                 com.tk.quicksearch.search.data.preferences
@@ -739,11 +726,6 @@ class UserAppPreferences(private val context: Context) {
 
         fun setClearQueryAfterSearchEngine(clearQuery: Boolean) =
                 uiPreferences.setClearQueryAfterSearchEngine(clearQuery)
-
-        fun shouldShowAllResults(): Boolean = uiPreferences.shouldShowAllResults()
-
-        fun setShowAllResults(showAllResults: Boolean) =
-                uiPreferences.setShowAllResults(showAllResults)
 
         fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 

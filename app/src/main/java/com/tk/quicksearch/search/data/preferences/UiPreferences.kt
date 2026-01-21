@@ -103,12 +103,6 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE, clearQuery)
     }
 
-    fun shouldShowAllResults(): Boolean = getBooleanPref(UiPreferences.KEY_SHOW_ALL_RESULTS, false)
-
-    fun setShowAllResults(showAllResults: Boolean) {
-        setBooleanPref(UiPreferences.KEY_SHOW_ALL_RESULTS, showAllResults)
-    }
-
     fun getSelectedIconPackPackage(): String? {
         return prefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
     }
@@ -389,7 +383,6 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
-        const val KEY_SHOW_ALL_RESULTS = "show_all_results"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"

@@ -5,31 +5,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/**
- * Handles section configuration and management.
- */
+/** Handles section configuration and management. */
 class SectionManager(
-    private val userPreferences: UserAppPreferences,
-    private val permissionManager: PermissionManager,
-    private val scope: CoroutineScope,
-    private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
+        private val userPreferences: UserAppPreferences,
+        private val permissionManager: PermissionManager,
+        private val scope: CoroutineScope,
+        private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
 ) {
 
-    var sectionOrder: List<SearchSection> = loadSectionOrder()
-        private set
+    // Section order is centrally defined in ItemPriorityConfig
+    // Uses searchingStatePriority as default section order (can be customized by query state)
+    val sectionOrder: List<SearchSection> = ItemPriorityConfig.getSearchResultsPriority()
 
     var disabledSections: Set<SearchSection> = permissionManager.computeDisabledSections()
         private set
-
-    fun reorderSections(newOrder: List<SearchSection>) {
-        scope.launch(Dispatchers.IO) {
-            sectionOrder = newOrder
-            userPreferences.setSectionOrder(newOrder.map { it.name })
-            onStateUpdate { state ->
-                state.copy(sectionOrder = sectionOrder)
-            }
-        }
-    }
 
     fun setSectionEnabled(section: SearchSection, enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
@@ -38,19 +27,18 @@ class SectionManager(
                 return@launch
             }
 
-            disabledSections = if (enabled) {
-                permissionManager.enableSection(section, disabledSections)
-            } else {
-                permissionManager.disableSection(section, disabledSections)
-            }
+            disabledSections =
+                    if (enabled) {
+                        permissionManager.enableSection(section, disabledSections)
+                    } else {
+                        permissionManager.disableSection(section, disabledSections)
+                    }
 
             if (!enabled) {
                 // Note: Permission refresh logic would be handled by the caller
             }
 
-            onStateUpdate { state ->
-                state.copy(disabledSections = disabledSections)
-            }
+            onStateUpdate { state -> state.copy(disabledSections = disabledSections) }
         }
     }
 
@@ -59,57 +47,11 @@ class SectionManager(
     }
 
     /**
-     * Refreshes disabled sections based on current permissions.
-     * Should be called when permissions change.
+     * Refreshes disabled sections based on current permissions. Should be called when permissions
+     * change.
      */
     fun refreshDisabledSections() {
         disabledSections = permissionManager.computeDisabledSections()
-        onStateUpdate { state ->
-            state.copy(disabledSections = disabledSections)
-        }
-    }
-
-    private fun loadSectionOrder(): List<SearchSection> {
-        val savedOrder = userPreferences.getSectionOrder()
-        val defaultOrder = listOf(
-            SearchSection.APPS,
-            SearchSection.APP_SHORTCUTS,
-            SearchSection.CONTACTS,
-            SearchSection.FILES,
-            SearchSection.SETTINGS
-        )
-
-        if (savedOrder.isEmpty()) {
-            // First time - use default order: Apps, App Shortcuts, Contacts, Files, Settings
-            return defaultOrder
-        }
-
-        // Merge saved order with any new sections that might have been added.
-        val savedSections = savedOrder.mapNotNull { name ->
-            SearchSection.values().find { it.name == name }
-        }.toMutableList()
-
-        if (savedSections.isEmpty()) {
-            return defaultOrder
-        }
-
-        val existingSections = savedSections.toMutableSet()
-        defaultOrder.forEach { section ->
-            if (!existingSections.contains(section)) {
-                val anchor =
-                    defaultOrder
-                        .takeWhile { it != section }
-                        .lastOrNull { existingSections.contains(it) }
-                val insertIndex = if (anchor == null) {
-                    0
-                } else {
-                    savedSections.indexOf(anchor) + 1
-                }
-                savedSections.add(insertIndex, section)
-                existingSections.add(section)
-            }
-        }
-
-        return savedSections
+        onStateUpdate { state -> state.copy(disabledSections = disabledSections) }
     }
 }

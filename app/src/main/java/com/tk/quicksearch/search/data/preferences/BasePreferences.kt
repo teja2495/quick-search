@@ -436,7 +436,6 @@ abstract class BasePreferences(protected val context: Context) {
                 const val KEY_INSTALL_TIME = "install_time"
                 const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
                 const val KEY_CLEAR_QUERY_AFTER_SEARCH_ENGINE = "clear_query_after_search_engine"
-                const val KEY_SHOW_ALL_RESULTS = "show_all_results"
                 const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
                 const val KEY_SORT_APPS_BY_USAGE = "sort_apps_by_usage"
                 const val KEY_LAST_SEEN_VERSION = "last_seen_version"

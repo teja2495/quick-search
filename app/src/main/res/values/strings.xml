@@ -375,8 +375,6 @@
     <string name="settings_excluded_items_empty">You have no excluded items.</string>
     <string name="settings_additional_settings_title">Additional Settings</string>
     <string name="settings_additional_settings_desc">Advanced options and additional configuration.</string>
-    <string name="settings_show_all_results_toggle">Auto-Expand Results</string>
-    <string name="settings_show_all_results_desc">Automatically expand all search result sections</string>
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
