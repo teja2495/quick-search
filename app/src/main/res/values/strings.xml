@@ -146,7 +146,10 @@
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
     <string name="action_include_generic">Include</string>
+    <string name="action_undo">Undo</string>
     <string name="action_exclude_extension">Exclude .%s files</string>
+    <string name="toast_excluded_from_results">%1$s excluded from results</string>
+    <string name="toast_excluded_from_suggestions">%1$s excluded from suggestions</string>
     <string name="settings_excluded_extensions_title">Excluded File Extensions</string>
     <string name="action_remove">Remove</string>
     <string name="action_add_nickname">Add Nickname</string>
