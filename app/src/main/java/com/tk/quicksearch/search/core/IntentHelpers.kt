@@ -131,6 +131,10 @@ object IntentHelpers {
                 openStartpage(context, query)
                 return
             }
+            SearchEngine.SPOTIFY -> {
+                openSpotify(context, query)
+                return
+            }
             else -> {} // Continue to web URL
         }
 
@@ -332,6 +336,36 @@ object IntentHelpers {
 
         // Fallback to web URL
         openWebUrl(context, buildSearchUrl(query, SearchEngine.STARTPAGE))
+    }
+
+    /** Opens Spotify app if installed, otherwise opens web URL. */
+    private fun openSpotify(context: Application, query: String) {
+        // Check if app is installed
+        val launchIntent =
+                context.packageManager.getLaunchIntentForPackage(
+                        PackageConstants.SPOTIFY_PACKAGE
+                )
+
+        if (launchIntent != null) {
+            // App is installed
+            if (query.isBlank()) {
+                // Just open the app
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (e: Exception) {
+                    Log.w("SpotifyLaunch", "Failed to launch Spotify: ${e.message}")
+                }
+            } else {
+                // Try to open with search (using web URL)
+                openWebUrl(context, buildSearchUrl(query, SearchEngine.SPOTIFY))
+                return
+            }
+        }
+
+        // Fallback to web URL
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.SPOTIFY))
     }
 
     /** Opens a web URL in a browser. */

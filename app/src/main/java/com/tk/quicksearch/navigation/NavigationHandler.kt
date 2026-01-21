@@ -75,7 +75,7 @@ class NavigationHandler(
         }
     }
 
-    fun openSearchUrl(query: String, searchEngine: SearchEngine) {
+    fun openSearchUrl(query: String, searchEngine: SearchEngine, addToRecentSearches: Boolean = true) {
         val trimmedQuery = query.trim()
         if (searchEngine == SearchEngine.DIRECT_SEARCH) {
             onRequestDirectSearch(trimmedQuery)
@@ -93,7 +93,7 @@ class NavigationHandler(
         }
 
         // Save the query to recent queries
-        if (trimmedQuery.isNotEmpty()) {
+        if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
             userPreferences.addRecentQuery(trimmedQuery)
         }
 
@@ -101,9 +101,9 @@ class NavigationHandler(
         onClearQuery()
     }
 
-    fun openSearchTarget(query: String, target: SearchTarget) {
+    fun openSearchTarget(query: String, target: SearchTarget, addToRecentSearches: Boolean = true) {
         when (target) {
-            is SearchTarget.Engine -> openSearchUrl(query, target.engine)
+            is SearchTarget.Engine -> openSearchUrl(query, target.engine, addToRecentSearches)
             is SearchTarget.Browser -> {
                 val trimmedQuery = query.trim()
                 IntentHelpers.openBrowserSearch(
@@ -114,7 +114,7 @@ class NavigationHandler(
                     showToastCallback(stringResId)
                 }
 
-                if (trimmedQuery.isNotEmpty()) {
+                if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
                     userPreferences.addRecentQuery(trimmedQuery)
                 }
                 onClearQuery()
@@ -124,7 +124,7 @@ class NavigationHandler(
 
     fun searchIconPacks() {
         val query = application.getString(R.string.settings_icon_pack_search_query)
-        openSearchUrl(query, SearchEngine.GOOGLE_PLAY)
+        openSearchUrl(query, SearchEngine.GOOGLE_PLAY, addToRecentSearches = false)
     }
 
     fun openFile(deviceFile: DeviceFile) {

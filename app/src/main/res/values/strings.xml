@@ -25,6 +25,7 @@
     <string name="empty_state_subtitle">Launch an app or refine your search to see suggestions.</string>
     <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_search_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
+    <string name="direct_search_enter_query">Please enter a query to search.</string>
     <string name="direct_search_powered_by">Powered by </string>
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_open_search_engine">Unable to open %1$s</string>
@@ -293,7 +294,7 @@
     <string name="settings_search_engine_display_sticky_title">Compact</string>
     <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard as a horizontal list</string>
     <string name="settings_search_engine_display_inline_title">Inline</string>
-    <string name="settings_search_engine_display_inline_desc">Shown as cards in the results area when there are no results</string>
+    <string name="settings_search_engine_display_inline_desc">Shown as cards in the results area when searching</string>
     <string name="settings_amazon_domain_default">amazon.com</string>
     <string name="settings_amazon_domain_label">Domain:</string>
     <string name="settings_gemini_api_key_placeholder">Paste your API Key</string>
@@ -365,7 +366,7 @@
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
     <string name="section_settings">Device Settings</string>
-    <string name="settings_sections_at_least_one_required">At least one section must be enabled</string>
+    <string name="settings_sections_at_least_one_required">At least one item must be enabled</string>
 
     <!-- ========================================&====================================
          Settings - Excluded Items

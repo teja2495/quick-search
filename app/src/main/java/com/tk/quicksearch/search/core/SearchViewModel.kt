@@ -252,7 +252,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         DirectSearchHandler(
                 context = application.applicationContext,
                 userPreferences = userPreferences,
-                scope = viewModelScope
+                scope = viewModelScope,
+                showToastCallback = this::showToast
         )
     }
 
@@ -1092,7 +1093,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun clearDetectedShortcut() {
         lockedShortcutTarget = null
-        _uiState.update { it.copy(detectedShortcutTarget = null) }
+        updateUiState { it.copy(detectedShortcutTarget = null) }
     }
 
     fun clearQuery() {
@@ -1132,10 +1133,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun openAppInfo(appInfo: AppInfo) = navigationHandler.openAppInfo(appInfo)
     fun openAppInfo(packageName: String) = navigationHandler.openAppInfo(packageName)
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
-    fun openSearchUrl(query: String, searchEngine: SearchEngine) =
-            navigationHandler.openSearchUrl(query, searchEngine)
-    fun openSearchTarget(query: String, target: SearchTarget) =
-            navigationHandler.openSearchTarget(query, target)
+    fun openSearchUrl(
+            query: String,
+            searchEngine: SearchEngine,
+            addToRecentSearches: Boolean = true
+    ) = navigationHandler.openSearchUrl(query, searchEngine, addToRecentSearches)
+    fun openSearchTarget(query: String, target: SearchTarget, addToRecentSearches: Boolean = true) =
+            navigationHandler.openSearchTarget(query, target, addToRecentSearches)
     fun searchIconPacks() = navigationHandler.searchIconPacks()
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
     fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo)

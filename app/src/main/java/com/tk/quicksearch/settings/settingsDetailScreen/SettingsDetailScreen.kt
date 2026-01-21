@@ -85,6 +85,7 @@ internal fun SettingsDetailScreen(
                            state.resultExcludedApps.isNotEmpty() ||
                            state.excludedContacts.isNotEmpty() ||
                            state.excludedFiles.isNotEmpty() ||
+                           state.excludedFileExtensions.isNotEmpty() ||
                            state.excludedSettings.isNotEmpty() ||
                            state.excludedAppShortcuts.isNotEmpty()
     LaunchedEffect(hasExcludedItems) {

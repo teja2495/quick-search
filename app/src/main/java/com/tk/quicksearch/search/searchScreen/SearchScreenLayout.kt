@@ -101,7 +101,8 @@ fun SearchContentArea(
 ) {
         val useOneHandedMode =
                 state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
-        val hideOtherResults = showDirectSearch || showCalculator
+        val hideOtherResults =
+                showDirectSearch || showCalculator || (state.detectedShortcutTarget != null)
         val hasQuery = state.query.isNotBlank()
         val hasAnySearchContent =
                 shouldShowAppsSection(renderingState) ||
@@ -122,10 +123,8 @@ fun SearchContentArea(
                                 Arrangement.spacedBy(DesignTokens.SpacingMedium)
                         }
 
-                // When there are no results and inline search engine style is not enabled,
-                // hide the scroll view and show only the no results text
-                val shouldHideScrollView =
-                        hasQuery && !hasAnySearchResults && state.isSearchEngineCompactMode
+                // When there are no results, hide the scroll view and show only the no results text
+                val shouldHideScrollView = hasQuery && !hasAnySearchResults
 
                 Column(
                         modifier =
@@ -155,16 +154,12 @@ fun SearchContentArea(
                 ) {
                         if (shouldHideScrollView) {
                                 // Show only the no results text without scroll view
-                                // Determine whether to show "No results" message when search engine
-                                // compact mode is enabled
-                                // and web suggestions API was called but returned no results or web
-                                // suggestions are disabled
+                                // Determine whether to show "No results" message when there's a
+                                // query but no results and no search engine shortcut is detected
                                 val shouldShowNoResults =
-                                        state.isSearchEngineCompactMode &&
-                                                (!state.webSuggestionsEnabled ||
-                                                        (state.webSuggestionsEnabled &&
-                                                                state.query.trim().length >= 2 &&
-                                                                state.webSuggestions.isEmpty()))
+                                        state.query.isNotBlank() &&
+                                                !hasAnySearchResults &&
+                                                state.detectedShortcutTarget == null
 
                                 // Add delay before showing no results text to avoid flashing before
                                 // web suggestions load
@@ -434,7 +429,10 @@ fun ContentLayout(
 
                                 // --- Suggestions & Engines ---
                                 ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
-                                        if (!hideResults && hasQuery) {
+                                        if ((!hideResults ||
+                                                        state.detectedShortcutTarget != null) &&
+                                                        hasQuery
+                                        ) {
                                                 // Only show if logic approves
                                                 AnimatedVisibility(
                                                         visible = showWebSuggestions,
@@ -528,14 +526,12 @@ fun ContentLayout(
 
 @Composable
 private fun NoResultsMessage(state: SearchUiState) {
-        // Determine whether to show "No results" message when search engine
-        // compact mode is enabled and web suggestions API was called but returned no results
+        // Determine whether to show "No results" message when there's a query but no results and no
+        // search engine shortcut is detected
         val shouldShowNoResults =
-                state.isSearchEngineCompactMode &&
-                        (!state.webSuggestionsEnabled ||
-                                (state.webSuggestionsEnabled &&
-                                        state.query.trim().length >= 2 &&
-                                        state.webSuggestions.isEmpty()))
+                state.query.isNotBlank() &&
+                        !hasAnySearchResults(state) &&
+                        state.detectedShortcutTarget == null
 
         // Add delay before showing no results text to avoid flashing before
         // web suggestions load

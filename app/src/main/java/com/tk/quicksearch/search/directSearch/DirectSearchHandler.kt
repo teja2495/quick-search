@@ -17,7 +17,8 @@ import kotlinx.coroutines.launch
 class DirectSearchHandler(
         private val context: Context,
         private val userPreferences: UserAppPreferences,
-        private val scope: CoroutineScope
+        private val scope: CoroutineScope,
+        private val showToastCallback: (Int) -> Unit
 ) {
     private val _directSearchState = MutableStateFlow(DirectSearchState())
     val directSearchState: StateFlow<DirectSearchState> = _directSearchState.asStateFlow()
@@ -79,6 +80,7 @@ class DirectSearchHandler(
     fun requestDirectSearch(query: String) {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
+            showToastCallback(R.string.direct_search_enter_query)
             clearDirectSearchState()
             return
         }
