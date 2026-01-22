@@ -19,7 +19,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.util.hapticToggle
 
 /**
- * Card for toggling the appearance of the search engine section (Sticky vs Inline).
+ * Card for toggling the appearance of the search engine section (Compact vs Inline).
  */
 @Composable
 fun SearchEngineAppearanceCard(
@@ -61,8 +61,8 @@ fun SearchEngineAppearanceCard(
                 )
 
                 SearchEngineDisplayOption(
-                    title = stringResource(R.string.settings_search_engine_display_sticky_title),
-                    description = stringResource(R.string.settings_search_engine_display_sticky_desc),
+                    title = stringResource(R.string.settings_search_engine_display_compact_title),
+                    description = stringResource(R.string.settings_search_engine_display_compact_desc),
                     selected = isSearchEngineCompactMode,
                     onClick = {
                         if (!isSearchEngineCompactMode) {

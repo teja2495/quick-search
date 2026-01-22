@@ -292,8 +292,8 @@
          ============================================================================ -->
 
     <string name="settings_search_engine_display_title">Search Engines Style</string>
-    <string name="settings_search_engine_display_sticky_title">Compact</string>
-    <string name="settings_search_engine_display_sticky_desc">Always visible above the keyboard as a horizontal list</string>
+    <string name="settings_search_engine_display_compact_title">Compact</string>
+    <string name="settings_search_engine_display_compact_desc">Always visible above the keyboard as a horizontal list</string>
     <string name="settings_search_engine_display_inline_title">Inline</string>
     <string name="settings_search_engine_display_inline_desc">Shown as cards in the results area when searching</string>
     <string name="settings_amazon_domain_default">amazon.com</string>

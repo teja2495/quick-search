@@ -392,7 +392,7 @@ Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Pl
 - **Reordering**: User-customizable order
 - **Enable/Disable**: Toggle individual engines
 - **Direct Search**: Gemini API integration with optional personal context
-- **Display Modes**: Inline (scrolls) vs Sticky (fixed at bottom)
+- **Display Modes**: Inline (scrolls) vs Compact (fixed at bottom)
 
 **Implementation**: `search/searchEngines/SearchEngineManager.kt`
 
