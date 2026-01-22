@@ -1644,6 +1644,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 recents = recents,
                 searchResults = searchResults
         )
+
+        // Re-trigger secondary searches when nicknames change and there's an active query
+        // This ensures contacts/files/settings clear immediately when nicknames are removed
+        if (trimmedQuery.isNotBlank()) {
+            secondarySearchOrchestrator.performSecondarySearches(query)
+        }
     }
 
     fun handleOptionalPermissionChange() {
