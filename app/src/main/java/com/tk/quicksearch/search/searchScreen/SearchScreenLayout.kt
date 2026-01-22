@@ -7,20 +7,20 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -121,15 +121,25 @@ fun SearchContentArea(
                         shouldShowFilesSection(renderingState, filesParams) ||
                         shouldShowSettingsSection(renderingState)
         val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
-        val hasAnySearchResults = hasAnySearchResults(state)
-        val trimmedQuery = state.query.trim()
-        val queryLength = trimmedQuery.length
+
+        // Compute "no results" state once - shared by both places that need it
         val shouldShowNoResults =
-                trimmedQuery.isNotBlank() &&
-                        !hasAnySearchResults &&
-                        state.detectedShortcutTarget == null &&
-                        (!state.webSuggestionsEnabled ||
-                                (queryLength >= 2 && state.webSuggestions.isEmpty()))
+                remember(
+                        state.query,
+                        state.webSuggestionsEnabled,
+                        state.webSuggestions,
+                        state.detectedShortcutTarget
+                ) {
+                        val hasAnySearchResults = hasAnySearchResults(state)
+                        val trimmedQuery = state.query.trim()
+                        val queryLength = trimmedQuery.length
+                        trimmedQuery.isNotBlank() &&
+                                !hasAnySearchResults &&
+                                state.detectedShortcutTarget == null &&
+                                (!state.webSuggestionsEnabled ||
+                                        (queryLength >= 2 && state.webSuggestions.isEmpty()))
+                }
+
         val hasInlineSearchEngines = hasQuery && !state.isSearchEngineCompactMode
 
         val showRetryButton =
@@ -184,11 +194,19 @@ fun SearchContentArea(
                         if (shouldHideScrollView) {
                                 // Show only the no results text without scroll view
                                 // Add delay before showing no results text to avoid flashing before
-                                // web suggestions load
+                                // web suggestions load (only when web suggestions are enabled)
                                 var showNoResultsText by remember { mutableStateOf(false) }
-                                LaunchedEffect(shouldShowNoResults, state.query) {
+                                LaunchedEffect(
+                                        shouldShowNoResults,
+                                        state.query,
+                                        state.webSuggestionsEnabled
+                                ) {
                                         if (shouldShowNoResults) {
-                                                delay(500L) // Wait for web suggestions load
+                                                // Only delay if web suggestions are enabled and
+                                                // might still be loading
+                                                if (state.webSuggestionsEnabled) {
+                                                        delay(500L) // Wait for web suggestions load
+                                                }
                                                 showNoResultsText = true
                                         } else {
                                                 showNoResultsText = false
@@ -239,8 +257,7 @@ fun SearchContentArea(
                                         directSearchState = directSearchState,
                                         onPhoneNumberClick = onPhoneNumberClick,
                                         onEmailClick = onEmailClick,
-                                        onOpenPersonalContextDialog =
-                                                onOpenPersonalContextDialog,
+                                        onOpenPersonalContextDialog = onOpenPersonalContextDialog,
                                         onPersonalContextHintDismissed =
                                                 onPersonalContextHintDismissed,
                                         onWebSuggestionClick = onWebSuggestionClick,
@@ -280,7 +297,9 @@ fun SearchContentArea(
                                         if (retryQuery.isNotEmpty()) {
                                                 onSearchTargetClick(
                                                         retryQuery,
-                                                        SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)
+                                                        SearchTarget.Engine(
+                                                                SearchEngine.DIRECT_SEARCH
+                                                        )
                                                 )
                                         }
                                 },
@@ -435,8 +454,10 @@ fun ContentLayout(
                                                 val shouldAllowPersonalContextHint =
                                                         state.showPersonalContextHint &&
                                                                 directSearchState.status ==
-                                                                        DirectSearchStatus.Success &&
-                                                                !directSearchState.answer.isNullOrBlank()
+                                                                        DirectSearchStatus
+                                                                                .Success &&
+                                                                !directSearchState.answer
+                                                                        .isNullOrBlank()
                                                 var isPersonalContextHintVisible by
                                                         remember(directSearchState.activeQuery) {
                                                                 mutableStateOf(false)
@@ -453,7 +474,8 @@ fun ContentLayout(
 
                                                 Column {
                                                         AnimatedVisibility(
-                                                                visible = isPersonalContextHintVisible,
+                                                                visible =
+                                                                        isPersonalContextHintVisible,
                                                                 enter = fadeIn(),
                                                                 exit = fadeOut()
                                                         ) {
@@ -640,20 +662,32 @@ fun ContentLayout(
 private fun NoResultsMessage(state: SearchUiState) {
         // Determine whether to show "No results" message when there's a query but no results and no
         // search engine shortcut is detected
-        val trimmedQuery = state.query.trim()
         val shouldShowNoResults =
-                trimmedQuery.isNotBlank() &&
-                        !hasAnySearchResults(state) &&
-                        state.detectedShortcutTarget == null &&
-                        (!state.webSuggestionsEnabled ||
-                                (trimmedQuery.length >= 2 && state.webSuggestions.isEmpty()))
+                remember(
+                        state.query,
+                        state.webSuggestionsEnabled,
+                        state.webSuggestions,
+                        state.detectedShortcutTarget
+                ) {
+                        val hasAnySearchResults = hasAnySearchResults(state)
+                        val trimmedQuery = state.query.trim()
+                        val queryLength = trimmedQuery.length
+                        trimmedQuery.isNotBlank() &&
+                                !hasAnySearchResults &&
+                                state.detectedShortcutTarget == null &&
+                                (!state.webSuggestionsEnabled ||
+                                        (queryLength >= 2 && state.webSuggestions.isEmpty()))
+                }
 
         // Add delay before showing no results text to avoid flashing before
-        // web suggestions load
+        // web suggestions load (only when web suggestions are enabled)
         var showNoResultsText by remember { mutableStateOf(false) }
-        LaunchedEffect(shouldShowNoResults, state.query) {
+        LaunchedEffect(shouldShowNoResults, state.query, state.webSuggestionsEnabled) {
                 if (shouldShowNoResults) {
-                        delay(500L) // Wait for web suggestions load
+                        // Only delay if web suggestions are enabled and might still be loading
+                        if (state.webSuggestionsEnabled) {
+                                delay(500L) // Wait for web suggestions load
+                        }
                         showNoResultsText = true
                 } else {
                         showNoResultsText = false
