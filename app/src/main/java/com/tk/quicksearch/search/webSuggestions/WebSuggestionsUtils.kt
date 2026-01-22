@@ -24,39 +24,49 @@ object WebSuggestionsUtils {
      */
     suspend fun getSuggestions(query: String): List<String> =
             withContext(Dispatchers.IO) {
+                val trimmedQuery = query.trim()
                 try {
-                    if (query.isBlank()) return@withContext emptyList()
+                    if (trimmedQuery.isBlank()) {
+                        return@withContext emptyList()
+                    }
 
-                    val encodedQuery = URLEncoder.encode(query, "UTF-8")
-                    val url =
-                            "https://suggestqueries.google.com/complete/search?client=firefox&q=$encodedQuery"
+                    val encodedQuery = URLEncoder.encode(trimmedQuery, "UTF-8")
+                    val url = "https://suggestqueries.google.com/complete/search?client=firefox&q=$encodedQuery"
 
                     val request = Request.Builder().url(url).build()
-
                     val response = client.newCall(request).execute()
-                    val responseBody = response.body?.string() ?: return@withContext emptyList()
+
+                    if (!response.isSuccessful) {
+                        return@withContext emptyList()
+                    }
+
+                    val responseBody = response.body?.string()
+                    if (responseBody.isNullOrBlank()) {
+                        return@withContext emptyList()
+                    }
 
                     val jsonArray = JSONArray(responseBody)
-                    if (jsonArray.length() < 2) return@withContext emptyList()
+
+                    if (jsonArray.length() < 2) {
+                        return@withContext emptyList()
+                    }
 
                     val suggestionsArray = jsonArray.getJSONArray(1)
+
                     val suggestions = mutableListOf<String>()
 
                     // Get up to 5 suggestions
                     val maxSuggestions = minOf(5, suggestionsArray.length())
+
                     for (i in 0 until maxSuggestions) {
                         val suggestion = suggestionsArray.getString(i)
+
                         if (suggestion.isNotBlank()) {
-                            val capitalizedSuggestion =
-                                    suggestion.replaceFirstChar { it.uppercase() }
+                            val capitalizedSuggestion = suggestion.replaceFirstChar { it.uppercase() }
 
                             // Skip the first suggestion if it matches the query (case-insensitive)
-                            if (i == 0 &&
-                                            capitalizedSuggestion.equals(
-                                                    query.trim(),
-                                                    ignoreCase = true
-                                            )
-                            ) {
+                            val matchesQuery = i == 0 && capitalizedSuggestion.equals(trimmedQuery, ignoreCase = true)
+                            if (matchesQuery) {
                                 continue
                             }
 

@@ -180,7 +180,9 @@ class SecondarySearchOrchestrator(
                             }
 
                             // Fetch web suggestions if query is long enough and suggestions are enabled
-                            if (trimmedQuery.length >= 2 && webSuggestionHandler.isEnabled) {
+                            val queryLengthCheck = trimmedQuery.length >= 2
+                            val suggestionsEnabled = webSuggestionHandler.isEnabled
+                            if (queryLengthCheck && suggestionsEnabled) {
                                 webSuggestionHandler.fetchWebSuggestions(
                                         trimmedQuery,
                                         currentVersion,
@@ -225,7 +227,9 @@ class SecondarySearchOrchestrator(
                         }
 
                         // Fetch web suggestions if enabled and query is long enough
-                        if (webSuggestionHandler.isEnabled && trimmedQuery.length >= 2) {
+                        val suggestionsEnabled = webSuggestionHandler.isEnabled
+                        val queryLengthCheck = trimmedQuery.length >= 2
+                        if (suggestionsEnabled && queryLengthCheck) {
                             webSuggestionHandler.fetchWebSuggestions(
                                     trimmedQuery,
                                     currentVersion,

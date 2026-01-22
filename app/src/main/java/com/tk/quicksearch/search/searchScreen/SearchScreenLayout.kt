@@ -112,6 +112,15 @@ fun SearchContentArea(
                         shouldShowSettingsSection(renderingState)
         val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
         val hasAnySearchResults = hasAnySearchResults(state)
+        val trimmedQuery = state.query.trim()
+        val queryLength = trimmedQuery.length
+        val shouldShowNoResults =
+                trimmedQuery.isNotBlank() &&
+                        !hasAnySearchResults &&
+                        state.detectedShortcutTarget == null &&
+                        (!state.webSuggestionsEnabled ||
+                                (queryLength >= 2 && state.webSuggestions.isEmpty()))
+        val hasInlineSearchEngines = hasQuery && !state.isSearchEngineCompactMode
 
         BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
                 // Use bottom alignment when one-handed mode is enabled and no special states are
@@ -123,8 +132,12 @@ fun SearchContentArea(
                                 Arrangement.spacedBy(DesignTokens.SpacingMedium)
                         }
 
-                // When there are no results, hide the scroll view and show only the no results text
-                val shouldHideScrollView = hasQuery && !hasAnySearchResults
+                // Hide scroll view only when there's nothing else to render.
+                val shouldHideScrollView =
+                        shouldShowNoResults &&
+                                !showCalculator &&
+                                !showDirectSearch &&
+                                !hasInlineSearchEngines
 
                 Column(
                         modifier =
@@ -154,13 +167,6 @@ fun SearchContentArea(
                 ) {
                         if (shouldHideScrollView) {
                                 // Show only the no results text without scroll view
-                                // Determine whether to show "No results" message when there's a
-                                // query but no results and no search engine shortcut is detected
-                                val shouldShowNoResults =
-                                        state.query.isNotBlank() &&
-                                                !hasAnySearchResults &&
-                                                state.detectedShortcutTarget == null
-
                                 // Add delay before showing no results text to avoid flashing before
                                 // web suggestions load
                                 var showNoResultsText by remember { mutableStateOf(false) }
@@ -312,16 +318,18 @@ fun ContentLayout(
         // Pre-calculate common states
         val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
         val hasAnySearchResults = hasAnySearchResults(state)
-        val hasDirectSearchAnswer = showDirectSearch && directSearchState != null
-
         // Web Suggestions Logic
+        val suggestionsNotEmpty = state.webSuggestions.isNotEmpty()
+        val suggestionsEnabled = state.webSuggestionsEnabled
+        val suggestionWasSelected = state.webSuggestionWasSelected
+
         val showWebSuggestions =
                 hasQuery &&
+                        !showDirectSearch &&
                         !showCalculator &&
-                        !hasDirectSearchAnswer &&
-                        state.webSuggestions.isNotEmpty() &&
-                        state.webSuggestionsEnabled &&
-                        !state.webSuggestionWasSelected
+                        suggestionsNotEmpty &&
+                        suggestionsEnabled &&
+                        !suggestionWasSelected
 
         // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
         val showRecentQueries =
@@ -429,10 +437,9 @@ fun ContentLayout(
 
                                 // --- Suggestions & Engines ---
                                 ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
-                                        if ((!hideResults ||
-                                                        state.detectedShortcutTarget != null) &&
-                                                        hasQuery
-                                        ) {
+                                        val allowWebSuggestions =
+                                                !hideResults || state.detectedShortcutTarget != null
+                                        if (allowWebSuggestions && hasQuery) {
                                                 // Only show if logic approves
                                                 AnimatedVisibility(
                                                         visible = showWebSuggestions,
@@ -528,10 +535,13 @@ fun ContentLayout(
 private fun NoResultsMessage(state: SearchUiState) {
         // Determine whether to show "No results" message when there's a query but no results and no
         // search engine shortcut is detected
+        val trimmedQuery = state.query.trim()
         val shouldShowNoResults =
-                state.query.isNotBlank() &&
+                trimmedQuery.isNotBlank() &&
                         !hasAnySearchResults(state) &&
-                        state.detectedShortcutTarget == null
+                        state.detectedShortcutTarget == null &&
+                        (!state.webSuggestionsEnabled ||
+                                (trimmedQuery.length >= 2 && state.webSuggestions.isEmpty()))
 
         // Add delay before showing no results text to avoid flashing before
         // web suggestions load

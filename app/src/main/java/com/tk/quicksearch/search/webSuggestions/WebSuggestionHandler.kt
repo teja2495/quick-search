@@ -41,42 +41,50 @@ class WebSuggestionHandler(
             activeQueryVersionProvider: () -> Long,
             activeQueryProvider: () -> String
     ) {
+        val trimmedQuery = query.trim()
+        if (!isEnabled) {
+            return
+        }
+
         webSuggestionsJob?.cancel()
+
         webSuggestionsJob =
                 scope.launch(Dispatchers.IO) {
                     try {
                         // Add small delay to prevent immediate API calls while user is typing
                         delay(50L)
+
                         // Check if query version still matches after delay
-                        if (activeQueryVersionProvider() != currentQueryVersion ||
-                                        activeQueryProvider().trim() != query.trim()
-                        ) {
+                        val activeVersion = activeQueryVersionProvider()
+                        val activeQuery = activeQueryProvider().trim()
+                        val versionMatches = activeVersion == currentQueryVersion
+                        val queryMatches = activeQuery == trimmedQuery
+
+                        if (!versionMatches || !queryMatches) {
                             return@launch
                         }
 
-                        val suggestions = WebSuggestionsUtils.getSuggestions(query)
+                        val suggestions = WebSuggestionsUtils.getSuggestions(trimmedQuery)
 
                         withContext(Dispatchers.Main) {
                             // Only update if query hasn't changed
-                            if (activeQueryVersionProvider() == currentQueryVersion &&
-                                            activeQueryProvider().trim() == query.trim()
-                            ) {
+                            val finalActiveVersion = activeQueryVersionProvider()
+                            val finalActiveQuery = activeQueryProvider().trim()
+                            val finalVersionMatches = finalActiveVersion == currentQueryVersion
+                            val finalQueryMatches = finalActiveQuery == trimmedQuery
+
+                            if (finalVersionMatches && finalQueryMatches) {
                                 val suggestionsToShow = suggestions.take(webSuggestionsCount)
-                                android.util.Log.d(
-                                        "WebSuggestions",
-                                        "WebSuggestionHandler: updating UI state with ${suggestionsToShow.size} suggestions (limited to $webSuggestionsCount)"
-                                )
+
                                 uiStateUpdater { state ->
                                     state.copy(
                                             webSuggestions = suggestionsToShow
                                     )
                                 }
-                            } else {
                             }
                         }
                     } catch (e: Exception) {
                         // Silently fail - don't show suggestions on error
-                        android.util.Log.e("WebSuggestions", "Error fetching suggestions", e)
                     }
                 }
     }
