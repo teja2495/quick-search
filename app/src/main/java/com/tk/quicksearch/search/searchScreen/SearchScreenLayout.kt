@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -98,6 +99,8 @@ fun SearchContentArea(
         scrollState: androidx.compose.foundation.ScrollState,
         onPhoneNumberClick: (String) -> Unit = {},
         onEmailClick: (String) -> Unit = {},
+        onOpenPersonalContextDialog: () -> Unit = {},
+        onPersonalContextHintDismissed: () -> Unit = {},
         onWebSuggestionClick: (String) -> Unit = {},
         onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
         onCustomizeSearchEnginesClick: () -> Unit = {},
@@ -236,6 +239,10 @@ fun SearchContentArea(
                                         directSearchState = directSearchState,
                                         onPhoneNumberClick = onPhoneNumberClick,
                                         onEmailClick = onEmailClick,
+                                        onOpenPersonalContextDialog =
+                                                onOpenPersonalContextDialog,
+                                        onPersonalContextHintDismissed =
+                                                onPersonalContextHintDismissed,
                                         onWebSuggestionClick = onWebSuggestionClick,
                                         onCustomizeSearchEnginesClick =
                                                 onCustomizeSearchEnginesClick,
@@ -323,6 +330,8 @@ fun ContentLayout(
         directSearchState: DirectSearchState? = null,
         onPhoneNumberClick: (String) -> Unit = {},
         onEmailClick: (String) -> Unit = {},
+        onOpenPersonalContextDialog: () -> Unit = {},
+        onPersonalContextHintDismissed: () -> Unit = {},
         onWebSuggestionClick: (String) -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
         onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
@@ -423,14 +432,61 @@ fun ContentLayout(
                                 }
                                 ItemPriorityConfig.ItemType.DIRECT_SEARCH_RESULT -> {
                                         if (showDirectSearch && directSearchState != null) {
-                                                DirectSearchResult(
-                                                        DirectSearchState = directSearchState,
-                                                        showWallpaperBackground =
-                                                                state.showWallpaperBackground,
-                                                        oneHandedMode = state.oneHandedMode,
-                                                        onPhoneNumberClick = onPhoneNumberClick,
-                                                        onEmailClick = onEmailClick
-                                                )
+                                                val shouldAllowPersonalContextHint =
+                                                        state.showPersonalContextHint &&
+                                                                directSearchState.status ==
+                                                                        DirectSearchStatus.Success &&
+                                                                !directSearchState.answer.isNullOrBlank()
+                                                var isPersonalContextHintVisible by
+                                                        remember(directSearchState.activeQuery) {
+                                                                mutableStateOf(false)
+                                                        }
+
+                                                LaunchedEffect(shouldAllowPersonalContextHint) {
+                                                        if (shouldAllowPersonalContextHint) {
+                                                                delay(1000L)
+                                                                isPersonalContextHintVisible = true
+                                                        } else {
+                                                                isPersonalContextHintVisible = false
+                                                        }
+                                                }
+
+                                                Column {
+                                                        AnimatedVisibility(
+                                                                visible = isPersonalContextHintVisible,
+                                                                enter = fadeIn(),
+                                                                exit = fadeOut()
+                                                        ) {
+                                                                Column {
+                                                                        PersonalContextHintBanner(
+                                                                                onOpenPersonalContext =
+                                                                                        onOpenPersonalContextDialog,
+                                                                                onDismiss = {
+                                                                                        isPersonalContextHintVisible =
+                                                                                                false
+                                                                                        onPersonalContextHintDismissed()
+                                                                                }
+                                                                        )
+                                                                        Spacer(
+                                                                                modifier =
+                                                                                        Modifier.size(
+                                                                                                DesignTokens
+                                                                                                        .SpacingSmall
+                                                                                        )
+                                                                        )
+                                                                }
+                                                        }
+                                                        DirectSearchResult(
+                                                                DirectSearchState =
+                                                                        directSearchState,
+                                                                showWallpaperBackground =
+                                                                        state.showWallpaperBackground,
+                                                                oneHandedMode = state.oneHandedMode,
+                                                                onPhoneNumberClick =
+                                                                        onPhoneNumberClick,
+                                                                onEmailClick = onEmailClick
+                                                        )
+                                                }
                                         }
                                 }
 

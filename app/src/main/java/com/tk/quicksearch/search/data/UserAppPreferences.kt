@@ -756,6 +756,11 @@ class UserAppPreferences(private val context: Context) {
         fun setHasSeenContactActionHint(seen: Boolean) =
                 uiPreferences.setHasSeenContactActionHint(seen)
 
+        fun hasSeenPersonalContextHint(): Boolean = uiPreferences.hasSeenPersonalContextHint()
+
+        fun setHasSeenPersonalContextHint(seen: Boolean) =
+                uiPreferences.setHasSeenPersonalContextHint(seen)
+
         fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
         fun setLastSeenVersionName(versionName: String?) =

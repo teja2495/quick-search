@@ -6,11 +6,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -28,10 +33,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -66,6 +75,8 @@ import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SearchRoute(
@@ -280,6 +291,7 @@ fun SearchRoute(
                 onSearchTargetClick = { query, target -> viewModel.openSearchTarget(query, target) },
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 onDirectSearchEmailClick = viewModel::openEmail,
+                onSetPersonalContext = viewModel::setPersonalContext,
                 onOpenAppSettings = viewModel::openAppSettings,
                 onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
                 onAppNicknameClick = { app ->
@@ -312,6 +324,7 @@ fun SearchRoute(
                 },
                 onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
                 onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
+                onPersonalContextHintDismissed = viewModel::onPersonalContextHintDismissed,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
                 onDeleteRecentQuery = viewModel::deleteRecentQuery,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
@@ -416,6 +429,7 @@ fun SearchScreen(
         onSearchTargetClick: (String, SearchTarget) -> Unit,
         onSearchEngineLongPress: () -> Unit,
         onDirectSearchEmailClick: (String) -> Unit,
+        onSetPersonalContext: (String?) -> Unit = {},
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
@@ -442,6 +456,7 @@ fun SearchScreen(
         onWebSuggestionClick: (String) -> Unit = {},
         onSearchEngineOnboardingDismissed: () -> Unit = {},
         onContactActionHintDismissed: () -> Unit = {},
+        onPersonalContextHintDismissed: () -> Unit = {},
         onClearDetectedShortcut: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
         onDeleteRecentQuery: (String) -> Unit = {},
@@ -487,8 +502,39 @@ fun SearchScreen(
     // Keyboard switching state
     var manuallySwitchedToNumberKeyboard by remember { mutableStateOf(false) }
 
+    var showPersonalContextDialog by remember { mutableStateOf(false) }
+    var personalContextInput by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = state.personalContext,
+                selection = TextRange(state.personalContext.length)
+            )
+        )
+    }
+    val personalContextFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(showPersonalContextDialog) {
+        if (showPersonalContextDialog) {
+            delay(100)
+            personalContextInput = personalContextInput.copy(
+                selection = TextRange(personalContextInput.text.length)
+            )
+            personalContextFocusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
     // Reset expansion when query changes
     LaunchedEffect(state.query) { expandedSection = ExpandedSection.NONE }
+
+    val openPersonalContextDialog = {
+        personalContextInput =
+            TextFieldValue(
+                text = state.personalContext,
+                selection = TextRange(state.personalContext.length)
+            )
+        showPersonalContextDialog = true
+    }
 
     // Handle back button when section is expanded
     BackHandler(enabled = expandedSection != ExpandedSection.NONE) {
@@ -657,6 +703,8 @@ fun SearchScreen(
                 onSearchTargetClick = onSearchTargetClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
                 onDirectSearchEmailClick = onDirectSearchEmailClick,
+                onOpenPersonalContextDialog = openPersonalContextDialog,
+                onPersonalContextHintDismissed = onPersonalContextHintDismissed,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
                 onPhoneNumberClick = { phoneNumber ->
                     // Create a temporary ContactInfo to use the call functionality
@@ -685,6 +733,47 @@ fun SearchScreen(
         SearchEngineOnboardingOverlay(
                 visible = state.showSearchEngineOnboarding,
                 onDismiss = onSearchEngineOnboardingDismissed
+        )
+    }
+
+    if (showPersonalContextDialog) {
+        AlertDialog(
+            onDismissRequest = { showPersonalContextDialog = false },
+            title = {
+                Text(text = stringResource(R.string.settings_direct_search_personal_context_title))
+            },
+            text = {
+                OutlinedTextField(
+                    value = personalContextInput,
+                    onValueChange = { personalContextInput = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 180.dp)
+                        .focusRequester(personalContextFocusRequester),
+                    placeholder = {
+                        Text(text = stringResource(R.string.settings_direct_search_personal_context_hint))
+                    },
+                    shape = MaterialTheme.shapes.large,
+                    singleLine = false,
+                    minLines = 5
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val trimmed = personalContextInput.text.trim()
+                        onSetPersonalContext(trimmed.takeIf { it.isNotEmpty() })
+                        showPersonalContextDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.dialog_save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPersonalContextDialog = false }) {
+                    Text(text = stringResource(R.string.dialog_cancel))
+                }
+            }
         )
     }
 

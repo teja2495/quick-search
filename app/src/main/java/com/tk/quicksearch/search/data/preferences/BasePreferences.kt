@@ -442,6 +442,7 @@ abstract class BasePreferences(protected val context: Context) {
                 const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
                 const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
                 const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
+                const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
 
                 // Fresh install detection window (10 minutes)
                 const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L

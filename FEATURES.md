@@ -8,14 +8,16 @@
 - **File Search** - Search through device files
 - **Settings Search** - Find specific device settings
 - **App Suggestions** - Displays suggested apps when no search query is entered
-- **Built-in Calculator** - Type basic math expressions in the search bar to see results directly
+- **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard)
+- **Advanced Fuzzy Search** - Intelligent search with typo tolerance, acronym matching, and smart ranking
 
 ### Internet Search
 - **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
 - **Horizontal Scroll** - Swipe horizontally to access additional search engines
 - **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
 - **Search Engine Shortcuts** - Add a search engine shortcut at the start of your query to quickly search with that search engine
-- **Supported Search Engines**:
+- **Browser Integration** - Installed browsers automatically appear as search engine options
+- **Supported Search Engines** (23 total):
   - **Direct Search** (dsh) - AI-powered answers using Gemini API
   - **Google** (ggl) - Default web search
   - **ChatGPT** (cgpt) - OpenAI's conversational AI
@@ -44,11 +46,23 @@
   - **Inline Mode**: Search engines scroll with the content
   - **Compact Mode**: Search engines stay fixed at the bottom of the screen for quick access
 
+### Advanced Search Algorithms
+- **Typo Tolerance** - Handles common spelling mistakes and typos (e.g., "chrmoe" finds "Chrome")
+- **Acronym Matching** - Short queries match app acronyms (e.g., "yt" finds "YouTube", "gm" finds "Google Maps")
+- **Smart Ranking System** - Results are ranked by relevance with multiple priority levels:
+  - Exact matches (highest priority)
+  - Names starting with query
+  - Second word matches
+  - Names containing query anywhere
+- **Fuzzy Matching** - Advanced algorithms using token-based scoring for accurate results
+- **Nickname Support** - Custom app nicknames work with all search algorithms
+
 ### Direct Search (Gemini API)
 - **AI-Powered Answers** - Configure your Gemini API key to see answers directly within Quick Search
 - **Personal Context** - Optionally add personal information to customize AI responses (e.g., location, preferences)
 - **Easy Setup** - Tap "Get Free API Key" in settings for setup instructions
 - **Interactive Results** - Tap phone numbers to call or email addresses to send emails directly from search results
+- **Copy to Clipboard** - Long press any Gemini answer to copy it to clipboard
 - **Secure Storage** - API keys are encrypted using Android's EncryptedSharedPreferences
 
 ## Customization & Settings
@@ -62,6 +76,7 @@
 
 ### Visual Customization
 - **Wallpaper Integration** - Your default phone wallpaper automatically sets as the app's background (it needs files permission and can be disabled in settings)
+- **Wallpaper Controls** - Adjust wallpaper transparency and blur effects for optimal readability
 - **Icon Pack Support** - Apply 3rd party icon packs to app suggestions and results
 - **One-Hand Mode** - Position search results at the bottom of the screen for easier reach (bottom-aligned layout)
 - **Section Titles** - Show/hide section headers (Apps, Contacts, Files, Settings)
@@ -74,12 +89,14 @@
 - **Direct Calling Toggle** - Enable to call immediately, or disable to open dialer first
 - **Multiple Numbers** - When you open a contact result which has multiple phone numbers, tap the arrow beside the phone number to access other numbers. The app will remember the last opened number and opens it first when you reopen the contact.
 - **Preferred Number Memory** - The app remembers your preferred number for each contact
+- **Customize Contact Actions** - Long press any contact action to customize it for individual contacts
 
 ### File Management
 - **File Type Filtering** - Ignore specific categories in settings:
   - Photos & Videos
   - Documents
   - All other file types
+- **Folder Search** - Search through device folders and directories
 - **Custom Exclusions** - Long press any file result for example, .pdf and tap "Exclude .pdf files" to ignore that file type
 
 ### Result Management
@@ -89,6 +106,7 @@
 - **Pin Results** - Long press any result (app, contact, file, or setting) to pin it to the search home screen for quick access
 - **Nicknames** - Long press any app to add a nickname, then search using that nickname in the future
 - **App Management** - Long press apps to view app info or uninstall
+- **App Shortcuts** - Long press any app to access its shortcuts (if available) and enable them in search results
 
 ### Behavior Settings
 - **Clear Query Toggle** - Automatically clear search query after performing an action

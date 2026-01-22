@@ -66,6 +66,7 @@
     <string name="contacts_action_previous_number">Previous phone number</string>
     <string name="contacts_action_next_number">Next phone number</string>
     <string name="contacts_action_hint_message">Tip: Press and hold any action here to customize it for individual contacts.</string>
+    <string name="direct_search_personal_context_tip">Tip: Add details to your %1$s for personalized results.</string>
     <string name="error_open_contact">Unable to open that contact</string>
     <string name="error_missing_phone_number">No phone number available</string>
     <string name="error_whatsapp_call_permission">Phone permission required for WhatsApp calls</string>
@@ -468,7 +469,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Recent searches will appear when you open the app.\nAdded a new default search engine style: Inline. You can switch back to the older style in settings in "Appearance" section.\nAdded support for search engine shortcuts at the start of a query.\nAdded new search engines: Gemini and Startpage.\nImproved animations &amp; added haptics.</string>
+    <string name="release_notes_points">Long press apps to access their shortcuts (if available). You can enable them in search results too.\nLong press contact actions to change them.\nFolder search\nApp Search now ignores typos and allows abbreviations.\nAdjust wallpaper transparency and blur.\nBrowsers can be added as search engines.\nPerformance improvements and bug fixes.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>

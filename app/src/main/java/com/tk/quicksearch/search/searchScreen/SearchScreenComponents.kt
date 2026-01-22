@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -76,6 +79,8 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticStrong
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 
 @Composable
 internal fun PermissionDisabledCard(
@@ -594,6 +599,84 @@ internal fun InfoBanner(message: String) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
         )
+    }
+}
+
+@Composable
+internal fun PersonalContextHintBanner(
+        onOpenPersonalContext: () -> Unit,
+        onDismiss: () -> Unit,
+        modifier: Modifier = Modifier
+) {
+    val linkText = stringResource(R.string.settings_direct_search_personal_context)
+    val fullText = stringResource(R.string.direct_search_personal_context_tip, linkText)
+    val linkTag = "personal_context"
+
+    val annotatedText =
+            buildAnnotatedString {
+                append(fullText)
+                val startIndex = fullText.indexOf(linkText)
+                if (startIndex >= 0) {
+                    val endIndex = startIndex + linkText.length
+                    addStyle(
+                            style =
+                                    SpanStyle(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            textDecoration = TextDecoration.Underline
+                                    ),
+                            start = startIndex,
+                            end = endIndex
+                    )
+                    addStringAnnotation(
+                            tag = linkTag,
+                            annotation = linkText,
+                            start = startIndex,
+                            end = endIndex
+                    )
+                }
+            }
+
+    Card(
+            modifier = modifier.fillMaxWidth(),
+            colors =
+                    CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ),
+            shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Row(
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+        ) {
+            ClickableText(
+                    text = annotatedText,
+                    style =
+                            MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                    modifier = Modifier.weight(1f),
+                    onClick = { offset ->
+                        val annotations =
+                                annotatedText.getStringAnnotations(
+                                        tag = linkTag,
+                                        start = offset,
+                                        end = offset
+                                )
+                        if (annotations.isNotEmpty()) {
+                            onOpenPersonalContext()
+                        }
+                    }
+            )
+            IconButton(onClick = onDismiss) {
+                Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.desc_close),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
     }
 }
 

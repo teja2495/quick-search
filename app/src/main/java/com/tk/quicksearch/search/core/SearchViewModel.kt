@@ -578,6 +578,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
+                        showPersonalContextHint = !userPreferences.hasSeenPersonalContextHint(),
                         // Messaging info
                         messagingApp = messagingInfo.messagingApp,
                         isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
@@ -1296,6 +1297,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun onContactActionHintDismissed() {
         userPreferences.setHasSeenContactActionHint(true)
         updateUiState { it.copy(showContactActionHint = false) }
+    }
+
+    fun onPersonalContextHintDismissed() {
+        userPreferences.setHasSeenPersonalContextHint(true)
+        updateUiState { it.copy(showPersonalContextHint = false) }
     }
 
     // Contact Actions

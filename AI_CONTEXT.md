@@ -339,6 +339,31 @@ fun ResultsSection(
 - Files (by filename)
 - Settings (by title)
 
+### Fuzzy Search Engine (`search/fuzzy/FuzzySearchEngine.kt`)
+
+**Advanced Fuzzy Matching** for enhanced search accuracy:
+
+```kotlin
+// FuzzySearchEngine.kt
+class FuzzySearchEngine {
+    fun computeScore(query: String, targetText: String, targetNickname: String?): Int {
+        // Returns score 0-100 based on fuzzy matching algorithms
+    }
+}
+```
+
+**Key Features**:
+- **Typo Tolerance**: Handles common typos and spelling variations (e.g., "chrmoe" → "Chrome")
+- **Acronym Matching**: Short queries match app acronyms (e.g., "yt" → "YouTube", "gm" → "Google Maps")
+- **Token-Based Scoring**: Uses FuzzyWuzzy library with token set ratio for accurate matching
+- **Nickname Support**: Considers app nicknames for enhanced matching
+- **Minimum Query Length**: Only applies fuzzy matching for queries ≥ 3 characters (or 2-4 for acronyms)
+
+**Scoring Algorithm**:
+- **100**: Exact acronym match or perfect fuzzy match
+- **Variable (0-100)**: Token set ratio using FuzzyWuzzy algorithms
+- **0**: Below minimum threshold or no match
+
 ### App Search Logic
 
 ```kotlin
@@ -353,8 +378,15 @@ fun matches(query: String): Boolean {
 
 **App Display Logic**:
 - Empty query: Show **pinned apps** (first) + **recent apps**
-- With query: Show **filtered search results** ranked by `SearchRankingUtils`
+- With query: Show **filtered search results** using hybrid ranking:
+  - Primary: `SearchRankingUtils` for exact/starts-with/contains matching
+  - Secondary: `FuzzySearchEngine` for typo tolerance and acronym matching
 - Grid: 2 rows × 5 columns = **10 apps maximum**
+
+**Search Enhancement**:
+- **Traditional Ranking**: Exact match → starts with → contains (via `SearchRankingUtils`)
+- **Fuzzy Enhancement**: Typo correction and acronym matching (via `FuzzySearchEngine`)
+- **Combined Results**: Best matches from both algorithms presented together
 
 ---
 
@@ -527,13 +559,14 @@ kotlin = "2.0.21"
 composeBom = "2025.12.01"
 glance = "1.1.1"
 securityCrypto = "1.1.0-alpha06"
+fuzzywuzzy = "1.4.0"
 ```
 
 **Build Configuration**:
 - Min SDK: 24 (Android 7.0)
 - Target SDK: 36 (Android 15)
 - Compile SDK: 36
-- Version: 1.2.3 (Code 15)
+- Version: 1.5 (Code 16)
 
 **Key Dependencies**:
 - Jetpack Compose (BOM 2025.12.01)
@@ -542,6 +575,7 @@ securityCrypto = "1.1.0-alpha06"
 - Security Crypto (for encrypted preferences)
 - OkHttp (for web requests)
 - Play Review/Update APIs
+- FuzzyWuzzy (for advanced fuzzy search matching)
 
 ---
 
@@ -839,5 +873,5 @@ Sections are shown/hidden based on:
 
 ---
 
-**Last Updated**: January 2026 (v1.2.3)  
+**Last Updated**: January 2026 (v1.5)  
 **For Questions**: Refer to code comments, README.md, or analyze usage patterns in codebase

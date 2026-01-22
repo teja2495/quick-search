@@ -164,7 +164,13 @@ class DirectSearchClient(private val apiKey: String) {
             val firstPart = parts.getJSONObject(0)
             val rawAnswer = firstPart.optString("text")
             val sanitizedAnswer = rawAnswer.replace("*", "").trim()
-            sanitizedAnswer.takeIf { it.isNotBlank() }
+            // Format temperature units properly
+            val formattedAnswer = sanitizedAnswer
+                .replace(Regex("degrees?\\s+Fahrenheit", RegexOption.IGNORE_CASE), "°F")
+                .replace(Regex("degrees?\\s+Celsius", RegexOption.IGNORE_CASE), "°C")
+                .replace(Regex("degrees?\\s+F", RegexOption.IGNORE_CASE), "°F")
+                .replace(Regex("degrees?\\s+C", RegexOption.IGNORE_CASE), "°C")
+            formattedAnswer.takeIf { it.isNotBlank() }
         }.getOrNull()
     }
 
