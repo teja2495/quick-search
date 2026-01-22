@@ -1,7 +1,6 @@
 package com.tk.quicksearch.search.appShortcuts
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
@@ -31,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,9 +37,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.data.ShortcutIcon
 import com.tk.quicksearch.search.contacts.ExpandButton
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
@@ -223,11 +223,8 @@ private fun AppShortcutRow(
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
         val displayName = shortcutDisplayName(shortcut)
-        val iconBitmap =
-                rememberAppIcon(
-                        packageName = shortcut.packageName,
-                        iconPackPackage = iconPackPackage
-                )
+        val iconSizePx = with(LocalDensity.current) { ICON_SIZE.dp.roundToPx() }
+        val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
 
         Row(
                 modifier =
@@ -244,30 +241,31 @@ private fun AppShortcutRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
         ) {
-                if (iconBitmap != null) {
-                        Image(
-                                bitmap = iconBitmap,
-                                contentDescription = null,
-                                modifier = Modifier.size(ICON_SIZE.dp),
-                                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                ShortcutIcon(
+                        icon = iconBitmap,
+                        displayName = displayName,
+                        size = ICON_SIZE.dp
+                )
+
+                Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                        Text(
+                                text = displayName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                         )
-                } else {
-                        Icon(
-                                imageVector = Icons.Rounded.Apps,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(ICON_SIZE.dp)
+                        Text(
+                                text = shortcut.appLabel,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                         )
                 }
-
-                Text(
-                        text = displayName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                )
 
                 AppShortcutDropdownMenu(
                         expanded = showOptions,
