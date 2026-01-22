@@ -5,7 +5,7 @@ import android.content.Context
 import java.util.Locale
 
 /**
- * Preferences for managing nicknames for apps, contacts, files, and settings.
+ * Preferences for managing nicknames for apps, app shortcuts, contacts, files, and settings.
  */
 class NicknamePreferences(context: Context) : BasePreferences(context) {
 
@@ -33,6 +33,34 @@ class NicknamePreferences(context: Context) : BasePreferences(context) {
             if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_PREFIX) && value is String) {
                 val packageName = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_PREFIX)
                 nicknames[packageName] = value
+            }
+        }
+        return nicknames
+    }
+
+    fun getAppShortcutNickname(shortcutId: String): String? {
+        return prefs.getString(
+            "${BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX}$shortcutId",
+            null
+        )
+    }
+
+    fun setAppShortcutNickname(shortcutId: String, nickname: String?) {
+        val key = "${BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX}$shortcutId"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+        } else {
+            prefs.edit().putString(key, nickname.trim()).apply()
+        }
+    }
+
+    fun getAllAppShortcutNicknames(): Map<String, String> {
+        val allPrefs = prefs.all
+        val nicknames = mutableMapOf<String, String>()
+        for ((key, value) in allPrefs) {
+            if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX) && value is String) {
+                val shortcutId = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX)
+                nicknames[shortcutId] = value
             }
         }
         return nicknames

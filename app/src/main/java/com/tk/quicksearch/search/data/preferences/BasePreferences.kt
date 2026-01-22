@@ -491,6 +491,7 @@ abstract class BasePreferences(protected val context: Context) {
 
                 // Nickname preferences keys
                 const val KEY_NICKNAME_APP_PREFIX = "nickname_app_"
+                const val KEY_NICKNAME_APP_SHORTCUT_PREFIX = "nickname_app_shortcut_"
                 const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
                 const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
                 const val KEY_NICKNAME_SETTING_PREFIX = "nickname_setting_"

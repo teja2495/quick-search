@@ -1,8 +1,7 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -28,6 +27,7 @@ internal fun SearchScreenDialogs(
     onReleaseNotesAcknowledged: () -> Unit,
     onDismissNicknameDialog: () -> Unit,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
+    onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
@@ -80,6 +80,16 @@ internal fun SearchScreenDialogs(
                     itemName = dialogState.itemName,
                     onSave = { nickname ->
                         onSaveAppNickname(dialogState.app, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog
+                )
+            }
+            is NicknameDialogState.AppShortcut -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveAppShortcutNickname(dialogState.shortcut, nickname)
                     },
                     onDismiss = onDismissNicknameDialog
                 )

@@ -583,6 +583,15 @@ class UserAppPreferences(private val context: Context) {
         fun setAppNickname(packageName: String, nickname: String?) =
                 nicknamePreferences.setAppNickname(packageName, nickname)
 
+        fun getAllAppShortcutNicknames(): Map<String, String> =
+                nicknamePreferences.getAllAppShortcutNicknames()
+
+        fun getAppShortcutNickname(shortcutId: String): String? =
+                nicknamePreferences.getAppShortcutNickname(shortcutId)
+
+        fun setAppShortcutNickname(shortcutId: String, nickname: String?) =
+                nicknamePreferences.setAppShortcutNickname(shortcutId, nickname)
+
         fun getContactNickname(contactId: Long): String? =
                 nicknamePreferences.getContactNickname(contactId)
 

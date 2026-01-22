@@ -375,14 +375,14 @@ class AppShortcutManagementConfig : ManagementHandlerConfig<StaticShortcut> {
         nickname: String?,
         preferences: UserAppPreferences
     ) {
-        // App shortcuts do not support nicknames yet.
+        preferences.setAppShortcutNickname(shortcutKey(item), nickname)
     }
 
     override fun getItemNicknameFromPreferences(
         item: StaticShortcut,
         preferences: UserAppPreferences
     ): String? {
-        return null
+        return preferences.getAppShortcutNickname(shortcutKey(item))
     }
 
     override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) {

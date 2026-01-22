@@ -28,5 +28,9 @@ class AppShortcutManagementHandler(
     fun unpinShortcut(shortcut: StaticShortcut) = unpinItem(shortcut)
     fun excludeShortcut(shortcut: StaticShortcut) = excludeItem(shortcut)
     fun removeExcludedShortcut(shortcut: StaticShortcut) = removeExcludedItem(shortcut)
+    fun setShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
+        setItemNickname(shortcut, nickname)
+    fun getShortcutNickname(shortcutId: String): String? =
+        userPreferences.getAppShortcutNickname(shortcutId)
     fun clearAllExcludedShortcuts() = clearAllExcludedItems()
 }

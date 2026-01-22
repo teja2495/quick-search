@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
@@ -64,6 +65,8 @@ data class AppShortcutsSectionParams(
         val onExclude: (StaticShortcut) -> Unit,
         val onInclude: (StaticShortcut) -> Unit,
         val onAppInfoClick: (StaticShortcut) -> Unit,
+        val onNicknameClick: (StaticShortcut) -> Unit,
+        val getShortcutNickname: (String) -> String?,
         val showAllResults: Boolean,
         val showExpandControls: Boolean,
         val onExpandClick: () -> Unit,
@@ -181,6 +184,7 @@ internal fun buildSectionParams(
         getContactNickname: (Long) -> String?,
         getSettingNickname: (String) -> String?,
         getAppNickname: (String) -> String?,
+        getAppShortcutNickname: (String) -> String?,
         onUpdateNicknameDialogState: (NicknameDialogState?) -> Unit,
         onUpdateExpandedSection: (ExpandedSection) -> Unit,
         expandedSection: ExpandedSection
@@ -230,6 +234,7 @@ internal fun buildSectionParams(
                 getContactNickname,
                 getSettingNickname,
                 getAppNickname,
+                getAppShortcutNickname,
                 onUpdateNicknameDialogState,
                 onUpdateExpandedSection
         ) {
@@ -311,6 +316,20 @@ internal fun buildSectionParams(
                                 onExclude = onExcludeAppShortcut,
                                 onInclude = onIncludeAppShortcut,
                                 onAppInfoClick = onAppShortcutAppInfoClick,
+                                onNicknameClick = { shortcut ->
+                                        onUpdateNicknameDialogState(
+                                                NicknameDialogState.AppShortcut(
+                                                        shortcut = shortcut,
+                                                        currentNickname =
+                                                                getAppShortcutNickname(
+                                                                        shortcutKey(shortcut)
+                                                                ),
+                                                        itemName =
+                                                                shortcutDisplayName(shortcut)
+                                                )
+                                        )
+                                },
+                                getShortcutNickname = getAppShortcutNickname,
                                 showAllResults = false,
                                 showExpandControls = derivedState.isSearching,
                                 onExpandClick = {

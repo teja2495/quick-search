@@ -94,6 +94,8 @@ fun SearchRoute(
             remember(nicknameUpdateVersion) { { uri -> viewModel.getFileNickname(uri) } }
     val getSettingNickname: (String) -> String? =
             remember(nicknameUpdateVersion) { { id -> viewModel.getSettingNickname(id) } }
+    val getAppShortcutNickname: (String) -> String? =
+            remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutNickname(id) } }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
@@ -293,7 +295,9 @@ fun SearchRoute(
                 getAppNickname = getAppNickname,
                 getContactNickname = getContactNickname,
                 getFileNickname = getFileNickname,
+                getAppShortcutNickname = getAppShortcutNickname,
                 onSaveAppNickname = viewModel::setAppNickname,
+                onSaveAppShortcutNickname = viewModel::setAppShortcutNickname,
                 onSaveContactNickname = viewModel::setContactNickname,
                 onSaveFileNickname = viewModel::setFileNickname,
                 getSettingNickname = getSettingNickname,
@@ -423,7 +427,9 @@ fun SearchScreen(
         getAppNickname: (String) -> String?,
         getContactNickname: (Long) -> String?,
         getFileNickname: (String) -> String?,
+        getAppShortcutNickname: (String) -> String?,
         onSaveAppNickname: (AppInfo, String?) -> Unit,
+        onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
         onSaveContactNickname: (ContactInfo, String?) -> Unit,
         onSaveFileNickname: (DeviceFile, String?) -> Unit,
         getSettingNickname: (String) -> String?,
@@ -549,6 +555,7 @@ fun SearchScreen(
                     getContactNickname = getContactNickname,
                     getSettingNickname = getSettingNickname,
                     getAppNickname = getAppNickname,
+                    getAppShortcutNickname = getAppShortcutNickname,
                     onPrimaryActionLongPress = { contact ->
                         val currentAction = getPrimaryContactCardAction(contact.contactId)
                         val defaultAction = if (currentAction == null) {
@@ -695,6 +702,10 @@ fun SearchScreen(
             onDismissNicknameDialog = { nicknameDialogState = null },
             onSaveAppNickname = { app, nickname ->
                 onSaveAppNickname(app, nickname)
+                nicknameDialogState = null
+            },
+            onSaveAppShortcutNickname = { shortcut, nickname ->
+                onSaveAppShortcutNickname(shortcut, nickname)
                 nicknameDialogState = null
             },
             onSaveContactNickname = { contact, nickname ->

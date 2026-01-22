@@ -1209,6 +1209,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
     fun unpinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.unpinShortcut(shortcut)
     fun excludeAppShortcut(shortcut: StaticShortcut) = appShortcutManager.excludeShortcut(shortcut)
+    fun setAppShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
+            appShortcutManager.setShortcutNickname(shortcut, nickname)
+    fun getAppShortcutNickname(shortcutId: String): String? =
+            appShortcutManager.getShortcutNickname(shortcutId)
     fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
             appShortcutManager.removeExcludedShortcut(shortcut)
 

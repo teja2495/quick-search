@@ -148,6 +148,8 @@ private fun renderAppShortcutsSection(params: SectionRenderParams, context: Sect
             onExclude = appShortcutsParams.onExclude,
             onInclude = appShortcutsParams.onInclude,
             onAppInfoClick = appShortcutsParams.onAppInfoClick,
+            onNicknameClick = appShortcutsParams.onNicknameClick,
+            getShortcutNickname = appShortcutsParams.getShortcutNickname,
             showAllResults = context.showAllAppShortcutsResults,
             showExpandControls = context.showAppShortcutsExpandControls,
             onExpandClick = context.appShortcutsExpandClick,

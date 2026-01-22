@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -105,6 +106,12 @@ internal fun ReleaseNotesDialog(
 sealed class NicknameDialogState {
     data class App(
         val app: AppInfo,
+        val currentNickname: String?,
+        val itemName: String
+    ) : NicknameDialogState()
+
+    data class AppShortcut(
+        val shortcut: StaticShortcut,
         val currentNickname: String?,
         val itemName: String
     ) : NicknameDialogState()

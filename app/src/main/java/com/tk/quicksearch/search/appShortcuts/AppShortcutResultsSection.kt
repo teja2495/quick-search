@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -61,6 +62,8 @@ fun AppShortcutResultsSection(
         onExclude: (StaticShortcut) -> Unit,
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
+        onNicknameClick: (StaticShortcut) -> Unit,
+        getShortcutNickname: (String) -> String?,
         showAllResults: Boolean,
         showExpandControls: Boolean,
         onExpandClick: () -> Unit,
@@ -119,15 +122,17 @@ fun AppShortcutResultsSection(
                                                 pinnedShortcutIds = pinnedShortcutIds,
                                                 excludedShortcutIds = excludedShortcutIds,
                                                 onShortcutClick = onShortcutClick,
-                                                onTogglePin = onTogglePin,
-                                                onExclude = onExclude,
-                                                onInclude = onInclude,
-                                                onAppInfoClick = onAppInfoClick,
-                                                iconPackPackage = iconPackPackage,
-                                                shouldShowExpandButton = shouldShowExpandButton,
-                                                onExpandClick = onExpandClick
-                                        )
-                                }
+                                        onTogglePin = onTogglePin,
+                                        onExclude = onExclude,
+                                        onInclude = onInclude,
+                                        onAppInfoClick = onAppInfoClick,
+                                        onNicknameClick = onNicknameClick,
+                                        getShortcutNickname = getShortcutNickname,
+                                        iconPackPackage = iconPackPackage,
+                                        shouldShowExpandButton = shouldShowExpandButton,
+                                        onExpandClick = onExpandClick
+                                )
+                        }
                         }
 
                 if (showWallpaperBackground) {
@@ -158,6 +163,8 @@ private fun AppShortcutsCardContent(
         onExclude: (StaticShortcut) -> Unit,
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
+        onNicknameClick: (StaticShortcut) -> Unit,
+        getShortcutNickname: (String) -> String?,
         iconPackPackage: String?,
         shouldShowExpandButton: Boolean,
         onExpandClick: () -> Unit
@@ -172,11 +179,13 @@ private fun AppShortcutsCardContent(
                                 shortcut = shortcut,
                                 isPinned = pinnedShortcutIds.contains(shortcutId),
                                 isExcluded = excludedShortcutIds.contains(shortcutId),
+                                hasNickname = !getShortcutNickname(shortcutId).isNullOrBlank(),
                                 onShortcutClick = onShortcutClick,
                                 onTogglePin = onTogglePin,
                                 onExclude = onExclude,
                                 onInclude = onInclude,
                                 onAppInfoClick = onAppInfoClick,
+                                onNicknameClick = onNicknameClick,
                                 iconPackPackage = iconPackPackage
                         )
                         if (index < displayShortcuts.lastIndex) {
@@ -202,11 +211,13 @@ private fun AppShortcutRow(
         shortcut: StaticShortcut,
         isPinned: Boolean,
         isExcluded: Boolean,
+        hasNickname: Boolean,
         onShortcutClick: (StaticShortcut) -> Unit,
         onTogglePin: (StaticShortcut) -> Unit,
         onExclude: (StaticShortcut) -> Unit,
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
+        onNicknameClick: (StaticShortcut) -> Unit,
         iconPackPackage: String?
 ) {
         var showOptions by remember { mutableStateOf(false) }
@@ -263,10 +274,12 @@ private fun AppShortcutRow(
                         onDismissRequest = { showOptions = false },
                         isPinned = isPinned,
                         isExcluded = isExcluded,
+                        hasNickname = hasNickname,
                         onTogglePin = { onTogglePin(shortcut) },
                         onExclude = { onExclude(shortcut) },
                         onInclude = { onInclude(shortcut) },
-                        onAppInfoClick = { onAppInfoClick(shortcut) }
+                        onAppInfoClick = { onAppInfoClick(shortcut) },
+                        onNicknameClick = { onNicknameClick(shortcut) }
                 )
         }
 }
@@ -283,10 +296,12 @@ private fun AppShortcutDropdownMenu(
         onDismissRequest: () -> Unit,
         isPinned: Boolean,
         isExcluded: Boolean,
+        hasNickname: Boolean,
         onTogglePin: () -> Unit,
         onExclude: () -> Unit,
         onInclude: () -> Unit,
-        onAppInfoClick: () -> Unit
+        onAppInfoClick: () -> Unit,
+        onNicknameClick: () -> Unit
 ) {
         androidx.compose.material3.DropdownMenu(
                 expanded = expanded,
@@ -329,6 +344,23 @@ private fun AppShortcutDropdownMenu(
                                         onClick = {
                                                 onDismissRequest()
                                                 onTogglePin()
+                                        }
+                                )
+                        )
+                        add(
+                                AppShortcutMenuItem(
+                                        textResId =
+                                                if (hasNickname) R.string.action_edit_nickname
+                                                else R.string.action_add_nickname,
+                                        icon = {
+                                                Icon(
+                                                        imageVector = Icons.Rounded.Edit,
+                                                        contentDescription = null
+                                                )
+                                        },
+                                        onClick = {
+                                                onDismissRequest()
+                                                onNicknameClick()
                                         }
                                 )
                         )

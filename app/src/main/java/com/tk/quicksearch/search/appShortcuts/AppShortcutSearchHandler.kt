@@ -74,15 +74,19 @@ class AppShortcutSearchHandler(
 
         val normalizedQuery = trimmed.lowercase(Locale.getDefault())
         val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        val shortcutNicknames = userPreferences.getAllAppShortcutNicknames()
 
         return availableShortcuts
             .asSequence()
             .filterNot { excludedIds.contains(shortcutKey(it)) }
             .mapNotNull { shortcut ->
+                val shortcutId = shortcutKey(shortcut)
                 val displayName = shortcutDisplayName(shortcut)
+                val nickname = shortcutNicknames[shortcutId]
                 val priority = minOf(
-                    SearchRankingUtils.calculateMatchPriority(
+                    SearchRankingUtils.calculateMatchPriorityWithNickname(
                         displayName,
+                        nickname,
                         normalizedQuery,
                         queryTokens
                     ),
