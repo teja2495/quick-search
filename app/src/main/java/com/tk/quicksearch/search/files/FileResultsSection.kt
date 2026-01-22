@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -138,7 +138,8 @@ private fun FilesResultCard(
         val canShowExpand =
                 showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
         val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-        val shouldShowCollapseButton = isExpanded && showExpandControls
+        val shouldUseLazyList =
+                isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
 
         val displayFiles =
                 if (displayAsExpanded) {
@@ -147,47 +148,38 @@ private fun FilesResultCard(
                         files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
                 }
 
-        val scrollState = androidx.compose.foundation.rememberScrollState()
-
         Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
         ) {
                 val cardModifier = Modifier.fillMaxWidth()
+                val contentModifier =
+                        if (isExpanded)
+                                Modifier.fillMaxWidth()
+                                        .heightIn(
+                                                max =
+                                                        SearchScreenConstants
+                                                                .EXPANDED_CARD_MAX_HEIGHT
+                                        )
+                        else Modifier.fillMaxWidth()
 
                 val cardContent =
                         @Composable
                         {
-                                Column(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .then(
-                                                                if (isExpanded)
-                                                                        Modifier.heightIn(
-                                                                                        max =
-                                                                                                SearchScreenConstants
-                                                                                                        .EXPANDED_CARD_MAX_HEIGHT
-                                                                                )
-                                                                                .verticalScroll(
-                                                                                        scrollState
-                                                                                )
-                                                                else Modifier
-                                                        )
-                                ) {
-                                        FileCardContent(
-                                                displayFiles = displayFiles,
-                                                displayAsExpanded = displayAsExpanded,
-                                                shouldShowExpandButton = shouldShowExpandButton,
-                                                onFileClick = onFileClick,
-                                                pinnedFileUris = pinnedFileUris,
-                                                onTogglePin = onTogglePin,
-                                                onExclude = onExclude,
-                                                onExcludeExtension = onExcludeExtension,
-                                                onNicknameClick = onNicknameClick,
-                                                getFileNickname = getFileNickname,
-                                                onExpandClick = onExpandClick
-                                        )
-                                }
+                                FileCardContent(
+                                        displayFiles = displayFiles,
+                                        shouldShowExpandButton = shouldShowExpandButton,
+                                        onFileClick = onFileClick,
+                                        pinnedFileUris = pinnedFileUris,
+                                        onTogglePin = onTogglePin,
+                                        onExclude = onExclude,
+                                        onExcludeExtension = onExcludeExtension,
+                                        onNicknameClick = onNicknameClick,
+                                        getFileNickname = getFileNickname,
+                                        onExpandClick = onExpandClick,
+                                        modifier = contentModifier,
+                                        useLazyList = shouldUseLazyList
+                                )
                         }
 
                 if (showWallpaperBackground) {
@@ -216,8 +208,8 @@ private fun FilesResultCard(
 
 @Composable
 private fun FileCardContent(
+        modifier: Modifier = Modifier,
         displayFiles: List<DeviceFile>,
-        displayAsExpanded: Boolean,
         shouldShowExpandButton: Boolean,
         onFileClick: (DeviceFile) -> Unit,
         pinnedFileUris: Set<String>,
@@ -226,36 +218,98 @@ private fun FileCardContent(
         onExcludeExtension: (DeviceFile) -> Unit,
         onNicknameClick: (DeviceFile) -> Unit,
         getFileNickname: (String) -> String?,
-        onExpandClick: () -> Unit
+        onExpandClick: () -> Unit,
+        useLazyList: Boolean = false
 ) {
-        Column(modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
-                displayFiles.forEachIndexed { index, file ->
-                        FileResultRow(
-                                deviceFile = file,
-                                onClick = onFileClick,
-                                isPinned = pinnedFileUris.contains(file.uri.toString()),
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onExcludeExtension = onExcludeExtension,
-                                onNicknameClick = onNicknameClick,
-                                hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank()
-                        )
-                        if (index != displayFiles.lastIndex) {
-                                HorizontalDivider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.outlineVariant
+        if (useLazyList) {
+                LazyColumn(
+                        modifier = modifier,
+                        contentPadding =
+                                PaddingValues(horizontal = DesignTokens.SpacingMedium)
+                ) {
+                        itemsIndexed(
+                                items = displayFiles,
+                                key = { _, file -> file.uri.toString() }
+                        ) { index, file ->
+                                FileResultRow(
+                                        deviceFile = file,
+                                        onClick = onFileClick,
+                                        isPinned = pinnedFileUris.contains(file.uri.toString()),
+                                        onTogglePin = onTogglePin,
+                                        onExclude = onExclude,
+                                        onExcludeExtension = onExcludeExtension,
+                                        onNicknameClick = onNicknameClick,
+                                        hasNickname =
+                                                !getFileNickname(file.uri.toString())
+                                                        .isNullOrBlank()
                                 )
+                                if (index != displayFiles.lastIndex) {
+                                        HorizontalDivider(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                }
+                        }
+
+                        if (shouldShowExpandButton) {
+                                item {
+                                        Box(modifier = Modifier.fillMaxWidth()) {
+                                                ExpandButton(
+                                                        onClick = onExpandClick,
+                                                        modifier =
+                                                                Modifier.align(
+                                                                                Alignment.Center
+                                                                        )
+                                                                        .height(
+                                                                                ContactUiConstants
+                                                                                        .EXPAND_BUTTON_HEIGHT
+                                                                                        .dp
+                                                                        )
+                                                                        .padding(
+                                                                                top =
+                                                                                        EXPAND_BUTTON_TOP_PADDING
+                                                                                                .dp
+                                                                        )
+                                                )
+                                        }
+                                }
                         }
                 }
+        } else {
+                Column(modifier = modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
+                        displayFiles.forEachIndexed { index, file ->
+                                FileResultRow(
+                                        deviceFile = file,
+                                        onClick = onFileClick,
+                                        isPinned = pinnedFileUris.contains(file.uri.toString()),
+                                        onTogglePin = onTogglePin,
+                                        onExclude = onExclude,
+                                        onExcludeExtension = onExcludeExtension,
+                                        onNicknameClick = onNicknameClick,
+                                        hasNickname =
+                                                !getFileNickname(file.uri.toString())
+                                                        .isNullOrBlank()
+                                )
+                                if (index != displayFiles.lastIndex) {
+                                        HorizontalDivider(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                }
+                        }
 
-                if (shouldShowExpandButton) {
-                        ExpandButton(
-                                onClick = onExpandClick,
-                                modifier =
-                                        Modifier.align(Alignment.CenterHorizontally)
-                                                .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
-                                                .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
-                        )
+                        if (shouldShowExpandButton) {
+                                ExpandButton(
+                                        onClick = onExpandClick,
+                                        modifier =
+                                                Modifier.align(Alignment.CenterHorizontally)
+                                                        .height(
+                                                                ContactUiConstants
+                                                                        .EXPAND_BUTTON_HEIGHT.dp
+                                                        )
+                                                        .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
+                                )
+                        }
                 }
         }
 }

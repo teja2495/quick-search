@@ -20,6 +20,10 @@ class FileSearchHandler(
         private val userPreferences: UserAppPreferences
 ) {
 
+        companion object {
+                const val FILE_SEARCH_RESULT_LIMIT = 100
+        }
+
         fun getFileState(
                 query: String,
                 enabledFileTypes: Set<FileType>,
@@ -97,7 +101,8 @@ class FileSearchHandler(
                 if (trimmedQuery.length < 2) return emptyList()
 
                 // Get files from repository
-                val allFiles = fileRepository.searchFiles(trimmedQuery, Int.MAX_VALUE)
+                val allFiles =
+                        fileRepository.searchFiles(trimmedQuery, FILE_SEARCH_RESULT_LIMIT)
 
                 // Apply filters
                 val filteredFiles =
@@ -132,7 +137,7 @@ class FileSearchHandler(
                         }
 
                 // Rank and return results
-                return rankFiles(filteredFiles, trimmedQuery)
+                return rankFiles(filteredFiles, trimmedQuery).take(FILE_SEARCH_RESULT_LIMIT)
         }
 
         private fun rankFiles(files: List<DeviceFile>, query: String): List<DeviceFile> {

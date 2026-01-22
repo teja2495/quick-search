@@ -273,5 +273,6 @@ class UnifiedSearchHandler(
                                 }
                         )
                         .map { it.first }
+                        .take(FileSearchHandler.FILE_SEARCH_RESULT_LIMIT)
         }
 }

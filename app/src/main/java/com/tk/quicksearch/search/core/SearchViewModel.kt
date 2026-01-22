@@ -94,12 +94,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
         _uiState.update { state ->
             val updated = updater(state)
-            applyContactActionHint(state, updated)
-        }
-        // Only update visibility states after startup completes to avoid lazy handler init during
-        // first paint
-        if (isStartupComplete) {
-            updateVisibilityStates()
+            val withHint = applyContactActionHint(state, updated)
+
+            // Compute visibility states inline to avoid double state emissions
+            // Only update visibility states after startup completes to avoid lazy handler init
+            // during first paint
+            if (isStartupComplete) {
+                applyVisibilityStates(withHint)
+            } else {
+                withHint
+            }
         }
     }
 
@@ -589,17 +593,37 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // 3. Start heavy background loads
             launch(Dispatchers.IO) { loadApps() }
 
-            launch(Dispatchers.IO) { loadSettingsShortcuts() }
-
-            launch(Dispatchers.IO) { loadAppShortcuts() }
-
             launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
 
             launch(Dispatchers.IO) {
-                // Pinning handler loads contacts and files
+                // Load pinned items first (fast) - contacts, files, app shortcuts, and device
+                // settings
                 pinningHandler.loadPinnedContactsAndFiles()
                 pinningHandler.loadExcludedContactsAndFiles()
+
+                // Load pinned app shortcuts from cache (fast)
+                val pinnedAppShortcutsState = appShortcutSearchHandler.getPinnedAndExcludedOnly()
+                updateUiState { state ->
+                    state.copy(
+                            pinnedAppShortcuts = pinnedAppShortcutsState.pinned,
+                            excludedAppShortcuts = pinnedAppShortcutsState.excluded
+                    )
+                }
+
+                // Load pinned device settings (fast)
+                val pinnedSettingsState = settingsSearchHandler.getPinnedAndExcludedOnly()
+                updateUiState { state ->
+                    state.copy(
+                            pinnedSettings = pinnedSettingsState.pinned,
+                            excludedSettings = pinnedSettingsState.excluded
+                    )
+                }
             }
+
+            // Load full shortcuts/settings in background (slower, for search)
+            launch(Dispatchers.IO) { loadSettingsShortcuts() }
+
+            launch(Dispatchers.IO) { loadAppShortcuts() }
 
             // 4. Release notes
             releaseNotesHandler.checkForReleaseNotes()
@@ -1551,21 +1575,27 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Computes and applies all visibility states to the given state. This is a pure function that
+     * returns a new state with updated visibility fields.
+     */
+    private fun applyVisibilityStates(state: SearchUiState): SearchUiState {
+        return state.copy(
+                screenState = computeScreenVisibilityState(state),
+                appsSectionState = computeAppsSectionVisibility(state),
+                appShortcutsSectionState = computeAppShortcutsSectionVisibility(state),
+                contactsSectionState = computeContactsSectionVisibility(state),
+                filesSectionState = computeFilesSectionVisibility(state),
+                settingsSectionState = computeSettingsSectionVisibility(state),
+                searchEnginesState = computeSearchEnginesVisibility(state)
+        )
+    }
+
+    /**
      * Updates all visibility states in the UI state. Call this whenever the underlying data changes
      * that could affect visibility.
      */
     private fun updateVisibilityStates() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                    screenState = computeScreenVisibilityState(currentState),
-                    appsSectionState = computeAppsSectionVisibility(currentState),
-                    appShortcutsSectionState = computeAppShortcutsSectionVisibility(currentState),
-                    contactsSectionState = computeContactsSectionVisibility(currentState),
-                    filesSectionState = computeFilesSectionVisibility(currentState),
-                    settingsSectionState = computeSettingsSectionVisibility(currentState),
-                    searchEnginesState = computeSearchEnginesVisibility(currentState)
-            )
-        }
+        _uiState.update { currentState -> applyVisibilityStates(currentState) }
     }
 
     companion object {
