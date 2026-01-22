@@ -949,10 +949,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         val trimmedQuery = newQuery.trim()
         val DirectSearchState = _uiState.value.DirectSearchState
-        if (DirectSearchState.status != DirectSearchStatus.Idle && newQuery != previousQuery) {
-            directSearchHandler.clearDirectSearchState()
-        } else if (DirectSearchState.activeQuery != null &&
-                        DirectSearchState.activeQuery != trimmedQuery
+        if (DirectSearchState.status != DirectSearchStatus.Idle &&
+                        (DirectSearchState.activeQuery == null ||
+                                DirectSearchState.activeQuery != trimmedQuery)
         ) {
             directSearchHandler.clearDirectSearchState()
         }

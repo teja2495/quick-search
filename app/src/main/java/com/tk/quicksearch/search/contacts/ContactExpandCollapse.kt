@@ -1,7 +1,9 @@
 package com.tk.quicksearch.search.contacts
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -44,16 +46,17 @@ internal fun ExpandButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 internal fun CollapseButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     androidx.compose.material3.FilledTonalButton(onClick = onClick, modifier = modifier) {
-        Text(
-                text = stringResource(R.string.action_collapse),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-        )
         Icon(
                 imageVector = Icons.Rounded.ExpandLess,
                 contentDescription = stringResource(R.string.desc_collapse),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+                text = stringResource(R.string.action_collapse),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
 }

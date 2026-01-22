@@ -9,10 +9,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -121,6 +128,12 @@ fun SearchContentArea(
                         (!state.webSuggestionsEnabled ||
                                 (queryLength >= 2 && state.webSuggestions.isEmpty()))
         val hasInlineSearchEngines = hasQuery && !state.isSearchEngineCompactMode
+
+        val showRetryButton =
+                showDirectSearch &&
+                        directSearchState?.status == DirectSearchStatus.Error &&
+                        !directSearchState.activeQuery.isNullOrBlank() &&
+                        renderingState.expandedSection == ExpandedSection.NONE
 
         BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
                 // Use bottom alignment when one-handed mode is enabled and no special states are
@@ -251,6 +264,42 @@ fun SearchContentArea(
                                                 .padding(bottom = 28.dp)
                         )
                 }
+
+                if (showRetryButton) {
+                        RetryDirectSearchButton(
+                                onClick = {
+                                        val retryQuery =
+                                                directSearchState?.activeQuery?.trim().orEmpty()
+                                        if (retryQuery.isNotEmpty()) {
+                                                onSearchTargetClick(
+                                                        retryQuery,
+                                                        SearchTarget.Engine(SearchEngine.DIRECT_SEARCH)
+                                                )
+                                        }
+                                },
+                                modifier =
+                                        Modifier.align(Alignment.BottomCenter)
+                                                .padding(bottom = 28.dp)
+                        )
+                }
+        }
+}
+
+@Composable
+private fun RetryDirectSearchButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+        FilledTonalButton(onClick = onClick, modifier = modifier) {
+                Icon(
+                        imageVector = Icons.Rounded.Refresh,
+                        contentDescription = stringResource(R.string.action_retry),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                        text = stringResource(R.string.action_retry),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
         }
 }
 
