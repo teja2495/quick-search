@@ -3,6 +3,7 @@ package com.tk.quicksearch.tile
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.tk.quicksearch.app.MainActivity
@@ -33,10 +34,18 @@ class QuickSearchTileService : TileService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        try {
-            startActivityAndCollapse(pendingIntent)
-        } catch (_: Exception) {
-            // Fallback if the platform disallows PendingIntent variant
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            try {
+                startActivityAndCollapse(pendingIntent)
+            } catch (_: Exception) {
+                // Fallback if the platform disallows PendingIntent variant
+                try {
+                    startActivityAndCollapse(launchIntent)
+                } catch (_: Exception) {
+                    startActivity(launchIntent)
+                }
+            }
+        } else {
             try {
                 startActivityAndCollapse(launchIntent)
             } catch (_: Exception) {

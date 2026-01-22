@@ -20,6 +20,10 @@ object IntentHelpers {
 
     private const val EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY = "com.android.externalstorage.documents"
 
+    private fun canResolveIntent(context: Application, intent: Intent): Boolean {
+        return intent.resolveActivity(context.packageManager) != null
+    }
+
     /** Creates an intent with package URI and NEW_TASK flag. */
     private fun createPackageIntent(action: String, packageName: String): Intent {
         return Intent(action).apply {
@@ -143,6 +147,13 @@ object IntentHelpers {
                 Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+        if (!canResolveIntent(context, intent)) {
+            onShowToast?.invoke(
+                    R.string.error_open_search_engine,
+                    context.getString(searchEngine.getDisplayNameResId())
+            )
+            return
+        }
         try {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
@@ -184,6 +195,10 @@ object IntentHelpers {
                     setPackage(browserPackageName)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+        if (!canResolveIntent(context, intent)) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            return
+        }
         try {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
@@ -374,6 +389,10 @@ object IntentHelpers {
                 Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+        if (!canResolveIntent(context, intent)) {
+            Log.w("OpenWebUrl", "No activity found to handle URL: $url")
+            return
+        }
         try {
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
