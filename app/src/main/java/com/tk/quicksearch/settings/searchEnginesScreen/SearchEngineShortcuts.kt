@@ -90,7 +90,8 @@ internal fun ShortcutCodeDisplay(
     onCodeChange: ((String) -> Unit)?,
     onToggle: ((Boolean) -> Unit)?,
     engineName: String = "",
-    existingShortcuts: Map<String, String> = emptyMap()
+    existingShortcuts: Map<String, String> = emptyMap(),
+    currentShortcutId: String? = null
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -100,6 +101,7 @@ internal fun ShortcutCodeDisplay(
             currentCode = shortcutCode,
             isEnabled = isEnabled,
             existingShortcuts = existingShortcuts,
+            currentShortcutId = currentShortcutId,
             onSave = { code -> onCodeChange(code) },
             onToggle = onToggle,
             onDismiss = { showDialog = false }
@@ -157,6 +159,7 @@ private fun ShortcutRow(
             currentCode = shortcutCode,
             isEnabled = isEnabled,
             existingShortcuts = existingShortcuts,
+            currentShortcutId = engine.name,
             onSave = { code -> onCodeChange(code) },
             onToggle = { enabled -> onToggle(enabled) },
             onDismiss = { showDialog = false }

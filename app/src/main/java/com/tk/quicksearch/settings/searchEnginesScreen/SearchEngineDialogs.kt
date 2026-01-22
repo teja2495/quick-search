@@ -54,6 +54,8 @@ private const val DEFAULT_AMAZON_DOMAIN = "amazon.com"
  * @param engineName The display name of the search engine
  * @param currentCode The current shortcut code
  * @param isEnabled Whether the shortcut is currently enabled
+ * @param existingShortcuts Existing shortcuts for prefix validation
+ * @param currentShortcutId Identifier for the shortcut being edited (excluded from validation)
  * @param onSave Callback when the code is saved
  * @param onToggle Optional callback when the enabled state changes
  * @param onDismiss Callback when the dialog is dismissed
@@ -64,6 +66,7 @@ fun EditShortcutDialog(
     currentCode: String,
     isEnabled: Boolean,
     existingShortcuts: Map<String, String>,
+    currentShortcutId: String? = null,
     onSave: (String) -> Unit,
     onToggle: ((Boolean) -> Unit)?,
     onDismiss: () -> Unit
@@ -81,7 +84,13 @@ fun EditShortcutDialog(
     var enabledState by remember(isEnabled, onToggle) { mutableStateOf(initialEnabledState) }
     val focusRequester = remember { FocusRequester() }
     val isValidShortcut = isValidShortcutCode(editingCode.text)
-    val isValidPrefix = isValidShortcutPrefix(editingCode.text, existingShortcuts)
+    val existingShortcutsForValidation =
+        if (currentShortcutId.isNullOrEmpty()) {
+            existingShortcuts
+        } else {
+            existingShortcuts.filterKeys { it != currentShortcutId }
+        }
+    val isValidPrefix = isValidShortcutPrefix(editingCode.text, existingShortcutsForValidation)
     val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidPrefix)
     
     LaunchedEffect(Unit) {
@@ -136,8 +145,8 @@ fun EditShortcutDialog(
                 )
                 if (showShortcutError) {
                     val errorMessage = when {
-                        !isValidShortcut -> stringResource(R.string.dialog_edit_shortcut_error_length)
                         !isValidPrefix -> stringResource(R.string.dialog_edit_shortcut_error_prefix)
+                        !isValidShortcut -> stringResource(R.string.dialog_edit_shortcut_error_length)
                         else -> ""
                     }
                     Text(

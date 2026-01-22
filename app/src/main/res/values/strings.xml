@@ -173,7 +173,7 @@
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
     <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
     <string name="dialog_edit_shortcut_error_length">Shortcut must be at least 2 characters.</string>
-    <string name="dialog_edit_shortcut_error_prefix">Shortcut cannot start with an existing shortcut.</string>
+    <string name="dialog_edit_shortcut_error_prefix">This code overlaps with an existing shortcut code</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>

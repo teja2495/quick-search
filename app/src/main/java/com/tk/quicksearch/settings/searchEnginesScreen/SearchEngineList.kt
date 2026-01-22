@@ -380,7 +380,8 @@ private fun SearchEngineRowContent(
                     onCodeChange = onShortcutCodeChange,
                     onToggle = onShortcutToggle,
                     engineName = engineName,
-                    existingShortcuts = existingShortcuts
+                    existingShortcuts = existingShortcuts,
+                    currentShortcutId = engine.getId()
                 )
             }
             if (engineInfo == SearchEngine.AMAZON && onSetAmazonDomain != null) {

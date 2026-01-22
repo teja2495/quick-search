@@ -20,13 +20,12 @@ object ShortcutValidator {
 
     /**
      * Validates shortcut input.
-     * Must contain only letters and digits, be non-empty, at least 2 characters, and at most 5 characters.
+     * Must contain only letters and digits, be non-empty, and at least 2 characters.
      */
     fun isValidShortcutCode(input: String): Boolean {
         val normalized = normalizeShortcutCodeInput(input)
         return normalized.isNotEmpty() &&
                normalized.length >= 2 &&
-               normalized.length <= 5 &&
                normalized.all { it.isLetterOrDigit() }
     }
 
@@ -38,7 +37,6 @@ object ShortcutValidator {
         val normalized = normalizeShortcutCodeInput(input)
         return normalized.isNotEmpty() &&
                normalized.length >= 1 &&
-               normalized.length <= 5 &&
                normalized.all { it.isLetterOrDigit() }
     }
 
@@ -57,7 +55,8 @@ object ShortcutValidator {
         // Check if any existing shortcut is a prefix of the new shortcut
         return existingShortcuts.none { (_, existingCode) ->
             val normalizedExisting = normalizeShortcutCodeInput(existingCode)
-            normalizedNew.startsWith(normalizedExisting) && normalizedNew != normalizedExisting
+            normalizedExisting.isNotEmpty() &&
+                normalizedNew.startsWith(normalizedExisting)
         }
     }
 }
