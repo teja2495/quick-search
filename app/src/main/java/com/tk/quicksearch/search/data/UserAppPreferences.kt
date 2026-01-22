@@ -730,12 +730,6 @@ class UserAppPreferences(private val context: Context) {
 
         fun setWallpaperBlurRadius(radius: Float) = uiPreferences.setWallpaperBlurRadius(radius)
 
-        fun shouldClearQueryAfterSearchEngine(): Boolean =
-                uiPreferences.shouldClearQueryAfterSearchEngine()
-
-        fun setClearQueryAfterSearchEngine(clearQuery: Boolean) =
-                uiPreferences.setClearQueryAfterSearchEngine(clearQuery)
-
         fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 
         fun setSelectedIconPackPackage(packageName: String?) =
