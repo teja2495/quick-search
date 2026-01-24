@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +57,7 @@ private val GrantedPermissionColor = Color(0xFF4CAF50)
  */
 private data class PermissionItem(
     val name: String,
+    val subtitle: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val permissionState: PermissionState,
     val onRequest: () -> Unit
@@ -158,6 +160,7 @@ fun PermissionsSettings(
                 val permissions = listOf(
                     PermissionItem(
                         name = stringResource(R.string.settings_usage_access_title),
+                        subtitle = stringResource(R.string.permissions_usage_desc),
                         icon = Icons.Rounded.Info,
                         permissionState = usagePermissionState,
                         onRequest = {
@@ -171,6 +174,7 @@ fun PermissionsSettings(
                     ),
                     PermissionItem(
                         name = stringResource(R.string.settings_contacts_permission_title),
+                        subtitle = stringResource(R.string.permissions_contacts_desc),
                         icon = Icons.Rounded.Contacts,
                         permissionState = contactsPermissionState,
                         onRequest = {
@@ -184,6 +188,7 @@ fun PermissionsSettings(
                     ),
                     PermissionItem(
                         name = stringResource(R.string.settings_files_permission_title),
+                        subtitle = stringResource(R.string.permissions_files_desc),
                         icon = Icons.Rounded.InsertDriveFile,
                         permissionState = filesPermissionState,
                         onRequest = {
@@ -203,6 +208,7 @@ fun PermissionsSettings(
                     ),
                     PermissionItem(
                         name = stringResource(R.string.settings_call_permission_title),
+                        subtitle = stringResource(R.string.permissions_calling_desc),
                         icon = Icons.Rounded.Call,
                         permissionState = callingPermissionState,
                         onRequest = {
@@ -250,12 +256,21 @@ private fun PermissionRow(
             modifier = Modifier.padding(end = 12.dp)
         )
 
-        Text(
-            text = permission.name,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)
+        ) {
+            Text(
+                text = permission.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = permission.subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         Box(
             modifier = Modifier

@@ -17,6 +17,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.util.hapticToggle
 
 /** Card for web suggestions and recent queries settings (without search engines navigation). */
 @Composable
@@ -55,6 +58,7 @@ fun WebSuggestionsCard(
 
             // Web Suggestions Count Slider (only show if enabled)
             if (webSuggestionsEnabled) {
+                var lastWebStep by remember { mutableStateOf(webSuggestionsCount) }
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
@@ -69,7 +73,14 @@ fun WebSuggestionsCard(
                 ) {
                     Slider(
                             value = webSuggestionsCount.toFloat(),
-                            onValueChange = { value -> onWebSuggestionsCountChange(value.toInt()) },
+                            onValueChange = { value ->
+                                val step = value.toInt()
+                                if (step != lastWebStep) {
+                                    hapticToggle(view)()
+                                    lastWebStep = step
+                                }
+                                onWebSuggestionsCountChange(value.toInt())
+                            },
                             valueRange = 1f..5f,
                             steps = 3, // 1, 2, 3, 4, 5
                             modifier = Modifier.weight(1f)
@@ -101,6 +112,7 @@ fun WebSuggestionsCard(
 
             // Recent Queries Count Slider (only show if enabled)
             if (recentQueriesEnabled) {
+                var lastRecentStep by remember { mutableStateOf(recentQueriesCount) }
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
@@ -115,7 +127,14 @@ fun WebSuggestionsCard(
                 ) {
                     Slider(
                             value = recentQueriesCount.toFloat(),
-                            onValueChange = { value -> onRecentQueriesCountChange(value.toInt()) },
+                            onValueChange = { value ->
+                                val step = value.toInt()
+                                if (step != lastRecentStep) {
+                                    hapticToggle(view)()
+                                    lastRecentStep = step
+                                }
+                                onRecentQueriesCountChange(value.toInt())
+                            },
                             valueRange = 1f..5f,
                             steps = 3, // 1, 2, 3, 4, 5
                             modifier = Modifier.weight(1f)

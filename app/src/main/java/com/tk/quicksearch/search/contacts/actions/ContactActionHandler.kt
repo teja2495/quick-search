@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
+import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.core.DirectDialChoice
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.MessagingApp
@@ -64,7 +65,7 @@ class ContactActionHandler(
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
             // Use preferred number directly
-            performMessaging(preferredNumber)
+            performMessaging(contactInfo, preferredNumber)
             return
         }
 
@@ -75,7 +76,7 @@ class ContactActionHandler(
         }
 
         // Single number, use it directly
-        performMessaging(contactInfo.phoneNumbers.first())
+            performMessaging(contactInfo, contactInfo.phoneNumbers.first())
     }
 
     fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) {
@@ -91,7 +92,7 @@ class ContactActionHandler(
         if (selection.isCall) {
             beginCallFlow(contactInfo.displayName, phoneNumber)
         } else {
-            performMessaging(phoneNumber)
+            performMessaging(contactInfo, phoneNumber)
         }
 
         // Clear the selection dialog
@@ -288,8 +289,13 @@ class ContactActionHandler(
         ContactIntentHelpers.performSms(context, number)
     }
 
-    private fun performMessaging(number: String) {
-        when (getMessagingApp()) {
+    private fun performMessaging(contactInfo: ContactInfo, number: String) {
+        when (
+            ContactMessagingAppResolver.resolveMessagingAppForContact(
+                contactInfo,
+                getMessagingApp()
+            )
+        ) {
             MessagingApp.MESSAGES -> performSms(number)
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number) { resId -> showToastCallback(resId) }

@@ -17,10 +17,8 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +34,6 @@ import androidx.compose.ui.platform.LocalView
 import android.widget.Toast
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -110,34 +107,28 @@ fun MessagingSection(
                 }
         }
 
-        MergedMessagingCard(
-            messagingOptions = messagingOptions,
-            selectedApp = messagingApp,
-            onSetMessagingApp = onSetMessagingApp,
-            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
+        DirectDialCard(
             directDialEnabled = directDialEnabled,
             onToggleDirectDial = onToggleDirectDial,
-            hasCallPermission = hasCallPermission,
-            onRequestCallPermission = {} // Not used since permission launcher is handled internally
+            hasCallPermission = hasCallPermission
+        )
+
+        DefaultMessagingAppCard(
+            messagingOptions = messagingOptions,
+            selectedApp = messagingApp,
+            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
+            modifier = Modifier.padding(top = DesignTokens.SpacingMedium)
         )
     }
 }
 
 
 @Composable
-private fun MergedMessagingCard(
-    messagingOptions: List<MessagingOption>,
-    selectedApp: MessagingApp,
-    onSetMessagingApp: (MessagingApp) -> Unit,
-    onMessagingAppSelected: (MessagingApp) -> Unit,
+private fun DirectDialCard(
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
-    hasCallPermission: Boolean,
-    onRequestCallPermission: () -> Unit
+    hasCallPermission: Boolean
 ) {
-    val view = LocalView.current
-    val context = LocalContext.current
-
     val callPermissionLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
@@ -151,63 +142,72 @@ private fun MergedMessagingCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Direct Dial Section - only show if call permission is granted
-            if (hasCallPermission) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_direct_dial_title),
-                    subtitle = stringResource(R.string.settings_direct_dial_desc),
-                    checked = directDialEnabled,
-                    onCheckedChange = { newValue ->
-                        if (newValue) {
-                            // Enable direct dial - permission is already granted
-                            onToggleDirectDial(true)
-                        } else {
-                            // Disable direct dial
-                            onToggleDirectDial(false)
-                        }
-                    },
-                    isFirstItem = true,
-                    isLastItem = false
-                )
-            }
-
-            // Messaging Options Section
-            if (messagingOptions.isNotEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = MessagingSpacing.cardHorizontalPadding,
-                            end = MessagingSpacing.cardHorizontalPadding,
-                            top = MessagingSpacing.cardTopPadding,
-                            bottom = MessagingSpacing.cardBottomPadding
-                        ),
-                    verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing)
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_messaging_card_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = MessagingSpacing.messagingTitleBottomPadding)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectableGroup(),
-                        horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        messagingOptions.forEach { option ->
-                            MessagingOptionChip(
-                                option = option,
-                                selected = selectedApp == option.app,
-                                onClick = { onMessagingAppSelected(option.app) },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_direct_dial_title),
+            subtitle = stringResource(R.string.settings_direct_dial_desc),
+            checked = directDialEnabled,
+            onCheckedChange = { newValue ->
+                if (newValue) {
+                    if (hasCallPermission) {
+                        onToggleDirectDial(true)
+                    } else {
+                        callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
                     }
+                } else {
+                    onToggleDirectDial(false)
+                }
+            },
+            isFirstItem = true,
+            isLastItem = true
+        )
+    }
+}
+
+@Composable
+private fun DefaultMessagingAppCard(
+    messagingOptions: List<MessagingOption>,
+    selectedApp: MessagingApp,
+    onMessagingAppSelected: (MessagingApp) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (messagingOptions.isEmpty()) return
+
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = MessagingSpacing.cardHorizontalPadding,
+                    end = MessagingSpacing.cardHorizontalPadding,
+                    top = MessagingSpacing.cardTopPadding,
+                    bottom = MessagingSpacing.cardBottomPadding
+                ),
+            verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_messaging_card_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = MessagingSpacing.messagingTitleBottomPadding)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                messagingOptions.forEach { option ->
+                    MessagingOptionChip(
+                        option = option,
+                        selected = selectedApp == option.app,
+                        onClick = { onMessagingAppSelected(option.app) },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }

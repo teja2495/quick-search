@@ -431,6 +431,14 @@ class UserAppPreferences(private val context: Context) {
 
         fun getAllAppLaunchCounts(): Map<String, Int> = appPreferences.getAllAppLaunchCounts()
 
+        fun getRecentAppLaunches(): List<String> = appPreferences.getRecentAppLaunches()
+
+        fun setRecentAppLaunches(packageNames: List<String>): List<String> =
+                appPreferences.setRecentAppLaunches(packageNames)
+
+        fun addRecentAppLaunch(packageName: String): List<String> =
+                appPreferences.addRecentAppLaunch(packageName)
+
         // ============================================================================
         // Contact Preferences
         // ============================================================================

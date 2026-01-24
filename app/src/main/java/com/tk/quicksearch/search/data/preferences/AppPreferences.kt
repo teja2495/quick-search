@@ -61,8 +61,29 @@ class AppPreferences(context: Context) : BasePreferences(context) {
             .mapValues { it.value as? Int ?: 0 }
     }
 
+    fun getRecentAppLaunches(): List<String> =
+        getStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES)
+
+    fun setRecentAppLaunches(packageNames: List<String>): List<String> {
+        val trimmed = packageNames.take(MAX_RECENT_APP_LAUNCHES)
+        setStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES, trimmed)
+        return trimmed
+    }
+
+    fun addRecentAppLaunch(packageName: String, maxSize: Int = MAX_RECENT_APP_LAUNCHES): List<String> {
+        val current = getStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES).toMutableList()
+        current.remove(packageName)
+        current.add(0, packageName)
+        if (current.size > maxSize) {
+            current.subList(maxSize, current.size).clear()
+        }
+        setStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES, current)
+        return current
+    }
+
     companion object {
         private const val PREFIX_LAUNCH_COUNT = "launch_count_"
+        private const val MAX_RECENT_APP_LAUNCHES = 10
     }
 
     // ============================================================================

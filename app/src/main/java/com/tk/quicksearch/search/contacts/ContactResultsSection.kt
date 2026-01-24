@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
@@ -299,7 +300,12 @@ private fun ContactList(
                         key(contactInfo.contactId) {
                                 ContactResultRow(
                                         contactInfo = contactInfo,
-                                        messagingApp = messagingApp,
+                                        messagingApp =
+                                                ContactMessagingAppResolver
+                                                        .resolveMessagingAppForContact(
+                                                                contactInfo,
+                                                                messagingApp
+                                                        ),
                                         onContactClick = onContactClick,
                                         onShowContactMethods = onShowContactMethods,
                                         onCallContact = onCallContact,

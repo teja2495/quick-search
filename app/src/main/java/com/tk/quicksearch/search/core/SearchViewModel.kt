@@ -426,6 +426,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
         val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
+        val hasUsagePermission = repository.hasUsageAccess()
 
         // Apply immediately - DO NOT BLOCK on icon loading
         withContext(Dispatchers.Main) {
@@ -439,7 +440,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
 
             if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
-                initializeWithCacheMinimal(cachedAppsList)
+                initializeWithCacheMinimal(cachedAppsList, hasUsagePermission)
             }
         }
 
@@ -451,7 +452,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val visibleApps =
-                        repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT)
+                        extractSuggestedApps(
+                                apps = cachedAppsList,
+                                limit = GRID_ITEM_COUNT,
+                                hasUsagePermission = hasUsagePermission
+                        )
                 val iconPack = userPreferences.getSelectedIconPackPackage()
                 prefetchAppIcons(
                         context = getApplication(),
@@ -525,7 +530,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         refreshRecentQueries()
     }
 
-    private fun initializeWithCacheMinimal(cachedAppsList: List<AppInfo>) {
+    private fun initializeWithCacheMinimal(
+            cachedAppsList: List<AppInfo>,
+            hasUsagePermission: Boolean
+    ) {
         appSearchManager.initCache(cachedAppsList)
         val lastUpdated = repository.cacheLastUpdatedMillis()
 
@@ -537,7 +545,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     cacheLastUpdatedMillis = lastUpdated,
                     // Temporarily show all cached apps until we load hidden/pinned prefs
                     recentApps =
-                            repository.extractRecentlyOpenedApps(cachedAppsList, GRID_ITEM_COUNT),
+                            extractSuggestedApps(
+                                    apps = cachedAppsList,
+                                    limit = GRID_ITEM_COUNT,
+                                    hasUsagePermission = hasUsagePermission
+                            ),
                     indexedAppCount = cachedAppsList.size,
 
                     // Critical: update these to prevent flashing
@@ -1136,6 +1148,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
         if (latest) {
             refreshApps()
+        } else {
+            refreshDerivedState()
         }
         handleOptionalPermissionChange()
         pinningHandler.loadPinnedContactsAndFiles()
@@ -1154,7 +1168,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun openAllFilesAccessSettings() = navigationHandler.openAllFilesAccessSettings()
     fun openFilesPermissionSettings() = navigationHandler.openFilesPermissionSettings()
     fun openContactPermissionSettings() = navigationHandler.openContactPermissionSettings()
-    fun launchApp(appInfo: AppInfo) = navigationHandler.launchApp(appInfo)
+    fun launchApp(appInfo: AppInfo) =
+            navigationHandler.launchApp(
+                    appInfo,
+                    shouldTrackRecentFallback = !_uiState.value.hasUsagePermission
+            )
     fun openAppInfo(appInfo: AppInfo) = navigationHandler.openAppInfo(appInfo)
     fun openAppInfo(packageName: String) = navigationHandler.openAppInfo(packageName)
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
@@ -1610,16 +1628,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         val apps = appSearchManager.cachedApps
         val visibleAppList = appSearchManager.availableApps()
+        val hasUsagePermission = _uiState.value.hasUsagePermission
 
         // Cache these to avoid multiple SharedPreferences reads
         val suggestionHiddenPackages = userPreferences.getSuggestionHiddenPackages()
         val resultHiddenPackages = userPreferences.getResultHiddenPackages()
         val pinnedPackages = userPreferences.getPinnedPackages()
 
+        if (!hasUsagePermission && userPreferences.getRecentAppLaunches().isEmpty()) {
+            val initialRecents =
+                    visibleAppList
+                            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+                            .take(GRID_ITEM_COUNT)
+                            .map { it.packageName }
+            userPreferences.setRecentAppLaunches(initialRecents)
+        }
+
         val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(suggestionHiddenPackages)
         val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
-        val recents = repository.extractRecentlyOpenedApps(recentsSource, GRID_ITEM_COUNT)
+        val recents =
+                extractSuggestedApps(
+                        apps = recentsSource,
+                        limit = GRID_ITEM_COUNT,
+                        hasUsagePermission = hasUsagePermission
+                )
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
         val packageNames = apps.map { it.packageName }.toSet()
@@ -1687,6 +1720,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val optionalChanged = refreshOptionalPermissions()
         if (optionalChanged && _uiState.value.query.isNotBlank()) {
             secondarySearchOrchestrator.performSecondarySearches(_uiState.value.query)
+        }
+    }
+
+    private fun extractSuggestedApps(
+            apps: List<AppInfo>,
+            limit: Int,
+            hasUsagePermission: Boolean
+    ): List<AppInfo> {
+        if (apps.isEmpty() || limit <= 0) return emptyList()
+        return if (hasUsagePermission) {
+            repository.extractRecentlyOpenedApps(apps, limit)
+        } else {
+            val appByPackage = apps.associateBy { it.packageName }
+            userPreferences.getRecentAppLaunches()
+                    .asSequence()
+                    .mapNotNull { appByPackage[it] }
+                    .take(limit)
+                    .toList()
         }
     }
 

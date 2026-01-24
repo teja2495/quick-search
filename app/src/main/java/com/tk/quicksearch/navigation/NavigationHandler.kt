@@ -49,13 +49,16 @@ class NavigationHandler(
         IntentHelpers.openAppSettings(application)
     }
 
-    fun launchApp(appInfo: AppInfo) {
+    fun launchApp(appInfo: AppInfo, shouldTrackRecentFallback: Boolean) {
         IntentHelpers.launchApp(application, appInfo) { stringResId, formatArg ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
         userPreferences.incrementAppLaunchCount(appInfo.packageName)
+        if (shouldTrackRecentFallback) {
+            userPreferences.addRecentAppLaunch(appInfo.packageName)
+        }
         onClearQuery()
     }
 

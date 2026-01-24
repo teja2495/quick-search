@@ -31,9 +31,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -45,6 +50,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -175,6 +181,7 @@ private fun WidgetSlidersSection(
             label = stringResource(R.string.widget_slider_radius),
             value = state.borderRadiusDp,
             valueRange = 0f..30f,
+            steps = 30,
             valueFormatter = { "${it.roundToInt()} dp" },
             onValueChange = { onStateChange(state.copy(borderRadiusDp = it)) }
         )
@@ -182,6 +189,7 @@ private fun WidgetSlidersSection(
             label = stringResource(R.string.widget_slider_border),
             value = state.borderWidthDp,
             valueRange = 0f..4f,
+            steps = 8,
             valueFormatter = { formatBorderWidth(it) },
             onValueChange = { onStateChange(state.copy(borderWidthDp = it)) }
         )
@@ -189,6 +197,7 @@ private fun WidgetSlidersSection(
             label = stringResource(R.string.widget_slider_transparency),
             value = state.backgroundAlpha,
             valueRange = 0f..1f,
+            steps = 10,
             valueFormatter = { "${(it * 100).roundToInt()}%" },
             onValueChange = { onStateChange(state.copy(backgroundAlpha = it)) }
         )
@@ -208,9 +217,14 @@ private fun SliderRow(
     label: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
     valueFormatter: (Float) -> String,
     onValueChange: (Float) -> Unit
 ) {
+    val view = LocalView.current
+    val start = valueRange.start
+    val span = valueRange.endInclusive - start
+    var lastStepIndex by remember { mutableStateOf(if (span > 0) ((value - start) / span * steps).roundToInt().coerceIn(0, steps) else 0) }
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -226,7 +240,14 @@ private fun SliderRow(
         }
         Slider(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { v ->
+                val step = if (span > 0) ((v - start) / span * steps).roundToInt().coerceIn(0, steps) else 0
+                if (step != lastStepIndex) {
+                    hapticToggle(view)()
+                    lastStepIndex = step
+                }
+                onValueChange(v)
+            },
             valueRange = valueRange
         )
     }

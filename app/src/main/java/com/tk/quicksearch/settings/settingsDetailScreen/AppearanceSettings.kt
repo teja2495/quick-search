@@ -44,6 +44,7 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.hapticToggle
+import kotlin.math.roundToInt
 
 
 /**
@@ -154,6 +155,8 @@ fun CombinedAppearanceCard(
             )
 
             if (showWallpaperBackground && hasFilePermission) {
+                var lastAlphaStep by remember { mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9)) }
+                var lastBlurStep by remember { mutableStateOf((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7).roundToInt().coerceIn(0, 7)) }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -171,7 +174,14 @@ fun CombinedAppearanceCard(
                     ) {
                         Slider(
                             value = wallpaperBackgroundAlpha,
-                            onValueChange = onWallpaperBackgroundAlphaChange,
+                            onValueChange = { v ->
+                                val step = (v * 9).roundToInt().coerceIn(0, 9)
+                                if (step != lastAlphaStep) {
+                                    hapticToggle(view)()
+                                    lastAlphaStep = step
+                                }
+                                onWallpaperBackgroundAlphaChange(v)
+                            },
                             valueRange = 0f..1f,
                             steps = 9,
                             modifier = Modifier.weight(1f)
@@ -197,7 +207,14 @@ fun CombinedAppearanceCard(
                     ) {
                         Slider(
                             value = wallpaperBlurRadius,
-                            onValueChange = onWallpaperBlurRadiusChange,
+                            onValueChange = { v ->
+                                val step = (v / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7).roundToInt().coerceIn(0, 7)
+                                if (step != lastBlurStep) {
+                                    hapticToggle(view)()
+                                    lastBlurStep = step
+                                }
+                                onWallpaperBlurRadiusChange(v)
+                            },
                             valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
                             steps = 7,
                             modifier = Modifier.weight(1f)
