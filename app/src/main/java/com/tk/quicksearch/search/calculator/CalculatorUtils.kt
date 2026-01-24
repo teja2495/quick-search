@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.calculator
 
+import java.util.Locale
+
 /**
  * Utility functions for calculator operations.
  * Safely evaluates basic math expressions (addition, subtraction, multiplication, division, and brackets).
@@ -163,14 +165,10 @@ object CalculatorUtils {
     }
 
     /**
-     * Formats the result to remove unnecessary decimal places.
+     * Formats the result with max 2 decimal places, trimming trailing zeros.
      */
     private fun formatResult(result: Double): String {
-        // If it's a whole number, return without decimal point
-        if (result % 1.0 == 0.0) {
-            return result.toLong().toString()
-        }
-        // Otherwise, format to remove trailing zeros
-        return result.toString().trimEnd('0').trimEnd('.')
+        val rounded = String.format(Locale.US, "%.2f", result)
+        return rounded.trimEnd('0').trimEnd('.')
     }
 }

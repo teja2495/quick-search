@@ -49,7 +49,7 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
 
 private const val ROW_MIN_HEIGHT = 52
-private const val ICON_SIZE = 24
+private const val ICON_SIZE = 32
 
 @Composable
 fun AppShortcutResultsSection(

@@ -582,7 +582,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
-                        showPersonalContextHint = !userPreferences.hasSeenPersonalContextHint(),
+                        showPersonalContextHint = !userPreferences.hasSeenPersonalContextHint() &&
+                                directSearchHandler.getPersonalContext().isBlank(),
                         // Messaging info
                         messagingApp = messagingInfo.messagingApp,
                         isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,

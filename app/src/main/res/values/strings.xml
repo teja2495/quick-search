@@ -37,7 +37,7 @@
     <!-- ============================================================================
          Apps Section
          ============================================================================ -->
-    <string name="usage_permission_title">Grant usage access</string>
+    <string name="usage_permission_title">Tip: Grant usage access</string>
     <string name="usage_permission_subtitle">If you want to see your recently used apps in suggestions, grant usage access.</string>
     <string name="settings_usage_permission_banner_message">Grant usage access to see app suggestions</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>

@@ -75,6 +75,7 @@ import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticStrong
 import kotlinx.coroutines.delay
@@ -636,48 +637,22 @@ internal fun PersonalContextHintBanner(
                 }
             }
 
-    Card(
-            modifier = modifier.fillMaxWidth(),
-            colors =
-                    CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    ),
-            shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Row(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-        ) {
-            ClickableText(
-                    text = annotatedText,
-                    style =
-                            MaterialTheme.typography.bodyMedium.copy(
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                            ),
-                    modifier = Modifier.weight(1f),
-                    onClick = { offset ->
-                        val annotations =
-                                annotatedText.getStringAnnotations(
-                                        tag = linkTag,
-                                        start = offset,
-                                        end = offset
-                                )
-                        if (annotations.isNotEmpty()) {
-                            onOpenPersonalContext()
-                        }
-                    }
-            )
-            IconButton(onClick = onDismiss) {
-                Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(R.string.desc_close),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-        }
-    }
+    TipBanner(
+            annotatedText = annotatedText,
+            onTextClick = { offset ->
+                val annotations =
+                        annotatedText.getStringAnnotations(
+                                tag = linkTag,
+                                start = offset,
+                                end = offset
+                        )
+                if (annotations.isNotEmpty()) {
+                    onOpenPersonalContext()
+                }
+            },
+            onDismiss = onDismiss,
+            modifier = modifier
+    )
 }
 
 @Composable

@@ -77,6 +77,7 @@ import com.tk.quicksearch.util.InAppBrowserUtils
 import com.tk.quicksearch.util.hapticToggle
 import kotlinx.coroutines.launch
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
@@ -376,48 +377,12 @@ fun UsagePermissionBanner(
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        shape = MaterialTheme.shapes.extraLarge
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Content area - clickable for scrolling to permissions
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = onCardClick)
-                    .padding(end = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // Banner only shows for usage access permission
-                Text(
-                    text = stringResource(R.string.settings_usage_permission_banner_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-
-            // Close button - separate from content area to prevent click conflicts
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.Top)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_close),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-        }
-    }
+    TipBanner(
+        text = stringResource(R.string.settings_usage_permission_banner_message),
+        onContentClick = onCardClick,
+        onDismiss = onDismiss,
+        modifier = modifier
+    )
 }
 
 /**

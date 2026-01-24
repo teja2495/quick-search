@@ -453,6 +453,7 @@ fun ContentLayout(
                                         if (showDirectSearch && directSearchState != null) {
                                                 val shouldAllowPersonalContextHint =
                                                         state.showPersonalContextHint &&
+                                                                state.personalContext.isBlank() &&
                                                                 directSearchState.status ==
                                                                         DirectSearchStatus
                                                                                 .Success &&

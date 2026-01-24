@@ -16,8 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -47,8 +53,8 @@ import com.tk.quicksearch.util.hapticConfirm
 // Constants
 // ============================================================================
 
-private const val FILE_ICON_SIZE = 25
-private const val FILE_ICON_START_PADDING = 4
+private const val FILE_ICON_SIZE = 28
+private const val FILE_ICON_START_PADDING = 8
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private const val DROPDOWN_CORNER_RADIUS = 24
@@ -318,6 +324,19 @@ private fun FileCardContent(
 // File Row
 // ============================================================================
 
+private fun fileResultIcon(deviceFile: DeviceFile) =
+        when {
+                deviceFile.isDirectory -> Icons.Rounded.Folder
+                else ->
+                        when (FileTypeUtils.getFileType(deviceFile)) {
+                                FileType.MUSIC -> Icons.Rounded.MusicNote
+                                FileType.PICTURES -> Icons.Rounded.Image
+                                FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+                                FileType.APKS -> Icons.Rounded.Android
+                                else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+                        }
+        }
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FileResultRow(
@@ -352,12 +371,7 @@ private fun FileResultRow(
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
                                 Icon(
-                                        imageVector =
-                                                if (deviceFile.isDirectory) {
-                                                        Icons.Rounded.Folder
-                                                } else {
-                                                        Icons.AutoMirrored.Rounded.InsertDriveFile
-                                                },
+                                        imageVector = fileResultIcon(deviceFile),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.secondary,
                                         modifier =
