@@ -130,19 +130,6 @@ fun SettingsScreen(
                                 .verticalScroll(scrollState)
                                 .padding(horizontal = DesignTokens.ContentHorizontalPadding)
         ) {
-            // Usage Permission Banner (at the top)
-            // Show banner only if usage access permission is missing and user hasn't dismissed it
-            // twice
-            if (!hasUsagePermission && shouldShowBanner) {
-                UsagePermissionBanner(
-                        onRequestPermission = onRequestUsagePermission,
-                        onDismiss = onDismissBanner,
-                        onCardClick = {
-                            onNavigateToDetail(SettingsDetailType.PERMISSIONS)
-                        },
-                        modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding)
-                )
-            }
 
             // Search Results and Search Engines Card
             val navigationItems = listOf(
@@ -370,20 +357,6 @@ fun SettingsMoreOptions(
     }
 }
 
-@Composable
-fun UsagePermissionBanner(
-    onRequestPermission: () -> Unit,
-    onDismiss: () -> Unit,
-    onCardClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TipBanner(
-        text = stringResource(R.string.settings_usage_permission_banner_message),
-        onContentClick = onCardClick,
-        onDismiss = onDismiss,
-        modifier = modifier
-    )
-}
 
 /**
  * Header component for the settings screen.

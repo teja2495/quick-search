@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.core
 
 import android.app.Application
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -498,6 +499,45 @@ object IntentHelpers {
             deviceFile: DeviceFile,
             onShowToast: ((Int, String?) -> Unit)? = null
     ) {
+        val folderPath = buildFolderPath(deviceFile)
+
+        // Try Samsung My Files first (if available)
+        if (folderPath != null && trySamsungMyFiles(context, folderPath)) {
+            return
+        }
+
+        // Fallback to original directory opening logic
+        fallbackDirectoryOpening(context, deviceFile, onShowToast)
+    }
+
+    private fun trySamsungMyFiles(context: Application, folderPath: String): Boolean {
+        val samsungIntent = Intent("samsung.myfiles.intent.action.LAUNCH_MY_FILES").apply {
+            setComponent(
+                ComponentName(
+                    "com.sec.android.app.myfiles",
+                    "com.sec.android.app.myfiles.ui.MultiInstanceLaunchActivity"
+                )
+            )
+            putExtra("samsung.myfiles.intent.extra.START_PATH", folderPath)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        return try {
+            context.startActivity(samsungIntent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+
+    private fun fallbackDirectoryOpening(
+            context: Application,
+            deviceFile: DeviceFile,
+            onShowToast: ((Int, String?) -> Unit)? = null
+    ) {
         val documentsUri = buildDocumentsDirectoryUri(deviceFile)
         if (documentsUri != null) {
             val documentsIntent =
@@ -564,5 +604,21 @@ object IntentHelpers {
             MediaStore.VOLUME_EXTERNAL_PRIMARY, "external_primary", "external" -> "primary"
             else -> volumeName
         }
+    }
+
+    private fun buildFolderPath(deviceFile: DeviceFile): String? {
+        val relativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
+        val displayName = deviceFile.displayName.trim().trim('/')
+
+        if (displayName.isBlank()) return null
+
+        val basePath = when {
+            relativePath.isNullOrBlank() -> displayName
+            relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
+            else -> "$relativePath/$displayName"
+        }
+
+        // Convert to absolute path format expected by Samsung My Files
+        return "/storage/emulated/0/$basePath"
     }
 }

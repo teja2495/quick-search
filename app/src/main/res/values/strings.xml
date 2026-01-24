@@ -39,7 +39,6 @@
          ============================================================================ -->
     <string name="usage_permission_title">Grant usage access</string>
     <string name="usage_permission_subtitle">If you want to see your recently used apps in suggestions, grant usage access.</string>
-    <string name="settings_usage_permission_banner_message">Tip: Grant usage access to see app suggestions</string>
     <string name="error_loading_user_apps">We could not load your apps. Try again in a moment.</string>
     <string name="error_launch_app">Unable to open %1$s</string>
     <string name="error_uninstall_app">Unable to uninstall %1$s</string>
@@ -543,4 +542,10 @@
          No Results
          ============================================================================ -->
     <string name="no_results_found">No results found. Try tapping a search engine below to search the web.</string>
+
+    <!-- ============================================================================
+         Contacts Permission Tip Banner
+         ============================================================================ -->
+    <string name="settings_contacts_permission_needed_message">Contacts permission is needed to access these features.\n%1$s</string>
+    <string name="settings_contacts_permission_give_permission">Give permission</string>
 </resources>

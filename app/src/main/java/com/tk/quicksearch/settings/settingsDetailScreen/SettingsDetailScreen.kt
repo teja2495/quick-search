@@ -233,6 +233,8 @@ internal fun SettingsDetailScreen(
                             directDialEnabled = state.directDialEnabled,
                             onToggleDirectDial = callbacks.onToggleDirectDial,
                             hasCallPermission = PermissionRequestHandler.checkCallPermission(LocalContext.current),
+                            hasContactPermission = PermissionUtils.hasContactsPermission(LocalContext.current),
+                            onNavigateToPermissions = { onNavigateToDetail(SettingsDetailType.PERMISSIONS) },
                             contactsSectionEnabled = true, // Always show calls/texts settings regardless of permissions
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,

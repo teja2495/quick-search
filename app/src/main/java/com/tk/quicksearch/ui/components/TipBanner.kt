@@ -41,7 +41,8 @@ fun TipBanner(
     annotatedText: AnnotatedString? = null,
     onContentClick: (() -> Unit)? = null,
     onTextClick: ((Int) -> Unit)? = null,
-    onDismiss: () -> Unit,
+    onDismiss: (() -> Unit)? = null,
+    showDismissButton: Boolean = true,
     modifier: Modifier = Modifier,
     textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
 ) {
@@ -85,13 +86,15 @@ fun TipBanner(
                 )
             }
 
-            // Dismiss button
-            IconButton(onClick = onDismiss) {
-                Icon(
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(R.string.desc_close),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+            // Dismiss button (optional)
+            if (showDismissButton && onDismiss != null) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.desc_close),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
             }
         }
     }

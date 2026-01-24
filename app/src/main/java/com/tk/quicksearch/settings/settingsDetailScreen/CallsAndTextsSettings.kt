@@ -32,11 +32,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import android.widget.Toast
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.ui.components.TipBanner
 
 // Constants for consistent spacing
 private object MessagingSpacing {
@@ -304,6 +309,8 @@ fun CallsTextsSettingsSection(
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
     hasCallPermission: Boolean,
+    hasContactPermission: Boolean,
+    onNavigateToPermissions: () -> Unit,
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
@@ -314,6 +321,47 @@ fun CallsTextsSettingsSection(
     }
 
     val context = LocalContext.current
+
+    // Show tip banner if contacts permission is not granted
+    if (!hasContactPermission) {
+        val linkText = stringResource(R.string.settings_contacts_permission_give_permission)
+        val fullText = stringResource(R.string.settings_contacts_permission_needed_message, linkText)
+        val linkTag = "give_permission"
+
+        val annotatedText = buildAnnotatedString {
+            append(fullText.replace(linkText, ""))
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(linkText)
+                addStringAnnotation(
+                    tag = linkTag,
+                    annotation = "give_permission",
+                    start = length - linkText.length,
+                    end = length
+                )
+            }
+        }
+
+        TipBanner(
+            annotatedText = annotatedText,
+            onTextClick = { offset ->
+                val annotations = annotatedText.getStringAnnotations(
+                    tag = linkTag,
+                    start = offset,
+                    end = offset
+                )
+                if (annotations.isNotEmpty()) {
+                    onNavigateToPermissions()
+                }
+            },
+            showDismissButton = false,
+            modifier = Modifier.padding(bottom = DesignTokens.SpacingMedium)
+        )
+    }
 
     // Callback for messaging app selection with installation check
     val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
