@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.oss.licenses)
     id("kotlin-parcelize")
 }
 
@@ -70,6 +71,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.play.review.ktx)
     implementation(libs.play.app.update.ktx)
+    implementation(libs.play.services.oss.licenses)
     implementation(libs.libphonenumber)
     implementation(libs.fuzzywuzzy)
 

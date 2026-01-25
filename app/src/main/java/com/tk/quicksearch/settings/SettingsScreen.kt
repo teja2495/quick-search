@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -69,6 +70,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.settings.shared.*
@@ -302,6 +304,16 @@ fun SettingsMoreOptions(
         InAppBrowserUtils.openUrl(context, url)
     }
 
+    val onOpenOssLicenses = {
+        try {
+            OssLicensesMenuActivity.setActivityTitle(
+                context.getString(R.string.settings_open_source_licenses_title)
+            )
+            context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
+        } catch (e: Exception) {
+        }
+    }
+
     val feedbackItems = listOf(
         SettingsCardItem(
             title = stringResource(R.string.settings_permissions_title),
@@ -352,6 +364,25 @@ fun SettingsMoreOptions(
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                 }
+            }
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenOssLicenses)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_open_source_licenses_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

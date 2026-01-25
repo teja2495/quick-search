@@ -17,5 +17,9 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="Theme.QuickSearch.OssLicenses" parent="Theme.Material3.Dark">
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+
 
 </resources>

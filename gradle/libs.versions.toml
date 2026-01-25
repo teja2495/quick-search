@@ -15,6 +15,8 @@ glance = "1.1.1"
 okhttp = "4.12.0"
 playReview = "2.0.1"
 playUpdate = "2.1.0"
+playServicesOssLicenses = "17.3.0"
+ossLicensesPlugin = "0.10.10"
 libphonenumber = "8.13.36"
 
 reorderable = "2.4.3"
@@ -45,6 +47,7 @@ androidx-security-crypto = { group = "androidx.security", name = "security-crypt
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 play-app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "playUpdate" }
+play-services-oss-licenses = { group = "com.google.android.gms", name = "play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
 libphonenumber = { group = "com.googlecode.libphonenumber", name = "libphonenumber", version.ref = "libphonenumber" }
 
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
@@ -54,3 +57,4 @@ fuzzywuzzy = { module = "com.github.jens-muenker:fuzzywuzzy-kotlin", version.ref
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+oss-licenses = { id = "com.google.android.gms.oss-licenses-plugin", version.ref = "ossLicensesPlugin" }

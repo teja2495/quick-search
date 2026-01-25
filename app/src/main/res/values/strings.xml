@@ -473,6 +473,7 @@
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
     <string name="settings_all_quick_search_features_desc">View the complete list of features and capabilities</string>
+    <string name="settings_open_source_licenses_title">Open Source Licenses</string>
 
     <!-- ============================================================================
          Search Engine Names

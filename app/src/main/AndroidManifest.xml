@@ -74,6 +74,20 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:exported="false"
+            android:label="@string/settings_open_source_licenses_title"
+            android:theme="@style/Theme.QuickSearch.OssLicenses"
+            tools:replace="android:exported,android:label,android:theme" />
+
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:exported="false"
+            android:label="@string/settings_open_source_licenses_title"
+            android:theme="@style/Theme.QuickSearch.OssLicenses"
+            tools:replace="android:exported,android:label,android:theme" />
+
 
 
         <!-- Widget Configuration Activity -->
