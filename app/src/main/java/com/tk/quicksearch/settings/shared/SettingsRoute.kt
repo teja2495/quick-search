@@ -79,6 +79,8 @@ data class SettingsScreenState(
         val messagingApp: MessagingApp,
         val isWhatsAppInstalled: Boolean,
         val isTelegramInstalled: Boolean,
+        val hasWallpaperPermission: Boolean,
+        val wallpaperAvailable: Boolean,
         val showWallpaperBackground: Boolean,
         val wallpaperBackgroundAlpha: Float,
         val wallpaperBlurRadius: Float,
@@ -147,7 +149,8 @@ data class SettingsScreenCallbacks(
         val onRequestUsagePermission: () -> Unit,
         val onRequestContactPermission: () -> Unit,
         val onRequestFilePermission: () -> Unit,
-        val onRequestCallPermission: () -> Unit
+        val onRequestCallPermission: () -> Unit,
+        val onRequestWallpaperPermission: () -> Unit
 )
 
 /** Constants for drag and drop behavior and animations. */
@@ -536,6 +539,8 @@ fun SettingsRoute(
                     messagingApp = uiState.messagingApp,
                     isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                     isTelegramInstalled = uiState.isTelegramInstalled,
+                    hasWallpaperPermission = uiState.hasWallpaperPermission,
+                    wallpaperAvailable = uiState.wallpaperAvailable,
                     showWallpaperBackground = uiState.showWallpaperBackground,
                     wallpaperBackgroundAlpha = uiState.wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = uiState.wallpaperBlurRadius,
@@ -610,6 +615,27 @@ fun SettingsRoute(
                     context = context,
                     permissionLauncher = callPermissionLauncher,
                     permission = Manifest.permission.CALL_PHONE,
+                    fallbackAction = viewModel::openAppSettings
+            )
+
+    val wallpaperPermissionLauncher =
+            rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                handlePermissionResult(
+                        isGranted = isGranted,
+                        context = context,
+                        permission = Manifest.permission.READ_MEDIA_IMAGES,
+                        onPermanentlyDenied = viewModel::openAppSettings,
+                        onPermissionChanged = viewModel::handleOptionalPermissionChange
+                )
+            }
+
+    val onRequestWallpaperPermission =
+            createPermissionRequestHandler(
+                    context = context,
+                    permissionLauncher = wallpaperPermissionLauncher,
+                    permission = Manifest.permission.READ_MEDIA_IMAGES,
                     fallbackAction = viewModel::openAppSettings
             )
 
@@ -741,7 +767,8 @@ fun SettingsRoute(
                     onRequestUsagePermission = onRequestUsagePermission,
                     onRequestContactPermission = onRequestContactPermission,
                     onRequestFilePermission = onRequestFilePermission,
-                    onRequestCallPermission = onRequestCallPermission
+                    onRequestCallPermission = onRequestCallPermission,
+                    onRequestWallpaperPermission = onRequestWallpaperPermission
             )
 
     // Refresh permission state and reset banner session dismissed flag when activity starts/resumes

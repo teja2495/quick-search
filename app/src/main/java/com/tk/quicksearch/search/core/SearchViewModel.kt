@@ -28,6 +28,7 @@ import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
@@ -339,6 +340,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun hasCallPermission(): Boolean {
         return PermissionRequestHandler.checkCallPermission(getApplication())
+    }
+
+    private fun hasWallpaperPermission(): Boolean {
+        return PermissionRequestHandler.checkWallpaperPermission(getApplication())
+    }
+
+    private var wallpaperAvailable: Boolean = false
+
+    fun setWallpaperAvailable(available: Boolean) {
+        if (wallpaperAvailable != available) {
+            wallpaperAvailable = available
+            updateUiState { it.copy(wallpaperAvailable = available) }
+        }
     }
 
     fun handleOnStop() {
@@ -1769,11 +1783,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val hasContacts = hasContactPermission()
         val hasFiles = hasFilePermission()
         val hasCall = hasCallPermission()
+        val hasWallpaper = hasWallpaperPermission()
         val previousState = _uiState.value
         val changed =
                 previousState.hasContactPermission != hasContacts ||
                         previousState.hasFilePermission != hasFiles ||
-                        previousState.hasCallPermission != hasCall
+                        previousState.hasCallPermission != hasCall ||
+                        previousState.hasWallpaperPermission != hasWallpaper ||
+                        previousState.wallpaperAvailable != wallpaperAvailable
 
         if (changed) {
 
@@ -1821,6 +1838,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         hasContactPermission = hasContacts,
                         hasFilePermission = hasFiles,
                         hasCallPermission = hasCall,
+                        hasWallpaperPermission = hasWallpaper,
+                        wallpaperAvailable = wallpaperAvailable,
                         directDialEnabled = this@SearchViewModel.directDialEnabled,
                         contactResults = if (hasContacts) state.contactResults else emptyList(),
                         fileResults = if (hasFiles) state.fileResults else emptyList(),

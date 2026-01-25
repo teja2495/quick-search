@@ -54,6 +54,17 @@ object PermissionRequestHandler {
             Manifest.permission.CALL_PHONE
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
     }
+
+    fun checkWallpaperPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Not required on older Android versions
+        }
+    }
     
     fun shouldOpenSettingsForFiles(
         context: Context,
@@ -84,5 +95,10 @@ object PermissionRequestHandler {
         }.onFailure {
             launcher.launch(createAllFilesAccessFallbackIntent())
         }
+    }
+
+    fun shouldRequestWallpaperPermission(context: Context): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+               !checkWallpaperPermission(context)
     }
 }

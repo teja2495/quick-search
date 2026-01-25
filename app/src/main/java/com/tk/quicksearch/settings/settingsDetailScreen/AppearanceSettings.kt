@@ -136,7 +136,10 @@ fun CombinedAppearanceCard(
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     onWallpaperBackgroundAlphaChange: (Float) -> Unit,
     onWallpaperBlurRadiusChange: (Float) -> Unit,
+    onRequestWallpaperPermission: (() -> Unit)? = null,
     hasFilePermission: Boolean = true,
+    hasWallpaperPermission: Boolean = true,
+    wallpaperAvailable: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val view = LocalView.current
@@ -146,15 +149,26 @@ fun CombinedAppearanceCard(
     ) {
         Column {
             // Wallpaper background toggle
+            val wallpaperEnabled = showWallpaperBackground && hasFilePermission && (hasWallpaperPermission || wallpaperAvailable)
+            val wallpaperNeedsPermission = showWallpaperBackground && hasFilePermission && !hasWallpaperPermission && !wallpaperAvailable
+
             SettingsToggleRow(
                 title = stringResource(R.string.settings_wallpaper_background_toggle),
-                checked = showWallpaperBackground && hasFilePermission,
-                onCheckedChange = onToggleShowWallpaperBackground,
+                checked = wallpaperEnabled,
+                onCheckedChange = { enabled ->
+                    if (enabled && !hasWallpaperPermission && !wallpaperAvailable && onRequestWallpaperPermission != null) {
+                        // Request permission first
+                        onRequestWallpaperPermission()
+                    } else {
+                        // Toggle normally
+                        onToggleShowWallpaperBackground(enabled)
+                    }
+                },
                 isFirstItem = true,
                 isLastItem = true
             )
 
-            if (showWallpaperBackground && hasFilePermission) {
+            if (showWallpaperBackground && hasFilePermission && (hasWallpaperPermission || wallpaperAvailable)) {
                 var lastAlphaStep by remember { mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9)) }
                 var lastBlurStep by remember { mutableStateOf((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7).roundToInt().coerceIn(0, 7)) }
                 Column(
@@ -246,6 +260,7 @@ fun AppearanceSettingsSection(
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     onWallpaperBackgroundAlphaChange: (Float) -> Unit,
     onWallpaperBlurRadiusChange: (Float) -> Unit,
+    onRequestWallpaperPermission: (() -> Unit)? = null,
     isSearchEngineCompactMode: Boolean,
     onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     selectedIconPackPackage: String?,
@@ -254,6 +269,8 @@ fun AppearanceSettingsSection(
     onRefreshIconPacks: () -> Unit,
     onSearchIconPacks: () -> Unit,
     hasFilePermission: Boolean = true,
+    hasWallpaperPermission: Boolean = true,
+    wallpaperAvailable: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val appearanceContext = androidx.compose.ui.platform.LocalContext.current
@@ -277,7 +294,10 @@ fun AppearanceSettingsSection(
             onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
             onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
             onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-            hasFilePermission = hasFilePermission
+            onRequestWallpaperPermission = onRequestWallpaperPermission,
+            hasFilePermission = hasFilePermission,
+            hasWallpaperPermission = hasWallpaperPermission,
+            wallpaperAvailable = wallpaperAvailable
         )
 
         Spacer(modifier = Modifier.height(16.dp))

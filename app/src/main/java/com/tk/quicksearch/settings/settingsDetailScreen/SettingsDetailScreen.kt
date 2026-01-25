@@ -209,6 +209,7 @@ internal fun SettingsDetailScreen(
                             onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
                             onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
                             onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
+                            onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             selectedIconPackPackage = state.selectedIconPackPackage,
@@ -223,7 +224,9 @@ internal fun SettingsDetailScreen(
                                 ).show()
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
-                            hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current)
+                            hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current),
+                            hasWallpaperPermission = state.hasWallpaperPermission,
+                            wallpaperAvailable = state.wallpaperAvailable
                         )
                     }
                     SettingsDetailType.CALLS_TEXTS -> {

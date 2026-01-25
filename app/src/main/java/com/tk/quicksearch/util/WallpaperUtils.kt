@@ -1,10 +1,15 @@
 package com.tk.quicksearch.util
 
+import android.Manifest
 import android.app.WallpaperManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +20,33 @@ import kotlinx.coroutines.withContext
  * Utility functions for working with wallpapers.
  */
 object WallpaperUtils {
-    
+
     // In-memory cache for the wallpaper bitmap
     @Volatile
     private var cachedBitmap: Bitmap? = null
+
+    /**
+     * Checks if the app has permission to access wallpapers on Android 13+.
+     */
+    fun hasWallpaperPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            // On older Android versions, wallpaper access doesn't require special permissions
+            true
+        }
+    }
+
+    /**
+     * Checks if wallpaper access would require special permission on this device.
+     * This is used to determine if we should show permission prompts to the user.
+     */
+    fun wallpaperRequiresPermission(context: Context): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasWallpaperPermission(context)
+    }
     
     /**
      * Gets the cached wallpaper bitmap synchronously.
@@ -34,13 +62,13 @@ object WallpaperUtils {
     suspend fun getWallpaperBitmap(context: Context): Bitmap? {
         // Return cached bitmap immediately if available
         cachedBitmap?.let { return it }
-        
+
         // Load from system if not cached
         return withContext(Dispatchers.IO) {
             try {
                 val wallpaperManager = WallpaperManager.getInstance(context)
                 val wallpaperDrawable = wallpaperManager.drawable
-                
+
                 if (wallpaperDrawable != null) {
                     val bitmap = wallpaperDrawable.toBitmap()
                     // Cache the bitmap for future use
@@ -49,7 +77,34 @@ object WallpaperUtils {
                 } else {
                     null
                 }
+            } catch (e: SecurityException) {
+                // On Android 13+, wallpaper access may require READ_MEDIA_IMAGES permission
+                // Check if we have the permission - if not, permission is needed for wallpaper access
+                if (!hasWallpaperPermission(context)) {
+                    // Permission not granted, cannot access wallpaper
+                    null
+                } else {
+                    // We have permission but still got SecurityException
+                    // This might be a device-specific enforcement, try once more
+                    try {
+                        val wallpaperManager = WallpaperManager.getInstance(context)
+                        val wallpaperDrawable = wallpaperManager.drawable
+
+                        if (wallpaperDrawable != null) {
+                            val bitmap = wallpaperDrawable.toBitmap()
+                            // Cache the bitmap for future use
+                            cachedBitmap = bitmap
+                            bitmap
+                        } else {
+                            null
+                        }
+                    } catch (e2: SecurityException) {
+                        // Still failing even with permission, give up
+                        null
+                    }
+                }
             } catch (e: Exception) {
+                // Other exceptions (not permission-related)
                 null
             }
         }

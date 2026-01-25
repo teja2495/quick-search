@@ -142,6 +142,8 @@ data class SearchUiState(
         val hasContactPermission: Boolean = false,
         val hasFilePermission: Boolean = false,
         val hasCallPermission: Boolean = false,
+        val hasWallpaperPermission: Boolean = false,
+        val wallpaperAvailable: Boolean = false,
 
         // Visibility states (replaces scattered boolean flags)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,

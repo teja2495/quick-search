@@ -86,7 +86,8 @@ fun SearchRoute(
         onCustomizeSearchEnginesClick: () -> Unit = {},
         onShowToast: (Int) -> Unit = {},
         viewModel: SearchViewModel = viewModel(),
-        onWelcomeAnimationCompleted: (() -> Unit)? = null
+        onWelcomeAnimationCompleted: (() -> Unit)? = null,
+        onWallpaperLoaded: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -332,7 +333,8 @@ fun SearchRoute(
                 getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
                 getSecondaryContactCardAction = viewModel::getSecondaryContactCardAction,
                 onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
-                onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction
+                onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
+                onWallpaperLoaded = onWallpaperLoaded
         )
 
         SnackbarHost(
@@ -431,6 +433,7 @@ fun SearchScreen(
         onDirectSearchEmailClick: (String) -> Unit,
         onSetPersonalContext: (String?) -> Unit = {},
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
+        onWallpaperLoaded: (() -> Unit)? = null,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
         onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -479,6 +482,10 @@ fun SearchScreen(
         if (wallpaperBitmap == null) {
             val bitmap = WallpaperUtils.getWallpaperBitmap(context)
             wallpaperBitmap = bitmap?.asImageBitmap()
+            // If wallpaper loaded successfully, notify that it should be enabled
+            if (bitmap != null) {
+                onWallpaperLoaded?.invoke()
+            }
         }
     }
 

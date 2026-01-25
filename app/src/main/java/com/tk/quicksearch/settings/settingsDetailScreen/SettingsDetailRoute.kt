@@ -1,7 +1,10 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import android.Manifest
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +17,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
+import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -32,7 +37,8 @@ fun SettingsDetailRoute(
         onRequestUsagePermission: () -> Unit = {},
         onRequestContactPermission: () -> Unit = {},
         onRequestFilePermission: () -> Unit = {},
-        onRequestCallPermission: () -> Unit = {}
+        onRequestCallPermission: () -> Unit = {},
+        onRequestWallpaperPermission: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -57,6 +63,8 @@ fun SettingsDetailRoute(
                     messagingApp = uiState.messagingApp,
                     isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                     isTelegramInstalled = uiState.isTelegramInstalled,
+                    hasWallpaperPermission = uiState.hasWallpaperPermission,
+                    wallpaperAvailable = uiState.wallpaperAvailable,
                     showWallpaperBackground = uiState.showWallpaperBackground,
                     wallpaperBackgroundAlpha = uiState.wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = uiState.wallpaperBlurRadius,
@@ -78,6 +86,29 @@ fun SettingsDetailRoute(
             )
 
     val context = LocalContext.current
+
+    val wallpaperPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            handlePermissionResult(
+                isGranted = isGranted,
+                context = context,
+                permission = Manifest.permission.READ_MEDIA_IMAGES,
+                onPermanentlyDenied = viewModel::openAppSettings,
+                onPermissionChanged = viewModel::handleOptionalPermissionChange,
+                onGranted = {
+                    // Automatically enable wallpaper when permission is granted
+                    // since the permission request was triggered by trying to enable it
+                    viewModel.setShowWallpaperBackground(true)
+                }
+            )
+        }
+
+    val effectiveOnRequestWallpaperPermission = {
+        wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+    }
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val userPreferences = remember { UserAppPreferences(context) }
     var shouldShowShortcutHint by
@@ -199,7 +230,8 @@ fun SettingsDetailRoute(
                     onRequestUsagePermission = onRequestUsagePermission,
                     onRequestContactPermission = onRequestContactPermission,
                     onRequestFilePermission = onRequestFilePermission,
-                    onRequestCallPermission = onRequestCallPermission
+                    onRequestCallPermission = onRequestCallPermission,
+                    onRequestWallpaperPermission = effectiveOnRequestWallpaperPermission
             )
 
     val onToggleDirectSearchSetupExpanded = {
