@@ -6,6 +6,12 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,7 +91,37 @@ fun MainContent(
     }
 
 
-    when (currentScreen) {
+    AnimatedContent(
+        targetState = currentScreen,
+        transitionSpec = {
+            val screenOrder = listOf(AppScreen.Permissions, AppScreen.SearchEngineSetup, AppScreen.FinalSetup, AppScreen.Main)
+            val fromIndex = screenOrder.indexOf(initialState)
+            val toIndex = screenOrder.indexOf(targetState)
+            val isForward = toIndex > fromIndex
+
+            if (isForward) {
+                // Forward: slide in from right, slide out to left
+                slideInHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    initialOffsetX = { it }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    targetOffsetX = { -it }
+                )
+            } else {
+                // Backward: slide in from left, slide out to right
+                slideInHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    initialOffsetX = { -it }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    targetOffsetX = { it }
+                )
+            }
+        },
+        label = "ScreenTransition"
+    ) { targetScreen ->
+        when (targetScreen) {
             AppScreen.Permissions -> {
                 PermissionsScreen(
                     currentStep = 1,
@@ -183,6 +219,7 @@ fun MainContent(
                 )
             }
         }
+    }
 }
 
 @Composable
@@ -203,22 +240,84 @@ private fun NavigationContent(
         }
     }
 
-    when (destination) {
+    AnimatedContent(
+        targetState = destination,
+        transitionSpec = {
+            val isForward = initialState == RootDestination.Search && targetState == RootDestination.Settings
+
+            if (isForward) {
+                // Forward (Search -> Settings): slide in from right, slide out to left
+                slideInHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    initialOffsetX = { it }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    targetOffsetX = { -it }
+                )
+            } else {
+                // Backward (Settings -> Search): slide in from left, slide out to right
+                slideInHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    initialOffsetX = { -it }
+                ) togetherWith slideOutHorizontally(
+                    animationSpec = androidx.compose.animation.core.tween(300),
+                    targetOffsetX = { it }
+                )
+            }
+        },
+        label = "NavigationTransition"
+    ) { targetDestination ->
+        when (targetDestination) {
             RootDestination.Settings -> {
-                if (settingsDetailType != null) {
-                    SettingsDetailRoute(
-                        onBack = { onSettingsDetailTypeChange(null) },
-                        viewModel = viewModel,
-                        detailType = settingsDetailType,
-                        onNavigateToDetail = onSettingsDetailTypeChange
-                    )
-                } else {
-                    SettingsRoute(
-                        onBack = { onDestinationChange(RootDestination.Search) },
-                        viewModel = viewModel,
-                        onNavigateToDetail = onSettingsDetailTypeChange,
-                        scrollState = settingsScrollState
-                    )
+                AnimatedContent(
+                    targetState = settingsDetailType,
+                    transitionSpec = {
+                        // Disable animation for excluded items screen
+                        if (targetState == SettingsDetailType.EXCLUDED_ITEMS || initialState == SettingsDetailType.EXCLUDED_ITEMS) {
+                            // Instant transition for excluded items
+                            androidx.compose.animation.EnterTransition.None togetherWith
+                                    androidx.compose.animation.ExitTransition.None
+                        } else {
+                            val isForward = initialState == null && targetState != null
+
+                            if (isForward) {
+                                // Forward (Settings main -> Detail): slide in from right, slide out to left
+                                slideInHorizontally(
+                                    animationSpec = androidx.compose.animation.core.tween(300),
+                                    initialOffsetX = { it }
+                                ) togetherWith slideOutHorizontally(
+                                    animationSpec = androidx.compose.animation.core.tween(300),
+                                    targetOffsetX = { -it }
+                                )
+                            } else {
+                                // Backward (Detail -> Settings main): slide in from left, slide out to right
+                                slideInHorizontally(
+                                    animationSpec = androidx.compose.animation.core.tween(300),
+                                    initialOffsetX = { -it }
+                                ) togetherWith slideOutHorizontally(
+                                    animationSpec = androidx.compose.animation.core.tween(300),
+                                    targetOffsetX = { it }
+                                )
+                            }
+                        }
+                    },
+                    label = "SettingsDetailTransition"
+                ) { currentDetailType ->
+                    if (currentDetailType != null) {
+                        SettingsDetailRoute(
+                            onBack = { onSettingsDetailTypeChange(null) },
+                            viewModel = viewModel,
+                            detailType = currentDetailType,
+                            onNavigateToDetail = onSettingsDetailTypeChange
+                        )
+                    } else {
+                        SettingsRoute(
+                            onBack = { onDestinationChange(RootDestination.Search) },
+                            viewModel = viewModel,
+                            onNavigateToDetail = onSettingsDetailTypeChange,
+                            scrollState = settingsScrollState
+                        )
+                    }
                 }
             }
             RootDestination.Search -> {
@@ -248,4 +347,5 @@ private fun NavigationContent(
                 )
             }
         }
+    }
 }

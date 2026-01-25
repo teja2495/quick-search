@@ -8,7 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -113,38 +118,42 @@ class MainActivity : ComponentActivity() {
     private fun setupContent() {
         setContent {
             QuickSearchTheme {
-                MainContent(
-                        context = this,
-                        userPreferences = userPreferences,
-                        searchViewModel = searchViewModel,
-                        onSearchBackPressed = { moveTaskToBack(true) }
-                )
-                if (showReviewPromptDialog.value) {
-                    EnjoyingAppDialog(
-                            onYes = {
-                                showReviewPromptDialog.value = false
-                                ReviewHelper.requestReviewIfEligible(
-                                        this@MainActivity,
-                                        userPreferences
-                                )
-                            },
-                            onNo = {
-                                showReviewPromptDialog.value = false
-                                showFeedbackDialog.value = true
-                                userPreferences.recordReviewPromptTime()
-                                userPreferences.recordAppOpenCountAtPrompt()
-                                userPreferences.incrementReviewPromptedCount()
-                            },
-                            onDismiss = { showReviewPromptDialog.value = false }
+                Box(
+                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    MainContent(
+                            context = this@MainActivity,
+                            userPreferences = userPreferences,
+                            searchViewModel = searchViewModel,
+                            onSearchBackPressed = { moveTaskToBack(true) }
                     )
-                }
-                if (showFeedbackDialog.value) {
-                    SendFeedbackDialog(
-                            onSend = { feedbackText ->
-                                FeedbackUtils.launchFeedbackEmail(this@MainActivity, feedbackText)
-                            },
-                            onDismiss = { showFeedbackDialog.value = false }
-                    )
+                    if (showReviewPromptDialog.value) {
+                        EnjoyingAppDialog(
+                                onYes = {
+                                    showReviewPromptDialog.value = false
+                                    ReviewHelper.requestReviewIfEligible(
+                                            this@MainActivity,
+                                            userPreferences
+                                    )
+                                },
+                                onNo = {
+                                    showReviewPromptDialog.value = false
+                                    showFeedbackDialog.value = true
+                                    userPreferences.recordReviewPromptTime()
+                                    userPreferences.recordAppOpenCountAtPrompt()
+                                    userPreferences.incrementReviewPromptedCount()
+                                },
+                                onDismiss = { showReviewPromptDialog.value = false }
+                        )
+                    }
+                    if (showFeedbackDialog.value) {
+                        SendFeedbackDialog(
+                                onSend = { feedbackText ->
+                                    FeedbackUtils.launchFeedbackEmail(this@MainActivity, feedbackText)
+                                },
+                                onDismiss = { showFeedbackDialog.value = false }
+                        )
+                    }
                 }
             }
         }
