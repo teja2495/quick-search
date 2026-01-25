@@ -8,6 +8,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.util.getAppGridColumns
 
 /** Enum representing which section is currently expanded. */
 enum class ExpandedSection {
@@ -64,6 +65,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
         val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
         val hasPinnedAppShortcuts = state.pinnedAppShortcuts.isNotEmpty()
+        val columns = getAppGridColumns()
         val visibleRowCount =
                 if (isSearching ||
                                 hasPinnedContacts ||
@@ -78,7 +80,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                 } else {
                         SearchScreenConstants.ROW_COUNT
                 }
-        val visibleAppLimit = visibleRowCount * SearchScreenConstants.COLUMNS
+        // Load a large number of apps to ensure the grid is always filled
+        val visibleAppLimit = visibleRowCount * columns 
 
         val displayApps =
                 remember(

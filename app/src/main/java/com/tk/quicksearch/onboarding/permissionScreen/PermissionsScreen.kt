@@ -154,7 +154,6 @@ fun PermissionsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.Start
     ) {
@@ -174,113 +173,118 @@ fun PermissionsScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
-            shape = RoundedCornerShape(20.dp) // Slightly more rounded as per modern design
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start
         ) {
-            Column {
-                // Usage Permission Item
-                PermissionItem(
-                    title = stringResource(R.string.permissions_usage_title),
-                    description = stringResource(R.string.permissions_usage_desc),
-                    permissionState = usagePermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        if (enabled && !usagePermissionState.isGranted) {
-                            context.startActivity(
-                                PermissionRequestHandler.createUsageAccessIntent(context)
-                            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                shape = RoundedCornerShape(20.dp) // Slightly more rounded as per modern design
+            ) {
+                Column {
+                    // Usage Permission Item
+                    PermissionItem(
+                        title = stringResource(R.string.permissions_usage_title),
+                        description = stringResource(R.string.permissions_usage_desc),
+                        permissionState = usagePermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            if (enabled && !usagePermissionState.isGranted) {
+                                context.startActivity(
+                                    PermissionRequestHandler.createUsageAccessIntent(context)
+                                )
+                            }
                         }
-                    }
-                )
+                    )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
 
-                // Contacts Permission Item (Optional)
-                PermissionItem(
-                    title = stringResource(R.string.permissions_contacts_title),
-                    description = stringResource(R.string.permissions_contacts_desc),
-                    permissionState = contactsPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !contactsPermissionState.isGranted) {
-                            multiplePermissionsLauncher.launch(
-                                arrayOf(Manifest.permission.READ_CONTACTS)
-                            )
+                    // Contacts Permission Item (Optional)
+                    PermissionItem(
+                        title = stringResource(R.string.permissions_contacts_title),
+                        description = stringResource(R.string.permissions_contacts_desc),
+                        permissionState = contactsPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
+                            if (enabled && !contactsPermissionState.isGranted) {
+                                multiplePermissionsLauncher.launch(
+                                    arrayOf(Manifest.permission.READ_CONTACTS)
+                                )
+                            }
                         }
-                    }
-                )
+                    )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
 
-                // Files Permission Item (Optional)
-                PermissionItem(
-                    title = stringResource(R.string.permissions_files_title),
-                    description = stringResource(R.string.permissions_files_desc),
-                    permissionState = filesPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !filesPermissionState.isGranted) {
-                            handleFilesPermissionRequest(
-                                context = context,
-                                permissionState = filesPermissionState,
-                                runtimeLauncher = multiplePermissionsLauncher,
-                                allFilesLauncher = allFilesAccessLauncher,
-                                onStateUpdate = { newState ->
-                                    filesPermissionState = newState
-                                }
-                            )
+                    // Files Permission Item (Optional)
+                    PermissionItem(
+                        title = stringResource(R.string.permissions_files_title),
+                        description = stringResource(R.string.permissions_files_desc),
+                        permissionState = filesPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
+                            if (enabled && !filesPermissionState.isGranted) {
+                                handleFilesPermissionRequest(
+                                    context = context,
+                                    permissionState = filesPermissionState,
+                                    runtimeLauncher = multiplePermissionsLauncher,
+                                    allFilesLauncher = allFilesAccessLauncher,
+                                    onStateUpdate = { newState ->
+                                        filesPermissionState = newState
+                                    }
+                                )
+                            }
                         }
-                    }
-                )
+                    )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
 
-                // Calling Permission Item (Optional)
-                PermissionItem(
-                    title = stringResource(R.string.permissions_calling_title),
-                    description = stringResource(R.string.permissions_calling_desc),
-                    permissionState = callingPermissionState,
-                    isMandatory = false,
-                    onToggleChange = { enabled ->
-                        callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
-                        if (enabled && !callingPermissionState.isGranted) {
-                            multiplePermissionsLauncher.launch(
-                                arrayOf(Manifest.permission.CALL_PHONE)
-                            )
+                    // Calling Permission Item (Optional)
+                    PermissionItem(
+                        title = stringResource(R.string.permissions_calling_title),
+                        description = stringResource(R.string.permissions_calling_desc),
+                        permissionState = callingPermissionState,
+                        isMandatory = false,
+                        onToggleChange = { enabled ->
+                            callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
+                            if (enabled && !callingPermissionState.isGranted) {
+                                multiplePermissionsLauncher.launch(
+                                    arrayOf(Manifest.permission.CALL_PHONE)
+                                )
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = stringResource(R.string.permissions_privacy_notice),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
         }
-
-        Spacer(modifier = Modifier.height(56.dp))
-
-        Text(
-            text = stringResource(R.string.permissions_privacy_notice),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -290,7 +294,7 @@ fun PermissionsScreen(
                     !contactsPermissionState.isGranted ||
                     !filesPermissionState.isGranted ||
                     !callingPermissionState.isGranted
-                
+
                 if (hasUngrantedPermissions) {
                     showPermissionReminderDialog = true
                 } else {
@@ -309,7 +313,7 @@ fun PermissionsScreen(
                 fontWeight = FontWeight.Medium
             )
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
     }
     

@@ -41,11 +41,11 @@ import com.tk.quicksearch.search.data.AppShortcutRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.util.getAppGridColumns
 import com.tk.quicksearch.util.hapticConfirm
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 private const val ROW_COUNT = 2
-private const val COLUMNS = 5
 
 /**
  * Data class containing all app actions to reduce parameter count in composables.
@@ -167,8 +167,10 @@ private fun AppGrid(
     iconPackPackage: String?,
     oneHandedMode: Boolean
 ) {
-    val rows = remember(apps, rowCount, oneHandedMode) {
-        val chunked = apps.take(rowCount * COLUMNS).chunked(COLUMNS)
+    val columns = getAppGridColumns()
+    val rows = remember(apps, oneHandedMode, columns) {
+        // Show all available apps, chunked into rows of the appropriate column count
+        val chunked = apps.chunked(columns)
         if (oneHandedMode) chunked.reversed() else chunked
     }
 
@@ -201,8 +203,7 @@ private fun AppGrid(
             }
         }
         
-        repeat(rowCount) { rowIndex ->
-            val rowApps = rows.getOrNull(rowIndex).orEmpty()
+        rows.forEach { rowApps ->
             AppGridRow(
                 apps = rowApps,
                 getAppNickname = getAppNickname,
@@ -226,11 +227,12 @@ private fun AppGridRow(
     createAppActions: (AppInfo) -> AppActions,
     createAppState: (AppInfo) -> AppState
 ) {
+    val columns = getAppGridColumns()
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)
     ) {
-        repeat(COLUMNS) { columnIndex ->
+        repeat(columns) { columnIndex ->
             val app = apps.getOrNull(columnIndex)
             if (app != null) {
                 val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()

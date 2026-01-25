@@ -28,6 +28,7 @@ import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -47,6 +48,7 @@ import com.tk.quicksearch.search.searchEngines.ShortcutHandler
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
+import com.tk.quicksearch.util.getAppGridColumns
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -454,7 +456,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val visibleApps =
                         extractSuggestedApps(
                                 apps = cachedAppsList,
-                                limit = GRID_ITEM_COUNT,
+                                limit = getGridItemCount(),
                                 hasUsagePermission = hasUsagePermission
                         )
                 val iconPack = userPreferences.getSelectedIconPackPackage()
@@ -545,11 +547,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     cacheLastUpdatedMillis = lastUpdated,
                     // Temporarily show all cached apps until we load hidden/pinned prefs
                     recentApps =
-                            extractSuggestedApps(
-                                    apps = cachedAppsList,
-                                    limit = GRID_ITEM_COUNT,
-                                    hasUsagePermission = hasUsagePermission
-                            ),
+                        extractSuggestedApps(
+                                apps = cachedAppsList,
+                                limit = getGridItemCount(),
+                                hasUsagePermission = hasUsagePermission
+                        ),
                     indexedAppCount = cachedAppsList.size,
 
                     // Critical: update these to prevent flashing
@@ -1618,8 +1620,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     companion object {
-        private const val GRID_ITEM_COUNT = 10
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
+    }
+
+    private fun getGridItemCount(): Int {
+        return SearchScreenConstants.ROW_COUNT * getAppGridColumns(getApplication())
     }
 
     private fun refreshDerivedState(lastUpdated: Long? = null, isLoading: Boolean? = null) {
@@ -1639,7 +1644,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val initialRecents =
                     visibleAppList
                             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
-                            .take(GRID_ITEM_COUNT)
+                            .take(getGridItemCount())
                             .map { it.packageName }
             userPreferences.setRecentAppLaunches(initialRecents)
         }
@@ -1650,7 +1655,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val recents =
                 extractSuggestedApps(
                         apps = recentsSource,
-                        limit = GRID_ITEM_COUNT,
+                        limit = getGridItemCount(),
                         hasUsagePermission = hasUsagePermission
                 )
         val query = _uiState.value.query
