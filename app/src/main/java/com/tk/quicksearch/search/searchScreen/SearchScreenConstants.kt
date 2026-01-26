@@ -125,8 +125,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                         .count { it } > 1
 
         val orderedSections =
-                remember(state.sectionOrder, state.disabledSections) {
-                        state.sectionOrder.filter { it !in state.disabledSections }
+                remember(state.disabledSections) {
+                        ItemPriorityConfig.getSearchResultsPriority().filter { it !in state.disabledSections }
                 }
 
         val shouldShowApps = SearchSection.APPS !in state.disabledSections && hasAppResults

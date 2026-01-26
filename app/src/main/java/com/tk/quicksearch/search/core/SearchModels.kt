@@ -216,7 +216,6 @@ data class SearchUiState(
         val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
-        val sectionOrder: List<SearchSection> = emptyList(),
         val disabledSections: Set<SearchSection> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
         val amazonDomain: String? = null,

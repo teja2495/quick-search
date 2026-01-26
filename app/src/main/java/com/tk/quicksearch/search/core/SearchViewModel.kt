@@ -615,7 +615,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         shortcutsEnabled = shortcutsState.shortcutsEnabled,
                         shortcutCodes = shortcutsState.shortcutCodes,
                         shortcutEnabled = shortcutsState.shortcutEnabled,
-                        sectionOrder = sectionManager.sectionOrder,
                         disabledSections = sectionManager.disabledSections,
                         isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
                         showSearchEngineOnboarding = false,

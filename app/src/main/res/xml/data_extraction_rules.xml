@@ -14,7 +14,7 @@
         <!-- Exclude app launch counts and statistics -->
         <exclude domain="sharedpref" path="app_launch_counts.xml"/>
         <!-- Exclude all types of excluded/hidden items from backup -->
-        <exclude domain="sharedpref" path="user_app_preferences.xml" excludeKeys="hidden_packages_suggestions,hidden_packages_results,excluded_contact_ids,excluded_file_uris,excluded_file_extensions,excluded_app_shortcuts,excluded_settings"/>
+        <exclude domain="sharedpref" path="user_app_preferences.xml" excludeKeys="hidden_packages_suggestions,hidden_packages_results,excluded_contact_ids,excluded_file_uris,excluded_file_extensions,excluded_app_shortcuts,excluded_settings,search_engine_onboarding_seen,has_seen_search_bar_welcome,has_seen_contact_action_hint,has_seen_personal_context_hint,recent_app_launches,last_seen_version,direct_search_setup_expanded,usage_permission_banner_dismiss_count,usage_permission_banner_session_dismissed,shortcut_hint_banner_dismiss_count,shortcut_hint_banner_session_dismissed,update_check_shown_this_session"/>
     </cloud-backup>
     <device-transfer>
         <!-- Do not restore first-launch state (keeps onboarding fresh after reinstall) -->
@@ -26,6 +26,6 @@
         <!-- Exclude app launch counts and statistics -->
         <exclude domain="sharedpref" path="app_launch_counts.xml"/>
         <!-- Exclude all types of excluded/hidden items from backup -->
-        <exclude domain="sharedpref" path="user_app_preferences.xml" excludeKeys="hidden_packages_suggestions,hidden_packages_results,excluded_contact_ids,excluded_file_uris,excluded_file_extensions,excluded_app_shortcuts,excluded_settings"/>
+        <exclude domain="sharedpref" path="user_app_preferences.xml" excludeKeys="hidden_packages_suggestions,hidden_packages_results,excluded_contact_ids,excluded_file_uris,excluded_file_extensions,excluded_app_shortcuts,excluded_settings,search_engine_onboarding_seen,has_seen_search_bar_welcome,has_seen_contact_action_hint,has_seen_personal_context_hint,recent_app_launches,last_seen_version,direct_search_setup_expanded,usage_permission_banner_dismiss_count,usage_permission_banner_session_dismissed,shortcut_hint_banner_dismiss_count,shortcut_hint_banner_session_dismissed,update_check_shown_this_session"/>
     </device-transfer>
 </data-extraction-rules>

@@ -863,10 +863,6 @@ class UserAppPreferences(private val context: Context) {
         // Section Preferences
         // ============================================================================
 
-        fun getSectionOrder(): List<String> = uiPreferences.getSectionOrder()
-
-        fun setSectionOrder(order: List<String>) = uiPreferences.setSectionOrder(order)
-
         fun getDisabledSections(): Set<String> = uiPreferences.getDisabledSections()
 
         fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)

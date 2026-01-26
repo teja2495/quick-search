@@ -78,7 +78,6 @@ fun SettingsDetailRoute(
                     selectedIconPackPackage = uiState.selectedIconPackPackage,
                     availableIconPacks = uiState.availableIconPacks,
                     directDialEnabled = uiState.directDialEnabled,
-                    sectionOrder = uiState.sectionOrder,
                     disabledSections = uiState.disabledSections,
                     isSearchEngineCompactMode = uiState.isSearchEngineCompactMode,
                     amazonDomain = uiState.amazonDomain,

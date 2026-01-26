@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.hapticToggle
 
@@ -204,7 +205,7 @@ fun SearchResultsSettingsSection(
     Column(modifier = modifier) {
         // Search Sections Section
         SectionSettingsSection(
-                sectionOrder = state.sectionOrder,
+                sectionOrder = ItemPriorityConfig.getSearchResultsPriority(),
                 disabledSections = state.disabledSections,
                 onToggleSection = callbacks.onToggleSection,
                 showTitle = false

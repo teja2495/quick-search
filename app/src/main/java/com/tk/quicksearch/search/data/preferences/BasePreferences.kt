@@ -456,7 +456,6 @@ abstract class BasePreferences(protected val context: Context) {
                 const val FRESH_INSTALL_THRESHOLD_MS = 10 * 60 * 1000L
 
                 // Section preferences keys
-                const val KEY_SECTION_ORDER = "section_order"
                 const val KEY_DISABLED_SECTIONS = "disabled_sections"
 
                 // Amazon domain preferences keys

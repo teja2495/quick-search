@@ -248,12 +248,6 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     // Section Preferences
     // ============================================================================
 
-    fun getSectionOrder(): List<String> = getStringListPref(UiPreferences.KEY_SECTION_ORDER)
-
-    fun setSectionOrder(order: List<String>) {
-        setStringListPref(UiPreferences.KEY_SECTION_ORDER, order)
-    }
-
     fun getDisabledSections(): Set<String> {
         if (!prefs.contains(UiPreferences.KEY_DISABLED_SECTIONS)) {
             return setOf(SearchSection.APP_SHORTCUTS.name)
