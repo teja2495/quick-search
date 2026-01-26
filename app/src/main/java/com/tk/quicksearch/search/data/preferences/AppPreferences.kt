@@ -62,22 +62,22 @@ class AppPreferences(context: Context) : BasePreferences(context) {
     }
 
     fun getRecentAppLaunches(): List<String> =
-        getStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES)
 
     fun setRecentAppLaunches(packageNames: List<String>): List<String> {
         val trimmed = packageNames.take(MAX_RECENT_APP_LAUNCHES)
-        setStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES, trimmed)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES, trimmed)
         return trimmed
     }
 
     fun addRecentAppLaunch(packageName: String, maxSize: Int = MAX_RECENT_APP_LAUNCHES): List<String> {
-        val current = getStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES).toMutableList()
+        val current = com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES).toMutableList()
         current.remove(packageName)
         current.add(0, packageName)
         if (current.size > maxSize) {
             current.subList(maxSize, current.size).clear()
         }
-        setStringListPref(BasePreferences.KEY_RECENT_APP_LAUNCHES, current)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES, current)
         return current
     }
 

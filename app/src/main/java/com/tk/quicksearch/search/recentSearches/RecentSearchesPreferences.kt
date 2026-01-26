@@ -22,7 +22,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
      * Returns an empty list if no recent queries exist.
      */
     fun getRecentQueries(): List<String> {
-        return getStringListPref(BasePreferences.KEY_RECENT_QUERIES)
+        return com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES)
     }
 
     /**
@@ -45,14 +45,14 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
         // Keep only the last MAX_RECENT_QUERIES
         val limitedQueries = currentQueries.take(MAX_RECENT_QUERIES)
 
-        setStringListPref(BasePreferences.KEY_RECENT_QUERIES, limitedQueries)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, limitedQueries)
     }
 
     /**
      * Clear all recent queries.
      */
     fun clearRecentQueries() {
-        setStringListPref(BasePreferences.KEY_RECENT_QUERIES, emptyList())
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, emptyList<String>())
     }
 
     /**
@@ -61,7 +61,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
     fun deleteRecentQuery(query: String) {
         val currentQueries = getRecentQueries().toMutableList()
         currentQueries.remove(query)
-        setStringListPref(BasePreferences.KEY_RECENT_QUERIES, currentQueries)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, currentQueries)
     }
 
     /**

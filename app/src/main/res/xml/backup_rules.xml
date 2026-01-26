@@ -8,6 +8,10 @@
 <full-backup-content>
     <!-- Do not restore first-launch state (keeps onboarding fresh after reinstall) -->
     <exclude domain="sharedpref" path="first_launch_state.xml"/>
+    <!-- Exclude app timing data to prevent stale review prompt timing after reinstall -->
+    <exclude domain="sharedpref" path="app_timing_state.xml"/>
+    <!-- Exclude session data to prevent stale usage patterns and session flags after reinstall -->
+    <exclude domain="sharedpref" path="app_session_state.xml"/>
     <!-- Exclude app usage cache to avoid restoring stale usage history -->
     <exclude domain="sharedpref" path="app_cache.xml"/>
     <!-- Exclude encrypted prefs that store Gemini API key -->

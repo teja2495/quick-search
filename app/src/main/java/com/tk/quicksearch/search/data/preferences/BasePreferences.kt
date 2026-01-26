@@ -184,6 +184,12 @@ abstract class BasePreferences(protected val context: Context) {
         protected val firstLaunchPrefs: SharedPreferences =
                 appContext.getSharedPreferences(FIRST_LAUNCH_PREFS_NAME, Context.MODE_PRIVATE)
 
+        protected val timingPrefs: SharedPreferences =
+                appContext.getSharedPreferences(TIMING_PREFS_NAME, Context.MODE_PRIVATE)
+
+        protected val sessionPrefs: SharedPreferences =
+                appContext.getSharedPreferences(SESSION_PREFS_NAME, Context.MODE_PRIVATE)
+
         // Encrypted SharedPreferences for sensitive data like API keys.
         // If encryption cannot be initialized, sensitive data will not be persisted.
         protected val encryptedPrefs: SharedPreferences? = run {
@@ -382,6 +388,8 @@ abstract class BasePreferences(protected val context: Context) {
                 // SharedPreferences names
                 const val PREFS_NAME = "user_app_preferences"
                 const val FIRST_LAUNCH_PREFS_NAME = "first_launch_state"
+                const val TIMING_PREFS_NAME = "app_timing_state"
+                const val SESSION_PREFS_NAME = "app_session_state"
                 const val ENCRYPTED_PREFS_NAME = "encrypted_user_preferences"
 
                 // App preferences keys

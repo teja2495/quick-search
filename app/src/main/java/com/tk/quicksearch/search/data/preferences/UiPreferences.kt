@@ -99,11 +99,11 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
 
     fun getSelectedIconPackPackage(): String? {
-        return prefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
+        return sessionPrefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
     }
 
     fun setSelectedIconPackPackage(packageName: String?) {
-        val editor = prefs.edit()
+        val editor = sessionPrefs.edit()
         if (packageName.isNullOrBlank()) {
             editor.remove(UiPreferences.KEY_SELECTED_ICON_PACK)
         } else {
@@ -121,10 +121,10 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
     }
 
-    fun hasSeenSearchBarWelcome(): Boolean = getBooleanPref(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
+    fun hasSeenSearchBarWelcome(): Boolean = sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) {
-        setBooleanPref(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen)
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen).apply()
     }
 
     fun hasSeenContactActionHint(): Boolean =
@@ -141,11 +141,11 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, seen)
     }
 
-    fun getLastSeenVersionName(): String? = prefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
+    fun getLastSeenVersionName(): String? = sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
         val normalized = versionName?.trim()
-        val editor = prefs.edit()
+        val editor = sessionPrefs.edit()
         if (normalized.isNullOrEmpty()) {
             editor.remove(UiPreferences.KEY_LAST_SEEN_VERSION)
         } else {
@@ -270,48 +270,48 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     fun getFirstAppOpenTime(): Long {
-        return prefs.getLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, 0L)
+        return timingPrefs.getLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, 0L)
     }
 
     fun recordFirstAppOpenTime() {
         if (getFirstAppOpenTime() == 0L) {
-            prefs.edit().putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis()).apply()
+            timingPrefs.edit().putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis()).apply()
         }
     }
 
     fun getLastReviewPromptTime(): Long {
-        return prefs.getLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, 0L)
+        return timingPrefs.getLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, 0L)
     }
 
     fun recordReviewPromptTime() {
-        prefs.edit().putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis()).apply()
+        timingPrefs.edit().putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis()).apply()
     }
 
     fun getReviewPromptedCount(): Int {
-        return prefs.getInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, 0)
+        return timingPrefs.getInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, 0)
     }
 
     fun incrementReviewPromptedCount() {
         val currentCount = getReviewPromptedCount()
-        prefs.edit().putInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, currentCount + 1).apply()
+        timingPrefs.edit().putInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, currentCount + 1).apply()
     }
 
     fun getAppOpenCount(): Int {
-        return prefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT, 0)
+        return timingPrefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT, 0)
     }
 
     fun incrementAppOpenCount() {
         val currentCount = getAppOpenCount()
-        prefs.edit().putInt(UiPreferences.KEY_APP_OPEN_COUNT, currentCount + 1).apply()
+        timingPrefs.edit().putInt(UiPreferences.KEY_APP_OPEN_COUNT, currentCount + 1).apply()
     }
 
     fun getAppOpenCountAtLastPrompt(): Int {
-        return prefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, 0)
+        return timingPrefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, 0)
     }
 
     fun recordAppOpenCountAtPrompt() {
         val currentOpenCount = getAppOpenCount()
-        prefs.edit().putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount).apply()
+        timingPrefs.edit().putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount).apply()
     }
 
     fun shouldShowReviewPrompt(): Boolean {
@@ -331,7 +331,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         
         return when (promptedCount) {
             0 -> {
-                // First review: at least 5 opens AND at least 2 days
+                // First review: at least 2 days AND at least 5 opens
                 daysSinceFirstOpen >= 2 && totalOpens >= 5
             }
             1 -> {
@@ -356,14 +356,14 @@ class UiPreferences(context: Context) : BasePreferences(context) {
      * This is used to avoid showing both update and review prompts in the same session.
      */
     fun hasShownUpdateCheckThisSession(): Boolean {
-        return prefs.getBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
+        return sessionPrefs.getBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
     }
 
     /**
      * Mark that an update check was shown this session.
      */
     fun setUpdateCheckShownThisSession() {
-        prefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true).apply()
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true).apply()
     }
 
     /**
@@ -371,7 +371,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
      * Should be called when the app starts.
      */
     fun resetUpdateCheckSession() {
-        prefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false).apply()
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false).apply()
     }
 
     companion object {
