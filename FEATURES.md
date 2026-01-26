@@ -1,5 +1,7 @@
 # Quick Search - Complete Feature Documentation
 
+**Version**: 1.5.1 (January 26 2026)
+
 ## Core Search Capabilities
 
 ### Search Functions
@@ -71,7 +73,7 @@
 - **Enable/Disable Categories** - Toggle individual search result types on or off
 - **Auto-Expand Results** - Show all results at once without tapping "More" button (This option is available in additional settings)
 - **Sort Options** - Results are ordered by most-opened apps by default (can be disabled)
-- **Recent Searches** - Show your recent search queries when the search bar is empty (choose how many to display, default is 3)
+- **Recent Searches** - Show your recently accessed files, contacts, settings, and app shortcuts when the search bar is empty (choose how many to display, default is 3)
 - **Delete Recent Queries** - Remove individual recent queries with a tap
 
 ### Visual Customization
@@ -163,6 +165,12 @@
 - **What's New** - View release notes for each app version
 - **In-App Display** - Release notes shown directly within the app
 - **Version Information** - Clear indication of current version and changes
+
+#### Version 1.5.1 (January 2026)
+- **Enhanced Recent Searches**: Recent searches now include file, contact, setting, and app shortcut items instead of just search queries
+- **Tablet UI Optimizations**: Improved layouts and grid sizing for tablet devices
+- **Bug Fixes**: Fixed wallpaper background issues on some devices
+- **UI Refinements**: Various UI tweaks and refinements for better user experience
 
 ## Support & Development
 

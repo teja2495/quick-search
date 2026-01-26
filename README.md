@@ -31,7 +31,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Section Ordering**: Customize which content appears first
 - **Pinned Results**: Keep favorite results always visible
 - **Recent Apps**: Smart ranking based on usage patterns
-- **Recent Searches**: Show your recent search queries when the search bar is empty (choose how many to display, default is 3)
+- **Recent Searches**: Show your recently accessed files, contacts, settings, and app shortcuts when the search bar is empty (choose how many to display, default is 3)
 - **Haptic Feedback**: Context-aware vibration feedback for different interactions (tap, toggle, etc.)
 - **In-App Updates**: Automatic prompts for app updates from Play Store
 - **In-App Reviews**: Smart prompts to rate the app based on usage patterns

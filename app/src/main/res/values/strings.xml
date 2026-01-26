@@ -471,7 +471,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Long press apps to access their shortcuts (if available). You can see them in search results too.\nLong press contact actions to change them.\nFolder search\nApp Search now ignores typos and allows abbreviations.\nAdjust wallpaper transparency and blur.\nBrowsers can be added as search engines.\nOrganized settings\nPerformance improvements and bug fixes.</string>
+    <string name="release_notes_points">Recent searches now include file, contact, setting, and app shortcut items.\nFixed an issue where wallpaper background is not working on some devices.\nOptimized UI for tablets\nSeveral UI tweaks &amp; refinements</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>

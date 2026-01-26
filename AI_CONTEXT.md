@@ -46,6 +46,7 @@ data class SearchUiState(
     val searchResults: List<AppInfo> = emptyList(),
     val contactResults: List<ContactInfo> = emptyList(),
     val fileResults: List<DeviceFile> = emptyList(),
+    val recentItems: List<RecentSearchItem> = emptyList(),
     // ... more state fields
 )
 ```
@@ -85,6 +86,7 @@ data class SearchUiState(
 - ContactPreferences.kt - Contact preferences
 - UiPreferences.kt - UI settings
 - SearchEnginePreferences.kt - Search engine configuration
+- RecentSearchesPreferences.kt - Recent items tracking and display settings
 // ... etc.
 ```
 
@@ -127,6 +129,7 @@ app/src/main/java/com/tk/quicksearch/
 │   │       ├── UiPreferences.kt
 │   │       ├── SearchEnginePreferences.kt
 │   │       ├── GeminiPreferences.kt
+│   │       ├── RecentSearchesPreferences.kt
 │   │       └── ... (more preference modules)
 │   │
 │   ├── core/                     # Core search logic
@@ -183,6 +186,11 @@ app/src/main/java/com/tk/quicksearch/
 │   │   ├── ShortcutHandler.kt
 │   │   └── ReleaseNotesHandler.kt
 │   │
+│   ├── recentSearches/           # Recent items tracking and display
+│   │   ├── RecentSearchesSection.kt
+│   │   ├── RecentSearchModels.kt
+│   │   └── RecentSearchesPreferences.kt
+│   │
 │   └── common/                   # Shared utilities
 │
 ├── settings/                     # Settings screens
@@ -220,6 +228,7 @@ app/src/main/java/com/tk/quicksearch/
     ├── PhoneNumberUtils.kt
     ├── WallpaperUtils.kt
     ├── HapticUtils.kt
+    ├── DeviceUtils.kt           # Device detection and responsive layout utilities
     ├── ReviewHelper.kt          # Play Review API
     └── UpdateHelper.kt          # Play App Update API
 ```
@@ -317,6 +326,33 @@ fun ResultsSection(
         ) {
             // Section content
         }
+    }
+}
+```
+
+### Responsive Design & Tablet Optimizations
+
+**Device Detection** (`util/DeviceUtils.kt`):
+- **Tablet Detection**: Devices with `smallestScreenWidthDp >= 600` are considered tablets
+- **Orientation Awareness**: Separate logic for portrait vs landscape modes
+
+**Dynamic Layouts**:
+- **App Grid Columns**:
+  - Phones: 5 columns (fixed)
+  - Tablets: 7 columns portrait, 9 columns landscape
+- **Search Engine Icons**:
+  - Phones: 6 per row
+  - Tablets: 8 per row portrait, 10 per row landscape
+
+**Adaptive UI Patterns**:
+```kotlin
+// Responsive column calculation
+@Composable
+fun getAppGridColumns(): Int {
+    return if (isTablet()) {
+        if (isLandscape()) 9 else 7
+    } else {
+        5
     }
 }
 ```
@@ -457,11 +493,31 @@ Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Pl
 
 - Google-powered suggestions via Google Suggest API
 - Configurable suggestion count (default: 3)
-- Recent queries feature (stores last 10, displays configurable count)
 
 **Implementation**: `search/webSuggestions/WebSuggestionHandler.kt`
 
-### 5. Pinning System
+### 5. Recent Searches
+
+**Enhanced Recent Items Tracking**:
+- Shows recently accessed files, contacts, device settings, and app shortcuts when search bar is empty
+- Supports up to 10 recent items with configurable display count (default: 3)
+- Items are automatically tracked when accessed through search results
+- Individual items can be removed from recent list via long-press context menu
+
+**Supported Item Types**:
+- **RecentSearchItem.Query**: Text search queries
+- **RecentSearchItem.Contact**: Recently accessed contacts with full contact data
+- **RecentSearchItem.File**: Recently accessed device files
+- **RecentSearchItem.Setting**: Recently accessed device settings
+- **RecentSearchItem.AppShortcut**: Recently accessed app shortcuts
+
+**Data Models**:
+- `RecentSearchEntry` (sealed class): Storage format for different item types
+- `RecentSearchItem` (sealed class): UI presentation format with resolved data
+
+**Implementation**: `search/recentSearches/RecentSearchesSection.kt`, `RecentSearchModels.kt`, `RecentSearchesPreferences.kt`
+
+### 6. Pinning System
 
 **Pinnable Items**:
 - Apps
@@ -566,7 +622,7 @@ fuzzywuzzy = "1.4.0"
 - Min SDK: 24 (Android 7.0)
 - Target SDK: 36 (Android 15)
 - Compile SDK: 36
-- Version: 1.5 (Code 16)
+- Version: 1.5.1 (Code 18)
 
 **Key Dependencies**:
 - Jetpack Compose (BOM 2025.12.01)
@@ -873,5 +929,5 @@ Sections are shown/hidden based on:
 
 ---
 
-**Last Updated**: January 2026 (v1.5)  
+**Last Updated**: January 2026 (v1.5.1)
 **For Questions**: Refer to code comments, README.md, or analyze usage patterns in codebase
