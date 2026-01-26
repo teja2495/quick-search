@@ -16,4 +16,8 @@
     <exclude domain="sharedpref" path="app_cache.xml"/>
     <!-- Exclude encrypted prefs that store Gemini API key -->
     <exclude domain="sharedpref" path="encrypted_user_preferences.xml"/>
+    <!-- Exclude app launch counts and statistics -->
+    <exclude domain="sharedpref" path="app_launch_counts.xml"/>
+    <!-- Exclude all types of excluded/hidden items from backup -->
+    <exclude domain="sharedpref" path="user_app_preferences.xml" excludeKeys="hidden_packages_suggestions,hidden_packages_results,excluded_contact_ids,excluded_file_uris,excluded_file_extensions,excluded_app_shortcuts,excluded_settings"/>
 </full-backup-content>

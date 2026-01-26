@@ -1,11 +1,15 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 
 /**
  * Preferences for app-related settings such as hidden and pinned apps.
  */
 class AppPreferences(context: Context) : BasePreferences(context) {
+
+    private val launchCountsPrefs: SharedPreferences =
+        appContext.getSharedPreferences(LAUNCH_COUNTS_PREFS_NAME, Context.MODE_PRIVATE)
 
     init {
         migrateHiddenPackages()
@@ -46,18 +50,16 @@ class AppPreferences(context: Context) : BasePreferences(context) {
     fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(BasePreferences.KEY_HIDDEN_RESULTS)
 
     fun getAppLaunchCount(packageName: String): Int {
-        return prefs.getInt(PREFIX_LAUNCH_COUNT + packageName, 0)
+        return launchCountsPrefs.getInt(packageName, 0)
     }
 
     fun incrementAppLaunchCount(packageName: String) {
         val current = getAppLaunchCount(packageName)
-        prefs.edit().putInt(PREFIX_LAUNCH_COUNT + packageName, current + 1).apply()
+        launchCountsPrefs.edit().putInt(packageName, current + 1).apply()
     }
 
     fun getAllAppLaunchCounts(): Map<String, Int> {
-        return prefs.all
-            .filterKeys { it.startsWith(PREFIX_LAUNCH_COUNT) }
-            .mapKeys { it.key.removePrefix(PREFIX_LAUNCH_COUNT) }
+        return launchCountsPrefs.all
             .mapValues { it.value as? Int ?: 0 }
     }
 
@@ -82,7 +84,7 @@ class AppPreferences(context: Context) : BasePreferences(context) {
     }
 
     companion object {
-        private const val PREFIX_LAUNCH_COUNT = "launch_count_"
+        private const val LAUNCH_COUNTS_PREFS_NAME = "app_launch_counts"
         private const val MAX_RECENT_APP_LAUNCHES = 10
     }
 

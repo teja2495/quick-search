@@ -3,36 +3,22 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -46,22 +32,12 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
+import com.tk.quicksearch.onboarding.permissionScreen.PermissionItem
 import com.tk.quicksearch.search.data.AppUsageRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 
-private val GrantedPermissionColor = Color(0xFF4CAF50)
 
-/**
- * Data class representing a permission item.
- */
-private data class PermissionItem(
-    val name: String,
-    val subtitle: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val permissionState: PermissionState,
-    val onRequest: () -> Unit
-)
 
 /**
  * Permissions settings screen with permission status and request options.
@@ -152,18 +128,29 @@ fun PermissionsSettings(
     }
 
     Column(modifier = modifier) {
-        ElevatedCard(
+        Text(
+            text = stringResource(R.string.permissions_screen_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = DesignTokens.ExtraLargeCardShape
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            shape = RoundedCornerShape(20.dp)
         ) {
             Column {
-                val permissions = listOf(
-                    PermissionItem(
-                        name = stringResource(R.string.settings_usage_access_title),
-                        subtitle = stringResource(R.string.permissions_usage_desc),
-                        icon = Icons.Rounded.Info,
-                        permissionState = usagePermissionState,
-                        onRequest = {
+                // Usage Permission Item
+                PermissionItem(
+                    title = stringResource(R.string.settings_usage_access_title),
+                    description = stringResource(R.string.permissions_usage_desc),
+                    permissionState = usagePermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        if (enabled && !usagePermissionState.isGranted) {
                             usagePermissionState = usagePermissionState.copy(isEnabled = true)
                             context.startActivity(
                                 PermissionRequestHandler.createUsageAccessIntent(context)
@@ -171,28 +158,48 @@ fun PermissionsSettings(
                             // Also call the original callback for backward compatibility
                             onRequestUsagePermission()
                         }
-                    ),
-                    PermissionItem(
-                        name = stringResource(R.string.settings_contacts_permission_title),
-                        subtitle = stringResource(R.string.permissions_contacts_desc),
-                        icon = Icons.Rounded.Contacts,
-                        permissionState = contactsPermissionState,
-                        onRequest = {
-                            contactsPermissionState = contactsPermissionState.copy(isEnabled = true)
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Contacts Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.settings_contacts_permission_title),
+                    description = stringResource(R.string.permissions_contacts_desc),
+                    permissionState = contactsPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        contactsPermissionState = contactsPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !contactsPermissionState.isGranted) {
                             multiplePermissionsLauncher.launch(
                                 arrayOf(Manifest.permission.READ_CONTACTS)
                             )
                             // Also call the original callback for backward compatibility
                             onRequestContactPermission()
                         }
-                    ),
-                    PermissionItem(
-                        name = stringResource(R.string.settings_files_permission_title),
-                        subtitle = stringResource(R.string.permissions_files_desc),
-                        icon = Icons.Rounded.InsertDriveFile,
-                        permissionState = filesPermissionState,
-                        onRequest = {
-                            filesPermissionState = filesPermissionState.copy(isEnabled = true)
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Files Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.settings_files_permission_title),
+                    description = stringResource(R.string.permissions_files_desc),
+                    permissionState = filesPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        filesPermissionState = filesPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !filesPermissionState.isGranted) {
                             handleFilesPermissionRequest(
                                 context = context,
                                 permissionState = filesPermissionState,
@@ -205,97 +212,37 @@ fun PermissionsSettings(
                             // Also call the original callback for backward compatibility
                             onRequestFilePermission()
                         }
-                    ),
-                    PermissionItem(
-                        name = stringResource(R.string.settings_call_permission_title),
-                        subtitle = stringResource(R.string.permissions_calling_desc),
-                        icon = Icons.Rounded.Call,
-                        permissionState = callingPermissionState,
-                        onRequest = {
-                            callingPermissionState = callingPermissionState.copy(isEnabled = true)
+                    }
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                // Calling Permission Item (Optional)
+                PermissionItem(
+                    title = stringResource(R.string.settings_call_permission_title),
+                    description = stringResource(R.string.permissions_calling_desc),
+                    permissionState = callingPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        callingPermissionState = callingPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !callingPermissionState.isGranted) {
                             multiplePermissionsLauncher.launch(
                                 arrayOf(Manifest.permission.CALL_PHONE)
                             )
                             // Also call the original callback for backward compatibility
                             onRequestCallPermission()
                         }
-                    )
-                )
-
-                permissions.forEachIndexed { index, permission ->
-                    PermissionRow(
-                        permission = permission,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    if (index != permissions.lastIndex) {
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PermissionRow(
-    permission: PermissionItem,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = permission.icon,
-            contentDescription = permission.name,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 12.dp)
-        )
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)
-        ) {
-            Text(
-                text = permission.name,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = permission.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .widthIn(min = 80.dp)
-                .heightIn(min = 40.dp),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            if (permission.permissionState.isGranted) {
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = stringResource(R.string.settings_usage_access_granted),
-                    tint = GrantedPermissionColor,
-                    modifier = Modifier.size(24.dp)
                 )
-            } else {
-                TextButton(onClick = permission.onRequest) {
-                    Text(
-                        text = stringResource(R.string.settings_permission_grant),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
             }
         }
     }
 }
+
 
 /**
  * Creates initial permission state. If permission is already granted, creates a granted state.

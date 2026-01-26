@@ -34,9 +34,6 @@ class AppSearchManager(
 
     private var fuzzySearchStrategy = FuzzyAppSearchStrategy(initialFuzzyConfig)
 
-    companion object {
-        private const val GRID_ITEM_COUNT = 10
-    }
 
     fun initCache(initialApps: List<AppInfo>) {
         cachedApps = initialApps
@@ -165,7 +162,7 @@ class AppSearchManager(
         cachedAppNicknames = userPreferences.getAllAppNicknames()
     }
 
-    fun deriveMatches(query: String, source: List<AppInfo>): List<AppInfo> {
+    fun deriveMatches(query: String, source: List<AppInfo>, limit: Int): List<AppInfo> {
         if (query.isBlank()) return emptyList()
 
         // Pre-compute normalized query and tokens once
@@ -176,7 +173,7 @@ class AppSearchManager(
             .mapNotNull { app -> calculateAppMatch(app, normalizedQuery, queryTokens) }
             .sortedWith(createAppComparator())
             .map { it.app }
-            .take(GRID_ITEM_COUNT)
+            .take(limit)
             .toList()
 
         return appMatches

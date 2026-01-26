@@ -1113,7 +1113,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 if (shouldSkipSearch || detectedTarget != null) {
                     emptyList()
                 } else {
-                    appSearchManager.deriveMatches(trimmedQuery, cachedAllSearchableApps).also {
+                    appSearchManager.deriveMatches(trimmedQuery, cachedAllSearchableApps, getGridItemCount()).also {
                             results ->
                         if (results.isEmpty()) {
                             appSearchManager.setNoMatchPrefix(normalizedQuery)
@@ -1684,6 +1684,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         limit = getGridItemCount(),
                         hasUsagePermission = hasUsagePermission
                 )
+
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
         val packageNames = apps.map { it.packageName }.toSet()
@@ -1706,7 +1707,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 if (trimmedQuery.isBlank()) {
                     emptyList()
                 } else {
-                    appSearchManager.deriveMatches(trimmedQuery, allSearchableApps)
+                    appSearchManager.deriveMatches(trimmedQuery, allSearchableApps, getGridItemCount())
                 }
         val suggestionHiddenAppList =
                 apps.filter { suggestionHiddenPackages.contains(it.packageName) }.sortedBy {
@@ -1760,7 +1761,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             hasUsagePermission: Boolean
     ): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
-        return if (hasUsagePermission) {
+
+        val suggestions = if (hasUsagePermission) {
             repository.extractRecentlyOpenedApps(apps, limit)
         } else {
             val appByPackage = apps.associateBy { it.packageName }
@@ -1770,6 +1772,23 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     .take(limit)
                     .toList()
         }
+
+        // If we have enough suggestions, return them
+        if (suggestions.size >= limit) {
+            return suggestions
+        }
+
+        // Otherwise, keep existing suggestions and fill remaining spots with additional apps
+        val remainingSpots = limit - suggestions.size
+        val suggestionPackageNames = suggestions.map { it.packageName }.toSet()
+
+        // Fill remaining spots with apps sorted by launch count (most used first), excluding already suggested ones
+        val additionalApps = apps
+            .filterNot { suggestionPackageNames.contains(it.packageName) }
+            .sortedWith(compareByDescending<AppInfo> { it.launchCount }.thenBy { it.appName.lowercase(Locale.getDefault()) })
+            .take(remainingSpots)
+
+        return suggestions + additionalApps
     }
 
     // performSecondarySearches moved to SecondarySearchOrchestrator
