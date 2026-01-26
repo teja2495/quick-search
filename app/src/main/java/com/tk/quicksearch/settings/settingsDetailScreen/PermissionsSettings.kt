@@ -132,7 +132,7 @@ fun PermissionsSettings(
             text = stringResource(R.string.permissions_screen_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge)
         )
 
         Card(
@@ -162,8 +162,8 @@ fun PermissionsSettings(
                 )
 
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXLarge),
+                    thickness = DesignTokens.DividerThickness,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
@@ -186,8 +186,8 @@ fun PermissionsSettings(
                 )
 
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXLarge),
+                    thickness = DesignTokens.DividerThickness,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
@@ -216,8 +216,8 @@ fun PermissionsSettings(
                 )
 
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXLarge),
+                    thickness = DesignTokens.DividerThickness,
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 

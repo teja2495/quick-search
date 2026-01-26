@@ -121,8 +121,8 @@ internal fun ContactResultRow(
                                                                                 null
                                                                         }
                                                 )
-                                                .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                .padding(vertical = DesignTokens.SpacingSmall),
+                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
                                 Box(
