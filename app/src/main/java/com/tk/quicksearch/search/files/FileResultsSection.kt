@@ -54,7 +54,6 @@ import com.tk.quicksearch.util.hapticConfirm
 // ============================================================================
 
 private const val FILE_ICON_SIZE = 28
-private const val FILE_ICON_START_PADDING = 8
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private const val DROPDOWN_CORNER_RADIUS = 24
@@ -339,7 +338,7 @@ private fun fileResultIcon(deviceFile: DeviceFile) =
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun FileResultRow(
+internal fun FileResultRow(
         deviceFile: DeviceFile,
         onClick: (DeviceFile) -> Unit,
         isPinned: Boolean = false,
@@ -347,7 +346,10 @@ private fun FileResultRow(
         onExclude: (DeviceFile) -> Unit = {},
         onExcludeExtension: (DeviceFile) -> Unit = {},
         onNicknameClick: (DeviceFile) -> Unit = {},
-        hasNickname: Boolean = false
+        hasNickname: Boolean = false,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -361,7 +363,13 @@ private fun FileResultRow(
                                                         hapticConfirm(view)()
                                                         onClick(deviceFile)
                                                 },
-                                                onLongClick = { showOptions = true }
+                                                onLongClick =
+                                                        onLongPressOverride
+                                                                ?: if (enableLongPress) {
+                                                                        { showOptions = true }
+                                                                } else {
+                                                                        null
+                                                                }
                                         )
                                         .padding(vertical = DesignTokens.SpacingLarge)
                 ) {
@@ -371,12 +379,12 @@ private fun FileResultRow(
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
                                 Icon(
-                                        imageVector = fileResultIcon(deviceFile),
+                                        imageVector = icon ?: fileResultIcon(deviceFile),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.secondary,
                                         modifier =
-                                                Modifier.size(FILE_ICON_SIZE.dp)
-                                                        .padding(start = FILE_ICON_START_PADDING.dp)
+                                                Modifier.size(if (icon != null) 34.dp else FILE_ICON_SIZE.dp)
+                                                        .padding(start = DesignTokens.SpacingSmall)
                                 )
 
                                 Text(
@@ -388,17 +396,19 @@ private fun FileResultRow(
                         }
                 }
 
-                FileDropdownMenu(
-                        expanded = showOptions,
-                        onDismissRequest = { showOptions = false },
-                        deviceFile = deviceFile,
-                        isPinned = isPinned,
-                        hasNickname = hasNickname,
-                        onTogglePin = { onTogglePin(deviceFile) },
-                        onExclude = { onExclude(deviceFile) },
-                        onExcludeExtension = { onExcludeExtension(deviceFile) },
-                        onNicknameClick = { onNicknameClick(deviceFile) }
-                )
+                if (enableLongPress && onLongPressOverride == null) {
+                        FileDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                deviceFile = deviceFile,
+                                isPinned = isPinned,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(deviceFile) },
+                                onExclude = { onExclude(deviceFile) },
+                                onExcludeExtension = { onExcludeExtension(deviceFile) },
+                                onNicknameClick = { onNicknameClick(deviceFile) }
+                        )
+                }
         }
 }
 

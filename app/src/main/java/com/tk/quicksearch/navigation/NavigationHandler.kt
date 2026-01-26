@@ -13,6 +13,7 @@ import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 
 class NavigationHandler(
     private val application: Application,
@@ -97,7 +98,7 @@ class NavigationHandler(
 
         // Save the query to recent queries
         if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
-            userPreferences.addRecentQuery(trimmedQuery)
+            userPreferences.addRecentItem(RecentSearchEntry.Query(trimmedQuery))
         }
 
         // Always clear query after search
@@ -118,7 +119,7 @@ class NavigationHandler(
                 }
 
                 if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
-                    userPreferences.addRecentQuery(trimmedQuery)
+                    userPreferences.addRecentItem(RecentSearchEntry.Query(trimmedQuery))
                 }
                 onClearQuery()
             }
@@ -136,6 +137,7 @@ class NavigationHandler(
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
+        userPreferences.addRecentItem(RecentSearchEntry.File(deviceFile.uri.toString()))
         // Always clear query after opening file
         onClearQuery()
     }
@@ -149,6 +151,7 @@ class NavigationHandler(
         ContactIntentHelpers.openContact(application, contactInfo) { stringResId ->
             showToastCallback(stringResId)
         }
+        userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
         // Always clear query after opening contact
         onClearQuery()
     }

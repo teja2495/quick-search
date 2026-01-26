@@ -813,13 +813,19 @@ class UserAppPreferences(private val context: Context) {
         // Recent Queries Preferences
         // ============================================================================
 
-        fun getRecentQueries(): List<String> = recentSearchesPreferences.getRecentQueries()
+        fun getRecentItems():
+                List<com.tk.quicksearch.search.recentSearches.RecentSearchEntry> =
+                recentSearchesPreferences.getRecentItems()
 
-        fun addRecentQuery(query: String) = recentSearchesPreferences.addRecentQuery(query)
+        fun addRecentItem(
+                entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+        ) = recentSearchesPreferences.addRecentItem(entry)
 
         fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
 
-        fun deleteRecentQuery(query: String) = recentSearchesPreferences.deleteRecentQuery(query)
+        fun deleteRecentItem(
+                entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+        ) = recentSearchesPreferences.deleteRecentItem(entry)
 
         fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
 

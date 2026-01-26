@@ -18,34 +18,43 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     /**
-     * Get the list of recent search queries (up to 10).
-     * Returns an empty list if no recent queries exist.
+     * Get the list of recent search entries (up to 10).
+     * Returns an empty list if no recent entries exist.
      */
-    fun getRecentQueries(): List<String> {
-        return com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES)
+    fun getRecentItems(): List<RecentSearchEntry> {
+        val rawItems =
+            com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(
+                sessionPrefs,
+                BasePreferences.KEY_RECENT_QUERIES
+            )
+        return rawItems.mapNotNull { RecentSearchEntry.fromRaw(it) }
     }
 
     /**
-     * Add a new recent query to the list.
-     * Maintains only the last 10 queries, with the newest first.
+     * Add a new recent item to the list.
+     * Maintains only the last 10 items, with the newest first.
      * Duplicates are moved to the front rather than being added again.
      */
-    fun addRecentQuery(query: String) {
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) return
+    fun addRecentItem(entry: RecentSearchEntry) {
+        if (entry is RecentSearchEntry.Query && entry.trimmedQuery.isBlank()) return
 
-        val currentQueries = getRecentQueries().toMutableList()
+        val currentItems = getRecentItems().toMutableList()
 
         // Remove if it already exists (we'll add it to the front)
-        currentQueries.remove(trimmedQuery)
+        currentItems.removeAll { it.stableKey == entry.stableKey }
 
         // Add to the front
-        currentQueries.add(0, trimmedQuery)
+        currentItems.add(0, entry)
 
         // Keep only the last MAX_RECENT_QUERIES
-        val limitedQueries = currentQueries.take(MAX_RECENT_QUERIES)
+        val limitedItems = currentItems.take(MAX_RECENT_QUERIES)
 
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, limitedQueries)
+        val serialized = limitedItems.map { it.toJsonString() }
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
+            sessionPrefs,
+            BasePreferences.KEY_RECENT_QUERIES,
+            serialized
+        )
     }
 
     /**
@@ -56,12 +65,17 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
     }
 
     /**
-     * Delete a specific recent query from the list.
+     * Delete a specific recent item from the list.
      */
-    fun deleteRecentQuery(query: String) {
-        val currentQueries = getRecentQueries().toMutableList()
-        currentQueries.remove(query)
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, currentQueries)
+    fun deleteRecentItem(entry: RecentSearchEntry) {
+        val currentItems = getRecentItems().toMutableList()
+        currentItems.removeAll { it.stableKey == entry.stableKey }
+        val serialized = currentItems.map { it.toJsonString() }
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
+            sessionPrefs,
+            BasePreferences.KEY_RECENT_QUERIES,
+            serialized
+        )
     }
 
     /**

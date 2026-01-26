@@ -4,6 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 
@@ -24,6 +25,16 @@ class DeviceSettingsSearchHandler(
 
     suspend fun loadShortcuts() {
         availableSettings = repository.loadShortcuts()
+    }
+
+    suspend fun getSettingsByIds(ids: Set<String>): Map<String, DeviceSetting> {
+        if (ids.isEmpty()) return emptyMap()
+        if (availableSettings.isEmpty()) {
+            availableSettings = repository.loadShortcuts()
+        }
+        return availableSettings
+            .filter { ids.contains(it.id) }
+            .associateBy { it.id }
     }
 
     suspend fun getPinnedAndExcludedOnly(): DeviceSettingsSearchResults {
@@ -180,6 +191,7 @@ class DeviceSettingsSearchHandler(
     }
 
     fun openSetting(setting: DeviceSetting) {
+        userPreferences.addRecentItem(RecentSearchEntry.Setting(setting.id))
         runCatching {
             val intent = repository.buildIntent(setting)
             context.startActivity(intent)

@@ -52,6 +52,8 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCards
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+import com.tk.quicksearch.search.recentSearches.RecentSearchesSection
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
 import kotlin.math.min
@@ -113,7 +115,7 @@ fun SearchContentArea(
         onWebSuggestionClick: (String) -> Unit = {},
         onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
         onCustomizeSearchEnginesClick: () -> Unit = {},
-        onDeleteRecentQuery: (String) -> Unit = {},
+        onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         showCalculator: Boolean = false,
         showDirectSearch: Boolean = false,
         directSearchState: DirectSearchState? = null
@@ -351,7 +353,7 @@ if (fadePx > 0f) {
                                         onCustomizeSearchEnginesClick =
                                                 onCustomizeSearchEnginesClick,
                                         onSearchTargetClick = onSearchTargetClick,
-                                        onDeleteRecentQuery = onDeleteRecentQuery
+                                        onDeleteRecentItem = onDeleteRecentItem
                                 )
                         }
                 }
@@ -441,7 +443,7 @@ fun ContentLayout(
         onWebSuggestionClick: (String) -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
         onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
-        onDeleteRecentQuery: (String) -> Unit = {}
+        onDeleteRecentItem: (RecentSearchEntry) -> Unit = {}
 ) {
         // 1. Determine Layout Order based on ItemPriorityConfig
         val hasQuery = state.query.isNotBlank()
@@ -496,8 +498,8 @@ fun ContentLayout(
                         !suggestionWasSelected
 
         // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
-        val showRecentQueries =
-                !hasQuery && state.recentQueriesEnabled && state.recentQueries.isNotEmpty()
+        val showRecentItems =
+                !hasQuery && state.recentQueriesEnabled && state.recentItems.isNotEmpty()
 
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 finalLayoutOrder.forEach { itemType ->
@@ -678,24 +680,55 @@ fun ContentLayout(
                                         }
                                 }
                                 ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
-                                        if (!hideResults && showRecentQueries) {
+                                        if (!hideResults && showRecentItems) {
+                                                val orderedRecentItems =
+                                                        if (isReversed) {
+                                                                state.recentItems.reversed()
+                                                        } else {
+                                                                state.recentItems
+                                                        }
                                                 AnimatedVisibility(
-                                                        visible = true, // showRecentQueries is
+                                                        visible = true, // showRecentItems is
                                                         // already checked
                                                         enter = fadeIn(),
                                                         exit = shrinkVertically()
                                                 ) {
-                                                        WebSuggestionsSection(
-                                                                suggestions = state.recentQueries,
-                                                                onSuggestionClick =
+                                                        RecentSearchesSection(
+                                                                items = orderedRecentItems,
+                                                                messagingApp =
+                                                                        contactsParams.messagingApp
+                                                                                ?: MessagingApp.MESSAGES,
+                                                                onRecentQueryClick =
                                                                         onWebSuggestionClick,
+                                                                onContactClick =
+                                                                        contactsParams.onContactClick,
+                                                                onShowContactMethods =
+                                                                        contactsParams.onShowContactMethods,
+                                                                onCallContact =
+                                                                        contactsParams.onCallContact,
+                                                                onSmsContact =
+                                                                        contactsParams.onSmsContact,
+                                                                onContactMethodClick =
+                                                                        contactsParams.onContactMethodClick,
+                                                                getPrimaryContactCardAction =
+                                                                        contactsParams.getPrimaryContactCardAction,
+                                                                getSecondaryContactCardAction =
+                                                                        contactsParams.getSecondaryContactCardAction,
+                                                                onPrimaryActionLongPress =
+                                                                        contactsParams.onPrimaryActionLongPress,
+                                                                onSecondaryActionLongPress =
+                                                                        contactsParams.onSecondaryActionLongPress,
+                                                                onCustomAction =
+                                                                        contactsParams.onCustomAction,
+                                                                onFileClick = filesParams.onFileClick,
+                                                                onSettingClick =
+                                                                        settingsParams.onSettingClick,
+                                                                onAppShortcutClick =
+                                                                        appShortcutsParams.onShortcutClick,
+                                                                onDeleteRecentItem =
+                                                                        onDeleteRecentItem,
                                                                 showWallpaperBackground =
                                                                         state.showWallpaperBackground,
-                                                                reverseOrder = isReversed,
-                                                                isShortcutDetected = false,
-                                                                isRecentQuery = true,
-                                                                onDeleteRecentQuery =
-                                                                        onDeleteRecentQuery,
                                                                 modifier = Modifier.fillMaxWidth()
                                                         )
                                                 }

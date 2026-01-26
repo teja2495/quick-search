@@ -49,6 +49,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -79,7 +80,10 @@ internal fun ContactResultRow(
         onTogglePin: (ContactInfo) -> Unit = {},
         onExclude: (ContactInfo) -> Unit = {},
         onNicknameClick: (ContactInfo) -> Unit = {},
-        hasNickname: Boolean = false
+        hasNickname: Boolean = false,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -109,17 +113,41 @@ internal fun ContactResultRow(
                                                                         onContactClick(contactInfo)
                                                                 }
                                                         },
-                                                        onLongClick = { showOptions = true }
+                                                        onLongClick =
+                                                                onLongPressOverride
+                                                                        ?: if (enableLongPress) {
+                                                                                { showOptions = true }
+                                                                        } else {
+                                                                                null
+                                                                        }
                                                 )
                                                 .padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
-                                ContactAvatar(
-                                        photoUri = contactInfo.photoUri,
-                                        displayName = contactInfo.displayName,
-                                        onClick = { onContactClick(contactInfo) }
-                                )
+                                Box(
+                                        modifier =
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingXSmall
+                                                )
+                                ) {
+                                        if (icon != null) {
+                                                Icon(
+                                                        imageVector = icon,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.secondary,
+                                                        modifier = Modifier
+                                                                .size(30.dp)
+                                                                .padding(start = DesignTokens.SpacingXSmall)
+                                                )
+                                        } else {
+                                                ContactAvatar(
+                                                        photoUri = contactInfo.photoUri,
+                                                        displayName = contactInfo.displayName,
+                                                        onClick = { onContactClick(contactInfo) }
+                                                )
+                                        }
+                                }
 
                                 Text(
                                         text = contactInfo.displayName,
@@ -151,15 +179,17 @@ internal fun ContactResultRow(
                         }
                 }
 
-                ContactDropdownMenu(
-                        expanded = showOptions,
-                        onDismissRequest = { showOptions = false },
-                        isPinned = isPinned,
-                        hasNickname = hasNickname,
-                        onTogglePin = { onTogglePin(contactInfo) },
-                        onExclude = { onExclude(contactInfo) },
-                        onNicknameClick = { onNicknameClick(contactInfo) }
-                )
+                if (enableLongPress && onLongPressOverride == null) {
+                        ContactDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                isPinned = isPinned,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(contactInfo) },
+                                onExclude = { onExclude(contactInfo) },
+                                onNicknameClick = { onNicknameClick(contactInfo) }
+                        )
+                }
         }
 }
 
@@ -493,4 +523,3 @@ private fun ContactActionIconForButton(
                 }
         }
 }
-

@@ -27,6 +27,9 @@ import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.launchStaticShortcut
+import com.tk.quicksearch.search.data.shortcutKey
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+import com.tk.quicksearch.search.recentSearches.RecentSearchItem
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
@@ -555,7 +558,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         // Load recent queries on startup if enabled
-        refreshRecentQueries()
+        refreshRecentItems()
     }
 
     private fun initializeWithCacheMinimal(
@@ -747,7 +750,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Refresh recent queries display if query is empty
             if (_uiState.value.query.isEmpty()) {
-                refreshRecentQueries()
+                refreshRecentItems()
             }
         }
     }
@@ -759,33 +762,97 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Refresh recent queries display if query is empty
             if (_uiState.value.query.isEmpty()) {
-                refreshRecentQueries()
+                refreshRecentItems()
             }
         }
     }
 
-    private fun refreshRecentQueries() {
+    private fun refreshRecentItems() {
         viewModelScope.launch(Dispatchers.IO) {
-            val queries =
-                    if (_uiState.value.recentQueriesEnabled) {
-                        userPreferences
-                                .getRecentQueries()
-                                .take(userPreferences.getRecentQueriesCount())
-                    } else {
-                        emptyList()
+            if (!_uiState.value.recentQueriesEnabled) {
+                _uiState.update { it.copy(recentItems = emptyList()) }
+                return@launch
+            }
+
+            val entries =
+                userPreferences
+                    .getRecentItems()
+                    .take(userPreferences.getRecentQueriesCount())
+
+            val contactIds =
+                entries.filterIsInstance<RecentSearchEntry.Contact>()
+                    .map { it.contactId }
+                    .toSet()
+            val fileUris =
+                entries.filterIsInstance<RecentSearchEntry.File>()
+                    .map { it.uri }
+                    .toSet()
+            val settingIds =
+                entries.filterIsInstance<RecentSearchEntry.Setting>()
+                    .map { it.id }
+                    .toSet()
+            val shortcutKeys =
+                entries.filterIsInstance<RecentSearchEntry.AppShortcut>()
+                    .map { it.shortcutKey }
+                    .toSet()
+
+            val contactsById =
+                contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
+            val filesByUri =
+                fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
+            val settingsById = settingsSearchHandler.getSettingsByIds(settingIds)
+            val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
+
+            // Get all pinned items to filter them out from recent items
+            val pinnedPackages = userPreferences.getPinnedPackages()
+            val pinnedContactIds = userPreferences.getPinnedContactIds()
+            val pinnedFileUris = userPreferences.getPinnedFileUris()
+            val pinnedSettingIds = userPreferences.getPinnedSettingIds()
+            val pinnedAppShortcutIds = userPreferences.getPinnedAppShortcutIds()
+
+            val items = buildList {
+                entries.forEach { entry ->
+                    when (entry) {
+                        is RecentSearchEntry.Query -> add(RecentSearchItem.Query(entry.trimmedQuery))
+                        is RecentSearchEntry.Contact ->
+                            contactsById[entry.contactId]?.let {
+                                // Skip if contact is pinned
+                                if (entry.contactId !in pinnedContactIds) {
+                                    add(RecentSearchItem.Contact(entry, it))
+                                }
+                            }
+                        is RecentSearchEntry.File ->
+                            filesByUri[entry.uri]?.let {
+                                // Skip if file is pinned
+                                if (entry.uri !in pinnedFileUris) {
+                                    add(RecentSearchItem.File(entry, it))
+                                }
+                            }
+                        is RecentSearchEntry.Setting ->
+                            settingsById[entry.id]?.let {
+                                // Skip if setting is pinned
+                                if (entry.id !in pinnedSettingIds) {
+                                    add(RecentSearchItem.Setting(entry, it))
+                                }
+                            }
+                        is RecentSearchEntry.AppShortcut ->
+                            shortcutsByKey[entry.shortcutKey]?.let {
+                                // Skip if app shortcut is pinned
+                                if (entry.shortcutKey !in pinnedAppShortcutIds) {
+                                    add(RecentSearchItem.AppShortcut(entry, it))
+                                }
+                            }
                     }
-            _uiState.update { it.copy(recentQueries = queries) }
+                }
+            }
+            _uiState.update { it.copy(recentItems = items) }
         }
     }
 
-    fun onRecentQueryClick(query: String) {
-        onQueryChange(query)
-    }
-
-    fun deleteRecentQuery(query: String) {
+    fun deleteRecentItem(entry: RecentSearchEntry) {
         viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.deleteRecentQuery(query)
-            refreshRecentQueries()
+            userPreferences.deleteRecentItem(entry)
+            refreshRecentItems()
         }
     }
 
@@ -1042,7 +1109,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 )
             }
             // Load recent queries when query is empty
-            refreshRecentQueries()
+            refreshRecentItems()
             // Also reset locked shortcut when query is cleared completely (empty)
             // But we don't null it out here if we are just transitioning?
             // Actually, if query is empty, it means we are cleared.
@@ -1220,6 +1287,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (error != null) {
             showToast(error)
         } else {
+            userPreferences.addRecentItem(RecentSearchEntry.AppShortcut(shortcutKey(shortcut)))
             onNavigationTriggered()
         }
     }
@@ -1238,7 +1306,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Contact Management Delegates
     fun pinContact(contactInfo: ContactInfo) = contactManager.pinContact(contactInfo)
-    fun unpinContact(contactInfo: ContactInfo) = contactManager.unpinContact(contactInfo)
+    fun unpinContact(contactInfo: ContactInfo) {
+        contactManager.unpinContact(contactInfo)
+        refreshRecentItems()
+    }
     fun excludeContact(contactInfo: ContactInfo) = contactManager.excludeContact(contactInfo)
     fun removeExcludedContact(contactInfo: ContactInfo) =
             contactManager.removeExcludedContact(contactInfo)
@@ -1249,7 +1320,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // File Management Delegates
     fun pinFile(deviceFile: DeviceFile) = fileManager.pinFile(deviceFile)
-    fun unpinFile(deviceFile: DeviceFile) = fileManager.unpinFile(deviceFile)
+    fun unpinFile(deviceFile: DeviceFile) {
+        fileManager.unpinFile(deviceFile)
+        refreshRecentItems()
+    }
     fun excludeFile(deviceFile: DeviceFile) = fileManager.excludeFile(deviceFile)
     fun excludeFileExtension(deviceFile: DeviceFile) {
         excludedFileExtensions = fileManager.excludeFileExtension(deviceFile)
@@ -1267,7 +1341,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Settings Management Delegates
     fun pinSetting(setting: DeviceSetting) = settingsManager.pinSetting(setting)
-    fun unpinSetting(setting: DeviceSetting) = settingsManager.unpinSetting(setting)
+    fun unpinSetting(setting: DeviceSetting) {
+        settingsManager.unpinSetting(setting)
+        refreshRecentItems()
+    }
     fun excludeSetting(setting: DeviceSetting) = settingsManager.excludeSetting(setting)
     fun setSettingNickname(setting: DeviceSetting, nickname: String?) =
             settingsManager.setSettingNickname(setting, nickname)
@@ -1279,7 +1356,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // App Shortcut Management Delegates
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
-    fun unpinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.unpinShortcut(shortcut)
+    fun unpinAppShortcut(shortcut: StaticShortcut) {
+        appShortcutManager.unpinShortcut(shortcut)
+        refreshRecentItems()
+    }
     fun excludeAppShortcut(shortcut: StaticShortcut) = appShortcutManager.excludeShortcut(shortcut)
     fun setAppShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
             appShortcutManager.setShortcutNickname(shortcut, nickname)
@@ -1384,6 +1464,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun dismissDirectDialChoice() = contactActionHandler.dismissDirectDialChoice()
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) =
             contactActionHandler.handleContactMethod(contactInfo, method)
+    fun trackRecentContactTap(contactInfo: ContactInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
+        }
+    }
 
     fun getEnabledSearchTargets(): List<SearchTarget> =
             searchEngineManager.getEnabledSearchTargets()

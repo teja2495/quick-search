@@ -14,6 +14,7 @@ import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.PhoneNumberSelection
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 
 /**
  * Handles contact action coordination logic.
@@ -36,6 +37,7 @@ class ContactActionHandler(
             showToastCallback(R.string.error_missing_phone_number)
             return
         }
+        trackRecentContactAction(contactInfo)
 
         // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
@@ -60,6 +62,7 @@ class ContactActionHandler(
             showToastCallback(R.string.error_missing_phone_number)
             return
         }
+        trackRecentContactAction(contactInfo)
 
         // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
@@ -197,6 +200,9 @@ class ContactActionHandler(
     }
 
     fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) {
+        if (method !is ContactMethod.Phone) {
+            trackRecentContactAction(contactInfo)
+        }
         when (method) {
             is ContactMethod.Phone -> {
                 // Use existing phone call flow with dialers/direct dial
@@ -300,6 +306,10 @@ class ContactActionHandler(
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number) { resId -> showToastCallback(resId) }
         }
+    }
+
+    private fun trackRecentContactAction(contactInfo: ContactInfo) {
+        userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
     }
 
     /**

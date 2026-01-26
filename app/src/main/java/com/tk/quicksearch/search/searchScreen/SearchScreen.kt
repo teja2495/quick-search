@@ -69,6 +69,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
 import com.tk.quicksearch.search.utils.FileUtils
@@ -213,6 +214,7 @@ fun SearchRoute(
     }
 
     val showContactMethodsBottomSheet: (ContactInfo) -> Unit = { contact ->
+        viewModel.trackRecentContactTap(contact)
         viewModel.showContactMethodsBottomSheet(contact)
     }
 
@@ -327,7 +329,7 @@ fun SearchRoute(
                 onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
                 onPersonalContextHintDismissed = viewModel::onPersonalContextHintDismissed,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onDeleteRecentQuery = viewModel::deleteRecentQuery,
+                onDeleteRecentItem = viewModel::deleteRecentItem,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
                 onCustomAction = viewModel::onCustomAction,
                 getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
@@ -462,7 +464,7 @@ fun SearchScreen(
         onPersonalContextHintDismissed: () -> Unit = {},
         onClearDetectedShortcut: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
-        onDeleteRecentQuery: (String) -> Unit = {},
+        onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
         getPrimaryContactCardAction: (Long) -> ContactCardAction?,
         getSecondaryContactCardAction: (Long) -> ContactCardAction?,
@@ -726,7 +728,7 @@ fun SearchScreen(
                 },
                 onWebSuggestionClick = onWebSuggestionClick,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onDeleteRecentQuery = onDeleteRecentQuery,
+                onDeleteRecentItem = onDeleteRecentItem,
                 onKeyboardSwitchToggle = {
                     manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard
                 },

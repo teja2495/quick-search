@@ -21,6 +21,7 @@ import com.tk.quicksearch.search.calculator.CalculatorUtils
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -48,7 +49,7 @@ internal fun SearchScreenContent(
         onOpenPersonalContextDialog: () -> Unit,
         onPersonalContextHintDismissed: () -> Unit,
         onCustomizeSearchEnginesClick: () -> Unit = {},
-        onDeleteRecentQuery: (String) -> Unit = {},
+        onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         onKeyboardSwitchToggle: () -> Unit,
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         expandedSection: ExpandedSection,
@@ -190,7 +191,7 @@ internal fun SearchScreenContent(
                 onWebSuggestionClick = onWebSuggestionClick,
                 onSearchTargetClick = onSearchTargetClick,
                 onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onDeleteRecentQuery = onDeleteRecentQuery,
+                onDeleteRecentItem = onDeleteRecentItem,
                 showCalculator = state.calculatorState.result != null,
                 showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
                 directSearchState = state.DirectSearchState

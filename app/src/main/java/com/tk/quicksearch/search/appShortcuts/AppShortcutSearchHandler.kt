@@ -36,6 +36,16 @@ class AppShortcutSearchHandler(
         }
     }
 
+    suspend fun getShortcutsByKeys(keys: Set<String>): Map<String, StaticShortcut> {
+        if (keys.isEmpty()) return emptyMap()
+        if (availableShortcuts.isEmpty()) {
+            loadShortcuts()
+        }
+        return availableShortcuts
+            .filter { keys.contains(shortcutKey(it)) }
+            .associateBy { shortcutKey(it) }
+    }
+
     suspend fun getPinnedAndExcludedOnly(): AppShortcutSearchResults {
         val cached = repository.loadCachedShortcuts()
         if (cached != null) {

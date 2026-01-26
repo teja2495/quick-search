@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.recentSearches.RecentSearchItem
 
 // IconPackInfo moved here to avoid circular imports
 data class IconPackInfo(val packageName: String, val label: String)
@@ -236,7 +237,7 @@ data class SearchUiState(
         val showPersonalContextHint: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val webSuggestionWasSelected: Boolean = false,
-        val recentQueries: List<String> = emptyList(),
+        val recentItems: List<RecentSearchItem> = emptyList(),
         val recentQueriesEnabled: Boolean = true,
         val recentQueriesCount: Int = 3,
         val shouldShowUsagePermissionBanner: Boolean = false,

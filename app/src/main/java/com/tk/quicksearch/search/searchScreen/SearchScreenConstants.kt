@@ -74,7 +74,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                                 hasPinnedAppShortcuts ||
                                 (!state.query.isNotBlank() &&
                                         state.recentQueriesEnabled &&
-                                        state.recentQueries.isNotEmpty())
+                                        state.recentItems.isNotEmpty())
                 ) {
                         SearchScreenConstants.SEARCH_ROW_COUNT
                 } else {

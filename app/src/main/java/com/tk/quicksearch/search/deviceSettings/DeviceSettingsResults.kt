@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
 
 private const val ROW_MIN_HEIGHT = 52
@@ -148,7 +149,7 @@ fun DeviceSettingsResultsSection(
                                 Column(
                                         modifier =
                                                 Modifier.padding(
-                                                        horizontal = 12.dp,
+                                                        horizontal = DesignTokens.SpacingMedium,
                                                         vertical = 4.dp
                                                 )
                                 ) {
@@ -196,14 +197,18 @@ fun DeviceSettingsResultsSection(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun SettingResultRow(
+internal fun SettingResultRow(
         shortcut: DeviceSetting,
         isPinned: Boolean,
         onClick: (DeviceSetting) -> Unit,
         onTogglePin: (DeviceSetting) -> Unit,
         onExclude: (DeviceSetting) -> Unit,
         onNicknameClick: (DeviceSetting) -> Unit,
-        hasNickname: Boolean
+        hasNickname: Boolean,
+        showDescription: Boolean = true,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -217,17 +222,25 @@ private fun SettingResultRow(
                                                 hapticConfirm(view)()
                                                 onClick(shortcut)
                                         },
-                                        onLongClick = { showOptions = true }
+                                        onLongClick =
+                                                onLongPressOverride
+                                                        ?: if (enableLongPress) {
+                                                                { showOptions = true }
+                                                        } else {
+                                                                null
+                                                        }
                                 )
                                 .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
         ) {
                 Icon(
-                        imageVector = Icons.Rounded.Settings,
+                        imageVector = icon ?: Icons.Rounded.Settings,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(ICON_SIZE.dp)
+                        modifier =
+                                Modifier.size(if (icon != null) 30.dp else ICON_SIZE.dp)
+                                        .padding(start = DesignTokens.SpacingXSmall)
                 )
 
                 Column(
@@ -241,26 +254,30 @@ private fun SettingResultRow(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                         )
-                        shortcut.description?.takeIf { it.isNotBlank() }?.let { description ->
-                                Text(
-                                        text = description,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                )
+                        if (showDescription) {
+                                shortcut.description?.takeIf { it.isNotBlank() }?.let { description ->
+                                        Text(
+                                                text = description,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                        )
+                                }
                         }
                 }
 
-                DeviceSettingsDropdownMenu(
-                        expanded = showOptions,
-                        onDismissRequest = { showOptions = false },
-                        isPinned = isPinned,
-                        hasNickname = hasNickname,
-                        onTogglePin = { onTogglePin(shortcut) },
-                        onExclude = { onExclude(shortcut) },
-                        onNicknameClick = { onNicknameClick(shortcut) }
-                )
+                if (enableLongPress && onLongPressOverride == null) {
+                        DeviceSettingsDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                isPinned = isPinned,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(shortcut) },
+                                onExclude = { onExclude(shortcut) },
+                                onNicknameClick = { onNicknameClick(shortcut) }
+                        )
+                }
         }
 }
 

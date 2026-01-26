@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.appShortcuts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -207,7 +208,7 @@ private fun AppShortcutsCardContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppShortcutRow(
+internal fun AppShortcutRow(
         shortcut: StaticShortcut,
         isPinned: Boolean,
         isExcluded: Boolean,
@@ -218,7 +219,11 @@ private fun AppShortcutRow(
         onInclude: (StaticShortcut) -> Unit,
         onAppInfoClick: (StaticShortcut) -> Unit,
         onNicknameClick: (StaticShortcut) -> Unit,
-        iconPackPackage: String?
+        iconPackPackage: String?,
+        showAppLabel: Boolean = true,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -235,17 +240,34 @@ private fun AppShortcutRow(
                                                 hapticConfirm(view)()
                                                 onShortcutClick(shortcut)
                                         },
-                                        onLongClick = { showOptions = true }
+                                        onLongClick =
+                                                onLongPressOverride
+                                                        ?: if (enableLongPress) {
+                                                                { showOptions = true }
+                                                        } else {
+                                                                null
+                                                        }
                                 )
                                 .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
         ) {
-                ShortcutIcon(
-                        icon = iconBitmap,
-                        displayName = displayName,
-                        size = ICON_SIZE.dp
-                )
+                Box(modifier = Modifier.padding(start = DesignTokens.SpacingXSmall)) {
+                        if (icon != null) {
+                                Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.secondary,
+                                        modifier = Modifier.size(40.dp)
+                                )
+                        } else {
+                                ShortcutIcon(
+                                        icon = iconBitmap,
+                                        displayName = displayName,
+                                        size = ICON_SIZE.dp
+                                )
+                        }
+                }
 
                 Column(
                         modifier = Modifier.weight(1f),
@@ -258,27 +280,31 @@ private fun AppShortcutRow(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                         )
-                        Text(
-                                text = shortcut.appLabel,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                        )
+                        if (showAppLabel) {
+                                Text(
+                                        text = shortcut.appLabel,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                )
+                        }
                 }
 
-                AppShortcutDropdownMenu(
-                        expanded = showOptions,
-                        onDismissRequest = { showOptions = false },
-                        isPinned = isPinned,
-                        isExcluded = isExcluded,
-                        hasNickname = hasNickname,
-                        onTogglePin = { onTogglePin(shortcut) },
-                        onExclude = { onExclude(shortcut) },
-                        onInclude = { onInclude(shortcut) },
-                        onAppInfoClick = { onAppInfoClick(shortcut) },
-                        onNicknameClick = { onNicknameClick(shortcut) }
-                )
+                if (enableLongPress && onLongPressOverride == null) {
+                        AppShortcutDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                isPinned = isPinned,
+                                isExcluded = isExcluded,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(shortcut) },
+                                onExclude = { onExclude(shortcut) },
+                                onInclude = { onInclude(shortcut) },
+                                onAppInfoClick = { onAppInfoClick(shortcut) },
+                                onNicknameClick = { onNicknameClick(shortcut) }
+                        )
+                }
         }
 }
 
