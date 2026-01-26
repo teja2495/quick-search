@@ -21,6 +21,9 @@ class VoiceSearchHandler(
         when (micAction) {
             MicAction.DEFAULT_VOICE_SEARCH -> startVoiceInput()
             MicAction.DIGITAL_ASSISTANT -> startDigitalAssistant()
+            MicAction.OFF -> {
+                // Mic is disabled, do nothing
+            }
         }
     }
 

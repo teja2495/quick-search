@@ -2,6 +2,7 @@ package com.tk.quicksearch.widget
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -84,7 +85,7 @@ class QuickSearchWidget : GlanceAppWidget() {
         val hasDefaultBackground = config.borderRadiusDp == WidgetDefaults.BORDER_RADIUS_DP &&
                 config.borderWidthDp == WidgetDefaults.BORDER_WIDTH_DP &&
                 config.backgroundAlpha == WidgetDefaults.BACKGROUND_ALPHA &&
-                !config.backgroundColorIsWhite
+                config.theme == WidgetDefaults.THEME
 
         val backgroundBitmap = if (!hasDefaultBackground) {
             WidgetBitmapUtils.createWidgetBitmap(
@@ -115,7 +116,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             // Hide label only when width is very narrow (≈2 columns) to keep icon visible
             showLabel = config.showLabel && !isNarrowWidth,
             showSearchIcon = config.showSearchIcon,
-            showMicIcon = config.showMicIcon,
+            showMicIcon = config.micAction != MicAction.OFF,
             // Force left alignment for icons when the widget collapses to ~2 columns.
             iconAlignLeft = config.iconAlignLeft || isNarrowWidth,
             launchIntent = launchIntent,
@@ -134,8 +135,17 @@ class QuickSearchWidget : GlanceAppWidget() {
         config: QuickSearchWidgetPreferences,
         borderWidthPx: Int
     ): WidgetColors {
+        val context = LocalContext.current
+        val isSystemInDarkTheme = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+        // Determine effective theme based on user selection
+        val effectiveTheme = when (config.theme) {
+            WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+            else -> config.theme
+        }
+
         val backgroundColor = WidgetColorUtils.getBackgroundColor(
-            config.backgroundColorIsWhite,
+            effectiveTheme,
             config.backgroundAlpha
         )
         val borderColor = if (borderWidthPx > 0) {
@@ -144,10 +154,12 @@ class QuickSearchWidget : GlanceAppWidget() {
             null
         }
         val textIconColor = WidgetColorUtils.getTextIconColor(
-            config.textIconColorIsWhite,
-            config.backgroundAlpha
+            config.theme,
+            config.backgroundAlpha,
+            config.textIconColorOverride,
+            isSystemInDarkTheme
         )
-        
+
         return WidgetColors(
             backgroundColor = backgroundColor,
             borderColor = borderColor,

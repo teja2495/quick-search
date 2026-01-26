@@ -140,16 +140,12 @@ fun QuickSearchWidgetConfigScreen(
                     ),
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)
             ) {
-                WidgetBackgroundColorSection(state = state, onStateChange = onStateChange)
+                WidgetThemeSection(state = state, onStateChange = onStateChange)
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
-                WidgetToggleSection(state = state, onStateChange = onStateChange)
-                if (state.showSearchIcon) {
-                    WidgetIconAlignmentSection(state = state, onStateChange = onStateChange)
-                }
+                WidgetSearchIconSection(state = state, onStateChange = onStateChange)
                 WidgetMicIconSection(state = state, onStateChange = onStateChange)
-                if (state.showMicIcon) {
-                    WidgetMicActionSection(state = state, onStateChange = onStateChange)
-                }
+                WidgetToggleSection(state = state, onStateChange = onStateChange)
+                WidgetTextIconColorSection(state = state, onStateChange = onStateChange)
             }
         }
     }
@@ -254,36 +250,29 @@ private fun SliderRow(
 }
 
 @Composable
-private fun WidgetBackgroundColorSection(
+private fun WidgetThemeSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_background_color), style = MaterialTheme.typography.titleSmall)
-        ColorChoiceSegmentedButtonRow(
-            selectedIsWhite = state.backgroundColorIsWhite,
-            onSelectionChange = { onStateChange(state.copy(backgroundColorIsWhite = it)) }
-        )
-
-        Spacer(modifier = Modifier.height(WidgetConfigConstants.COLOR_SECTION_SPACING))
-        Text(text = stringResource(R.string.widget_text_icon_color), style = MaterialTheme.typography.titleSmall)
-        ColorChoiceSegmentedButtonRow(
-            selectedIsWhite = state.textIconColorIsWhite,
-            onSelectionChange = { onStateChange(state.copy(textIconColorIsWhite = it)) }
+        Text(text = stringResource(R.string.widget_theme), style = MaterialTheme.typography.titleSmall)
+        ThemeChoiceSegmentedButtonRow(
+            selectedTheme = state.theme,
+            onSelectionChange = { onStateChange(state.copy(theme = it)) }
         )
     }
 }
 
 @Composable
-private fun WidgetIconAlignmentSection(
+private fun WidgetSearchIconSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_icon_alignment), style = MaterialTheme.typography.titleSmall)
-        AlignmentChoiceSegmentedButtonRow(
-            selectedAlignLeft = state.iconAlignLeft,
-            onSelectionChange = { onStateChange(state.copy(iconAlignLeft = it)) }
+        Text(text = stringResource(R.string.widget_search_icon), style = MaterialTheme.typography.titleSmall)
+        SearchIconChoiceSegmentedButtonRow(
+            selectedDisplay = state.searchIconDisplay,
+            onSelectionChange = { onStateChange(state.copy(searchIconDisplay = it)) }
         )
     }
 }
@@ -299,11 +288,6 @@ private fun WidgetToggleSection(
             checked = state.showLabel,
             onCheckedChange = { onStateChange(state.copy(showLabel = it)) }
         )
-        ToggleRow(
-            label = stringResource(R.string.widget_toggle_show_search_icon),
-            checked = state.showSearchIcon,
-            onCheckedChange = { onStateChange(state.copy(showSearchIcon = it)) }
-        )
     }
 }
 
@@ -312,20 +296,8 @@ private fun WidgetMicIconSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
-    ToggleRow(
-        label = stringResource(R.string.widget_toggle_show_mic_icon),
-        checked = state.showMicIcon,
-        onCheckedChange = { onStateChange(state.copy(showMicIcon = it)) }
-    )
-}
-
-@Composable
-private fun WidgetMicActionSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit
-) {
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
-        Text(text = stringResource(R.string.widget_mic_action), style = MaterialTheme.typography.titleSmall)
+        Text(text = stringResource(R.string.widget_mic_icon), style = MaterialTheme.typography.titleSmall)
         MicActionChoiceSegmentedButtonRow(
             selectedAction = state.micAction,
             onSelectionChange = { onStateChange(state.copy(micAction = it)) }
@@ -361,11 +333,12 @@ private fun WidgetMicActionSection(
                 text = annotatedString,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
 }
+
 
 @Composable
 private fun ToggleRow(
@@ -438,7 +411,7 @@ private fun ColorChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
             icon = {}
         ) {
-            Text(stringResource(R.string.widget_background_white))
+            Text("White")
         }
         SegmentedButton(
             selected = !selectedIsWhite,
@@ -446,7 +419,42 @@ private fun ColorChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
             icon = {}
         ) {
-            Text(stringResource(R.string.widget_background_black))
+            Text("Black")
+        }
+    }
+}
+
+@Composable
+private fun ThemeChoiceSegmentedButtonRow(
+    selectedTheme: WidgetTheme,
+    onSelectionChange: (WidgetTheme) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedTheme == WidgetTheme.LIGHT,
+            onClick = { onSelectionChange(WidgetTheme.LIGHT) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_theme_light))
+        }
+        SegmentedButton(
+            selected = selectedTheme == WidgetTheme.DARK,
+            onClick = { onSelectionChange(WidgetTheme.DARK) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_theme_dark))
+        }
+        SegmentedButton(
+            selected = selectedTheme == WidgetTheme.SYSTEM,
+            onClick = { onSelectionChange(WidgetTheme.SYSTEM) },
+            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_theme_system))
         }
     }
 }
@@ -465,7 +473,7 @@ private fun AlignmentChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
             icon = {}
         ) {
-            Text(stringResource(R.string.widget_icon_align_left))
+            Text(stringResource(R.string.widget_icon_left))
         }
         SegmentedButton(
             selected = !selectedAlignLeft,
@@ -473,7 +481,42 @@ private fun AlignmentChoiceSegmentedButtonRow(
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
             icon = {}
         ) {
-            Text(stringResource(R.string.widget_icon_align_center))
+            Text(stringResource(R.string.widget_icon_center))
+        }
+    }
+}
+
+@Composable
+private fun SearchIconChoiceSegmentedButtonRow(
+    selectedDisplay: SearchIconDisplay,
+    onSelectionChange: (SearchIconDisplay) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedDisplay == SearchIconDisplay.LEFT,
+            onClick = { onSelectionChange(SearchIconDisplay.LEFT) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_icon_left))
+        }
+        SegmentedButton(
+            selected = selectedDisplay == SearchIconDisplay.CENTER,
+            onClick = { onSelectionChange(SearchIconDisplay.CENTER) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_icon_center))
+        }
+        SegmentedButton(
+            selected = selectedDisplay == SearchIconDisplay.OFF,
+            onClick = { onSelectionChange(SearchIconDisplay.OFF) },
+            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_icon_off))
         }
     }
 }
@@ -489,7 +532,7 @@ private fun MicActionChoiceSegmentedButtonRow(
         SegmentedButton(
             selected = selectedAction == MicAction.DEFAULT_VOICE_SEARCH,
             onClick = { onSelectionChange(MicAction.DEFAULT_VOICE_SEARCH) },
-            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
             icon = {}
         ) {
             Text(stringResource(R.string.widget_mic_action_default))
@@ -497,10 +540,67 @@ private fun MicActionChoiceSegmentedButtonRow(
         SegmentedButton(
             selected = selectedAction == MicAction.DIGITAL_ASSISTANT,
             onClick = { onSelectionChange(MicAction.DIGITAL_ASSISTANT) },
-            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
             icon = {}
         ) {
             Text(stringResource(R.string.widget_mic_action_digital_assistant))
+        }
+        SegmentedButton(
+            selected = selectedAction == MicAction.OFF,
+            onClick = { onSelectionChange(MicAction.OFF) },
+            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            icon = {}
+        ) {
+            Text(stringResource(R.string.widget_mic_action_off))
+        }
+    }
+}
+
+@Composable
+private fun WidgetTextIconColorSection(
+    state: QuickSearchWidgetPreferences,
+    onStateChange: (QuickSearchWidgetPreferences) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING)) {
+        Text(text = stringResource(R.string.widget_text_icon_color), style = MaterialTheme.typography.titleSmall)
+        TextIconColorChoiceSegmentedButtonRow(
+            selectedOverride = state.textIconColorOverride,
+            onSelectionChange = { onStateChange(state.copy(textIconColorOverride = it)) }
+        )
+    }
+}
+
+@Composable
+private fun TextIconColorChoiceSegmentedButtonRow(
+    selectedOverride: TextIconColorOverride,
+    onSelectionChange: (TextIconColorOverride) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SegmentedButton(
+            selected = selectedOverride == TextIconColorOverride.THEME,
+            onClick = { onSelectionChange(TextIconColorOverride.THEME) },
+            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+            icon = {}
+        ) {
+            Text("Theme")
+        }
+        SegmentedButton(
+            selected = selectedOverride == TextIconColorOverride.WHITE,
+            onClick = { onSelectionChange(TextIconColorOverride.WHITE) },
+            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+            icon = {}
+        ) {
+            Text("White")
+        }
+        SegmentedButton(
+            selected = selectedOverride == TextIconColorOverride.BLACK,
+            onClick = { onSelectionChange(TextIconColorOverride.BLACK) },
+            shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+            icon = {}
+        ) {
+            Text("Black")
         }
     }
 }

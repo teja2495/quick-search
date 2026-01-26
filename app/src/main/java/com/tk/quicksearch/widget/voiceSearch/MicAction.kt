@@ -6,5 +6,6 @@ package com.tk.quicksearch.widget.voiceSearch
  */
 enum class MicAction(val value: String) {
     DEFAULT_VOICE_SEARCH("default_voice_search"),
-    DIGITAL_ASSISTANT("digital_assistant")
+    DIGITAL_ASSISTANT("digital_assistant"),
+    OFF("off")
 }

@@ -11,6 +11,37 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import kotlinx.parcelize.Parcelize
+import com.tk.quicksearch.widget.voiceSearch.MicAction.DEFAULT_VOICE_SEARCH
+import com.tk.quicksearch.widget.voiceSearch.MicAction.DIGITAL_ASSISTANT
+import com.tk.quicksearch.widget.voiceSearch.MicAction.OFF
+
+/**
+ * Theme options for the widget appearance.
+ */
+enum class WidgetTheme(val value: String) {
+    LIGHT("light"),
+    DARK("dark"),
+    SYSTEM("system")
+}
+
+/**
+ * Text/Icon color override options.
+ */
+enum class TextIconColorOverride(val value: String) {
+    WHITE("white"),
+    BLACK("black"),
+    THEME("theme")
+}
+
+/**
+ * Search icon display options.
+ */
+enum class SearchIconDisplay(val value: String) {
+    LEFT("left"),
+    CENTER("center"),
+    OFF("off")
+}
+
 
 
 internal object WidgetDefaults {
@@ -19,16 +50,15 @@ internal object WidgetDefaults {
     const val BORDER_RADIUS_DP = 29f
     const val BORDER_WIDTH_DP = 1.5f
     const val SHOW_LABEL = true
-    const val SHOW_SEARCH_ICON = true
+    // Default to left-aligned search icon (previously was showSearchIcon=true, iconAlignLeft=true)
+    val SEARCH_ICON_DISPLAY = SearchIconDisplay.LEFT
     const val SHOW_MIC_ICON = true
-    // Default to black background for higher contrast out of the box.
-    const val BACKGROUND_COLOR_IS_WHITE = false
+    // Default to dark theme for higher contrast out of the box.
+    val THEME = WidgetTheme.DARK
     const val BACKGROUND_ALPHA = 0.35f
-    // Default text/icon color inverts the background for readability:
-    // white text on dark backgrounds, dark text on light backgrounds.
-    const val TEXT_ICON_COLOR_IS_WHITE = false
-    const val ICON_ALIGN_LEFT = true
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
+    // Default to theme-based colors (null means follow theme)
+    val TEXT_ICON_COLOR_OVERRIDE: Boolean? = null
 }
 
 private object WidgetRanges {
@@ -45,13 +75,17 @@ private object WidgetKeys {
     val BORDER_RADIUS = floatPreferencesKey("quick_search_widget_border_radius")
     val BORDER_WIDTH = floatPreferencesKey("quick_search_widget_border_width")
     val SHOW_LABEL = booleanPreferencesKey("quick_search_widget_show_label")
-    val SHOW_SEARCH_ICON = booleanPreferencesKey("quick_search_widget_show_search_icon")
+    val SEARCH_ICON_DISPLAY = stringPreferencesKey("quick_search_widget_search_icon_display")
     val SHOW_MIC_ICON = booleanPreferencesKey("quick_search_widget_show_mic_icon")
-    val BACKGROUND_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_background_color_is_white")
+    val THEME = stringPreferencesKey("quick_search_widget_theme")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
-    val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
-    val ICON_ALIGN_LEFT = booleanPreferencesKey("quick_search_widget_icon_align_left")
     val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
+    val TEXT_ICON_COLOR_OVERRIDE = stringPreferencesKey("quick_search_widget_text_icon_color_override")
+    // Legacy keys for migration
+    val SHOW_SEARCH_ICON = booleanPreferencesKey("quick_search_widget_show_search_icon")
+    val ICON_ALIGN_LEFT = booleanPreferencesKey("quick_search_widget_icon_align_left")
+    val BACKGROUND_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_background_color_is_white")
+    val TEXT_ICON_COLOR_IS_WHITE = booleanPreferencesKey("quick_search_widget_text_icon_color_is_white")
 }
 
 /**
@@ -63,13 +97,12 @@ data class QuickSearchWidgetPreferences(
     val borderRadiusDp: Float = WidgetDefaults.BORDER_RADIUS_DP,
     val borderWidthDp: Float = WidgetDefaults.BORDER_WIDTH_DP,
     val showLabel: Boolean = WidgetDefaults.SHOW_LABEL,
-    val showSearchIcon: Boolean = WidgetDefaults.SHOW_SEARCH_ICON,
+    val searchIconDisplay: SearchIconDisplay = WidgetDefaults.SEARCH_ICON_DISPLAY,
     val showMicIcon: Boolean = WidgetDefaults.SHOW_MIC_ICON,
-    val backgroundColorIsWhite: Boolean = WidgetDefaults.BACKGROUND_COLOR_IS_WHITE,
+    val theme: WidgetTheme = WidgetDefaults.THEME,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
-    val textIconColorIsWhite: Boolean = WidgetDefaults.TEXT_ICON_COLOR_IS_WHITE,
-    val iconAlignLeft: Boolean = WidgetDefaults.ICON_ALIGN_LEFT,
-    val micAction: MicAction = WidgetDefaults.MIC_ACTION
+    val micAction: MicAction = WidgetDefaults.MIC_ACTION,
+    val textIconColorOverride: TextIconColorOverride = TextIconColorOverride.THEME
 ) : Parcelable {
 
     companion object {
@@ -77,6 +110,52 @@ data class QuickSearchWidgetPreferences(
          * Default widget preferences instance.
          */
         val Default = QuickSearchWidgetPreferences()
+    }
+
+    // Backward compatibility properties
+    val showSearchIcon: Boolean
+        get() = searchIconDisplay != SearchIconDisplay.OFF
+
+    val iconAlignLeft: Boolean
+        get() = searchIconDisplay == SearchIconDisplay.LEFT
+
+    /**
+     * Get the effective text/icon color considering both theme and override.
+     */
+    fun getEffectiveTextIconColor(isSystemInDarkTheme: Boolean = false): Boolean {
+        return when (textIconColorOverride) {
+            TextIconColorOverride.WHITE -> true   // white text/icons
+            TextIconColorOverride.BLACK -> false  // black text/icons
+            TextIconColorOverride.THEME -> {      // follow theme
+                val effectiveTheme = when (theme) {
+                    WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+                    else -> theme
+                }
+                effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
+            }
+        }
+    }
+
+    /**
+     * Get background color based on current theme.
+     */
+    fun getBackgroundColor(): Boolean {
+        return when (theme) {
+            WidgetTheme.LIGHT -> true  // white background
+            WidgetTheme.DARK -> false  // black/dark grey background
+            WidgetTheme.SYSTEM -> false // default to dark for now (could be made dynamic later)
+        }
+    }
+
+    /**
+     * Get text/icon color based on current theme.
+     */
+    fun getTextIconColor(): Boolean {
+        return when (theme) {
+            WidgetTheme.LIGHT -> false // black text on white background
+            WidgetTheme.DARK -> true   // white text on dark background
+            WidgetTheme.SYSTEM -> true // default to white for now (could be made dynamic later)
+        }
     }
 
     fun coerceToValidRanges(): QuickSearchWidgetPreferences {
@@ -98,26 +177,58 @@ data class QuickSearchWidgetPreferences(
 }
 
 fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
-    val backgroundIsWhite = this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE]
-        ?: WidgetDefaults.BACKGROUND_COLOR_IS_WHITE
-    val textIconIsWhite = this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE]
-        // Sensible default: invert background for readability when no preference saved.
-        ?: !backgroundIsWhite
+    // Handle theme migration from legacy separate color preferences
+    val theme = this[WidgetKeys.THEME]?.let { themeString ->
+        WidgetTheme.entries.find { it.value == themeString }
+    } ?: run {
+        // Migration logic: convert old separate color preferences to theme
+        val backgroundIsWhite = this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE]
+            ?: false // Default to dark (was the old default)
+        val textIconIsWhite = this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE]
+            ?: !backgroundIsWhite
+
+        when {
+            backgroundIsWhite && !textIconIsWhite -> WidgetTheme.LIGHT
+            !backgroundIsWhite && textIconIsWhite -> WidgetTheme.DARK
+            else -> WidgetDefaults.THEME
+        }
+    }
 
     return QuickSearchWidgetPreferences(
         borderColor = this[WidgetKeys.BORDER_COLOR] ?: WidgetDefaults.BORDER_COLOR_ARGB,
         borderRadiusDp = this[WidgetKeys.BORDER_RADIUS] ?: WidgetDefaults.BORDER_RADIUS_DP,
         borderWidthDp = this[WidgetKeys.BORDER_WIDTH] ?: WidgetDefaults.BORDER_WIDTH_DP,
         showLabel = this[WidgetKeys.SHOW_LABEL] ?: WidgetDefaults.SHOW_LABEL,
-        showSearchIcon = this[WidgetKeys.SHOW_SEARCH_ICON] ?: WidgetDefaults.SHOW_SEARCH_ICON,
-        showMicIcon = this[WidgetKeys.SHOW_MIC_ICON] ?: WidgetDefaults.SHOW_MIC_ICON,
-        backgroundColorIsWhite = backgroundIsWhite,
+        searchIconDisplay = this[WidgetKeys.SEARCH_ICON_DISPLAY]?.let { displayString ->
+            SearchIconDisplay.entries.find { it.value == displayString }
+        } ?: run {
+            // Migration logic: convert old separate boolean preferences to new enum
+            val showSearchIcon = this[WidgetKeys.SHOW_SEARCH_ICON] ?: true // Default to true for backward compatibility
+            val iconAlignLeft = this[WidgetKeys.ICON_ALIGN_LEFT] ?: true // Default to true for backward compatibility
+
+            when {
+                !showSearchIcon -> SearchIconDisplay.OFF
+                iconAlignLeft -> SearchIconDisplay.LEFT
+                else -> SearchIconDisplay.CENTER
+            }
+        },
+        showMicIcon = true, // Always true now, mic visibility controlled by micAction
+        theme = theme,
         backgroundAlpha = this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BACKGROUND_ALPHA,
-        textIconColorIsWhite = textIconIsWhite,
-        iconAlignLeft = this[WidgetKeys.ICON_ALIGN_LEFT] ?: WidgetDefaults.ICON_ALIGN_LEFT,
         micAction = this[WidgetKeys.MIC_ACTION]?.let { actionString ->
             MicAction.entries.find { it.value == actionString }
-        } ?: WidgetDefaults.MIC_ACTION
+        } ?: run {
+            // Migration logic: convert old showMicIcon boolean to new micAction enum
+            val showMicIcon = this[WidgetKeys.SHOW_MIC_ICON] ?: WidgetDefaults.SHOW_MIC_ICON
+            if (showMicIcon) {
+                WidgetDefaults.MIC_ACTION // Keep existing or default to DEFAULT_VOICE_SEARCH
+            } else {
+                OFF // If mic was previously hidden, use OFF
+            }
+        },
+        textIconColorOverride = this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE]?.let { overrideString ->
+            TextIconColorOverride.entries.find { it.value == overrideString }
+        } ?: TextIconColorOverride.THEME
     ).coerceToValidRanges()
 }
 
@@ -127,12 +238,11 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.BORDER_RADIUS] = validated.borderRadiusDp
     this[WidgetKeys.BORDER_WIDTH] = validated.borderWidthDp
     this[WidgetKeys.SHOW_LABEL] = validated.showLabel
-    this[WidgetKeys.SHOW_SEARCH_ICON] = validated.showSearchIcon
+    this[WidgetKeys.SEARCH_ICON_DISPLAY] = validated.searchIconDisplay.value
     this[WidgetKeys.SHOW_MIC_ICON] = validated.showMicIcon
-    this[WidgetKeys.BACKGROUND_COLOR_IS_WHITE] = validated.backgroundColorIsWhite
+    this[WidgetKeys.THEME] = validated.theme.value
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
-    this[WidgetKeys.TEXT_ICON_COLOR_IS_WHITE] = validated.textIconColorIsWhite
-    this[WidgetKeys.ICON_ALIGN_LEFT] = validated.iconAlignLeft
     this[WidgetKeys.MIC_ACTION] = validated.micAction.value
+    this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE] = validated.textIconColorOverride.value
 }
 

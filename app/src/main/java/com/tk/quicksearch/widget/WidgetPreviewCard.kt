@@ -1,7 +1,9 @@
 package com.tk.quicksearch.widget
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.widget.voiceSearch.MicAction
 
 @Composable
 fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
@@ -111,7 +114,7 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                 }
                 }
 
-            if (state.showMicIcon) {
+            if (state.micAction != MicAction.OFF) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -138,16 +141,26 @@ private data class PreviewColors(
 
 @Composable
 private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): PreviewColors {
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+
+    // Determine effective theme based on user selection
+    val effectiveTheme = when (state.theme) {
+        WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+        else -> state.theme
+    }
+
     val background = WidgetColorUtils.getBackgroundColor(
-        state.backgroundColorIsWhite,
+        effectiveTheme,
         state.backgroundAlpha
     )
     val border = WidgetColorUtils.getBorderColor(state.borderColor, state.backgroundAlpha)
     val textIcon = WidgetColorUtils.getTextIconColor(
-        state.textIconColorIsWhite,
-        state.backgroundAlpha
+        state.theme,
+        state.backgroundAlpha,
+        state.textIconColorOverride,
+        isSystemInDarkTheme
     )
-    
+
     return PreviewColors(
         background = background,
         border = border,
