@@ -136,7 +136,6 @@ fun CombinedAppearanceCard(
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     onWallpaperBackgroundAlphaChange: (Float) -> Unit,
     onWallpaperBlurRadiusChange: (Float) -> Unit,
-    onRequestWallpaperPermission: (() -> Unit)? = null,
     hasFilePermission: Boolean = true,
     hasWallpaperPermission: Boolean = true,
     wallpaperAvailable: Boolean = false,
@@ -150,20 +149,11 @@ fun CombinedAppearanceCard(
         Column {
             // Wallpaper background toggle
             val wallpaperEnabled = showWallpaperBackground && hasFilePermission && (hasWallpaperPermission || wallpaperAvailable)
-            val wallpaperNeedsPermission = showWallpaperBackground && hasFilePermission && !hasWallpaperPermission && !wallpaperAvailable
 
             SettingsToggleRow(
                 title = stringResource(R.string.settings_wallpaper_background_toggle),
                 checked = wallpaperEnabled,
-                onCheckedChange = { enabled ->
-                    if (enabled && !hasWallpaperPermission && !wallpaperAvailable && onRequestWallpaperPermission != null) {
-                        // Request permission first
-                        onRequestWallpaperPermission()
-                    } else {
-                        // Toggle normally
-                        onToggleShowWallpaperBackground(enabled)
-                    }
-                },
+                onCheckedChange = onToggleShowWallpaperBackground,
                 isFirstItem = true,
                 isLastItem = true
             )
@@ -260,7 +250,6 @@ fun AppearanceSettingsSection(
     onToggleShowWallpaperBackground: (Boolean) -> Unit,
     onWallpaperBackgroundAlphaChange: (Float) -> Unit,
     onWallpaperBlurRadiusChange: (Float) -> Unit,
-    onRequestWallpaperPermission: (() -> Unit)? = null,
     isSearchEngineCompactMode: Boolean,
     onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     selectedIconPackPackage: String?,
@@ -294,7 +283,6 @@ fun AppearanceSettingsSection(
             onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
             onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
             onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-            onRequestWallpaperPermission = onRequestWallpaperPermission,
             hasFilePermission = hasFilePermission,
             hasWallpaperPermission = hasWallpaperPermission,
             wallpaperAvailable = wallpaperAvailable

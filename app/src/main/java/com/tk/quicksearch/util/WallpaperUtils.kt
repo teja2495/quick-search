@@ -8,9 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.createBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +22,13 @@ object WallpaperUtils {
     // In-memory cache for the wallpaper bitmap
     @Volatile
     private var cachedBitmap: Bitmap? = null
+
+    sealed class WallpaperLoadResult {
+        data class Success(val bitmap: Bitmap) : WallpaperLoadResult()
+        object PermissionRequired : WallpaperLoadResult()
+        object SecurityError : WallpaperLoadResult()
+        object Unavailable : WallpaperLoadResult()
+    }
 
     /**
      * Checks if the app has permission to access wallpapers on Android 13+.
@@ -60,52 +65,44 @@ object WallpaperUtils {
      * Returns null if wallpaper cannot be retrieved.
      */
     suspend fun getWallpaperBitmap(context: Context): Bitmap? {
-        // Return cached bitmap immediately if available
-        cachedBitmap?.let { return it }
+        return when (val result = getWallpaperBitmapResult(context)) {
+            is WallpaperLoadResult.Success -> result.bitmap
+            else -> null
+        }
+    }
 
-        // Load from system if not cached
+    suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult {
+        cachedBitmap?.let { return WallpaperLoadResult.Success(it) }
+
         return withContext(Dispatchers.IO) {
             try {
-                val wallpaperManager = WallpaperManager.getInstance(context)
-                val wallpaperDrawable = wallpaperManager.drawable
-
-                if (wallpaperDrawable != null) {
-                    val bitmap = wallpaperDrawable.toBitmap()
-                    // Cache the bitmap for future use
+                val bitmap = loadWallpaperBitmap(context)
+                if (bitmap != null) {
                     cachedBitmap = bitmap
-                    bitmap
+                    WallpaperLoadResult.Success(bitmap)
+                } else if (wallpaperRequiresPermission(context)) {
+                    WallpaperLoadResult.PermissionRequired
                 } else {
-                    null
+                    WallpaperLoadResult.Unavailable
                 }
             } catch (e: SecurityException) {
-                // On Android 13+, wallpaper access may require READ_MEDIA_IMAGES permission
-                // Check if we have the permission - if not, permission is needed for wallpaper access
                 if (!hasWallpaperPermission(context)) {
-                    // Permission not granted, cannot access wallpaper
-                    null
+                    WallpaperLoadResult.PermissionRequired
                 } else {
-                    // We have permission but still got SecurityException
-                    // This might be a device-specific enforcement, try once more
                     try {
-                        val wallpaperManager = WallpaperManager.getInstance(context)
-                        val wallpaperDrawable = wallpaperManager.drawable
-
-                        if (wallpaperDrawable != null) {
-                            val bitmap = wallpaperDrawable.toBitmap()
-                            // Cache the bitmap for future use
+                        val bitmap = loadWallpaperBitmap(context)
+                        if (bitmap != null) {
                             cachedBitmap = bitmap
-                            bitmap
+                            WallpaperLoadResult.Success(bitmap)
                         } else {
-                            null
+                            WallpaperLoadResult.Unavailable
                         }
                     } catch (e2: SecurityException) {
-                        // Still failing even with permission, give up
-                        null
+                        WallpaperLoadResult.SecurityError
                     }
                 }
             } catch (e: Exception) {
-                // Other exceptions (not permission-related)
-                null
+                WallpaperLoadResult.Unavailable
             }
         }
     }
@@ -122,6 +119,12 @@ object WallpaperUtils {
                 getWallpaperBitmap(context)
             }
         }
+    }
+
+    private fun loadWallpaperBitmap(context: Context): Bitmap? {
+        val wallpaperManager = WallpaperManager.getInstance(context)
+        val wallpaperDrawable = wallpaperManager.drawable
+        return wallpaperDrawable?.toBitmap()
     }
     
 }
@@ -144,4 +147,3 @@ private fun Drawable.toBitmap(): Bitmap {
 
     return bitmap
 }
-

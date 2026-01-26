@@ -169,6 +169,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_done">Done</string>
     <string name="dialog_ok">Continue</string>
+    <string name="dialog_okay">Okay</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">Message</string>
     <string name="dialog_edit_shortcut_title">Edit shortcut</string>
@@ -252,6 +253,8 @@
     <string name="settings_wallpaper_background_toggle">Wallpaper Background</string>
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
+    <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
+    <string name="wallpaper_permission_fallback_message">Unable to fetch wallpaper using file permission. Do you want me to try another way?</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
     <string name="settings_icon_pack_title">Icon Pack</string>

@@ -355,6 +355,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private fun attemptAutoEnableWallpaperBackground() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (WallpaperUtils.getWallpaperBitmapResult(getApplication())) {
+                is WallpaperUtils.WallpaperLoadResult.Success -> {
+                    setWallpaperAvailable(true)
+                    setShowWallpaperBackground(true)
+                }
+                else -> {}
+            }
+        }
+    }
+
     fun handleOnStop() {
         if (pendingNavigationClear) {
             clearQuery()
@@ -1796,6 +1808,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Handle wallpaper background based on files permission
             val userPrefValue = userPreferences.shouldShowWallpaperBackground()
+            val filesPermissionGranted = !previousState.hasFilePermission && hasFiles
             val shouldUpdateWallpaper =
                     when {
                         // If files permission is revoked, disable wallpaper (but keep user
@@ -1804,24 +1817,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             showWallpaperBackground = false
                             true
                         }
-                        // If files permission is granted and user preference says enabled, enable
-                        // wallpaper
-                        hasFiles && !showWallpaperBackground && userPrefValue -> {
-                            showWallpaperBackground = true
-                            true
-                        }
-                        // If files permission is granted but user explicitly disabled it, keep it
-                        // disabled
-                        hasFiles && !showWallpaperBackground && !userPrefValue -> {
-                            // User explicitly disabled it, keep it disabled
-                            false
-                        }
-                        // If files permission is granted and wallpaper is enabled, keep it enabled
-                        hasFiles && showWallpaperBackground -> {
-                            false // No change needed
-                        }
                         else -> false
                     }
+
+            if (filesPermissionGranted && userPrefValue && !showWallpaperBackground) {
+                attemptAutoEnableWallpaperBackground()
+            }
 
             // Auto-enable direct dial when call permission is granted, unless user manually
             // disabled it

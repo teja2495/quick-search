@@ -5,27 +5,35 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.util.isDefaultDigitalAssistant
+import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.requestAddQuickSearchWidget
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsDetailRoute(
@@ -37,8 +45,7 @@ fun SettingsDetailRoute(
         onRequestUsagePermission: () -> Unit = {},
         onRequestContactPermission: () -> Unit = {},
         onRequestFilePermission: () -> Unit = {},
-        onRequestCallPermission: () -> Unit = {},
-        onRequestWallpaperPermission: () -> Unit = {}
+        onRequestCallPermission: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -86,6 +93,11 @@ fun SettingsDetailRoute(
             )
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var pendingWallpaperEnableAfterFilesPermission by remember { mutableStateOf(false) }
+    var pendingWallpaperEnableShowDialog by remember { mutableStateOf(false) }
+    var pendingWallpaperEnableAfterWallpaperPermission by remember { mutableStateOf(false) }
+    var showWallpaperPermissionFallbackDialog by remember { mutableStateOf(false) }
 
     val wallpaperPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -97,16 +109,61 @@ fun SettingsDetailRoute(
                 permission = Manifest.permission.READ_MEDIA_IMAGES,
                 onPermanentlyDenied = viewModel::openAppSettings,
                 onPermissionChanged = viewModel::handleOptionalPermissionChange,
-                onGranted = {
-                    // Automatically enable wallpaper when permission is granted
-                    // since the permission request was triggered by trying to enable it
-                    viewModel.setShowWallpaperBackground(true)
-                }
+                onGranted = { pendingWallpaperEnableAfterWallpaperPermission = true }
             )
         }
 
-    val effectiveOnRequestWallpaperPermission = {
+    val requestWallpaperPermission = {
         wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+    }
+
+    val attemptEnableWallpaperBackground: (Boolean) -> Unit = { showDialogOnPermissionRequired ->
+        scope.launch {
+            when (WallpaperUtils.getWallpaperBitmapResult(context)) {
+                is WallpaperUtils.WallpaperLoadResult.Success -> {
+                    viewModel.setWallpaperAvailable(true)
+                    viewModel.setShowWallpaperBackground(true)
+                }
+                WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
+                    if (showDialogOnPermissionRequired) {
+                        showWallpaperPermissionFallbackDialog = true
+                    } else {
+                        requestWallpaperPermission()
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
+    val onToggleWallpaperBackground: (Boolean) -> Unit = { enabled ->
+        if (!enabled) {
+            viewModel.setShowWallpaperBackground(false)
+        } else if (!PermissionUtils.hasFileAccessPermission(context)) {
+            pendingWallpaperEnableAfterFilesPermission = true
+            pendingWallpaperEnableShowDialog = true
+            viewModel.openFilesPermissionSettings()
+        } else {
+            attemptEnableWallpaperBackground(false)
+        }
+    }
+
+    LaunchedEffect(pendingWallpaperEnableAfterWallpaperPermission) {
+        if (pendingWallpaperEnableAfterWallpaperPermission) {
+            pendingWallpaperEnableAfterWallpaperPermission = false
+            attemptEnableWallpaperBackground(false)
+        }
+    }
+
+    LaunchedEffect(uiState.hasFilePermission, pendingWallpaperEnableAfterFilesPermission) {
+        if (pendingWallpaperEnableAfterFilesPermission &&
+            PermissionUtils.hasFileAccessPermission(context)
+        ) {
+            pendingWallpaperEnableAfterFilesPermission = false
+            val showDialog = pendingWallpaperEnableShowDialog
+            pendingWallpaperEnableShowDialog = false
+            attemptEnableWallpaperBackground(showDialog)
+        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -133,6 +190,9 @@ fun SettingsDetailRoute(
 
     DisposableEffect(lifecycleOwner, detailType) {
         val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.handleOptionalPermissionChange()
+            }
             if (detailType != SettingsDetailType.SEARCH_ENGINES) return@LifecycleEventObserver
             when (event) {
                 Lifecycle.Event.ON_START -> {
@@ -183,7 +243,7 @@ fun SettingsDetailRoute(
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,
-                    onToggleShowWallpaperBackground = viewModel::setShowWallpaperBackground,
+                    onToggleShowWallpaperBackground = onToggleWallpaperBackground,
                     onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
                     onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
                     onSelectIconPack = viewModel::setIconPackPackage,
@@ -231,7 +291,7 @@ fun SettingsDetailRoute(
                     onRequestContactPermission = onRequestContactPermission,
                     onRequestFilePermission = onRequestFilePermission,
                     onRequestCallPermission = onRequestCallPermission,
-                    onRequestWallpaperPermission = effectiveOnRequestWallpaperPermission
+                    onRequestWallpaperPermission = requestWallpaperPermission
             )
 
     val onToggleDirectSearchSetupExpanded = {
@@ -254,4 +314,31 @@ fun SettingsDetailRoute(
             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
             onNavigateToDetail = onNavigateToDetail
     )
+
+    if (showWallpaperPermissionFallbackDialog) {
+        AlertDialog(
+            onDismissRequest = { showWallpaperPermissionFallbackDialog = false },
+            title = {
+                Text(stringResource(R.string.wallpaper_permission_fallback_title))
+            },
+            text = {
+                Text(stringResource(R.string.wallpaper_permission_fallback_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showWallpaperPermissionFallbackDialog = false
+                        requestWallpaperPermission()
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWallpaperPermissionFallbackDialog = false }) {
+                    Text(stringResource(R.string.dialog_no))
+                }
+            }
+        )
+    }
 }

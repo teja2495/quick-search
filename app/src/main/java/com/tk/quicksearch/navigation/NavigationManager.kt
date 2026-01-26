@@ -345,8 +345,6 @@ private fun NavigationContent(
                         viewModel.onSearchBarWelcomeAnimationCompleted()
                     },
                     onWallpaperLoaded = {
-                        // Automatically enable wallpaper when it loads successfully
-                        viewModel.setShowWallpaperBackground(true)
                         viewModel.setWallpaperAvailable(true)
                     }
                 )

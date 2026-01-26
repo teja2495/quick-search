@@ -209,7 +209,6 @@ internal fun SettingsDetailScreen(
                             onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
                             onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
                             onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
-                            onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             selectedIconPackPackage = state.selectedIconPackPackage,
