@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.activity.SystemBarStyle
+import androidx.activity.viewModels
+import com.tk.quicksearch.search.core.SearchViewModel
 
 /**
  * Activity for configuring widget preferences when a widget is added or reconfigured.
@@ -31,6 +33,7 @@ import androidx.activity.SystemBarStyle
 class QuickSearchWidgetConfigureActivity : ComponentActivity() {
 
     private var appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
+    private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
@@ -121,8 +124,8 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
                     onConfigurationComplete()
                 }
             },
-            onCancel = onConfigurationComplete
+            onCancel = onConfigurationComplete,
+            searchViewModel = searchViewModel
         )
     }
 }
-

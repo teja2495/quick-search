@@ -27,4 +27,10 @@ object WidgetConfigConstants {
 
     val LOADING_STATE_SPACING = 16.dp
     val SURFACE_ELEVATION = 8.dp
+
+    val CUSTOM_BUTTON_SLOT_SIZE = 56.dp
+    val CUSTOM_BUTTON_ICON_SIZE = 24.dp
+    val CUSTOM_BUTTON_SPACING = 12.dp
+    val CUSTOM_BUTTON_RESULT_ICON_SIZE = 32.dp
+    val CUSTOM_BUTTON_DIALOG_MAX_HEIGHT = 360.dp
 }

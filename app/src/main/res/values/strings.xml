@@ -431,8 +431,15 @@
     <string name="widget_theme_dark">Dark</string>
     <string name="widget_theme_system">System</string>
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
+    <string name="widget_custom_buttons_title">Custom Buttons</string>
+    <string name="widget_custom_buttons_dialog_title">Select Action</string>
+    <string name="widget_custom_buttons_no_results">No results found.</string>
+    <string name="widget_custom_button_reset">Reset</string>
+    <string name="widget_custom_button_add_desc">Add custom button</string>
+    <string name="widget_quick_search_disabled_custom_buttons">Quick Search cannot be enabled when custom buttons are active.</string>
     <string name="widget_action_cancel">Cancel</string>
     <string name="desc_voice_search_icon">Start voice search</string>
+    <string name="desc_selected">Selected</string>
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
 
     <!-- ============================================================================

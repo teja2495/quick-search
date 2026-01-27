@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import android.widget.Toast
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import java.util.Locale
@@ -62,7 +64,8 @@ fun QuickSearchWidgetConfigScreen(
     isLoaded: Boolean,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit,
     onApply: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    searchViewModel: SearchViewModel
 ) {
     Scaffold(
         topBar = {
@@ -144,8 +147,17 @@ fun QuickSearchWidgetConfigScreen(
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
                 WidgetSearchIconSection(state = state, onStateChange = onStateChange)
                 WidgetMicIconSection(state = state, onStateChange = onStateChange)
-                WidgetToggleSection(state = state, onStateChange = onStateChange)
+                WidgetToggleSection(
+                    state = state,
+                    hasCustomButtons = state.hasCustomButtons,
+                    onStateChange = onStateChange
+                )
                 WidgetTextIconColorSection(state = state, onStateChange = onStateChange)
+                CustomWidgetButtonsSection(
+                    state = state,
+                    searchViewModel = searchViewModel,
+                    onStateChange = onStateChange
+                )
             }
         }
     }
@@ -280,13 +292,27 @@ private fun WidgetSearchIconSection(
 @Composable
 private fun WidgetToggleSection(
     state: QuickSearchWidgetPreferences,
+    hasCustomButtons: Boolean,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit
 ) {
+    val context = LocalContext.current
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)) {
         ToggleRow(
             label = stringResource(R.string.widget_toggle_show_label),
             checked = state.showLabel,
-            onCheckedChange = { onStateChange(state.copy(showLabel = it)) }
+            onCheckedChange = { enabled ->
+                if (enabled && hasCustomButtons) {
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(R.string.widget_quick_search_disabled_custom_buttons),
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                    return@ToggleRow
+                }
+                onStateChange(state.copy(showLabel = enabled))
+            }
         )
     }
 }
@@ -604,4 +630,3 @@ private fun TextIconColorChoiceSegmentedButtonRow(
         }
     }
 }
-
