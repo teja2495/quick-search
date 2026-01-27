@@ -2,6 +2,7 @@ package com.tk.quicksearch.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.activity.SystemBarStyle
 import androidx.activity.viewModels
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.data.preferences.BasePreferences
 
 /**
  * Activity for configuring widget preferences when a widget is added or reconfigured.
@@ -98,6 +100,23 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         return Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     }
 
+    companion object {
+        private const val WIDGET_TIP_PREFS_NAME = "widget_config_tip_state"
+        private const val KEY_WIDGET_CONFIG_TIP_SHOWN = "widget_config_tip_shown"
+
+        private fun isWidgetConfigTipShown(context: Context): Boolean {
+            return context.getSharedPreferences(WIDGET_TIP_PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_WIDGET_CONFIG_TIP_SHOWN, false)
+        }
+
+        private fun setWidgetConfigTipShown(context: Context, shown: Boolean) {
+            context.getSharedPreferences(WIDGET_TIP_PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_WIDGET_CONFIG_TIP_SHOWN, shown)
+                .apply()
+        }
+    }
+
     @Composable
     private fun WidgetConfigurationContent(
         appWidgetId: Int,
@@ -106,6 +125,7 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         val context = LocalContext.current
         var config by rememberSaveable { mutableStateOf(QuickSearchWidgetPreferences.Default) }
         var isLoaded by rememberSaveable { mutableStateOf(false) }
+        var showConfigTip by rememberSaveable { mutableStateOf(!isWidgetConfigTipShown(context)) }
         val scope = rememberCoroutineScope()
 
         LaunchedEffect(appWidgetId) {
@@ -125,7 +145,12 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
                 }
             },
             onCancel = onConfigurationComplete,
-            searchViewModel = searchViewModel
+            searchViewModel = searchViewModel,
+            showConfigTip = showConfigTip,
+            onDismissConfigTip = {
+                showConfigTip = false
+                setWidgetConfigTipShown(context, true)
+            }
         )
     }
 }

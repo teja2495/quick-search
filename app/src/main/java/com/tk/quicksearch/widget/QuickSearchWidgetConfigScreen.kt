@@ -52,6 +52,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonsSection
 import com.tk.quicksearch.widget.voiceSearch.MicAction
@@ -66,7 +67,9 @@ fun QuickSearchWidgetConfigScreen(
     onStateChange: (QuickSearchWidgetPreferences) -> Unit,
     onApply: () -> Unit,
     onCancel: () -> Unit,
-    searchViewModel: SearchViewModel
+    searchViewModel: SearchViewModel,
+    showConfigTip: Boolean = false,
+    onDismissConfigTip: (() -> Unit)? = null
 ) {
     Scaffold(
         topBar = {
@@ -145,6 +148,16 @@ fun QuickSearchWidgetConfigScreen(
                 verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)
             ) {
                 WidgetThemeSection(state = state, onStateChange = onStateChange)
+
+                // Tip banner (only shown once)
+                if (showConfigTip) {
+                    TipBanner(
+                        text = stringResource(R.string.widget_config_scroll_tip),
+                        onDismiss = onDismissConfigTip,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+
                 WidgetSlidersSection(state = state, onStateChange = onStateChange)
                 WidgetSearchIconSection(state = state, onStateChange = onStateChange)
                 WidgetMicIconSection(state = state, onStateChange = onStateChange)
