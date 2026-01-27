@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonsSection
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -423,32 +424,6 @@ private fun createClickableText(
     }
 }
 
-@Composable
-private fun ColorChoiceSegmentedButtonRow(
-    selectedIsWhite: Boolean,
-    onSelectionChange: (Boolean) -> Unit
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        SegmentedButton(
-            selected = selectedIsWhite,
-            onClick = { onSelectionChange(true) },
-            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-            icon = {}
-        ) {
-            Text("White")
-        }
-        SegmentedButton(
-            selected = !selectedIsWhite,
-            onClick = { onSelectionChange(false) },
-            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-            icon = {}
-        ) {
-            Text("Black")
-        }
-    }
-}
 
 @Composable
 private fun ThemeChoiceSegmentedButtonRow(
@@ -485,32 +460,6 @@ private fun ThemeChoiceSegmentedButtonRow(
     }
 }
 
-@Composable
-private fun AlignmentChoiceSegmentedButtonRow(
-    selectedAlignLeft: Boolean,
-    onSelectionChange: (Boolean) -> Unit
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        SegmentedButton(
-            selected = selectedAlignLeft,
-            onClick = { onSelectionChange(true) },
-            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-            icon = {}
-        ) {
-            Text(stringResource(R.string.widget_icon_left))
-        }
-        SegmentedButton(
-            selected = !selectedAlignLeft,
-            onClick = { onSelectionChange(false) },
-            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-            icon = {}
-        ) {
-            Text(stringResource(R.string.widget_icon_center))
-        }
-    }
-}
 
 @Composable
 private fun SearchIconChoiceSegmentedButtonRow(

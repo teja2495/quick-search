@@ -202,7 +202,8 @@ internal fun ContactAvatar(
         photoUri: String?,
         displayName: String,
         onClick: (() -> Unit)? = null,
-        modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp)
+        modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp),
+        textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge
 ) {
         val context = LocalContext.current
         val contactPhoto by
@@ -257,7 +258,7 @@ internal fun ContactAvatar(
                                 ?: run {
                                         Text(
                                                 text = placeholderInitials,
-                                                style = MaterialTheme.typography.bodyLarge,
+                                                style = textStyle,
                                                 color =
                                                         MaterialTheme.colorScheme
                                                                 .onPrimaryContainer,

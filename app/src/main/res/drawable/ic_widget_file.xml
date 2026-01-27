@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <!-- Filled 'file' (document) icon with folded corner -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M14,2H6c-1.1,0-2,0.9-2,2v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V8l-6-6zM14,3.5L18.5,8H15c-0.55,0-1-0.45-1-1V3.5z"/>
+</vector>

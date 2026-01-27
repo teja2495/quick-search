@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widget.customButtons
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -20,6 +23,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -66,6 +70,8 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.widget.QuickSearchWidgetPreferences
+import com.tk.quicksearch.widget.WidgetConfigConstants
 import kotlinx.coroutines.delay
 
 @Composable
@@ -153,7 +159,8 @@ private fun CustomButtonsRow(
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
     ) {
         actions.forEachIndexed { index, action ->
             var showMenu by remember { mutableStateOf(false) }
@@ -162,7 +169,8 @@ private fun CustomButtonsRow(
 
             Box(
                 modifier = Modifier
-                    .size(WidgetConfigConstants.CUSTOM_BUTTON_SLOT_SIZE)
+                    .weight(1f)
+                    .height(WidgetConfigConstants.CUSTOM_BUTTON_SLOT_SIZE)
                     .zIndex(if (isDragging) 1f else 0f)
                     .alpha(alpha)
                     .draggable(
@@ -247,11 +255,12 @@ private fun CustomButtonSlotContent(
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .size(WidgetConfigConstants.CUSTOM_BUTTON_SLOT_SIZE)
-                .padding(6.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (action == null) {
                 Icon(
@@ -260,12 +269,29 @@ private fun CustomButtonSlotContent(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(WidgetConfigConstants.CUSTOM_BUTTON_ICON_SIZE)
                 )
+                Text(
+                    text = stringResource(R.string.widget_custom_button_add),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
             } else {
                 CustomWidgetButtonIcon(
                     action = action,
                     iconSize = WidgetConfigConstants.CUSTOM_BUTTON_ICON_SIZE,
                     iconPackPackage = iconPackPackage,
                     tintColor = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = action.displayLabel(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
         }
@@ -303,6 +329,8 @@ private fun CustomWidgetButtonDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.fillMaxWidth(0.95f),
         title = { Text(text = stringResource(R.string.widget_custom_buttons_dialog_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)) {
@@ -316,7 +344,6 @@ private fun CustomWidgetButtonDialog(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     shape = RoundedCornerShape(24.dp),
-                    placeholder = { Text(text = stringResource(R.string.search_hint)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Rounded.Search,
@@ -339,6 +366,16 @@ private fun CustomWidgetButtonDialog(
                     },
                     singleLine = true
                 )
+
+                // Show hint below search bar when there's no query
+                if (query.text.isBlank()) {
+                    Text(
+                        text = stringResource(R.string.widget_custom_buttons_dialog_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
 
                 Box(
                     modifier = Modifier

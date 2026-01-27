@@ -17,6 +17,12 @@ object WidgetLayoutUtils {
      */
     const val TWO_COLUMN_WIDTH_DP = 220f
 
+    /**
+     * Very narrow width threshold for hiding custom buttons. When the widget
+     * is this narrow or less, custom buttons are hidden to preserve space.
+     */
+    const val NARROW_WIDTH_DP = 200f
+
     fun resolveOr(value: Dp, default: Dp): Dp {
         return if (value == Dp.Unspecified || value.value <= 0f) {
             default

@@ -1,31 +1,27 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widget.customButtons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import java.util.Locale
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.components.ContactAvatar
-import com.tk.quicksearch.search.data.ShortcutIcon
 import com.tk.quicksearch.search.data.rememberShortcutIcon
-import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.search.models.FileTypeUtils
 
 @Composable
 fun CustomWidgetButtonIcon(
@@ -60,11 +56,23 @@ fun CustomWidgetButtonIcon(
             val shortcut = remember(action) { action.toStaticShortcut() }
             val iconSizePx = with(LocalDensity.current) { iconSize.roundToPx() }
             val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
-            Box(modifier = modifier.size(iconSize)) {
-                ShortcutIcon(
-                    icon = iconBitmap,
-                    displayName = action.displayLabel(),
-                    size = iconSize
+            if (iconBitmap != null) {
+                Image(
+                    bitmap = iconBitmap,
+                    contentDescription = action.contentDescription(),
+                    modifier = modifier.size(iconSize)
+                )
+            } else {
+                // Fallback for when shortcut icon can't be loaded
+                val fallback = action.displayLabel().trim().take(1)
+                    .uppercase(
+                        Locale.getDefault())
+                    .ifBlank { "?" }
+                Text(
+                    text = fallback,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = modifier
                 )
             }
         }
@@ -73,7 +81,8 @@ fun CustomWidgetButtonIcon(
                 photoUri = action.photoUri,
                 displayName = action.displayName,
                 onClick = null,
-                modifier = modifier.size(iconSize)
+                modifier = modifier.size(iconSize),
+                textStyle = MaterialTheme.typography.bodySmall
             )
         }
         is CustomWidgetButtonAction.File -> {
@@ -96,13 +105,5 @@ fun CustomWidgetButtonIcon(
 }
 
 private fun fileIconVector(action: CustomWidgetButtonAction.File) =
-    when {
-        action.isDirectory -> Icons.Rounded.Folder
-        else -> when (FileTypeUtils.getFileType(action.toDeviceFile())) {
-            FileType.MUSIC -> Icons.Rounded.MusicNote
-            FileType.PICTURES -> Icons.Rounded.Image
-            FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-            FileType.APKS -> Icons.Rounded.Android
-            else -> Icons.AutoMirrored.Rounded.InsertDriveFile
-        }
-    }
+    if (action.isDirectory) Icons.Rounded.Folder
+    else Icons.AutoMirrored.Rounded.InsertDriveFile

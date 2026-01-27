@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widget.customButtons
 
 import android.content.Intent
 import android.net.Uri

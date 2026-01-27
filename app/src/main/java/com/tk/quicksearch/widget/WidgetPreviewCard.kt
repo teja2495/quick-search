@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonIcon
 
 @Composable
 fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
@@ -131,23 +132,33 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING)
+                        horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING)
                     ) {
                         customButtons.forEach { action ->
-                            CustomWidgetButtonIcon(
-                                action = action,
-                                iconSize = WidgetConfigConstants.PREVIEW_ICON_SIZE,
-                                iconPackPackage = iconPackPackage,
-                                tintColor = colors.textIcon
-                            )
+                            Box(
+                                modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CustomWidgetButtonIcon(
+                                    action = action,
+                                    iconSize = WidgetConfigConstants.PREVIEW_ICON_SIZE,
+                                    iconPackPackage = iconPackPackage,
+                                    tintColor = colors.textIcon
+                                )
+                            }
                         }
                         if (state.micAction != MicAction.OFF) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_widget_mic),
-                                contentDescription = stringResource(R.string.desc_voice_search_icon),
-                                tint = colors.textIcon,
-                                modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
-                            )
+                            Box(
+                                modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_widget_mic),
+                                    contentDescription = stringResource(R.string.desc_voice_search_icon),
+                                    tint = colors.textIcon,
+                                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                                )
+                            }
                         }
                     }
                 }

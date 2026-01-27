@@ -1,23 +1,20 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widget.customButtons
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.compose.material.icons.Icons
 import com.tk.quicksearch.R
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
@@ -35,7 +32,6 @@ import androidx.compose.ui.graphics.Canvas as ComposeCanvas
 import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.search.managers.IconPackManager
 import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.search.models.FileTypeUtils
 
 data class WidgetButtonIcon(
     val bitmap: Bitmap? = null,
@@ -67,17 +63,13 @@ fun rememberWidgetButtonIcon(
             WidgetButtonIcon(bitmap = bitmap, shouldTint = false)
         }
         is CustomWidgetButtonAction.File -> {
-            val drawableResId = when (FileTypeUtils.getFileType(action.toDeviceFile())) {
-                FileType.MUSIC -> R.drawable.ic_widget_search // Placeholder, could create specific drawable
-                FileType.PICTURES -> R.drawable.ic_widget_search // Placeholder, could create specific drawable
-                FileType.VIDEOS -> R.drawable.ic_widget_search // Placeholder, could create specific drawable
-                FileType.APKS -> R.drawable.ic_widget_search // Placeholder, could create specific drawable
-                else -> R.drawable.ic_widget_search // Generic file icon
-            }
+            val drawableResId = if (action.isDirectory) R.drawable.ic_widget_folder
+                               else R.drawable.ic_widget_file
             WidgetButtonIcon(drawableResId = drawableResId, shouldTint = true)
         }
         is CustomWidgetButtonAction.Setting -> {
-            WidgetButtonIcon(drawableResId = R.drawable.ic_widget_search, shouldTint = true) // Placeholder, could create settings drawable
+            // Use Material Design settings icon
+            WidgetButtonIcon(drawableResId = R.drawable.ic_widget_settings, shouldTint = true)
         }
     }
 }
@@ -135,12 +127,13 @@ private fun loadContactBitmap(
     }
 
     if (photoBitmap != null) {
-        return Bitmap.createScaledBitmap(
+        val scaledBitmap = Bitmap.createScaledBitmap(
             photoBitmap,
             iconSizePx.coerceAtLeast(1),
             iconSizePx.coerceAtLeast(1),
             true
         )
+        return createCircularBitmap(scaledBitmap)
     }
 
     val initials = action.displayName
@@ -154,10 +147,19 @@ private fun loadContactBitmap(
         return createVectorBitmap(Icons.Rounded.Person, iconSizePx)
     }
 
-    val isLightText = textIconColor.luminance() > 0.5f
-    val backgroundColor = if (isLightText) Color(0xFF4A4A4A) else Color(0xFFE0E0E0)
-    val textColor = if (isLightText) Color.White else Color.Black
-    return createInitialsBitmap(initials, iconSizePx, backgroundColor.toArgb(), textColor.toArgb())
+    // Use Material Theme colors to match the preview (ContactAvatar component)
+    // Determine theme based on textIconColor luminance to match widget theme
+    val isDarkTheme = textIconColor.luminance() > 0.5f // Light text = dark theme
+
+    val (backgroundColor, textColor) = if (isDarkTheme) {
+        // Dark theme: primaryContainer #4F378B, onPrimaryContainer #EADDFF
+        android.graphics.Color.parseColor("#4F378B") to android.graphics.Color.parseColor("#EADDFF")
+    } else {
+        // Light theme: primaryContainer #EADDFF, onPrimaryContainer #21005D
+        android.graphics.Color.parseColor("#EADDFF") to android.graphics.Color.parseColor("#21005D")
+    }
+
+    return createInitialsBitmap(initials, iconSizePx, backgroundColor, textColor)
 }
 
 private fun createInitialsBitmap(
@@ -181,9 +183,12 @@ private fun createInitialsBitmap(
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = textColor
             textAlign = Paint.Align.CENTER
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            textSize = safeSize * 0.42f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textSize = safeSize * 0.6f
         }
+        // Add slight stroke for better visibility (semi-bold effect)
+        textPaint.strokeWidth = safeSize * 0.02f
+        textPaint.style = Paint.Style.FILL_AND_STROKE
         val textY = radius - (textPaint.descent() + textPaint.ascent()) / 2f
         canvas.drawText(initials, radius, textY, textPaint)
     }
@@ -191,16 +196,28 @@ private fun createInitialsBitmap(
     return bitmap
 }
 
-private fun fileIconVector(action: CustomWidgetButtonAction.File): ImageVector {
-    if (action.isDirectory) return Icons.Rounded.Folder
-    return when (FileTypeUtils.getFileType(action.toDeviceFile())) {
-        FileType.MUSIC -> Icons.Rounded.MusicNote
-        FileType.PICTURES -> Icons.Rounded.Image
-        FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-        FileType.APKS -> Icons.Rounded.Android
-        else -> Icons.AutoMirrored.Rounded.InsertDriveFile
-    }
+private fun createCircularBitmap(sourceBitmap: Bitmap): Bitmap {
+    val size = minOf(sourceBitmap.width, sourceBitmap.height)
+    val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    val rect = android.graphics.Rect(0, 0, size, size)
+    val rectF = android.graphics.RectF(rect)
+
+    // Draw circular mask
+    paint.style = Paint.Style.FILL
+    paint.color = android.graphics.Color.WHITE
+    val radius = size / 2f
+    canvas.drawCircle(radius, radius, radius, paint)
+
+    // Use SRC_IN to keep only the intersection of the circle and the bitmap
+    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+    canvas.drawBitmap(sourceBitmap, null, rect, paint)
+
+    return output
 }
+
 
 private fun createVectorBitmap(
     imageVector: ImageVector,
@@ -232,28 +249,4 @@ private fun createVectorBitmap(
     return bitmap
 }
 
-@Composable
-private fun rememberVectorBitmap(
-    imageVector: ImageVector,
-    sizePx: Int
-): Bitmap {
-    val safeSize = sizePx.coerceAtLeast(1)
-    val density = LocalDensity.current
-    val painter = rememberVectorPainter(imageVector)
-    return remember(imageVector, safeSize, density.density, density.fontScale, painter) {
-        val imageBitmap = ImageBitmap(safeSize, safeSize)
-        val canvas = ComposeCanvas(imageBitmap)
-        val drawScope = CanvasDrawScope()
-        drawScope.draw(
-            density = density,
-            layoutDirection = LayoutDirection.Ltr,
-            canvas = canvas,
-            size = Size(safeSize.toFloat(), safeSize.toFloat())
-        ) {
-            with(painter) {
-                draw(Size(safeSize.toFloat(), safeSize.toFloat()))
-            }
-        }
-        imageBitmap.asAndroidBitmap()
-    }
-}
+

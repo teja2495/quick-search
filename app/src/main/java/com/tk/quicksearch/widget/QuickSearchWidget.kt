@@ -32,6 +32,10 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
+import com.tk.quicksearch.widget.customButtons.QuickSearchWidgetActionActivity
+import com.tk.quicksearch.widget.customButtons.WidgetButtonIcon
+import com.tk.quicksearch.widget.customButtons.rememberWidgetButtonIcon
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
@@ -257,7 +261,7 @@ private fun WidgetContent(
                         Box(
                             modifier = GlanceModifier
                                 .fillMaxSize()
-                                .padding(start = 8.dp),
+                                .padding(start = 10.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             Image(
@@ -299,7 +303,7 @@ private fun WidgetContent(
                 }
             }
 
-            if (customButtons.isNotEmpty() || showMicIcon) {
+            if ((customButtons.isNotEmpty() && widthDp > WidgetLayoutUtils.NARROW_WIDTH_DP.dp) || showMicIcon) {
                 Box(
                     modifier = GlanceModifier
                         .fillMaxSize()
@@ -310,7 +314,8 @@ private fun WidgetContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalAlignment = Alignment.End
                     ) {
-                        customButtons.forEachIndexed { index, action ->
+                        if (widthDp > WidgetLayoutUtils.NARROW_WIDTH_DP.dp) {
+                            customButtons.forEachIndexed { index, action ->
                             val icon = remember(action, iconPackPackage, iconSizePx, textIconColor) {
                                 rememberWidgetButtonIcon(
                                     context = context,
@@ -353,6 +358,7 @@ private fun WidgetContent(
                             if (index != customButtons.lastIndex || showMicIcon) {
                                 Spacer(modifier = GlanceModifier.width(8.dp))
                             }
+                        }
                         }
 
                         if (showMicIcon) {

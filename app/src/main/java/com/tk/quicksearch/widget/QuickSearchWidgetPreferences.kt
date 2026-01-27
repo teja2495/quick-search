@@ -14,6 +14,7 @@ import kotlinx.parcelize.Parcelize
 import com.tk.quicksearch.widget.voiceSearch.MicAction.DEFAULT_VOICE_SEARCH
 import com.tk.quicksearch.widget.voiceSearch.MicAction.DIGITAL_ASSISTANT
 import com.tk.quicksearch.widget.voiceSearch.MicAction.OFF
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
 
 /**
  * Theme options for the widget appearance.
@@ -126,44 +127,8 @@ data class QuickSearchWidgetPreferences(
     val hasCustomButtons: Boolean
         get() = customButtons.any { it != null }
 
-    /**
-     * Get the effective text/icon color considering both theme and override.
-     */
-    fun getEffectiveTextIconColor(isSystemInDarkTheme: Boolean = false): Boolean {
-        return when (textIconColorOverride) {
-            TextIconColorOverride.WHITE -> true   // white text/icons
-            TextIconColorOverride.BLACK -> false  // black text/icons
-            TextIconColorOverride.THEME -> {      // follow theme
-                val effectiveTheme = when (theme) {
-                    WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
-                    else -> theme
-                }
-                effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
-            }
-        }
-    }
 
-    /**
-     * Get background color based on current theme.
-     */
-    fun getBackgroundColor(): Boolean {
-        return when (theme) {
-            WidgetTheme.LIGHT -> true  // white background
-            WidgetTheme.DARK -> false  // black/dark grey background
-            WidgetTheme.SYSTEM -> false // default to dark for now (could be made dynamic later)
-        }
-    }
 
-    /**
-     * Get text/icon color based on current theme.
-     */
-    fun getTextIconColor(): Boolean {
-        return when (theme) {
-            WidgetTheme.LIGHT -> false // black text on white background
-            WidgetTheme.DARK -> true   // white text on dark background
-            WidgetTheme.SYSTEM -> true // default to white for now (could be made dynamic later)
-        }
-    }
 
     fun coerceToValidRanges(): QuickSearchWidgetPreferences {
         val normalizedButtons = normalizeCustomButtons(customButtons)
