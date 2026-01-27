@@ -433,10 +433,11 @@ private fun CustomWidgetSearchResultRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = DesignTokens.SpacingMedium * 2)
             .combinedClickable(onClick = onClick)
-            .padding(vertical = DesignTokens.SpacingMedium),
+            .padding(vertical = DesignTokens.SpacingSmall, horizontal = DesignTokens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         CustomWidgetButtonIcon(
             action = result.toAction(),
@@ -449,9 +450,7 @@ private fun CustomWidgetSearchResultRow(
             text = result.displayLabel(),
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         if (isSelected) {

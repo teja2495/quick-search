@@ -82,7 +82,7 @@ fun CustomWidgetButtonIcon(
                 displayName = action.displayName,
                 onClick = null,
                 modifier = modifier.size(iconSize),
-                textStyle = MaterialTheme.typography.bodySmall
+                textStyle = MaterialTheme.typography.labelSmall
             )
         }
         is CustomWidgetButtonAction.File -> {
