@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,13 +28,19 @@ import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
+import com.tk.quicksearch.widget.customButtons.QuickSearchWidgetActionActivity
+import com.tk.quicksearch.widget.customButtons.WidgetButtonIcon
+import com.tk.quicksearch.widget.customButtons.rememberWidgetButtonIcon
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
@@ -43,6 +50,7 @@ import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.app.MainActivity
 
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlin.math.roundToInt
 
 class QuickSearchWidget : GlanceAppWidget() {
@@ -106,6 +114,7 @@ class QuickSearchWidget : GlanceAppWidget() {
             startVoiceSearch = true,
             micAction = config.micAction
         )
+        val customButtons = config.customButtons.filterNotNull()
 
         WidgetContent(
             widthDp = widthDp,
@@ -120,7 +129,8 @@ class QuickSearchWidget : GlanceAppWidget() {
             // Force left alignment for icons when the widget collapses to ~2 columns.
             iconAlignLeft = config.iconAlignLeft || isNarrowWidth,
             launchIntent = launchIntent,
-            voiceLaunchIntent = voiceLaunchIntent
+            voiceLaunchIntent = voiceLaunchIntent,
+            customButtons = customButtons
         )
     }
 
@@ -192,11 +202,16 @@ private fun WidgetContent(
     showMicIcon: Boolean,
     iconAlignLeft: Boolean,
     launchIntent: Intent,
-    voiceLaunchIntent: Intent
+    voiceLaunchIntent: Intent,
+    customButtons: List<CustomWidgetButtonAction>
 ) {
     val context = LocalContext.current
     val micTouchSpace = 36.dp
-    
+    val iconPackPackage = remember(context) {
+        UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
+    }
+    val density = context.resources.displayMetrics.density
+    val iconSizePx = (20.dp.value * density).roundToInt().coerceAtLeast(1)
     Box(
         modifier = GlanceModifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -246,7 +261,7 @@ private fun WidgetContent(
                         Box(
                             modifier = GlanceModifier
                                 .fillMaxSize()
-                                .padding(start = 8.dp),
+                                .padding(start = 10.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             Image(
@@ -288,28 +303,82 @@ private fun WidgetContent(
                 }
             }
 
-            if (showMicIcon) {
+            if ((customButtons.isNotEmpty() && widthDp > WidgetLayoutUtils.NARROW_WIDTH_DP.dp) || showMicIcon) {
                 Box(
                     modifier = GlanceModifier
                         .fillMaxSize()
                         .padding(end = 14.dp),
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    Box(
-                        modifier = GlanceModifier
-                            .size(micTouchSpace)
-                            .clickable(
-                                onClick = actionStartActivity(voiceLaunchIntent),
-                                rippleOverride = android.R.color.transparent
-                            ),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalAlignment = Alignment.End
                     ) {
-                        Image(
-                            provider = ImageProvider(R.drawable.ic_widget_mic),
-                            contentDescription = context.getString(R.string.desc_voice_search_icon),
-                            modifier = GlanceModifier.size(20.dp),
-                            colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
-                        )
+                        if (widthDp > WidgetLayoutUtils.NARROW_WIDTH_DP.dp) {
+                            customButtons.forEachIndexed { index, action ->
+                            val icon = remember(action, iconPackPackage, iconSizePx, textIconColor) {
+                                rememberWidgetButtonIcon(
+                                    context = context,
+                                    action = action,
+                                    iconSizePx = iconSizePx,
+                                    textIconColor = textIconColor,
+                                    iconPackPackage = iconPackPackage
+                                )
+                            }
+                            Box(
+                                modifier = GlanceModifier
+                                    .size(micTouchSpace)
+                                    .clickable(
+                                        onClick = actionStartActivity(
+                                            QuickSearchWidgetActionActivity.createIntent(
+                                                context,
+                                                action
+                                            )
+                                        ),
+                                        rippleOverride = android.R.color.transparent
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val imageProvider = when {
+                                    icon.bitmap != null -> ImageProvider(icon.bitmap)
+                                    icon.drawableResId != null -> ImageProvider(icon.drawableResId)
+                                    else -> ImageProvider(R.drawable.ic_widget_search) // Fallback
+                                }
+                                Image(
+                                    provider = imageProvider,
+                                    contentDescription = action.contentDescription(),
+                                    modifier = GlanceModifier.size(20.dp),
+                                    colorFilter = if (icon.shouldTint) {
+                                        ColorFilter.tint(ColorProvider(textIconColor))
+                                    } else {
+                                        null
+                                    }
+                                )
+                            }
+                            if (index != customButtons.lastIndex || showMicIcon) {
+                                Spacer(modifier = GlanceModifier.width(8.dp))
+                            }
+                        }
+                        }
+
+                        if (showMicIcon) {
+                            Box(
+                                modifier = GlanceModifier
+                                    .size(micTouchSpace)
+                                    .clickable(
+                                        onClick = actionStartActivity(voiceLaunchIntent),
+                                        rippleOverride = android.R.color.transparent
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    provider = ImageProvider(R.drawable.ic_widget_mic),
+                                    contentDescription = context.getString(R.string.desc_voice_search_icon),
+                                    modifier = GlanceModifier.size(20.dp),
+                                    colorFilter = ColorFilter.tint(ColorProvider(textIconColor))
+                                )
+                            }
+                        }
                     }
                 }
             }

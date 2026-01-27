@@ -14,6 +14,7 @@ import kotlinx.parcelize.Parcelize
 import com.tk.quicksearch.widget.voiceSearch.MicAction.DEFAULT_VOICE_SEARCH
 import com.tk.quicksearch.widget.voiceSearch.MicAction.DIGITAL_ASSISTANT
 import com.tk.quicksearch.widget.voiceSearch.MicAction.OFF
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
 
 /**
  * Theme options for the widget appearance.
@@ -59,6 +60,7 @@ internal object WidgetDefaults {
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
     // Default to theme-based colors (null means follow theme)
     val TEXT_ICON_COLOR_OVERRIDE: Boolean? = null
+    val CUSTOM_BUTTONS: List<CustomWidgetButtonAction?> = listOf(null, null)
 }
 
 private object WidgetRanges {
@@ -81,6 +83,8 @@ private object WidgetKeys {
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
     val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
     val TEXT_ICON_COLOR_OVERRIDE = stringPreferencesKey("quick_search_widget_text_icon_color_override")
+    val CUSTOM_BUTTON_0 = stringPreferencesKey("quick_search_widget_custom_button_0")
+    val CUSTOM_BUTTON_1 = stringPreferencesKey("quick_search_widget_custom_button_1")
     // Legacy keys for migration
     val SHOW_SEARCH_ICON = booleanPreferencesKey("quick_search_widget_show_search_icon")
     val ICON_ALIGN_LEFT = booleanPreferencesKey("quick_search_widget_icon_align_left")
@@ -102,7 +106,8 @@ data class QuickSearchWidgetPreferences(
     val theme: WidgetTheme = WidgetDefaults.THEME,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
     val micAction: MicAction = WidgetDefaults.MIC_ACTION,
-    val textIconColorOverride: TextIconColorOverride = TextIconColorOverride.THEME
+    val textIconColorOverride: TextIconColorOverride = TextIconColorOverride.THEME,
+    val customButtons: List<CustomWidgetButtonAction?> = WidgetDefaults.CUSTOM_BUTTONS
 ) : Parcelable {
 
     companion object {
@@ -119,46 +124,15 @@ data class QuickSearchWidgetPreferences(
     val iconAlignLeft: Boolean
         get() = searchIconDisplay == SearchIconDisplay.LEFT
 
-    /**
-     * Get the effective text/icon color considering both theme and override.
-     */
-    fun getEffectiveTextIconColor(isSystemInDarkTheme: Boolean = false): Boolean {
-        return when (textIconColorOverride) {
-            TextIconColorOverride.WHITE -> true   // white text/icons
-            TextIconColorOverride.BLACK -> false  // black text/icons
-            TextIconColorOverride.THEME -> {      // follow theme
-                val effectiveTheme = when (theme) {
-                    WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
-                    else -> theme
-                }
-                effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
-            }
-        }
-    }
+    val hasCustomButtons: Boolean
+        get() = customButtons.any { it != null }
 
-    /**
-     * Get background color based on current theme.
-     */
-    fun getBackgroundColor(): Boolean {
-        return when (theme) {
-            WidgetTheme.LIGHT -> true  // white background
-            WidgetTheme.DARK -> false  // black/dark grey background
-            WidgetTheme.SYSTEM -> false // default to dark for now (could be made dynamic later)
-        }
-    }
 
-    /**
-     * Get text/icon color based on current theme.
-     */
-    fun getTextIconColor(): Boolean {
-        return when (theme) {
-            WidgetTheme.LIGHT -> false // black text on white background
-            WidgetTheme.DARK -> true   // white text on dark background
-            WidgetTheme.SYSTEM -> true // default to white for now (could be made dynamic later)
-        }
-    }
+
 
     fun coerceToValidRanges(): QuickSearchWidgetPreferences {
+        val normalizedButtons = normalizeCustomButtons(customButtons)
+        val shouldHideLabel = normalizedButtons.any { it != null }
         return copy(
             borderRadiusDp = borderRadiusDp.coerceIn(
                 WidgetRanges.BORDER_RADIUS_MIN,
@@ -171,9 +145,21 @@ data class QuickSearchWidgetPreferences(
             backgroundAlpha = backgroundAlpha.coerceIn(
                 WidgetRanges.BACKGROUND_ALPHA_MIN,
                 WidgetRanges.BACKGROUND_ALPHA_MAX
-            )
+            ),
+            customButtons = normalizedButtons,
+            showLabel = if (shouldHideLabel) false else showLabel
         )
     }
+}
+
+private fun normalizeCustomButtons(
+    buttons: List<CustomWidgetButtonAction?>
+): List<CustomWidgetButtonAction?> {
+    val normalized = buttons.take(2).toMutableList()
+    while (normalized.size < 2) {
+        normalized.add(null)
+    }
+    return normalized
 }
 
 fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
@@ -193,6 +179,11 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
             else -> WidgetDefaults.THEME
         }
     }
+
+    val customButtons = listOf(
+        CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_0]),
+        CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_1])
+    )
 
     return QuickSearchWidgetPreferences(
         borderColor = this[WidgetKeys.BORDER_COLOR] ?: WidgetDefaults.BORDER_COLOR_ARGB,
@@ -228,7 +219,8 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
         },
         textIconColorOverride = this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE]?.let { overrideString ->
             TextIconColorOverride.entries.find { it.value == overrideString }
-        } ?: TextIconColorOverride.THEME
+        } ?: TextIconColorOverride.THEME,
+        customButtons = customButtons
     ).coerceToValidRanges()
 }
 
@@ -244,5 +236,11 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
     this[WidgetKeys.MIC_ACTION] = validated.micAction.value
     this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE] = validated.textIconColorOverride.value
+    val customButtons = normalizeCustomButtons(validated.customButtons)
+    customButtons.getOrNull(0)?.let { action ->
+        this[WidgetKeys.CUSTOM_BUTTON_0] = action.toJson()
+    } ?: remove(WidgetKeys.CUSTOM_BUTTON_0)
+    customButtons.getOrNull(1)?.let { action ->
+        this[WidgetKeys.CUSTOM_BUTTON_1] = action.toJson()
+    } ?: remove(WidgetKeys.CUSTOM_BUTTON_1)
 }
-

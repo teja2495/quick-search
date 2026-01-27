@@ -17,21 +17,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonIcon
 
 @Composable
 fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
+    val context = LocalContext.current
     val colors = calculatePreviewColors(state)
     val borderShape = RoundedCornerShape(state.borderRadiusDp.dp)
     val shouldShowBorder = state.borderWidthDp >= WidgetConfigConstants.BORDER_VISIBILITY_THRESHOLD
+    val iconPackPackage = remember(context) {
+        UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
+    }
+    val customButtons = state.customButtons.filterNotNull()
 
         Box(
             modifier = Modifier
@@ -114,19 +123,44 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                 }
                 }
 
-            if (state.micAction != MicAction.OFF) {
+            if (customButtons.isNotEmpty() || state.micAction != MicAction.OFF) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(end = WidgetConfigConstants.PREVIEW_INNER_PADDING),
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_widget_mic),
-                        contentDescription = stringResource(R.string.desc_voice_search_icon),
-                        tint = colors.textIcon,
-                        modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING)
+                    ) {
+                        customButtons.forEach { action ->
+                            Box(
+                                modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CustomWidgetButtonIcon(
+                                    action = action,
+                                    iconSize = WidgetConfigConstants.PREVIEW_ICON_SIZE,
+                                    iconPackPackage = iconPackPackage,
+                                    tintColor = colors.textIcon
+                                )
+                            }
+                        }
+                        if (state.micAction != MicAction.OFF) {
+                            Box(
+                                modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_widget_mic),
+                                    contentDescription = stringResource(R.string.desc_voice_search_icon),
+                                    tint = colors.textIcon,
+                                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

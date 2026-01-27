@@ -102,6 +102,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widget.customButtons.QuickSearchWidgetActionActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.QuickSearch" />
+
         <!-- Widget Receiver -->
         <receiver
             android:name=".widget.QuickSearchWidgetReceiver"
