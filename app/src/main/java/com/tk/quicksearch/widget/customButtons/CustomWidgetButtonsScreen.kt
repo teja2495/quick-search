@@ -434,7 +434,7 @@ private fun CustomWidgetSearchResultRow(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(onClick = onClick)
-            .padding(vertical = DesignTokens.SpacingSmall),
+            .padding(vertical = DesignTokens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {

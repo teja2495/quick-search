@@ -433,7 +433,7 @@
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
     <string name="widget_custom_buttons_title">Custom Buttons</string>
     <string name="widget_custom_buttons_dialog_title">Select Action</string>
-    <string name="widget_custom_buttons_dialog_hint">Search Apps, Shortcuts, Contacts, Files, Folders &amp; Device settings.</string>
+    <string name="widget_custom_buttons_dialog_hint">You can search for Apps, App Shortcuts, Contacts, Files, Folders &amp; Device settings.</string>
     <string name="widget_custom_buttons_no_results">No results found.</string>
     <string name="widget_custom_button_reset">Reset</string>
     <string name="widget_custom_button_add">Add</string>
