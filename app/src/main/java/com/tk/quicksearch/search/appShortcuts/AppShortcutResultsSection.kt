@@ -51,6 +51,7 @@ import com.tk.quicksearch.util.hapticConfirm
 
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 32
+private const val OVERRIDE_ICON_SIZE = 26
 
 @Composable
 fun AppShortcutResultsSection(
@@ -252,13 +253,15 @@ internal fun AppShortcutRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
         ) {
-                Box(modifier = Modifier.padding(start = DesignTokens.SpacingXSmall)) {
+                val leadingIconStartPadding =
+                        if (icon != null) DesignTokens.SpacingSmall else DesignTokens.SpacingXSmall
+                Box(modifier = Modifier.padding(start = leadingIconStartPadding)) {
                         if (icon != null) {
                                 Icon(
                                         imageVector = icon,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.size(40.dp)
+                                        modifier = Modifier.size(OVERRIDE_ICON_SIZE.dp)
                                 )
                         } else {
                                 ShortcutIcon(

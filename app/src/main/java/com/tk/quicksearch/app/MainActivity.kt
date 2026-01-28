@@ -61,17 +61,8 @@ class MainActivity : ComponentActivity() {
 
         initializePreferences()
 
-        val forceNormalLaunch =
-                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
-                        ?: false
-        if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
-            if (PermissionUtils.hasOverlayPermission(this)) {
-                OverlayModeController.startOverlay(this)
-                finish()
-                return
-            } else {
-                userPreferences.setOverlayModeEnabled(false)
-            }
+        if (launchOverlayIfNeeded(intent)) {
+            return
         }
 
         initializeVoiceSearchHandler()
@@ -84,9 +75,12 @@ class MainActivity : ComponentActivity() {
         // instant visual feedback alongside search bar and app list
         lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@MainActivity) }
 
+        // Handle intent BEFORE composing UI to avoid briefly showing the Search screen
+        // (which auto-focuses the search bar and can flash the keyboard) before navigating.
+        handleIntent(intent)
+
         setupContent()
         refreshPermissionStateIfNeeded()
-        handleIntent(intent)
 
         // Track first app open time and app open count
         // Only track after first launch is complete
@@ -117,6 +111,9 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (launchOverlayIfNeeded(intent)) {
+            return
+        }
         handleIntent(intent)
     }
 
@@ -127,6 +124,22 @@ class MainActivity : ComponentActivity() {
 
     private fun initializePreferences() {
         userPreferences = UserAppPreferences(this)
+    }
+
+    private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
+        val forceNormalLaunch =
+                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
+                        ?: false
+        if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
+            if (PermissionUtils.hasOverlayPermission(this)) {
+                OverlayModeController.startOverlay(this)
+                finish()
+                return true
+            } else {
+                userPreferences.setOverlayModeEnabled(false)
+            }
+        }
+        return false
     }
 
     private fun initializeVoiceSearchHandler() {

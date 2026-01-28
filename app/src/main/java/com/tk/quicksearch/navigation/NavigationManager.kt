@@ -66,8 +66,10 @@ fun MainContent(
                 }
         )
     }
-    var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
-    var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
+    val initialDestination = navigationRequest?.destination ?: RootDestination.Search
+    val initialSettingsDetailType = navigationRequest?.settingsDetailType
+    var destination by rememberSaveable { mutableStateOf(initialDestination) }
+    var settingsDetailType by rememberSaveable { mutableStateOf(initialSettingsDetailType) }
     var shouldShowFinalSetup by remember { mutableStateOf(false) }
 
     LaunchedEffect(navigationRequest) {
