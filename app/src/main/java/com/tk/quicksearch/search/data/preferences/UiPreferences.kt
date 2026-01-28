@@ -19,6 +19,13 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_ONE_HANDED_MODE, enabled)
     }
 
+    fun isOverlayModeEnabled(): Boolean =
+        getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
+
+    fun setOverlayModeEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, enabled)
+    }
+
     fun getMessagingApp(): MessagingApp {
         // Migrate from old boolean preference if it exists
         val oldKeyExists = prefs.contains(UiPreferences.KEY_USE_WHATSAPP_FOR_MESSAGES)
@@ -371,6 +378,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     companion object {
         // UI preferences keys
         const val KEY_ONE_HANDED_MODE = "one_handed_mode"
+        const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
         const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"
         const val KEY_FIRST_LAUNCH = "first_launch"

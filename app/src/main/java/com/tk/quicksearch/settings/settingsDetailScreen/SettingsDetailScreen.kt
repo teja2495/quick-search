@@ -201,6 +201,8 @@ internal fun SettingsDetailScreen(
                         val appearanceContext = LocalContext.current
 
                         AppearanceSettingsSection(
+                            overlayModeEnabled = state.overlayModeEnabled,
+                            onToggleOverlayMode = callbacks.onToggleOverlayMode,
                             oneHandedMode = state.oneHandedMode,
                             onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
                             showWallpaperBackground = state.showWallpaperBackground,

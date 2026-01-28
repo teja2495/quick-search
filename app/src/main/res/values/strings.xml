@@ -255,6 +255,9 @@
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
     <string name="wallpaper_permission_fallback_message">Unable to fetch wallpaper using file permission. Do you want me to try another way?</string>
+    <string name="settings_overlay_mode_title">Overlay Mode</string>
+    <string name="settings_overlay_mode_desc">The app opens as a system overlay</string>
+    <string name="settings_overlay_permission_denied">Overlay permission is required to enable Overlay Mode</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
     <string name="settings_icon_pack_title">Icon Pack</string>

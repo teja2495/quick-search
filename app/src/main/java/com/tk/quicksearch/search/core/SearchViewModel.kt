@@ -49,6 +49,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.ShortcutHandler
+import com.tk.quicksearch.search.overlay.OverlayModeController
+import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
@@ -309,6 +311,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showHiddenFiles: Boolean = false
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
+    private var overlayModeEnabled: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true
@@ -529,6 +532,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showHiddenFiles = prefs.showHiddenFiles
         excludedFileExtensions = prefs.excludedFileExtensions
         oneHandedMode = prefs.oneHandedMode
+        overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         showWallpaperBackground = prefs.showWallpaperBackground
@@ -544,6 +548,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showHiddenFiles = showHiddenFiles,
                     excludedFileExtensions = excludedFileExtensions,
                     oneHandedMode = oneHandedMode,
+                    overlayModeEnabled = overlayModeEnabled,
                     directDialEnabled = directDialEnabled,
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -1549,6 +1554,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
+    fun setOverlayModeEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setOverlayModeEnabled,
+                stateUpdater = {
+                    overlayModeEnabled = it
+                    updateUiState { state -> state.copy(overlayModeEnabled = it) }
+                    if (!it) {
+                        OverlayModeController.stopOverlay(getApplication())
+                    }
+                }
+        )
+    }
+
     fun setAmazonDomain(domain: String?) {
         amazonDomain = domain
         userPreferences.setAmazonDomain(domain)
@@ -1899,6 +1918,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val hasFiles = hasFilePermission()
         val hasCall = hasCallPermission()
         val hasWallpaper = hasWallpaperPermission()
+        val hasOverlay = PermissionUtils.hasOverlayPermission(getApplication())
         val previousState = _uiState.value
         val changed =
                 previousState.hasContactPermission != hasContacts ||
@@ -1906,6 +1926,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         previousState.hasCallPermission != hasCall ||
                         previousState.hasWallpaperPermission != hasWallpaper ||
                         previousState.wallpaperAvailable != wallpaperAvailable
+
+        if (!hasOverlay && overlayModeEnabled) {
+            setOverlayModeEnabled(false)
+        }
 
         if (changed) {
 

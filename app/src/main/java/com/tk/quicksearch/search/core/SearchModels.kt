@@ -205,6 +205,7 @@ data class SearchUiState(
         val showHiddenFiles: Boolean = false,
         val excludedFileExtensions: Set<String> = emptySet(),
         val oneHandedMode: Boolean = false,
+        val overlayModeEnabled: Boolean = false,
         val shortcutsEnabled: Boolean = true,
         val shortcutCodes: Map<String, String> = emptyMap(),
         val shortcutEnabled: Map<String, Boolean> = emptyMap(),

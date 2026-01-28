@@ -118,7 +118,8 @@ fun SearchContentArea(
         onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         showCalculator: Boolean = false,
         showDirectSearch: Boolean = false,
-        directSearchState: DirectSearchState? = null
+        directSearchState: DirectSearchState? = null,
+        isOverlayPresentation: Boolean = false
 ) {
         val useOneHandedMode =
                 state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
@@ -177,10 +178,17 @@ fun SearchContentArea(
                                 !showDirectSearch &&
                                 !hasInlineSearchEngines
 
+                val heightModifier =
+                        if (isOverlayPresentation) {
+                                Modifier.heightIn(min = 0.dp, max = maxHeight)
+                        } else {
+                                Modifier.heightIn(min = maxHeight)
+                        }
+
                 Column(
                         modifier =
                                 Modifier.fillMaxWidth()
-                                        .heightIn(min = maxHeight)
+                                        .then(heightModifier)
                                         .clip(TopRoundedShape)
                                         .then(
                                                 if (shouldHideScrollView) {
@@ -338,7 +346,9 @@ if (fadePx > 0f) {
                                         appsParams = appsParams,
                                         onRequestUsagePermission = onRequestUsagePermission,
                                         // Pass calculator and direct search state to ContentLayout
-                                        minContentHeight = this@BoxWithConstraints.maxHeight,
+                                        minContentHeight =
+                                                if (isOverlayPresentation) 0.dp
+                                                else this@BoxWithConstraints.maxHeight,
                                         isReversed = useOneHandedMode && !showDirectSearch,
                                         hideResults = hideOtherResults,
                                         showCalculator = showCalculator,

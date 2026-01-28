@@ -88,7 +88,8 @@ fun SearchRoute(
         onShowToast: (Int) -> Unit = {},
         viewModel: SearchViewModel = viewModel(),
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
-        onWallpaperLoaded: (() -> Unit)? = null
+        onWallpaperLoaded: (() -> Unit)? = null,
+        isOverlayPresentation: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -222,10 +223,13 @@ fun SearchRoute(
         viewModel.dismissContactMethodsBottomSheet()
     }
 
-    val callPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted -> viewModel.onCallPermissionResult(isGranted) }
+    val callPermissionLauncher = if (context is android.app.Activity) {
+        rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted -> viewModel.onCallPermissionResult(isGranted) }
+    } else {
+        null
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -244,16 +248,28 @@ fun SearchRoute(
 
         if (pendingNumber != null || pendingWhatsAppCall != null) {
             if (context is android.app.Activity) {
-                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                callPermissionLauncher?.launch(Manifest.permission.CALL_PHONE)
             } else {
                 viewModel.onCallPermissionResult(false)
             }
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    val containerModifier =
+        if (isOverlayPresentation) {
+            modifier.fillMaxWidth()
+        } else {
+            modifier.fillMaxSize()
+        }
+
+    Box(modifier = containerModifier) {
         SearchScreen(
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    if (isOverlayPresentation) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.fillMaxSize()
+                    },
                 state = uiState,
                 onQueryChanged = viewModel::onQueryChange,
                 onClearQuery = viewModel::clearQuery,
@@ -336,7 +352,8 @@ fun SearchRoute(
                 getSecondaryContactCardAction = viewModel::getSecondaryContactCardAction,
                 onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
                 onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
-                onWallpaperLoaded = onWallpaperLoaded
+                onWallpaperLoaded = onWallpaperLoaded,
+                isOverlayPresentation = isOverlayPresentation
         )
 
         SnackbarHost(
@@ -436,6 +453,7 @@ fun SearchScreen(
         onSetPersonalContext: (String?) -> Unit = {},
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onWallpaperLoaded: (() -> Unit)? = null,
+        isOverlayPresentation: Boolean = false,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
         onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -685,18 +703,31 @@ fun SearchScreen(
                     shortcutDetected = state.detectedShortcutTarget != null
             )
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // Background
-        SearchScreenBackground(
-                showWallpaperBackground = state.showWallpaperBackground,
-                wallpaperBitmap = wallpaperBitmap,
-                wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = state.wallpaperBlurRadius
-        )
+    val screenModifier =
+        if (isOverlayPresentation) {
+            modifier.fillMaxWidth()
+        } else {
+            modifier.fillMaxSize()
+        }
+
+    Box(modifier = screenModifier) {
+        if (!isOverlayPresentation) {
+            SearchScreenBackground(
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    wallpaperBitmap = wallpaperBitmap,
+                    wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = state.wallpaperBlurRadius
+            )
+        }
 
         // Main content
         SearchScreenContent(
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    if (isOverlayPresentation) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.fillMaxSize()
+                    },
                 state = state,
                 renderingState = renderingState,
                 contactsParams = sectionParams.contactsParams,
@@ -735,7 +766,8 @@ fun SearchScreen(
                 expandedSection = expandedSection,
                 manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
                 scrollState = scrollState,
-                onClearDetectedShortcut = onClearDetectedShortcut
+                onClearDetectedShortcut = onClearDetectedShortcut,
+                isOverlayPresentation = isOverlayPresentation
         )
 
         // Search engine onboarding overlay

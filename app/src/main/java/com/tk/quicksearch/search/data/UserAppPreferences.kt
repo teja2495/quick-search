@@ -63,6 +63,7 @@ class UserAppPreferences(private val context: Context) {
                 val showHiddenFiles: Boolean,
                 val excludedFileExtensions: Set<String>,
                 val oneHandedMode: Boolean,
+                val overlayModeEnabled: Boolean,
                 val directDialEnabled: Boolean,
                 val hasSeenDirectDialChoice: Boolean,
                 val hasSeenSearchEngineOnboarding: Boolean,
@@ -154,6 +155,12 @@ class UserAppPreferences(private val context: Context) {
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .KEY_ONE_HANDED_MODE] as?
+                                        Boolean
+                                        ?: false,
+                        overlayModeEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_OVERLAY_MODE_ENABLED] as?
                                         Boolean
                                         ?: false,
                         directDialEnabled =
@@ -304,6 +311,13 @@ class UserAppPreferences(private val context: Context) {
                                                 Set<String>
                                                 ?: emptySet(),
                                 oneHandedMode = oneHandedMode,
+                                overlayModeEnabled =
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences
+                                                        .UiPreferences
+                                                        .KEY_OVERLAY_MODE_ENABLED] as?
+                                                Boolean
+                                                ?: false,
                                 directDialEnabled =
                                         allPrefs[
                                                 com.tk.quicksearch.search.data.preferences
@@ -715,6 +729,11 @@ class UserAppPreferences(private val context: Context) {
 
         fun setOneHandedMode(enabled: Boolean) =
                 uiPreferences.setOneHandedMode(enabled)
+
+        fun isOverlayModeEnabled(): Boolean = uiPreferences.isOverlayModeEnabled()
+
+        fun setOverlayModeEnabled(enabled: Boolean) =
+                uiPreferences.setOverlayModeEnabled(enabled)
 
         fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 

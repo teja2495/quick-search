@@ -37,6 +37,11 @@ enum class RootDestination {
     Settings
 }
 
+data class NavigationRequest(
+    val destination: RootDestination,
+    val settingsDetailType: SettingsDetailType? = null
+)
+
 enum class AppScreen {
     Permissions,
     SearchEngineSetup,
@@ -50,7 +55,9 @@ fun MainContent(
     userPreferences: UserAppPreferences,
     searchViewModel: SearchViewModel,
     onFirstLaunchCompleted: () -> Unit = {},
-    onSearchBackPressed: () -> Unit = {}
+    onSearchBackPressed: () -> Unit = {},
+    navigationRequest: NavigationRequest? = null,
+    onNavigationRequestHandled: () -> Unit = {}
 ) {
     val isFirstLaunch = userPreferences.isFirstLaunch()
     var currentScreen by remember {
@@ -64,6 +71,14 @@ fun MainContent(
     var destination by rememberSaveable { mutableStateOf(RootDestination.Search) }
     var settingsDetailType by rememberSaveable { mutableStateOf<SettingsDetailType?>(null) }
     var shouldShowFinalSetup by remember { mutableStateOf(false) }
+
+    LaunchedEffect(navigationRequest) {
+        navigationRequest?.let { request ->
+            destination = request.destination
+            settingsDetailType = request.settingsDetailType
+            onNavigationRequestHandled()
+        }
+    }
 
     // Permission request handlers for settings detail screens
     val usagePermissionLauncher = rememberLauncherForActivityResult(

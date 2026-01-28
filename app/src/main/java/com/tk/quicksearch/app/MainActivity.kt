@@ -18,8 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.tk.quicksearch.navigation.MainContent
+import com.tk.quicksearch.navigation.NavigationRequest
+import com.tk.quicksearch.navigation.RootDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.overlay.OverlayModeController
+import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.WallpaperUtils
@@ -38,6 +42,7 @@ class MainActivity : ComponentActivity() {
             }
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
+    private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -54,6 +59,23 @@ class MainActivity : ComponentActivity() {
         overridePendingTransition(0, 0)
 
         initializePreferences()
+
+        val forceNormalLaunch =
+                intent?.getBooleanExtra(
+                        OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH,
+                        false
+                )
+                        ?: false
+        if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
+            if (PermissionUtils.hasOverlayPermission(this)) {
+                OverlayModeController.startOverlay(this)
+                finish()
+                return
+            } else {
+                userPreferences.setOverlayModeEnabled(false)
+            }
+        }
+
         initializeVoiceSearchHandler()
         // Initialize ViewModel early to start loading cached data immediately
         // This ensures cached apps are ready when UI renders
@@ -125,7 +147,9 @@ class MainActivity : ComponentActivity() {
                             context = this@MainActivity,
                             userPreferences = userPreferences,
                             searchViewModel = searchViewModel,
-                            onSearchBackPressed = { moveTaskToBack(true) }
+                            onSearchBackPressed = { moveTaskToBack(true) },
+                            navigationRequest = navigationRequest.value,
+                            onNavigationRequestHandled = { navigationRequest.value = null }
                     )
                     if (showReviewPromptDialog.value) {
                         EnjoyingAppDialog(
@@ -166,6 +190,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
+        }
+
         // Handle voice search from widget
         val shouldStartVoiceSearch =
                 intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false

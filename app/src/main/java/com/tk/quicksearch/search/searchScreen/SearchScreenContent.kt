@@ -56,7 +56,8 @@ internal fun SearchScreenContent(
         manuallySwitchedToNumberKeyboard: Boolean,
         scrollState: androidx.compose.foundation.ScrollState,
         onClearDetectedShortcut: () -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        isOverlayPresentation: Boolean = false
 ) {
     // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
@@ -110,15 +111,26 @@ internal fun SearchScreenContent(
     // Check for math expressions to determine pill visibility
     val hasMathExpression = CalculatorUtils.isMathExpression(state.query)
 
+    val contentModifier =
+            if (isOverlayPresentation) {
+                modifier.fillMaxWidth()
+                        .padding(
+                                start = DesignTokens.SpacingXLarge,
+                                top = DesignTokens.SpacingLarge,
+                                end = DesignTokens.SpacingXLarge
+                        )
+            } else {
+                modifier.fillMaxSize()
+                        .safeDrawingPadding()
+                        .padding(
+                                start = DesignTokens.SpacingXLarge,
+                                top = DesignTokens.SpacingLarge,
+                                end = DesignTokens.SpacingXLarge
+                        )
+            }
+
     Column(
-            modifier =
-                    modifier.fillMaxSize()
-                            .safeDrawingPadding()
-                            .padding(
-                                    start = DesignTokens.SpacingXLarge,
-                                    top = DesignTokens.SpacingLarge,
-                                    end = DesignTokens.SpacingXLarge
-                            ),
+            modifier = contentModifier,
             verticalArrangement = Arrangement.Top
     ) {
         // Fixed search bar at the top
@@ -174,7 +186,12 @@ internal fun SearchScreenContent(
 
         // Scrollable content between search bar and search engines
         SearchContentArea(
-                modifier = Modifier.weight(1f),
+                modifier =
+                        if (isOverlayPresentation) {
+                            Modifier.fillMaxWidth().weight(1f, fill = false)
+                        } else {
+                            Modifier.weight(1f)
+                        },
                 state = state,
                 renderingState = renderingState,
                 contactsParams = contactsParams,
@@ -194,7 +211,8 @@ internal fun SearchScreenContent(
                 onDeleteRecentItem = onDeleteRecentItem,
                 showCalculator = state.calculatorState.result != null,
                 showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-                directSearchState = state.DirectSearchState
+                directSearchState = state.DirectSearchState,
+                isOverlayPresentation = isOverlayPresentation
         )
 
         // Keyboard switch pill - appears above search engines

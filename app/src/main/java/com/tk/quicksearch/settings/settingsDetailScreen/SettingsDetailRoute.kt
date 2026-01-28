@@ -2,6 +2,8 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,6 +67,7 @@ fun SettingsDetailRoute(
                     showHiddenFiles = uiState.showHiddenFiles,
                     excludedFileExtensions = uiState.excludedFileExtensions,
                     oneHandedMode = uiState.oneHandedMode,
+                    overlayModeEnabled = uiState.overlayModeEnabled,
                     shortcutCodes = uiState.shortcutCodes,
                     shortcutEnabled = uiState.shortcutEnabled,
                     messagingApp = uiState.messagingApp,
@@ -116,6 +119,34 @@ fun SettingsDetailRoute(
         wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
     }
 
+    var pendingOverlayEnable by remember { mutableStateOf(false) }
+    val overlayPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) {
+            if (pendingOverlayEnable) {
+                pendingOverlayEnable = false
+                if (PermissionUtils.hasOverlayPermission(context)) {
+                    viewModel.setOverlayModeEnabled(true)
+                } else {
+                    viewModel.setOverlayModeEnabled(false)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.settings_overlay_permission_denied),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+    // Overlay permission must be granted in system settings.
+    val requestOverlayPermission = {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+            data = Uri.parse("package:${context.packageName}")
+        }
+        overlayPermissionLauncher.launch(intent)
+    }
+
     val attemptEnableWallpaperBackground: (Boolean) -> Unit = { showDialogOnPermissionRequired ->
         scope.launch {
             when (WallpaperUtils.getWallpaperBitmapResult(context)) {
@@ -144,6 +175,18 @@ fun SettingsDetailRoute(
             viewModel.openFilesPermissionSettings()
         } else {
             attemptEnableWallpaperBackground(false)
+        }
+    }
+
+    val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
+        if (!enabled) {
+            pendingOverlayEnable = false
+            viewModel.setOverlayModeEnabled(false)
+        } else if (PermissionUtils.hasOverlayPermission(context)) {
+            viewModel.setOverlayModeEnabled(true)
+        } else {
+            pendingOverlayEnable = true
+            requestOverlayPermission()
         }
     }
 
@@ -239,6 +282,7 @@ fun SettingsDetailRoute(
                     onToggleHiddenFiles = viewModel::setShowHiddenFiles,
                     onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
                     onToggleOneHandedMode = viewModel::setOneHandedMode,
+                    onToggleOverlayMode = onToggleOverlayMode,
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,
