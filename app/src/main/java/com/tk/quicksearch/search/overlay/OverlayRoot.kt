@@ -44,6 +44,8 @@ import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
+import com.tk.quicksearch.widget.customButtons.QuickSearchWidgetActionActivity
 import kotlinx.coroutines.delay
 
 @Composable
@@ -166,6 +168,7 @@ fun OverlayRoot(
                                         SearchRoute(
                                                 viewModel = viewModel,
                                                 isOverlayPresentation = true,
+                                                onOverlayDismissRequest = { handleClose() },
                                                 onSettingsClick = {
                                                         OverlayModeController.openMainActivity(
                                                                 context,
@@ -184,6 +187,36 @@ fun OverlayRoot(
                                                         OverlayModeController.openMainActivity(
                                                                 context,
                                                                 openSettings = true
+                                                        )
+                                                        handleClose()
+                                                },
+                                                onOverlayShowContactMethods = { contact ->
+                                                        val action =
+                                                                CustomWidgetButtonAction.Contact(
+                                                                        contactId = contact.contactId,
+                                                                        lookupKey = contact.lookupKey,
+                                                                        displayName = contact.displayName,
+                                                                        photoUri = contact.photoUri
+                                                                )
+                                                        val intent =
+                                                                QuickSearchWidgetActionActivity
+                                                                        .createIntent(
+                                                                                context,
+                                                                                action
+                                                                        )
+                                                        context.startActivity(intent)
+                                                        handleClose()
+                                                },
+                                                onOverlayContactActionLongPress = { contact, isPrimary, serializedAction ->
+                                                        val request =
+                                                                OverlayModeController.ContactActionRequest(
+                                                                        contactId = contact.contactId,
+                                                                        isPrimary = isPrimary,
+                                                                        serializedAction = serializedAction
+                                                                )
+                                                        OverlayModeController.openMainActivity(
+                                                                context,
+                                                                contactActionRequest = request
                                                         )
                                                         handleClose()
                                                 }

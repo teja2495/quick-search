@@ -203,6 +203,42 @@ class MainActivity : ComponentActivity() {
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
             navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
         }
+        val contactActionIntent = intent
+        if (contactActionIntent?.getBooleanExtra(
+                        OverlayModeController.EXTRA_CONTACT_ACTION_PICKER,
+                        false
+                ) == true
+        ) {
+            val contactId =
+                    contactActionIntent.getLongExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID,
+                            -1L
+                    )
+            val isPrimary =
+                    contactActionIntent.getBooleanExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
+                            true
+                    )
+            val serializedAction =
+                    contactActionIntent.getStringExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
+                    )
+            if (contactId != -1L) {
+                searchViewModel.requestContactActionPicker(
+                        contactId = contactId,
+                        isPrimary = isPrimary,
+                        serializedAction = serializedAction
+                )
+            }
+            contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER)
+            contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID)
+            contactActionIntent.removeExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY
+            )
+            contactActionIntent.removeExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
+            )
+        }
 
         // Handle voice search from widget
         val shouldStartVoiceSearch =

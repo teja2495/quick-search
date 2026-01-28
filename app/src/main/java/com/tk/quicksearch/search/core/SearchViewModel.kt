@@ -889,6 +889,60 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(contactActionsVersion = it.contactActionsVersion + 1) }
     }
 
+    fun requestContactActionPicker(
+            contactId: Long,
+            isPrimary: Boolean,
+            serializedAction: String?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val contact = contactRepository.getContactsByIds(setOf(contactId)).firstOrNull() ?: return@launch
+            val requestedAction =
+                    serializedAction?.let {
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction
+                                .fromSerializedString(it)
+                    }
+            val resolvedAction =
+                    requestedAction
+                            ?: if (isPrimary)
+                                getPrimaryContactCardAction(contactId)
+                            else getSecondaryContactCardAction(contactId)
+                            ?: getDefaultContactCardAction(contact, isPrimary)
+            _uiState.update {
+                it.copy(
+                        contactActionPickerRequest =
+                                ContactActionPickerRequest(contact, isPrimary, resolvedAction)
+                )
+            }
+        }
+    }
+
+    fun clearContactActionPickerRequest() {
+        _uiState.update { it.copy(contactActionPickerRequest = null) }
+    }
+
+    private fun getDefaultContactCardAction(
+            contact: ContactInfo,
+            isPrimary: Boolean
+    ): com.tk.quicksearch.search.contacts.models.ContactCardAction? {
+        val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
+        return if (isPrimary) {
+            com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(phoneNumber)
+        } else {
+            when (_uiState.value.messagingApp) {
+                MessagingApp.MESSAGES ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
+                MessagingApp.WHATSAPP ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(
+                                phoneNumber
+                        )
+                MessagingApp.TELEGRAM ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(
+                                phoneNumber
+                        )
+            }
+        }
+    }
+
     fun onCustomAction(
             contactInfo: ContactInfo,
             action: com.tk.quicksearch.search.contacts.models.ContactCardAction

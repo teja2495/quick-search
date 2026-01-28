@@ -8,6 +8,17 @@ object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"
     const val EXTRA_OPEN_SETTINGS = "overlay_open_settings"
     const val EXTRA_FROM_OVERLAY = "extra_from_overlay"
+    const val EXTRA_CONTACT_ACTION_PICKER = "overlay_contact_action_picker"
+    const val EXTRA_CONTACT_ACTION_PICKER_ID = "overlay_contact_action_picker_id"
+    const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
+    const val EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION =
+            "overlay_contact_action_picker_serialized_action"
+
+    data class ContactActionRequest(
+            val contactId: Long,
+            val isPrimary: Boolean,
+            val serializedAction: String?
+    )
 
     fun startOverlay(context: Context) {
         val intent = Intent(context, OverlayService::class.java)
@@ -19,13 +30,29 @@ object OverlayModeController {
         context.stopService(intent)
     }
 
-    fun openMainActivity(context: Context, openSettings: Boolean = false) {
+    fun openMainActivity(
+            context: Context,
+            openSettings: Boolean = false,
+            contactActionRequest: ContactActionRequest? = null
+    ) {
         val intent =
                 Intent(context, MainActivity::class.java).apply {
                     putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                     putExtra(EXTRA_OPEN_SETTINGS, openSettings)
                     putExtra(EXTRA_FROM_OVERLAY, true)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    if (contactActionRequest != null) {
+                        putExtra(EXTRA_CONTACT_ACTION_PICKER, true)
+                        putExtra(EXTRA_CONTACT_ACTION_PICKER_ID, contactActionRequest.contactId)
+                        putExtra(
+                                EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
+                                contactActionRequest.isPrimary
+                        )
+                        putExtra(
+                                EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION,
+                                contactActionRequest.serializedAction
+                        )
+                    }
                 }
         context.startActivity(intent)
     }

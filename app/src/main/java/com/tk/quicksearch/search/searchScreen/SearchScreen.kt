@@ -85,6 +85,10 @@ fun SearchRoute(
         onSettingsClick: () -> Unit = {},
         onSearchEngineLongPress: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
+        onOverlayShowContactMethods: ((ContactInfo) -> Unit)? = null,
+        onOverlayContactActionLongPress:
+                ((ContactInfo, Boolean, String?) -> Unit)? = null,
+        onOverlayDismissRequest: (() -> Unit)? = null,
         onShowToast: (Int) -> Unit = {},
         viewModel: SearchViewModel = viewModel(),
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
@@ -216,7 +220,18 @@ fun SearchRoute(
 
     val showContactMethodsBottomSheet: (ContactInfo) -> Unit = { contact ->
         viewModel.trackRecentContactTap(contact)
-        viewModel.showContactMethodsBottomSheet(contact)
+        if (isOverlayPresentation && onOverlayShowContactMethods != null) {
+            onOverlayShowContactMethods(contact)
+        } else {
+            viewModel.showContactMethodsBottomSheet(contact)
+        }
+    }
+
+    fun performOverlayNavigation(action: () -> Unit) {
+        action()
+        if (isOverlayPresentation) {
+            onOverlayDismissRequest?.invoke()
+        }
     }
 
     val dismissContactMethodsBottomSheet: () -> Unit = {
@@ -273,11 +288,11 @@ fun SearchRoute(
                 state = uiState,
                 onQueryChanged = viewModel::onQueryChange,
                 onClearQuery = viewModel::clearQuery,
-                onRequestUsagePermission = viewModel::openUsageAccessSettings,
+                onRequestUsagePermission = { performOverlayNavigation { viewModel.openUsageAccessSettings() } },
                 onSettingsClick = onSettingsClick,
-                onAppClick = viewModel::launchApp,
-                onAppInfoClick = viewModel::openAppInfo,
-                onUninstallClick = viewModel::requestUninstall,
+                onAppClick = { app -> performOverlayNavigation { viewModel.launchApp(app) } },
+                onAppInfoClick = { app -> performOverlayNavigation { viewModel.openAppInfo(app) } },
+                onUninstallClick = { app -> performOverlayNavigation { viewModel.requestUninstall(app) } },
                 onHideApp = onHideAppWithUndo,
                 onPinApp = viewModel::pinApp,
                 onUnpinApp = viewModel::unpinApp,
@@ -287,7 +302,7 @@ fun SearchRoute(
                 onCallContact = callContactWithPermission,
                 onSmsContact = viewModel::smsContact,
                 onContactMethodClick = viewModel::handleContactMethod,
-                onFileClick = viewModel::openFile,
+                onFileClick = { file -> performOverlayNavigation { viewModel.openFile(file) } },
                 onPinContact = viewModel::pinContact,
                 onUnpinContact = viewModel::unpinContact,
                 onExcludeContact = onExcludeContactWithUndo,
@@ -295,11 +310,11 @@ fun SearchRoute(
                 onUnpinFile = viewModel::unpinFile,
                 onExcludeFile = onExcludeFileWithUndo,
                 onExcludeFileExtension = onExcludeFileExtensionWithUndo,
-                onSettingClick = viewModel::openSetting,
+                onSettingClick = { setting -> performOverlayNavigation { viewModel.openSetting(setting) } },
                 onPinSetting = viewModel::pinSetting,
                 onUnpinSetting = viewModel::unpinSetting,
                 onExcludeSetting = onExcludeSettingWithUndo,
-                onAppShortcutClick = viewModel::launchAppShortcut,
+                onAppShortcutClick = { shortcut -> performOverlayNavigation { viewModel.launchAppShortcut(shortcut) } },
                 onPinAppShortcut = viewModel::pinAppShortcut,
                 onUnpinAppShortcut = viewModel::unpinAppShortcut,
                 onExcludeAppShortcut = onExcludeAppShortcutWithUndo,
@@ -307,12 +322,12 @@ fun SearchRoute(
                 onAppShortcutAppInfoClick = { shortcut -> viewModel.openAppInfo(shortcut.packageName) },
                 onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
                 onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
-                onSearchTargetClick = { query, target -> viewModel.openSearchTarget(query, target) },
+                onSearchTargetClick = { query, target -> performOverlayNavigation { viewModel.openSearchTarget(query, target) } },
                 onSearchEngineLongPress = onSearchEngineLongPress,
-                onDirectSearchEmailClick = viewModel::openEmail,
+                onDirectSearchEmailClick = { email -> performOverlayNavigation { viewModel.openEmail(email) } },
                 onSetPersonalContext = viewModel::setPersonalContext,
-                onOpenAppSettings = viewModel::openAppSettings,
-                onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
+                onOpenAppSettings = { performOverlayNavigation { viewModel.openAppSettings() } },
+                onOpenStorageAccessSettings = { performOverlayNavigation { viewModel.openAllFilesAccessSettings() } },
                 onAppNicknameClick = { app ->
                     // This will be handled by the dialog state in SearchScreen
                 },
@@ -340,6 +355,9 @@ fun SearchRoute(
                 onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
                 onWebSuggestionClick = { suggestion: String ->
                     viewModel.onWebSuggestionTap(suggestion)
+                    if (uiState.detectedShortcutTarget != null) {
+                        onOverlayDismissRequest?.invoke()
+                    }
                 },
                 onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
                 onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
@@ -353,7 +371,8 @@ fun SearchRoute(
                 onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
                 onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
                 onWallpaperLoaded = onWallpaperLoaded,
-                isOverlayPresentation = isOverlayPresentation
+                isOverlayPresentation = isOverlayPresentation,
+                onOverlayContactActionLongPress = onOverlayContactActionLongPress
         )
 
         SnackbarHost(
@@ -454,6 +473,8 @@ fun SearchScreen(
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onWallpaperLoaded: (() -> Unit)? = null,
         isOverlayPresentation: Boolean = false,
+        onOverlayContactActionLongPress:
+                ((ContactInfo, Boolean, String?) -> Unit)? = null,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
         onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -482,6 +503,7 @@ fun SearchScreen(
         onPersonalContextHintDismissed: () -> Unit = {},
         onClearDetectedShortcut: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
+        onConsumeContactActionRequest: () -> Unit = {},
         onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
         getPrimaryContactCardAction: (Long) -> ContactCardAction?,
@@ -511,6 +533,24 @@ fun SearchScreen(
 
     val derivedState = rememberDerivedState(state)
 
+    fun getDefaultContactAction(contact: ContactInfo, isPrimary: Boolean): ContactCardAction? {
+        val currentAction =
+                if (isPrimary) getPrimaryContactCardAction(contact.contactId)
+                else getSecondaryContactCardAction(contact.contactId)
+        if (currentAction != null) return currentAction
+
+        val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
+        return if (isPrimary) {
+            ContactCardAction.Phone(phoneNumber)
+        } else {
+            when (state.messagingApp) {
+                MessagingApp.MESSAGES -> ContactCardAction.Sms(phoneNumber)
+                MessagingApp.WHATSAPP -> ContactCardAction.WhatsAppMessage(phoneNumber)
+                MessagingApp.TELEGRAM -> ContactCardAction.TelegramMessage(phoneNumber)
+            }
+        }
+    }
+
     // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
@@ -524,6 +564,18 @@ fun SearchScreen(
     // Contact Action Picker state
     var contactActionPickerDialogState by remember {
         mutableStateOf<ContactActionPickerDialogState?>(null)
+    }
+    val contactActionRequest = state.contactActionPickerRequest
+    LaunchedEffect(contactActionRequest) {
+        contactActionRequest?.let { request ->
+            contactActionPickerDialogState =
+                    ContactActionPickerDialogState(
+                            contact = request.contactInfo,
+                            isPrimary = request.isPrimary,
+                            currentAction = request.currentAction
+                    )
+            onConsumeContactActionRequest()
+        }
     }
 
     // Keyboard switching state
@@ -630,30 +682,38 @@ fun SearchScreen(
                     getAppNickname = getAppNickname,
                     getAppShortcutNickname = getAppShortcutNickname,
                     onPrimaryActionLongPress = { contact ->
-                        val currentAction = getPrimaryContactCardAction(contact.contactId)
-                        val defaultAction = if (currentAction == null) {
-                            // Default primary action is phone call
-                            contact.phoneNumbers.firstOrNull()?.let {
-                                com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(it)
-                            }
-                        } else currentAction
-                        contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, true, defaultAction)
+                        val pickerState =
+                                ContactActionPickerDialogState(
+                                        contact,
+                                        true,
+                                        getDefaultContactAction(contact, true)
+                                )
+                        if (isOverlayPresentation && onOverlayContactActionLongPress != null) {
+                            onOverlayContactActionLongPress(
+                                    contact,
+                                    true,
+                                    pickerState.currentAction?.toSerializedString()
+                            )
+                        } else {
+                            contactActionPickerDialogState = pickerState
+                        }
                     },
                     onSecondaryActionLongPress = { contact ->
-                        val currentAction = getSecondaryContactCardAction(contact.contactId)
-                        val defaultAction = if (currentAction == null) {
-                            // Default secondary action depends on messaging app
-                            contact.phoneNumbers.firstOrNull()?.let { phoneNumber ->
-                                when (state.messagingApp) {
-                                    MessagingApp.MESSAGES -> com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
-                                    MessagingApp.WHATSAPP -> com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(phoneNumber)
-                                    MessagingApp.TELEGRAM -> com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(phoneNumber)
-                                }
-                            }
-                        } else currentAction
-                        contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, false, defaultAction as com.tk.quicksearch.search.contacts.models.ContactCardAction?)
+                        val pickerState =
+                                ContactActionPickerDialogState(
+                                        contact,
+                                        false,
+                                        getDefaultContactAction(contact, false)
+                                )
+                        if (isOverlayPresentation && onOverlayContactActionLongPress != null) {
+                            onOverlayContactActionLongPress(
+                                    contact,
+                                    false,
+                                    pickerState.currentAction?.toSerializedString()
+                            )
+                        } else {
+                            contactActionPickerDialogState = pickerState
+                        }
                     },
                     onCustomAction = onCustomAction,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,

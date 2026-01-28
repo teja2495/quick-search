@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.recentSearches.RecentSearchItem
 
@@ -85,6 +86,12 @@ enum class DirectDialOption {
     DIRECT_CALL,
     DIALER
 }
+
+data class ContactActionPickerRequest(
+        val contactInfo: com.tk.quicksearch.search.models.ContactInfo,
+        val isPrimary: Boolean,
+        val currentAction: ContactCardAction?
+)
 
 // Sealed classes for visibility states
 sealed class ScreenVisibilityState {
@@ -193,6 +200,7 @@ data class SearchUiState(
         val phoneNumberSelection: PhoneNumberSelection? = null,
         val directDialChoice: DirectDialChoice? = null,
         val contactMethodsBottomSheet: com.tk.quicksearch.search.models.ContactInfo? = null,
+        val contactActionPickerRequest: ContactActionPickerRequest? = null,
         val pendingDirectCallNumber: String? = null,
         val pendingWhatsAppCallDataId: String? = null,
         val directDialEnabled: Boolean = false,
