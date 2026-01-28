@@ -133,6 +133,26 @@ fun SettingsScreen(
                                 .padding(horizontal = DesignTokens.ContentHorizontalPadding)
         ) {
 
+            // Overlay Mode Card (top)
+            ElevatedCard(
+                    modifier =
+                            Modifier.fillMaxWidth()
+                                    .padding(bottom = DesignTokens.SectionTopPadding),
+                    shape = MaterialTheme.shapes.extraLarge
+            ) {
+                Column {
+                    SettingsToggleRow(
+                            title = stringResource(R.string.settings_overlay_mode_title),
+                            subtitle = stringResource(R.string.settings_overlay_mode_desc),
+                            checked = state.overlayModeEnabled,
+                            onCheckedChange = callbacks.onToggleOverlayMode,
+                            isFirstItem = true,
+                            isLastItem = true,
+                            showDivider = false
+                    )
+                }
+            }
+
             // Search Results and Search Engines Card
             val navigationItems = listOf(
                     SettingsCardItem(

@@ -52,8 +52,6 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun CombinedLayoutIconCard(
-    overlayModeEnabled: Boolean,
-    onToggleOverlayMode: (Boolean) -> Unit,
     oneHandedMode: Boolean,
     onToggleOneHandedMode: (Boolean) -> Unit,
     iconPackTitle: String,
@@ -62,27 +60,18 @@ fun CombinedLayoutIconCard(
     onRefreshIconPacks: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val view = LocalView.current
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
-            SettingsToggleRow(
-                title = stringResource(R.string.settings_overlay_mode_title),
-                subtitle = stringResource(R.string.settings_overlay_mode_desc),
-                checked = overlayModeEnabled,
-                onCheckedChange = onToggleOverlayMode,
-                isFirstItem = true,
-                extraVerticalPadding = 8.dp
-            )
-
             // Results alignment toggle
             SettingsToggleRow(
                 title = stringResource(R.string.settings_layout_option_bottom_title),
                 subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
                 checked = oneHandedMode,
                 onCheckedChange = onToggleOneHandedMode,
+                isFirstItem = true,
                 extraVerticalPadding = 8.dp,
             )
 
@@ -253,8 +242,6 @@ fun CombinedAppearanceCard(
  */
 @Composable
 fun AppearanceSettingsSection(
-    overlayModeEnabled: Boolean,
-    onToggleOverlayMode: (Boolean) -> Unit,
     oneHandedMode: Boolean,
     onToggleOneHandedMode: (Boolean) -> Unit,
     showWallpaperBackground: Boolean,
@@ -313,8 +300,6 @@ fun AppearanceSettingsSection(
 
         // One-Handed Mode and Icon Pack Card
         CombinedLayoutIconCard(
-            overlayModeEnabled = overlayModeEnabled,
-            onToggleOverlayMode = onToggleOverlayMode,
             oneHandedMode = oneHandedMode,
             onToggleOneHandedMode = onToggleOneHandedMode,
             iconPackTitle = androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),

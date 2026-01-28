@@ -119,34 +119,6 @@ fun SettingsDetailRoute(
         wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
     }
 
-    var pendingOverlayEnable by remember { mutableStateOf(false) }
-    val overlayPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult()
-        ) {
-            if (pendingOverlayEnable) {
-                pendingOverlayEnable = false
-                if (PermissionUtils.hasOverlayPermission(context)) {
-                    viewModel.setOverlayModeEnabled(true)
-                } else {
-                    viewModel.setOverlayModeEnabled(false)
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.settings_overlay_permission_denied),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-
-    // Overlay permission must be granted in system settings.
-    val requestOverlayPermission = {
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-            data = Uri.parse("package:${context.packageName}")
-        }
-        overlayPermissionLauncher.launch(intent)
-    }
-
     val attemptEnableWallpaperBackground: (Boolean) -> Unit = { showDialogOnPermissionRequired ->
         scope.launch {
             when (WallpaperUtils.getWallpaperBitmapResult(context)) {
@@ -175,18 +147,6 @@ fun SettingsDetailRoute(
             viewModel.openFilesPermissionSettings()
         } else {
             attemptEnableWallpaperBackground(false)
-        }
-    }
-
-    val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
-        if (!enabled) {
-            pendingOverlayEnable = false
-            viewModel.setOverlayModeEnabled(false)
-        } else if (PermissionUtils.hasOverlayPermission(context)) {
-            viewModel.setOverlayModeEnabled(true)
-        } else {
-            pendingOverlayEnable = true
-            requestOverlayPermission()
         }
     }
 
@@ -282,7 +242,7 @@ fun SettingsDetailRoute(
                     onToggleHiddenFiles = viewModel::setShowHiddenFiles,
                     onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
                     onToggleOneHandedMode = viewModel::setOneHandedMode,
-                    onToggleOverlayMode = onToggleOverlayMode,
+                    onToggleOverlayMode = viewModel::setOverlayModeEnabled,
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,
