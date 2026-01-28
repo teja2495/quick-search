@@ -50,10 +50,10 @@ import com.tk.quicksearch.search.directSearch.DirectSearchResult
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.searchEngines.*
-import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import com.tk.quicksearch.search.recentSearches.RecentSearchesSection
+import com.tk.quicksearch.search.searchEngines.*
+import com.tk.quicksearch.search.searchEngines.compact.NoResultsSearchEngineCards
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
 import kotlin.math.min
@@ -201,69 +201,154 @@ fun SearchContentArea(
                                                         }
                                                                 .drawWithContent {
                                                                         drawContent()
-val fadePx = min(edgeFadeHeight.toPx(), size.height / 2f)
+                                                                        val fadePx =
+                                                                                min(
+                                                                                        edgeFadeHeight
+                                                                                                .toPx(),
+                                                                                        size.height /
+                                                                                                2f
+                                                                                )
 
-// Calculate scroll progress for fade (0f = at edge, 1f = fully scrolled away)
-val scrollValue = scrollState.value.toFloat()
-val maxScroll = scrollState.maxValue.toFloat()
+                                                                        // Calculate scroll progress
+                                                                        // for fade (0f = at edge,
+                                                                        // 1f = fully scrolled away)
+                                                                        val scrollValue =
+                                                                                scrollState.value
+                                                                                        .toFloat()
+                                                                        val maxScroll =
+                                                                                scrollState.maxValue
+                                                                                        .toFloat()
 
-fun getFadeProgress(value: Float): Float {
-    val progress = (value / fadePx).coerceIn(0f, 1f)
-    // Cubic easing for smoother transition
-    return progress * progress * (3 - 2 * progress)
-}
+                                                                        fun getFadeProgress(
+                                                                                value: Float
+                                                                        ): Float {
+                                                                                val progress =
+                                                                                        (value /
+                                                                                                        fadePx)
+                                                                                                .coerceIn(
+                                                                                                        0f,
+                                                                                                        1f
+                                                                                                )
+                                                                                // Cubic easing for
+                                                                                // smoother
+                                                                                // transition
+                                                                                return progress *
+                                                                                        progress *
+                                                                                        (3 -
+                                                                                                2 *
+                                                                                                        progress)
+                                                                        }
 
-val topFadeProgress =
-        if (maxScroll > 0) {
-            if (alignResultsToBottom) getFadeProgress(maxScroll - scrollValue)
-            else getFadeProgress(scrollValue)
-        } else 0f
+                                                                        val topFadeProgress =
+                                                                                if (maxScroll > 0) {
+                                                                                        if (alignResultsToBottom
+                                                                                        )
+                                                                                                getFadeProgress(
+                                                                                                        maxScroll -
+                                                                                                                scrollValue
+                                                                                                )
+                                                                                        else
+                                                                                                getFadeProgress(
+                                                                                                        scrollValue
+                                                                                                )
+                                                                                } else 0f
 
-val bottomFadeProgress =
-        if (maxScroll > 0) {
-            if (alignResultsToBottom) getFadeProgress(scrollValue)
-            else getFadeProgress(maxScroll - scrollValue)
-        } else 0f
+                                                                        val bottomFadeProgress =
+                                                                                if (maxScroll > 0) {
+                                                                                        if (alignResultsToBottom
+                                                                                        )
+                                                                                                getFadeProgress(
+                                                                                                        scrollValue
+                                                                                                )
+                                                                                        else
+                                                                                                getFadeProgress(
+                                                                                                        maxScroll -
+                                                                                                                scrollValue
+                                                                                                )
+                                                                                } else 0f
 
-// Edge alpha: 1.0f = No Fade (fully visible), 0.0f = Full Fade (transparent)
-val topEdgeAlpha = 1f - topFadeProgress
-val bottomEdgeAlpha = 1f - bottomFadeProgress
+                                                                        // Edge alpha: 1.0f = No
+                                                                        // Fade (fully visible),
+                                                                        // 0.0f = Full Fade
+                                                                        // (transparent)
+                                                                        val topEdgeAlpha =
+                                                                                1f - topFadeProgress
+                                                                        val bottomEdgeAlpha =
+                                                                                1f -
+                                                                                        bottomFadeProgress
 
-if (fadePx > 0f) {
-    // Top Fade
-    if (topEdgeAlpha < 1f) {
-        drawRect(
-                brush =
-                        Brush.verticalGradient(
-                                colors =
-                                        listOf(Color.Black.copy(alpha = topEdgeAlpha), Color.Black),
-                                startY = 0f,
-                                endY = fadePx
-                        ),
-                size = Size(size.width, fadePx),
-                blendMode = BlendMode.DstIn
-        )
-    }
+                                                                        if (fadePx > 0f) {
+                                                                                // Top Fade
+                                                                                if (topEdgeAlpha <
+                                                                                                1f
+                                                                                ) {
+                                                                                        drawRect(
+                                                                                                brush =
+                                                                                                        Brush.verticalGradient(
+                                                                                                                colors =
+                                                                                                                        listOf(
+                                                                                                                                Color.Black
+                                                                                                                                        .copy(
+                                                                                                                                                alpha =
+                                                                                                                                                        topEdgeAlpha
+                                                                                                                                        ),
+                                                                                                                                Color.Black
+                                                                                                                        ),
+                                                                                                                startY =
+                                                                                                                        0f,
+                                                                                                                endY =
+                                                                                                                        fadePx
+                                                                                                        ),
+                                                                                                size =
+                                                                                                        Size(
+                                                                                                                size.width,
+                                                                                                                fadePx
+                                                                                                        ),
+                                                                                                blendMode =
+                                                                                                        BlendMode
+                                                                                                                .DstIn
+                                                                                        )
+                                                                                }
 
-    // Bottom Fade
-    if (bottomEdgeAlpha < 1f) {
-        drawRect(
-                brush =
-                        Brush.verticalGradient(
-                                colors =
-                                        listOf(
-                                                Color.Black,
-                                                Color.Black.copy(alpha = bottomEdgeAlpha)
-                                        ),
-                                startY = size.height - fadePx,
-                                endY = size.height
-                        ),
-                topLeft = Offset(0f, size.height - fadePx),
-                size = Size(size.width, fadePx),
-                blendMode = BlendMode.DstIn
-        )
-    }
-}
+                                                                                // Bottom Fade
+                                                                                if (bottomEdgeAlpha <
+                                                                                                1f
+                                                                                ) {
+                                                                                        drawRect(
+                                                                                                brush =
+                                                                                                        Brush.verticalGradient(
+                                                                                                                colors =
+                                                                                                                        listOf(
+                                                                                                                                Color.Black,
+                                                                                                                                Color.Black
+                                                                                                                                        .copy(
+                                                                                                                                                alpha =
+                                                                                                                                                        bottomEdgeAlpha
+                                                                                                                                        )
+                                                                                                                        ),
+                                                                                                                startY =
+                                                                                                                        size.height -
+                                                                                                                                fadePx,
+                                                                                                                endY =
+                                                                                                                        size.height
+                                                                                                        ),
+                                                                                                topLeft =
+                                                                                                        Offset(
+                                                                                                                0f,
+                                                                                                                size.height -
+                                                                                                                        fadePx
+                                                                                                        ),
+                                                                                                size =
+                                                                                                        Size(
+                                                                                                                size.width,
+                                                                                                                fadePx
+                                                                                                        ),
+                                                                                                blendMode =
+                                                                                                        BlendMode
+                                                                                                                .DstIn
+                                                                                        )
+                                                                                }
+                                                                        }
                                                                 }
                                                 }
                                         )
@@ -280,8 +365,15 @@ if (fadePx > 0f) {
                                                                 )
                                                                 .padding(
                                                                         bottom =
-                                                                                DesignTokens
-                                                                                        .SpacingMedium
+                                                                                if (renderingState
+                                                                                                .expandedSection !=
+                                                                                                ExpandedSection
+                                                                                                        .NONE
+                                                                                )
+                                                                                        80.dp
+                                                                                else
+                                                                                        DesignTokens
+                                                                                                .SpacingMedium
                                                                 )
                                                 }
                                         ),
@@ -707,34 +799,47 @@ fun ContentLayout(
                                                                 items = orderedRecentItems,
                                                                 messagingApp =
                                                                         contactsParams.messagingApp
-                                                                                ?: MessagingApp.MESSAGES,
+                                                                                ?: MessagingApp
+                                                                                        .MESSAGES,
                                                                 onRecentQueryClick =
                                                                         onWebSuggestionClick,
                                                                 onContactClick =
-                                                                        contactsParams.onContactClick,
+                                                                        contactsParams
+                                                                                .onContactClick,
                                                                 onShowContactMethods =
-                                                                        contactsParams.onShowContactMethods,
+                                                                        contactsParams
+                                                                                .onShowContactMethods,
                                                                 onCallContact =
-                                                                        contactsParams.onCallContact,
+                                                                        contactsParams
+                                                                                .onCallContact,
                                                                 onSmsContact =
                                                                         contactsParams.onSmsContact,
                                                                 onContactMethodClick =
-                                                                        contactsParams.onContactMethodClick,
+                                                                        contactsParams
+                                                                                .onContactMethodClick,
                                                                 getPrimaryContactCardAction =
-                                                                        contactsParams.getPrimaryContactCardAction,
+                                                                        contactsParams
+                                                                                .getPrimaryContactCardAction,
                                                                 getSecondaryContactCardAction =
-                                                                        contactsParams.getSecondaryContactCardAction,
+                                                                        contactsParams
+                                                                                .getSecondaryContactCardAction,
                                                                 onPrimaryActionLongPress =
-                                                                        contactsParams.onPrimaryActionLongPress,
+                                                                        contactsParams
+                                                                                .onPrimaryActionLongPress,
                                                                 onSecondaryActionLongPress =
-                                                                        contactsParams.onSecondaryActionLongPress,
+                                                                        contactsParams
+                                                                                .onSecondaryActionLongPress,
                                                                 onCustomAction =
-                                                                        contactsParams.onCustomAction,
-                                                                onFileClick = filesParams.onFileClick,
+                                                                        contactsParams
+                                                                                .onCustomAction,
+                                                                onFileClick =
+                                                                        filesParams.onFileClick,
                                                                 onSettingClick =
-                                                                        settingsParams.onSettingClick,
+                                                                        settingsParams
+                                                                                .onSettingClick,
                                                                 onAppShortcutClick =
-                                                                        appShortcutsParams.onShortcutClick,
+                                                                        appShortcutsParams
+                                                                                .onShortcutClick,
                                                                 onDeleteRecentItem =
                                                                         onDeleteRecentItem,
                                                                 showWallpaperBackground =

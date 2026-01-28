@@ -118,7 +118,11 @@ class UserAppPreferences(private val context: Context) {
                         if (enabledFileTypesNames == null) {
                                 // Default: all file types enabled except OTHER
                                 com.tk.quicksearch.search.models.FileType.values()
-                                        .filter { it != com.tk.quicksearch.search.models.FileType.OTHER }
+                                        .filter {
+                                                it !=
+                                                        com.tk.quicksearch.search.models.FileType
+                                                                .OTHER
+                                        }
                                         .toSet()
                         } else {
                                 com.tk.quicksearch.search.data.preferences.PreferenceUtils
@@ -274,7 +278,11 @@ class UserAppPreferences(private val context: Context) {
                         if (enabledFileTypesNames == null) {
                                 // Default: all file types enabled except OTHER
                                 com.tk.quicksearch.search.models.FileType.values()
-                                        .filter { it != com.tk.quicksearch.search.models.FileType.OTHER }
+                                        .filter {
+                                                it !=
+                                                        com.tk.quicksearch.search.models.FileType
+                                                                .OTHER
+                                        }
                                         .toSet()
                         } else {
                                 com.tk.quicksearch.search.data.preferences.PreferenceUtils
@@ -314,8 +322,7 @@ class UserAppPreferences(private val context: Context) {
                                 overlayModeEnabled =
                                         allPrefs[
                                                 com.tk.quicksearch.search.data.preferences
-                                                        .UiPreferences
-                                                        .KEY_OVERLAY_MODE_ENABLED] as?
+                                                        .UiPreferences.KEY_OVERLAY_MODE_ENABLED] as?
                                                 Boolean
                                                 ?: false,
                                 directDialEnabled =
@@ -727,13 +734,11 @@ class UserAppPreferences(private val context: Context) {
 
         fun isOneHandedMode(): Boolean = uiPreferences.isOneHandedMode()
 
-        fun setOneHandedMode(enabled: Boolean) =
-                uiPreferences.setOneHandedMode(enabled)
+        fun setOneHandedMode(enabled: Boolean) = uiPreferences.setOneHandedMode(enabled)
 
         fun isOverlayModeEnabled(): Boolean = uiPreferences.isOverlayModeEnabled()
 
-        fun setOverlayModeEnabled(enabled: Boolean) =
-                uiPreferences.setOverlayModeEnabled(enabled)
+        fun setOverlayModeEnabled(enabled: Boolean) = uiPreferences.setOverlayModeEnabled(enabled)
 
         fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 
@@ -781,6 +786,10 @@ class UserAppPreferences(private val context: Context) {
 
         fun setHasSeenPersonalContextHint(seen: Boolean) =
                 uiPreferences.setHasSeenPersonalContextHint(seen)
+
+        fun hasSeenOverlayCloseTip(): Boolean = uiPreferences.hasSeenOverlayCloseTip()
+
+        fun setHasSeenOverlayCloseTip(seen: Boolean) = uiPreferences.setHasSeenOverlayCloseTip(seen)
 
         fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
@@ -832,19 +841,16 @@ class UserAppPreferences(private val context: Context) {
         // Recent Queries Preferences
         // ============================================================================
 
-        fun getRecentItems():
-                List<com.tk.quicksearch.search.recentSearches.RecentSearchEntry> =
+        fun getRecentItems(): List<com.tk.quicksearch.search.recentSearches.RecentSearchEntry> =
                 recentSearchesPreferences.getRecentItems()
 
-        fun addRecentItem(
-                entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry
-        ) = recentSearchesPreferences.addRecentItem(entry)
+        fun addRecentItem(entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry) =
+                recentSearchesPreferences.addRecentItem(entry)
 
         fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
 
-        fun deleteRecentItem(
-                entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry
-        ) = recentSearchesPreferences.deleteRecentItem(entry)
+        fun deleteRecentItem(entry: com.tk.quicksearch.search.recentSearches.RecentSearchEntry) =
+                recentSearchesPreferences.deleteRecentItem(entry)
 
         fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
 

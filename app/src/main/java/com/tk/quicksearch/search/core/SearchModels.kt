@@ -242,5 +242,6 @@ data class SearchUiState(
         val recentQueriesCount: Int = 3,
         val shouldShowUsagePermissionBanner: Boolean = false,
         val contactActionsVersion: Int = 0,
-        val nicknameUpdateVersion: Int = 0
+        val nicknameUpdateVersion: Int = 0,
+        val showOverlayCloseTip: Boolean = false
 )

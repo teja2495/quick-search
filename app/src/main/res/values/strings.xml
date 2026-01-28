@@ -17,6 +17,7 @@
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
     <string name="desc_close">Close</string>
+    <string name="overlay_close_tip">Tip: Tap anywhere outside of the overlay or use back gesture to close it.</string>
 
     <!-- ============================================================================
          Search Screen

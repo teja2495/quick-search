@@ -15,8 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import com.tk.quicksearch.navigation.MainContent
 import com.tk.quicksearch.navigation.NavigationRequest
 import com.tk.quicksearch.navigation.RootDestination
@@ -30,6 +28,8 @@ import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
+    private val isFromOverlay = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -61,10 +62,7 @@ class MainActivity : ComponentActivity() {
         initializePreferences()
 
         val forceNormalLaunch =
-                intent?.getBooleanExtra(
-                        OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH,
-                        false
-                )
+                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
                         ?: false
         if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
             if (PermissionUtils.hasOverlayPermission(this)) {
@@ -84,9 +82,7 @@ class MainActivity : ComponentActivity() {
         // PRIORITY: Preload wallpaper immediately for seamless visual foundation
         // This ensures wallpaper is available when SearchScreen renders, providing
         // instant visual feedback alongside search bar and app list
-        lifecycleScope.launch(Dispatchers.IO) {
-            WallpaperUtils.preloadWallpaper(this@MainActivity)
-        }
+        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@MainActivity) }
 
         setupContent()
         refreshPermissionStateIfNeeded()
@@ -141,7 +137,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSearchTheme {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                        modifier =
+                                Modifier.fillMaxSize()
+                                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     MainContent(
                             context = this@MainActivity,
@@ -149,7 +147,14 @@ class MainActivity : ComponentActivity() {
                             searchViewModel = searchViewModel,
                             onSearchBackPressed = { moveTaskToBack(true) },
                             navigationRequest = navigationRequest.value,
-                            onNavigationRequestHandled = { navigationRequest.value = null }
+                            onNavigationRequestHandled = { navigationRequest.value = null },
+                            isFromOverlay = isFromOverlay.value,
+                            onFinishActivity = {
+                                if (userPreferences.isOverlayModeEnabled()) {
+                                    OverlayModeController.startOverlay(this@MainActivity)
+                                }
+                                finish()
+                            }
                     )
                     if (showReviewPromptDialog.value) {
                         EnjoyingAppDialog(
@@ -173,7 +178,10 @@ class MainActivity : ComponentActivity() {
                     if (showFeedbackDialog.value) {
                         SendFeedbackDialog(
                                 onSend = { feedbackText ->
-                                    FeedbackUtils.launchFeedbackEmail(this@MainActivity, feedbackText)
+                                    FeedbackUtils.launchFeedbackEmail(
+                                            this@MainActivity,
+                                            feedbackText
+                                    )
                                 },
                                 onDismiss = { showFeedbackDialog.value = false }
                         )
@@ -190,6 +198,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        isFromOverlay.value =
+                intent?.getBooleanExtra(OverlayModeController.EXTRA_FROM_OVERLAY, false) ?: false
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
             navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
         }

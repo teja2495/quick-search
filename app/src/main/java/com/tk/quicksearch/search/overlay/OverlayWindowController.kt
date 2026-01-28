@@ -4,16 +4,24 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.os.Build
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.tk.quicksearch.search.core.SearchViewModel
 
 class OverlayWindowController(
@@ -27,23 +35,28 @@ class OverlayWindowController(
 ) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private var overlayView: ComposeView? = null
+    private var onBackInvokedCallback: OnBackInvokedCallback? = null
 
     fun show() {
         if (overlayView != null) return
         val composeView =
                 ComposeView(context).apply {
-                    // Set ViewTree owners using resource IDs directly
-                    // These IDs are defined by AndroidX libraries and merged into the app
-                    setTag(0x7f09024e, lifecycleOwner) // view_tree_lifecycle_owner
-                    setTag(0x7f090252, viewModelStoreOwner) // view_tree_view_model_store_owner
-                    setTag(
-                            0x7f090251,
-                            savedStateRegistryOwner
-                    ) // view_tree_saved_state_registry_owner
-                    setTag(
-                            0x7f090250,
-                            onBackPressedDispatcherOwner
-                    ) // view_tree_on_back_pressed_dispatcher_owner
+                    setViewTreeLifecycleOwner(lifecycleOwner)
+                    setViewTreeViewModelStoreOwner(viewModelStoreOwner)
+                    setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
+                    setViewTreeOnBackPressedDispatcherOwner(onBackPressedDispatcherOwner)
+                    
+                    isFocusable = true
+                    isFocusableInTouchMode = true
+                    
+                    setOnKeyListener { _, keyCode, event ->
+                        if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                            onBackPressedDispatcherOwner.onBackPressedDispatcher.onBackPressed()
+                            true
+                        } else {
+                            false
+                        }
+                    }
 
                     setContent {
                         CompositionLocalProvider(
@@ -57,6 +70,8 @@ class OverlayWindowController(
                             )
                         }
                     }
+                    
+                    requestFocus()
                 }
 
         val params =
@@ -78,13 +93,58 @@ class OverlayWindowController(
 
         windowManager.addView(composeView, params)
         overlayView = composeView
+        
+        // Register OnBackInvokedCallback for gesture navigation (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerBackCallback(composeView)
+        }
+    }
+    
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun registerBackCallback(view: ComposeView) {
+        view.post {
+            try {
+                val dispatcher = view.findOnBackInvokedDispatcher()
+                if (dispatcher != null) {
+                    val callback = OnBackInvokedCallback {
+                        onCloseRequested()
+                    }
+                    dispatcher.registerOnBackInvokedCallback(
+                        OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                        callback
+                    )
+                    onBackInvokedCallback = callback
+                }
+            } catch (e: Exception) {
+                // Fallback to existing behavior
+            }
+        }
     }
 
     fun dismiss() {
         overlayView?.let { view ->
+            // Unregister back callback (Android 13+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                unregisterBackCallback(view)
+            }
+            
             // Always remove the overlay view to prevent window leaks.
             windowManager.removeView(view)
             overlayView = null
+        }
+    }
+    
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun unregisterBackCallback(view: ComposeView) {
+        try {
+            val dispatcher = view.findOnBackInvokedDispatcher()
+            val callback = onBackInvokedCallback
+            if (dispatcher != null && callback != null) {
+                dispatcher.unregisterOnBackInvokedCallback(callback)
+                onBackInvokedCallback = null
+            }
+        } catch (e: Exception) {
+            // Ignore errors during cleanup
         }
     }
 }

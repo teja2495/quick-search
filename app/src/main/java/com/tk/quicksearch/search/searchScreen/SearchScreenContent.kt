@@ -129,10 +129,14 @@ internal fun SearchScreenContent(
                         )
             }
 
-    Column(
-            modifier = contentModifier,
-            verticalArrangement = Arrangement.Top
-    ) {
+    val searchEnginesModifier =
+            if (isOverlayPresentation) {
+                Modifier
+            } else {
+                Modifier.imePadding()
+            }
+
+    Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
         // Fixed search bar at the top
         PersistentSearchField(
                 query = state.query,
@@ -188,7 +192,8 @@ internal fun SearchScreenContent(
         SearchContentArea(
                 modifier =
                         if (isOverlayPresentation) {
-                            Modifier.fillMaxWidth().weight(1f, fill = false)
+                            Modifier.fillMaxWidth()
+                                    .weight(1f, fill = expandedSection != ExpandedSection.NONE)
                         } else {
                             Modifier.weight(1f)
                         },
@@ -252,7 +257,7 @@ internal fun SearchScreenContent(
         if (expandedSection == ExpandedSection.NONE) {
             SearchEnginesVisibility(
                     enginesState = state.searchEnginesState,
-                    modifier = Modifier.imePadding(),
+                    modifier = searchEnginesModifier,
                     compactContent = {
                         SearchEngineIconsSection(
                                 query = state.query,
@@ -263,7 +268,8 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = state.detectedShortcutTarget,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     fullContent = {
@@ -276,7 +282,8 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = state.detectedShortcutTarget,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     shortcutContent = { target ->
@@ -289,13 +296,14 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = target,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     hiddenContent = {
                         // Add padding when search engines are hidden to prevent keyboard from
                         // covering content
-                        Spacer(modifier = Modifier.imePadding())
+                        Spacer(modifier = searchEnginesModifier)
                     }
             )
         }
