@@ -1,32 +1,32 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-
 import com.tk.quicksearch.search.searchEngines.isValidAmazonDomain
 
 /**
  * Preferences for Amazon domain-related settings.
  */
-class AmazonPreferences(context: Context) : BasePreferences(context) {
-
+class AmazonPreferences(
+    context: Context,
+) : BasePreferences(context) {
     // ============================================================================
     // Amazon Domain Preferences
     // ============================================================================
 
-    fun getAmazonDomain(): String? {
-        return prefs.getString(BasePreferences.KEY_AMAZON_DOMAIN, null)
-    }
+    fun getAmazonDomain(): String? = prefs.getString(BasePreferences.KEY_AMAZON_DOMAIN, null)
 
     fun setAmazonDomain(domain: String?) {
         if (domain.isNullOrBlank()) {
             prefs.edit().remove(BasePreferences.KEY_AMAZON_DOMAIN).apply()
         } else {
             // Normalize domain (remove protocol, www, trailing slashes)
-            val normalizedDomain = domain.trim()
-                .removePrefix("https://")
-                .removePrefix("http://")
-                .removePrefix("www.")
-                .removeSuffix("/")
+            val normalizedDomain =
+                domain
+                    .trim()
+                    .removePrefix("https://")
+                    .removePrefix("http://")
+                    .removePrefix("www.")
+                    .removeSuffix("/")
 
             // Validate domain before saving
             if (isValidAmazonDomain(normalizedDomain)) {
@@ -37,5 +37,4 @@ class AmazonPreferences(context: Context) : BasePreferences(context) {
             }
         }
     }
-
 }

@@ -31,14 +31,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
     private lateinit var voiceSearchHandler: VoiceSearchHandler
     private val voiceInputLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
-            }
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
+        }
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
@@ -126,8 +125,8 @@ class MainActivity : ComponentActivity() {
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
         val forceNormalLaunch =
-                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
-                        ?: false
+            intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
+                ?: false
         if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
             OverlayModeController.startOverlay(this)
             finish()
@@ -144,52 +143,53 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSearchTheme {
                 Box(
-                        modifier =
-                                Modifier.fillMaxSize()
-                                        .background(MaterialTheme.colorScheme.background)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
                 ) {
                     MainContent(
-                            context = this@MainActivity,
-                            userPreferences = userPreferences,
-                            searchViewModel = searchViewModel,
-                            onSearchBackPressed = { moveTaskToBack(true) },
-                            navigationRequest = navigationRequest.value,
-                            onNavigationRequestHandled = { navigationRequest.value = null },
-                            onFinishActivity = {
-                                if (userPreferences.isOverlayModeEnabled()) {
-                                    OverlayModeController.startOverlay(this@MainActivity)
-                                }
-                                finish()
+                        context = this@MainActivity,
+                        userPreferences = userPreferences,
+                        searchViewModel = searchViewModel,
+                        onSearchBackPressed = { moveTaskToBack(true) },
+                        navigationRequest = navigationRequest.value,
+                        onNavigationRequestHandled = { navigationRequest.value = null },
+                        onFinishActivity = {
+                            if (userPreferences.isOverlayModeEnabled()) {
+                                OverlayModeController.startOverlay(this@MainActivity)
                             }
+                            finish()
+                        },
                     )
                     if (showReviewPromptDialog.value) {
                         EnjoyingAppDialog(
-                                onYes = {
-                                    showReviewPromptDialog.value = false
-                                    ReviewHelper.requestReviewIfEligible(
-                                            this@MainActivity,
-                                            userPreferences
-                                    )
-                                },
-                                onNo = {
-                                    showReviewPromptDialog.value = false
-                                    showFeedbackDialog.value = true
-                                    userPreferences.recordReviewPromptTime()
-                                    userPreferences.recordAppOpenCountAtPrompt()
-                                    userPreferences.incrementReviewPromptedCount()
-                                },
-                                onDismiss = { showReviewPromptDialog.value = false }
+                            onYes = {
+                                showReviewPromptDialog.value = false
+                                ReviewHelper.requestReviewIfEligible(
+                                    this@MainActivity,
+                                    userPreferences,
+                                )
+                            },
+                            onNo = {
+                                showReviewPromptDialog.value = false
+                                showFeedbackDialog.value = true
+                                userPreferences.recordReviewPromptTime()
+                                userPreferences.recordAppOpenCountAtPrompt()
+                                userPreferences.incrementReviewPromptedCount()
+                            },
+                            onDismiss = { showReviewPromptDialog.value = false },
                         )
                     }
                     if (showFeedbackDialog.value) {
                         SendFeedbackDialog(
-                                onSend = { feedbackText ->
-                                    FeedbackUtils.launchFeedbackEmail(
-                                            this@MainActivity,
-                                            feedbackText
-                                    )
-                                },
-                                onDismiss = { showFeedbackDialog.value = false }
+                            onSend = { feedbackText ->
+                                FeedbackUtils.launchFeedbackEmail(
+                                    this@MainActivity,
+                                    feedbackText,
+                                )
+                            },
+                            onDismiss = { showFeedbackDialog.value = false },
                         )
                     }
                 }
@@ -209,52 +209,52 @@ class MainActivity : ComponentActivity() {
         }
         val contactActionIntent = intent
         if (contactActionIntent?.getBooleanExtra(
-                        OverlayModeController.EXTRA_CONTACT_ACTION_PICKER,
-                        false
-                ) == true
+                OverlayModeController.EXTRA_CONTACT_ACTION_PICKER,
+                false,
+            ) == true
         ) {
             val contactId =
-                    contactActionIntent.getLongExtra(
-                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID,
-                            -1L
-                    )
+                contactActionIntent.getLongExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID,
+                    -1L,
+                )
             val isPrimary =
-                    contactActionIntent.getBooleanExtra(
-                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
-                            true
-                    )
+                contactActionIntent.getBooleanExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
+                    true,
+                )
             val serializedAction =
-                    contactActionIntent.getStringExtra(
-                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
-                    )
+                contactActionIntent.getStringExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION,
+                )
             if (contactId != -1L) {
                 searchViewModel.requestContactActionPicker(
-                        contactId = contactId,
-                        isPrimary = isPrimary,
-                        serializedAction = serializedAction
+                    contactId = contactId,
+                    isPrimary = isPrimary,
+                    serializedAction = serializedAction,
                 )
             }
             contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER)
             contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID)
             contactActionIntent.removeExtra(
-                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY
+                OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
             )
             contactActionIntent.removeExtra(
-                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
+                OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION,
             )
         }
 
         // Handle voice search from widget
         val shouldStartVoiceSearch =
-                intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
+            intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (shouldStartVoiceSearch) {
             intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
             val micActionString = intent?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
             val micAction =
-                    micActionString?.let { actionString ->
-                        MicAction.entries.find { it.value == actionString }
-                    }
-                            ?: MicAction.DEFAULT_VOICE_SEARCH
+                micActionString?.let { actionString ->
+                    MicAction.entries.find { it.value == actionString }
+                }
+                    ?: MicAction.DEFAULT_VOICE_SEARCH
             voiceSearchHandler.handleMicAction(micAction)
         }
         // ACTION_ASSIST is handled implicitly - search interface is always ready

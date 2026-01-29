@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.R
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
@@ -40,7 +40,6 @@ private const val SUGGESTION_ARROW_ICON_SIZE = 32
 private const val SUGGESTION_ICON_START_PADDING = 16
 private const val SUGGESTION_TEXT_START_PADDING = 12
 private const val SUGGESTION_TEXT_END_PADDING = 16
-
 
 // ============================================================================
 // Public API
@@ -57,7 +56,7 @@ fun WebSuggestionsSection(
     isRecentQuery: Boolean = false,
     onDeleteRecentQuery: ((String) -> Unit)? = null,
     paddingTop: androidx.compose.ui.unit.Dp = 0.dp,
-    paddingBottom: androidx.compose.ui.unit.Dp = 0.dp
+    paddingBottom: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     if (suggestions.isEmpty()) return
 
@@ -65,10 +64,11 @@ fun WebSuggestionsSection(
     val orderedSuggestions = if (reverseOrder) suggestions.reversed() else suggestions
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = paddingTop, bottom = paddingBottom),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(top = paddingTop, bottom = paddingBottom),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         WebSuggestionsCard(
             suggestions = orderedSuggestions,
@@ -76,7 +76,7 @@ fun WebSuggestionsSection(
             showWallpaperBackground = showWallpaperBackground,
             isShortcutDetected = isShortcutDetected,
             isRecentQuery = isRecentQuery,
-            onDeleteRecentQuery = onDeleteRecentQuery
+            onDeleteRecentQuery = onDeleteRecentQuery,
         )
     }
 }
@@ -92,25 +92,27 @@ private fun WebSuggestionsCard(
     showWallpaperBackground: Boolean = false,
     isShortcutDetected: Boolean = false,
     isRecentQuery: Boolean = false,
-    onDeleteRecentQuery: ((String) -> Unit)? = null
+    onDeleteRecentQuery: ((String) -> Unit)? = null,
 ) {
-    val textColor = if (showWallpaperBackground) {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-    
-    val iconColor = if (showWallpaperBackground) {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    val textColor =
+        if (showWallpaperBackground) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+
+    val iconColor =
+        if (showWallpaperBackground) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = AppColors.getCardColors(showWallpaperBackground),
-        elevation = AppColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Column {
             suggestions.forEachIndexed { index, suggestion ->
@@ -122,20 +124,24 @@ private fun WebSuggestionsCard(
                     modifier = Modifier.fillMaxWidth(),
                     isShortcutDetected = isShortcutDetected,
                     isRecentQuery = isRecentQuery,
-                    onDeleteClick = if (isRecentQuery && onDeleteRecentQuery != null) {
-                        { onDeleteRecentQuery(suggestion) }
-                    } else null
+                    onDeleteClick =
+                        if (isRecentQuery && onDeleteRecentQuery != null) {
+                            { onDeleteRecentQuery(suggestion) }
+                        } else {
+                            null
+                        },
                 )
-                
+
                 // Add divider between items, but not after the last one
                 if (index < suggestions.size - 1) {
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
-                        color = if (showWallpaperBackground) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
-                        }
+                        color =
+                            if (showWallpaperBackground) {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                            } else {
+                                MaterialTheme.colorScheme.outlineVariant
+                            },
                     )
                 }
             }
@@ -152,26 +158,28 @@ private fun WebSuggestionItem(
     modifier: Modifier = Modifier,
     isShortcutDetected: Boolean = false,
     isRecentQuery: Boolean = false,
-    onDeleteClick: (() -> Unit)? = null
+    onDeleteClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier
-            .clip(DesignTokens.CardShape)
-            .clickable(onClick = onClick)
-            .padding(
-                start = SUGGESTION_ICON_START_PADDING.dp,
-                end = SUGGESTION_TEXT_END_PADDING.dp,
-                top = DesignTokens.SpacingSmall,
-                bottom = DesignTokens.SpacingSmall
-            ),
+        modifier =
+            modifier
+                .clip(DesignTokens.CardShape)
+                .clickable(onClick = onClick)
+                .padding(
+                    start = SUGGESTION_ICON_START_PADDING.dp,
+                    end = SUGGESTION_TEXT_END_PADDING.dp,
+                    top = DesignTokens.SpacingSmall,
+                    bottom = DesignTokens.SpacingSmall,
+                ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
     ) {
-        val icon = when {
-            isRecentQuery -> Icons.Rounded.History
-            isShortcutDetected -> Icons.Rounded.Search
-            else -> Icons.Rounded.NorthWest
-        }
+        val icon =
+            when {
+                isRecentQuery -> Icons.Rounded.History
+                isShortcutDetected -> Icons.Rounded.Search
+                else -> Icons.Rounded.NorthWest
+            }
 
         val iconSize = if (icon == Icons.Rounded.NorthWest) SUGGESTION_ARROW_ICON_SIZE else SUGGESTION_ICON_SIZE
 
@@ -179,34 +187,34 @@ private fun WebSuggestionItem(
             imageVector = icon,
             contentDescription = stringResource(R.string.desc_search_icon),
             tint = iconColor,
-            modifier = Modifier
-                .size(iconSize.dp)
-                .padding(end = SUGGESTION_TEXT_START_PADDING.dp)
+            modifier =
+                Modifier
+                    .size(iconSize.dp)
+                    .padding(end = SUGGESTION_TEXT_START_PADDING.dp),
         )
-        
+
         Text(
             text = suggestion,
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
             maxLines = if (isRecentQuery) 1 else Int.MAX_VALUE,
             overflow = if (isRecentQuery) TextOverflow.Ellipsis else TextOverflow.Clip,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
-        
+
         // Show delete icon for recent queries
         if (onDeleteClick != null) {
             IconButton(
                 onClick = onDeleteClick,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(40.dp),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Close,
                     contentDescription = "Delete recent query",
                     tint = iconColor,
-                    modifier = Modifier.size(DesignTokens.IconSizeSmall)
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
                 )
             }
         }
     }
 }
-

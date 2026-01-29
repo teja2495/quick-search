@@ -22,4 +22,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Quick Search"
 include(":app")
- 

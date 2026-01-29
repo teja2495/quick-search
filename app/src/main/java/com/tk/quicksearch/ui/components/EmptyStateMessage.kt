@@ -23,27 +23,28 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 fun EmptyStateMessage(
     title: String,
     modifier: Modifier = Modifier,
-    subtitle: String? = null
+    subtitle: String? = null,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(DesignTokens.SpacingXLarge),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(DesignTokens.SpacingXLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         if (subtitle != null) {
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }

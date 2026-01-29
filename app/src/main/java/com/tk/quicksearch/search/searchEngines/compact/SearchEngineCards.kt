@@ -48,27 +48,28 @@ fun NoResultsSearchEngineCards(
     onCustomizeClick: () -> Unit,
     modifier: Modifier = Modifier,
     isReversed: Boolean = false,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
 ) {
     // Reverse the engine list when results are at the bottom
-    val orderedEngines = if (isReversed) {
-        enabledEngines.reversed()
-    } else {
-        enabledEngines
-    }
+    val orderedEngines =
+        if (isReversed) {
+            enabledEngines.reversed()
+        } else {
+            enabledEngines
+        }
 
     // Show customize card when there are any enabled engines
     val showCustomizeCard = enabledEngines.isNotEmpty()
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // When reversed (results at bottom), show customize card at the top
         if (isReversed && showCustomizeCard) {
             CustomizeSearchEnginesCard(
                 onClick = onCustomizeClick,
-                showWallpaperBackground = showWallpaperBackground
+                showWallpaperBackground = showWallpaperBackground,
             )
         }
 
@@ -76,7 +77,7 @@ fun NoResultsSearchEngineCards(
             SearchTargetCard(
                 target = engine,
                 onClick = { onSearchEngineClick(query, engine) },
-                showWallpaperBackground = showWallpaperBackground
+                showWallpaperBackground = showWallpaperBackground,
             )
         }
 
@@ -84,7 +85,7 @@ fun NoResultsSearchEngineCards(
         if (!isReversed && showCustomizeCard) {
             CustomizeSearchEnginesCard(
                 onClick = onCustomizeClick,
-                showWallpaperBackground = showWallpaperBackground
+                showWallpaperBackground = showWallpaperBackground,
             )
         }
     }
@@ -100,38 +101,44 @@ fun SearchEngineCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
-    onClear: (() -> Unit)? = null
+    onClear: (() -> Unit)? = null,
 ) {
     val view = LocalView.current
     val targetName = target.getDisplayName()
 
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .clickable {
-                hapticConfirm(view)()
-                onClick()
-            },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.extraLarge)
+                .clickable {
+                    hapticConfirm(view)()
+                    onClick()
+                },
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
-        elevation = AppColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING,
+                        vertical = SearchTargetConstants.CARD_VERTICAL_PADDING,
+                    ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             // Search target icon
             SearchTargetIcon(
                 target = target,
                 iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
-                style = IconRenderStyle.SIMPLE
+                style = IconRenderStyle.SIMPLE,
             )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
+            androidx.compose.foundation.layout
+                .Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             // Search engine name
             Text(
@@ -139,19 +146,19 @@ fun SearchEngineCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             if (onClear != null) {
                 IconButton(
                     onClick = onClear,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = stringResource(R.string.desc_clear_search),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(SearchTargetConstants.CLEAR_ICON_SIZE)
+                        modifier = Modifier.size(SearchTargetConstants.CLEAR_ICON_SIZE),
                     )
                 }
             }
@@ -164,46 +171,53 @@ private fun SearchTargetCard(
     target: SearchTarget,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
 ) {
     val view = LocalView.current
 
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .clickable {
-                hapticConfirm(view)()
-                onClick()
-            },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.extraLarge)
+                .clickable {
+                    hapticConfirm(view)()
+                    onClick()
+                },
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
-        elevation = AppColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING,
+                        vertical = SearchTargetConstants.CARD_VERTICAL_PADDING,
+                    ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             SearchTargetIcon(
                 target = target,
                 iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
-                style = IconRenderStyle.SIMPLE
+                style = IconRenderStyle.SIMPLE,
             )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
+            androidx.compose.foundation.layout
+                .Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             Text(
-                text = stringResource(
-                    R.string.search_on_engine,
-                    target.getDisplayName()
-                ),
+                text =
+                    stringResource(
+                        R.string.search_on_engine,
+                        target.getDisplayName(),
+                    ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -216,40 +230,46 @@ private fun SearchTargetCard(
 private fun CustomizeSearchEnginesCard(
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
-    showWallpaperBackground: Boolean = false
+    showWallpaperBackground: Boolean = false,
 ) {
     val view = LocalView.current
 
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .clickable {
-                hapticConfirm(view)()
-                onClick()
-                // Navigation is handled by the onClick callback which should navigate to search engine settings
-                // This is passed down from MainActivity -> SearchRoute -> SearchScreenContent -> SearchContentArea -> NoResultsSearchEngineCards -> CustomizeSearchEnginesCard
-            },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.extraLarge)
+                .clickable {
+                    hapticConfirm(view)()
+                    onClick()
+                    // Navigation is handled by the onClick callback which should navigate to search engine settings
+                    // This is passed down from MainActivity -> SearchRoute -> SearchScreenContent -> SearchContentArea -> NoResultsSearchEngineCards -> CustomizeSearchEnginesCard
+                },
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
-        elevation = AppColors.getCardElevation(showWallpaperBackground)
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING, vertical = SearchTargetConstants.CARD_VERTICAL_PADDING),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SearchTargetConstants.CARD_HORIZONTAL_PADDING,
+                        vertical = SearchTargetConstants.CARD_VERTICAL_PADDING,
+                    ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             // Settings icon
             Icon(
                 imageVector = Icons.Rounded.Settings,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
+            androidx.compose.foundation.layout
+                .Spacer(modifier = Modifier.size(SearchTargetConstants.ICON_TEXT_SPACING))
 
             // Customize text
             Text(
@@ -257,7 +277,7 @@ private fun CustomizeSearchEnginesCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
     }

@@ -57,379 +57,399 @@ private const val OVERRIDE_ICON_SIZE = 26
 
 @Composable
 fun AppShortcutResultsSection(
-        shortcuts: List<StaticShortcut>,
-        isExpanded: Boolean,
-        pinnedShortcutIds: Set<String>,
-        excludedShortcutIds: Set<String>,
-        onShortcutClick: (StaticShortcut) -> Unit,
-        onTogglePin: (StaticShortcut) -> Unit,
-        onExclude: (StaticShortcut) -> Unit,
-        onInclude: (StaticShortcut) -> Unit,
-        onAppInfoClick: (StaticShortcut) -> Unit,
-        onNicknameClick: (StaticShortcut) -> Unit,
-        getShortcutNickname: (String) -> String?,
-        showAllResults: Boolean,
-        showExpandControls: Boolean,
-        onExpandClick: () -> Unit,
-        iconPackPackage: String?,
-        showWallpaperBackground: Boolean
+    shortcuts: List<StaticShortcut>,
+    isExpanded: Boolean,
+    pinnedShortcutIds: Set<String>,
+    excludedShortcutIds: Set<String>,
+    onShortcutClick: (StaticShortcut) -> Unit,
+    onTogglePin: (StaticShortcut) -> Unit,
+    onExclude: (StaticShortcut) -> Unit,
+    onInclude: (StaticShortcut) -> Unit,
+    onAppInfoClick: (StaticShortcut) -> Unit,
+    onNicknameClick: (StaticShortcut) -> Unit,
+    getShortcutNickname: (String) -> String?,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
+    onExpandClick: () -> Unit,
+    iconPackPackage: String?,
+    showWallpaperBackground: Boolean,
 ) {
-        if (shortcuts.isEmpty()) return
+    if (shortcuts.isEmpty()) return
 
-        val displayShortcuts =
-                if (isExpanded || showAllResults) {
-                        shortcuts
-                } else {
-                        shortcuts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        val canShowExpandControls =
-                showExpandControls && shortcuts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
-        val shouldShowCollapseButton = isExpanded && showExpandControls
-
-        val scrollState = rememberScrollState()
-
-        Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-        ) {
-                val cardModifier = Modifier.fillMaxWidth()
-                val cardColors =
-                        AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
-                val cardElevation =
-                        AppColors.getCardElevation(
-                                showWallpaperBackground = showWallpaperBackground
-                        )
-
-                val cardContent =
-                        @Composable
-                        {
-                                Column(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .then(
-                                                                if (isExpanded)
-                                                                        Modifier.heightIn(
-                                                                                        max =
-                                                                                                SearchScreenConstants
-                                                                                                        .EXPANDED_CARD_MAX_HEIGHT
-                                                                                )
-                                                                                .verticalScroll(
-                                                                                        scrollState
-                                                                                )
-                                                                else Modifier
-                                                        )
-                                ) {
-                                        AppShortcutsCardContent(
-                                                displayShortcuts = displayShortcuts,
-                                                pinnedShortcutIds = pinnedShortcutIds,
-                                                excludedShortcutIds = excludedShortcutIds,
-                                                onShortcutClick = onShortcutClick,
-                                                onTogglePin = onTogglePin,
-                                                onExclude = onExclude,
-                                                onInclude = onInclude,
-                                                onAppInfoClick = onAppInfoClick,
-                                                onNicknameClick = onNicknameClick,
-                                                getShortcutNickname = getShortcutNickname,
-                                                iconPackPackage = iconPackPackage,
-                                                shouldShowExpandButton = shouldShowExpandButton,
-                                                onExpandClick = onExpandClick
-                                        )
-                                }
-                        }
-
-                if (showWallpaperBackground) {
-                        Card(
-                                modifier = cardModifier,
-                                colors = cardColors,
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = cardElevation
-                        ) { cardContent() }
-                } else {
-                        ElevatedCard(
-                                modifier = cardModifier,
-                                colors = cardColors,
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = cardElevation
-                        ) { cardContent() }
-                }
+    val displayShortcuts =
+        if (isExpanded || showAllResults) {
+            shortcuts
+        } else {
+            shortcuts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
         }
+
+    val canShowExpandControls =
+        showExpandControls && shortcuts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
+    val shouldShowCollapseButton = isExpanded && showExpandControls
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        val cardModifier = Modifier.fillMaxWidth()
+        val cardColors =
+            AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+        val cardElevation =
+            AppColors.getCardElevation(
+                showWallpaperBackground = showWallpaperBackground,
+            )
+
+        val cardContent =
+            @Composable
+            {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (isExpanded) {
+                                    Modifier
+                                        .heightIn(
+                                            max =
+                                                SearchScreenConstants
+                                                    .EXPANDED_CARD_MAX_HEIGHT,
+                                        ).verticalScroll(
+                                            scrollState,
+                                        )
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                ) {
+                    AppShortcutsCardContent(
+                        displayShortcuts = displayShortcuts,
+                        pinnedShortcutIds = pinnedShortcutIds,
+                        excludedShortcutIds = excludedShortcutIds,
+                        onShortcutClick = onShortcutClick,
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude,
+                        onInclude = onInclude,
+                        onAppInfoClick = onAppInfoClick,
+                        onNicknameClick = onNicknameClick,
+                        getShortcutNickname = getShortcutNickname,
+                        iconPackPackage = iconPackPackage,
+                        shouldShowExpandButton = shouldShowExpandButton,
+                        onExpandClick = onExpandClick,
+                    )
+                }
+            }
+
+        if (showWallpaperBackground) {
+            Card(
+                modifier = cardModifier,
+                colors = cardColors,
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = cardElevation,
+            ) { cardContent() }
+        } else {
+            ElevatedCard(
+                modifier = cardModifier,
+                colors = cardColors,
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation = cardElevation,
+            ) { cardContent() }
+        }
+    }
 }
 
 @Composable
 private fun AppShortcutsCardContent(
-        displayShortcuts: List<StaticShortcut>,
-        pinnedShortcutIds: Set<String>,
-        excludedShortcutIds: Set<String>,
-        onShortcutClick: (StaticShortcut) -> Unit,
-        onTogglePin: (StaticShortcut) -> Unit,
-        onExclude: (StaticShortcut) -> Unit,
-        onInclude: (StaticShortcut) -> Unit,
-        onAppInfoClick: (StaticShortcut) -> Unit,
-        onNicknameClick: (StaticShortcut) -> Unit,
-        getShortcutNickname: (String) -> String?,
-        iconPackPackage: String?,
-        shouldShowExpandButton: Boolean,
-        onExpandClick: () -> Unit
+    displayShortcuts: List<StaticShortcut>,
+    pinnedShortcutIds: Set<String>,
+    excludedShortcutIds: Set<String>,
+    onShortcutClick: (StaticShortcut) -> Unit,
+    onTogglePin: (StaticShortcut) -> Unit,
+    onExclude: (StaticShortcut) -> Unit,
+    onInclude: (StaticShortcut) -> Unit,
+    onAppInfoClick: (StaticShortcut) -> Unit,
+    onNicknameClick: (StaticShortcut) -> Unit,
+    getShortcutNickname: (String) -> String?,
+    iconPackPackage: String?,
+    shouldShowExpandButton: Boolean,
+    onExpandClick: () -> Unit,
 ) {
-        Column(
-                modifier =
-                        Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
-        ) {
-                displayShortcuts.forEachIndexed { index, shortcut ->
-                        val shortcutId = shortcutKey(shortcut)
-                        AppShortcutRow(
-                                shortcut = shortcut,
-                                isPinned = pinnedShortcutIds.contains(shortcutId),
-                                isExcluded = excludedShortcutIds.contains(shortcutId),
-                                hasNickname = !getShortcutNickname(shortcutId).isNullOrBlank(),
-                                onShortcutClick = onShortcutClick,
-                                onTogglePin = onTogglePin,
-                                onExclude = onExclude,
-                                onInclude = onInclude,
-                                onAppInfoClick = onAppInfoClick,
-                                onNicknameClick = onNicknameClick,
-                                iconPackPackage = iconPackPackage
-                        )
-                        if (index < displayShortcuts.lastIndex) {
-                                HorizontalDivider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.outlineVariant
-                                )
-                        }
-                }
-
-                if (shouldShowExpandButton) {
-                        ExpandButton(
-                                onClick = onExpandClick,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                }
+    Column(
+        modifier =
+            Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp),
+    ) {
+        displayShortcuts.forEachIndexed { index, shortcut ->
+            val shortcutId = shortcutKey(shortcut)
+            AppShortcutRow(
+                shortcut = shortcut,
+                isPinned = pinnedShortcutIds.contains(shortcutId),
+                isExcluded = excludedShortcutIds.contains(shortcutId),
+                hasNickname = !getShortcutNickname(shortcutId).isNullOrBlank(),
+                onShortcutClick = onShortcutClick,
+                onTogglePin = onTogglePin,
+                onExclude = onExclude,
+                onInclude = onInclude,
+                onAppInfoClick = onAppInfoClick,
+                onNicknameClick = onNicknameClick,
+                iconPackPackage = iconPackPackage,
+            )
+            if (index < displayShortcuts.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
+            }
         }
+
+        if (shouldShowExpandButton) {
+            ExpandButton(
+                onClick = onExpandClick,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun AppShortcutRow(
-        shortcut: StaticShortcut,
-        isPinned: Boolean,
-        isExcluded: Boolean,
-        hasNickname: Boolean,
-        onShortcutClick: (StaticShortcut) -> Unit,
-        onTogglePin: (StaticShortcut) -> Unit,
-        onExclude: (StaticShortcut) -> Unit,
-        onInclude: (StaticShortcut) -> Unit,
-        onAppInfoClick: (StaticShortcut) -> Unit,
-        onNicknameClick: (StaticShortcut) -> Unit,
-        iconPackPackage: String?,
-        showAppLabel: Boolean = true,
-        enableLongPress: Boolean = true,
-        onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-        iconTint: Color = MaterialTheme.colorScheme.secondary
+    shortcut: StaticShortcut,
+    isPinned: Boolean,
+    isExcluded: Boolean,
+    hasNickname: Boolean,
+    onShortcutClick: (StaticShortcut) -> Unit,
+    onTogglePin: (StaticShortcut) -> Unit,
+    onExclude: (StaticShortcut) -> Unit,
+    onInclude: (StaticShortcut) -> Unit,
+    onAppInfoClick: (StaticShortcut) -> Unit,
+    onNicknameClick: (StaticShortcut) -> Unit,
+    iconPackPackage: String?,
+    showAppLabel: Boolean = true,
+    enableLongPress: Boolean = true,
+    onLongPressOverride: (() -> Unit)? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
-        var showOptions by remember { mutableStateOf(false) }
-        val view = LocalView.current
-        val displayName = shortcutDisplayName(shortcut)
-        val iconSizePx = with(LocalDensity.current) { ICON_SIZE.dp.roundToPx() }
-        val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
+    var showOptions by remember { mutableStateOf(false) }
+    val view = LocalView.current
+    val displayName = shortcutDisplayName(shortcut)
+    val iconSizePx = with(LocalDensity.current) { ICON_SIZE.dp.roundToPx() }
+    val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
 
-        Row(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .heightIn(min = ROW_MIN_HEIGHT.dp)
-                                .clip(DesignTokens.CardShape)
-                                .combinedClickable(
-                                        onClick = {
-                                                hapticConfirm(view)()
-                                                onShortcutClick(shortcut)
-                                        },
-                                        onLongClick = onLongPressOverride
-                                                        ?: if (enableLongPress) {
-                                                                { showOptions = true }
-                                                        } else {
-                                                                null
-                                                        }
-                                )
-                                .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-        ) {
-                val leadingIconStartPadding =
-                        if (icon != null) DesignTokens.SpacingSmall else DesignTokens.SpacingXSmall
-                Box(modifier = Modifier.padding(start = leadingIconStartPadding)) {
-                        if (icon != null) {
-                                Icon(
-                                        imageVector = icon,
-                                        contentDescription = null,
-                                        tint = iconTint,
-                                        modifier = Modifier.size(OVERRIDE_ICON_SIZE.dp)
-                                )
-                        } else {
-                                ShortcutIcon(
-                                        icon = iconBitmap,
-                                        displayName = displayName,
-                                        size = ICON_SIZE.dp
-                                )
-                        }
-                }
-
-                Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                        Text(
-                                text = displayName,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                        )
-                        if (showAppLabel) {
-                                Text(
-                                        text = shortcut.appLabel,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                )
-                        }
-                }
-
-                if (enableLongPress && onLongPressOverride == null) {
-                        AppShortcutDropdownMenu(
-                                expanded = showOptions,
-                                onDismissRequest = { showOptions = false },
-                                isPinned = isPinned,
-                                isExcluded = isExcluded,
-                                hasNickname = hasNickname,
-                                onTogglePin = { onTogglePin(shortcut) },
-                                onExclude = { onExclude(shortcut) },
-                                onInclude = { onInclude(shortcut) },
-                                onAppInfoClick = { onAppInfoClick(shortcut) },
-                                onNicknameClick = { onNicknameClick(shortcut) }
-                        )
-                }
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = ROW_MIN_HEIGHT.dp)
+                .clip(DesignTokens.CardShape)
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onShortcutClick(shortcut)
+                    },
+                    onLongClick =
+                        onLongPressOverride
+                            ?: if (enableLongPress) {
+                                { showOptions = true }
+                            } else {
+                                null
+                            },
+                ).padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val leadingIconStartPadding =
+            if (icon != null) DesignTokens.SpacingSmall else DesignTokens.SpacingXSmall
+        Box(modifier = Modifier.padding(start = leadingIconStartPadding)) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(OVERRIDE_ICON_SIZE.dp),
+                )
+            } else {
+                ShortcutIcon(
+                    icon = iconBitmap,
+                    displayName = displayName,
+                    size = ICON_SIZE.dp,
+                )
+            }
         }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (showAppLabel) {
+                Text(
+                    text = shortcut.appLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        if (enableLongPress && onLongPressOverride == null) {
+            AppShortcutDropdownMenu(
+                expanded = showOptions,
+                onDismissRequest = { showOptions = false },
+                isPinned = isPinned,
+                isExcluded = isExcluded,
+                hasNickname = hasNickname,
+                onTogglePin = { onTogglePin(shortcut) },
+                onExclude = { onExclude(shortcut) },
+                onInclude = { onInclude(shortcut) },
+                onAppInfoClick = { onAppInfoClick(shortcut) },
+                onNicknameClick = { onNicknameClick(shortcut) },
+            )
+        }
+    }
 }
 
 private data class AppShortcutMenuItem(
-        val textResId: Int,
-        val icon: @Composable () -> Unit,
-        val onClick: () -> Unit
+    val textResId: Int,
+    val icon: @Composable () -> Unit,
+    val onClick: () -> Unit,
 )
 
 @Composable
 private fun AppShortcutDropdownMenu(
-        expanded: Boolean,
-        onDismissRequest: () -> Unit,
-        isPinned: Boolean,
-        isExcluded: Boolean,
-        hasNickname: Boolean,
-        onTogglePin: () -> Unit,
-        onExclude: () -> Unit,
-        onInclude: () -> Unit,
-        onAppInfoClick: () -> Unit,
-        onNicknameClick: () -> Unit
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    isPinned: Boolean,
+    isExcluded: Boolean,
+    hasNickname: Boolean,
+    onTogglePin: () -> Unit,
+    onExclude: () -> Unit,
+    onInclude: () -> Unit,
+    onAppInfoClick: () -> Unit,
+    onNicknameClick: () -> Unit,
 ) {
-        androidx.compose.material3.DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = onDismissRequest,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false),
-                containerColor = AppColors.DialogBackground
-        ) {
-                val menuItems = buildList {
-                        add(
-                                AppShortcutMenuItem(
-                                        textResId = R.string.action_app_info,
-                                        icon = {
-                                                Icon(
-                                                        imageVector = Icons.Rounded.Info,
-                                                        contentDescription = null
-                                                )
+    androidx.compose.material3.DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        shape =
+            androidx.compose.foundation.shape
+                .RoundedCornerShape(24.dp),
+        properties = PopupProperties(focusable = false),
+        containerColor = AppColors.DialogBackground,
+    ) {
+        val menuItems =
+            buildList {
+                add(
+                    AppShortcutMenuItem(
+                        textResId = R.string.action_app_info,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Info,
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            onAppInfoClick()
+                        },
+                    ),
+                )
+                add(
+                    AppShortcutMenuItem(
+                        textResId =
+                            if (isPinned) {
+                                R.string.action_unpin_generic
+                            } else {
+                                R.string.action_pin_generic
+                            },
+                        icon = {
+                            Icon(
+                                painter =
+                                    painterResource(
+                                        if (isPinned) {
+                                            R.drawable.ic_unpin
+                                        } else {
+                                            R.drawable.ic_pin
                                         },
-                                        onClick = {
-                                                onDismissRequest()
-                                                onAppInfoClick()
-                                        }
-                                )
-                        )
-                        add(
-                                AppShortcutMenuItem(
-                                        textResId =
-                                                if (isPinned) R.string.action_unpin_generic
-                                                else R.string.action_pin_generic,
-                                        icon = {
-                                                Icon(
-                                                        painter =
-                                                                painterResource(
-                                                                        if (isPinned)
-                                                                                R.drawable.ic_unpin
-                                                                        else R.drawable.ic_pin
-                                                                ),
-                                                        contentDescription = null
-                                                )
-                                        },
-                                        onClick = {
-                                                onDismissRequest()
-                                                onTogglePin()
-                                        }
-                                )
-                        )
-                        add(
-                                AppShortcutMenuItem(
-                                        textResId =
-                                                if (hasNickname) R.string.action_edit_nickname
-                                                else R.string.action_add_nickname,
-                                        icon = {
-                                                Icon(
-                                                        imageVector = Icons.Rounded.Edit,
-                                                        contentDescription = null
-                                                )
-                                        },
-                                        onClick = {
-                                                onDismissRequest()
-                                                onNicknameClick()
-                                        }
-                                )
-                        )
-                        add(
-                                AppShortcutMenuItem(
-                                        textResId =
-                                                if (isExcluded) R.string.action_include_generic
-                                                else R.string.action_exclude_generic,
-                                        icon = {
-                                                Icon(
-                                                        imageVector =
-                                                                if (isExcluded)
-                                                                        Icons.Rounded.Visibility
-                                                                else Icons.Rounded.VisibilityOff,
-                                                        contentDescription = null
-                                                )
-                                        },
-                                        onClick = {
-                                                onDismissRequest()
-                                                if (isExcluded) {
-                                                        onInclude()
-                                                } else {
-                                                        onExclude()
-                                                }
-                                        }
-                                )
-                        )
-                }
+                                    ),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            onTogglePin()
+                        },
+                    ),
+                )
+                add(
+                    AppShortcutMenuItem(
+                        textResId =
+                            if (hasNickname) {
+                                R.string.action_edit_nickname
+                            } else {
+                                R.string.action_add_nickname
+                            },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            onNicknameClick()
+                        },
+                    ),
+                )
+                add(
+                    AppShortcutMenuItem(
+                        textResId =
+                            if (isExcluded) {
+                                R.string.action_include_generic
+                            } else {
+                                R.string.action_exclude_generic
+                            },
+                        icon = {
+                            Icon(
+                                imageVector =
+                                    if (isExcluded) {
+                                        Icons.Rounded.Visibility
+                                    } else {
+                                        Icons.Rounded.VisibilityOff
+                                    },
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            onDismissRequest()
+                            if (isExcluded) {
+                                onInclude()
+                            } else {
+                                onExclude()
+                            }
+                        },
+                    ),
+                )
+            }
 
-                menuItems.forEachIndexed { index, item ->
-                        if (index > 0) {
-                                HorizontalDivider()
-                        }
-                        androidx.compose.material3.DropdownMenuItem(
-                                text = { Text(text = stringResource(item.textResId)) },
-                                leadingIcon = { item.icon() },
-                                onClick = item.onClick
-                        )
-                }
+        menuItems.forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider()
+            }
+            androidx.compose.material3.DropdownMenuItem(
+                text = { Text(text = stringResource(item.textResId)) },
+                leadingIcon = { item.icon() },
+                onClick = item.onClick,
+            )
         }
+    }
 }

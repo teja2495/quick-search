@@ -54,7 +54,6 @@ import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.util.getAppGridColumns
-import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,9 +62,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
-
+class SearchViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
     private val repository by lazy { AppUsageRepository(application.applicationContext) }
     private val appShortcutRepository by lazy {
         AppShortcutRepository(application.applicationContext)
@@ -78,7 +79,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val userPreferences by lazy { UserAppPreferences(application.applicationContext) }
     private val contactPreferences by lazy {
         com.tk.quicksearch.search.data.preferences.ContactPreferences(
-                application.applicationContext
+            application.applicationContext,
         )
     }
 
@@ -115,15 +116,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun applyContactActionHint(
-            previous: SearchUiState,
-            updated: SearchUiState
+        previous: SearchUiState,
+        updated: SearchUiState,
     ): SearchUiState {
         val hasContacts = updated.contactResults.isNotEmpty() || updated.pinnedContacts.isNotEmpty()
         val shouldShowHint =
-                hasContacts &&
-                        updated.hasContactPermission &&
-                        !updated.showContactActionHint &&
-                        !userPreferences.hasSeenContactActionHint()
+            hasContacts &&
+                updated.hasContactPermission &&
+                !updated.showContactActionHint &&
+                !userPreferences.hasSeenContactActionHint()
 
         return if (shouldShowHint) {
             updated.copy(showContactActionHint = true)
@@ -138,42 +139,42 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
     val contactManager by lazy {
         ContactManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshDerivedState,
-                this::updateUiState
+            userPreferences,
+            viewModelScope,
+            this::refreshDerivedState,
+            this::updateUiState,
         )
     }
     val fileManager by lazy {
         FileManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshDerivedState,
-                this::updateUiState
+            userPreferences,
+            viewModelScope,
+            this::refreshDerivedState,
+            this::updateUiState,
         )
     }
     val settingsManager by lazy {
         DeviceSettingsManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshDerivedState,
-                this::updateUiState
+            userPreferences,
+            viewModelScope,
+            this::refreshDerivedState,
+            this::updateUiState,
         )
     }
     val appShortcutManager by lazy {
         AppShortcutManagementHandler(
-                userPreferences,
-                viewModelScope,
-                this::refreshAppShortcutsState,
-                this::updateUiState
+            userPreferences,
+            viewModelScope,
+            this::refreshAppShortcutsState,
+            this::updateUiState,
         )
     }
     val searchEngineManager by lazy {
         SearchEngineManager(
-                application.applicationContext,
-                userPreferences,
-                viewModelScope,
-                this::updateUiState
+            application.applicationContext,
+            userPreferences,
+            viewModelScope,
+            this::updateUiState,
         )
     }
     val sectionManager by lazy {
@@ -194,28 +195,28 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     // Feature handlers (extracted)
     private val pinningHandler by lazy {
         PinningHandler(
-                scope = viewModelScope,
-                permissionManager = permissionManager,
-                contactRepository = contactRepository,
-                fileRepository = fileRepository,
-                userPreferences = userPreferences,
-                uiStateUpdater = this::updateUiState
+            scope = viewModelScope,
+            permissionManager = permissionManager,
+            contactRepository = contactRepository,
+            fileRepository = fileRepository,
+            userPreferences = userPreferences,
+            uiStateUpdater = this::updateUiState,
         )
     }
 
     val webSuggestionHandler by lazy {
         WebSuggestionHandler(
-                scope = viewModelScope,
-                userPreferences = userPreferences,
-                uiStateUpdater = this::updateUiState
+            scope = viewModelScope,
+            userPreferences = userPreferences,
+            uiStateUpdater = this::updateUiState,
         )
     }
 
     val calculatorHandler by lazy {
         CalculatorHandler(
-                scope = viewModelScope,
-                userPreferences = userPreferences,
-                uiStateUpdater = this::updateUiState
+            scope = viewModelScope,
+            userPreferences = userPreferences,
+            uiStateUpdater = this::updateUiState,
         )
     }
 
@@ -225,33 +226,33 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     val appSearchManager by lazy {
         AppSearchManager(
-                context = application.applicationContext,
-                repository = repository,
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                onAppsUpdated = { this.refreshDerivedState() },
-                onLoadingStateChanged = { isLoading, error ->
-                    _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
-                },
-                showToastCallback = this::showToast,
-                initialFuzzyConfig = fuzzySearchConfigManager.getAppFuzzyConfig()
+            context = application.applicationContext,
+            repository = repository,
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            onAppsUpdated = { this.refreshDerivedState() },
+            onLoadingStateChanged = { isLoading, error ->
+                _uiState.update { it.copy(isLoading = isLoading, errorMessage = error) }
+            },
+            showToastCallback = this::showToast,
+            initialFuzzyConfig = fuzzySearchConfigManager.getAppFuzzyConfig(),
         )
     }
 
     val settingsSearchHandler by lazy {
         DeviceSettingsSearchHandler(
-                context = application.applicationContext,
-                repository = settingsShortcutRepository,
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                showToastCallback = this::showToast
+            context = application.applicationContext,
+            repository = settingsShortcutRepository,
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            showToastCallback = this::showToast,
         )
     }
 
     val appShortcutSearchHandler by lazy {
         AppShortcutSearchHandler(
-                repository = appShortcutRepository,
-                userPreferences = userPreferences
+            repository = appShortcutRepository,
+            userPreferences = userPreferences,
         )
     }
 
@@ -261,20 +262,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     val directSearchHandler by lazy {
         DirectSearchHandler(
-                context = application.applicationContext,
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                showToastCallback = this::showToast
+            context = application.applicationContext,
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            showToastCallback = this::showToast,
         )
     }
 
     val shortcutHandler by lazy {
         ShortcutHandler(
-                userPreferences = userPreferences,
-                scope = viewModelScope,
-                uiStateUpdater = this::updateUiState,
-                directSearchHandler = directSearchHandler,
-                searchTargetsProvider = { searchEngineManager.searchTargetsOrder }
+            userPreferences = userPreferences,
+            scope = viewModelScope,
+            uiStateUpdater = this::updateUiState,
+            directSearchHandler = directSearchHandler,
+            searchTargetsProvider = { searchEngineManager.searchTargetsOrder },
         )
     }
 
@@ -283,24 +284,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private val unifiedSearchHandler by lazy {
         UnifiedSearchHandler(
-                contactRepository = contactRepository,
-                fileRepository = fileRepository,
-                userPreferences = userPreferences,
-                settingsSearchHandler = settingsSearchHandler,
-                appShortcutSearchHandler = appShortcutSearchHandler,
-                fileSearchHandler = fileSearchHandler,
-                searchOperations = searchOperations
+            contactRepository = contactRepository,
+            fileRepository = fileRepository,
+            userPreferences = userPreferences,
+            settingsSearchHandler = settingsSearchHandler,
+            appShortcutSearchHandler = appShortcutSearchHandler,
+            fileSearchHandler = fileSearchHandler,
+            searchOperations = searchOperations,
         )
     }
 
     private val secondarySearchOrchestrator by lazy {
         SecondarySearchOrchestrator(
-                scope = viewModelScope,
-                unifiedSearchHandler = unifiedSearchHandler,
-                webSuggestionHandler = webSuggestionHandler,
-                sectionManager = sectionManager,
-                uiStateUpdater = this::updateUiState,
-                currentStateProvider = { _uiState.value }
+            scope = viewModelScope,
+            unifiedSearchHandler = unifiedSearchHandler,
+            webSuggestionHandler = webSuggestionHandler,
+            sectionManager = sectionManager,
+            uiStateUpdater = this::updateUiState,
+            currentStateProvider = { _uiState.value },
         )
     }
 
@@ -335,21 +336,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun hasContactPermission(): Boolean {
-        return contactRepository.hasPermission()
-    }
+    private fun hasContactPermission(): Boolean = contactRepository.hasPermission()
 
-    private fun hasFilePermission(): Boolean {
-        return fileRepository.hasPermission()
-    }
+    private fun hasFilePermission(): Boolean = fileRepository.hasPermission()
 
-    private fun hasCallPermission(): Boolean {
-        return PermissionRequestHandler.checkCallPermission(getApplication())
-    }
+    private fun hasCallPermission(): Boolean = PermissionRequestHandler.checkCallPermission(getApplication())
 
-    private fun hasWallpaperPermission(): Boolean {
-        return PermissionRequestHandler.checkWallpaperPermission(getApplication())
-    }
+    private fun hasWallpaperPermission(): Boolean = PermissionRequestHandler.checkWallpaperPermission(getApplication())
 
     private var wallpaperAvailable: Boolean = false
 
@@ -367,6 +360,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     setWallpaperAvailable(true)
                     setShowWallpaperBackground(true)
                 }
+
                 else -> {}
             }
         }
@@ -387,30 +381,30 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         // Initialize NavigationHandler
         navigationHandler =
-                NavigationHandler(
-                        application = app,
-                        userPreferences = userPreferences,
-                        settingsSearchHandler = settingsSearchHandler,
-                        onRequestDirectSearch = { query ->
-                            directSearchHandler.requestDirectSearch(query)
-                        },
-                        onClearQuery = this::onNavigationTriggered,
-                        showToastCallback = this::showToast
-                )
+            NavigationHandler(
+                application = app,
+                userPreferences = userPreferences,
+                settingsSearchHandler = settingsSearchHandler,
+                onRequestDirectSearch = { query ->
+                    directSearchHandler.requestDirectSearch(query)
+                },
+                onClearQuery = this::onNavigationTriggered,
+                showToastCallback = this::showToast,
+            )
 
         // Initialize ContactActionHandler with uiFeedbackService
         contactActionHandler =
-                ContactActionHandler(
-                        context = app,
-                        userPreferences = userPreferences,
-                        getMessagingApp = { messagingHandler.messagingApp },
-                        getDirectDialEnabled = { directDialEnabled },
-                        getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
-                        getCurrentState = { _uiState.value },
-                        uiStateUpdater = { update -> _uiState.update(update) },
-                        clearQuery = this::onNavigationTriggered,
-                        showToastCallback = this::showToast
-                )
+            ContactActionHandler(
+                context = app,
+                userPreferences = userPreferences,
+                getMessagingApp = { messagingHandler.messagingApp },
+                getDirectDialEnabled = { directDialEnabled },
+                getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
+                getCurrentState = { _uiState.value },
+                uiStateUpdater = { update -> _uiState.update(update) },
+                clearQuery = this::onNavigationTriggered,
+                showToastCallback = this::showToast,
+            )
     }
 
     init {
@@ -448,6 +442,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /** Phase 1: Load critical data (cache and essential prefs) */
+
     /** Phase 1: Load ONLY what's needed for the first paint (cache + minimal config) */
     private suspend fun loadCacheAndMinimalPrefs() {
         // Load consolidated startup config in single batch operation
@@ -465,10 +460,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         withContext(Dispatchers.Main) {
             _uiState.update {
                 it.copy(
-                        oneHandedMode = oneHandedMode,
-                        // We don't have full prefs yet, so keep initializing flag true
-                        // but show the apps we found in cache
-                        isInitializing = true
+                    oneHandedMode = oneHandedMode,
+                    // We don't have full prefs yet, so keep initializing flag true
+                    // but show the apps we found in cache
+                    isInitializing = true,
                 )
             }
 
@@ -485,16 +480,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val visibleApps =
-                        extractSuggestedApps(
-                                apps = cachedAppsList,
-                                limit = getGridItemCount(),
-                                hasUsagePermission = hasUsagePermission
-                        )
+                    extractSuggestedApps(
+                        apps = cachedAppsList,
+                        limit = getGridItemCount(),
+                        hasUsagePermission = hasUsagePermission,
+                    )
                 val iconPack = userPreferences.getSelectedIconPackPackage()
                 prefetchAppIcons(
-                        context = getApplication(),
-                        packageNames = visibleApps.map { it.packageName },
-                        iconPackPackage = iconPack
+                    context = getApplication(),
+                    packageNames = visibleApps.map { it.packageName },
+                    iconPackPackage = iconPack,
                 )
             }
         }
@@ -504,7 +499,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private suspend fun loadRemainingStartupPreferences() {
         // Use pre-loaded startup config from Phase 1 (already batched)
         val startupPrefs =
-                startupConfig?.startupPreferences ?: userPreferences.getStartupPreferences()
+            startupConfig?.startupPreferences ?: userPreferences.getStartupPreferences()
 
         // Apply preferences
         withContext(Dispatchers.Main) {
@@ -516,7 +511,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // Now we can compute the full state including pinned/hidden apps
             val lastUpdated =
-                    startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
+                startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
             refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
 
             // Fully initialized now
@@ -541,24 +536,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         _uiState.update {
             it.copy(
-                    enabledFileTypes = enabledFileTypes,
-                    showFolders = showFolders,
-                    showSystemFiles = showSystemFiles,
-                    showHiddenFiles = showHiddenFiles,
-                    excludedFileExtensions = excludedFileExtensions,
-                    oneHandedMode = oneHandedMode,
-                    overlayModeEnabled = overlayModeEnabled,
-                    directDialEnabled = directDialEnabled,
-                    showWallpaperBackground = showWallpaperBackground,
-                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                    wallpaperBlurRadius = wallpaperBlurRadius,
-                    amazonDomain = amazonDomain,
-                    recentQueriesEnabled = prefs.recentSearchesEnabled,
-                    recentQueriesCount = userPreferences.getRecentQueriesCount(),
-                    webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
-                    shouldShowUsagePermissionBanner =
-                            userPreferences.shouldShowUsagePermissionBanner(),
-                    showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip()
+                enabledFileTypes = enabledFileTypes,
+                showFolders = showFolders,
+                showSystemFiles = showSystemFiles,
+                showHiddenFiles = showHiddenFiles,
+                excludedFileExtensions = excludedFileExtensions,
+                oneHandedMode = oneHandedMode,
+                overlayModeEnabled = overlayModeEnabled,
+                directDialEnabled = directDialEnabled,
+                showWallpaperBackground = showWallpaperBackground,
+                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = wallpaperBlurRadius,
+                amazonDomain = amazonDomain,
+                recentQueriesEnabled = prefs.recentSearchesEnabled,
+                recentQueriesCount = userPreferences.getRecentQueriesCount(),
+                webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
+                shouldShowUsagePermissionBanner =
+                    userPreferences.shouldShowUsagePermissionBanner(),
+                showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip(),
             )
         }
 
@@ -567,8 +562,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun initializeWithCacheMinimal(
-            cachedAppsList: List<AppInfo>,
-            hasUsagePermission: Boolean
+        cachedAppsList: List<AppInfo>,
+        hasUsagePermission: Boolean,
     ) {
         appSearchManager.initCache(cachedAppsList)
         val lastUpdated = repository.cacheLastUpdatedMillis()
@@ -578,18 +573,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // This is the fastest possible way to get pixels on screen
         _uiState.update { state ->
             state.copy(
-                    cacheLastUpdatedMillis = lastUpdated,
-                    // Temporarily show all cached apps until we load hidden/pinned prefs
-                    recentApps =
-                            extractSuggestedApps(
-                                    apps = cachedAppsList,
-                                    limit = getGridItemCount(),
-                                    hasUsagePermission = hasUsagePermission
-                            ),
-                    indexedAppCount = cachedAppsList.size,
-
-                    // Critical: update these to prevent flashing
-                    oneHandedMode = oneHandedMode
+                cacheLastUpdatedMillis = lastUpdated,
+                // Temporarily show all cached apps until we load hidden/pinned prefs
+                recentApps =
+                    extractSuggestedApps(
+                        apps = cachedAppsList,
+                        limit = getGridItemCount(),
+                        hasUsagePermission = hasUsagePermission,
+                    ),
+                indexedAppCount = cachedAppsList.size,
+                // Critical: update these to prevent flashing
+                oneHandedMode = oneHandedMode,
             )
         }
     }
@@ -603,7 +597,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             // 2. Initialize messaging handler (needed for contacts)
             val messagingInfo =
-                    getMessagingAppInfo(appSearchManager.cachedApps.map { it.packageName }.toSet())
+                getMessagingAppInfo(appSearchManager.cachedApps.map { it.packageName }.toSet())
 
             // Update state with messaging info and correct search engine/section config
             // accessing these handlers now is safe as UI is rendered
@@ -614,28 +608,28 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             _uiState.update { state ->
                 state.copy(
-                        // Now safely access lazy handlers
-                        searchTargetsOrder = searchEngineManager.searchTargetsOrder,
-                        disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
-                        shortcutsEnabled = shortcutsState.shortcutsEnabled,
-                        shortcutCodes = shortcutsState.shortcutCodes,
-                        shortcutEnabled = shortcutsState.shortcutEnabled,
-                        disabledSections = sectionManager.disabledSections,
-                        isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
-                        showSearchEngineOnboarding = false,
-                        showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
-                        webSuggestionsEnabled = webSuggestionHandler.isEnabled,
-                        calculatorEnabled = userPreferences.isCalculatorEnabled(),
-                        hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
-                        geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
-                        personalContext = directSearchHandler.getPersonalContext(),
-                        showPersonalContextHint =
-                                !userPreferences.hasSeenPersonalContextHint() &&
-                                        directSearchHandler.getPersonalContext().isBlank(),
-                        // Messaging info
-                        messagingApp = messagingInfo.messagingApp,
-                        isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
-                        isTelegramInstalled = messagingInfo.isTelegramInstalled
+                    // Now safely access lazy handlers
+                    searchTargetsOrder = searchEngineManager.searchTargetsOrder,
+                    disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
+                    shortcutsEnabled = shortcutsState.shortcutsEnabled,
+                    shortcutCodes = shortcutsState.shortcutCodes,
+                    shortcutEnabled = shortcutsState.shortcutEnabled,
+                    disabledSections = sectionManager.disabledSections,
+                    isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
+                    showSearchEngineOnboarding = false,
+                    showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
+                    webSuggestionsEnabled = webSuggestionHandler.isEnabled,
+                    calculatorEnabled = userPreferences.isCalculatorEnabled(),
+                    hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
+                    geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
+                    personalContext = directSearchHandler.getPersonalContext(),
+                    showPersonalContextHint =
+                        !userPreferences.hasSeenPersonalContextHint() &&
+                            directSearchHandler.getPersonalContext().isBlank(),
+                    // Messaging info
+                    messagingApp = messagingInfo.messagingApp,
+                    isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
+                    isTelegramInstalled = messagingInfo.isTelegramInstalled,
                 )
             }
 
@@ -654,8 +648,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val pinnedAppShortcutsState = appShortcutSearchHandler.getPinnedAndExcludedOnly()
                 updateUiState { state ->
                     state.copy(
-                            pinnedAppShortcuts = pinnedAppShortcutsState.pinned,
-                            excludedAppShortcuts = pinnedAppShortcutsState.excluded
+                        pinnedAppShortcuts = pinnedAppShortcutsState.pinned,
+                        excludedAppShortcuts = pinnedAppShortcutsState.excluded,
                     )
                 }
 
@@ -663,8 +657,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val pinnedSettingsState = settingsSearchHandler.getPinnedAndExcludedOnly()
                 updateUiState { state ->
                     state.copy(
-                            pinnedSettings = pinnedSettingsState.pinned,
-                            excludedSettings = pinnedSettingsState.excluded
+                        pinnedSettings = pinnedSettingsState.pinned,
+                        excludedSettings = pinnedSettingsState.excluded,
                     )
                 }
             }
@@ -720,31 +714,31 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun getMessagingAppInfo(packageNames: Set<String>): MessagingAppInfo {
         val isWhatsAppInstalled =
-                if (packageNames.isNotEmpty()) {
-                    packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
-                } else {
-                    messagingHandler.isPackageInstalled(PackageConstants.WHATSAPP_PACKAGE)
-                }
+            if (packageNames.isNotEmpty()) {
+                packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
+            } else {
+                messagingHandler.isPackageInstalled(PackageConstants.WHATSAPP_PACKAGE)
+            }
         val isTelegramInstalled =
-                if (packageNames.isNotEmpty()) {
-                    packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
-                } else {
-                    messagingHandler.isPackageInstalled(PackageConstants.TELEGRAM_PACKAGE)
-                }
+            if (packageNames.isNotEmpty()) {
+                packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
+            } else {
+                messagingHandler.isPackageInstalled(PackageConstants.TELEGRAM_PACKAGE)
+            }
         val resolvedMessagingApp =
-                messagingHandler.updateMessagingAvailability(
-                        whatsappInstalled = isWhatsAppInstalled,
-                        telegramInstalled = isTelegramInstalled,
-                        updateState = false
-                )
+            messagingHandler.updateMessagingAvailability(
+                whatsappInstalled = isWhatsAppInstalled,
+                telegramInstalled = isTelegramInstalled,
+                updateState = false,
+            )
 
         return MessagingAppInfo(isWhatsAppInstalled, isTelegramInstalled, resolvedMessagingApp)
     }
 
     private data class MessagingAppInfo(
-            val isWhatsAppInstalled: Boolean,
-            val isTelegramInstalled: Boolean,
-            val messagingApp: MessagingApp
+        val isWhatsAppInstalled: Boolean,
+        val isTelegramInstalled: Boolean,
+        val messagingApp: MessagingApp,
     )
 
     fun setCalculatorEnabled(enabled: Boolean) {
@@ -807,24 +801,26 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
 
             val entries =
-                    userPreferences.getRecentItems().take(userPreferences.getRecentQueriesCount())
+                userPreferences.getRecentItems().take(userPreferences.getRecentQueriesCount())
 
             val contactIds =
-                    entries.filterIsInstance<RecentSearchEntry.Contact>()
-                            .map { it.contactId }
-                            .toSet()
+                entries
+                    .filterIsInstance<RecentSearchEntry.Contact>()
+                    .map { it.contactId }
+                    .toSet()
             val fileUris = entries.filterIsInstance<RecentSearchEntry.File>().map { it.uri }.toSet()
             val settingIds =
-                    entries.filterIsInstance<RecentSearchEntry.Setting>().map { it.id }.toSet()
+                entries.filterIsInstance<RecentSearchEntry.Setting>().map { it.id }.toSet()
             val shortcutKeys =
-                    entries.filterIsInstance<RecentSearchEntry.AppShortcut>()
-                            .map { it.shortcutKey }
-                            .toSet()
+                entries
+                    .filterIsInstance<RecentSearchEntry.AppShortcut>()
+                    .map { it.shortcutKey }
+                    .toSet()
 
             val contactsById =
-                    contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
+                contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
             val filesByUri =
-                    fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
+                fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
             val settingsById = settingsSearchHandler.getSettingsByIds(settingIds)
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
 
@@ -835,42 +831,52 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val pinnedSettingIds = userPreferences.getPinnedSettingIds()
             val pinnedAppShortcutIds = userPreferences.getPinnedAppShortcutIds()
 
-            val items = buildList {
-                entries.forEach { entry ->
-                    when (entry) {
-                        is RecentSearchEntry.Query ->
+            val items =
+                buildList {
+                    entries.forEach { entry ->
+                        when (entry) {
+                            is RecentSearchEntry.Query -> {
                                 add(RecentSearchItem.Query(entry.trimmedQuery))
-                        is RecentSearchEntry.Contact ->
+                            }
+
+                            is RecentSearchEntry.Contact -> {
                                 contactsById[entry.contactId]?.let {
                                     // Skip if contact is pinned
                                     if (entry.contactId !in pinnedContactIds) {
                                         add(RecentSearchItem.Contact(entry, it))
                                     }
                                 }
-                        is RecentSearchEntry.File ->
+                            }
+
+                            is RecentSearchEntry.File -> {
                                 filesByUri[entry.uri]?.let {
                                     // Skip if file is pinned
                                     if (entry.uri !in pinnedFileUris) {
                                         add(RecentSearchItem.File(entry, it))
                                     }
                                 }
-                        is RecentSearchEntry.Setting ->
+                            }
+
+                            is RecentSearchEntry.Setting -> {
                                 settingsById[entry.id]?.let {
                                     // Skip if setting is pinned
                                     if (entry.id !in pinnedSettingIds) {
                                         add(RecentSearchItem.Setting(entry, it))
                                     }
                                 }
-                        is RecentSearchEntry.AppShortcut ->
+                            }
+
+                            is RecentSearchEntry.AppShortcut -> {
                                 shortcutsByKey[entry.shortcutKey]?.let {
                                     // Skip if app shortcut is pinned
                                     if (entry.shortcutKey !in pinnedAppShortcutIds) {
                                         add(RecentSearchItem.AppShortcut(entry, it))
                                     }
                                 }
+                            }
+                        }
                     }
                 }
-            }
             _uiState.update { it.copy(recentItems = items) }
         }
     }
@@ -883,47 +889,52 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     // Contact Card Actions (Synchronous access for UI composition, persistence is sync in prefs)
-    fun getPrimaryContactCardAction(contactId: Long) =
-            contactPreferences.getPrimaryContactCardAction(contactId)
+    fun getPrimaryContactCardAction(contactId: Long) = contactPreferences.getPrimaryContactCardAction(contactId)
+
     fun setPrimaryContactCardAction(
-            contactId: Long,
-            action: com.tk.quicksearch.search.contacts.models.ContactCardAction
+        contactId: Long,
+        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
     ) {
         contactPreferences.setPrimaryContactCardAction(contactId, action)
         _uiState.update { it.copy(contactActionsVersion = it.contactActionsVersion + 1) }
     }
 
-    fun getSecondaryContactCardAction(contactId: Long) =
-            contactPreferences.getSecondaryContactCardAction(contactId)
+    fun getSecondaryContactCardAction(contactId: Long) = contactPreferences.getSecondaryContactCardAction(contactId)
 
     fun setSecondaryContactCardAction(
-            contactId: Long,
-            action: com.tk.quicksearch.search.contacts.models.ContactCardAction
+        contactId: Long,
+        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
     ) {
         contactPreferences.setSecondaryContactCardAction(contactId, action)
         _uiState.update { it.copy(contactActionsVersion = it.contactActionsVersion + 1) }
     }
 
-    fun requestContactActionPicker(contactId: Long, isPrimary: Boolean, serializedAction: String?) {
+    fun requestContactActionPicker(
+        contactId: Long,
+        isPrimary: Boolean,
+        serializedAction: String?,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val contact =
-                    contactRepository.getContactsByIds(setOf(contactId)).firstOrNull()
-                            ?: return@launch
+                contactRepository.getContactsByIds(setOf(contactId)).firstOrNull()
+                    ?: return@launch
             val requestedAction =
-                    serializedAction?.let {
-                        com.tk.quicksearch.search.contacts.models.ContactCardAction
-                                .fromSerializedString(it)
-                    }
+                serializedAction?.let {
+                    com.tk.quicksearch.search.contacts.models.ContactCardAction
+                        .fromSerializedString(it)
+                }
             val resolvedAction =
-                    requestedAction
-                            ?: if (isPrimary) getPrimaryContactCardAction(contactId)
-                            else
-                                    getSecondaryContactCardAction(contactId)
-                                            ?: getDefaultContactCardAction(contact, isPrimary)
+                requestedAction
+                    ?: if (isPrimary) {
+                        getPrimaryContactCardAction(contactId)
+                    } else {
+                        getSecondaryContactCardAction(contactId)
+                            ?: getDefaultContactCardAction(contact, isPrimary)
+                    }
             _uiState.update {
                 it.copy(
-                        contactActionPickerRequest =
-                                ContactActionPickerRequest(contact, isPrimary, resolvedAction)
+                    contactActionPickerRequest =
+                        ContactActionPickerRequest(contact, isPrimary, resolvedAction),
                 )
             }
         }
@@ -934,36 +945,43 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun getDefaultContactCardAction(
-            contact: ContactInfo,
-            isPrimary: Boolean
+        contact: ContactInfo,
+        isPrimary: Boolean,
     ): com.tk.quicksearch.search.contacts.models.ContactCardAction? {
         val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
         return if (isPrimary) {
-            com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(phoneNumber)
+            com.tk.quicksearch.search.contacts.models.ContactCardAction
+                .Phone(phoneNumber)
         } else {
             when (_uiState.value.messagingApp) {
-                MessagingApp.MESSAGES ->
-                        com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
-                MessagingApp.WHATSAPP ->
-                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(
-                                phoneNumber
-                        )
-                MessagingApp.TELEGRAM ->
-                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(
-                                phoneNumber
-                        )
+                MessagingApp.MESSAGES -> {
+                    com.tk.quicksearch.search.contacts.models.ContactCardAction
+                        .Sms(phoneNumber)
+                }
+
+                MessagingApp.WHATSAPP -> {
+                    com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(
+                        phoneNumber,
+                    )
+                }
+
+                MessagingApp.TELEGRAM -> {
+                    com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(
+                        phoneNumber,
+                    )
+                }
             }
         }
     }
 
     fun onCustomAction(
-            contactInfo: ContactInfo,
-            action: com.tk.quicksearch.search.contacts.models.ContactCardAction
+        contactInfo: ContactInfo,
+        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val appContext = getApplication<Application>()
             val contact =
-                    contactRepository.getContactsByIds(setOf(contactInfo.contactId)).firstOrNull()
+                contactRepository.getContactsByIds(setOf(contactInfo.contactId)).firstOrNull()
             val methods = contact?.contactMethods ?: emptyList()
 
             fun matchesPhoneNumber(method: ContactMethod): Boolean {
@@ -971,44 +989,60 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 return PhoneNumberUtils.isSameNumber(method.data, action.phoneNumber)
             }
 
-            fun matchesTelegramNumber(method: ContactMethod): Boolean {
-                return TelegramContactUtils.isTelegramMethodForPhoneNumber(
-                        context = appContext,
-                        phoneNumber = action.phoneNumber,
-                        telegramMethod = method
+            fun matchesTelegramNumber(method: ContactMethod): Boolean =
+                TelegramContactUtils.isTelegramMethodForPhoneNumber(
+                    context = appContext,
+                    phoneNumber = action.phoneNumber,
+                    telegramMethod = method,
                 ) || matchesPhoneNumber(method)
-            }
 
             // Match the action to a ContactMethod
             val matchedMethod: ContactMethod? =
-                    methods.find { method ->
-                        when (action) {
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone ->
-                                    method is ContactMethod.Phone && matchesPhoneNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms ->
-                                    method is ContactMethod.Sms && matchesPhoneNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall ->
-                                    method is ContactMethod.WhatsAppCall &&
-                                            matchesPhoneNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage ->
-                                    method is ContactMethod.WhatsAppMessage &&
-                                            matchesPhoneNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall ->
-                                    method is ContactMethod.WhatsAppVideoCall &&
-                                            matchesPhoneNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage ->
-                                    method is ContactMethod.TelegramMessage &&
-                                            matchesTelegramNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall ->
-                                    method is ContactMethod.TelegramCall &&
-                                            matchesTelegramNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall ->
-                                    method is ContactMethod.TelegramVideoCall &&
-                                            matchesTelegramNumber(method)
-                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet ->
-                                    method is ContactMethod.GoogleMeet && matchesPhoneNumber(method)
+                methods.find { method ->
+                    when (action) {
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                            method is ContactMethod.Phone && matchesPhoneNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                            method is ContactMethod.Sms && matchesPhoneNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall -> {
+                            method is ContactMethod.WhatsAppCall &&
+                                matchesPhoneNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage -> {
+                            method is ContactMethod.WhatsAppMessage &&
+                                matchesPhoneNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall -> {
+                            method is ContactMethod.WhatsAppVideoCall &&
+                                matchesPhoneNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage -> {
+                            method is ContactMethod.TelegramMessage &&
+                                matchesTelegramNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall -> {
+                            method is ContactMethod.TelegramCall &&
+                                matchesTelegramNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
+                            method is ContactMethod.TelegramVideoCall &&
+                                matchesTelegramNumber(method)
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
+                            method is ContactMethod.GoogleMeet && matchesPhoneNumber(method)
                         }
                     }
+                }
 
             withContext(Dispatchers.Main) {
                 if (matchedMethod != null) {
@@ -1017,16 +1051,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     // Fallback to generic action if specific method not found (e.g. dataId changed)
                     // For Phone/SMS this is easy
                     when (action) {
-                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone ->
-                                contactActionHandler.handleContactMethod(
-                                        contactInfo,
-                                        ContactMethod.Phone("Call", action.phoneNumber)
-                                )
-                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms ->
-                                contactActionHandler.handleContactMethod(
-                                        contactInfo,
-                                        ContactMethod.Sms("Message", action.phoneNumber)
-                                )
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                            contactActionHandler.handleContactMethod(
+                                contactInfo,
+                                ContactMethod.Phone("Call", action.phoneNumber),
+                            )
+                        }
+
+                        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                            contactActionHandler.handleContactMethod(
+                                contactInfo,
+                                ContactMethod.Sms("Message", action.phoneNumber),
+                            )
+                        }
+
                         else -> {
                             showToast(R.string.error_action_not_available)
                         }
@@ -1037,9 +1075,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun updateBooleanPreference(
-            value: Boolean,
-            preferenceSetter: (Boolean) -> Unit,
-            stateUpdater: (Boolean) -> Unit
+        value: Boolean,
+        preferenceSetter: (Boolean) -> Unit,
+        stateUpdater: (Boolean) -> Unit,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             preferenceSetter(value)
@@ -1068,20 +1106,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun refreshSettingsState(updateResults: Boolean = true) {
         val currentResults = _uiState.value.settingResults
         val currentState =
-                settingsSearchHandler.getSettingsState(
-                        query = _uiState.value.query,
-                        isSettingsSectionEnabled =
-                                SearchSection.SETTINGS !in sectionManager.disabledSections,
-                        currentResults =
-                                currentResults // Pass current results to avoid re-search if not
-                        // needed? Actually logic handles it
-                        )
+            settingsSearchHandler.getSettingsState(
+                query = _uiState.value.query,
+                isSettingsSectionEnabled =
+                    SearchSection.SETTINGS !in sectionManager.disabledSections,
+                currentResults =
+                currentResults, // Pass current results to avoid re-search if not
+                // needed? Actually logic handles it
+            )
 
         _uiState.update { state ->
             state.copy(
-                    pinnedSettings = currentState.pinned,
-                    excludedSettings = currentState.excluded,
-                    settingResults = currentState.results
+                pinnedSettings = currentState.pinned,
+                excludedSettings = currentState.excluded,
+                settingResults = currentState.results,
             )
         }
     }
@@ -1089,18 +1127,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun refreshAppShortcutsState(updateResults: Boolean = true) {
         val query = if (updateResults) _uiState.value.query else ""
         val currentState =
-                appShortcutSearchHandler.getShortcutsState(
-                        query = query,
-                        isSectionEnabled =
-                                SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
-                )
+            appShortcutSearchHandler.getShortcutsState(
+                query = query,
+                isSectionEnabled =
+                    SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections,
+            )
 
         updateUiState { state ->
             state.copy(
-                    pinnedAppShortcuts = currentState.pinned,
-                    excludedAppShortcuts = currentState.excluded,
-                    appShortcutResults =
-                            if (updateResults) currentState.results else state.appShortcutResults
+                pinnedAppShortcuts = currentState.pinned,
+                excludedAppShortcuts = currentState.excluded,
+                appShortcutResults =
+                    if (updateResults) currentState.results else state.appShortcutResults,
             )
         }
     }
@@ -1109,7 +1147,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(hasUsagePermission = repository.hasUsageAccess()) }
     }
 
-    fun refreshApps(showToast: Boolean = false, forceUiUpdate: Boolean = false) {
+    fun refreshApps(
+        showToast: Boolean = false,
+        forceUiUpdate: Boolean = false,
+    ) {
         appSearchManager.refreshApps(showToast, forceUiUpdate)
     }
 
@@ -1142,7 +1183,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Removed setMessagingApp (delegate in SearchViewModelExtensions if needed, or direct)
 
-    fun setDirectDialEnabled(enabled: Boolean, manual: Boolean = true) {
+    fun setDirectDialEnabled(
+        enabled: Boolean,
+        manual: Boolean = true,
+    ) {
         directDialEnabled = enabled
         hasSeenDirectDialChoice = true
         userPreferences.setDirectDialEnabled(enabled)
@@ -1161,8 +1205,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val trimmedQuery = newQuery.trim()
         val DirectSearchState = _uiState.value.DirectSearchState
         if (DirectSearchState.status != DirectSearchStatus.Idle &&
-                        (DirectSearchState.activeQuery == null ||
-                                DirectSearchState.activeQuery != trimmedQuery)
+            (
+                DirectSearchState.activeQuery == null ||
+                    DirectSearchState.activeQuery != trimmedQuery
+            )
         ) {
             directSearchHandler.clearDirectSearchState()
         }
@@ -1173,17 +1219,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             webSuggestionHandler.cancelSuggestions()
             updateUiState {
                 it.copy(
-                        query = "",
-                        searchResults = emptyList(),
-                        appShortcutResults = emptyList(),
-                        contactResults = emptyList(),
-                        fileResults = emptyList(),
-                        settingResults = emptyList(),
-                        DirectSearchState = DirectSearchState(),
-                        calculatorState = CalculatorState(),
-                        webSuggestions = emptyList(),
-                        detectedShortcutTarget = lockedShortcutTarget,
-                        webSuggestionWasSelected = false
+                    query = "",
+                    searchResults = emptyList(),
+                    appShortcutResults = emptyList(),
+                    contactResults = emptyList(),
+                    fileResults = emptyList(),
+                    settingResults = emptyList(),
+                    DirectSearchState = DirectSearchState(),
+                    calculatorState = CalculatorState(),
+                    webSuggestions = emptyList(),
+                    detectedShortcutTarget = lockedShortcutTarget,
+                    webSuggestionWasSelected = false,
                 )
             }
             // Load recent queries when query is empty
@@ -1244,41 +1290,41 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Check if query is a math expression (only if calculator is enabled)
         // Only process calculator if no shortcut was detected at start
         val calculatorResult =
-                if (detectedTarget == null) {
-                    calculatorHandler.processQuery(trimmedQuery)
-                } else {
-                    CalculatorState()
-                }
+            if (detectedTarget == null) {
+                calculatorHandler.processQuery(trimmedQuery)
+            } else {
+                CalculatorState()
+            }
 
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
         appSearchManager.resetNoMatchPrefixIfNeeded(normalizedQuery)
 
         val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)
         val matches =
-                if (shouldSkipSearch || detectedTarget != null) {
-                    emptyList()
-                } else {
-                    appSearchManager.deriveMatches(
-                                    trimmedQuery,
-                                    cachedAllSearchableApps,
-                                    getGridItemCount()
-                            )
-                            .also { results ->
-                                if (results.isEmpty()) {
-                                    appSearchManager.setNoMatchPrefix(normalizedQuery)
-                                }
-                            }
-                }
+            if (shouldSkipSearch || detectedTarget != null) {
+                emptyList()
+            } else {
+                appSearchManager
+                    .deriveMatches(
+                        trimmedQuery,
+                        cachedAllSearchableApps,
+                        getGridItemCount(),
+                    ).also { results ->
+                        if (results.isEmpty()) {
+                            appSearchManager.setNoMatchPrefix(normalizedQuery)
+                        }
+                    }
+            }
 
         // Clear web suggestions when query changes
         webSuggestionHandler.cancelSuggestions()
         updateUiState { state ->
             state.copy(
-                    query = newQuery,
-                    searchResults = matches,
-                    calculatorState = calculatorResult,
-                    webSuggestions = emptyList(),
-                    detectedShortcutTarget = detectedTarget
+                query = newQuery,
+                searchResults = matches,
+                calculatorState = calculatorResult,
+                webSuggestions = emptyList(),
+                detectedShortcutTarget = detectedTarget,
             )
         }
 
@@ -1293,11 +1339,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             // Clear search results when showing calculator
             _uiState.update { state ->
                 state.copy(
-                        contactResults = emptyList(),
-                        fileResults = emptyList(),
-                        settingResults = emptyList(),
-                        appShortcutResults = emptyList(),
-                        webSuggestions = emptyList()
+                    contactResults = emptyList(),
+                    fileResults = emptyList(),
+                    settingResults = emptyList(),
+                    appShortcutResults = emptyList(),
+                    webSuggestions = emptyList(),
                 )
             }
         }
@@ -1341,29 +1387,47 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Navigation Delegates
     fun openUsageAccessSettings() = navigationHandler.openUsageAccessSettings()
+
     fun openAppSettings() = navigationHandler.openAppSettings()
+
     fun openAllFilesAccessSettings() = navigationHandler.openAllFilesAccessSettings()
+
     fun openFilesPermissionSettings() = navigationHandler.openFilesPermissionSettings()
+
     fun openContactPermissionSettings() = navigationHandler.openContactPermissionSettings()
+
     fun launchApp(appInfo: AppInfo) =
-            navigationHandler.launchApp(
-                    appInfo,
-                    shouldTrackRecentFallback = !_uiState.value.hasUsagePermission
-            )
+        navigationHandler.launchApp(
+            appInfo,
+            shouldTrackRecentFallback = !_uiState.value.hasUsagePermission,
+        )
+
     fun openAppInfo(appInfo: AppInfo) = navigationHandler.openAppInfo(appInfo)
+
     fun openAppInfo(packageName: String) = navigationHandler.openAppInfo(packageName)
+
     fun requestUninstall(appInfo: AppInfo) = navigationHandler.requestUninstall(appInfo)
+
     fun openSearchUrl(
-            query: String,
-            searchEngine: SearchEngine,
-            addToRecentSearches: Boolean = true
+        query: String,
+        searchEngine: SearchEngine,
+        addToRecentSearches: Boolean = true,
     ) = navigationHandler.openSearchUrl(query, searchEngine, addToRecentSearches)
-    fun openSearchTarget(query: String, target: SearchTarget, addToRecentSearches: Boolean = true) =
-            navigationHandler.openSearchTarget(query, target, addToRecentSearches)
+
+    fun openSearchTarget(
+        query: String,
+        target: SearchTarget,
+        addToRecentSearches: Boolean = true,
+    ) = navigationHandler.openSearchTarget(query, target, addToRecentSearches)
+
     fun searchIconPacks() = navigationHandler.searchIconPacks()
+
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
+
     fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo)
+
     fun openEmail(email: String) = navigationHandler.openEmail(email)
+
     fun launchAppShortcut(shortcut: StaticShortcut) {
         val error = launchStaticShortcut(getApplication(), shortcut)
         if (error != null) {
@@ -1376,79 +1440,119 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // App Management Delegates
     fun hideApp(appInfo: AppInfo) = appManager.hideApp(appInfo, _uiState.value.query.isNotBlank())
+
     fun unhideAppFromSuggestions(appInfo: AppInfo) = appManager.unhideAppFromSuggestions(appInfo)
+
     fun unhideAppFromResults(appInfo: AppInfo) = appManager.unhideAppFromResults(appInfo)
+
     fun clearAllHiddenApps() = appManager.clearAllHiddenApps()
+
     fun pinApp(appInfo: AppInfo) = appManager.pinApp(appInfo)
+
     fun unpinApp(appInfo: AppInfo) = appManager.unpinApp(appInfo)
-    fun setAppNickname(appInfo: AppInfo, nickname: String?) =
-            appManager.setAppNickname(appInfo, nickname)
+
+    fun setAppNickname(
+        appInfo: AppInfo,
+        nickname: String?,
+    ) = appManager.setAppNickname(appInfo, nickname)
+
     fun getAppNickname(packageName: String): String? = appManager.getAppNickname(packageName)
+
     fun clearCachedApps() = appSearchManager.clearCachedApps()
 
     // Contact Management Delegates
     fun pinContact(contactInfo: ContactInfo) = contactManager.pinContact(contactInfo)
+
     fun unpinContact(contactInfo: ContactInfo) {
         contactManager.unpinContact(contactInfo)
         refreshRecentItems()
     }
+
     fun excludeContact(contactInfo: ContactInfo) = contactManager.excludeContact(contactInfo)
-    fun removeExcludedContact(contactInfo: ContactInfo) =
-            contactManager.removeExcludedContact(contactInfo)
+
+    fun removeExcludedContact(contactInfo: ContactInfo) = contactManager.removeExcludedContact(contactInfo)
+
     fun clearAllExcludedContacts() = contactManager.clearAllExcludedContacts()
-    fun setContactNickname(contactInfo: ContactInfo, nickname: String?) =
-            contactManager.setContactNickname(contactInfo, nickname)
+
+    fun setContactNickname(
+        contactInfo: ContactInfo,
+        nickname: String?,
+    ) = contactManager.setContactNickname(contactInfo, nickname)
+
     fun getContactNickname(contactId: Long): String? = contactManager.getContactNickname(contactId)
 
     // File Management Delegates
     fun pinFile(deviceFile: DeviceFile) = fileManager.pinFile(deviceFile)
+
     fun unpinFile(deviceFile: DeviceFile) {
         fileManager.unpinFile(deviceFile)
         refreshRecentItems()
     }
+
     fun excludeFile(deviceFile: DeviceFile) = fileManager.excludeFile(deviceFile)
+
     fun excludeFileExtension(deviceFile: DeviceFile) {
         excludedFileExtensions = fileManager.excludeFileExtension(deviceFile)
         updateUiState { it.copy(excludedFileExtensions = excludedFileExtensions) }
     }
+
     fun removeExcludedFileExtension(extension: String) {
         excludedFileExtensions = fileManager.removeExcludedFileExtension(extension)
         updateUiState { it.copy(excludedFileExtensions = excludedFileExtensions) }
     }
+
     fun removeExcludedFile(deviceFile: DeviceFile) = fileManager.removeExcludedFile(deviceFile)
+
     fun clearAllExcludedFiles() = fileManager.clearAllExcludedFiles()
-    fun setFileNickname(deviceFile: DeviceFile, nickname: String?) =
-            fileManager.setFileNickname(deviceFile, nickname)
+
+    fun setFileNickname(
+        deviceFile: DeviceFile,
+        nickname: String?,
+    ) = fileManager.setFileNickname(deviceFile, nickname)
+
     fun getFileNickname(uri: String): String? = fileManager.getFileNickname(uri)
 
     // Settings Management Delegates
     fun pinSetting(setting: DeviceSetting) = settingsManager.pinSetting(setting)
+
     fun unpinSetting(setting: DeviceSetting) {
         settingsManager.unpinSetting(setting)
         refreshRecentItems()
     }
+
     fun excludeSetting(setting: DeviceSetting) = settingsManager.excludeSetting(setting)
-    fun setSettingNickname(setting: DeviceSetting, nickname: String?) =
-            settingsManager.setSettingNickname(setting, nickname)
+
+    fun setSettingNickname(
+        setting: DeviceSetting,
+        nickname: String?,
+    ) = settingsManager.setSettingNickname(setting, nickname)
+
     fun getSettingNickname(id: String): String? = settingsManager.getSettingNickname(id)
-    fun removeExcludedSetting(setting: DeviceSetting) =
-            settingsManager.removeExcludedSetting(setting)
+
+    fun removeExcludedSetting(setting: DeviceSetting) = settingsManager.removeExcludedSetting(setting)
+
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
+
     fun openSetting(setting: DeviceSetting) = navigationHandler.openSetting(setting)
 
     // App Shortcut Management Delegates
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
+
     fun unpinAppShortcut(shortcut: StaticShortcut) {
         appShortcutManager.unpinShortcut(shortcut)
         refreshRecentItems()
     }
+
     fun excludeAppShortcut(shortcut: StaticShortcut) = appShortcutManager.excludeShortcut(shortcut)
-    fun setAppShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
-            appShortcutManager.setShortcutNickname(shortcut, nickname)
-    fun getAppShortcutNickname(shortcutId: String): String? =
-            appShortcutManager.getShortcutNickname(shortcutId)
-    fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
-            appShortcutManager.removeExcludedShortcut(shortcut)
+
+    fun setAppShortcutNickname(
+        shortcut: StaticShortcut,
+        nickname: String?,
+    ) = appShortcutManager.setShortcutNickname(shortcut, nickname)
+
+    fun getAppShortcutNickname(shortcutId: String): String? = appShortcutManager.getShortcutNickname(shortcutId)
+
+    fun removeExcludedAppShortcut(shortcut: StaticShortcut) = appShortcutManager.removeExcludedShortcut(shortcut)
 
     // Global Actions
     fun clearAllExclusions() {
@@ -1497,27 +1601,41 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun refreshIconPacks() = iconPackHandler.refreshIconPacks()
+
     fun setIconPackPackage(packageName: String?) = iconPackHandler.setIconPackPackage(packageName)
 
     // Shortcuts
     fun setShortcutsEnabled(enabled: Boolean) = shortcutHandler.setShortcutsEnabled(enabled)
-    fun setShortcutCode(target: SearchTarget, code: String) =
-            shortcutHandler.setShortcutCode(target, code)
-    fun setShortcutEnabled(target: SearchTarget, enabled: Boolean) =
-            shortcutHandler.setShortcutEnabled(target, enabled)
+
+    fun setShortcutCode(
+        target: SearchTarget,
+        code: String,
+    ) = shortcutHandler.setShortcutCode(target, code)
+
+    fun setShortcutEnabled(
+        target: SearchTarget,
+        enabled: Boolean,
+    ) = shortcutHandler.setShortcutEnabled(target, enabled)
+
     fun getShortcutCode(target: SearchTarget): String = shortcutHandler.getShortcutCode(target)
+
     fun isShortcutEnabled(target: SearchTarget): Boolean = shortcutHandler.isShortcutEnabled(target)
+
     fun areShortcutsEnabled(): Boolean = true
 
     // Sections
-    fun setSectionEnabled(section: SearchSection, enabled: Boolean) =
-            sectionManager.setSectionEnabled(section, enabled)
+    fun setSectionEnabled(
+        section: SearchSection,
+        enabled: Boolean,
+    ) = sectionManager.setSectionEnabled(section, enabled)
+
     fun canEnableSection(section: SearchSection): Boolean = sectionManager.canEnableSection(section)
 
     // Messaging & Feature delegates
     fun setMessagingApp(app: MessagingApp) = messagingHandler.setMessagingApp(app)
-    fun acknowledgeReleaseNotes() =
-            releaseNotesHandler.acknowledgeReleaseNotes(_uiState.value.releaseNotesVersionName)
+
+    fun acknowledgeReleaseNotes() = releaseNotesHandler.acknowledgeReleaseNotes(_uiState.value.releaseNotesVersionName)
+
     fun requestDirectSearch(query: String) = directSearchHandler.requestDirectSearch(query)
 
     fun onSearchEngineOnboardingDismissed() {
@@ -1539,34 +1657,49 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     // Contact Actions
     fun callContact(contactInfo: ContactInfo) = contactActionHandler.callContact(contactInfo)
+
     fun smsContact(contactInfo: ContactInfo) = contactActionHandler.smsContact(contactInfo)
-    fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) =
-            contactActionHandler.onPhoneNumberSelected(phoneNumber, rememberChoice)
+
+    fun onPhoneNumberSelected(
+        phoneNumber: String,
+        rememberChoice: Boolean,
+    ) = contactActionHandler.onPhoneNumberSelected(phoneNumber, rememberChoice)
+
     fun dismissPhoneNumberSelection() = contactActionHandler.dismissPhoneNumberSelection()
+
     fun dismissDirectDialChoice() = contactActionHandler.dismissDirectDialChoice()
-    fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) =
-            contactActionHandler.handleContactMethod(contactInfo, method)
+
+    fun handleContactMethod(
+        contactInfo: ContactInfo,
+        method: ContactMethod,
+    ) = contactActionHandler.handleContactMethod(contactInfo, method)
+
     fun trackRecentContactTap(contactInfo: ContactInfo) {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
         }
     }
 
-    fun getEnabledSearchTargets(): List<SearchTarget> =
-            searchEngineManager.getEnabledSearchTargets()
-    fun setSearchTargetEnabled(target: SearchTarget, enabled: Boolean) =
-            searchEngineManager.setSearchTargetEnabled(target, enabled)
-    fun reorderSearchTargets(newOrder: List<SearchTarget>) =
-            searchEngineManager.reorderSearchTargets(newOrder)
-    fun setSearchEngineCompactMode(enabled: Boolean) =
-            searchEngineManager.setSearchEngineCompactMode(enabled)
+    fun getEnabledSearchTargets(): List<SearchTarget> = searchEngineManager.getEnabledSearchTargets()
 
-    fun setFileTypeEnabled(fileType: FileType, enabled: Boolean) {
+    fun setSearchTargetEnabled(
+        target: SearchTarget,
+        enabled: Boolean,
+    ) = searchEngineManager.setSearchTargetEnabled(target, enabled)
+
+    fun reorderSearchTargets(newOrder: List<SearchTarget>) = searchEngineManager.reorderSearchTargets(newOrder)
+
+    fun setSearchEngineCompactMode(enabled: Boolean) = searchEngineManager.setSearchEngineCompactMode(enabled)
+
+    fun setFileTypeEnabled(
+        fileType: FileType,
+        enabled: Boolean,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val updated =
-                    enabledFileTypes.toMutableSet().apply {
-                        if (enabled) add(fileType) else remove(fileType)
-                    }
+                enabledFileTypes.toMutableSet().apply {
+                    if (enabled) add(fileType) else remove(fileType)
+                }
             enabledFileTypes = updated
             userPreferences.setEnabledFileTypes(enabledFileTypes)
             updateUiState { it.copy(enabledFileTypes = enabledFileTypes) }
@@ -1623,26 +1756,26 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setOneHandedMode(enabled: Boolean) {
         updateBooleanPreference(
-                value = enabled,
-                preferenceSetter = userPreferences::setOneHandedMode,
-                stateUpdater = {
-                    oneHandedMode = it
-                    updateUiState { state -> state.copy(oneHandedMode = it) }
-                }
+            value = enabled,
+            preferenceSetter = userPreferences::setOneHandedMode,
+            stateUpdater = {
+                oneHandedMode = it
+                updateUiState { state -> state.copy(oneHandedMode = it) }
+            },
         )
     }
 
     fun setOverlayModeEnabled(enabled: Boolean) {
         updateBooleanPreference(
-                value = enabled,
-                preferenceSetter = userPreferences::setOverlayModeEnabled,
-                stateUpdater = {
-                    overlayModeEnabled = it
-                    updateUiState { state -> state.copy(overlayModeEnabled = it) }
-                    if (!it) {
-                        OverlayModeController.stopOverlay(getApplication())
-                    }
+            value = enabled,
+            preferenceSetter = userPreferences::setOverlayModeEnabled,
+            stateUpdater = {
+                overlayModeEnabled = it
+                updateUiState { state -> state.copy(overlayModeEnabled = it) }
+                if (!it) {
+                    OverlayModeController.stopOverlay(getApplication())
                 }
+            },
         )
     }
 
@@ -1661,8 +1794,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             _uiState.update {
                 it.copy(
-                        hasGeminiApiKey = hasGemini,
-                        geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4)
+                    hasGeminiApiKey = hasGemini,
+                    geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
                 )
             }
         }
@@ -1676,26 +1809,46 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /** Computes the overall screen visibility state based on current data and permissions. */
-    private fun computeScreenVisibilityState(state: SearchUiState): ScreenVisibilityState {
-        return when {
-            state.isInitializing -> ScreenVisibilityState.Initializing
-            state.isLoading -> ScreenVisibilityState.Loading
-            state.errorMessage != null ->
-                    ScreenVisibilityState.Error(state.errorMessage, canRetry = true)
-            !state.hasUsagePermission -> ScreenVisibilityState.NoPermissions
-            state.query.isBlank() && state.recentApps.isEmpty() && state.pinnedApps.isEmpty() ->
-                    ScreenVisibilityState.Empty
-            else -> ScreenVisibilityState.Content
+    private fun computeScreenVisibilityState(state: SearchUiState): ScreenVisibilityState =
+        when {
+            state.isInitializing -> {
+                ScreenVisibilityState.Initializing
+            }
+
+            state.isLoading -> {
+                ScreenVisibilityState.Loading
+            }
+
+            state.errorMessage != null -> {
+                ScreenVisibilityState.Error(state.errorMessage, canRetry = true)
+            }
+
+            !state.hasUsagePermission -> {
+                ScreenVisibilityState.NoPermissions
+            }
+
+            state.query.isBlank() && state.recentApps.isEmpty() && state.pinnedApps.isEmpty() -> {
+                ScreenVisibilityState.Empty
+            }
+
+            else -> {
+                ScreenVisibilityState.Content
+            }
         }
-    }
 
     /** Computes the apps section visibility state. */
     private fun computeAppsSectionVisibility(state: SearchUiState): AppsSectionVisibility {
         val sectionEnabled = SearchSection.APPS !in state.disabledSections
 
         return when {
-            !sectionEnabled -> AppsSectionVisibility.Hidden
-            state.isInitializing || state.isLoading -> AppsSectionVisibility.Loading
+            !sectionEnabled -> {
+                AppsSectionVisibility.Hidden
+            }
+
+            state.isInitializing || state.isLoading -> {
+                AppsSectionVisibility.Loading
+            }
+
             state.query.isBlank() -> {
                 val hasContent = state.recentApps.isNotEmpty() || state.pinnedApps.isNotEmpty()
                 if (hasContent) {
@@ -1704,6 +1857,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     AppsSectionVisibility.NoResults
                 }
             }
+
             else -> {
                 val hasResults = state.searchResults.isNotEmpty()
                 val hasPinned = state.pinnedApps.isNotEmpty()
@@ -1717,13 +1871,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /** Computes the app shortcuts section visibility state. */
-    private fun computeAppShortcutsSectionVisibility(
-            state: SearchUiState
-    ): AppShortcutsSectionVisibility {
+    private fun computeAppShortcutsSectionVisibility(state: SearchUiState): AppShortcutsSectionVisibility {
         val sectionEnabled = SearchSection.APP_SHORTCUTS !in state.disabledSections
 
         return when {
-            !sectionEnabled -> AppShortcutsSectionVisibility.Hidden
+            !sectionEnabled -> {
+                AppShortcutsSectionVisibility.Hidden
+            }
+
             else -> {
                 val hasResults = state.appShortcutResults.isNotEmpty()
                 val hasPinned = state.pinnedAppShortcuts.isNotEmpty()
@@ -1741,8 +1896,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val sectionEnabled = SearchSection.CONTACTS !in state.disabledSections
 
         return when {
-            !sectionEnabled -> ContactsSectionVisibility.Hidden
-            !state.hasContactPermission -> ContactsSectionVisibility.NoPermission
+            !sectionEnabled -> {
+                ContactsSectionVisibility.Hidden
+            }
+
+            !state.hasContactPermission -> {
+                ContactsSectionVisibility.NoPermission
+            }
+
             else -> {
                 val hasResults = state.contactResults.isNotEmpty()
                 val hasPinned = state.pinnedContacts.isNotEmpty()
@@ -1760,8 +1921,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val sectionEnabled = SearchSection.FILES !in state.disabledSections
 
         return when {
-            !sectionEnabled -> FilesSectionVisibility.Hidden
-            !state.hasFilePermission -> FilesSectionVisibility.NoPermission
+            !sectionEnabled -> {
+                FilesSectionVisibility.Hidden
+            }
+
+            !state.hasFilePermission -> {
+                FilesSectionVisibility.NoPermission
+            }
+
             else -> {
                 val hasResults = state.fileResults.isNotEmpty()
                 val hasPinned = state.pinnedFiles.isNotEmpty()
@@ -1779,7 +1946,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val sectionEnabled = SearchSection.SETTINGS !in state.disabledSections
 
         return when {
-            !sectionEnabled -> SettingsSectionVisibility.Hidden
+            !sectionEnabled -> {
+                SettingsSectionVisibility.Hidden
+            }
+
             else -> {
                 val hasResults = state.settingResults.isNotEmpty()
                 val hasPinned = state.pinnedSettings.isNotEmpty()
@@ -1793,30 +1963,35 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /** Computes the search engines visibility state. */
-    private fun computeSearchEnginesVisibility(state: SearchUiState): SearchEnginesVisibility {
-        return when {
-            state.detectedShortcutTarget != null ->
-                    SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutTarget)
-            state.isSearchEngineCompactMode -> SearchEnginesVisibility.Compact
-            else -> SearchEnginesVisibility.Hidden
+    private fun computeSearchEnginesVisibility(state: SearchUiState): SearchEnginesVisibility =
+        when {
+            state.detectedShortcutTarget != null -> {
+                SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutTarget)
+            }
+
+            state.isSearchEngineCompactMode -> {
+                SearchEnginesVisibility.Compact
+            }
+
+            else -> {
+                SearchEnginesVisibility.Hidden
+            }
         }
-    }
 
     /**
      * Computes and applies all visibility states to the given state. This is a pure function that
      * returns a new state with updated visibility fields.
      */
-    private fun applyVisibilityStates(state: SearchUiState): SearchUiState {
-        return state.copy(
-                screenState = computeScreenVisibilityState(state),
-                appsSectionState = computeAppsSectionVisibility(state),
-                appShortcutsSectionState = computeAppShortcutsSectionVisibility(state),
-                contactsSectionState = computeContactsSectionVisibility(state),
-                filesSectionState = computeFilesSectionVisibility(state),
-                settingsSectionState = computeSettingsSectionVisibility(state),
-                searchEnginesState = computeSearchEnginesVisibility(state)
+    private fun applyVisibilityStates(state: SearchUiState): SearchUiState =
+        state.copy(
+            screenState = computeScreenVisibilityState(state),
+            appsSectionState = computeAppsSectionVisibility(state),
+            appShortcutsSectionState = computeAppShortcutsSectionVisibility(state),
+            contactsSectionState = computeContactsSectionVisibility(state),
+            filesSectionState = computeFilesSectionVisibility(state),
+            settingsSectionState = computeSettingsSectionVisibility(state),
+            searchEnginesState = computeSearchEnginesVisibility(state),
         )
-    }
 
     /**
      * Updates all visibility states in the UI state. Call this whenever the underlying data changes
@@ -1830,11 +2005,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
     }
 
-    private fun getGridItemCount(): Int {
-        return SearchScreenConstants.ROW_COUNT * getAppGridColumns(getApplication())
-    }
+    private fun getGridItemCount(): Int = SearchScreenConstants.ROW_COUNT * getAppGridColumns(getApplication())
 
-    private fun refreshDerivedState(lastUpdated: Long? = null, isLoading: Boolean? = null) {
+    private fun refreshDerivedState(
+        lastUpdated: Long? = null,
+        isLoading: Boolean? = null,
+    ) {
         // Refresh nicknames cache to ensure we have the latest data
         appSearchManager.refreshNicknames()
 
@@ -1849,10 +2025,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
         if (!hasUsagePermission && userPreferences.getRecentAppLaunches().isEmpty()) {
             val initialRecents =
-                    visibleAppList
-                            .sortedBy { it.appName.lowercase(Locale.getDefault()) }
-                            .take(getGridItemCount())
-                            .map { it.packageName }
+                visibleAppList
+                    .sortedBy { it.appName.lowercase(Locale.getDefault()) }
+                    .take(getGridItemCount())
+                    .map { it.packageName }
             userPreferences.setRecentAppLaunches(initialRecents)
         }
 
@@ -1860,11 +2036,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
         val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents =
-                extractSuggestedApps(
-                        apps = recentsSource,
-                        limit = getGridItemCount(),
-                        hasUsagePermission = hasUsagePermission
-                )
+            extractSuggestedApps(
+                apps = recentsSource,
+                limit = getGridItemCount(),
+                hasUsagePermission = hasUsagePermission,
+            )
 
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
@@ -1872,11 +2048,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val isWhatsAppInstalled = packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
         val isTelegramInstalled = packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
         val resolvedMessagingApp =
-                messagingHandler.updateMessagingAvailability(
-                        whatsappInstalled = isWhatsAppInstalled,
-                        telegramInstalled = isTelegramInstalled,
-                        updateState = false
-                )
+            messagingHandler.updateMessagingAvailability(
+                whatsappInstalled = isWhatsAppInstalled,
+                telegramInstalled = isTelegramInstalled,
+                updateState = false,
+            )
 
         // Always update the searchable apps cache regardless of query state
         // Include both pinned and non-pinned apps in search, let ranking determine order
@@ -1885,45 +2061,45 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         cachedAllSearchableApps = allSearchableApps
 
         val searchResults =
-                if (trimmedQuery.isBlank()) {
-                    emptyList()
-                } else {
-                    appSearchManager.deriveMatches(
-                            trimmedQuery,
-                            allSearchableApps,
-                            getGridItemCount()
-                    )
-                }
+            if (trimmedQuery.isBlank()) {
+                emptyList()
+            } else {
+                appSearchManager.deriveMatches(
+                    trimmedQuery,
+                    allSearchableApps,
+                    getGridItemCount(),
+                )
+            }
         val suggestionHiddenAppList =
-                apps.filter { suggestionHiddenPackages.contains(it.packageName) }.sortedBy {
-                    it.appName.lowercase(Locale.getDefault())
-                }
+            apps.filter { suggestionHiddenPackages.contains(it.packageName) }.sortedBy {
+                it.appName.lowercase(Locale.getDefault())
+            }
         val resultHiddenAppList =
-                apps.filter { resultHiddenPackages.contains(it.packageName) }.sortedBy {
-                    it.appName.lowercase(Locale.getDefault())
-                }
+            apps.filter { resultHiddenPackages.contains(it.packageName) }.sortedBy {
+                it.appName.lowercase(Locale.getDefault())
+            }
 
         _uiState.update { state ->
             state.copy(
-                    recentApps = recents,
-                    searchResults = searchResults,
-                    pinnedApps = pinnedAppsForSuggestions,
-                    suggestionExcludedApps = suggestionHiddenAppList,
-                    resultExcludedApps = resultHiddenAppList,
-                    indexedAppCount = visibleAppList.size,
-                    cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
-                    isLoading = isLoading ?: state.isLoading,
-                    messagingApp = resolvedMessagingApp,
-                    isWhatsAppInstalled = isWhatsAppInstalled,
-                    isTelegramInstalled = isTelegramInstalled,
-                    nicknameUpdateVersion = state.nicknameUpdateVersion + 1
+                recentApps = recents,
+                searchResults = searchResults,
+                pinnedApps = pinnedAppsForSuggestions,
+                suggestionExcludedApps = suggestionHiddenAppList,
+                resultExcludedApps = resultHiddenAppList,
+                indexedAppCount = visibleAppList.size,
+                cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
+                isLoading = isLoading ?: state.isLoading,
+                messagingApp = resolvedMessagingApp,
+                isWhatsAppInstalled = isWhatsAppInstalled,
+                isTelegramInstalled = isTelegramInstalled,
+                nicknameUpdateVersion = state.nicknameUpdateVersion + 1,
             )
         }
 
         iconPackHandler.prefetchVisibleAppIcons(
-                pinnedApps = pinnedAppsForSuggestions,
-                recents = recents,
-                searchResults = searchResults
+            pinnedApps = pinnedAppsForSuggestions,
+            recents = recents,
+            searchResults = searchResults,
         )
 
         // Re-trigger secondary searches when nicknames change and there's an active query
@@ -1941,24 +2117,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun extractSuggestedApps(
-            apps: List<AppInfo>,
-            limit: Int,
-            hasUsagePermission: Boolean
+        apps: List<AppInfo>,
+        limit: Int,
+        hasUsagePermission: Boolean,
     ): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
 
         val suggestions =
-                if (hasUsagePermission) {
-                    repository.extractRecentlyOpenedApps(apps, limit)
-                } else {
-                    val appByPackage = apps.associateBy { it.packageName }
-                    userPreferences
-                            .getRecentAppLaunches()
-                            .asSequence()
-                            .mapNotNull { appByPackage[it] }
-                            .take(limit)
-                            .toList()
-                }
+            if (hasUsagePermission) {
+                repository.extractRecentlyOpenedApps(apps, limit)
+            } else {
+                val appByPackage = apps.associateBy { it.packageName }
+                userPreferences
+                    .getRecentAppLaunches()
+                    .asSequence()
+                    .mapNotNull { appByPackage[it] }
+                    .take(limit)
+                    .toList()
+            }
 
         // If we have enough suggestions, return them
         if (suggestions.size >= limit) {
@@ -1972,14 +2148,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         // Fill remaining spots with apps sorted by launch count (most used first), excluding
         // already suggested ones
         val additionalApps =
-                apps
-                        .filterNot { suggestionPackageNames.contains(it.packageName) }
-                        .sortedWith(
-                                compareByDescending<AppInfo> { it.launchCount }.thenBy {
-                                    it.appName.lowercase(Locale.getDefault())
-                                }
-                        )
-                        .take(remainingSpots)
+            apps
+                .filterNot { suggestionPackageNames.contains(it.packageName) }
+                .sortedWith(
+                    compareByDescending<AppInfo> { it.launchCount }.thenBy {
+                        it.appName.lowercase(Locale.getDefault())
+                    },
+                ).take(remainingSpots)
 
         return suggestions + additionalApps
     }
@@ -2010,27 +2185,29 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val hasWallpaper = hasWallpaperPermission()
         val previousState = _uiState.value
         val changed =
-                previousState.hasContactPermission != hasContacts ||
-                        previousState.hasFilePermission != hasFiles ||
-                        previousState.hasCallPermission != hasCall ||
-                        previousState.hasWallpaperPermission != hasWallpaper ||
-                        previousState.wallpaperAvailable != wallpaperAvailable
+            previousState.hasContactPermission != hasContacts ||
+                previousState.hasFilePermission != hasFiles ||
+                previousState.hasCallPermission != hasCall ||
+                previousState.hasWallpaperPermission != hasWallpaper ||
+                previousState.wallpaperAvailable != wallpaperAvailable
 
         if (changed) {
-
             // Handle wallpaper background based on files permission
             val userPrefValue = userPreferences.shouldShowWallpaperBackground()
             val filesPermissionGranted = !previousState.hasFilePermission && hasFiles
             val shouldUpdateWallpaper =
-                    when {
-                        // If files permission is revoked, disable wallpaper (but keep user
-                        // preference unchanged)
-                        !hasFiles && showWallpaperBackground -> {
-                            showWallpaperBackground = false
-                            true
-                        }
-                        else -> false
+                when {
+                    // If files permission is revoked, disable wallpaper (but keep user
+                    // preference unchanged)
+                    !hasFiles && showWallpaperBackground -> {
+                        showWallpaperBackground = false
+                        true
                     }
+
+                    else -> {
+                        false
+                    }
+                }
 
             if (filesPermissionGranted && userPrefValue && !showWallpaperBackground) {
                 attemptAutoEnableWallpaperBackground()
@@ -2048,17 +2225,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
             _uiState.update { state ->
                 state.copy(
-                        hasContactPermission = hasContacts,
-                        hasFilePermission = hasFiles,
-                        hasCallPermission = hasCall,
-                        hasWallpaperPermission = hasWallpaper,
-                        wallpaperAvailable = wallpaperAvailable,
-                        directDialEnabled = this@SearchViewModel.directDialEnabled,
-                        contactResults = if (hasContacts) state.contactResults else emptyList(),
-                        fileResults = if (hasFiles) state.fileResults else emptyList(),
-                        showWallpaperBackground =
-                                if (shouldUpdateWallpaper) showWallpaperBackground
-                                else state.showWallpaperBackground
+                    hasContactPermission = hasContacts,
+                    hasFilePermission = hasFiles,
+                    hasCallPermission = hasCall,
+                    hasWallpaperPermission = hasWallpaper,
+                    wallpaperAvailable = wallpaperAvailable,
+                    directDialEnabled = this@SearchViewModel.directDialEnabled,
+                    contactResults = if (hasContacts) state.contactResults else emptyList(),
+                    fileResults = if (hasFiles) state.fileResults else emptyList(),
+                    showWallpaperBackground =
+                        if (shouldUpdateWallpaper) {
+                            showWallpaperBackground
+                        } else {
+                            state.showWallpaperBackground
+                        },
                 )
             }
 
@@ -2076,7 +2256,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(contactMethodsBottomSheet = null) }
     }
 
-    fun onDirectDialChoiceSelected(option: DirectDialOption, rememberChoice: Boolean) {
+    fun onDirectDialChoiceSelected(
+        option: DirectDialOption,
+        rememberChoice: Boolean,
+    ) {
         contactActionHandler.onDirectDialChoiceSelected(option, rememberChoice)
         // Update local state variables
         val useDirectDial = option == DirectDialOption.DIRECT_CALL
@@ -2095,11 +2278,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     // Contact methods dialog helpers
-    fun getLastShownPhoneNumber(contactId: Long): String? {
-        return userPreferences.getLastShownPhoneNumber(contactId)
-    }
+    fun getLastShownPhoneNumber(contactId: Long): String? = userPreferences.getLastShownPhoneNumber(contactId)
 
-    fun setLastShownPhoneNumber(contactId: Long, phoneNumber: String) {
+    fun setLastShownPhoneNumber(
+        contactId: Long,
+        phoneNumber: String,
+    ) {
         userPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
     }
 
@@ -2108,8 +2292,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.resetUsagePermissionBannerSessionDismissed()
         _uiState.update {
             it.copy(
-                    shouldShowUsagePermissionBanner =
-                            userPreferences.shouldShowUsagePermissionBanner()
+                shouldShowUsagePermissionBanner =
+                    userPreferences.shouldShowUsagePermissionBanner(),
             )
         }
     }
@@ -2118,8 +2302,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.incrementUsagePermissionBannerDismissCount()
         _uiState.update {
             it.copy(
-                    shouldShowUsagePermissionBanner =
-                            userPreferences.shouldShowUsagePermissionBanner()
+                shouldShowUsagePermissionBanner =
+                    userPreferences.shouldShowUsagePermissionBanner(),
             )
         }
     }
@@ -2128,8 +2312,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         userPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
         _uiState.update {
             it.copy(
-                    shouldShowUsagePermissionBanner =
-                            userPreferences.shouldShowUsagePermissionBanner()
+                shouldShowUsagePermissionBanner =
+                    userPreferences.shouldShowUsagePermissionBanner(),
             )
         }
     }

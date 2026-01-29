@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Material 3 expressive palette tuned for the quick search UI.
- * 
+ *
  * This file defines color tokens for both light and dark themes following Material Design 3
  * color system conventions. Colors are organized by theme variant and semantic role.
  */

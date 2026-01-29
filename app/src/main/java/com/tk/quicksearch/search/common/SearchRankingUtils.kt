@@ -12,7 +12,6 @@ import java.util.Locale
  * 4. No match
  */
 object SearchRankingUtils {
-
     private const val PRIORITY_STARTS_WITH = 1
     private const val PRIORITY_WORD_STARTS_WITH = 2
     private const val PRIORITY_CONTAINS = 3
@@ -28,7 +27,10 @@ object SearchRankingUtils {
      * @param query The search query
      * @return Priority level (1-4, where 1 is highest priority)
      */
-    fun calculateMatchPriority(text: String, query: String): Int {
+    fun calculateMatchPriority(
+        text: String,
+        query: String,
+    ): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
@@ -45,7 +47,7 @@ object SearchRankingUtils {
     fun calculateMatchPriority(
         text: String,
         normalizedQuery: String,
-        queryTokens: List<String>
+        queryTokens: List<String>,
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
@@ -94,30 +96,32 @@ object SearchRankingUtils {
         textWords: List<String>,
         normalizedQuery: String,
         primaryToken: String,
-        queryTokens: List<String>
-    ): Boolean {
-        return textWords.any { word ->
+        queryTokens: List<String>,
+    ): Boolean =
+        textWords.any { word ->
             word.startsWith(normalizedQuery) ||
-            word.startsWith(primaryToken) ||
-            (queryTokens.size > 1 && queryTokens.any { token -> word.startsWith(token) })
+                word.startsWith(primaryToken) ||
+                (queryTokens.size > 1 && queryTokens.any { token -> word.startsWith(token) })
         }
-    }
 
     private fun hasContainingMatch(
         normalizedText: String,
         normalizedQuery: String,
-        queryTokens: List<String>
-    ): Boolean {
-        return normalizedText.contains(normalizedQuery) ||
-               (queryTokens.size > 1 && queryTokens.all { token ->
-                   token.isNotBlank() && normalizedText.contains(token)
-               })
-    }
+        queryTokens: List<String>,
+    ): Boolean =
+        normalizedText.contains(normalizedQuery) ||
+            (
+                queryTokens.size > 1 &&
+                    queryTokens.all { token ->
+                        token.isNotBlank() && normalizedText.contains(token)
+                    }
+            )
 
     /**
      * Calculates match priority while giving an optional nickname the highest boost.
      * Nickname matches get priority 0 (higher than any text match).
      */
+
     /**
      * Calculates match priority while giving an optional nickname the highest boost.
      * Nickname matches get priority 0 (higher than any text match).
@@ -125,7 +129,7 @@ object SearchRankingUtils {
     fun calculateMatchPriorityWithNickname(
         primaryText: String,
         nickname: String?,
-        query: String
+        query: String,
     ): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
@@ -143,7 +147,7 @@ object SearchRankingUtils {
         primaryText: String,
         nickname: String?,
         normalizedQuery: String,
-        queryTokens: List<String>
+        queryTokens: List<String>,
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
@@ -164,9 +168,10 @@ object SearchRankingUtils {
      * @param textFields Variable number of text fields to check
      * @return The best (lowest) priority found
      */
-    fun getBestMatchPriority(query: String, vararg textFields: String): Int {
-        return textFields.minOfOrNull { calculateMatchPriority(it, query) } ?: PRIORITY_NO_MATCH
-    }
+    fun getBestMatchPriority(
+        query: String,
+        vararg textFields: String,
+    ): Int = textFields.minOfOrNull { calculateMatchPriority(it, query) } ?: PRIORITY_NO_MATCH
 
     /**
      * Checks if the given priority represents a non-match (lowest priority).

@@ -7,14 +7,12 @@ import java.util.Locale
  * validation logic to ensure consistency across the app.
  */
 object ShortcutValidator {
-
     /**
      * Normalizes shortcut input by trimming, lowercasing, and filtering to valid characters. Only
      * allows letters and digits, removes spaces and special characters.
      */
-    fun normalizeShortcutCodeInput(input: String): String {
-        return input.trim().lowercase(Locale.getDefault()).filter { char -> char.isLetterOrDigit() }
-    }
+    fun normalizeShortcutCodeInput(input: String): String =
+        input.trim().lowercase(Locale.getDefault()).filter { char -> char.isLetterOrDigit() }
 
     /**
      * Validates shortcut input. Must contain only letters and digits, be non-empty, and at least 2
@@ -23,8 +21,8 @@ object ShortcutValidator {
     fun isValidShortcutCode(input: String): Boolean {
         val normalized = normalizeShortcutCodeInput(input)
         return normalized.isNotEmpty() &&
-                normalized.length >= 2 &&
-                normalized.all { it.isLetterOrDigit() }
+            normalized.length >= 2 &&
+            normalized.all { it.isLetterOrDigit() }
     }
 
     /**
@@ -34,8 +32,8 @@ object ShortcutValidator {
     fun isValidShortcutCodeForDisplay(input: String): Boolean {
         val normalized = normalizeShortcutCodeInput(input)
         return normalized.isNotEmpty() &&
-                normalized.length >= 1 &&
-                normalized.all { it.isLetterOrDigit() }
+            normalized.length >= 1 &&
+            normalized.all { it.isLetterOrDigit() }
     }
 
     /**
@@ -48,8 +46,8 @@ object ShortcutValidator {
      * @return true if the shortcut has no prefix conflicts, false otherwise
      */
     fun isValidShortcutPrefix(
-            newShortcut: String,
-            existingShortcuts: Map<String, String>
+        newShortcut: String,
+        existingShortcuts: Map<String, String>,
     ): Boolean {
         val normalizedNew = normalizeShortcutCodeInput(newShortcut)
         if (normalizedNew.isEmpty()) return true
@@ -59,8 +57,10 @@ object ShortcutValidator {
         return existingShortcuts.none { (_, existingCode) ->
             val normalizedExisting = normalizeShortcutCodeInput(existingCode)
             normalizedExisting.isNotEmpty() &&
-                    (normalizedNew.startsWith(normalizedExisting) ||
-                            normalizedExisting.startsWith(normalizedNew))
+                (
+                    normalizedNew.startsWith(normalizedExisting) ||
+                        normalizedExisting.startsWith(normalizedNew)
+                )
         }
     }
 }

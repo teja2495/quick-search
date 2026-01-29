@@ -22,18 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
-import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
+import kotlinx.coroutines.delay
 
 /**
  * Setup screen for configuring search engines during first launch.
@@ -45,21 +45,22 @@ fun SearchEngineSetupScreen(
     viewModel: SearchViewModel,
     currentStep: Int,
     totalSteps: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.Start
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .safeDrawingPadding()
+                .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.Start,
     ) {
         OnboardingHeader(
             title = stringResource(R.string.setup_search_engines_title),
             currentStep = currentStep,
-            totalSteps = totalSteps
+            totalSteps = totalSteps,
         )
 
         Text(
@@ -67,7 +68,7 @@ fun SearchEngineSetupScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -103,21 +104,23 @@ fun SearchEngineSetupScreen(
         }
 
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.Start
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.Start,
         ) {
             SearchEngines(
                 searchEngineOrder = allEngines,
                 disabledSearchEngines = disabledEngines,
                 onToggleSearchEngine = { engine, enabled ->
                     val targetId = engine.getId()
-                    disabledEngines = if (enabled) {
-                        disabledEngines.minus(targetId)
-                    } else {
-                        disabledEngines.plus(targetId)
-                    }
+                    disabledEngines =
+                        if (enabled) {
+                            disabledEngines.minus(targetId)
+                        } else {
+                            disabledEngines.plus(targetId)
+                        }
                     viewModel.setSearchTargetEnabled(engine, enabled)
                 },
                 onReorderSearchEngines = { newOrder ->
@@ -131,7 +134,7 @@ fun SearchEngineSetupScreen(
                 onSetPersonalContext = viewModel::setPersonalContext,
                 directSearchAvailable = true,
                 showDirectSearchAtTop = false,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -141,16 +144,17 @@ fun SearchEngineSetupScreen(
 
         Button(
             onClick = onContinue,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
             shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         ) {
             Text(
                 text = stringResource(R.string.setup_action_next),
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
 

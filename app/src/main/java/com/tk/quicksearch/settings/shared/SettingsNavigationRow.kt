@@ -32,7 +32,7 @@ data class SettingsCardItem(
     val iconResId: Int? = null,
     val iconTint: Color? = null,
     val actionIcon: ImageVector = Icons.Rounded.ChevronRight,
-    val actionOnPress: () -> Unit
+    val actionOnPress: () -> Unit,
 )
 
 /**
@@ -41,20 +41,21 @@ data class SettingsCardItem(
 @Composable
 fun SettingsNavigationRow(
     item: SettingsCardItem,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = item.actionOnPress)
-            .padding(contentPadding),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = item.actionOnPress)
+                .padding(contentPadding),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             // Icon (either ImageVector or painter resource)
             when {
@@ -63,32 +64,33 @@ fun SettingsNavigationRow(
                         imageVector = item.icon,
                         contentDescription = null,
                         tint = item.iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
                     )
                 }
+
                 item.iconResId != null -> {
                     Icon(
                         painter = painterResource(id = item.iconResId),
                         contentDescription = null,
                         tint = item.iconTint ?: Color.Unspecified,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
 
             // Title and description
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 androidx.compose.material3.Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 androidx.compose.material3.Text(
                     text = item.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -98,7 +100,7 @@ fun SettingsNavigationRow(
             imageVector = item.actionIcon,
             contentDescription = stringResource(R.string.desc_navigate_forward),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = Modifier.padding(start = 8.dp),
         )
     }
 }

@@ -14,19 +14,19 @@ object WidgetBitmapUtils {
         backgroundColor: Color,
         borderColor: Color?,
         borderWidthPx: Int,
-        cornerRadiusPx: Float
+        cornerRadiusPx: Float,
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        
+
         // Draw background
         drawBackground(canvas, widthPx, heightPx, backgroundColor, cornerRadiusPx)
-        
+
         // Draw border if needed
         if (borderWidthPx > 0 && borderColor != null) {
             drawBorder(canvas, widthPx, heightPx, borderColor, borderWidthPx, cornerRadiusPx)
         }
-        
+
         return bitmap
     }
 
@@ -35,14 +35,15 @@ object WidgetBitmapUtils {
         widthPx: Int,
         heightPx: Int,
         backgroundColor: Color,
-        cornerRadiusPx: Float
+        cornerRadiusPx: Float,
     ) {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-            color = backgroundColor.toArgb()
-        }
+        val paint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+                color = backgroundColor.toArgb()
+            }
         val rect = RectF(0f, 0f, widthPx.toFloat(), heightPx.toFloat())
-        
+
         if (cornerRadiusPx > 0f) {
             canvas.drawRoundRect(rect, cornerRadiusPx, cornerRadiusPx, paint)
         } else {
@@ -56,16 +57,17 @@ object WidgetBitmapUtils {
         heightPx: Int,
         borderColor: Color,
         borderWidthPx: Int,
-        cornerRadiusPx: Float
+        cornerRadiusPx: Float,
     ) {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = borderWidthPx.toFloat()
-            color = borderColor.toArgb()
-        }
+        val paint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.STROKE
+                strokeWidth = borderWidthPx.toFloat()
+                color = borderColor.toArgb()
+            }
         val inset = borderWidthPx / 2f
         val rect = RectF(inset, inset, widthPx - inset, heightPx - inset)
-        
+
         if (cornerRadiusPx > 0f) {
             canvas.drawRoundRect(rect, cornerRadiusPx, cornerRadiusPx, paint)
         } else {

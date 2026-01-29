@@ -10,17 +10,22 @@ import com.tk.quicksearch.R
  * Custom app-specific contact intent helpers for opening various third-party apps.
  */
 object CustomAppActions {
-
     /**
      * Opens a video call app with the specified package and data.
      */
-    fun openVideoCall(context: Application, data: String, packageName: String, onShowToast: ((Int) -> Unit)? = null) {
+    fun openVideoCall(
+        context: Application,
+        data: String,
+        packageName: String,
+        onShowToast: ((Int) -> Unit)? = null,
+    ) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setData(Uri.parse("tel:$data"))
-                setPackage(packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setData(Uri.parse("tel:$data"))
+                    setPackage(packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open video call", e)
@@ -31,16 +36,22 @@ object CustomAppActions {
     /**
      * Opens a custom app using contact data ID and MIME type.
      */
-    fun openCustomAppWithDataId(context: Application, dataId: Long, mimeType: String, packageName: String?): Boolean {
+    fun openCustomAppWithDataId(
+        context: Application,
+        dataId: Long,
+        mimeType: String,
+        packageName: String?,
+    ): Boolean {
         try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(
-                    Uri.parse("content://com.android.contacts/data/$dataId"),
-                    mimeType
-                )
-                packageName?.let { setPackage(it) }
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        Uri.parse("content://com.android.contacts/data/$dataId"),
+                        mimeType,
+                    )
+                    packageName?.let { setPackage(it) }
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             // Check if the intent can be resolved
             val pm = context.packageManager
@@ -60,13 +71,20 @@ object CustomAppActions {
     /**
      * Opens a custom app with MIME type (fallback method).
      */
-    fun openCustomApp(context: Application, data: String, mimeType: String, packageName: String?, onShowToast: ((Int) -> Unit)? = null) {
+    fun openCustomApp(
+        context: Application,
+        data: String,
+        mimeType: String,
+        packageName: String?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(Uri.parse(data), mimeType)
-                packageName?.let { setPackage(it) }
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(Uri.parse(data), mimeType)
+                    packageName?.let { setPackage(it) }
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open custom app", e)

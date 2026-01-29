@@ -9,7 +9,6 @@ import com.tk.quicksearch.search.data.UserAppPreferences
  * Utility class to handle in-app review flow using Google Play's ReviewManager API.
  */
 object ReviewHelper {
-
     private const val TAG = "ReviewHelper"
 
     /**
@@ -20,7 +19,10 @@ object ReviewHelper {
      * @param activity The activity context to show the review flow
      * @param userPreferences User preferences to check eligibility and track review prompts
      */
-    fun requestReviewIfEligible(activity: Activity, userPreferences: UserAppPreferences) {
+    fun requestReviewIfEligible(
+        activity: Activity,
+        userPreferences: UserAppPreferences,
+    ) {
         if (!userPreferences.shouldShowReviewPrompt()) {
             return
         }

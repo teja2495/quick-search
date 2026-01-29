@@ -6,11 +6,11 @@ import com.tk.quicksearch.search.data.preferences.BasePreferences
 /**
  * Preferences for recent search queries.
  */
-class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
-
+class RecentSearchesPreferences(
+    context: Context,
+) : BasePreferences(context) {
     companion object {
         private const val MAX_RECENT_QUERIES = 10
-
     }
 
     // ============================================================================
@@ -25,7 +25,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
         val rawItems =
             com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(
                 sessionPrefs,
-                BasePreferences.KEY_RECENT_QUERIES
+                BasePreferences.KEY_RECENT_QUERIES,
             )
         return rawItems.mapNotNull { RecentSearchEntry.fromRaw(it) }
     }
@@ -53,7 +53,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
         com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
             sessionPrefs,
             BasePreferences.KEY_RECENT_QUERIES,
-            serialized
+            serialized,
         )
     }
 
@@ -61,7 +61,11 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
      * Clear all recent queries.
      */
     fun clearRecentQueries() {
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_QUERIES, emptyList<String>())
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
+            sessionPrefs,
+            BasePreferences.KEY_RECENT_QUERIES,
+            emptyList<String>(),
+        )
     }
 
     /**
@@ -74,7 +78,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
         com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
             sessionPrefs,
             BasePreferences.KEY_RECENT_QUERIES,
-            serialized
+            serialized,
         )
     }
 
@@ -82,9 +86,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
      * Check if recent queries feature is enabled.
      * Default is true.
      */
-    fun areRecentQueriesEnabled(): Boolean {
-        return getBooleanPref(BasePreferences.KEY_RECENT_QUERIES_ENABLED, true)
-    }
+    fun areRecentQueriesEnabled(): Boolean = getBooleanPref(BasePreferences.KEY_RECENT_QUERIES_ENABLED, true)
 
     /**
      * Set whether recent queries feature is enabled.
@@ -97,9 +99,7 @@ class RecentSearchesPreferences(context: Context) : BasePreferences(context) {
      * Get the maximum number of recent queries to show.
      * Default is 3.
      */
-    fun getRecentQueriesCount(): Int {
-        return prefs.getInt(BasePreferences.KEY_RECENT_QUERIES_COUNT, 3)
-    }
+    fun getRecentQueriesCount(): Int = prefs.getInt(BasePreferences.KEY_RECENT_QUERIES_COUNT, 3)
 
     /**
      * Set the maximum number of recent queries to show.

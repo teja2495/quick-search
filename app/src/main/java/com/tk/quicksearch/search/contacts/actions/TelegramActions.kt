@@ -13,28 +13,32 @@ import com.tk.quicksearch.search.utils.PhoneNumberUtils
  * All Telegram functionality consolidated in one place.
  */
 object TelegramActions {
-
     private const val TELEGRAM_PACKAGE = "org.telegram.messenger"
 
     /**
      * Opens Telegram chat using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openTelegramChat(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null) {
+    fun openTelegramChat(
+        context: Application,
+        dataId: Long?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ) {
         if (dataId == null) {
             Log.w("TelegramActions", "No dataId provided for Telegram chat")
             return
         }
 
         try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(
-                    Uri.parse("content://com.android.contacts/data/$dataId"),
-                    ContactMethodMimeTypes.TELEGRAM_MESSAGE
-                )
-                setPackage(TELEGRAM_PACKAGE)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        Uri.parse("content://com.android.contacts/data/$dataId"),
+                        ContactMethodMimeTypes.TELEGRAM_MESSAGE,
+                    )
+                    setPackage(TELEGRAM_PACKAGE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             val pm = context.packageManager
             if (intent.resolveActivity(pm) != null) {
@@ -53,7 +57,11 @@ object TelegramActions {
      * Opens Telegram chat for a phone number with comprehensive fallback methods.
      * Uses multiple approaches to ensure maximum compatibility.
      */
-    fun openTelegramChat(context: Application, phoneNumber: String, onShowToast: ((Int) -> Unit)? = null) {
+    fun openTelegramChat(
+        context: Application,
+        phoneNumber: String,
+        onShowToast: ((Int) -> Unit)? = null,
+    ) {
         if (!PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) {
             Log.w("TelegramActions", "Invalid phone number for Telegram: $phoneNumber")
             return
@@ -68,10 +76,11 @@ object TelegramActions {
         // Method 1: Use tg://resolve?phone= (preferred for Telegram app)
         try {
             val tgUri = Uri.parse("tg://resolve?phone=${Uri.encode(cleanNumber)}")
-            val intent = Intent(Intent.ACTION_VIEW, tgUri).apply {
-                setPackage(TELEGRAM_PACKAGE)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW, tgUri).apply {
+                    setPackage(TELEGRAM_PACKAGE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             val pm = context.packageManager
             if (intent.resolveActivity(pm) != null) {
@@ -87,9 +96,10 @@ object TelegramActions {
         // Method 2: Fallback to web URL https://t.me/+
         try {
             val webUri = Uri.parse("https://t.me/${Uri.encode(cleanNumber)}")
-            val webIntent = Intent(Intent.ACTION_VIEW, webUri).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val webIntent =
+                Intent(Intent.ACTION_VIEW, webUri).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             context.startActivity(webIntent)
         } catch (e: Exception) {
             Log.w("TelegramActions", "Telegram web fallback failed", e)
@@ -100,21 +110,26 @@ object TelegramActions {
      * Initiates a Telegram call using the contact data URI approach.
      * This method uses ACTION_VIEW with the specific contact data MIME type.
      */
-    fun openTelegramCall(context: Application, dataId: Long?, onShowToast: ((Int) -> Unit)? = null): Boolean {
+    fun openTelegramCall(
+        context: Application,
+        dataId: Long?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean {
         if (dataId == null) {
             Log.w("TelegramActions", "No dataId provided for Telegram call")
             return false
         }
 
         try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(
-                    Uri.parse("content://com.android.contacts/data/$dataId"),
-                    ContactMethodMimeTypes.TELEGRAM_CALL
-                )
-                setPackage(TELEGRAM_PACKAGE)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        Uri.parse("content://com.android.contacts/data/$dataId"),
+                        ContactMethodMimeTypes.TELEGRAM_CALL,
+                    )
+                    setPackage(TELEGRAM_PACKAGE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             val pm = context.packageManager
             if (intent.resolveActivity(pm) != null) {
@@ -135,20 +150,27 @@ object TelegramActions {
     /**
      * Initiates a Telegram call for a phone number.
      */
-    fun openTelegramCall(context: Application, phoneNumber: String, onShowToast: ((Int) -> Unit)? = null) {
+    fun openTelegramCall(
+        context: Application,
+        phoneNumber: String,
+        onShowToast: ((Int) -> Unit)? = null,
+    ) {
         if (phoneNumber.isBlank()) return
 
-        val normalizedNumber = phoneNumber.trim()
-            .replace(" ", "")
-            .replace("-", "")
-            .let { if (it.startsWith("+")) it else "+$it" }
+        val normalizedNumber =
+            phoneNumber
+                .trim()
+                .replace(" ", "")
+                .replace("-", "")
+                .let { if (it.startsWith("+")) it else "+$it" }
 
         // Try tg:// scheme for call
         val tgUri = Uri.parse("tg://resolve?phone=${Uri.encode(normalizedNumber)}&call=1")
-        val intent = Intent(Intent.ACTION_VIEW, tgUri).apply {
-            setPackage(TELEGRAM_PACKAGE)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val intent =
+            Intent(Intent.ACTION_VIEW, tgUri).apply {
+                setPackage(TELEGRAM_PACKAGE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
 
         try {
             context.startActivity(intent)
@@ -161,7 +183,11 @@ object TelegramActions {
      * Initiates a Telegram video call.
      * Uses the contact data URI for the specific video call row from Contacts provider.
      */
-    fun openTelegramVideoCall(context: Application, dataId: Long?, phoneNumber: String?): Boolean {
+    fun openTelegramVideoCall(
+        context: Application,
+        dataId: Long?,
+        phoneNumber: String?,
+    ): Boolean {
         if (dataId == null) {
             Log.w("TelegramActions", "No dataId provided for Telegram video call")
             return false
@@ -170,10 +196,11 @@ object TelegramActions {
         // Telegram video calls use a different approach - ACTION_VIEW with URI directly
         return try {
             val contactDataUri = Uri.parse("content://com.android.contacts/data/$dataId")
-            val intent = Intent(Intent.ACTION_VIEW, contactDataUri).apply {
-                setPackage(TELEGRAM_PACKAGE)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW, contactDataUri).apply {
+                    setPackage(TELEGRAM_PACKAGE)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(intent)

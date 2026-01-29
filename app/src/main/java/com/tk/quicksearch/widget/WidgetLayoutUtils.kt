@@ -23,11 +23,13 @@ object WidgetLayoutUtils {
      */
     const val NARROW_WIDTH_DP = 200f
 
-    fun resolveOr(value: Dp, default: Dp): Dp {
-        return if (value == Dp.Unspecified || value.value <= 0f) {
+    fun resolveOr(
+        value: Dp,
+        default: Dp,
+    ): Dp =
+        if (value == Dp.Unspecified || value.value <= 0f) {
             default
         } else {
             value
         }
-    }
 }

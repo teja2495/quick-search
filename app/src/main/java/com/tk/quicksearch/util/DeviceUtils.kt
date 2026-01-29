@@ -33,13 +33,12 @@ fun isLandscape(): Boolean {
  * Tablets show 7 columns in portrait, 9 columns in landscape. Phones show 5 columns.
  */
 @Composable
-fun getAppGridColumns(): Int {
-    return if (isTablet()) {
+fun getAppGridColumns(): Int =
+    if (isTablet()) {
         if (isLandscape()) 9 else 7
     } else {
         5
     }
-}
 
 /**
  * Checks if the device is a tablet using Context.
@@ -63,10 +62,9 @@ fun isLandscape(context: Context): Boolean {
  * Gets the appropriate number of columns for app grid based on device type and orientation using Context.
  * Tablets show 7 columns in portrait, 9 columns in landscape. Phones show 5 columns.
  */
-fun getAppGridColumns(context: Context): Int {
-    return if (isTablet(context)) {
+fun getAppGridColumns(context: Context): Int =
+    if (isTablet(context)) {
         if (isLandscape(context)) 9 else 7
     } else {
         5
     }
-}

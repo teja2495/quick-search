@@ -45,93 +45,91 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 
 @Composable
 fun ContactResultsSection(
-        modifier: Modifier = Modifier,
-        hasPermission: Boolean,
-        contacts: List<ContactInfo>,
-        isExpanded: Boolean,
-        messagingApp: MessagingApp,
-        onContactClick: (ContactInfo) -> Unit,
-        onShowContactMethods: (ContactInfo) -> Unit = {},
-        onCallContact: (ContactInfo) -> Unit,
-        onSmsContact: (ContactInfo) -> Unit,
-        onContactMethodClick: (ContactInfo, ContactMethod) -> Unit = { _, _ -> },
-        pinnedContactIds: Set<Long> = emptySet(),
-        onTogglePin: (ContactInfo) -> Unit = {},
-        onExclude: (ContactInfo) -> Unit = {},
-        onNicknameClick: (ContactInfo) -> Unit = {},
-        getContactNickname: (Long) -> String? = { null },
-        getPrimaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction? =
-                {
-                        null
-                },
-        getSecondaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction? =
-                {
-                        null
-                },
-        onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
-        onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
-        onCustomAction:
-                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
-                { _, _ ->
-                },
-        onOpenAppSettings: () -> Unit,
-        showAllResults: Boolean = false,
-        showExpandControls: Boolean = false,
-        onExpandClick: () -> Unit,
-        showContactActionHint: Boolean = false,
-        onContactActionHintDismissed: () -> Unit = {},
-        permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
-        showWallpaperBackground: Boolean = false
+    modifier: Modifier = Modifier,
+    hasPermission: Boolean,
+    contacts: List<ContactInfo>,
+    isExpanded: Boolean,
+    messagingApp: MessagingApp,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit = {},
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit = { _, _ -> },
+    pinnedContactIds: Set<Long> = emptySet(),
+    onTogglePin: (ContactInfo) -> Unit = {},
+    onExclude: (ContactInfo) -> Unit = {},
+    onNicknameClick: (ContactInfo) -> Unit = {},
+    getContactNickname: (Long) -> String? = { null },
+    getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction? =
+        {
+            null
+        },
+    getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction? =
+        {
+            null
+        },
+    onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
+    onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
+    onCustomAction: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
+        { _, _ ->
+        },
+    onOpenAppSettings: () -> Unit,
+    showAllResults: Boolean = false,
+    showExpandControls: Boolean = false,
+    onExpandClick: () -> Unit,
+    showContactActionHint: Boolean = false,
+    onContactActionHintDismissed: () -> Unit = {},
+    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
-        val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
-        if (!hasVisibleContent) return
+    val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
+    if (!hasVisibleContent) return
 
-        Column(
-                modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-        ) {
-                when {
-                        hasPermission && contacts.isNotEmpty() -> {
-                                ContactsResultCard(
-                                        contacts = contacts,
-                                        isExpanded = isExpanded,
-                                        showAllResults = showAllResults,
-                                        showExpandControls = showExpandControls,
-                                        messagingApp = messagingApp,
-                                        onContactClick = onContactClick,
-                                        onShowContactMethods = onShowContactMethods,
-                                        onCallContact = onCallContact,
-                                        onSmsContact = onSmsContact,
-                                        onContactMethodClick = onContactMethodClick,
-                                        pinnedContactIds = pinnedContactIds,
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onNicknameClick = onNicknameClick,
-                                        getContactNickname = getContactNickname,
-                                        getPrimaryContactCardAction = getPrimaryContactCardAction,
-                                        getSecondaryContactCardAction =
-                                                getSecondaryContactCardAction,
-                                        onPrimaryActionLongPress = onPrimaryActionLongPress,
-                                        onSecondaryActionLongPress = onSecondaryActionLongPress,
-                                        onCustomAction = onCustomAction,
-                                        onExpandClick = onExpandClick,
-                                        showContactActionHint = showContactActionHint,
-                                        onContactActionHintDismissed = onContactActionHintDismissed,
-                                        showWallpaperBackground = showWallpaperBackground
-                                )
-                        }
-                        !hasPermission -> {
-                                permissionDisabledCard(
-                                        stringResource(R.string.contacts_permission_title),
-                                        stringResource(R.string.contacts_permission_subtitle),
-                                        stringResource(R.string.permission_action_manage_android),
-                                        onOpenAppSettings
-                                )
-                        }
-                }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        when {
+            hasPermission && contacts.isNotEmpty() -> {
+                ContactsResultCard(
+                    contacts = contacts,
+                    isExpanded = isExpanded,
+                    showAllResults = showAllResults,
+                    showExpandControls = showExpandControls,
+                    messagingApp = messagingApp,
+                    onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onContactMethodClick = onContactMethodClick,
+                    pinnedContactIds = pinnedContactIds,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    getContactNickname = getContactNickname,
+                    getPrimaryContactCardAction = getPrimaryContactCardAction,
+                    getSecondaryContactCardAction =
+                    getSecondaryContactCardAction,
+                    onPrimaryActionLongPress = onPrimaryActionLongPress,
+                    onSecondaryActionLongPress = onSecondaryActionLongPress,
+                    onCustomAction = onCustomAction,
+                    onExpandClick = onExpandClick,
+                    showContactActionHint = showContactActionHint,
+                    onContactActionHintDismissed = onContactActionHintDismissed,
+                    showWallpaperBackground = showWallpaperBackground,
+                )
+            }
+
+            !hasPermission -> {
+                permissionDisabledCard(
+                    stringResource(R.string.contacts_permission_title),
+                    stringResource(R.string.contacts_permission_subtitle),
+                    stringResource(R.string.permission_action_manage_android),
+                    onOpenAppSettings,
+                )
+            }
         }
+    }
 }
 
 // ============================================================================
@@ -140,122 +138,122 @@ fun ContactResultsSection(
 
 @Composable
 private fun ContactsResultCard(
-        contacts: List<ContactInfo>,
-        isExpanded: Boolean,
-        showAllResults: Boolean,
-        showExpandControls: Boolean,
-        messagingApp: MessagingApp,
-        onContactClick: (ContactInfo) -> Unit,
-        onShowContactMethods: (ContactInfo) -> Unit,
-        onCallContact: (ContactInfo) -> Unit,
-        onSmsContact: (ContactInfo) -> Unit,
-        onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
-        pinnedContactIds: Set<Long>,
-        onTogglePin: (ContactInfo) -> Unit,
-        onExclude: (ContactInfo) -> Unit,
-        onNicknameClick: (ContactInfo) -> Unit,
-        getContactNickname: (Long) -> String?,
-        getPrimaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-        getSecondaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-        onPrimaryActionLongPress: (ContactInfo) -> Unit,
-        onSecondaryActionLongPress: (ContactInfo) -> Unit,
-        onCustomAction:
-                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
-        onExpandClick: () -> Unit,
-        showContactActionHint: Boolean,
-        onContactActionHintDismissed: () -> Unit,
-        showWallpaperBackground: Boolean = false
+    contacts: List<ContactInfo>,
+    isExpanded: Boolean,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
+    messagingApp: MessagingApp,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    pinnedContactIds: Set<Long>,
+    onTogglePin: (ContactInfo) -> Unit,
+    onExclude: (ContactInfo) -> Unit,
+    onNicknameClick: (ContactInfo) -> Unit,
+    getContactNickname: (Long) -> String?,
+    getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+    getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+    onPrimaryActionLongPress: (ContactInfo) -> Unit,
+    onSecondaryActionLongPress: (ContactInfo) -> Unit,
+    onCustomAction: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+    onExpandClick: () -> Unit,
+    showContactActionHint: Boolean,
+    onContactActionHintDismissed: () -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
-        val displayAsExpanded = isExpanded || showAllResults
-        val canShowExpand =
-                showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-        val shouldShowCollapseButton = isExpanded && showExpandControls
+    val displayAsExpanded = isExpanded || showAllResults
+    val canShowExpand =
+        showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
+    val shouldShowCollapseButton = isExpanded && showExpandControls
 
-        val displayContacts =
-                if (displayAsExpanded) {
-                        contacts
-                } else {
-                        contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        val scrollState = androidx.compose.foundation.rememberScrollState()
-
-        Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-        ) {
-                val cardModifier = Modifier.fillMaxWidth()
-
-                val cardContent =
-                        @Composable
-                        {
-                                Column(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .then(
-                                                                if (isExpanded)
-                                                                        Modifier.heightIn(
-                                                                                        max =
-                                                                                                SearchScreenConstants
-                                                                                                        .EXPANDED_CARD_MAX_HEIGHT
-                                                                                )
-                                                                                .verticalScroll(
-                                                                                        scrollState
-                                                                                )
-                                                                else Modifier
-                                                        )
-                                ) {
-                                        ContactList(
-                                                displayContacts = displayContacts,
-                                                messagingApp = messagingApp,
-                                                onContactClick = onContactClick,
-                                                onShowContactMethods = onShowContactMethods,
-                                                onCallContact = onCallContact,
-                                                onSmsContact = onSmsContact,
-                                                onContactMethodClick = onContactMethodClick,
-                                                pinnedContactIds = pinnedContactIds,
-                                                onTogglePin = onTogglePin,
-                                                onExclude = onExclude,
-                                                onNicknameClick = onNicknameClick,
-                                                getContactNickname = getContactNickname,
-                                                getPrimaryContactCardAction =
-                                                        getPrimaryContactCardAction,
-                                                getSecondaryContactCardAction =
-                                                        getSecondaryContactCardAction,
-                                                onPrimaryActionLongPress = onPrimaryActionLongPress,
-                                                onSecondaryActionLongPress =
-                                                        onSecondaryActionLongPress,
-                                                onCustomAction = onCustomAction,
-                                                shouldShowExpandButton = shouldShowExpandButton,
-                                                onExpandClick = onExpandClick,
-                                                showContactActionHint = showContactActionHint,
-                                                onContactActionHintDismissed =
-                                                        onContactActionHintDismissed
-                                        )
-                                }
-                        }
-
-                if (showWallpaperBackground) {
-                        Card(
-                                modifier = cardModifier,
-                                colors = AppColors.getCardColors(showWallpaperBackground = true),
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation =
-                                        AppColors.getCardElevation(showWallpaperBackground = true)
-                        ) { cardContent() }
-                } else {
-                        ElevatedCard(
-                                modifier = cardModifier,
-                                colors = AppColors.getCardColors(showWallpaperBackground = false),
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation =
-                                        AppColors.getCardElevation(showWallpaperBackground = false)
-                        ) { cardContent() }
-                }
+    val displayContacts =
+        if (displayAsExpanded) {
+            contacts
+        } else {
+            contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
         }
+
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        val cardModifier = Modifier.fillMaxWidth()
+
+        val cardContent =
+            @Composable
+            {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (isExpanded) {
+                                    Modifier
+                                        .heightIn(
+                                            max =
+                                                SearchScreenConstants
+                                                    .EXPANDED_CARD_MAX_HEIGHT,
+                                        ).verticalScroll(
+                                            scrollState,
+                                        )
+                                } else {
+                                    Modifier
+                                },
+                            ),
+                ) {
+                    ContactList(
+                        displayContacts = displayContacts,
+                        messagingApp = messagingApp,
+                        onContactClick = onContactClick,
+                        onShowContactMethods = onShowContactMethods,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact,
+                        onContactMethodClick = onContactMethodClick,
+                        pinnedContactIds = pinnedContactIds,
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude,
+                        onNicknameClick = onNicknameClick,
+                        getContactNickname = getContactNickname,
+                        getPrimaryContactCardAction =
+                        getPrimaryContactCardAction,
+                        getSecondaryContactCardAction =
+                        getSecondaryContactCardAction,
+                        onPrimaryActionLongPress = onPrimaryActionLongPress,
+                        onSecondaryActionLongPress =
+                        onSecondaryActionLongPress,
+                        onCustomAction = onCustomAction,
+                        shouldShowExpandButton = shouldShowExpandButton,
+                        onExpandClick = onExpandClick,
+                        showContactActionHint = showContactActionHint,
+                        onContactActionHintDismissed =
+                        onContactActionHintDismissed,
+                    )
+                }
+            }
+
+        if (showWallpaperBackground) {
+            Card(
+                modifier = cardModifier,
+                colors = AppColors.getCardColors(showWallpaperBackground = true),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation =
+                    AppColors.getCardElevation(showWallpaperBackground = true),
+            ) { cardContent() }
+        } else {
+            ElevatedCard(
+                modifier = cardModifier,
+                colors = AppColors.getCardColors(showWallpaperBackground = false),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation =
+                    AppColors.getCardElevation(showWallpaperBackground = false),
+            ) { cardContent() }
+        }
+    }
 }
 
 // ============================================================================
@@ -264,247 +262,250 @@ private fun ContactsResultCard(
 
 @Composable
 private fun ContactList(
-        displayContacts: List<ContactInfo>,
-        messagingApp: MessagingApp,
-        onContactClick: (ContactInfo) -> Unit,
-        onShowContactMethods: (ContactInfo) -> Unit,
-        onCallContact: (ContactInfo) -> Unit,
-        onSmsContact: (ContactInfo) -> Unit,
-        onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
-        pinnedContactIds: Set<Long>,
-        onTogglePin: (ContactInfo) -> Unit,
-        onExclude: (ContactInfo) -> Unit,
-        onNicknameClick: (ContactInfo) -> Unit,
-        getContactNickname: (Long) -> String?,
-        getPrimaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-        getSecondaryContactCardAction:
-                (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-        onPrimaryActionLongPress: (ContactInfo) -> Unit,
-        onSecondaryActionLongPress: (ContactInfo) -> Unit,
-        onCustomAction:
-                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
-        shouldShowExpandButton: Boolean,
-        onExpandClick: () -> Unit,
-        showContactActionHint: Boolean,
-        onContactActionHintDismissed: () -> Unit
+    displayContacts: List<ContactInfo>,
+    messagingApp: MessagingApp,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    pinnedContactIds: Set<Long>,
+    onTogglePin: (ContactInfo) -> Unit,
+    onExclude: (ContactInfo) -> Unit,
+    onNicknameClick: (ContactInfo) -> Unit,
+    getContactNickname: (Long) -> String?,
+    getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+    getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+    onPrimaryActionLongPress: (ContactInfo) -> Unit,
+    onSecondaryActionLongPress: (ContactInfo) -> Unit,
+    onCustomAction: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+    shouldShowExpandButton: Boolean,
+    onExpandClick: () -> Unit,
+    showContactActionHint: Boolean,
+    onContactActionHintDismissed: () -> Unit,
 ) {
-        Column(
-                modifier =
-                        Modifier.padding(
-                                horizontal = DesignTokens.SpacingMedium,
-                                vertical = DesignTokens.SpacingXSmall
-                        )
-        ) {
-                displayContacts.forEachIndexed { index, contactInfo ->
-                        key(contactInfo.contactId) {
-                                ContactResultRow(
-                                        contactInfo = contactInfo,
-                                        messagingApp =
-                                                ContactMessagingAppResolver
-                                                        .resolveMessagingAppForContact(
-                                                                contactInfo,
-                                                                messagingApp
-                                                        ),
-                                        onContactClick = onContactClick,
-                                        onShowContactMethods = onShowContactMethods,
-                                        onCallContact = onCallContact,
-                                        onSmsContact = onSmsContact,
-                                        onContactMethodClick = { method ->
-                                                onContactMethodClick(contactInfo, method)
-                                        },
-                                        isPinned = pinnedContactIds.contains(contactInfo.contactId),
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onNicknameClick = onNicknameClick,
-                                        hasNickname =
-                                                !getContactNickname(contactInfo.contactId)
-                                                        .isNullOrBlank(),
-                                        primaryAction =
-                                                getPrimaryContactCardAction(contactInfo.contactId),
-                                        secondaryAction =
-                                                getSecondaryContactCardAction(
-                                                        contactInfo.contactId
-                                                ),
-                                        onPrimaryActionLongPress = onPrimaryActionLongPress,
-                                        onSecondaryActionLongPress = onSecondaryActionLongPress,
-                                        onCustomAction = onCustomAction
-                                )
-                        }
-                        if (index == 0 && showContactActionHint) {
-                                ContactActionHintBubble(
-                                        onDismiss = onContactActionHintDismissed,
-                                        modifier = Modifier.padding(top = DesignTokens.SpacingSmall)
-                                )
-                        }
-                        if (index != displayContacts.lastIndex) {
-                                HorizontalDivider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.outlineVariant
-                                )
-                        }
-                }
-
-                if (shouldShowExpandButton) {
-                        ExpandButton(
-                                onClick = onExpandClick,
-                                modifier =
-                                        Modifier.align(Alignment.CenterHorizontally)
-                                                .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
-                                                .padding(top = DesignTokens.SpacingXXSmall)
-                        )
-                }
+    Column(
+        modifier =
+            Modifier.padding(
+                horizontal = DesignTokens.SpacingMedium,
+                vertical = DesignTokens.SpacingXSmall,
+            ),
+    ) {
+        displayContacts.forEachIndexed { index, contactInfo ->
+            key(contactInfo.contactId) {
+                ContactResultRow(
+                    contactInfo = contactInfo,
+                    messagingApp =
+                        ContactMessagingAppResolver
+                            .resolveMessagingAppForContact(
+                                contactInfo,
+                                messagingApp,
+                            ),
+                    onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onContactMethodClick = { method ->
+                        onContactMethodClick(contactInfo, method)
+                    },
+                    isPinned = pinnedContactIds.contains(contactInfo.contactId),
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    hasNickname =
+                        !getContactNickname(contactInfo.contactId)
+                            .isNullOrBlank(),
+                    primaryAction =
+                        getPrimaryContactCardAction(contactInfo.contactId),
+                    secondaryAction =
+                        getSecondaryContactCardAction(
+                            contactInfo.contactId,
+                        ),
+                    onPrimaryActionLongPress = onPrimaryActionLongPress,
+                    onSecondaryActionLongPress = onSecondaryActionLongPress,
+                    onCustomAction = onCustomAction,
+                )
+            }
+            if (index == 0 && showContactActionHint) {
+                ContactActionHintBubble(
+                    onDismiss = onContactActionHintDismissed,
+                    modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                )
+            }
+            if (index != displayContacts.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                )
+            }
         }
+
+        if (shouldShowExpandButton) {
+            ExpandButton(
+                onClick = onExpandClick,
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
+                        .padding(top = DesignTokens.SpacingXXSmall),
+            )
+        }
+    }
 }
 
 @Composable
-private fun ContactActionHintBubble(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
-        val arrowHeight = 10.dp
-        val arrowWidth = 28.dp
-        val cornerRadius = 16.dp
-        val arrowInset =
-                ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
-        val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+private fun ContactActionHintBubble(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val arrowHeight = 10.dp
+    val arrowWidth = 28.dp
+    val cornerRadius = 16.dp
+    val arrowInset =
+        ContactUiConstants.ACTION_BUTTON_SIZE.dp * 0.5f + DesignTokens.SpacingSmall + 24.dp
+    val backgroundColor = MaterialTheme.colorScheme.secondaryContainer
 
-        Box(
-                modifier =
-                        modifier.fillMaxWidth()
-                                .padding(bottom = DesignTokens.SpacingMedium)
-                                .drawBehind {
-                                        val arrowHeightPx = arrowHeight.toPx()
-                                        val arrowWidthPx = arrowWidth.toPx()
-                                        val cornerRadiusPx = cornerRadius.toPx()
-                                        val arrowInsetPx = arrowInset.toPx()
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(bottom = DesignTokens.SpacingMedium)
+                .drawBehind {
+                    val arrowHeightPx = arrowHeight.toPx()
+                    val arrowWidthPx = arrowWidth.toPx()
+                    val cornerRadiusPx = cornerRadius.toPx()
+                    val arrowInsetPx = arrowInset.toPx()
 
-                                        val rectTop = arrowHeightPx
-                                        val rect = Rect(0f, rectTop, size.width, size.height)
+                    val rectTop = arrowHeightPx
+                    val rect = Rect(0f, rectTop, size.width, size.height)
 
-                                        val minArrowCenter = cornerRadiusPx + (arrowWidthPx / 2f)
-                                        val maxArrowCenter =
-                                                size.width - cornerRadiusPx - (arrowWidthPx / 2f)
-                                        val arrowCenterX =
-                                                (size.width - arrowInsetPx).coerceIn(
-                                                        minArrowCenter,
-                                                        maxArrowCenter
-                                                )
-
-                                        val path =
-                                                Path().apply {
-                                                        moveTo(cornerRadiusPx, rect.top)
-                                                        lineTo(
-                                                                arrowCenterX - (arrowWidthPx / 2f),
-                                                                rect.top
-                                                        )
-                                                        lineTo(arrowCenterX, 0f)
-                                                        lineTo(
-                                                                arrowCenterX + (arrowWidthPx / 2f),
-                                                                rect.top
-                                                        )
-                                                        lineTo(
-                                                                rect.width - cornerRadiusPx,
-                                                                rect.top
-                                                        )
-                                                        arcTo(
-                                                                rect =
-                                                                        Rect(
-                                                                                rect.width -
-                                                                                        cornerRadiusPx *
-                                                                                                2f,
-                                                                                rect.top,
-                                                                                rect.width,
-                                                                                rect.top +
-                                                                                        cornerRadiusPx *
-                                                                                                2f
-                                                                        ),
-                                                                startAngleDegrees = 270f,
-                                                                sweepAngleDegrees = 90f,
-                                                                forceMoveTo = false
-                                                        )
-                                                        lineTo(
-                                                                rect.width,
-                                                                rect.bottom - cornerRadiusPx
-                                                        )
-                                                        arcTo(
-                                                                rect =
-                                                                        Rect(
-                                                                                rect.width -
-                                                                                        cornerRadiusPx *
-                                                                                                2f,
-                                                                                rect.bottom -
-                                                                                        cornerRadiusPx *
-                                                                                                2f,
-                                                                                rect.width,
-                                                                                rect.bottom
-                                                                        ),
-                                                                startAngleDegrees = 0f,
-                                                                sweepAngleDegrees = 90f,
-                                                                forceMoveTo = false
-                                                        )
-                                                        lineTo(cornerRadiusPx, rect.bottom)
-                                                        arcTo(
-                                                                rect =
-                                                                        Rect(
-                                                                                0f,
-                                                                                rect.bottom -
-                                                                                        cornerRadiusPx *
-                                                                                                2f,
-                                                                                cornerRadiusPx * 2f,
-                                                                                rect.bottom
-                                                                        ),
-                                                                startAngleDegrees = 90f,
-                                                                sweepAngleDegrees = 90f,
-                                                                forceMoveTo = false
-                                                        )
-                                                        lineTo(0f, rect.top + cornerRadiusPx)
-                                                        arcTo(
-                                                                rect =
-                                                                        Rect(
-                                                                                0f,
-                                                                                rect.top,
-                                                                                cornerRadiusPx * 2f,
-                                                                                rect.top +
-                                                                                        cornerRadiusPx *
-                                                                                                2f
-                                                                        ),
-                                                                startAngleDegrees = 180f,
-                                                                sweepAngleDegrees = 90f,
-                                                                forceMoveTo = false
-                                                        )
-                                                        close()
-                                                }
-
-                                        drawPath(path = path, color = backgroundColor)
-                                }
-        ) {
-                Box(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(top = arrowHeight)
-                                        .padding(
-                                                horizontal = DesignTokens.SpacingMedium,
-                                                vertical = DesignTokens.SpacingMedium
-                                        ),
-                        contentAlignment = Alignment.CenterStart
-                ) {
-                        Text(
-                                text = stringResource(R.string.contacts_action_hint_message),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
-                                modifier =
-                                        Modifier.align(Alignment.CenterStart).padding(end = 28.dp)
+                    val minArrowCenter = cornerRadiusPx + (arrowWidthPx / 2f)
+                    val maxArrowCenter =
+                        size.width - cornerRadiusPx - (arrowWidthPx / 2f)
+                    val arrowCenterX =
+                        (size.width - arrowInsetPx).coerceIn(
+                            minArrowCenter,
+                            maxArrowCenter,
                         )
-                        IconButton(
-                                onClick = onDismiss,
-                                modifier = Modifier.align(Alignment.CenterEnd).size(28.dp)
-                        ) {
-                                Icon(
-                                        imageVector = Icons.Rounded.Close,
-                                        contentDescription = stringResource(R.string.desc_close),
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        modifier = Modifier.size(18.dp)
-                                )
+
+                    val path =
+                        Path().apply {
+                            moveTo(cornerRadiusPx, rect.top)
+                            lineTo(
+                                arrowCenterX - (arrowWidthPx / 2f),
+                                rect.top,
+                            )
+                            lineTo(arrowCenterX, 0f)
+                            lineTo(
+                                arrowCenterX + (arrowWidthPx / 2f),
+                                rect.top,
+                            )
+                            lineTo(
+                                rect.width - cornerRadiusPx,
+                                rect.top,
+                            )
+                            arcTo(
+                                rect =
+                                    Rect(
+                                        rect.width -
+                                            cornerRadiusPx *
+                                            2f,
+                                        rect.top,
+                                        rect.width,
+                                        rect.top +
+                                            cornerRadiusPx *
+                                            2f,
+                                    ),
+                                startAngleDegrees = 270f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false,
+                            )
+                            lineTo(
+                                rect.width,
+                                rect.bottom - cornerRadiusPx,
+                            )
+                            arcTo(
+                                rect =
+                                    Rect(
+                                        rect.width -
+                                            cornerRadiusPx *
+                                            2f,
+                                        rect.bottom -
+                                            cornerRadiusPx *
+                                            2f,
+                                        rect.width,
+                                        rect.bottom,
+                                    ),
+                                startAngleDegrees = 0f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false,
+                            )
+                            lineTo(cornerRadiusPx, rect.bottom)
+                            arcTo(
+                                rect =
+                                    Rect(
+                                        0f,
+                                        rect.bottom -
+                                            cornerRadiusPx *
+                                            2f,
+                                        cornerRadiusPx * 2f,
+                                        rect.bottom,
+                                    ),
+                                startAngleDegrees = 90f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false,
+                            )
+                            lineTo(0f, rect.top + cornerRadiusPx)
+                            arcTo(
+                                rect =
+                                    Rect(
+                                        0f,
+                                        rect.top,
+                                        cornerRadiusPx * 2f,
+                                        rect.top +
+                                            cornerRadiusPx *
+                                            2f,
+                                    ),
+                                startAngleDegrees = 180f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false,
+                            )
+                            close()
                         }
-                }
+
+                    drawPath(path = path, color = backgroundColor)
+                },
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = arrowHeight)
+                    .padding(
+                        horizontal = DesignTokens.SpacingMedium,
+                        vertical = DesignTokens.SpacingMedium,
+                    ),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Text(
+                text = stringResource(R.string.contacts_action_hint_message),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.2f,
+                modifier =
+                    Modifier.align(Alignment.CenterStart).padding(end = 28.dp),
+            )
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.CenterEnd).size(28.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.desc_close),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
+    }
 }

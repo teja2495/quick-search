@@ -18,20 +18,22 @@ import com.tk.quicksearch.util.PackageConstants
 
 /** Helper functions for creating and launching intents. */
 object IntentHelpers {
-
     private const val EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY = "com.android.externalstorage.documents"
 
-    private fun canResolveIntent(context: Application, intent: Intent): Boolean {
-        return intent.resolveActivity(context.packageManager) != null
-    }
+    private fun canResolveIntent(
+        context: Application,
+        intent: Intent,
+    ): Boolean = intent.resolveActivity(context.packageManager) != null
 
     /** Creates an intent with package URI and NEW_TASK flag. */
-    private fun createPackageIntent(action: String, packageName: String): Intent {
-        return Intent(action).apply {
+    private fun createPackageIntent(
+        action: String,
+        packageName: String,
+    ): Intent =
+        Intent(action).apply {
             data = Uri.parse("package:$packageName")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-    }
 
     /** Opens usage access settings for the app. */
     fun openUsageAccessSettings(context: Application) {
@@ -42,15 +44,18 @@ object IntentHelpers {
     /** Opens app settings for the app. */
     fun openAppSettings(context: Application) {
         val intent =
-                createPackageIntent(
-                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        context.packageName
-                )
+            createPackageIntent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                context.packageName,
+            )
         context.startActivity(intent)
     }
 
     /** Opens app info settings for a specific package. */
-    fun openAppInfo(context: Application, packageName: String) {
+    fun openAppInfo(
+        context: Application,
+        packageName: String,
+    ) {
         val intent = createPackageIntent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageName)
         context.startActivity(intent)
     }
@@ -58,24 +63,24 @@ object IntentHelpers {
     /** Opens all files access settings with fallback. */
     fun openAllFilesAccessSettings(context: Application) {
         val manageIntent =
-                createPackageIntent(
-                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                        context.packageName
-                )
+            createPackageIntent(
+                Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                context.packageName,
+            )
         runCatching { context.startActivity(manageIntent) }.onFailure {
             val fallback =
-                    Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
+                Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             context.startActivity(fallback)
         }
     }
 
     /** Launches an app by package name. */
     fun launchApp(
-            context: Application,
-            appInfo: AppInfo,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        appInfo: AppInfo,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
 
@@ -85,16 +90,16 @@ object IntentHelpers {
         }
 
         launchIntent.addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
         )
         context.startActivity(launchIntent)
     }
 
     /** Requests uninstall for an app. */
     fun requestUninstall(
-            context: Application,
-            appInfo: AppInfo,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        appInfo: AppInfo,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val packageName = appInfo.packageName
         if (packageName == context.packageName) {
@@ -112,11 +117,11 @@ object IntentHelpers {
 
     /** Opens a search URL with the specified search engine. */
     fun openSearchUrl(
-            context: Application,
-            query: String,
-            searchEngine: SearchEngine,
-            amazonDomain: String? = null,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        query: String,
+        searchEngine: SearchEngine,
+        amazonDomain: String? = null,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         // Handle apps with native integrations
         when (searchEngine) {
@@ -124,34 +129,39 @@ object IntentHelpers {
                 openGemini(context, query)
                 return
             }
+
             SearchEngine.GOOGLE_PHOTOS -> {
                 openGooglePhotos(context, query)
                 return
             }
+
             SearchEngine.YOU_COM -> {
                 openYouCom(context, query)
                 return
             }
+
             SearchEngine.STARTPAGE -> {
                 openStartpage(context, query)
                 return
             }
+
             SearchEngine.SPOTIFY -> {
                 openSpotify(context, query)
                 return
             }
+
             else -> {} // Continue to web URL
         }
 
         val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)
         val intent =
-                Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
+            Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         if (!canResolveIntent(context, intent)) {
             onShowToast?.invoke(
-                    R.string.error_open_search_engine,
-                    context.getString(searchEngine.getDisplayNameResId())
+                R.string.error_open_search_engine,
+                context.getString(searchEngine.getDisplayNameResId()),
             )
             return
         }
@@ -159,22 +169,22 @@ object IntentHelpers {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
             onShowToast?.invoke(
-                    R.string.error_open_search_engine,
-                    context.getString(searchEngine.getDisplayNameResId())
+                R.string.error_open_search_engine,
+                context.getString(searchEngine.getDisplayNameResId()),
             )
         } catch (exception: SecurityException) {
             onShowToast?.invoke(
-                    R.string.error_open_search_engine,
-                    context.getString(searchEngine.getDisplayNameResId())
+                R.string.error_open_search_engine,
+                context.getString(searchEngine.getDisplayNameResId()),
             )
         }
     }
 
     fun openBrowserSearch(
-            context: Application,
-            query: String,
-            browserPackageName: String,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        query: String,
+        browserPackageName: String,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
@@ -184,7 +194,9 @@ object IntentHelpers {
                 try {
                     context.startActivity(launchIntent)
                     return
-                } catch (_: ActivityNotFoundException) {} catch (_: SecurityException) {}
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
             }
             onShowToast?.invoke(R.string.error_open_search_engine, null)
             return
@@ -192,10 +204,10 @@ object IntentHelpers {
 
         val searchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
         val intent =
-                Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
-                    setPackage(browserPackageName)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
+            Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
+                setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         if (!canResolveIntent(context, intent)) {
             onShowToast?.invoke(R.string.error_open_search_engine, null)
             return
@@ -216,13 +228,16 @@ object IntentHelpers {
      * Uses ACTION_SEND intent to com.google.android.apps.bard which reliably pre-fills the query.
      * Assumes Gemini app is installed.
      */
-    private fun openGemini(context: Application, query: String) {
+    private fun openGemini(
+        context: Application,
+        query: String,
+    ) {
         // If query is blank, just open the app
         if (query.isBlank()) {
             val launchIntent =
-                    context.packageManager.getLaunchIntentForPackage(
-                            PackageConstants.GEMINI_PACKAGE_NAME
-                    )
+                context.packageManager.getLaunchIntentForPackage(
+                    PackageConstants.GEMINI_PACKAGE_NAME,
+                )
             if (launchIntent != null) {
                 launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 try {
@@ -240,12 +255,12 @@ object IntentHelpers {
 
         // If query is not blank, use share intent to pre-fill it
         val shareIntent =
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, query)
-                    setPackage(PackageConstants.GEMINI_PACKAGE_NAME)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, query)
+                setPackage(PackageConstants.GEMINI_PACKAGE_NAME)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         if (shareIntent.resolveActivity(context.packageManager) != null) {
             try {
                 context.startActivity(shareIntent)
@@ -264,12 +279,15 @@ object IntentHelpers {
     }
 
     /** Opens Google Photos app if installed, otherwise opens web URL. */
-    private fun openGooglePhotos(context: Application, query: String) {
+    private fun openGooglePhotos(
+        context: Application,
+        query: String,
+    ) {
         // Check if app is installed
         val launchIntent =
-                context.packageManager.getLaunchIntentForPackage(
-                        PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME
-                )
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME,
+            )
 
         if (launchIntent != null) {
             // App is installed
@@ -295,12 +313,15 @@ object IntentHelpers {
     }
 
     /** Opens You.com app if installed, otherwise opens web URL. */
-    private fun openYouCom(context: Application, query: String) {
+    private fun openYouCom(
+        context: Application,
+        query: String,
+    ) {
         // Check if app is installed
         val launchIntent =
-                context.packageManager.getLaunchIntentForPackage(
-                        PackageConstants.YOU_COM_PACKAGE_NAME
-                )
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.YOU_COM_PACKAGE_NAME,
+            )
 
         if (launchIntent != null) {
             // App is installed
@@ -325,12 +346,15 @@ object IntentHelpers {
     }
 
     /** Opens Startpage app if installed, otherwise opens web URL. */
-    private fun openStartpage(context: Application, query: String) {
+    private fun openStartpage(
+        context: Application,
+        query: String,
+    ) {
         // Check if app is installed
         val launchIntent =
-                context.packageManager.getLaunchIntentForPackage(
-                        PackageConstants.STARTPAGE_PACKAGE_NAME
-                )
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.STARTPAGE_PACKAGE_NAME,
+            )
 
         if (launchIntent != null) {
             // App is installed
@@ -355,12 +379,15 @@ object IntentHelpers {
     }
 
     /** Opens Spotify app if installed, otherwise opens web URL. */
-    private fun openSpotify(context: Application, query: String) {
+    private fun openSpotify(
+        context: Application,
+        query: String,
+    ) {
         // Check if app is installed
         val launchIntent =
-                context.packageManager.getLaunchIntentForPackage(
-                        PackageConstants.SPOTIFY_PACKAGE
-                )
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.SPOTIFY_PACKAGE,
+            )
 
         if (launchIntent != null) {
             // App is installed
@@ -385,11 +412,14 @@ object IntentHelpers {
     }
 
     /** Opens a web URL in a browser. */
-    private fun openWebUrl(context: Application, url: String) {
+    private fun openWebUrl(
+        context: Application,
+        url: String,
+    ) {
         val intent =
-                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         if (!canResolveIntent(context, intent)) {
             Log.w("OpenWebUrl", "No activity found to handle URL: $url")
             return
@@ -405,9 +435,9 @@ object IntentHelpers {
 
     /** Opens a file with appropriate app. */
     fun openFile(
-            context: Application,
-            deviceFile: DeviceFile,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         if (deviceFile.isDirectory) {
             openDirectory(context, deviceFile, onShowToast)
@@ -423,10 +453,10 @@ object IntentHelpers {
         val mimeType = deviceFile.mimeType ?: "*/*"
 
         val viewIntent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(deviceFile.uri, mimeType)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(deviceFile.uri, mimeType)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
         try {
             context.startActivity(viewIntent)
@@ -444,45 +474,49 @@ object IntentHelpers {
     }
 
     private fun openParentDirectory(
-            context: Application,
-            deviceFile: DeviceFile,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        val folderRelativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
+        val folderRelativePath =
+            deviceFile.relativePath
+                ?.trim()
+                ?.trimStart('/')
+                ?.trimEnd('/')
         if (folderRelativePath.isNullOrBlank()) {
             onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
             return
         }
 
         val folderName =
-                folderRelativePath.substringAfterLast('/').takeIf { it.isNotBlank() }
-                        ?: run {
-                            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
-                            return
-                        }
+            folderRelativePath.substringAfterLast('/').takeIf { it.isNotBlank() }
+                ?: run {
+                    onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+                    return
+                }
 
         val folderDeviceFile =
-                DeviceFile(
-                        uri =
-                                DocumentsContract.buildDocumentUri(
-                                        EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY,
-                                        "${toDocumentVolumeId(deviceFile.volumeName) ?: "primary"}:$folderRelativePath"
-                                ),
-                        displayName = folderName,
-                        mimeType = DocumentsContract.Document.MIME_TYPE_DIR,
-                        lastModified = deviceFile.lastModified,
-                        isDirectory = true,
-                        relativePath = folderRelativePath,
-                        volumeName = deviceFile.volumeName
-                )
+            DeviceFile(
+                uri =
+                    DocumentsContract.buildDocumentUri(
+                        EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY,
+                        "${toDocumentVolumeId(deviceFile.volumeName) ?: "primary"}:$folderRelativePath",
+                    ),
+                displayName = folderName,
+                mimeType = DocumentsContract.Document.MIME_TYPE_DIR,
+                lastModified = deviceFile.lastModified,
+                isDirectory = true,
+                relativePath = folderRelativePath,
+                volumeName = deviceFile.volumeName,
+            )
 
         openDirectory(context, folderDeviceFile, onShowToast)
     }
 
     private fun openDirectory(
-            context: Application,
-            deviceFile: DeviceFile,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val folderPath = buildFolderPath(deviceFile)
 
@@ -495,17 +529,21 @@ object IntentHelpers {
         fallbackDirectoryOpening(context, deviceFile, onShowToast)
     }
 
-    private fun trySamsungMyFiles(context: Application, folderPath: String): Boolean {
-        val samsungIntent = Intent("samsung.myfiles.intent.action.LAUNCH_MY_FILES").apply {
-            setComponent(
-                ComponentName(
-                    "com.sec.android.app.myfiles",
-                    "com.sec.android.app.myfiles.ui.MultiInstanceLaunchActivity"
+    private fun trySamsungMyFiles(
+        context: Application,
+        folderPath: String,
+    ): Boolean {
+        val samsungIntent =
+            Intent("samsung.myfiles.intent.action.LAUNCH_MY_FILES").apply {
+                setComponent(
+                    ComponentName(
+                        "com.sec.android.app.myfiles",
+                        "com.sec.android.app.myfiles.ui.MultiInstanceLaunchActivity",
+                    ),
                 )
-            )
-            putExtra("samsung.myfiles.intent.extra.START_PATH", folderPath)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+                putExtra("samsung.myfiles.intent.extra.START_PATH", folderPath)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
 
         return try {
             context.startActivity(samsungIntent)
@@ -517,45 +555,48 @@ object IntentHelpers {
         }
     }
 
-
     private fun fallbackDirectoryOpening(
-            context: Application,
-            deviceFile: DeviceFile,
-            onShowToast: ((Int, String?) -> Unit)? = null
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         val documentsUri = buildDocumentsDirectoryUri(deviceFile)
         if (documentsUri != null) {
             val documentsIntent =
-                    Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(documentsUri, DocumentsContract.Document.MIME_TYPE_DIR)
-                        addFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK or
-                                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        )
-                    }
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(documentsUri, DocumentsContract.Document.MIME_TYPE_DIR)
+                    addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                    )
+                }
 
             try {
                 context.startActivity(documentsIntent)
                 return
-            } catch (_: ActivityNotFoundException) {} catch (_: SecurityException) {}
+            } catch (_: ActivityNotFoundException) {
+            } catch (_: SecurityException) {
+            }
         }
 
         val primaryIntent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(deviceFile.uri, DocumentsContract.Document.MIME_TYPE_DIR)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(deviceFile.uri, DocumentsContract.Document.MIME_TYPE_DIR)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
         try {
             context.startActivity(primaryIntent)
             return
-        } catch (_: ActivityNotFoundException) {} catch (_: SecurityException) {}
+        } catch (_: ActivityNotFoundException) {
+        } catch (_: SecurityException) {
+        }
 
         val fallbackIntent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    data = deviceFile.uri
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
+            Intent(Intent.ACTION_VIEW).apply {
+                data = deviceFile.uri
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
 
         try {
             context.startActivity(fallbackIntent)
@@ -567,16 +608,20 @@ object IntentHelpers {
     }
 
     private fun buildDocumentsDirectoryUri(deviceFile: DeviceFile): Uri? {
-        val relativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
+        val relativePath =
+            deviceFile.relativePath
+                ?.trim()
+                ?.trimStart('/')
+                ?.trimEnd('/')
         val displayName = deviceFile.displayName.trim().trim('/')
         if (displayName.isBlank()) return null
 
         val basePath =
-                when {
-                    relativePath.isNullOrBlank() -> displayName
-                    relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
-                    else -> "$relativePath/$displayName"
-                }
+            when {
+                relativePath.isNullOrBlank() -> displayName
+                relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
+                else -> "$relativePath/$displayName"
+            }
 
         val volumeId = toDocumentVolumeId(deviceFile.volumeName) ?: return null
         val documentId = "$volumeId:$basePath"
@@ -592,16 +637,21 @@ object IntentHelpers {
     }
 
     private fun buildFolderPath(deviceFile: DeviceFile): String? {
-        val relativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
+        val relativePath =
+            deviceFile.relativePath
+                ?.trim()
+                ?.trimStart('/')
+                ?.trimEnd('/')
         val displayName = deviceFile.displayName.trim().trim('/')
 
         if (displayName.isBlank()) return null
 
-        val basePath = when {
-            relativePath.isNullOrBlank() -> displayName
-            relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
-            else -> "$relativePath/$displayName"
-        }
+        val basePath =
+            when {
+                relativePath.isNullOrBlank() -> displayName
+                relativePath.endsWith(displayName, ignoreCase = true) -> relativePath
+                else -> "$relativePath/$displayName"
+            }
 
         // Convert to absolute path format expected by Samsung My Files
         return "/storage/emulated/0/$basePath"

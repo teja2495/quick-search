@@ -20,4 +20,3 @@ fun Context.isDefaultDigitalAssistant(): Boolean {
         Settings.Secure.getString(contentResolver, "assistant")
     return assistantSetting?.startsWith(packageName) == true
 }
-

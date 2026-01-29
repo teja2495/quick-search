@@ -16,12 +16,12 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 
 class NavigationHandler(
-        private val application: Application,
-        private val userPreferences: UserAppPreferences,
-        private val settingsSearchHandler: DeviceSettingsSearchHandler,
-        private val onRequestDirectSearch: (String) -> Unit,
-        private val onClearQuery: () -> Unit,
-        private val showToastCallback: (Int) -> Unit
+    private val application: Application,
+    private val userPreferences: UserAppPreferences,
+    private val settingsSearchHandler: DeviceSettingsSearchHandler,
+    private val onRequestDirectSearch: (String) -> Unit,
+    private val onClearQuery: () -> Unit,
+    private val showToastCallback: (Int) -> Unit,
 ) {
     private val context: Context
         get() = application.applicationContext
@@ -40,11 +40,11 @@ class NavigationHandler(
 
     fun openFilesPermissionSettings() {
         val targetMethod =
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    IntentHelpers::openAllFilesAccessSettings
-                } else {
-                    IntentHelpers::openAppSettings
-                }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                IntentHelpers::openAllFilesAccessSettings
+            } else {
+                IntentHelpers::openAppSettings
+            }
         targetMethod(application)
     }
 
@@ -52,7 +52,10 @@ class NavigationHandler(
         IntentHelpers.openAppSettings(application)
     }
 
-    fun launchApp(appInfo: AppInfo, shouldTrackRecentFallback: Boolean) {
+    fun launchApp(
+        appInfo: AppInfo,
+        shouldTrackRecentFallback: Boolean,
+    ) {
         IntentHelpers.launchApp(application, appInfo) { stringResId, _ ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
@@ -82,9 +85,9 @@ class NavigationHandler(
     }
 
     fun openSearchUrl(
-            query: String,
-            searchEngine: SearchEngine,
-            addToRecentSearches: Boolean = true
+        query: String,
+        searchEngine: SearchEngine,
+        addToRecentSearches: Boolean = true,
     ) {
         val trimmedQuery = query.trim()
 
@@ -99,14 +102,15 @@ class NavigationHandler(
         }
 
         val amazonDomain =
-                if (searchEngine == SearchEngine.AMAZON) {
-                    userPreferences.getAmazonDomain()
-                } else {
-                    null
-                }
+            if (searchEngine == SearchEngine.AMAZON) {
+                userPreferences.getAmazonDomain()
+            } else {
+                null
+            }
         IntentHelpers.openSearchUrl(application, trimmedQuery, searchEngine, amazonDomain) {
-                stringResId,
-                _ ->
+            stringResId,
+            _,
+            ->
             // For now, just show the string resource ID since we can't format from UI layer
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
@@ -116,20 +120,26 @@ class NavigationHandler(
         onClearQuery()
     }
 
-    fun openSearchTarget(query: String, target: SearchTarget, addToRecentSearches: Boolean = true) {
+    fun openSearchTarget(
+        query: String,
+        target: SearchTarget,
+        addToRecentSearches: Boolean = true,
+    ) {
         val trimmedQuery = query.trim()
         when (target) {
-            is SearchTarget.Engine ->
-                    openSearchUrl(trimmedQuery, target.engine, addToRecentSearches)
+            is SearchTarget.Engine -> {
+                openSearchUrl(trimmedQuery, target.engine, addToRecentSearches)
+            }
+
             is SearchTarget.Browser -> {
                 if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
                     userPreferences.addRecentItem(RecentSearchEntry.Query(trimmedQuery))
                 }
 
                 IntentHelpers.openBrowserSearch(
-                        application,
-                        trimmedQuery,
-                        target.app.packageName
+                    application,
+                    trimmedQuery,
+                    target.app.packageName,
                 ) { stringResId, _ -> showToastCallback(stringResId) }
 
                 onClearQuery()

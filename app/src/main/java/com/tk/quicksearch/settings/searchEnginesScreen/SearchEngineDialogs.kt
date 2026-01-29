@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,12 +44,13 @@ import com.tk.quicksearch.search.searchEngines.*
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutPrefix
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import kotlinx.coroutines.delay
 
 private const val DEFAULT_AMAZON_DOMAIN = "amazon.com"
 
 /**
  * Dialog for editing a search engine shortcut code.
- * 
+ *
  * @param engineName The display name of the search engine
  * @param currentCode The current shortcut code
  * @param isEnabled Whether the shortcut is currently enabled
@@ -69,15 +69,15 @@ fun EditShortcutDialog(
     currentShortcutId: String? = null,
     onSave: (String) -> Unit,
     onToggle: ((Boolean) -> Unit)?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val initialText = normalizeShortcutCodeInput(currentCode)
     var editingCode by remember(currentCode) {
         mutableStateOf(
             TextFieldValue(
                 text = initialText,
-                selection = TextRange(initialText.length)
-            )
+                selection = TextRange(initialText.length),
+            ),
         )
     }
     val initialEnabledState = if (onToggle == null) true else isEnabled
@@ -92,7 +92,7 @@ fun EditShortcutDialog(
         }
     val isValidPrefix = isValidShortcutPrefix(editingCode.text, existingShortcutsForValidation)
     val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidPrefix)
-    
+
     LaunchedEffect(Unit) {
         if (enabledState) {
             focusRequester.requestFocus()
@@ -100,7 +100,7 @@ fun EditShortcutDialog(
             editingCode = editingCode.copy(selection = TextRange(editingCode.text.length))
         }
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -109,12 +109,12 @@ fun EditShortcutDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = stringResource(R.string.dialog_edit_shortcut_message, engineName),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 TextField(
                     value = editingCode,
@@ -122,57 +122,61 @@ fun EditShortcutDialog(
                         val normalized = normalizeShortcutCodeInput(it.text)
                         editingCode = it.copy(text = normalized)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                     enabled = enabledState,
                     singleLine = true,
                     maxLines = 1,
                     isError = showShortcutError,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (isValidShortcut && isValidPrefix) {
-                                onSave(editingCode.text)
-                                onDismiss()
-                            }
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                    )
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                if (isValidShortcut && isValidPrefix) {
+                                    onSave(editingCode.text)
+                                    onDismiss()
+                                }
+                            },
+                        ),
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
                 )
                 if (showShortcutError) {
-                    val errorMessage = when {
-                        !isValidPrefix -> stringResource(R.string.dialog_edit_shortcut_error_prefix)
-                        !isValidShortcut -> stringResource(R.string.dialog_edit_shortcut_error_length)
-                        else -> ""
-                    }
+                    val errorMessage =
+                        when {
+                            !isValidPrefix -> stringResource(R.string.dialog_edit_shortcut_error_prefix)
+                            !isValidShortcut -> stringResource(R.string.dialog_edit_shortcut_error_length)
+                            else -> ""
+                        }
                     Text(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
                 if (onToggle != null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Checkbox(
                             checked = enabledState,
-                            onCheckedChange = { 
+                            onCheckedChange = {
                                 enabledState = it
                                 onToggle(it)
-                            }
+                            },
                         )
                         Text(
                             text = stringResource(R.string.dialog_enable_shortcut),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                 }
@@ -186,7 +190,7 @@ fun EditShortcutDialog(
                         onDismiss()
                     }
                 },
-                enabled = isValidShortcut && isValidPrefix
+                enabled = isValidShortcut && isValidPrefix,
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
@@ -195,13 +199,13 @@ fun EditShortcutDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
-        }
+        },
     )
 }
 
 /**
  * Dialog for editing Amazon domain.
- * 
+ *
  * @param currentDomain The current Amazon domain (e.g., "amazon.co.uk" or null for default "amazon.com")
  * @param onSave Callback when the domain is saved
  * @param onDismiss Callback when the dialog is dismissed
@@ -210,41 +214,44 @@ fun EditShortcutDialog(
 fun EditAmazonDomainDialog(
     currentDomain: String?,
     onSave: (String?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val defaultDomain = DEFAULT_AMAZON_DOMAIN
     val initialDomain = currentDomain ?: defaultDomain
-    var editingDomain by remember(currentDomain) { 
+    var editingDomain by remember(currentDomain) {
         mutableStateOf(
             TextFieldValue(
                 text = initialDomain,
-                selection = TextRange(initialDomain.length)
-            )
+                selection = TextRange(initialDomain.length),
+            ),
         )
     }
     val focusRequester = remember { FocusRequester() }
-    
+
     // Normalize domain for validation (remove protocol, www, trailing slashes)
-    val normalizedDomain = remember(editingDomain.text) {
-        editingDomain.text.trim()
-            .removePrefix("https://")
-            .removePrefix("http://")
-            .removePrefix("www.")
-            .removeSuffix("/")
-    }
-    
+    val normalizedDomain =
+        remember(editingDomain.text) {
+            editingDomain.text
+                .trim()
+                .removePrefix("https://")
+                .removePrefix("http://")
+                .removePrefix("www.")
+                .removeSuffix("/")
+        }
+
     // Validate domain (default domain is valid)
-    val isValid = remember(normalizedDomain) {
-        normalizedDomain.isBlank() || normalizedDomain == defaultDomain || isValidAmazonDomain(normalizedDomain)
-    }
-    
+    val isValid =
+        remember(normalizedDomain) {
+            normalizedDomain.isBlank() || normalizedDomain == defaultDomain || isValidAmazonDomain(normalizedDomain)
+        }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         // Small delay to ensure TextField is ready, then set cursor to end of text
         delay(50)
         editingDomain = editingDomain.copy(selection = TextRange(editingDomain.text.length))
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -253,55 +260,59 @@ fun EditAmazonDomainDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = stringResource(R.string.dialog_edit_amazon_domain_message),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 TextField(
                     value = editingDomain,
-                    onValueChange = { 
+                    onValueChange = {
                         val newText = it.text.replace(" ", "")
                         editingDomain = it.copy(text = newText)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                     singleLine = true,
                     maxLines = 1,
                     isError = !isValid && normalizedDomain.isNotBlank() && normalizedDomain != defaultDomain,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (isValid) {
-                                val domainToSave = if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
-                                    null
-                                } else {
-                                    normalizedDomain
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                if (isValid) {
+                                    val domainToSave =
+                                        if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
+                                            null
+                                        } else {
+                                            normalizedDomain
+                                        }
+                                    onSave(domainToSave)
+                                    onDismiss()
                                 }
-                                onSave(domainToSave)
-                                onDismiss()
-                            }
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                    )
+                            },
+                        ),
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
                 )
                 if (!isValid && normalizedDomain.isNotBlank() && normalizedDomain != defaultDomain) {
                     Text(
                         text = stringResource(R.string.dialog_edit_amazon_domain_error),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 } else {
                     Text(
                         text = stringResource(R.string.dialog_edit_amazon_domain_hint),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -310,16 +321,17 @@ fun EditAmazonDomainDialog(
             Button(
                 onClick = {
                     if (isValid) {
-                        val domainToSave = if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
-                            null
-                        } else {
-                            normalizedDomain
-                        }
+                        val domainToSave =
+                            if (editingDomain.text.isBlank() || editingDomain.text.trim() == defaultDomain) {
+                                null
+                            } else {
+                                normalizedDomain
+                            }
                         onSave(domainToSave)
                         onDismiss()
                     }
                 },
-                enabled = isValid
+                enabled = isValid,
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
@@ -328,31 +340,31 @@ fun EditAmazonDomainDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
-        }
+        },
     )
 }
 
 /**
  * Dialog for entering Gemini API key for Direct Search feature.
- * 
+ *
  * @param onSave Callback when the API key is saved
  * @param onDismiss Callback when the dialog is dismissed
  */
 @Composable
 fun GeminiApiKeyDialog(
     onSave: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     var apiKeyInput by remember { mutableStateOf("") }
     var isObscured by remember { mutableStateOf(true) }
     val focusRequester = remember { FocusRequester() }
     val clipboardManager = LocalClipboardManager.current
     val isValid = apiKeyInput.isNotBlank()
-    
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -361,12 +373,12 @@ fun GeminiApiKeyDialog(
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = stringResource(R.string.dialog_gemini_api_key_message),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 TextField(
                     value = apiKeyInput,
@@ -374,7 +386,7 @@ fun GeminiApiKeyDialog(
                     placeholder = {
                         Text(
                             text = stringResource(R.string.settings_gemini_api_key_placeholder),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     },
                     visualTransformation = if (isObscured) PasswordVisualTransformation() else VisualTransformation.None,
@@ -383,49 +395,55 @@ fun GeminiApiKeyDialog(
                             Icon(
                                 imageVector = Icons.Rounded.ContentPaste,
                                 contentDescription = stringResource(R.string.settings_gemini_api_key_paste),
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clickable {
-                                        clipboardManager.getText()
-                                            ?.text
-                                            ?.trim()
-                                            ?.takeIf { it.isNotEmpty() }
-                                            ?.let { pasted ->
-                                                apiKeyInput = pasted
-                                                focusRequester.requestFocus()
-                                            }
-                                    },
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                modifier =
+                                    Modifier
+                                        .size(20.dp)
+                                        .clickable {
+                                            clipboardManager
+                                                .getText()
+                                                ?.text
+                                                ?.trim()
+                                                ?.takeIf { it.isNotEmpty() }
+                                                ?.let { pasted ->
+                                                    apiKeyInput = pasted
+                                                    focusRequester.requestFocus()
+                                                }
+                                        },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             val icon = if (isObscured) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
                             Icon(
                                 imageVector = icon,
                                 contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clickable { isObscured = !isObscured },
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                modifier =
+                                    Modifier
+                                        .size(20.dp)
+                                        .clickable { isObscured = !isObscured },
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
                     singleLine = true,
                     maxLines = 1,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (isValid) {
-                                onSave(apiKeyInput.trim())
-                                onDismiss()
-                            }
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                    )
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                if (isValid) {
+                                    onSave(apiKeyInput.trim())
+                                    onDismiss()
+                                }
+                            },
+                        ),
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
                 )
             }
         },
@@ -437,7 +455,7 @@ fun GeminiApiKeyDialog(
                         onDismiss()
                     }
                 },
-                enabled = isValid
+                enabled = isValid,
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
@@ -446,6 +464,6 @@ fun GeminiApiKeyDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_cancel))
             }
-        }
+        },
     )
 }

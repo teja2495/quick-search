@@ -29,38 +29,41 @@ fun SearchEnginesVisibility(
     hiddenContent: @Composable () -> Unit = {},
     compactContent: @Composable () -> Unit = {},
     fullContent: @Composable () -> Unit = {},
-    shortcutContent: @Composable (SearchTarget) -> Unit = {}
+    shortcutContent: @Composable (SearchTarget) -> Unit = {},
 ) {
     when (enginesState) {
         is SearchEnginesVisibility.Hidden -> {
             hiddenContent()
         }
+
         is SearchEnginesVisibility.Compact -> {
             AnimatedVisibility(
                 visible = true,
                 enter = fadeIn(),
                 exit = fadeOut(),
-                modifier = modifier
+                modifier = modifier,
             ) {
                 compactContent()
             }
         }
+
         is SearchEnginesVisibility.Full -> {
             AnimatedVisibility(
                 visible = true,
                 enter = fadeIn(),
                 exit = fadeOut(),
-                modifier = modifier
+                modifier = modifier,
             ) {
                 fullContent()
             }
         }
+
         is SearchEnginesVisibility.ShortcutDetected -> {
             AnimatedVisibility(
                 visible = true,
                 enter = fadeIn(),
                 exit = fadeOut(),
-                modifier = modifier
+                modifier = modifier,
             ) {
                 shortcutContent(enginesState.target)
             }
@@ -77,29 +80,33 @@ fun SearchEnginesVisibility(
  * This replaces the old hasAnySearchContent logic.
  */
 fun hasAnySectionContent(state: SearchUiState): Boolean {
-    val appsShowing = when (state.appsSectionState) {
-        is AppsSectionVisibility.ShowingResults -> true
-        else -> false
-    }
-    val appShortcutsShowing = when (state.appShortcutsSectionState) {
-        is AppShortcutsSectionVisibility.ShowingResults -> true
-        else -> false
-    }
-    val contactsShowing = when (state.contactsSectionState) {
-        is ContactsSectionVisibility.ShowingResults -> true
-        else -> false
-    }
-    val filesShowing = when (state.filesSectionState) {
-        is FilesSectionVisibility.ShowingResults -> true
-        else -> false
-    }
-    val settingsShowing = when (state.settingsSectionState) {
-        is SettingsSectionVisibility.ShowingResults -> true
-        else -> false
-    }
+    val appsShowing =
+        when (state.appsSectionState) {
+            is AppsSectionVisibility.ShowingResults -> true
+            else -> false
+        }
+    val appShortcutsShowing =
+        when (state.appShortcutsSectionState) {
+            is AppShortcutsSectionVisibility.ShowingResults -> true
+            else -> false
+        }
+    val contactsShowing =
+        when (state.contactsSectionState) {
+            is ContactsSectionVisibility.ShowingResults -> true
+            else -> false
+        }
+    val filesShowing =
+        when (state.filesSectionState) {
+            is FilesSectionVisibility.ShowingResults -> true
+            else -> false
+        }
+    val settingsShowing =
+        when (state.settingsSectionState) {
+            is SettingsSectionVisibility.ShowingResults -> true
+            else -> false
+        }
 
     val hasContent = appsShowing || appShortcutsShowing || contactsShowing || filesShowing || settingsShowing
-
 
     return hasContent
 }
@@ -116,7 +123,6 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
 
     val hasResults = hasAppResults || hasContactResults || hasFileResults || hasSettingResults || hasAppShortcutResults
-
 
     return hasResults
 }

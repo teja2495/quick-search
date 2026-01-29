@@ -28,18 +28,18 @@ private suspend fun waitForContentStabilization(
     initialDelayMs: Long = ScrollBehaviorConstants.INITIAL_LAYOUT_DELAY_MS,
     pollingIntervalMs: Long = ScrollBehaviorConstants.POLLING_INTERVAL_MS,
     maxAttempts: Int = ScrollBehaviorConstants.MAX_POLLING_ATTEMPTS,
-    stableCountThreshold: Int = ScrollBehaviorConstants.STABLE_COUNT_THRESHOLD
+    stableCountThreshold: Int = ScrollBehaviorConstants.STABLE_COUNT_THRESHOLD,
 ): Boolean {
     delay(initialDelayMs)
-    
+
     var attempts = 0
     var lastMaxValue = 0
     var stableCount = 0
-    
+
     while (attempts < maxAttempts) {
         delay(pollingIntervalMs)
         val currentMaxValue = scrollState.maxValue
-        
+
         if (currentMaxValue > 0) {
             if (currentMaxValue == lastMaxValue) {
                 stableCount++
@@ -53,19 +53,23 @@ private suspend fun waitForContentStabilization(
         }
         attempts++
     }
-    
+
     return scrollState.maxValue > 0
 }
 
 /**
  * Scrolls to the top of the scrollable content.
  */
-private suspend fun scrollToTop(scrollState: ScrollState, reverseScrolling: Boolean) {
-    val targetScroll = if (reverseScrolling) {
-        scrollState.maxValue
-    } else {
-        0
-    }
+private suspend fun scrollToTop(
+    scrollState: ScrollState,
+    reverseScrolling: Boolean,
+) {
+    val targetScroll =
+        if (reverseScrolling) {
+            scrollState.maxValue
+        } else {
+            0
+        }
     if (targetScroll > 0 || !reverseScrolling) {
         scrollState.scrollTo(targetScroll)
     }
@@ -77,11 +81,11 @@ private suspend fun scrollToTop(scrollState: ScrollState, reverseScrolling: Bool
 
 /**
  * Handles scroll behavior for one-handed mode.
- * 
+ *
  * When one-handed mode is active:
  * - Content is bottom-aligned via reverse scrolling in the layout
  * - Scrolls to top when a section is expanded (showing expanded content near search bar)
- * 
+ *
  * The scroll behavior is triggered when content changes (query, results, permissions, etc.)
  * to ensure proper positioning after layout updates.
  */
@@ -102,7 +106,7 @@ fun OneHandedModeScrollBehavior(
     settingResultsSize: Int,
     pinnedSettingsSize: Int,
     hasUsagePermission: Boolean,
-    errorMessage: String?
+    errorMessage: String?,
 ) {
     LaunchedEffect(
         query,
@@ -119,13 +123,13 @@ fun OneHandedModeScrollBehavior(
         errorMessage,
         expandedSection,
         oneHandedMode,
-        reverseScrolling
+        reverseScrolling,
     ) {
         if (!oneHandedMode) return@LaunchedEffect
-        
+
         // Wait for content to stabilize before scrolling
         waitForContentStabilization(scrollState)
-        
+
         // Only auto-position when a section is expanded to bring it near the search bar
         if (expandedSection != ExpandedSection.NONE) {
             scrollToTop(scrollState, reverseScrolling)

@@ -9,13 +9,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 
 class OverlayActivity : ComponentActivity() {
-
     private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,13 +38,14 @@ class OverlayActivity : ComponentActivity() {
         setContent {
             QuickSearchTheme {
                 Box(
-                        modifier =
-                                Modifier.fillMaxSize()
-                                        .background(Color.Transparent)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(Color.Transparent),
                 ) {
                     OverlayRoot(
-                            viewModel = searchViewModel,
-                            onCloseRequested = { finish() }
+                        viewModel = searchViewModel,
+                        onCloseRequested = { finish() },
                     )
                 }
             }

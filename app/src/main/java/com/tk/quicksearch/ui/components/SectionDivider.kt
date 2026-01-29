@@ -12,12 +12,10 @@ import com.tk.quicksearch.ui.theme.DesignTokens
  * @param modifier Modifier to be applied to the divider
  */
 @Composable
-fun SectionDivider(
-    modifier: Modifier = Modifier
-) {
+fun SectionDivider(modifier: Modifier = Modifier) {
     HorizontalDivider(
         modifier = modifier,
         thickness = DesignTokens.DividerThickness,
-        color = MaterialTheme.colorScheme.outlineVariant
+        color = MaterialTheme.colorScheme.outlineVariant,
     )
 }

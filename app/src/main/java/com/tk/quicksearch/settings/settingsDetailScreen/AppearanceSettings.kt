@@ -48,79 +48,89 @@ import kotlin.math.roundToInt
 /** Combined card for keyboard alignment and icon pack settings. */
 @Composable
 fun CombinedLayoutIconCard(
-        oneHandedMode: Boolean,
-        onToggleOneHandedMode: (Boolean) -> Unit,
-        iconPackTitle: String,
-        iconPackDescription: String,
-        onIconPackClick: () -> Unit,
-        onRefreshIconPacks: () -> Unit = {},
-        modifier: Modifier = Modifier
+    oneHandedMode: Boolean,
+    onToggleOneHandedMode: (Boolean) -> Unit,
+    iconPackTitle: String,
+    iconPackDescription: String,
+    onIconPackClick: () -> Unit,
+    onRefreshIconPacks: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             // Results alignment toggle
             SettingsToggleRow(
-                    title = stringResource(R.string.settings_layout_option_bottom_title),
-                    subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
-                    checked = oneHandedMode,
-                    onCheckedChange = onToggleOneHandedMode,
-                    isFirstItem = true,
-                    extraVerticalPadding = 8.dp,
+                title = stringResource(R.string.settings_layout_option_bottom_title),
+                subtitle = stringResource(R.string.settings_layout_option_bottom_desc),
+                checked = oneHandedMode,
+                onCheckedChange = onToggleOneHandedMode,
+                isFirstItem = true,
+                extraVerticalPadding = 8.dp,
             )
 
             // Icon Pack Section (with navigation)
             val hasIconPacks =
-                    iconPackDescription != stringResource(R.string.settings_icon_pack_empty)
+                iconPackDescription != stringResource(R.string.settings_icon_pack_empty)
             Row(
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .clickable(onClick = onIconPackClick)
-                                    .padding(
-                                            start = 24.dp,
-                                            top = 16.dp,
-                                            end = 24.dp,
-                                            bottom = if (hasIconPacks) 16.dp else 20.dp
-                                    ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onIconPackClick)
+                        .padding(
+                            start = 24.dp,
+                            top = 16.dp,
+                            end = 24.dp,
+                            bottom = if (hasIconPacks) 16.dp else 20.dp,
+                        ),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
-                            text = iconPackTitle,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                        text = iconPackTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                            text = iconPackDescription,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = iconPackDescription,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Icon(
-                        imageVector =
-                                if (hasIconPacks) Icons.Rounded.ChevronRight
-                                else Icons.Rounded.Refresh,
-                        contentDescription =
-                                if (hasIconPacks) stringResource(R.string.desc_navigate_forward)
-                                else stringResource(R.string.settings_refresh_icon_packs),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier =
-                                Modifier.padding(start = 8.dp)
-                                        .then(
-                                                if (!hasIconPacks)
-                                                        Modifier.clickable(
-                                                                interactionSource =
-                                                                        remember {
-                                                                            MutableInteractionSource()
-                                                                        },
-                                                                indication = null,
-                                                                onClick = onRefreshIconPacks
-                                                        )
-                                                else Modifier
-                                        )
+                    imageVector =
+                        if (hasIconPacks) {
+                            Icons.Rounded.ChevronRight
+                        } else {
+                            Icons.Rounded.Refresh
+                        },
+                    contentDescription =
+                        if (hasIconPacks) {
+                            stringResource(R.string.desc_navigate_forward)
+                        } else {
+                            stringResource(R.string.settings_refresh_icon_packs)
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .then(
+                                if (!hasIconPacks) {
+                                    Modifier.clickable(
+                                        interactionSource =
+                                            remember {
+                                                MutableInteractionSource()
+                                            },
+                                        indication = null,
+                                        onClick = onRefreshIconPacks,
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            ),
                 )
             }
         }
@@ -130,125 +140,126 @@ fun CombinedLayoutIconCard(
 /** Combined appearance card with wallpaper background settings. */
 @Composable
 fun CombinedAppearanceCard(
-        showWallpaperBackground: Boolean,
-        wallpaperBackgroundAlpha: Float,
-        wallpaperBlurRadius: Float,
-        onToggleShowWallpaperBackground: (Boolean) -> Unit,
-        onWallpaperBackgroundAlphaChange: (Float) -> Unit,
-        onWallpaperBlurRadiusChange: (Float) -> Unit,
-        hasFilePermission: Boolean = true,
-        hasWallpaperPermission: Boolean = true,
-        wallpaperAvailable: Boolean = false,
-        modifier: Modifier = Modifier
+    showWallpaperBackground: Boolean,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
+    onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    onWallpaperBlurRadiusChange: (Float) -> Unit,
+    hasFilePermission: Boolean = true,
+    hasWallpaperPermission: Boolean = true,
+    wallpaperAvailable: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             // Wallpaper background toggle
             val wallpaperEnabled =
-                    showWallpaperBackground &&
-                            hasFilePermission &&
-                            (hasWallpaperPermission || wallpaperAvailable)
+                showWallpaperBackground &&
+                    hasFilePermission &&
+                    (hasWallpaperPermission || wallpaperAvailable)
 
             SettingsToggleRow(
-                    title = stringResource(R.string.settings_wallpaper_background_toggle),
-                    checked = wallpaperEnabled,
-                    onCheckedChange = onToggleShowWallpaperBackground,
-                    isFirstItem = true,
-                    isLastItem = true
+                title = stringResource(R.string.settings_wallpaper_background_toggle),
+                checked = wallpaperEnabled,
+                onCheckedChange = onToggleShowWallpaperBackground,
+                isFirstItem = true,
+                isLastItem = true,
             )
 
             if (showWallpaperBackground &&
-                            hasFilePermission &&
-                            (hasWallpaperPermission || wallpaperAvailable)
+                hasFilePermission &&
+                (hasWallpaperPermission || wallpaperAvailable)
             ) {
                 var lastAlphaStep by remember {
                     mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9))
                 }
                 var lastBlurStep by remember {
                     mutableStateOf(
-                            (wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
-                                    .roundToInt()
-                                    .coerceIn(0, 7)
+                        (wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
+                            .roundToInt()
+                            .coerceIn(0, 7),
                     )
                 }
                 Column(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                start = 24.dp,
-                                                end = 24.dp,
-                                                top = 0.dp,
-                                                bottom = 16.dp
-                                        )
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 24.dp,
+                                end = 24.dp,
+                                top = 0.dp,
+                                bottom = 16.dp,
+                            ),
                 ) {
                     Text(
-                            text = stringResource(R.string.settings_wallpaper_transparency_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                        text = stringResource(R.string.settings_wallpaper_transparency_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
                     Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Slider(
-                                value = wallpaperBackgroundAlpha,
-                                onValueChange = { v ->
-                                    val step = (v * 9).roundToInt().coerceIn(0, 9)
-                                    if (step != lastAlphaStep) {
-                                        hapticToggle(view)()
-                                        lastAlphaStep = step
-                                    }
-                                    onWallpaperBackgroundAlphaChange(v)
-                                },
-                                valueRange = 0f..1f,
-                                steps = 9,
-                                modifier = Modifier.weight(1f)
+                            value = wallpaperBackgroundAlpha,
+                            onValueChange = { v ->
+                                val step = (v * 9).roundToInt().coerceIn(0, 9)
+                                if (step != lastAlphaStep) {
+                                    hapticToggle(view)()
+                                    lastAlphaStep = step
+                                }
+                                onWallpaperBackgroundAlphaChange(v)
+                            },
+                            valueRange = 0f..1f,
+                            steps = 9,
+                            modifier = Modifier.weight(1f),
                         )
                         Text(
-                                text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.widthIn(min = 48.dp),
-                                textAlign = TextAlign.End
+                            text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                            textAlign = TextAlign.End,
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                            text = stringResource(R.string.settings_wallpaper_blur_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                        text = stringResource(R.string.settings_wallpaper_blur_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
                     Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         Slider(
-                                value = wallpaperBlurRadius,
-                                onValueChange = { v ->
-                                    val step =
-                                            (v / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
-                                                    .roundToInt()
-                                                    .coerceIn(0, 7)
-                                    if (step != lastBlurStep) {
-                                        hapticToggle(view)()
-                                        lastBlurStep = step
-                                    }
-                                    onWallpaperBlurRadiusChange(v)
-                                },
-                                valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
-                                steps = 7,
-                                modifier = Modifier.weight(1f)
+                            value = wallpaperBlurRadius,
+                            onValueChange = { v ->
+                                val step =
+                                    (v / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
+                                        .roundToInt()
+                                        .coerceIn(0, 7)
+                                if (step != lastBlurStep) {
+                                    hapticToggle(view)()
+                                    lastBlurStep = step
+                                }
+                                onWallpaperBlurRadiusChange(v)
+                            },
+                            valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
+                            steps = 7,
+                            modifier = Modifier.weight(1f),
                         )
                         Text(
-                                text =
-                                        "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.widthIn(min = 48.dp),
-                                textAlign = TextAlign.End
+                            text =
+                                "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                            textAlign = TextAlign.End,
                         )
                     }
                 }
@@ -260,197 +271,201 @@ fun CombinedAppearanceCard(
 /** Complete appearance settings section with all appearance-related components and dialogs. */
 @Composable
 fun AppearanceSettingsSection(
-        oneHandedMode: Boolean,
-        onToggleOneHandedMode: (Boolean) -> Unit,
-        showWallpaperBackground: Boolean,
-        wallpaperBackgroundAlpha: Float,
-        wallpaperBlurRadius: Float,
-        onToggleShowWallpaperBackground: (Boolean) -> Unit,
-        onWallpaperBackgroundAlphaChange: (Float) -> Unit,
-        onWallpaperBlurRadiusChange: (Float) -> Unit,
-        isSearchEngineCompactMode: Boolean,
-        onToggleSearchEngineCompactMode: (Boolean) -> Unit,
-        selectedIconPackPackage: String?,
-        availableIconPacks: List<IconPackInfo>,
-        onSelectIconPack: (String?) -> Unit,
-        onRefreshIconPacks: () -> Unit,
-        onSearchIconPacks: () -> Unit,
-        hasFilePermission: Boolean = true,
-        hasWallpaperPermission: Boolean = true,
-        wallpaperAvailable: Boolean = false,
-        modifier: Modifier = Modifier
+    oneHandedMode: Boolean,
+    onToggleOneHandedMode: (Boolean) -> Unit,
+    showWallpaperBackground: Boolean,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
+    onToggleShowWallpaperBackground: (Boolean) -> Unit,
+    onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    onWallpaperBlurRadiusChange: (Float) -> Unit,
+    isSearchEngineCompactMode: Boolean,
+    onToggleSearchEngineCompactMode: (Boolean) -> Unit,
+    selectedIconPackPackage: String?,
+    availableIconPacks: List<IconPackInfo>,
+    onSelectIconPack: (String?) -> Unit,
+    onRefreshIconPacks: () -> Unit,
+    onSearchIconPacks: () -> Unit,
+    hasFilePermission: Boolean = true,
+    hasWallpaperPermission: Boolean = true,
+    wallpaperAvailable: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     val appearanceContext = androidx.compose.ui.platform.LocalContext.current
     var showIconPackDialog by remember { mutableStateOf(false) }
 
     val hasIconPacks = availableIconPacks.isNotEmpty()
     val selectedIconPackLabel =
-            remember(selectedIconPackPackage, availableIconPacks) {
-                availableIconPacks.firstOrNull { it.packageName == selectedIconPackPackage }?.label
-                        ?: appearanceContext.getString(R.string.settings_icon_pack_option_system)
-            }
+        remember(selectedIconPackPackage, availableIconPacks) {
+            availableIconPacks.firstOrNull { it.packageName == selectedIconPackPackage }?.label
+                ?: appearanceContext.getString(R.string.settings_icon_pack_option_system)
+        }
 
     Column(modifier = modifier) {
         // Wallpaper Background Card
         CombinedAppearanceCard(
-                showWallpaperBackground = showWallpaperBackground,
-                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = wallpaperBlurRadius,
-                onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
-                onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
-                onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-                hasFilePermission = hasFilePermission,
-                hasWallpaperPermission = hasWallpaperPermission,
-                wallpaperAvailable = wallpaperAvailable
+            showWallpaperBackground = showWallpaperBackground,
+            wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+            wallpaperBlurRadius = wallpaperBlurRadius,
+            onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
+            onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+            onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+            hasFilePermission = hasFilePermission,
+            hasWallpaperPermission = hasWallpaperPermission,
+            wallpaperAvailable = wallpaperAvailable,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Search Engine Style Card
         SearchEngineAppearanceCard(
-                isSearchEngineCompactMode = isSearchEngineCompactMode,
-                onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode
+            isSearchEngineCompactMode = isSearchEngineCompactMode,
+            onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // One-Handed Mode and Icon Pack Card
         CombinedLayoutIconCard(
-                oneHandedMode = oneHandedMode,
-                onToggleOneHandedMode = onToggleOneHandedMode,
-                iconPackTitle =
-                        androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
-                iconPackDescription =
-                        if (hasIconPacks) {
-                            androidx.compose.ui.res.stringResource(
-                                    R.string.settings_icon_pack_selected_label,
-                                    selectedIconPackLabel
-                            )
-                        } else {
-                            androidx.compose.ui.res.stringResource(
-                                    R.string.settings_icon_pack_empty
-                            )
-                        },
-                onIconPackClick = {
-                    if (hasIconPacks) {
-                        showIconPackDialog = true
-                    } else {
-                        onSearchIconPacks()
-                    }
+            oneHandedMode = oneHandedMode,
+            onToggleOneHandedMode = onToggleOneHandedMode,
+            iconPackTitle =
+                androidx.compose.ui.res
+                    .stringResource(R.string.settings_icon_pack_title),
+            iconPackDescription =
+                if (hasIconPacks) {
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_selected_label,
+                        selectedIconPackLabel,
+                    )
+                } else {
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_empty,
+                    )
                 },
-                onRefreshIconPacks = onRefreshIconPacks
+            onIconPackClick = {
+                if (hasIconPacks) {
+                    showIconPackDialog = true
+                } else {
+                    onSearchIconPacks()
+                }
+            },
+            onRefreshIconPacks = onRefreshIconPacks,
         )
     }
 
     // Icon Pack Picker Dialog
     if (showIconPackDialog) {
         IconPackPickerDialog(
-                availableIconPacks = availableIconPacks,
-                selectedPackage = selectedIconPackPackage,
-                onSelect = { packageName: String? ->
-                    onSelectIconPack(packageName)
-                    showIconPackDialog = false
-                },
-                onDismiss = { showIconPackDialog = false }
+            availableIconPacks = availableIconPacks,
+            selectedPackage = selectedIconPackPackage,
+            onSelect = { packageName: String? ->
+                onSelectIconPack(packageName)
+                showIconPackDialog = false
+            },
+            onDismiss = { showIconPackDialog = false },
         )
     }
 }
 
 @Composable
 private fun IconPackPickerDialog(
-        availableIconPacks: List<IconPackInfo>,
-        selectedPackage: String?,
-        onSelect: (String?) -> Unit,
-        onDismiss: () -> Unit
+    availableIconPacks: List<IconPackInfo>,
+    selectedPackage: String?,
+    onSelect: (String?) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
-                Text(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text =
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_picker_title,
+                    ),
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (availableIconPacks.isEmpty()) {
+                    Text(
                         text =
-                                androidx.compose.ui.res.stringResource(
-                                        R.string.settings_icon_pack_picker_title
-                                )
-                )
-            },
-            text = {
-                Column(
+                            androidx.compose.ui.res.stringResource(
+                                R.string.settings_icon_pack_empty,
+                            ),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    if (availableIconPacks.isEmpty()) {
-                        Text(
-                                text =
-                                        androidx.compose.ui.res.stringResource(
-                                                R.string.settings_icon_pack_empty
-                                        ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        IconPackOptionRow(
+                            label =
+                                androidx.compose.ui.res.stringResource(
+                                    R.string.settings_icon_pack_option_system,
+                                ),
+                            packageName = null,
+                            selected = selectedPackage == null,
+                            onClick = { onSelect(null) },
                         )
-                    } else {
-                        Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        availableIconPacks.forEach { pack ->
                             IconPackOptionRow(
-                                    label =
-                                            androidx.compose.ui.res.stringResource(
-                                                    R.string.settings_icon_pack_option_system
-                                            ),
-                                    packageName = null,
-                                    selected = selectedPackage == null,
-                                    onClick = { onSelect(null) }
+                                label = pack.label,
+                                packageName = pack.packageName,
+                                selected = selectedPackage == pack.packageName,
+                                onClick = { onSelect(pack.packageName) },
                             )
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            availableIconPacks.forEach { pack ->
-                                IconPackOptionRow(
-                                        label = pack.label,
-                                        packageName = pack.packageName,
-                                        selected = selectedPackage == pack.packageName,
-                                        onClick = { onSelect(pack.packageName) }
-                                )
-                            }
                         }
                     }
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = onDismiss, modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Text(androidx.compose.ui.res.stringResource(R.string.dialog_done))
-                }
             }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    androidx.compose.ui.res
+                        .stringResource(R.string.dialog_done),
+                )
+            }
+        },
     )
 }
 
 @Composable
 private fun IconPackOptionRow(
-        label: String,
-        packageName: String?,
-        selected: Boolean,
-        onClick: () -> Unit
+    label: String,
+    packageName: String?,
+    selected: Boolean,
+    onClick: () -> Unit,
 ) {
     val iconBitmap = packageName?.let { rememberAppIcon(packageName = it).bitmap }
     Row(
-            modifier =
-                    Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier =
+            Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         RadioButton(selected = selected, onClick = onClick)
         if (iconBitmap != null) {
             Image(bitmap = iconBitmap, contentDescription = null, modifier = Modifier.size(24.dp))
         } else {
             Icon(
-                    imageVector = Icons.Rounded.Android,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                imageVector = Icons.Rounded.Android,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

@@ -18,12 +18,12 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 fun AppCard(
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         colors = AppColors.getCardColors(showWallpaperBackground),
-        shape = DesignTokens.ShapeMedium
+        shape = DesignTokens.ShapeMedium,
     ) {
         content()
     }

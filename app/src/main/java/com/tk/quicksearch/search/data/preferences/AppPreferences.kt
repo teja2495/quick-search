@@ -6,8 +6,9 @@ import android.content.SharedPreferences
 /**
  * Preferences for app-related settings such as hidden and pinned apps.
  */
-class AppPreferences(context: Context) : BasePreferences(context) {
-
+class AppPreferences(
+    context: Context,
+) : BasePreferences(context) {
     private val launchCountsPrefs: SharedPreferences =
         appContext.getSharedPreferences(LAUNCH_COUNTS_PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -25,21 +26,25 @@ class AppPreferences(context: Context) : BasePreferences(context) {
 
     fun getPinnedPackages(): Set<String> = getPinnedStringItems(BasePreferences.KEY_PINNED)
 
-    fun hidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
-        it.add(packageName)
-    }
+    fun hidePackageInSuggestions(packageName: String): Set<String> =
+        updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
+            it.add(packageName)
+        }
 
-    fun hidePackageInResults(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
-        it.add(packageName)
-    }
+    fun hidePackageInResults(packageName: String): Set<String> =
+        updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
+            it.add(packageName)
+        }
 
-    fun unhidePackageInSuggestions(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
-        it.remove(packageName)
-    }
+    fun unhidePackageInSuggestions(packageName: String): Set<String> =
+        updateStringSet(BasePreferences.KEY_HIDDEN_SUGGESTIONS) {
+            it.remove(packageName)
+        }
 
-    fun unhidePackageInResults(packageName: String): Set<String> = updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
-        it.remove(packageName)
-    }
+    fun unhidePackageInResults(packageName: String): Set<String> =
+        updateStringSet(BasePreferences.KEY_HIDDEN_RESULTS) {
+            it.remove(packageName)
+        }
 
     fun pinPackage(packageName: String): Set<String> = pinStringItem(BasePreferences.KEY_PINNED, packageName)
 
@@ -49,37 +54,51 @@ class AppPreferences(context: Context) : BasePreferences(context) {
 
     fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(BasePreferences.KEY_HIDDEN_RESULTS)
 
-    fun getAppLaunchCount(packageName: String): Int {
-        return launchCountsPrefs.getInt(packageName, 0)
-    }
+    fun getAppLaunchCount(packageName: String): Int = launchCountsPrefs.getInt(packageName, 0)
 
     fun incrementAppLaunchCount(packageName: String) {
         val current = getAppLaunchCount(packageName)
         launchCountsPrefs.edit().putInt(packageName, current + 1).apply()
     }
 
-    fun getAllAppLaunchCounts(): Map<String, Int> {
-        return launchCountsPrefs.all
+    fun getAllAppLaunchCounts(): Map<String, Int> =
+        launchCountsPrefs.all
             .mapValues { it.value as? Int ?: 0 }
-    }
 
     fun getRecentAppLaunches(): List<String> =
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils
+            .getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES)
 
     fun setRecentAppLaunches(packageNames: List<String>): List<String> {
         val trimmed = packageNames.take(MAX_RECENT_APP_LAUNCHES)
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES, trimmed)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
+            sessionPrefs,
+            BasePreferences.KEY_RECENT_APP_LAUNCHES,
+            trimmed,
+        )
         return trimmed
     }
 
-    fun addRecentAppLaunch(packageName: String, maxSize: Int = MAX_RECENT_APP_LAUNCHES): List<String> {
-        val current = com.tk.quicksearch.search.data.preferences.PreferenceUtils.getStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES).toMutableList()
+    fun addRecentAppLaunch(
+        packageName: String,
+        maxSize: Int = MAX_RECENT_APP_LAUNCHES,
+    ): List<String> {
+        val current =
+            com.tk.quicksearch.search.data.preferences.PreferenceUtils
+                .getStringListPref(
+                    sessionPrefs,
+                    BasePreferences.KEY_RECENT_APP_LAUNCHES,
+                ).toMutableList()
         current.remove(packageName)
         current.add(0, packageName)
         if (current.size > maxSize) {
             current.subList(maxSize, current.size).clear()
         }
-        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(sessionPrefs, BasePreferences.KEY_RECENT_APP_LAUNCHES, current)
+        com.tk.quicksearch.search.data.preferences.PreferenceUtils.setStringListPref(
+            sessionPrefs,
+            BasePreferences.KEY_RECENT_APP_LAUNCHES,
+            current,
+        )
         return current
     }
 

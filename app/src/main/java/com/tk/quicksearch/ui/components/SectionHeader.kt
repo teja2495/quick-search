@@ -19,22 +19,22 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
-    subtitle: String? = null
+    subtitle: String? = null,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         if (subtitle != null) {
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

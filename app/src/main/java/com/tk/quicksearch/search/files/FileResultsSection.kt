@@ -66,59 +66,60 @@ private const val DROPDOWN_CORNER_RADIUS = 24
 
 @Composable
 fun FileResultsSection(
-        modifier: Modifier = Modifier,
-        hasPermission: Boolean,
-        files: List<DeviceFile>,
-        isExpanded: Boolean,
-        onFileClick: (DeviceFile) -> Unit,
-        onRequestPermission: () -> Unit,
-        pinnedFileUris: Set<String> = emptySet(),
-        onTogglePin: (DeviceFile) -> Unit = {},
-        onExclude: (DeviceFile) -> Unit = {},
-        onExcludeExtension: (DeviceFile) -> Unit = {},
-        onNicknameClick: (DeviceFile) -> Unit = {},
-        getFileNickname: (String) -> String? = { null },
-        showAllResults: Boolean = false,
-        showExpandControls: Boolean = false,
-        onExpandClick: () -> Unit,
-        permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
-        showWallpaperBackground: Boolean = false
+    modifier: Modifier = Modifier,
+    hasPermission: Boolean,
+    files: List<DeviceFile>,
+    isExpanded: Boolean,
+    onFileClick: (DeviceFile) -> Unit,
+    onRequestPermission: () -> Unit,
+    pinnedFileUris: Set<String> = emptySet(),
+    onTogglePin: (DeviceFile) -> Unit = {},
+    onExclude: (DeviceFile) -> Unit = {},
+    onExcludeExtension: (DeviceFile) -> Unit = {},
+    onNicknameClick: (DeviceFile) -> Unit = {},
+    getFileNickname: (String) -> String? = { null },
+    showAllResults: Boolean = false,
+    showExpandControls: Boolean = false,
+    onExpandClick: () -> Unit,
+    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
-        val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
-        if (!hasVisibleContent) return
+    val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
+    if (!hasVisibleContent) return
 
-        Column(
-                modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-        ) {
-                when {
-                        hasPermission && files.isNotEmpty() -> {
-                                FilesResultCard(
-                                        files = files,
-                                        isExpanded = isExpanded,
-                                        showAllResults = showAllResults,
-                                        showExpandControls = showExpandControls,
-                                        onFileClick = onFileClick,
-                                        pinnedFileUris = pinnedFileUris,
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onExcludeExtension = onExcludeExtension,
-                                        onNicknameClick = onNicknameClick,
-                                        getFileNickname = getFileNickname,
-                                        onExpandClick = onExpandClick,
-                                        showWallpaperBackground = showWallpaperBackground
-                                )
-                        }
-                        !hasPermission -> {
-                                permissionDisabledCard(
-                                        stringResource(R.string.files_permission_title),
-                                        stringResource(R.string.files_permission_subtitle),
-                                        stringResource(R.string.permission_action_manage_android),
-                                        onRequestPermission
-                                )
-                        }
-                }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        when {
+            hasPermission && files.isNotEmpty() -> {
+                FilesResultCard(
+                    files = files,
+                    isExpanded = isExpanded,
+                    showAllResults = showAllResults,
+                    showExpandControls = showExpandControls,
+                    onFileClick = onFileClick,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
+                    onExpandClick = onExpandClick,
+                    showWallpaperBackground = showWallpaperBackground,
+                )
+            }
+
+            !hasPermission -> {
+                permissionDisabledCard(
+                    stringResource(R.string.files_permission_title),
+                    stringResource(R.string.files_permission_subtitle),
+                    stringResource(R.string.permission_action_manage_android),
+                    onRequestPermission,
+                )
+            }
         }
+    }
 }
 
 // ============================================================================
@@ -127,84 +128,87 @@ fun FileResultsSection(
 
 @Composable
 private fun FilesResultCard(
-        files: List<DeviceFile>,
-        isExpanded: Boolean,
-        showAllResults: Boolean,
-        showExpandControls: Boolean,
-        onFileClick: (DeviceFile) -> Unit,
-        pinnedFileUris: Set<String>,
-        onTogglePin: (DeviceFile) -> Unit,
-        onExclude: (DeviceFile) -> Unit,
-        onExcludeExtension: (DeviceFile) -> Unit,
-        onNicknameClick: (DeviceFile) -> Unit,
-        getFileNickname: (String) -> String?,
-        onExpandClick: () -> Unit,
-        showWallpaperBackground: Boolean = false
+    files: List<DeviceFile>,
+    isExpanded: Boolean,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
+    onFileClick: (DeviceFile) -> Unit,
+    pinnedFileUris: Set<String>,
+    onTogglePin: (DeviceFile) -> Unit,
+    onExclude: (DeviceFile) -> Unit,
+    onExcludeExtension: (DeviceFile) -> Unit,
+    onNicknameClick: (DeviceFile) -> Unit,
+    getFileNickname: (String) -> String?,
+    onExpandClick: () -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
-        val displayAsExpanded = isExpanded || showAllResults
-        val canShowExpand =
-                showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-        val shouldUseLazyList =
-                isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val displayAsExpanded = isExpanded || showAllResults
+    val canShowExpand =
+        showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
+    val shouldUseLazyList =
+        isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
 
-        val displayFiles =
-                if (displayAsExpanded) {
-                        files
-                } else {
-                        files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
-        ) {
-                val cardModifier = Modifier.fillMaxWidth()
-                val contentModifier =
-                        if (isExpanded)
-                                Modifier.fillMaxWidth()
-                                        .heightIn(
-                                                max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT
-                                        )
-                        else Modifier.fillMaxWidth()
-
-                val cardContent =
-                        @Composable
-                        {
-                                FileCardContent(
-                                        displayFiles = displayFiles,
-                                        shouldShowExpandButton = shouldShowExpandButton,
-                                        onFileClick = onFileClick,
-                                        pinnedFileUris = pinnedFileUris,
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onExcludeExtension = onExcludeExtension,
-                                        onNicknameClick = onNicknameClick,
-                                        getFileNickname = getFileNickname,
-                                        onExpandClick = onExpandClick,
-                                        modifier = contentModifier,
-                                        useLazyList = shouldUseLazyList
-                                )
-                        }
-
-                if (showWallpaperBackground) {
-                        Card(
-                                modifier = cardModifier,
-                                colors = AppColors.getCardColors(showWallpaperBackground = true),
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation =
-                                        AppColors.getCardElevation(showWallpaperBackground = true)
-                        ) { cardContent() }
-                } else {
-                        ElevatedCard(
-                                modifier = cardModifier,
-                                colors = AppColors.getCardColors(showWallpaperBackground = false),
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation =
-                                        AppColors.getCardElevation(showWallpaperBackground = false)
-                        ) { cardContent() }
-                }
+    val displayFiles =
+        if (displayAsExpanded) {
+            files
+        } else {
+            files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
         }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+    ) {
+        val cardModifier = Modifier.fillMaxWidth()
+        val contentModifier =
+            if (isExpanded) {
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(
+                        max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
+                    )
+            } else {
+                Modifier.fillMaxWidth()
+            }
+
+        val cardContent =
+            @Composable
+            {
+                FileCardContent(
+                    displayFiles = displayFiles,
+                    shouldShowExpandButton = shouldShowExpandButton,
+                    onFileClick = onFileClick,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
+                    onExpandClick = onExpandClick,
+                    modifier = contentModifier,
+                    useLazyList = shouldUseLazyList,
+                )
+            }
+
+        if (showWallpaperBackground) {
+            Card(
+                modifier = cardModifier,
+                colors = AppColors.getCardColors(showWallpaperBackground = true),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation =
+                    AppColors.getCardElevation(showWallpaperBackground = true),
+            ) { cardContent() }
+        } else {
+            ElevatedCard(
+                modifier = cardModifier,
+                colors = AppColors.getCardColors(showWallpaperBackground = false),
+                shape = MaterialTheme.shapes.extraLarge,
+                elevation =
+                    AppColors.getCardElevation(showWallpaperBackground = false),
+            ) { cardContent() }
+        }
+    }
 }
 
 // ============================================================================
@@ -213,108 +217,108 @@ private fun FilesResultCard(
 
 @Composable
 private fun FileCardContent(
-        modifier: Modifier = Modifier,
-        displayFiles: List<DeviceFile>,
-        shouldShowExpandButton: Boolean,
-        onFileClick: (DeviceFile) -> Unit,
-        pinnedFileUris: Set<String>,
-        onTogglePin: (DeviceFile) -> Unit,
-        onExclude: (DeviceFile) -> Unit,
-        onExcludeExtension: (DeviceFile) -> Unit,
-        onNicknameClick: (DeviceFile) -> Unit,
-        getFileNickname: (String) -> String?,
-        onExpandClick: () -> Unit,
-        useLazyList: Boolean = false
+    modifier: Modifier = Modifier,
+    displayFiles: List<DeviceFile>,
+    shouldShowExpandButton: Boolean,
+    onFileClick: (DeviceFile) -> Unit,
+    pinnedFileUris: Set<String>,
+    onTogglePin: (DeviceFile) -> Unit,
+    onExclude: (DeviceFile) -> Unit,
+    onExcludeExtension: (DeviceFile) -> Unit,
+    onNicknameClick: (DeviceFile) -> Unit,
+    getFileNickname: (String) -> String?,
+    onExpandClick: () -> Unit,
+    useLazyList: Boolean = false,
 ) {
-        if (useLazyList) {
-                LazyColumn(
-                        modifier = modifier,
-                        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium)
-                ) {
-                        itemsIndexed(
-                                items = displayFiles,
-                                key = { _, file -> file.uri.toString() }
-                        ) { index, file ->
-                                FileResultRow(
-                                        deviceFile = file,
-                                        onClick = onFileClick,
-                                        isPinned = pinnedFileUris.contains(file.uri.toString()),
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onExcludeExtension = onExcludeExtension,
-                                        onNicknameClick = onNicknameClick,
-                                        hasNickname =
-                                                !getFileNickname(file.uri.toString())
-                                                        .isNullOrBlank()
-                                )
-                                if (index != displayFiles.lastIndex) {
-                                        HorizontalDivider(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                }
-                        }
-
-                        if (shouldShowExpandButton) {
-                                item {
-                                        Box(modifier = Modifier.fillMaxWidth()) {
-                                                ExpandButton(
-                                                        onClick = onExpandClick,
-                                                        modifier =
-                                                                Modifier.align(Alignment.Center)
-                                                                        .height(
-                                                                                ContactUiConstants
-                                                                                        .EXPAND_BUTTON_HEIGHT
-                                                                                        .dp
-                                                                        )
-                                                                        .padding(
-                                                                                top =
-                                                                                        EXPAND_BUTTON_TOP_PADDING
-                                                                                                .dp
-                                                                        )
-                                                )
-                                        }
-                                }
-                        }
+    if (useLazyList) {
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
+        ) {
+            itemsIndexed(
+                items = displayFiles,
+                key = { _, file -> file.uri.toString() },
+            ) { index, file ->
+                FileResultRow(
+                    deviceFile = file,
+                    onClick = onFileClick,
+                    isPinned = pinnedFileUris.contains(file.uri.toString()),
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    hasNickname =
+                        !getFileNickname(file.uri.toString())
+                            .isNullOrBlank(),
+                )
+                if (index != displayFiles.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
                 }
-        } else {
-                Column(modifier = modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
-                        displayFiles.forEachIndexed { index, file ->
-                                FileResultRow(
-                                        deviceFile = file,
-                                        onClick = onFileClick,
-                                        isPinned = pinnedFileUris.contains(file.uri.toString()),
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onExcludeExtension = onExcludeExtension,
-                                        onNicknameClick = onNicknameClick,
-                                        hasNickname =
-                                                !getFileNickname(file.uri.toString())
-                                                        .isNullOrBlank()
-                                )
-                                if (index != displayFiles.lastIndex) {
-                                        HorizontalDivider(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                }
-                        }
+            }
 
-                        if (shouldShowExpandButton) {
-                                ExpandButton(
-                                        onClick = onExpandClick,
-                                        modifier =
-                                                Modifier.align(Alignment.CenterHorizontally)
-                                                        .height(
-                                                                ContactUiConstants
-                                                                        .EXPAND_BUTTON_HEIGHT
-                                                                        .dp
-                                                        )
-                                                        .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
-                                )
-                        }
+            if (shouldShowExpandButton) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        ExpandButton(
+                            onClick = onExpandClick,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.Center)
+                                    .height(
+                                        ContactUiConstants
+                                            .EXPAND_BUTTON_HEIGHT
+                                            .dp,
+                                    ).padding(
+                                        top =
+                                            EXPAND_BUTTON_TOP_PADDING
+                                                .dp,
+                                    ),
+                        )
+                    }
                 }
+            }
         }
+    } else {
+        Column(modifier = modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
+            displayFiles.forEachIndexed { index, file ->
+                FileResultRow(
+                    deviceFile = file,
+                    onClick = onFileClick,
+                    isPinned = pinnedFileUris.contains(file.uri.toString()),
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    hasNickname =
+                        !getFileNickname(file.uri.toString())
+                            .isNullOrBlank(),
+                )
+                if (index != displayFiles.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
+                }
+            }
+
+            if (shouldShowExpandButton) {
+                ExpandButton(
+                    onClick = onExpandClick,
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .height(
+                                ContactUiConstants
+                                    .EXPAND_BUTTON_HEIGHT
+                                    .dp,
+                            ).padding(top = EXPAND_BUTTON_TOP_PADDING.dp),
+                )
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -322,96 +326,104 @@ private fun FileCardContent(
 // ============================================================================
 
 private fun fileResultIcon(deviceFile: DeviceFile) =
-        when {
-                deviceFile.isDirectory -> Icons.Rounded.Folder
-                else ->
-                        when (FileTypeUtils.getFileType(deviceFile)) {
-                                FileType.AUDIO -> Icons.Rounded.AudioFile
-                                FileType.PICTURES -> Icons.Rounded.Image
-                                FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-                                FileType.APKS -> Icons.Rounded.Android
-                                else -> Icons.AutoMirrored.Rounded.InsertDriveFile
-                        }
+    when {
+        deviceFile.isDirectory -> {
+            Icons.Rounded.Folder
         }
+
+        else -> {
+            when (FileTypeUtils.getFileType(deviceFile)) {
+                FileType.AUDIO -> Icons.Rounded.AudioFile
+                FileType.PICTURES -> Icons.Rounded.Image
+                FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+                FileType.APKS -> Icons.Rounded.Android
+                else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+            }
+        }
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun FileResultRow(
-        deviceFile: DeviceFile,
-        onClick: (DeviceFile) -> Unit,
-        isPinned: Boolean = false,
-        onTogglePin: (DeviceFile) -> Unit = {},
-        onExclude: (DeviceFile) -> Unit = {},
-        onExcludeExtension: (DeviceFile) -> Unit = {},
-        onNicknameClick: (DeviceFile) -> Unit = {},
-        hasNickname: Boolean = false,
-        enableLongPress: Boolean = true,
-        onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-        iconTint: Color = MaterialTheme.colorScheme.secondary
+    deviceFile: DeviceFile,
+    onClick: (DeviceFile) -> Unit,
+    isPinned: Boolean = false,
+    onTogglePin: (DeviceFile) -> Unit = {},
+    onExclude: (DeviceFile) -> Unit = {},
+    onExcludeExtension: (DeviceFile) -> Unit = {},
+    onNicknameClick: (DeviceFile) -> Unit = {},
+    hasNickname: Boolean = false,
+    enableLongPress: Boolean = true,
+    onLongPressOverride: (() -> Unit)? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
-        var showOptions by remember { mutableStateOf(false) }
-        val view = LocalView.current
+    var showOptions by remember { mutableStateOf(false) }
+    val view = LocalView.current
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .clip(DesignTokens.CardShape)
-                                        .combinedClickable(
-                                                onClick = {
-                                                        hapticConfirm(view)()
-                                                        onClick(deviceFile)
-                                                },
-                                                onLongClick = onLongPressOverride
-                                                                ?: if (enableLongPress) {
-                                                                        { showOptions = true }
-                                                                } else {
-                                                                        null
-                                                                }
-                                        )
-                                        .padding(vertical = DesignTokens.SpacingLarge)
-                ) {
-                        Row(
-                                horizontalArrangement =
-                                        Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                                verticalAlignment = Alignment.CenterVertically
-                        ) {
-                                Icon(
-                                        imageVector = icon ?: fileResultIcon(deviceFile),
-                                        contentDescription = null,
-                                        tint = iconTint,
-                                        modifier =
-                                                Modifier.size(
-                                                                if (icon != null) 34.dp
-                                                                else FILE_ICON_SIZE.dp
-                                                        )
-                                                        .padding(start = DesignTokens.SpacingSmall)
-                                )
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(DesignTokens.CardShape)
+                    .combinedClickable(
+                        onClick = {
+                            hapticConfirm(view)()
+                            onClick(deviceFile)
+                        },
+                        onLongClick =
+                            onLongPressOverride
+                                ?: if (enableLongPress) {
+                                    { showOptions = true }
+                                } else {
+                                    null
+                                },
+                    ).padding(vertical = DesignTokens.SpacingLarge),
+        ) {
+            Row(
+                horizontalArrangement =
+                    Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = icon ?: fileResultIcon(deviceFile),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier =
+                        Modifier
+                            .size(
+                                if (icon != null) {
+                                    34.dp
+                                } else {
+                                    FILE_ICON_SIZE.dp
+                                },
+                            ).padding(start = DesignTokens.SpacingSmall),
+                )
 
-                                Text(
-                                        text = deviceFile.displayName,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.weight(1f)
-                                )
-                        }
-                }
-
-                if (enableLongPress && onLongPressOverride == null) {
-                        FileDropdownMenu(
-                                expanded = showOptions,
-                                onDismissRequest = { showOptions = false },
-                                deviceFile = deviceFile,
-                                isPinned = isPinned,
-                                hasNickname = hasNickname,
-                                onTogglePin = { onTogglePin(deviceFile) },
-                                onExclude = { onExclude(deviceFile) },
-                                onExcludeExtension = { onExcludeExtension(deviceFile) },
-                                onNicknameClick = { onNicknameClick(deviceFile) }
-                        )
-                }
+                Text(
+                    text = deviceFile.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
+
+        if (enableLongPress && onLongPressOverride == null) {
+            FileDropdownMenu(
+                expanded = showOptions,
+                onDismissRequest = { showOptions = false },
+                deviceFile = deviceFile,
+                isPinned = isPinned,
+                hasNickname = hasNickname,
+                onTogglePin = { onTogglePin(deviceFile) },
+                onExclude = { onExclude(deviceFile) },
+                onExcludeExtension = { onExcludeExtension(deviceFile) },
+                onNicknameClick = { onNicknameClick(deviceFile) },
+            )
+        }
+    }
 }
 
 // ============================================================================
@@ -419,26 +431,29 @@ internal fun FileResultRow(
 // ============================================================================
 
 @Composable
-private fun ExpandButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-        TextButton(
-                onClick = onClick,
-                modifier = modifier,
-                contentPadding =
-                        PaddingValues(
-                                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
-                                vertical = 0.dp
-                        )
-        ) {
-                Text(
-                        text = stringResource(R.string.action_expand_more),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                        imageVector = Icons.Rounded.ExpandMore,
-                        contentDescription = stringResource(R.string.desc_expand),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
-                )
-        }
+private fun ExpandButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding =
+            PaddingValues(
+                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
+                vertical = 0.dp,
+            ),
+    ) {
+        Text(
+            text = stringResource(R.string.action_expand_more),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(R.string.desc_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
+        )
+    }
 }

@@ -12,9 +12,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -27,7 +27,7 @@ import com.tk.quicksearch.R
 fun EnjoyingAppDialog(
     onYes: () -> Unit,
     onNo: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -43,14 +43,14 @@ fun EnjoyingAppDialog(
             TextButton(onClick = onNo) {
                 Text(text = stringResource(R.string.dialog_no))
             }
-        }
+        },
     )
 }
 
 @Composable
 fun SendFeedbackDialog(
     onSend: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     var feedbackText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -71,22 +71,25 @@ fun SendFeedbackDialog(
                 placeholder = {
                     Text(text = stringResource(R.string.dialog_feedback_hint))
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                 minLines = 3,
                 maxLines = 6,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(
-                    onSend = {
-                        onSend(feedbackText.trim())
-                        onDismiss()
-                    }
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                )
+                keyboardActions =
+                    KeyboardActions(
+                        onSend = {
+                            onSend(feedbackText.trim())
+                            onDismiss()
+                        },
+                    ),
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    ),
             )
         },
         confirmButton = {
@@ -94,7 +97,7 @@ fun SendFeedbackDialog(
                 onClick = {
                     onSend(feedbackText.trim())
                     onDismiss()
-                }
+                },
             ) {
                 Text(text = stringResource(R.string.dialog_send))
             }
@@ -103,6 +106,6 @@ fun SendFeedbackDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.dialog_close))
             }
-        }
+        },
     )
 }

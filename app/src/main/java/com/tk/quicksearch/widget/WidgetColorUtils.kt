@@ -11,7 +11,7 @@ object WidgetColorUtils {
      * Threshold alpha value above which we use dark grey text on white backgrounds.
      */
     private const val ALPHA_THRESHOLD = 0.6f
-    
+
     /**
      * Dark grey color used for text/icons on white backgrounds with high alpha.
      */
@@ -19,7 +19,7 @@ object WidgetColorUtils {
 
     fun getBackgroundColor(
         backgroundColorIsWhite: Boolean,
-        backgroundAlpha: Float
+        backgroundAlpha: Float,
     ): Color {
         val baseColor = if (backgroundColorIsWhite) Color.White else Color.Black
         return baseColor.copy(alpha = backgroundAlpha)
@@ -27,13 +27,18 @@ object WidgetColorUtils {
 
     fun getBackgroundColor(
         theme: WidgetTheme,
-        backgroundAlpha: Float
+        backgroundAlpha: Float,
     ): Color {
-        val isWhite = when (theme) {
-            WidgetTheme.LIGHT -> true  // white background
-            WidgetTheme.DARK -> false  // dark grey/black background
-            WidgetTheme.SYSTEM -> false // default to dark for now (could be made dynamic later)
-        }
+        val isWhite =
+            when (theme) {
+                WidgetTheme.LIGHT -> true
+
+                // white background
+                WidgetTheme.DARK -> false
+
+                // dark grey/black background
+                WidgetTheme.SYSTEM -> false // default to dark for now (could be made dynamic later)
+            }
         return getBackgroundColor(isWhite, backgroundAlpha)
     }
 
@@ -41,7 +46,10 @@ object WidgetColorUtils {
      * Calculates the border color with alpha applied.
      * Border is always white and never fully opaque.
      */
-    fun getBorderColor(borderColor: Int, backgroundAlpha: Float): Color {
+    fun getBorderColor(
+        borderColor: Int,
+        backgroundAlpha: Float,
+    ): Color {
         // Keep some transparency even if the user picks a fully opaque background.
         val appliedAlpha = backgroundAlpha.coerceAtMost(0.4f)
         return Color.White.copy(alpha = appliedAlpha)
@@ -52,11 +60,14 @@ object WidgetColorUtils {
      */
     fun getTextIconColor(
         textIconColorIsWhite: Boolean,
-        backgroundAlpha: Float
+        backgroundAlpha: Float,
     ): Color {
-        val base = if (textIconColorIsWhite) Color.White else {
-            if (backgroundAlpha > ALPHA_THRESHOLD) DARK_GREY else Color.Black
-        }
+        val base =
+            if (textIconColorIsWhite) {
+                Color.White
+            } else {
+                if (backgroundAlpha > ALPHA_THRESHOLD) DARK_GREY else Color.Black
+            }
         return base
     }
 
@@ -64,19 +75,29 @@ object WidgetColorUtils {
         theme: WidgetTheme,
         backgroundAlpha: Float,
         textIconColorOverride: TextIconColorOverride,
-        isSystemInDarkTheme: Boolean = false
+        isSystemInDarkTheme: Boolean = false,
     ): Color {
-        val isWhite = when (textIconColorOverride) {
-            TextIconColorOverride.WHITE -> true   // white text/icons
-            TextIconColorOverride.BLACK -> false  // black text/icons
-            TextIconColorOverride.THEME -> {      // follow theme
-                val effectiveTheme = when (theme) {
-                    WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
-                    else -> theme
+        val isWhite =
+            when (textIconColorOverride) {
+                TextIconColorOverride.WHITE -> {
+                    true
                 }
-                effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
+
+                // white text/icons
+                TextIconColorOverride.BLACK -> {
+                    false
+                }
+
+                // black text/icons
+                TextIconColorOverride.THEME -> { // follow theme
+                    val effectiveTheme =
+                        when (theme) {
+                            WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+                            else -> theme
+                        }
+                    effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
+                }
             }
-        }
         return getTextIconColor(isWhite, backgroundAlpha)
     }
 }

@@ -11,12 +11,15 @@ import com.tk.quicksearch.R
  * Google Meet-specific contact intent helpers for video calling.
  */
 object GoogleMeetActions {
-
     /**
      * Opens a Google Meet video call using the working method identified through testing.
      * Uses the custom action "com.google.android.apps.tachyon.action.CALL" which was confirmed to work.
      */
-    fun openGoogleMeet(context: Application, dataId: Long, onShowToast: ((Int) -> Unit)? = null): Boolean {
+    fun openGoogleMeet(
+        context: Application,
+        dataId: Long,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean {
         return try {
             val pm = context.packageManager
 
@@ -31,11 +34,14 @@ object GoogleMeetActions {
             var phoneNumber: String? = null
             try {
                 val phoneUri = Uri.withAppendedPath(ContactsContract.Data.CONTENT_URI, dataId.toString())
-                val phoneCursor = context.contentResolver.query(
-                    phoneUri,
-                    arrayOf(ContactsContract.Data.DATA1),
-                    null, null, null
-                )
+                val phoneCursor =
+                    context.contentResolver.query(
+                        phoneUri,
+                        arrayOf(ContactsContract.Data.DATA1),
+                        null,
+                        null,
+                        null,
+                    )
 
                 phoneCursor?.use { cursor ->
                     if (cursor.moveToFirst()) {
@@ -53,11 +59,12 @@ object GoogleMeetActions {
             }
 
             // Use the confirmed working method: custom action with Google Meet package
-            val callIntent = Intent("com.google.android.apps.tachyon.action.CALL").apply {
-                data = Uri.parse("tel:$phoneNumber")
-                setPackage(meetPackage)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val callIntent =
+                Intent("com.google.android.apps.tachyon.action.CALL").apply {
+                    data = Uri.parse("tel:$phoneNumber")
+                    setPackage(meetPackage)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
 
             if (callIntent.resolveActivity(pm) != null) {
                 context.startActivity(callIntent)
@@ -67,7 +74,6 @@ object GoogleMeetActions {
                 onShowToast?.invoke(R.string.error_google_meet_call_failed)
                 return false
             }
-
         } catch (e: Exception) {
             Log.e("ContactIntentHelpers", "Failed to open Google Meet video call", e)
             onShowToast?.invoke(R.string.error_google_meet_video_call_failed)

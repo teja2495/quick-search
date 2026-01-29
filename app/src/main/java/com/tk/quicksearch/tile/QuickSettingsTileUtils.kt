@@ -1,5 +1,6 @@
 package com.tk.quicksearch.tile
 
+import android.app.StatusBarManager
 import android.content.ComponentName
 import android.content.Context
 import android.graphics.drawable.Icon
@@ -7,7 +8,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.tk.quicksearch.R
-import android.app.StatusBarManager
 
 /**
  * Shows the system dialog (Android 13+) to add the Quick Search Quick Settings tile.
@@ -30,19 +30,23 @@ private fun requestTileForAndroid13Plus(context: Context) {
             tileComponent,
             context.getString(R.string.quick_settings_tile_label),
             icon,
-            ContextCompat.getMainExecutor(context)
+            ContextCompat.getMainExecutor(context),
         ) { result -> handleTileAddResult(context, result) } ?: showErrorToast(context)
     } catch (e: Exception) {
         showErrorToast(context)
     }
 }
 
-private fun handleTileAddResult(context: Context, result: Int) {
-    val messageResId = when (result) {
-        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> R.string.quick_settings_tile_added
-        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> R.string.quick_settings_tile_already_added
-        else -> R.string.quick_settings_tile_not_added
-    }
+private fun handleTileAddResult(
+    context: Context,
+    result: Int,
+) {
+    val messageResId =
+        when (result) {
+            StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> R.string.quick_settings_tile_added
+            StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> R.string.quick_settings_tile_already_added
+            else -> R.string.quick_settings_tile_not_added
+        }
     showToast(context, messageResId)
 }
 
@@ -54,7 +58,10 @@ private fun showErrorToast(context: Context) {
     showToast(context, R.string.quick_settings_tile_error)
 }
 
-private fun showToast(context: Context, messageResId: Int, duration: Int = Toast.LENGTH_SHORT) {
+private fun showToast(
+    context: Context,
+    messageResId: Int,
+    duration: Int = Toast.LENGTH_SHORT,
+) {
     Toast.makeText(context, context.getString(messageResId), duration).show()
 }
-

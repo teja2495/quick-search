@@ -6,8 +6,9 @@ import com.tk.quicksearch.search.data.preferences.BasePreferences
 /**
  * Preferences for settings-related configurations such as pinned/excluded settings.
  */
-class SettingsPreferences(context: Context) : BasePreferences(context) {
-
+class SettingsPreferences(
+    context: Context,
+) : BasePreferences(context) {
     // ============================================================================
     // Settings Preferences
     // ============================================================================
@@ -25,5 +26,4 @@ class SettingsPreferences(context: Context) : BasePreferences(context) {
     fun removeExcludedSetting(id: String): Set<String> = removeExcludedStringItem(BasePreferences.KEY_EXCLUDED_SETTINGS, id)
 
     fun clearAllExcludedSettings(): Set<String> = clearAllExcludedStringItems(BasePreferences.KEY_EXCLUDED_SETTINGS)
-
 }

@@ -56,17 +56,17 @@ private object SearchEngineSectionConstants {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchEngineIconsSection(
-        modifier: Modifier = Modifier,
-        query: String,
-        hasAppResults: Boolean,
-        enabledEngines: List<SearchTarget>,
-        onSearchEngineClick: (String, SearchTarget) -> Unit,
-        onSearchEngineLongPress: () -> Unit,
-        externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
-        detectedShortcutTarget: SearchTarget? = null,
-        onClearDetectedShortcut: () -> Unit = {},
-        showWallpaperBackground: Boolean = false,
-        isOverlayPresentation: Boolean = false
+    modifier: Modifier = Modifier,
+    query: String,
+    hasAppResults: Boolean,
+    enabledEngines: List<SearchTarget>,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
+    onSearchEngineLongPress: () -> Unit,
+    externalScrollState: androidx.compose.foundation.lazy.LazyListState? = null,
+    detectedShortcutTarget: SearchTarget? = null,
+    onClearDetectedShortcut: () -> Unit = {},
+    showWallpaperBackground: Boolean = false,
+    isOverlayPresentation: Boolean = false,
 ) {
     if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
 
@@ -75,55 +75,55 @@ fun SearchEngineIconsSection(
     // Use black background in dark mode, otherwise use theme surface color
     // Add transparency only in dark mode to allow wallpaper background to show through
     val backgroundColor =
-            if (MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
-                            MaterialTheme.colorScheme.background.red < 0.1f &&
-                            MaterialTheme.colorScheme.background.green < 0.1f &&
-                            MaterialTheme.colorScheme.background.blue < 0.1f
-            ) {
-                // Dark mode detected - use transparent black
-                Color.Black.copy(alpha = 0.5f)
-            } else {
-                // Light mode - use opaque theme surface color
-                MaterialTheme.colorScheme.surface
-            }
+        if (MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
+            MaterialTheme.colorScheme.background.red < 0.1f &&
+            MaterialTheme.colorScheme.background.green < 0.1f &&
+            MaterialTheme.colorScheme.background.blue < 0.1f
+        ) {
+            // Dark mode detected - use transparent black
+            Color.Black.copy(alpha = 0.5f)
+        } else {
+            // Light mode - use opaque theme surface color
+            MaterialTheme.colorScheme.surface
+        }
 
     if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it
         // The shortcut corresponds to the detected engine
         Box(
-                modifier =
-                        modifier.extendToScreenEdges().padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier =
+                modifier.extendToScreenEdges().padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             SearchEngineCard(
-                    target = detectedShortcutTarget,
-                    query = query,
-                    onClick = { onSearchEngineClick(query, detectedShortcutTarget) },
-                    onClear = onClearDetectedShortcut,
-                    showWallpaperBackground = showWallpaperBackground
+                target = detectedShortcutTarget,
+                query = query,
+                onClick = { onSearchEngineClick(query, detectedShortcutTarget) },
+                onClear = onClearDetectedShortcut,
+                showWallpaperBackground = showWallpaperBackground,
             )
         }
     } else {
         Surface(
-                modifier = modifier.extendToScreenEdges(),
-                color = backgroundColor,
-                shape =
-                        if (isOverlayPresentation) {
-                            RoundedCornerShape(
-                                    topStart = 20.dp,
-                                    topEnd = 20.dp,
-                                    bottomStart = 28.dp,
-                                    bottomEnd = 28.dp
-                            )
-                        } else {
-                            RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                        }
+            modifier = modifier.extendToScreenEdges(),
+            color = backgroundColor,
+            shape =
+                if (isOverlayPresentation) {
+                    RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                        bottomStart = 28.dp,
+                        bottomEnd = 28.dp,
+                    )
+                } else {
+                    RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                },
         ) {
             SearchEngineContent(
-                    query = query,
-                    enabledEngines = enabledEngines,
-                    scrollState = scrollState,
-                    onSearchEngineClick = onSearchEngineClick,
-                    onSearchEngineLongPress = onSearchEngineLongPress
+                query = query,
+                enabledEngines = enabledEngines,
+                scrollState = scrollState,
+                onSearchEngineClick = onSearchEngineClick,
+                onSearchEngineLongPress = onSearchEngineLongPress,
             )
         }
     }
@@ -132,32 +132,33 @@ fun SearchEngineIconsSection(
 /** Internal composable for the search engine section content. */
 @Composable
 private fun SearchEngineContent(
-        query: String,
-        enabledEngines: List<SearchTarget>,
-        scrollState: androidx.compose.foundation.lazy.LazyListState,
-        onSearchEngineClick: (String, SearchTarget) -> Unit,
-        onSearchEngineLongPress: () -> Unit
+    query: String,
+    enabledEngines: List<SearchTarget>,
+    scrollState: androidx.compose.foundation.lazy.LazyListState,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
+    onSearchEngineLongPress: () -> Unit,
 ) {
     Row(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .padding(
-                                    horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
-                                    vertical = SearchEngineSectionConstants.VERTICAL_PADDING
-                            ),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = SearchEngineSectionConstants.HORIZONTAL_PADDING,
+                    vertical = SearchEngineSectionConstants.VERTICAL_PADDING,
+                ),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         SearchIcon()
 
         Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
 
         ScrollableEngineIcons(
-                query = query,
-                enabledEngines = enabledEngines,
-                scrollState = scrollState,
-                onSearchEngineClick = onSearchEngineClick,
-                onSearchEngineLongPress = onSearchEngineLongPress
+            query = query,
+            enabledEngines = enabledEngines,
+            scrollState = scrollState,
+            onSearchEngineClick = onSearchEngineClick,
+            onSearchEngineLongPress = onSearchEngineLongPress,
         )
     }
 }
@@ -166,38 +167,38 @@ private fun SearchEngineContent(
 @Composable
 private fun SearchIcon() {
     Icon(
-            imageVector = Icons.Rounded.Search,
-            contentDescription = "Search",
-            modifier = Modifier.size(SearchEngineSectionConstants.SEARCH_ICON_SIZE),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        imageVector = Icons.Rounded.Search,
+        contentDescription = "Search",
+        modifier = Modifier.size(SearchEngineSectionConstants.SEARCH_ICON_SIZE),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
 
 /** Scrollable row of search engine icons. Calculates item width to fit 6 items per visible row. */
 @Composable
 private fun ScrollableEngineIcons(
-        query: String,
-        enabledEngines: List<SearchTarget>,
-        scrollState: androidx.compose.foundation.lazy.LazyListState,
-        onSearchEngineClick: (String, SearchTarget) -> Unit,
-        onSearchEngineLongPress: () -> Unit
+    query: String,
+    enabledEngines: List<SearchTarget>,
+    scrollState: androidx.compose.foundation.lazy.LazyListState,
+    onSearchEngineClick: (String, SearchTarget) -> Unit,
+    onSearchEngineLongPress: () -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val itemWidthDp = calculateItemWidth(maxWidth)
 
         LazyRow(
-                state = scrollState,
-                horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
-                modifier = Modifier.fillMaxWidth()
+            state = scrollState,
+            horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             items(enabledEngines) { engine ->
                 SearchEngineIconItem(
-                        engine = engine,
-                        query = query,
-                        iconSize = SearchEngineSectionConstants.ICON_SIZE,
-                        itemWidth = itemWidthDp,
-                        onSearchEngineClick = onSearchEngineClick,
-                        onSearchEngineLongPress = onSearchEngineLongPress
+                    engine = engine,
+                    query = query,
+                    iconSize = SearchEngineSectionConstants.ICON_SIZE,
+                    itemWidth = itemWidthDp,
+                    onSearchEngineClick = onSearchEngineClick,
+                    onSearchEngineLongPress = onSearchEngineLongPress,
                 )
             }
         }
@@ -211,11 +212,11 @@ private fun ScrollableEngineIcons(
 @Composable
 private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.compose.ui.unit.Dp {
     val itemsPerRow =
-            when {
-                isTablet() && isLandscape() -> 10
-                isTablet() -> 8
-                else -> 6
-            }
+        when {
+            isTablet() && isLandscape() -> 10
+            isTablet() -> 8
+            else -> 6
+        }
     val totalSpacing = SearchEngineSectionConstants.SPACING * (itemsPerRow - 1)
     return (maxWidth - totalSpacing) / itemsPerRow
 }

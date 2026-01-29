@@ -48,263 +48,270 @@ private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 
 @Composable
 private fun DeviceSettingsCard(
-        showWallpaperBackground: Boolean,
-        cardColors: androidx.compose.material3.CardColors,
-        cardShape: androidx.compose.ui.graphics.Shape,
-        cardElevation: androidx.compose.material3.CardElevation,
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
+    showWallpaperBackground: Boolean,
+    cardColors: androidx.compose.material3.CardColors,
+    cardShape: androidx.compose.ui.graphics.Shape,
+    cardElevation: androidx.compose.material3.CardElevation,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
-        if (showWallpaperBackground) {
-                Card(
-                        modifier = modifier,
-                        colors = cardColors,
-                        shape = cardShape,
-                        elevation = cardElevation
-                ) { content() }
-        } else {
-                ElevatedCard(
-                        modifier = modifier,
-                        colors = cardColors,
-                        shape = cardShape,
-                        elevation = cardElevation
-                ) { content() }
-        }
+    if (showWallpaperBackground) {
+        Card(
+            modifier = modifier,
+            colors = cardColors,
+            shape = cardShape,
+            elevation = cardElevation,
+        ) { content() }
+    } else {
+        ElevatedCard(
+            modifier = modifier,
+            colors = cardColors,
+            shape = cardShape,
+            elevation = cardElevation,
+        ) { content() }
+    }
 }
 
 @Composable
 fun DeviceSettingsResultsSection(
-        modifier: Modifier = Modifier,
-        settings: List<DeviceSetting>,
-        isExpanded: Boolean,
-        pinnedSettingIds: Set<String>,
-        onSettingClick: (DeviceSetting) -> Unit,
-        onTogglePin: (DeviceSetting) -> Unit,
-        onExclude: (DeviceSetting) -> Unit,
-        onNicknameClick: (DeviceSetting) -> Unit,
-        getSettingNickname: (String) -> String?,
-        showAllResults: Boolean,
-        showExpandControls: Boolean,
-        onExpandClick: () -> Unit,
-        showWallpaperBackground: Boolean = false
+    modifier: Modifier = Modifier,
+    settings: List<DeviceSetting>,
+    isExpanded: Boolean,
+    pinnedSettingIds: Set<String>,
+    onSettingClick: (DeviceSetting) -> Unit,
+    onTogglePin: (DeviceSetting) -> Unit,
+    onExclude: (DeviceSetting) -> Unit,
+    onNicknameClick: (DeviceSetting) -> Unit,
+    getSettingNickname: (String) -> String?,
+    showAllResults: Boolean,
+    showExpandControls: Boolean,
+    onExpandClick: () -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
-        if (settings.isEmpty()) return
+    if (settings.isEmpty()) return
 
-        val displaySettings =
-                if (isExpanded || showAllResults) {
-                        settings
-                } else {
-                        settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        val canShowExpandControls =
-                showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
-        val shouldShowCollapseButton = isExpanded && showExpandControls
-
-        val scrollState = rememberScrollState()
-
-        Column(
-                modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-                val cardColors =
-                        CardDefaults.cardColors(
-                                containerColor =
-                                        if (showWallpaperBackground) {
-                                                Color.Black.copy(alpha = 0.4f)
-                                        } else {
-                                                MaterialTheme.colorScheme.surfaceContainer
-                                        }
-                        )
-
-                val cardShape = MaterialTheme.shapes.extraLarge
-                val cardElevation =
-                        if (showWallpaperBackground) {
-                                CardDefaults.cardElevation(defaultElevation = 0.dp)
-                        } else {
-                                CardDefaults.cardElevation()
-                        }
-
-                DeviceSettingsCard(
-                        showWallpaperBackground = showWallpaperBackground,
-                        cardColors = cardColors,
-                        cardShape = cardShape,
-                        cardElevation = cardElevation,
-                        modifier = Modifier.fillMaxWidth()
-                ) {
-                        Column(
-                                modifier =
-                                        Modifier.fillMaxWidth()
-                                                .then(
-                                                        if (isExpanded)
-                                                                Modifier.heightIn(
-                                                                                max =
-                                                                                        SearchScreenConstants
-                                                                                                .EXPANDED_CARD_MAX_HEIGHT
-                                                                        )
-                                                                        .verticalScroll(scrollState)
-                                                        else Modifier
-                                                )
-                        ) {
-                                Column(
-                                        modifier =
-                                                Modifier.padding(
-                                                        horizontal = DesignTokens.SpacingMedium,
-                                                        vertical = 4.dp
-                                                )
-                                ) {
-                                        displaySettings.forEachIndexed { index, shortcut ->
-                                                SettingResultRow(
-                                                        shortcut = shortcut,
-                                                        isPinned =
-                                                                pinnedSettingIds.contains(
-                                                                        shortcut.id
-                                                                ),
-                                                        onClick = onSettingClick,
-                                                        onTogglePin = onTogglePin,
-                                                        onExclude = onExclude,
-                                                        onNicknameClick = onNicknameClick,
-                                                        hasNickname =
-                                                                !getSettingNickname(shortcut.id)
-                                                                        .isNullOrBlank()
-                                                )
-                                                if (index != displaySettings.lastIndex) {
-                                                        HorizontalDivider(
-                                                                modifier = Modifier.fillMaxWidth(),
-                                                                color =
-                                                                        MaterialTheme.colorScheme
-                                                                                .outlineVariant
-                                                        )
-                                                }
-                                        }
-
-                                        if (shouldShowExpandButton) {
-                                                ExpandButton(
-                                                        onClick = onExpandClick,
-                                                        modifier =
-                                                                Modifier.align(
-                                                                                Alignment
-                                                                                        .CenterHorizontally
-                                                                        )
-                                                                        .padding(top = 4.dp)
-                                                )
-                                        }
-                                }
-                        }
-                }
+    val displaySettings =
+        if (isExpanded || showAllResults) {
+            settings
+        } else {
+            settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
         }
+
+    val canShowExpandControls =
+        showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
+    val shouldShowCollapseButton = isExpanded && showExpandControls
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        val cardColors =
+            CardDefaults.cardColors(
+                containerColor =
+                    if (showWallpaperBackground) {
+                        Color.Black.copy(alpha = 0.4f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainer
+                    },
+            )
+
+        val cardShape = MaterialTheme.shapes.extraLarge
+        val cardElevation =
+            if (showWallpaperBackground) {
+                CardDefaults.cardElevation(defaultElevation = 0.dp)
+            } else {
+                CardDefaults.cardElevation()
+            }
+
+        DeviceSettingsCard(
+            showWallpaperBackground = showWallpaperBackground,
+            cardColors = cardColors,
+            cardShape = cardShape,
+            cardElevation = cardElevation,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isExpanded) {
+                                Modifier
+                                    .heightIn(
+                                        max =
+                                            SearchScreenConstants
+                                                .EXPANDED_CARD_MAX_HEIGHT,
+                                    ).verticalScroll(scrollState)
+                            } else {
+                                Modifier
+                            },
+                        ),
+            ) {
+                Column(
+                    modifier =
+                        Modifier.padding(
+                            horizontal = DesignTokens.SpacingMedium,
+                            vertical = 4.dp,
+                        ),
+                ) {
+                    displaySettings.forEachIndexed { index, shortcut ->
+                        SettingResultRow(
+                            shortcut = shortcut,
+                            isPinned =
+                                pinnedSettingIds.contains(
+                                    shortcut.id,
+                                ),
+                            onClick = onSettingClick,
+                            onTogglePin = onTogglePin,
+                            onExclude = onExclude,
+                            onNicknameClick = onNicknameClick,
+                            hasNickname =
+                                !getSettingNickname(shortcut.id)
+                                    .isNullOrBlank(),
+                        )
+                        if (index != displaySettings.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.fillMaxWidth(),
+                                color =
+                                    MaterialTheme.colorScheme
+                                        .outlineVariant,
+                            )
+                        }
+                    }
+
+                    if (shouldShowExpandButton) {
+                        ExpandButton(
+                            onClick = onExpandClick,
+                            modifier =
+                                Modifier
+                                    .align(
+                                        Alignment
+                                            .CenterHorizontally,
+                                    ).padding(top = 4.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingResultRow(
-        shortcut: DeviceSetting,
-        isPinned: Boolean,
-        onClick: (DeviceSetting) -> Unit,
-        onTogglePin: (DeviceSetting) -> Unit,
-        onExclude: (DeviceSetting) -> Unit,
-        onNicknameClick: (DeviceSetting) -> Unit,
-        hasNickname: Boolean,
-        showDescription: Boolean = true,
-        enableLongPress: Boolean = true,
-        onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-        iconTint: Color = MaterialTheme.colorScheme.secondary
+    shortcut: DeviceSetting,
+    isPinned: Boolean,
+    onClick: (DeviceSetting) -> Unit,
+    onTogglePin: (DeviceSetting) -> Unit,
+    onExclude: (DeviceSetting) -> Unit,
+    onNicknameClick: (DeviceSetting) -> Unit,
+    hasNickname: Boolean,
+    showDescription: Boolean = true,
+    enableLongPress: Boolean = true,
+    onLongPressOverride: (() -> Unit)? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
-        var showOptions by remember { mutableStateOf(false) }
-        val view = LocalView.current
+    var showOptions by remember { mutableStateOf(false) }
+    val view = LocalView.current
 
-        Row(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .heightIn(min = ROW_MIN_HEIGHT.dp)
-                                .clip(DesignTokens.CardShape)
-                                .combinedClickable(
-                                        onClick = {
-                                                hapticConfirm(view)()
-                                                onClick(shortcut)
-                                        },
-                                        onLongClick = onLongPressOverride
-                                                        ?: if (enableLongPress) {
-                                                                { showOptions = true }
-                                                        } else {
-                                                                null
-                                                        }
-                                )
-                                .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .heightIn(min = ROW_MIN_HEIGHT.dp)
+                .clip(DesignTokens.CardShape)
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick(shortcut)
+                    },
+                    onLongClick =
+                        onLongPressOverride
+                            ?: if (enableLongPress) {
+                                { showOptions = true }
+                            } else {
+                                null
+                            },
+                ).padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon ?: Icons.Rounded.Settings,
+            contentDescription = null,
+            tint = iconTint,
+            modifier =
+                Modifier
+                    .size(if (icon != null) 30.dp else ICON_SIZE.dp)
+                    .padding(start = DesignTokens.SpacingXSmall),
+        )
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-                Icon(
-                        imageVector = icon ?: Icons.Rounded.Settings,
-                        contentDescription = null,
-                        tint = iconTint,
-                        modifier =
-                                Modifier.size(if (icon != null) 30.dp else ICON_SIZE.dp)
-                                        .padding(start = DesignTokens.SpacingXSmall)
-                )
-
-                Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                        Text(
-                                text = shortcut.title,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                        )
-                        if (showDescription) {
-                                shortcut.description?.takeIf { it.isNotBlank() }?.let { description
-                                        ->
-                                        Text(
-                                                text = description,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 2,
-                                                overflow = TextOverflow.Ellipsis
-                                        )
-                                }
-                        }
+            Text(
+                text = shortcut.title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (showDescription) {
+                shortcut.description?.takeIf { it.isNotBlank() }?.let { description ->
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
-
-                if (enableLongPress && onLongPressOverride == null) {
-                        DeviceSettingsDropdownMenu(
-                                expanded = showOptions,
-                                onDismissRequest = { showOptions = false },
-                                isPinned = isPinned,
-                                hasNickname = hasNickname,
-                                onTogglePin = { onTogglePin(shortcut) },
-                                onExclude = { onExclude(shortcut) },
-                                onNicknameClick = { onNicknameClick(shortcut) }
-                        )
-                }
+            }
         }
+
+        if (enableLongPress && onLongPressOverride == null) {
+            DeviceSettingsDropdownMenu(
+                expanded = showOptions,
+                onDismissRequest = { showOptions = false },
+                isPinned = isPinned,
+                hasNickname = hasNickname,
+                onTogglePin = { onTogglePin(shortcut) },
+                onExclude = { onExclude(shortcut) },
+                onNicknameClick = { onNicknameClick(shortcut) },
+            )
+        }
+    }
 }
 
 @Composable
-private fun ExpandButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-        TextButton(
-                onClick = onClick,
-                modifier = modifier,
-                contentPadding =
-                        PaddingValues(
-                                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
-                                vertical = 0.dp
-                        )
-        ) {
-                Text(
-                        text = stringResource(R.string.action_expand_more),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                )
-                Icon(
-                        imageVector = Icons.Rounded.ExpandMore,
-                        contentDescription = stringResource(R.string.desc_expand),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
-                )
-        }
+private fun ExpandButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding =
+            PaddingValues(
+                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
+                vertical = 0.dp,
+            ),
+    ) {
+        Text(
+            text = stringResource(R.string.action_expand_more),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Icon(
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(R.string.desc_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
+        )
+    }
 }

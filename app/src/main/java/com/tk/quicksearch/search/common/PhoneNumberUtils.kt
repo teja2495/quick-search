@@ -8,7 +8,6 @@ import java.util.Locale
  * Utility functions for phone number normalization and duplicate detection.
  */
 object PhoneNumberUtils {
-
     private const val MIN_COUNTRY_CODE_LENGTH = 1
     private const val MAX_COUNTRY_CODE_LENGTH = 3
     private val phoneNumberUtil = PhoneNumberUtil.getInstance()
@@ -16,9 +15,7 @@ object PhoneNumberUtils {
     /**
      * Extracts all digits from a phone number string.
      */
-    fun extractDigits(phoneNumber: String): String {
-        return phoneNumber.filter { it.isDigit() }
-    }
+    fun extractDigits(phoneNumber: String): String = phoneNumber.filter { it.isDigit() }
 
     /**
      * Checks if a phone number has a country code prefix (starts with + followed by digits).
@@ -37,7 +34,10 @@ object PhoneNumberUtils {
      * - "+911234567890" and "1234567890" -> true (India number)
      * - "1234567890" and "1234567890" -> true (exact match)
      */
-    fun isSameNumber(number1: String, number2: String): Boolean {
+    fun isSameNumber(
+        number1: String,
+        number2: String,
+    ): Boolean {
         val digits1 = extractDigits(number1)
         val digits2 = extractDigits(number2)
 
@@ -64,7 +64,7 @@ object PhoneNumberUtils {
      */
     private fun tryRemoveCountryCode(
         numberWithCountryCode: String,
-        numberWithoutCountryCode: String
+        numberWithoutCountryCode: String,
     ): Boolean {
         for (countryCodeLength in MIN_COUNTRY_CODE_LENGTH..MAX_COUNTRY_CODE_LENGTH) {
             if (numberWithCountryCode.length > countryCodeLength) {
@@ -124,18 +124,22 @@ object PhoneNumberUtils {
 
         return try {
             val parsed = phoneNumberUtil.parse(trimmed, parseRegion)
-            val format = if (trimmed.startsWith("+")) {
-                PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL
-            } else {
-                PhoneNumberUtil.PhoneNumberFormat.NATIONAL
-            }
+            val format =
+                if (trimmed.startsWith("+")) {
+                    PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL
+                } else {
+                    PhoneNumberUtil.PhoneNumberFormat.NATIONAL
+                }
             phoneNumberUtil.format(parsed, format)
         } catch (e: NumberParseException) {
             formatPhoneNumberFallback(trimmed, digits)
         }
     }
 
-    private fun formatPhoneNumberFallback(phoneNumber: String, digits: String): String {
+    private fun formatPhoneNumberFallback(
+        phoneNumber: String,
+        digits: String,
+    ): String {
         if (phoneNumber.startsWith("+")) {
             return formatInternationalNumber("+$digits")
         }
@@ -161,11 +165,16 @@ object PhoneNumberUtils {
         if (hasPlus) formatted.append("+")
 
         // Handle country code (1-3 digits)
-        val countryCodeLength = when {
-            digits.length >= 10 -> 1 // Common for +1, +7, etc.
-            digits.length >= 9 -> 2  // For +91, +44, etc.
-            else -> 3
-        }
+        val countryCodeLength =
+            when {
+                digits.length >= 10 -> 1
+
+                // Common for +1, +7, etc.
+                digits.length >= 9 -> 2
+
+                // For +91, +44, etc.
+                else -> 3
+            }
 
         formatted.append(digits.substring(0, countryCodeLength))
         formatted.append(" ")

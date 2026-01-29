@@ -5,15 +5,14 @@ import android.content.Context
 /**
  * Preferences for search engine-related settings such as disabled engines and ordering.
  */
-class SearchEnginePreferences(context: Context) : BasePreferences(context) {
-
+class SearchEnginePreferences(
+    context: Context,
+) : BasePreferences(context) {
     // ============================================================================
     // Search Engine Preferences
     // ============================================================================
 
-    fun hasDisabledSearchEnginesPreference(): Boolean {
-        return prefs.contains(BasePreferences.KEY_DISABLED_SEARCH_ENGINES)
-    }
+    fun hasDisabledSearchEnginesPreference(): Boolean = prefs.contains(BasePreferences.KEY_DISABLED_SEARCH_ENGINES)
 
     fun getDisabledSearchEngines(): Set<String> {
         // Create a defensive copy to avoid SharedPreferences StringSet bugs
@@ -43,5 +42,4 @@ class SearchEnginePreferences(context: Context) : BasePreferences(context) {
     fun setHasSeenSearchEngineOnboarding(seen: Boolean) {
         setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, seen)
     }
-
 }

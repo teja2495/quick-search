@@ -20,19 +20,19 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
-    message: String? = null
+    message: String? = null,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         CircularProgressIndicator()
         if (message != null) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

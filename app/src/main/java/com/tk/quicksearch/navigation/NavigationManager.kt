@@ -31,39 +31,39 @@ import com.tk.quicksearch.settings.shared.SettingsRoute
 
 enum class RootDestination {
     Search,
-    Settings
+    Settings,
 }
 
 data class NavigationRequest(
-        val destination: RootDestination,
-        val settingsDetailType: SettingsDetailType? = null
+    val destination: RootDestination,
+    val settingsDetailType: SettingsDetailType? = null,
 )
 
 enum class AppScreen {
     Permissions,
     SearchEngineSetup,
     FinalSetup,
-    Main
+    Main,
 }
 
 @Composable
 fun MainContent(
-        context: Context,
-        userPreferences: UserAppPreferences,
-        searchViewModel: SearchViewModel,
-        onFirstLaunchCompleted: () -> Unit = {},
-        onSearchBackPressed: () -> Unit = {},
-        navigationRequest: NavigationRequest? = null,
-        onNavigationRequestHandled: () -> Unit = {},
-        onFinishActivity: () -> Unit = {}
+    context: Context,
+    userPreferences: UserAppPreferences,
+    searchViewModel: SearchViewModel,
+    onFirstLaunchCompleted: () -> Unit = {},
+    onSearchBackPressed: () -> Unit = {},
+    navigationRequest: NavigationRequest? = null,
+    onNavigationRequestHandled: () -> Unit = {},
+    onFinishActivity: () -> Unit = {},
 ) {
     val isFirstLaunch = userPreferences.isFirstLaunch()
     var currentScreen by remember {
         mutableStateOf(
-                when {
-                    isFirstLaunch -> AppScreen.Permissions
-                    else -> AppScreen.Main
-                }
+            when {
+                isFirstLaunch -> AppScreen.Permissions
+                else -> AppScreen.Main
+            },
         )
     }
     val initialDestination = navigationRequest?.destination ?: RootDestination.Search
@@ -81,135 +81,146 @@ fun MainContent(
 
     // Permission request handlers for settings detail screens
     val usagePermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-            ) { result -> searchViewModel.handleOptionalPermissionChange() }
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) { result -> searchViewModel.handleOptionalPermissionChange() }
 
     val contactPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
 
     val callPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted -> searchViewModel.handleOptionalPermissionChange() }
 
     val filePermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-            ) { result -> searchViewModel.handleOptionalPermissionChange() }
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) { result -> searchViewModel.handleOptionalPermissionChange() }
 
     AnimatedContent(
-            targetState = currentScreen,
-            transitionSpec = {
-                val screenOrder =
-                        listOf(
-                                AppScreen.Permissions,
-                                AppScreen.SearchEngineSetup,
-                                AppScreen.FinalSetup,
-                                AppScreen.Main
-                        )
-                val fromIndex = screenOrder.indexOf(initialState)
-                val toIndex = screenOrder.indexOf(targetState)
-                val isForward = toIndex > fromIndex
+        targetState = currentScreen,
+        transitionSpec = {
+            val screenOrder =
+                listOf(
+                    AppScreen.Permissions,
+                    AppScreen.SearchEngineSetup,
+                    AppScreen.FinalSetup,
+                    AppScreen.Main,
+                )
+            val fromIndex = screenOrder.indexOf(initialState)
+            val toIndex = screenOrder.indexOf(targetState)
+            val isForward = toIndex > fromIndex
 
-                if (isForward) {
-                    // Forward: slide in from right, slide out to left
-                    slideInHorizontally(
-                            animationSpec = androidx.compose.animation.core.tween(300),
-                            initialOffsetX = { it }
-                    ) togetherWith
-                            slideOutHorizontally(
-                                    animationSpec = androidx.compose.animation.core.tween(300),
-                                    targetOffsetX = { -it }
-                            )
-                } else {
-                    // Backward: slide in from left, slide out to right
-                    slideInHorizontally(
-                            animationSpec = androidx.compose.animation.core.tween(300),
-                            initialOffsetX = { -it }
-                    ) togetherWith
-                            slideOutHorizontally(
-                                    animationSpec = androidx.compose.animation.core.tween(300),
-                                    targetOffsetX = { it }
-                            )
-                }
-            },
-            label = "ScreenTransition"
+            if (isForward) {
+                // Forward: slide in from right, slide out to left
+                slideInHorizontally(
+                    animationSpec =
+                        androidx.compose.animation.core
+                            .tween(300),
+                    initialOffsetX = { it },
+                ) togetherWith
+                    slideOutHorizontally(
+                        animationSpec =
+                            androidx.compose.animation.core
+                                .tween(300),
+                        targetOffsetX = { -it },
+                    )
+            } else {
+                // Backward: slide in from left, slide out to right
+                slideInHorizontally(
+                    animationSpec =
+                        androidx.compose.animation.core
+                            .tween(300),
+                    initialOffsetX = { -it },
+                ) togetherWith
+                    slideOutHorizontally(
+                        animationSpec =
+                            androidx.compose.animation.core
+                                .tween(300),
+                        targetOffsetX = { it },
+                    )
+            }
+        },
+        label = "ScreenTransition",
     ) { targetScreen ->
         when (targetScreen) {
             AppScreen.Permissions -> {
                 PermissionsScreen(
-                        currentStep = 1,
-                        totalSteps = 3,
-                        onPermissionsComplete = {
-                            currentScreen = AppScreen.SearchEngineSetup
-                            searchViewModel.handleOptionalPermissionChange()
-                        }
+                    currentStep = 1,
+                    totalSteps = 3,
+                    onPermissionsComplete = {
+                        currentScreen = AppScreen.SearchEngineSetup
+                        searchViewModel.handleOptionalPermissionChange()
+                    },
                 )
             }
+
             AppScreen.SearchEngineSetup -> {
                 BackHandler { currentScreen = AppScreen.Permissions }
                 SearchEngineSetupScreen(
-                        currentStep = 2,
-                        totalSteps = 3,
-                        onContinue = { currentScreen = AppScreen.FinalSetup },
-                        viewModel = searchViewModel
+                    currentStep = 2,
+                    totalSteps = 3,
+                    onContinue = { currentScreen = AppScreen.FinalSetup },
+                    viewModel = searchViewModel,
                 )
             }
+
             AppScreen.FinalSetup -> {
                 BackHandler { currentScreen = AppScreen.SearchEngineSetup }
                 val hasContactsPermission =
-                        context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
-                                android.content.pm.PackageManager.PERMISSION_GRANTED
+                    context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
 
                 val hasFilesPermission =
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                            android.os.Environment.isExternalStorageManager()
-                        } else {
-                            context.checkSelfPermission(
-                                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                        }
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        android.os.Environment.isExternalStorageManager()
+                    } else {
+                        context.checkSelfPermission(
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    }
 
                 val hasCallPermission =
-                        context.checkSelfPermission(android.Manifest.permission.CALL_PHONE) ==
-                                android.content.pm.PackageManager.PERMISSION_GRANTED
+                    context.checkSelfPermission(android.Manifest.permission.CALL_PHONE) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
 
                 val showToast: (String) -> Unit = { message ->
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
 
                 FinalSetupScreen(
-                        currentStep = 3,
-                        totalSteps = 3,
-                        onContinue = {
-                            searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
-                            userPreferences.setFirstLaunchCompleted()
-                            if (userPreferences.isOverlayModeEnabled()) {
-                                onFinishActivity()
-                            } else {
-                                onFirstLaunchCompleted()
-                                currentScreen = AppScreen.Main
-                            }
-                        },
-                        viewModel = searchViewModel,
-                        hasContactsPermission = hasContactsPermission,
-                        hasFilesPermission = hasFilesPermission,
-                        hasCallPermission = hasCallPermission,
-                        onShowToast = showToast
+                    currentStep = 3,
+                    totalSteps = 3,
+                    onContinue = {
+                        searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
+                        userPreferences.setFirstLaunchCompleted()
+                        if (userPreferences.isOverlayModeEnabled()) {
+                            onFinishActivity()
+                        } else {
+                            onFirstLaunchCompleted()
+                            currentScreen = AppScreen.Main
+                        }
+                    },
+                    viewModel = searchViewModel,
+                    hasContactsPermission = hasContactsPermission,
+                    hasFilesPermission = hasFilesPermission,
+                    hasCallPermission = hasCallPermission,
+                    onShowToast = showToast,
                 )
             }
+
             AppScreen.Main -> {
                 NavigationContent(
-                        destination = destination,
-                        onDestinationChange = { destination = it },
-                        settingsDetailType = settingsDetailType,
-                        onSettingsDetailTypeChange = { settingsDetailType = it },
-                        viewModel = searchViewModel,
-                        onSearchBackPressed = onSearchBackPressed,
-                        onFinishActivity = onFinishActivity
+                    destination = destination,
+                    onDestinationChange = { destination = it },
+                    settingsDetailType = settingsDetailType,
+                    onSettingsDetailTypeChange = { settingsDetailType = it },
+                    viewModel = searchViewModel,
+                    onSearchBackPressed = onSearchBackPressed,
+                    onFinishActivity = onFinishActivity,
                 )
             }
         }
@@ -218,13 +229,13 @@ fun MainContent(
 
 @Composable
 private fun NavigationContent(
-        destination: RootDestination,
-        onDestinationChange: (RootDestination) -> Unit,
-        settingsDetailType: SettingsDetailType?,
-        onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
-        viewModel: SearchViewModel,
-        onSearchBackPressed: () -> Unit,
-        onFinishActivity: () -> Unit
+    destination: RootDestination,
+    onDestinationChange: (RootDestination) -> Unit,
+    settingsDetailType: SettingsDetailType?,
+    onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
+    viewModel: SearchViewModel,
+    onSearchBackPressed: () -> Unit,
+    onFinishActivity: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val settingsScrollState = rememberScrollState()
@@ -236,133 +247,144 @@ private fun NavigationContent(
     }
 
     AnimatedContent(
-            targetState = destination,
-            transitionSpec = {
-                val isForward =
-                        initialState == RootDestination.Search &&
-                                targetState == RootDestination.Settings
+        targetState = destination,
+        transitionSpec = {
+            val isForward =
+                initialState == RootDestination.Search &&
+                    targetState == RootDestination.Settings
 
-                if (isForward) {
-                    // Forward (Search -> Settings): slide in from right, slide out to left
-                    slideInHorizontally(
-                            animationSpec = androidx.compose.animation.core.tween(300),
-                            initialOffsetX = { it }
-                    ) togetherWith
-                            slideOutHorizontally(
-                                    animationSpec = androidx.compose.animation.core.tween(300),
-                                    targetOffsetX = { -it }
-                            )
-                } else {
-                    // Backward (Settings -> Search): slide in from left, slide out to right
-                    slideInHorizontally(
-                            animationSpec = androidx.compose.animation.core.tween(300),
-                            initialOffsetX = { -it }
-                    ) togetherWith
-                            slideOutHorizontally(
-                                    animationSpec = androidx.compose.animation.core.tween(300),
-                                    targetOffsetX = { it }
-                            )
-                }
-            },
-            label = "NavigationTransition"
+            if (isForward) {
+                // Forward (Search -> Settings): slide in from right, slide out to left
+                slideInHorizontally(
+                    animationSpec =
+                        androidx.compose.animation.core
+                            .tween(300),
+                    initialOffsetX = { it },
+                ) togetherWith
+                    slideOutHorizontally(
+                        animationSpec =
+                            androidx.compose.animation.core
+                                .tween(300),
+                        targetOffsetX = { -it },
+                    )
+            } else {
+                // Backward (Settings -> Search): slide in from left, slide out to right
+                slideInHorizontally(
+                    animationSpec =
+                        androidx.compose.animation.core
+                            .tween(300),
+                    initialOffsetX = { -it },
+                ) togetherWith
+                    slideOutHorizontally(
+                        animationSpec =
+                            androidx.compose.animation.core
+                                .tween(300),
+                        targetOffsetX = { it },
+                    )
+            }
+        },
+        label = "NavigationTransition",
     ) { targetDestination ->
         when (targetDestination) {
             RootDestination.Settings -> {
                 AnimatedContent(
-                        targetState = settingsDetailType,
-                        transitionSpec = {
-                            // Disable animation for excluded items screen
-                            if (targetState == SettingsDetailType.EXCLUDED_ITEMS ||
-                                            initialState == SettingsDetailType.EXCLUDED_ITEMS
-                            ) {
-                                // Instant transition for excluded items
-                                androidx.compose.animation.EnterTransition.None togetherWith
-                                        androidx.compose.animation.ExitTransition.None
-                            } else {
-                                val isForward = initialState == null && targetState != null
+                    targetState = settingsDetailType,
+                    transitionSpec = {
+                        // Disable animation for excluded items screen
+                        if (targetState == SettingsDetailType.EXCLUDED_ITEMS ||
+                            initialState == SettingsDetailType.EXCLUDED_ITEMS
+                        ) {
+                            // Instant transition for excluded items
+                            androidx.compose.animation.EnterTransition.None togetherWith
+                                androidx.compose.animation.ExitTransition.None
+                        } else {
+                            val isForward = initialState == null && targetState != null
 
-                                if (isForward) {
-                                    // Forward (Settings main -> Detail): slide in from right, slide
-                                    // out to left
-                                    slideInHorizontally(
-                                            animationSpec =
-                                                    androidx.compose.animation.core.tween(300),
-                                            initialOffsetX = { it }
-                                    ) togetherWith
-                                            slideOutHorizontally(
-                                                    animationSpec =
-                                                            androidx.compose.animation.core.tween(
-                                                                    300
-                                                            ),
-                                                    targetOffsetX = { -it }
-                                            )
-                                } else {
-                                    // Backward (Detail -> Settings main): slide in from left, slide
-                                    // out to right
-                                    slideInHorizontally(
-                                            animationSpec =
-                                                    androidx.compose.animation.core.tween(300),
-                                            initialOffsetX = { -it }
-                                    ) togetherWith
-                                            slideOutHorizontally(
-                                                    animationSpec =
-                                                            androidx.compose.animation.core.tween(
-                                                                    300
-                                                            ),
-                                                    targetOffsetX = { it }
-                                            )
-                                }
+                            if (isForward) {
+                                // Forward (Settings main -> Detail): slide in from right, slide
+                                // out to left
+                                slideInHorizontally(
+                                    animationSpec =
+                                        androidx.compose.animation.core
+                                            .tween(300),
+                                    initialOffsetX = { it },
+                                ) togetherWith
+                                    slideOutHorizontally(
+                                        animationSpec =
+                                            androidx.compose.animation.core.tween(
+                                                300,
+                                            ),
+                                        targetOffsetX = { -it },
+                                    )
+                            } else {
+                                // Backward (Detail -> Settings main): slide in from left, slide
+                                // out to right
+                                slideInHorizontally(
+                                    animationSpec =
+                                        androidx.compose.animation.core
+                                            .tween(300),
+                                    initialOffsetX = { -it },
+                                ) togetherWith
+                                    slideOutHorizontally(
+                                        animationSpec =
+                                            androidx.compose.animation.core.tween(
+                                                300,
+                                            ),
+                                        targetOffsetX = { it },
+                                    )
                             }
-                        },
-                        label = "SettingsDetailTransition"
+                        }
+                    },
+                    label = "SettingsDetailTransition",
                 ) { currentDetailType ->
                     if (currentDetailType != null) {
                         SettingsDetailRoute(
-                                onBack = { onSettingsDetailTypeChange(null) },
-                                viewModel = viewModel,
-                                detailType = currentDetailType,
-                                onNavigateToDetail = onSettingsDetailTypeChange
+                            onBack = { onSettingsDetailTypeChange(null) },
+                            viewModel = viewModel,
+                            detailType = currentDetailType,
+                            onNavigateToDetail = onSettingsDetailTypeChange,
                         )
                     } else {
                         SettingsRoute(
-                                onBack = {
-                                    if (uiState.overlayModeEnabled) {
-                                        onFinishActivity()
-                                    } else {
-                                        onDestinationChange(RootDestination.Search)
-                                    }
-                                },
-                                viewModel = viewModel,
-                                onNavigateToDetail = onSettingsDetailTypeChange,
-                                scrollState = settingsScrollState
+                            onBack = {
+                                if (uiState.overlayModeEnabled) {
+                                    onFinishActivity()
+                                } else {
+                                    onDestinationChange(RootDestination.Search)
+                                }
+                            },
+                            viewModel = viewModel,
+                            onNavigateToDetail = onSettingsDetailTypeChange,
+                            scrollState = settingsScrollState,
                         )
                     }
                 }
             }
+
             RootDestination.Search -> {
                 BackHandler { onSearchBackPressed() }
                 val keyboardController =
-                        androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+                    androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                 SearchRoute(
-                        viewModel = viewModel,
-                        onSettingsClick = {
-                            keyboardController?.hide()
-                            onDestinationChange(RootDestination.Settings)
-                        },
-                        onSearchEngineLongPress = {
-                            keyboardController?.hide()
-                            onDestinationChange(RootDestination.Settings)
-                            onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
-                        },
-                        onCustomizeSearchEnginesClick = {
-                            keyboardController?.hide()
-                            onDestinationChange(RootDestination.Settings)
-                            onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
-                        },
-                        onWelcomeAnimationCompleted = {
-                            viewModel.onSearchBarWelcomeAnimationCompleted()
-                        },
-                        onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) }
+                    viewModel = viewModel,
+                    onSettingsClick = {
+                        keyboardController?.hide()
+                        onDestinationChange(RootDestination.Settings)
+                    },
+                    onSearchEngineLongPress = {
+                        keyboardController?.hide()
+                        onDestinationChange(RootDestination.Settings)
+                        onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                    },
+                    onCustomizeSearchEnginesClick = {
+                        keyboardController?.hide()
+                        onDestinationChange(RootDestination.Settings)
+                        onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
+                    },
+                    onWelcomeAnimationCompleted = {
+                        viewModel.onSearchBarWelcomeAnimationCompleted()
+                    },
+                    onWallpaperLoaded = { viewModel.setWallpaperAvailable(true) },
                 )
             }
         }

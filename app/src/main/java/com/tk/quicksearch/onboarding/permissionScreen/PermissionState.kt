@@ -10,7 +10,7 @@ package com.tk.quicksearch.onboarding.permissionScreen
 data class PermissionState(
     val isGranted: Boolean = false,
     val isEnabled: Boolean = false,
-    val wasDenied: Boolean = false
+    val wasDenied: Boolean = false,
 ) {
     companion object {
         /** Creates a state for a granted permission that is enabled */

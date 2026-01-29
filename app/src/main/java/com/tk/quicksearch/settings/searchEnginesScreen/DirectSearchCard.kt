@@ -64,7 +64,7 @@ fun DirectSearchSetupCard(
     personalContext: String,
     onSetPersonalContext: ((String?) -> Unit)?,
     isExpanded: Boolean = true,
-    onToggleExpanded: (() -> Unit)? = null
+    onToggleExpanded: (() -> Unit)? = null,
 ) {
     var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
@@ -73,8 +73,8 @@ fun DirectSearchSetupCard(
         mutableStateOf(
             TextFieldValue(
                 text = personalContext,
-                selection = TextRange(personalContext.length)
-            )
+                selection = TextRange(personalContext.length),
+            ),
         )
     }
     val context = LocalContext.current
@@ -84,67 +84,71 @@ fun DirectSearchSetupCard(
     val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
 
     LaunchedEffect(personalContext) {
-        personalContextInput = TextFieldValue(
-            text = personalContext,
-            selection = TextRange(personalContext.length)
-        )
+        personalContextInput =
+            TextFieldValue(
+                text = personalContext,
+                selection = TextRange(personalContext.length),
+            )
     }
     LaunchedEffect(showPersonalContextDialog) {
         if (showPersonalContextDialog) {
             // Slight delay so the field is laid out before requesting focus
             delay(100)
-            personalContextInput = personalContextInput.copy(
-                selection = TextRange(personalContextInput.text.length)
-            )
+            personalContextInput =
+                personalContextInput.copy(
+                    selection = TextRange(personalContextInput.text.length),
+                )
             personalContextFocusRequester.requestFocus()
             keyboardController?.show()
         }
     }
 
     ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp),
-        shape = MaterialTheme.shapes.extraLarge
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
-            modifier = Modifier.padding(
-                horizontal = DesignTokens.CardHorizontalPadding,
-                vertical = DesignTokens.CardTopPadding
-            )
+            modifier =
+                Modifier.padding(
+                    horizontal = DesignTokens.CardHorizontalPadding,
+                    vertical = DesignTokens.CardTopPadding,
+                ),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (onToggleExpanded != null) {
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = onToggleExpanded
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .padding(bottom = if (isExpanded) 12.dp else 0.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (onToggleExpanded != null) {
+                                Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = onToggleExpanded,
+                                )
+                            } else {
+                                Modifier
+                            },
+                        ).padding(bottom = if (isExpanded) 12.dp else 0.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.direct_search),
                         contentDescription = null,
                         tint = androidx.compose.ui.graphics.Color.Unspecified,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                     Text(
                         text = stringResource(R.string.settings_direct_search_toggle),
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 if (onToggleExpanded != null) {
@@ -152,7 +156,7 @@ fun DirectSearchSetupCard(
                         imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
                         contentDescription = if (isExpanded) "Collapse" else "Expand",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             }
@@ -160,7 +164,7 @@ fun DirectSearchSetupCard(
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically(),
-                exit = shrinkVertically()
+                exit = shrinkVertically(),
             ) {
                 Column {
                     if (directSearchEnabled && geminiApiKeyLast4 != null) {
@@ -168,24 +172,26 @@ fun DirectSearchSetupCard(
                             text = stringResource(R.string.settings_gemini_api_key_display, geminiApiKeyLast4 ?: ""),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp),
                         )
 
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 8.dp),
-                            horizontalArrangement = Arrangement.End
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.End,
                         ) {
                             if (onSetPersonalContext != null) {
                                 TextButton(
                                     onClick = {
-                                        personalContextInput = TextFieldValue(
-                                            text = personalContext,
-                                            selection = TextRange(personalContext.length)
-                                        )
+                                        personalContextInput =
+                                            TextFieldValue(
+                                                text = personalContext,
+                                                selection = TextRange(personalContext.length),
+                                            )
                                         showPersonalContextDialog = true
-                                    }
+                                    },
                                 ) {
                                     Text(text = stringResource(R.string.settings_direct_search_personal_context))
                                 }
@@ -196,7 +202,7 @@ fun DirectSearchSetupCard(
                                     apiKeyInput = ""
                                     showInput = false
                                     onSetGeminiApiKey(null)
-                                }
+                                },
                             ) {
                                 Text(text = stringResource(R.string.settings_gemini_api_key_reset))
                             }
@@ -206,7 +212,7 @@ fun DirectSearchSetupCard(
                             text = stringResource(R.string.settings_direct_search_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 20.dp)
+                            modifier = Modifier.padding(bottom = 20.dp),
                         )
 
                         if (showInput) {
@@ -214,18 +220,19 @@ fun DirectSearchSetupCard(
                                 OutlinedTextField(
                                     value = apiKeyInput,
                                     onValueChange = { apiKeyInput = it },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 16.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 16.dp),
                                     placeholder = {
                                         Text(
                                             text = if (apiKeyInput.isEmpty()) "" else "",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     },
                                     singleLine = true,
-                                    readOnly = true // Prevent keyboard opening
+                                    readOnly = true, // Prevent keyboard opening
                                 )
 
                                 // Overlay clickable text when field is empty
@@ -234,73 +241,79 @@ fun DirectSearchSetupCard(
                                         text = "Paste Gemini API Key",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier
-                                            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
-                                            .clickable {
-                                                clipboardManager.getText()
-                                                    ?.text
-                                                    ?.trim()
-                                                    ?.takeIf { it.isNotEmpty() }
-                                                    ?.let { pasted ->
-                                                        apiKeyInput = pasted
-                                                    }
-                                            }
+                                        modifier =
+                                            Modifier
+                                                .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)
+                                                .clickable {
+                                                    clipboardManager
+                                                        .getText()
+                                                        ?.text
+                                                        ?.trim()
+                                                        ?.takeIf { it.isNotEmpty() }
+                                                        ?.let { pasted ->
+                                                            apiKeyInput = pasted
+                                                        }
+                                                },
                                     )
                                 }
 
                                 // Tap gesture for the entire field
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(56.dp) // Standard TextField height
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onTap = {
-                                                    if (apiKeyInput.isEmpty()) {
-                                                        // Handle tap to paste when field is empty
-                                                        clipboardManager.getText()
-                                                            ?.text
-                                                            ?.trim()
-                                                            ?.takeIf { it.isNotEmpty() }
-                                                            ?.let { pasted ->
-                                                                apiKeyInput = pasted
-                                                            }
-                                                    } else {
-                                                        // Clear when field has content
-                                                        apiKeyInput = ""
-                                                    }
-                                                },
-                                                onLongPress = {
-                                                    if (apiKeyInput.isEmpty()) {
-                                                        // Handle long press to paste when field is empty (backup)
-                                                        clipboardManager.getText()
-                                                            ?.text
-                                                            ?.trim()
-                                                            ?.takeIf { it.isNotEmpty() }
-                                                            ?.let { pasted ->
-                                                                apiKeyInput = pasted
-                                                            }
-                                                    } else {
-                                                        // Clear when field has content
-                                                        apiKeyInput = ""
-                                                    }
-                                                }
-                                            )
-                                        }
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(56.dp) // Standard TextField height
+                                            .pointerInput(Unit) {
+                                                detectTapGestures(
+                                                    onTap = {
+                                                        if (apiKeyInput.isEmpty()) {
+                                                            // Handle tap to paste when field is empty
+                                                            clipboardManager
+                                                                .getText()
+                                                                ?.text
+                                                                ?.trim()
+                                                                ?.takeIf { it.isNotEmpty() }
+                                                                ?.let { pasted ->
+                                                                    apiKeyInput = pasted
+                                                                }
+                                                        } else {
+                                                            // Clear when field has content
+                                                            apiKeyInput = ""
+                                                        }
+                                                    },
+                                                    onLongPress = {
+                                                        if (apiKeyInput.isEmpty()) {
+                                                            // Handle long press to paste when field is empty (backup)
+                                                            clipboardManager
+                                                                .getText()
+                                                                ?.text
+                                                                ?.trim()
+                                                                ?.takeIf { it.isNotEmpty() }
+                                                                ?.let { pasted ->
+                                                                    apiKeyInput = pasted
+                                                                }
+                                                        } else {
+                                                            // Clear when field has content
+                                                            apiKeyInput = ""
+                                                        }
+                                                    },
+                                                )
+                                            },
                                 )
                             }
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 TextButton(
                                     onClick = {
                                         apiKeyInput = ""
                                         showInput = false
-                                    }
+                                    },
                                 ) {
                                     Text(text = stringResource(R.string.dialog_cancel))
                                 }
@@ -313,27 +326,29 @@ fun DirectSearchSetupCard(
                                             apiKeyInput = ""
                                             showInput = false
                                         }
-                                    }
+                                    },
                                 ) {
                                     Text(text = stringResource(R.string.dialog_save))
                                 }
                             }
                         } else {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.End,
                             ) {
                                 TextButton(
                                     onClick = {
-                                        val intent = Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse(geminiGuideUrl)
-                                        )
+                                        val intent =
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(geminiGuideUrl),
+                                            )
                                         runCatching { context.startActivity(intent) }
-                                    }
+                                    },
                                 ) {
                                     Text(text = stringResource(R.string.settings_direct_search_how_to))
                                 }
@@ -341,7 +356,7 @@ fun DirectSearchSetupCard(
                                 Spacer(modifier = Modifier.width(8.dp))
 
                                 Button(
-                                    onClick = { showInput = true }
+                                    onClick = { showInput = true },
                                 ) {
                                     Text(text = stringResource(R.string.settings_gemini_api_key_add))
                                 }
@@ -359,16 +374,17 @@ fun DirectSearchSetupCard(
                                 OutlinedTextField(
                                     value = personalContextInput,
                                     onValueChange = { personalContextInput = it },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = 180.dp)
-                                        .focusRequester(personalContextFocusRequester),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 180.dp)
+                                            .focusRequester(personalContextFocusRequester),
                                     placeholder = {
                                         Text(text = stringResource(R.string.settings_direct_search_personal_context_hint))
                                     },
                                     shape = MaterialTheme.shapes.large,
                                     singleLine = false,
-                                    minLines = 5
+                                    minLines = 5,
                                 )
                             },
                             confirmButton = {
@@ -377,18 +393,18 @@ fun DirectSearchSetupCard(
                                         val trimmed = personalContextInput.text.trim()
                                         onSetPersonalContext(trimmed.takeIf { it.isNotEmpty() })
                                         showPersonalContextDialog = false
-                                    }
+                                    },
                                 ) {
                                     Text(text = stringResource(R.string.dialog_save))
                                 }
                             },
                             dismissButton = {
                                 TextButton(
-                                    onClick = { showPersonalContextDialog = false }
+                                    onClick = { showPersonalContextDialog = false },
                                 ) {
                                     Text(text = stringResource(R.string.dialog_cancel))
                                 }
-                            }
+                            },
                         )
                     }
                 }

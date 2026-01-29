@@ -23,40 +23,46 @@ import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 // ============================================================================
 
 @Composable
-internal fun ExpandButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun ExpandButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     TextButton(
-            onClick = onClick,
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+        onClick = onClick,
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
     ) {
         Text(
-                text = stringResource(R.string.action_expand_more),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
+            text = stringResource(R.string.action_expand_more),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
         )
         Icon(
-                imageVector = Icons.Rounded.ExpandMore,
-                contentDescription = stringResource(R.string.desc_expand),
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
+            imageVector = Icons.Rounded.ExpandMore,
+            contentDescription = stringResource(R.string.desc_expand),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }
 }
 
 @Composable
-internal fun CollapseButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun CollapseButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     androidx.compose.material3.FilledTonalButton(onClick = onClick, modifier = modifier) {
         Icon(
-                imageVector = Icons.Rounded.ExpandLess,
-                contentDescription = stringResource(R.string.desc_collapse),
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp)
+            imageVector = Icons.Rounded.ExpandLess,
+            contentDescription = stringResource(R.string.desc_collapse),
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-                text = stringResource(R.string.action_collapse),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+            text = stringResource(R.string.action_collapse),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
         )
     }
 }

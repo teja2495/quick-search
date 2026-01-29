@@ -1,15 +1,15 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
 import androidx.compose.runtime.Composable
+import com.tk.quicksearch.search.contacts.dialogs.ContactMethodsDialog
+import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
+import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
+import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
-import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
-import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
-import com.tk.quicksearch.search.contacts.dialogs.ContactMethodsDialog
-import com.tk.quicksearch.search.core.*
 
 /**
  * Composable that manages all dialogs for SearchScreen
@@ -32,7 +32,7 @@ internal fun SearchScreenDialogs(
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
-    setLastShownPhoneNumber: (Long, String) -> Unit
+    setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
     // Phone number selection dialog
     state.phoneNumberSelection?.let { selection ->
@@ -40,7 +40,7 @@ internal fun SearchScreenDialogs(
             contactInfo = selection.contactInfo,
             isCall = selection.isCall,
             onPhoneNumberSelected = onPhoneNumberSelected,
-            onDismiss = onDismissPhoneNumberSelection
+            onDismiss = onDismissPhoneNumberSelection,
         )
     }
 
@@ -49,7 +49,7 @@ internal fun SearchScreenDialogs(
             contactName = choice.contactName,
             phoneNumber = choice.phoneNumber,
             onSelectOption = onDirectDialChoiceSelected,
-            onDismiss = onDismissDirectDialChoice
+            onDismiss = onDismissDirectDialChoice,
         )
     }
 
@@ -60,14 +60,14 @@ internal fun SearchScreenDialogs(
             onContactMethodClick = onContactMethodClick,
             onDismiss = onDismissContactMethods,
             getLastShownPhoneNumber = getLastShownPhoneNumber,
-            setLastShownPhoneNumber = setLastShownPhoneNumber
+            setLastShownPhoneNumber = setLastShownPhoneNumber,
         )
     }
 
     if (state.showReleaseNotesDialog) {
         ReleaseNotesDialog(
             versionName = state.releaseNotesVersionName,
-            onAcknowledge = onReleaseNotesAcknowledged
+            onAcknowledge = onReleaseNotesAcknowledged,
         )
     }
 
@@ -81,9 +81,10 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveAppNickname(dialogState.app, nickname)
                     },
-                    onDismiss = onDismissNicknameDialog
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
+
             is NicknameDialogState.AppShortcut -> {
                 NicknameDialog(
                     currentNickname = dialogState.currentNickname,
@@ -91,9 +92,10 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveAppShortcutNickname(dialogState.shortcut, nickname)
                     },
-                    onDismiss = onDismissNicknameDialog
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
+
             is NicknameDialogState.Contact -> {
                 NicknameDialog(
                     currentNickname = dialogState.currentNickname,
@@ -101,9 +103,10 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveContactNickname(dialogState.contact, nickname)
                     },
-                    onDismiss = onDismissNicknameDialog
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
+
             is NicknameDialogState.File -> {
                 NicknameDialog(
                     currentNickname = dialogState.currentNickname,
@@ -111,9 +114,10 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveFileNickname(dialogState.file, nickname)
                     },
-                    onDismiss = onDismissNicknameDialog
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
+
             is NicknameDialogState.Setting -> {
                 NicknameDialog(
                     currentNickname = dialogState.currentNickname,
@@ -121,7 +125,7 @@ internal fun SearchScreenDialogs(
                     onSave = { nickname ->
                         onSaveSettingNickname(dialogState.setting, nickname)
                     },
-                    onDismiss = onDismissNicknameDialog
+                    onDismiss = onDismissNicknameDialog,
                 )
             }
         }

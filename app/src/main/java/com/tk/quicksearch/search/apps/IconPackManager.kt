@@ -26,17 +26,19 @@ object IconPackManager {
     private const val TAG = "IconPackManager"
 
     // Common intents/categories used by popular icon packs (Nova, Lawnchair, etc.)
-    private val ICON_PACK_ACTIONS = listOf(
-        "com.novalauncher.THEME",
-        "com.anddoes.launcher.THEME",
-        "org.adw.launcher.THEMES",
-        "org.adw.launcher.icons.ACTION_PICK_ICON"
-    )
-    private val ICON_PACK_CATEGORIES = listOf(
-        "com.novalauncher.THEME",
-        "com.anddoes.launcher.THEME",
-        "com.teslacoilsw.launcher.THEME"
-    )
+    private val ICON_PACK_ACTIONS =
+        listOf(
+            "com.novalauncher.THEME",
+            "com.anddoes.launcher.THEME",
+            "org.adw.launcher.THEMES",
+            "org.adw.launcher.icons.ACTION_PICK_ICON",
+        )
+    private val ICON_PACK_CATEGORIES =
+        listOf(
+            "com.novalauncher.THEME",
+            "com.anddoes.launcher.THEME",
+            "com.teslacoilsw.launcher.THEME",
+        )
 
     private val mappingCache = ConcurrentHashMap<String, Map<String, String>>()
     private val resourcesCache = ConcurrentHashMap<String, Resources>()
@@ -47,9 +49,10 @@ object IconPackManager {
     fun findInstalledIconPacks(context: Context): List<IconPackInfo> {
         val packageManager = context.packageManager
         val packages = discoverIconPackPackages(packageManager)
-        return packages.mapNotNull { packageName ->
-            createIconPackInfo(packageManager, packageName)
-        }.sortedBy { it.label.lowercase(Locale.getDefault()) }
+        return packages
+            .mapNotNull { packageName ->
+                createIconPackInfo(packageManager, packageName)
+            }.sortedBy { it.label.lowercase(Locale.getDefault()) }
     }
 
     /**
@@ -80,16 +83,18 @@ object IconPackManager {
     /**
      * Creates an IconPackInfo object for the given package, or null if the package cannot be resolved.
      */
-    private fun createIconPackInfo(packageManager: PackageManager, packageName: String): IconPackInfo? {
-        return runCatching {
+    private fun createIconPackInfo(
+        packageManager: PackageManager,
+        packageName: String,
+    ): IconPackInfo? =
+        runCatching {
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val label = packageManager.getApplicationLabel(appInfo)?.toString().orEmpty()
             IconPackInfo(
                 packageName = packageName,
-                label = label.ifBlank { packageName }
+                label = label.ifBlank { packageName },
             )
         }.getOrNull()
-    }
 
     /**
      * Loads an app icon bitmap from the specified icon pack, or null if unavailable.
@@ -98,7 +103,7 @@ object IconPackManager {
     fun loadIconBitmap(
         context: Context,
         iconPackPackage: String,
-        targetPackage: String
+        targetPackage: String,
     ): ImageBitmap? {
         val resources = getIconPackResources(context, iconPackPackage) ?: return null
         val mapping = loadAppFilterMapping(context, iconPackPackage, resources)
@@ -107,7 +112,6 @@ object IconPackManager {
         val drawable = loadDrawable(resources, iconPackPackage, drawableName) ?: return null
         return drawable.toBitmapSafely()
     }
-
 
     fun clearAllCaches() {
         mappingCache.clear()
@@ -120,13 +124,13 @@ object IconPackManager {
      */
     private fun queryPackages(
         packageManager: PackageManager,
-        intent: Intent
-    ): Set<String> {
-        return try {
+        intent: Intent,
+    ): Set<String> =
+        try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 packageManager.queryIntentActivities(
                     intent,
-                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong()),
                 )
             } else {
                 @Suppress("DEPRECATION")
@@ -136,39 +140,40 @@ object IconPackManager {
             Log.w(TAG, "Failed to query icon packs for intent $intent", e)
             emptySet()
         }
-    }
 
     /**
      * Finds installed applications that contain appfilter.xml files,
      * which typically indicate icon pack applications.
      */
-    private fun findAppFilterCandidates(packageManager: PackageManager): Set<String> {
-        return runCatching {
-            packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+    private fun findAppFilterCandidates(packageManager: PackageManager): Set<String> =
+        runCatching {
+            packageManager
+                .getInstalledApplications(PackageManager.GET_META_DATA)
                 .mapNotNull { appInfo ->
-                    val hasAppFilter = runCatching {
-                        val res = packageManager.getResourcesForApplication(appInfo.packageName)
-                        hasAppFilter(res, appInfo.packageName)
-                    }.getOrDefault(false)
+                    val hasAppFilter =
+                        runCatching {
+                            val res = packageManager.getResourcesForApplication(appInfo.packageName)
+                            hasAppFilter(res, appInfo.packageName)
+                        }.getOrDefault(false)
                     if (hasAppFilter) appInfo.packageName else null
-                }
-                .toSet()
+                }.toSet()
         }.getOrDefault(emptySet())
-    }
 
     /**
      * Checks if the given package contains an appfilter.xml file,
      * either in assets or as a resource.
      */
-    private fun hasAppFilter(resources: Resources, packageName: String): Boolean {
-        return try {
+    private fun hasAppFilter(
+        resources: Resources,
+        packageName: String,
+    ): Boolean =
+        try {
             resources.assets.open("appfilter.xml").close()
             true
         } catch (_: Exception) {
             val resId = resources.getIdentifier("appfilter", "xml", packageName)
             resId != 0
         }
-    }
 
     /**
      * Retrieves the Resources object for the specified icon pack package,
@@ -176,16 +181,17 @@ object IconPackManager {
      */
     private fun getIconPackResources(
         context: Context,
-        iconPackPackage: String
+        iconPackPackage: String,
     ): Resources? {
         resourcesCache[iconPackPackage]?.let { return it }
 
-        val resources = runCatching {
-            val packageManager = context.packageManager
-            packageManager.getResourcesForApplication(iconPackPackage)
-        }.onFailure {
-            Log.w(TAG, "Unable to load resources for icon pack $iconPackPackage", it)
-        }.getOrNull() ?: return null
+        val resources =
+            runCatching {
+                val packageManager = context.packageManager
+                packageManager.getResourcesForApplication(iconPackPackage)
+            }.onFailure {
+                Log.w(TAG, "Unable to load resources for icon pack $iconPackPackage", it)
+            }.getOrNull() ?: return null
 
         resourcesCache[iconPackPackage] = resources
         return resources
@@ -198,7 +204,7 @@ object IconPackManager {
     private fun loadAppFilterMapping(
         context: Context,
         iconPackPackage: String,
-        resources: Resources
+        resources: Resources,
     ): Map<String, String> {
         mappingCache[iconPackPackage]?.let { return it }
 
@@ -211,7 +217,10 @@ object IconPackManager {
      * Parses the appfilter.xml file from the icon pack, trying assets first, then resources.
      * Returns a mapping of package names to drawable names.
      */
-    private fun parseAppFilter(resources: Resources, packageName: String): Map<String, String> {
+    private fun parseAppFilter(
+        resources: Resources,
+        packageName: String,
+    ): Map<String, String> {
         // Try assets/appfilter.xml first
         getAppFilterFromAssets(resources)?.let { return it }
 
@@ -222,15 +231,18 @@ object IconPackManager {
     /**
      * Attempts to parse appfilter.xml from the assets directory.
      */
-    private fun getAppFilterFromAssets(resources: Resources): Map<String, String>? {
-        return runCatching { resources.assets.open("appfilter.xml") }.getOrNull()
+    private fun getAppFilterFromAssets(resources: Resources): Map<String, String>? =
+        runCatching { resources.assets.open("appfilter.xml") }
+            .getOrNull()
             ?.use { stream -> parseIconPackXml(stream) }
-    }
 
     /**
      * Attempts to parse appfilter.xml from the res/xml directory.
      */
-    private fun getAppFilterFromResources(resources: Resources, packageName: String): Map<String, String> {
+    private fun getAppFilterFromResources(
+        resources: Resources,
+        packageName: String,
+    ): Map<String, String> {
         val xmlResId = resources.getIdentifier("appfilter", "xml", packageName)
         if (xmlResId == 0) return emptyMap()
 
@@ -246,8 +258,8 @@ object IconPackManager {
     /**
      * Parses an InputStream containing icon pack XML data.
      */
-    private fun parseIconPackXml(stream: InputStream): Map<String, String>? {
-        return try {
+    private fun parseIconPackXml(stream: InputStream): Map<String, String>? =
+        try {
             val parser = Xml.newPullParser()
             parser.setInput(stream, null)
             parseIconPackXml(parser)
@@ -255,7 +267,6 @@ object IconPackManager {
             Log.w(TAG, "Failed to parse appfilter.xml from assets", e)
             null
         }
-    }
 
     /**
      * Parses XML using the provided XmlPullParser, extracting package-to-drawable mappings
@@ -272,10 +283,11 @@ object IconPackManager {
                     val drawableName = parser.getAttributeValue(null, "drawable")
                     val packageAttr = parser.getAttributeValue(null, "package")
 
-                    val packageName = when {
-                        !packageAttr.isNullOrBlank() -> packageAttr
-                        else -> extractPackageFromComponent(component)
-                    }
+                    val packageName =
+                        when {
+                            !packageAttr.isNullOrBlank() -> packageAttr
+                            else -> extractPackageFromComponent(component)
+                        }
 
                     if (!packageName.isNullOrBlank() && !drawableName.isNullOrBlank()) {
                         // Keep the first mapping we see for a package to avoid overriding with aliases.
@@ -313,15 +325,16 @@ object IconPackManager {
     private fun loadDrawable(
         resources: Resources,
         packageName: String,
-        drawableName: String
+        drawableName: String,
     ): Drawable? {
         val drawableId = resources.getIdentifier(drawableName, "drawable", packageName)
         val mipmapId = resources.getIdentifier(drawableName, "mipmap", packageName)
-        val resId = when {
-            drawableId != 0 -> drawableId
-            mipmapId != 0 -> mipmapId
-            else -> 0
-        }
+        val resId =
+            when {
+                drawableId != 0 -> drawableId
+                mipmapId != 0 -> mipmapId
+                else -> 0
+            }
 
         if (resId == 0) return null
 
@@ -333,13 +346,11 @@ object IconPackManager {
     }
 }
 
-private fun Drawable.toBitmapSafely(): ImageBitmap? {
-    return runCatching {
+private fun Drawable.toBitmapSafely(): ImageBitmap? =
+    runCatching {
         when (this) {
             is BitmapDrawable -> bitmap?.asImageBitmap()
             is AdaptiveIconDrawable -> toBitmap().asImageBitmap()
             else -> toBitmap().asImageBitmap()
         }
     }.getOrNull()
-}
-

@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.ui.theme.DesignTokens
 
-
 private const val AMAZON_ICON_SCALE_FACTOR = 0.3f
 private const val INVERSION_OFFSET = 255f
 private const val BRIGHTNESS_THRESHOLD = 0.7f
@@ -21,11 +20,13 @@ private const val BRIGHTNESS_THRESHOLD = 0.7f
  */
 @Composable
 fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
-    val needsColorChange = engine in setOf(
-        SearchEngine.CHATGPT,
-        SearchEngine.GROK,
-        SearchEngine.AMAZON
-    )
+    val needsColorChange =
+        engine in
+            setOf(
+                SearchEngine.CHATGPT,
+                SearchEngine.GROK,
+                SearchEngine.AMAZON,
+            )
 
     // Check if we're in light mode by calculating perceived brightness
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -38,24 +39,56 @@ fun getSearchEngineIconColorFilter(engine: SearchEngine): ColorFilter? {
             ColorFilter.colorMatrix(
                 ColorMatrix(
                     floatArrayOf(
-                        AMAZON_ICON_SCALE_FACTOR, 0f, 0f, 0f, 0f,     // Red: scale to preserve orange
-                        0f, AMAZON_ICON_SCALE_FACTOR, 0f, 0f, 0f,     // Green: scale to preserve orange
-                        0f, 0f, AMAZON_ICON_SCALE_FACTOR, 0f, 0f,     // Blue: scale to preserve orange
-                        0f, 0f, 0f, 1f, 0f        // Alpha: keep
-                    )
-                )
+                        AMAZON_ICON_SCALE_FACTOR,
+                        0f,
+                        0f,
+                        0f,
+                        0f, // Red: scale to preserve orange
+                        0f,
+                        AMAZON_ICON_SCALE_FACTOR,
+                        0f,
+                        0f,
+                        0f, // Green: scale to preserve orange
+                        0f,
+                        0f,
+                        AMAZON_ICON_SCALE_FACTOR,
+                        0f,
+                        0f, // Blue: scale to preserve orange
+                        0f,
+                        0f,
+                        0f,
+                        1f,
+                        0f, // Alpha: keep
+                    ),
+                ),
             )
         } else {
             // For ChatGPT and Grok: simple inversion (all white → all black)
             ColorFilter.colorMatrix(
                 ColorMatrix(
                     floatArrayOf(
-                        -1f, 0f, 0f, 0f, INVERSION_OFFSET,  // Red: invert
-                        0f, -1f, 0f, 0f, INVERSION_OFFSET,   // Green: invert
-                        0f, 0f, -1f, 0f, INVERSION_OFFSET,   // Blue: invert
-                        0f, 0f, 0f, 1f, 0f       // Alpha: keep
-                    )
-                )
+                        -1f,
+                        0f,
+                        0f,
+                        0f,
+                        INVERSION_OFFSET, // Red: invert
+                        0f,
+                        -1f,
+                        0f,
+                        0f,
+                        INVERSION_OFFSET, // Green: invert
+                        0f,
+                        0f,
+                        -1f,
+                        0f,
+                        INVERSION_OFFSET, // Blue: invert
+                        0f,
+                        0f,
+                        0f,
+                        1f,
+                        0f, // Alpha: keep
+                    ),
+                ),
             )
         }
     } else {

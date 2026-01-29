@@ -13,12 +13,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SecondarySearchOrchestrator(
-        private val scope: CoroutineScope,
-        private val unifiedSearchHandler: UnifiedSearchHandler,
-        private val webSuggestionHandler: WebSuggestionHandler,
-        private val sectionManager: SectionManager,
-        private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
-        private val currentStateProvider: () -> SearchUiState
+    private val scope: CoroutineScope,
+    private val unifiedSearchHandler: UnifiedSearchHandler,
+    private val webSuggestionHandler: WebSuggestionHandler,
+    private val sectionManager: SectionManager,
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
+    private val currentStateProvider: () -> SearchUiState,
 ) {
     private var searchJob: Job? = null
     private var queryVersion: Long = 0L
@@ -47,10 +47,10 @@ class SecondarySearchOrchestrator(
 
             uiStateUpdater {
                 it.copy(
-                        contactResults = emptyList(),
-                        fileResults = emptyList(),
-                        settingResults = emptyList(),
-                        appShortcutResults = emptyList()
+                    contactResults = emptyList(),
+                    fileResults = emptyList(),
+                    settingResults = emptyList(),
+                    appShortcutResults = emptyList(),
                 )
             }
             return
@@ -61,21 +61,20 @@ class SecondarySearchOrchestrator(
         if (isBackspacing) {
             // Reset prefixes that are longer than current query
             if (lastQueryWithNoContacts != null &&
-                            trimmedQuery.length < lastQueryWithNoContacts!!.length
+                trimmedQuery.length < lastQueryWithNoContacts!!.length
             ) {
                 lastQueryWithNoContacts = null
             }
-            if (lastQueryWithNoFiles != null && trimmedQuery.length < lastQueryWithNoFiles!!.length
-            ) {
+            if (lastQueryWithNoFiles != null && trimmedQuery.length < lastQueryWithNoFiles!!.length) {
                 lastQueryWithNoFiles = null
             }
             if (lastQueryWithNoSettings != null &&
-                            trimmedQuery.length < lastQueryWithNoSettings!!.length
+                trimmedQuery.length < lastQueryWithNoSettings!!.length
             ) {
                 lastQueryWithNoSettings = null
             }
             if (lastQueryWithNoAppShortcuts != null &&
-                            trimmedQuery.length < lastQueryWithNoAppShortcuts!!.length
+                trimmedQuery.length < lastQueryWithNoAppShortcuts!!.length
             ) {
                 lastQueryWithNoAppShortcuts = null
             }
@@ -83,124 +82,124 @@ class SecondarySearchOrchestrator(
 
         val currentState = currentStateProvider()
         val canSearchContacts =
-                currentState.hasContactPermission &&
-                        SearchSection.CONTACTS !in sectionManager.disabledSections
+            currentState.hasContactPermission &&
+                SearchSection.CONTACTS !in sectionManager.disabledSections
         val canSearchFiles =
-                currentState.hasFilePermission &&
-                        SearchSection.FILES !in sectionManager.disabledSections
+            currentState.hasFilePermission &&
+                SearchSection.FILES !in sectionManager.disabledSections
         val canSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
         val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
 
         // Skip searches if current query extends a previous no-results query
         val shouldSkipContacts =
-                !isBackspacing &&
-                        lastQueryWithNoContacts != null &&
-                        trimmedQuery.startsWith(lastQueryWithNoContacts!!)
+            !isBackspacing &&
+                lastQueryWithNoContacts != null &&
+                trimmedQuery.startsWith(lastQueryWithNoContacts!!)
         val shouldSkipFiles =
-                !isBackspacing &&
-                        lastQueryWithNoFiles != null &&
-                        trimmedQuery.startsWith(lastQueryWithNoFiles!!)
+            !isBackspacing &&
+                lastQueryWithNoFiles != null &&
+                trimmedQuery.startsWith(lastQueryWithNoFiles!!)
         val shouldSkipSettings =
-                !isBackspacing &&
-                        lastQueryWithNoSettings != null &&
-                        trimmedQuery.startsWith(lastQueryWithNoSettings!!)
+            !isBackspacing &&
+                lastQueryWithNoSettings != null &&
+                trimmedQuery.startsWith(lastQueryWithNoSettings!!)
         val shouldSkipAppShortcuts =
-                !isBackspacing &&
-                        lastQueryWithNoAppShortcuts != null &&
-                        trimmedQuery.startsWith(lastQueryWithNoAppShortcuts!!)
+            !isBackspacing &&
+                lastQueryWithNoAppShortcuts != null &&
+                trimmedQuery.startsWith(lastQueryWithNoAppShortcuts!!)
 
         val currentVersion = ++queryVersion
         lastQueryLength = trimmedQuery.length
 
         searchJob =
-                scope.launch(Dispatchers.IO) {
-                    // Debounce expensive contact/file queries during rapid typing
-                    delay(SECONDARY_SEARCH_DEBOUNCE_MS)
-                    if (currentVersion != queryVersion) return@launch
+            scope.launch(Dispatchers.IO) {
+                // Debounce expensive contact/file queries during rapid typing
+                delay(SECONDARY_SEARCH_DEBOUNCE_MS)
+                if (currentVersion != queryVersion) return@launch
 
-                    val unifiedResults =
-                            unifiedSearchHandler.performSearch(
-                                    query = trimmedQuery,
-                                    enabledFileTypes = currentState.enabledFileTypes,
-                                    canSearchContacts = canSearchContacts && !shouldSkipContacts,
-                                    canSearchFiles = canSearchFiles && !shouldSkipFiles,
-                                    canSearchSettings = canSearchSettings && !shouldSkipSettings,
-                                    canSearchAppShortcuts =
-                                            canSearchAppShortcuts && !shouldSkipAppShortcuts,
-                                    showFolders = currentState.showFolders,
-                                    showSystemFiles = currentState.showSystemFiles,
-                                    showHiddenFiles = currentState.showHiddenFiles
+                val unifiedResults =
+                    unifiedSearchHandler.performSearch(
+                        query = trimmedQuery,
+                        enabledFileTypes = currentState.enabledFileTypes,
+                        canSearchContacts = canSearchContacts && !shouldSkipContacts,
+                        canSearchFiles = canSearchFiles && !shouldSkipFiles,
+                        canSearchSettings = canSearchSettings && !shouldSkipSettings,
+                        canSearchAppShortcuts =
+                            canSearchAppShortcuts && !shouldSkipAppShortcuts,
+                        showFolders = currentState.showFolders,
+                        showSystemFiles = currentState.showSystemFiles,
+                        showHiddenFiles = currentState.showHiddenFiles,
+                    )
+
+                withContext(Dispatchers.Main) {
+                    if (currentVersion == queryVersion) {
+                        // Update no-results tracking based on search results
+                        if (unifiedResults.contactResults.isEmpty() && !shouldSkipContacts) {
+                            lastQueryWithNoContacts = trimmedQuery
+                        } else if (unifiedResults.contactResults.isNotEmpty()) {
+                            // Clear if we got results
+                            lastQueryWithNoContacts = null
+                        }
+
+                        if (unifiedResults.fileResults.isEmpty() && !shouldSkipFiles) {
+                            lastQueryWithNoFiles = trimmedQuery
+                        } else if (unifiedResults.fileResults.isNotEmpty()) {
+                            lastQueryWithNoFiles = null
+                        }
+
+                        if (unifiedResults.settingResults.isEmpty() && !shouldSkipSettings) {
+                            lastQueryWithNoSettings = trimmedQuery
+                        } else if (unifiedResults.settingResults.isNotEmpty()) {
+                            lastQueryWithNoSettings = null
+                        }
+
+                        if (unifiedResults.appShortcutResults.isEmpty() &&
+                            !shouldSkipAppShortcuts
+                        ) {
+                            lastQueryWithNoAppShortcuts = trimmedQuery
+                        } else if (unifiedResults.appShortcutResults.isNotEmpty()) {
+                            lastQueryWithNoAppShortcuts = null
+                        }
+
+                        val stateBeforeUpdate = currentStateProvider()
+                        val hasAnyResults =
+                            unifiedResults.contactResults.isNotEmpty() ||
+                                unifiedResults.fileResults.isNotEmpty() ||
+                                unifiedResults.settingResults.isNotEmpty() ||
+                                unifiedResults.appShortcutResults.isNotEmpty() ||
+                                stateBeforeUpdate.searchResults.isNotEmpty()
+
+                        uiStateUpdater { state ->
+                            state.copy(
+                                contactResults = unifiedResults.contactResults,
+                                fileResults = unifiedResults.fileResults,
+                                settingResults = unifiedResults.settingResults,
+                                appShortcutResults = unifiedResults.appShortcutResults,
                             )
+                        }
 
-                    withContext(Dispatchers.Main) {
-                        if (currentVersion == queryVersion) {
-                            // Update no-results tracking based on search results
-                            if (unifiedResults.contactResults.isEmpty() && !shouldSkipContacts) {
-                                lastQueryWithNoContacts = trimmedQuery
-                            } else if (unifiedResults.contactResults.isNotEmpty()) {
-                                // Clear if we got results
-                                lastQueryWithNoContacts = null
-                            }
-
-                            if (unifiedResults.fileResults.isEmpty() && !shouldSkipFiles) {
-                                lastQueryWithNoFiles = trimmedQuery
-                            } else if (unifiedResults.fileResults.isNotEmpty()) {
-                                lastQueryWithNoFiles = null
-                            }
-
-                            if (unifiedResults.settingResults.isEmpty() && !shouldSkipSettings) {
-                                lastQueryWithNoSettings = trimmedQuery
-                            } else if (unifiedResults.settingResults.isNotEmpty()) {
-                                lastQueryWithNoSettings = null
-                            }
-
-                            if (unifiedResults.appShortcutResults.isEmpty() &&
-                                            !shouldSkipAppShortcuts
-                            ) {
-                                lastQueryWithNoAppShortcuts = trimmedQuery
-                            } else if (unifiedResults.appShortcutResults.isNotEmpty()) {
-                                lastQueryWithNoAppShortcuts = null
-                            }
-
-                            val stateBeforeUpdate = currentStateProvider()
-                            val hasAnyResults =
-                                    unifiedResults.contactResults.isNotEmpty() ||
-                                            unifiedResults.fileResults.isNotEmpty() ||
-                                            unifiedResults.settingResults.isNotEmpty() ||
-                                            unifiedResults.appShortcutResults.isNotEmpty() ||
-                                            stateBeforeUpdate.searchResults.isNotEmpty()
-
+                        // Fetch web suggestions if query is long enough and suggestions are enabled
+                        val queryLengthCheck = trimmedQuery.length >= 2
+                        val suggestionsEnabled = webSuggestionHandler.isEnabled
+                        if (queryLengthCheck && suggestionsEnabled) {
+                            webSuggestionHandler.fetchWebSuggestions(
+                                trimmedQuery,
+                                currentVersion,
+                                activeQueryVersionProvider = {
+                                    this@SecondarySearchOrchestrator.queryVersion
+                                },
+                                activeQueryProvider = { currentStateProvider().query },
+                            )
+                        } else {
+                            // Clear suggestions if disabled or query too short
+                            webSuggestionHandler.cancelSuggestions()
                             uiStateUpdater { state ->
-                                state.copy(
-                                        contactResults = unifiedResults.contactResults,
-                                        fileResults = unifiedResults.fileResults,
-                                        settingResults = unifiedResults.settingResults,
-                                        appShortcutResults = unifiedResults.appShortcutResults
-                                )
-                            }
-
-                            // Fetch web suggestions if query is long enough and suggestions are enabled
-                            val queryLengthCheck = trimmedQuery.length >= 2
-                            val suggestionsEnabled = webSuggestionHandler.isEnabled
-                            if (queryLengthCheck && suggestionsEnabled) {
-                                webSuggestionHandler.fetchWebSuggestions(
-                                        trimmedQuery,
-                                        currentVersion,
-                                        activeQueryVersionProvider = {
-                                            this@SecondarySearchOrchestrator.queryVersion
-                                        },
-                                        activeQueryProvider = { currentStateProvider().query }
-                                )
-                            } else {
-                                // Clear suggestions if disabled or query too short
-                                webSuggestionHandler.cancelSuggestions()
-                                uiStateUpdater { state ->
-                                    state.copy(webSuggestions = emptyList())
-                                }
+                                state.copy(webSuggestions = emptyList())
                             }
                         }
                     }
                 }
+            }
     }
 
     fun performWebSuggestionsOnly(query: String) {
@@ -210,40 +209,40 @@ class SecondarySearchOrchestrator(
         lastQueryLength = trimmedQuery.length
 
         searchJob =
-                scope.launch(Dispatchers.IO) {
-                    // Debounce to match regular search behavior
-                    delay(SECONDARY_SEARCH_DEBOUNCE_MS)
-                    if (currentVersion != queryVersion) return@launch
+            scope.launch(Dispatchers.IO) {
+                // Debounce to match regular search behavior
+                delay(SECONDARY_SEARCH_DEBOUNCE_MS)
+                if (currentVersion != queryVersion) return@launch
 
-                    withContext(Dispatchers.Main) {
-                        // Clear all other results
-                        uiStateUpdater { state ->
-                            state.copy(
-                                    contactResults = emptyList(),
-                                    fileResults = emptyList(),
-                                    settingResults = emptyList(),
-                                    appShortcutResults = emptyList()
-                            )
-                        }
+                withContext(Dispatchers.Main) {
+                    // Clear all other results
+                    uiStateUpdater { state ->
+                        state.copy(
+                            contactResults = emptyList(),
+                            fileResults = emptyList(),
+                            settingResults = emptyList(),
+                            appShortcutResults = emptyList(),
+                        )
+                    }
 
-                        // Fetch web suggestions if enabled and query is long enough
-                        val suggestionsEnabled = webSuggestionHandler.isEnabled
-                        val queryLengthCheck = trimmedQuery.length >= 2
-                        if (suggestionsEnabled && queryLengthCheck) {
-                            webSuggestionHandler.fetchWebSuggestions(
-                                    trimmedQuery,
-                                    currentVersion,
-                                    activeQueryVersionProvider = {
-                                        this@SecondarySearchOrchestrator.queryVersion
-                                    },
-                                    activeQueryProvider = { currentStateProvider().query }
-                            )
-                        } else {
-                            webSuggestionHandler.cancelSuggestions()
-                            uiStateUpdater { state -> state.copy(webSuggestions = emptyList()) }
-                        }
+                    // Fetch web suggestions if enabled and query is long enough
+                    val suggestionsEnabled = webSuggestionHandler.isEnabled
+                    val queryLengthCheck = trimmedQuery.length >= 2
+                    if (suggestionsEnabled && queryLengthCheck) {
+                        webSuggestionHandler.fetchWebSuggestions(
+                            trimmedQuery,
+                            currentVersion,
+                            activeQueryVersionProvider = {
+                                this@SecondarySearchOrchestrator.queryVersion
+                            },
+                            activeQueryProvider = { currentStateProvider().query },
+                        )
+                    } else {
+                        webSuggestionHandler.cancelSuggestions()
+                        uiStateUpdater { state -> state.copy(webSuggestions = emptyList()) }
                     }
                 }
+            }
     }
 
     fun cancel() {

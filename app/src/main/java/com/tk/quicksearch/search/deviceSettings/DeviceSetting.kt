@@ -18,9 +18,8 @@ data class DeviceSetting(
     val categories: List<String> = emptyList(),
     val extras: Map<String, Any> = emptyMap(),
     val minSdk: Int = Build.VERSION_CODES.BASE,
-    val maxSdk: Int = Int.MAX_VALUE
+    val maxSdk: Int = Int.MAX_VALUE,
 ) {
-
     /**
      * Checks whether this shortcut is supported on the current device SDK.
      */

@@ -59,72 +59,72 @@ private const val SHORTCUT_VERTICAL_PADDING = 4
 
 @Composable
 fun RecentSearchesSection(
-        modifier: Modifier = Modifier,
-        items: List<RecentSearchItem>,
-        messagingApp: MessagingApp,
-        onRecentQueryClick: (String) -> Unit,
-        onContactClick: (ContactInfo) -> Unit,
-        onShowContactMethods: (ContactInfo) -> Unit,
-        onCallContact: (ContactInfo) -> Unit,
-        onSmsContact: (ContactInfo) -> Unit,
-        onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
-        getPrimaryContactCardAction: (Long) -> ContactCardAction?,
-        getSecondaryContactCardAction: (Long) -> ContactCardAction?,
-        onPrimaryActionLongPress: (ContactInfo) -> Unit,
-        onSecondaryActionLongPress: (ContactInfo) -> Unit,
-        onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
-        onFileClick: (DeviceFile) -> Unit,
-        onSettingClick: (DeviceSetting) -> Unit,
-        onAppShortcutClick: (StaticShortcut) -> Unit,
-        onDeleteRecentItem: (RecentSearchEntry) -> Unit,
-        showWallpaperBackground: Boolean = false
+    modifier: Modifier = Modifier,
+    items: List<RecentSearchItem>,
+    messagingApp: MessagingApp,
+    onRecentQueryClick: (String) -> Unit,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    getPrimaryContactCardAction: (Long) -> ContactCardAction?,
+    getSecondaryContactCardAction: (Long) -> ContactCardAction?,
+    onPrimaryActionLongPress: (ContactInfo) -> Unit,
+    onSecondaryActionLongPress: (ContactInfo) -> Unit,
+    onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
+    onFileClick: (DeviceFile) -> Unit,
+    onSettingClick: (DeviceSetting) -> Unit,
+    onAppShortcutClick: (StaticShortcut) -> Unit,
+    onDeleteRecentItem: (RecentSearchEntry) -> Unit,
+    showWallpaperBackground: Boolean = false,
 ) {
     if (items.isEmpty()) return
 
     val textColor =
-            if (showWallpaperBackground) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
+        if (showWallpaperBackground) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
 
     val iconColor =
-            if (showWallpaperBackground) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            }
+        if (showWallpaperBackground) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        }
 
     Card(
-            modifier = modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = AppColors.getCardColors(showWallpaperBackground),
-            elevation = AppColors.getCardElevation(showWallpaperBackground)
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = AppColors.getCardColors(showWallpaperBackground),
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Column {
             items.forEachIndexed { index, item ->
                 RecentSearchItemRow(
-                        item = item,
-                        textColor = textColor,
-                        iconColor = iconColor,
-                        messagingApp = messagingApp,
-                        onRecentQueryClick = onRecentQueryClick,
-                        onContactClick = onContactClick,
-                        onShowContactMethods = onShowContactMethods,
-                        onCallContact = onCallContact,
-                        onSmsContact = onSmsContact,
-                        onContactMethodClick = onContactMethodClick,
-                        getPrimaryContactCardAction = getPrimaryContactCardAction,
-                        getSecondaryContactCardAction = getSecondaryContactCardAction,
-                        onPrimaryActionLongPress = onPrimaryActionLongPress,
-                        onSecondaryActionLongPress = onSecondaryActionLongPress,
-                        onCustomAction = onCustomAction,
-                        onFileClick = onFileClick,
-                        onSettingClick = onSettingClick,
-                        onAppShortcutClick = onAppShortcutClick,
-                        onDeleteRecentItem = onDeleteRecentItem,
-                        showDivider = index < items.lastIndex,
-                        showWallpaperBackground = showWallpaperBackground
+                    item = item,
+                    textColor = textColor,
+                    iconColor = iconColor,
+                    messagingApp = messagingApp,
+                    onRecentQueryClick = onRecentQueryClick,
+                    onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onContactMethodClick = onContactMethodClick,
+                    getPrimaryContactCardAction = getPrimaryContactCardAction,
+                    getSecondaryContactCardAction = getSecondaryContactCardAction,
+                    onPrimaryActionLongPress = onPrimaryActionLongPress,
+                    onSecondaryActionLongPress = onSecondaryActionLongPress,
+                    onCustomAction = onCustomAction,
+                    onFileClick = onFileClick,
+                    onSettingClick = onSettingClick,
+                    onAppShortcutClick = onAppShortcutClick,
+                    onDeleteRecentItem = onDeleteRecentItem,
+                    showDivider = index < items.lastIndex,
+                    showWallpaperBackground = showWallpaperBackground,
                 )
             }
         }
@@ -134,224 +134,234 @@ fun RecentSearchesSection(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecentSearchItemRow(
-        item: RecentSearchItem,
-        textColor: Color,
-        iconColor: Color,
-        messagingApp: MessagingApp,
-        onRecentQueryClick: (String) -> Unit,
-        onContactClick: (ContactInfo) -> Unit,
-        onShowContactMethods: (ContactInfo) -> Unit,
-        onCallContact: (ContactInfo) -> Unit,
-        onSmsContact: (ContactInfo) -> Unit,
-        onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
-        getPrimaryContactCardAction: (Long) -> ContactCardAction?,
-        getSecondaryContactCardAction: (Long) -> ContactCardAction?,
-        onPrimaryActionLongPress: (ContactInfo) -> Unit,
-        onSecondaryActionLongPress: (ContactInfo) -> Unit,
-        onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
-        onFileClick: (DeviceFile) -> Unit,
-        onSettingClick: (DeviceSetting) -> Unit,
-        onAppShortcutClick: (StaticShortcut) -> Unit,
-        onDeleteRecentItem: (RecentSearchEntry) -> Unit,
-        showDivider: Boolean,
-        showWallpaperBackground: Boolean
+    item: RecentSearchItem,
+    textColor: Color,
+    iconColor: Color,
+    messagingApp: MessagingApp,
+    onRecentQueryClick: (String) -> Unit,
+    onContactClick: (ContactInfo) -> Unit,
+    onShowContactMethods: (ContactInfo) -> Unit,
+    onCallContact: (ContactInfo) -> Unit,
+    onSmsContact: (ContactInfo) -> Unit,
+    onContactMethodClick: (ContactInfo, ContactMethod) -> Unit,
+    getPrimaryContactCardAction: (Long) -> ContactCardAction?,
+    getSecondaryContactCardAction: (Long) -> ContactCardAction?,
+    onPrimaryActionLongPress: (ContactInfo) -> Unit,
+    onSecondaryActionLongPress: (ContactInfo) -> Unit,
+    onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
+    onFileClick: (DeviceFile) -> Unit,
+    onSettingClick: (DeviceSetting) -> Unit,
+    onAppShortcutClick: (StaticShortcut) -> Unit,
+    onDeleteRecentItem: (RecentSearchEntry) -> Unit,
+    showDivider: Boolean,
+    showWallpaperBackground: Boolean,
 ) {
     var showRemoveMenu by remember { mutableStateOf(false) }
     val dividerColor =
-            if (showWallpaperBackground) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-            } else {
-                MaterialTheme.colorScheme.outlineVariant
-            }
+        if (showWallpaperBackground) {
+            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         when (item) {
-            is RecentSearchItem.Query ->
-                    RecentQueryRow(
-                            query = item.value,
-                            textColor = textColor,
-                            iconColor = iconColor,
-                            onClick = { onRecentQueryClick(item.value) },
-                            onLongPress = { showRemoveMenu = true }
+            is RecentSearchItem.Query -> {
+                RecentQueryRow(
+                    query = item.value,
+                    textColor = textColor,
+                    iconColor = iconColor,
+                    onClick = { onRecentQueryClick(item.value) },
+                    onLongPress = { showRemoveMenu = true },
+                )
+            }
+
+            is RecentSearchItem.Contact -> {
+                Box(modifier = Modifier.padding(contactRowPadding())) {
+                    ContactResultRow(
+                        contactInfo = item.contact,
+                        messagingApp =
+                            ContactMessagingAppResolver.resolveMessagingAppForContact(
+                                item.contact,
+                                messagingApp,
+                            ),
+                        primaryAction = getPrimaryContactCardAction(item.contact.contactId),
+                        secondaryAction =
+                            getSecondaryContactCardAction(item.contact.contactId),
+                        onContactClick = onContactClick,
+                        onShowContactMethods = onShowContactMethods,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact,
+                        onPrimaryActionLongPress = onPrimaryActionLongPress,
+                        onSecondaryActionLongPress = onSecondaryActionLongPress,
+                        onCustomAction = onCustomAction,
+                        onContactMethodClick = { method ->
+                            onContactMethodClick(item.contact, method)
+                        },
+                        enableLongPress = false,
+                        onLongPressOverride = { showRemoveMenu = true },
+                        icon = Icons.Rounded.History,
+                        iconTint = iconColor,
                     )
-            is RecentSearchItem.Contact ->
-                    Box(modifier = Modifier.padding(contactRowPadding())) {
-                        ContactResultRow(
-                                contactInfo = item.contact,
-                                messagingApp =
-                                        ContactMessagingAppResolver.resolveMessagingAppForContact(
-                                                item.contact,
-                                                messagingApp
-                                        ),
-                                primaryAction = getPrimaryContactCardAction(item.contact.contactId),
-                                secondaryAction =
-                                        getSecondaryContactCardAction(item.contact.contactId),
-                                onContactClick = onContactClick,
-                                onShowContactMethods = onShowContactMethods,
-                                onCallContact = onCallContact,
-                                onSmsContact = onSmsContact,
-                                onPrimaryActionLongPress = onPrimaryActionLongPress,
-                                onSecondaryActionLongPress = onSecondaryActionLongPress,
-                                onCustomAction = onCustomAction,
-                                onContactMethodClick = { method ->
-                                    onContactMethodClick(item.contact, method)
-                                },
-                                enableLongPress = false,
-                                onLongPressOverride = { showRemoveMenu = true },
-                                icon = Icons.Rounded.History,
-                                iconTint = iconColor
-                        )
-                    }
-            is RecentSearchItem.File ->
-                    Box(modifier = Modifier.padding(fileRowPadding())) {
-                        FileResultRow(
-                                deviceFile = item.file,
-                                onClick = onFileClick,
-                                enableLongPress = false,
-                                onLongPressOverride = { showRemoveMenu = true },
-                                icon = Icons.Rounded.History,
-                                iconTint = iconColor
-                        )
-                    }
-            is RecentSearchItem.Setting ->
-                    Box(modifier = Modifier.padding(settingsRowPadding())) {
-                        SettingResultRow(
-                                shortcut = item.setting,
-                                isPinned = false,
-                                onClick = onSettingClick,
-                                onTogglePin = {},
-                                onExclude = {},
-                                onNicknameClick = {},
-                                hasNickname = false,
-                                showDescription = false,
-                                enableLongPress = false,
-                                onLongPressOverride = { showRemoveMenu = true },
-                                icon = Icons.Rounded.History,
-                                iconTint = iconColor
-                        )
-                    }
-            is RecentSearchItem.AppShortcut ->
-                    Box(modifier = Modifier.padding(appShortcutRowPadding())) {
-                        AppShortcutRow(
-                                shortcut = item.shortcut,
-                                isPinned = false,
-                                isExcluded = false,
-                                hasNickname = false,
-                                onShortcutClick = onAppShortcutClick,
-                                onTogglePin = {},
-                                onExclude = {},
-                                onInclude = {},
-                                onAppInfoClick = {},
-                                onNicknameClick = {},
-                                iconPackPackage = null,
-                                showAppLabel = false,
-                                enableLongPress = false,
-                                onLongPressOverride = { showRemoveMenu = true },
-                                icon = Icons.Rounded.History,
-                                iconTint = iconColor
-                        )
-                    }
+                }
+            }
+
+            is RecentSearchItem.File -> {
+                Box(modifier = Modifier.padding(fileRowPadding())) {
+                    FileResultRow(
+                        deviceFile = item.file,
+                        onClick = onFileClick,
+                        enableLongPress = false,
+                        onLongPressOverride = { showRemoveMenu = true },
+                        icon = Icons.Rounded.History,
+                        iconTint = iconColor,
+                    )
+                }
+            }
+
+            is RecentSearchItem.Setting -> {
+                Box(modifier = Modifier.padding(settingsRowPadding())) {
+                    SettingResultRow(
+                        shortcut = item.setting,
+                        isPinned = false,
+                        onClick = onSettingClick,
+                        onTogglePin = {},
+                        onExclude = {},
+                        onNicknameClick = {},
+                        hasNickname = false,
+                        showDescription = false,
+                        enableLongPress = false,
+                        onLongPressOverride = { showRemoveMenu = true },
+                        icon = Icons.Rounded.History,
+                        iconTint = iconColor,
+                    )
+                }
+            }
+
+            is RecentSearchItem.AppShortcut -> {
+                Box(modifier = Modifier.padding(appShortcutRowPadding())) {
+                    AppShortcutRow(
+                        shortcut = item.shortcut,
+                        isPinned = false,
+                        isExcluded = false,
+                        hasNickname = false,
+                        onShortcutClick = onAppShortcutClick,
+                        onTogglePin = {},
+                        onExclude = {},
+                        onInclude = {},
+                        onAppInfoClick = {},
+                        onNicknameClick = {},
+                        iconPackPackage = null,
+                        showAppLabel = false,
+                        enableLongPress = false,
+                        onLongPressOverride = { showRemoveMenu = true },
+                        icon = Icons.Rounded.History,
+                        iconTint = iconColor,
+                    )
+                }
+            }
         }
 
         DropdownMenu(
-                expanded = showRemoveMenu,
-                onDismissRequest = { showRemoveMenu = false },
-                shape = RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false),
-                containerColor = AppColors.DialogBackground
+            expanded = showRemoveMenu,
+            onDismissRequest = { showRemoveMenu = false },
+            shape = RoundedCornerShape(24.dp),
+            properties = PopupProperties(focusable = false),
+            containerColor = AppColors.DialogBackground,
         ) {
             DropdownMenuItem(
-                    text = { Text(text = stringResource(R.string.action_remove)) },
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Rounded.Close, contentDescription = null)
-                    },
-                    onClick = {
-                        showRemoveMenu = false
-                        onDeleteRecentItem(item.entry)
-                    }
+                text = { Text(text = stringResource(R.string.action_remove)) },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Rounded.Close, contentDescription = null)
+                },
+                onClick = {
+                    showRemoveMenu = false
+                    onDeleteRecentItem(item.entry)
+                },
             )
         }
     }
 
     if (showDivider) {
         HorizontalDivider(
-                modifier = Modifier.padding(horizontal = dividerPadding(item)),
-                color = dividerColor
+            modifier = Modifier.padding(horizontal = dividerPadding(item)),
+            color = dividerColor,
         )
     }
 }
 
 private fun contactRowPadding(): PaddingValues =
-        PaddingValues(
-                horizontal = DesignTokens.SpacingMedium,
-                vertical = DesignTokens.SpacingXSmall
-        )
+    PaddingValues(
+        horizontal = DesignTokens.SpacingMedium,
+        vertical = DesignTokens.SpacingXSmall,
+    )
 
 private fun fileRowPadding(): PaddingValues = PaddingValues(horizontal = DesignTokens.SpacingMedium)
 
 private fun appShortcutRowPadding(): PaddingValues =
-        PaddingValues(
-                horizontal = DesignTokens.SpacingMedium,
-                vertical = SHORTCUT_VERTICAL_PADDING.dp
-        )
+    PaddingValues(
+        horizontal = DesignTokens.SpacingMedium,
+        vertical = SHORTCUT_VERTICAL_PADDING.dp,
+    )
 
 private fun settingsRowPadding(): PaddingValues =
-        PaddingValues(
-                horizontal = SETTINGS_HORIZONTAL_PADDING.dp,
-                vertical = SETTINGS_VERTICAL_PADDING.dp
-        )
+    PaddingValues(
+        horizontal = SETTINGS_HORIZONTAL_PADDING.dp,
+        vertical = SETTINGS_VERTICAL_PADDING.dp,
+    )
 
 private fun dividerPadding(item: RecentSearchItem) =
-        when (item) {
-            is RecentSearchItem.Query -> DesignTokens.SpacingLarge
-            is RecentSearchItem.Setting -> SETTINGS_HORIZONTAL_PADDING.dp
-            else -> DesignTokens.SpacingMedium
-        }
+    when (item) {
+        is RecentSearchItem.Query -> DesignTokens.SpacingLarge
+        is RecentSearchItem.Setting -> SETTINGS_HORIZONTAL_PADDING.dp
+        else -> DesignTokens.SpacingMedium
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecentQueryRow(
-        query: String,
-        textColor: Color,
-        iconColor: Color,
-        onClick: () -> Unit,
-        onLongPress: () -> Unit
+    query: String,
+    textColor: Color,
+    iconColor: Color,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
 ) {
     Row(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .clip(DesignTokens.CardShape)
-                            .combinedClickable(
-                                    onClick = onClick,
-                                    onLongClick = onLongPress
-                            )
-                            .padding(
-                                    start = QUERY_ICON_START_PADDING.dp,
-                                    end = QUERY_TEXT_END_PADDING.dp,
-                                    top = DesignTokens.SpacingSmall,
-                                    bottom = DesignTokens.SpacingSmall
-                            ),
-            verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(DesignTokens.CardShape)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongPress,
+                ).padding(
+                    start = QUERY_ICON_START_PADDING.dp,
+                    end = QUERY_TEXT_END_PADDING.dp,
+                    top = DesignTokens.SpacingSmall,
+                    bottom = DesignTokens.SpacingSmall,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-                imageVector = Icons.Rounded.History,
-                contentDescription = stringResource(R.string.desc_search_icon),
-                tint = iconColor,
-                modifier =
-                        Modifier.size(QUERY_ICON_SIZE.dp)
-                                .padding(
-                                        start = DesignTokens.SpacingXSmall,
-                                        end = QUERY_TEXT_START_PADDING.dp
-                                )
+            imageVector = Icons.Rounded.History,
+            contentDescription = stringResource(R.string.desc_search_icon),
+            tint = iconColor,
+            modifier =
+                Modifier
+                    .size(QUERY_ICON_SIZE.dp)
+                    .padding(
+                        start = DesignTokens.SpacingXSmall,
+                        end = QUERY_TEXT_START_PADDING.dp,
+                    ),
         )
 
         Text(
-                text = query,
-                style = MaterialTheme.typography.bodyMedium,
-                color = textColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
+            text = query,
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }

@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,32 +34,30 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.tk.quicksearch.util.hapticToggle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
+import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.ui.theme.DesignTokens
-import com.tk.quicksearch.settings.settingsDetailScreen.ExcludedItemScreen
-import com.tk.quicksearch.settings.settingsDetailScreen.ClearAllConfirmationDialog
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
-import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
 import com.tk.quicksearch.settings.settingsDetailScreen.CallsTextsSettingsSection
+import com.tk.quicksearch.settings.settingsDetailScreen.ClearAllConfirmationDialog
+import com.tk.quicksearch.settings.settingsDetailScreen.ExcludedItemScreen
 import com.tk.quicksearch.settings.settingsDetailScreen.FileTypesSection
-import com.tk.quicksearch.search.core.SearchSection
-
+import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 
 @Composable
 internal fun SettingsDetailScreen(
@@ -72,64 +70,68 @@ internal fun SettingsDetailScreen(
     onDismissShortcutHintBanner: () -> Unit = {},
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
-    onNavigateToDetail: (SettingsDetailType) -> Unit = {}
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {},
 ) {
     val context = LocalContext.current
     val view = LocalView.current
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
     var showClearAllConfirmation by remember { mutableStateOf(false) }
-    
+
     // Navigate back to settings when all excluded items are cleared
-    val hasExcludedItems = state.suggestionExcludedApps.isNotEmpty() ||
-                           state.resultExcludedApps.isNotEmpty() ||
-                           state.excludedContacts.isNotEmpty() ||
-                           state.excludedFiles.isNotEmpty() ||
-                           state.excludedFileExtensions.isNotEmpty() ||
-                           state.excludedSettings.isNotEmpty() ||
-                           state.excludedAppShortcuts.isNotEmpty()
+    val hasExcludedItems =
+        state.suggestionExcludedApps.isNotEmpty() ||
+            state.resultExcludedApps.isNotEmpty() ||
+            state.excludedContacts.isNotEmpty() ||
+            state.excludedFiles.isNotEmpty() ||
+            state.excludedFileExtensions.isNotEmpty() ||
+            state.excludedSettings.isNotEmpty() ||
+            state.excludedAppShortcuts.isNotEmpty()
     LaunchedEffect(hasExcludedItems) {
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
             callbacks.onBack()
         }
     }
-    
+
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .safeDrawingPadding(),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             SettingsDetailHeader(
-                title = when (detailType) {
-                    SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
-                    SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
-                    SettingsDetailType.SEARCH_RESULTS -> stringResource(R.string.settings_search_results_title)
-                    SettingsDetailType.APPEARANCE -> stringResource(R.string.settings_appearance_title)
-                    SettingsDetailType.CALLS_TEXTS -> stringResource(R.string.settings_calls_texts_title)
-                    SettingsDetailType.FILES -> stringResource(R.string.settings_file_types_title)
-                    SettingsDetailType.LAUNCH_OPTIONS -> stringResource(R.string.settings_launch_options_title)
-                    SettingsDetailType.PERMISSIONS -> stringResource(R.string.settings_permissions_title)
-                    SettingsDetailType.FEEDBACK_DEVELOPMENT -> stringResource(R.string.settings_feedback_development_title)
-                },
+                title =
+                    when (detailType) {
+                        SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
+                        SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
+                        SettingsDetailType.SEARCH_RESULTS -> stringResource(R.string.settings_search_results_title)
+                        SettingsDetailType.APPEARANCE -> stringResource(R.string.settings_appearance_title)
+                        SettingsDetailType.CALLS_TEXTS -> stringResource(R.string.settings_calls_texts_title)
+                        SettingsDetailType.FILES -> stringResource(R.string.settings_file_types_title)
+                        SettingsDetailType.LAUNCH_OPTIONS -> stringResource(R.string.settings_launch_options_title)
+                        SettingsDetailType.PERMISSIONS -> stringResource(R.string.settings_permissions_title)
+                        SettingsDetailType.FEEDBACK_DEVELOPMENT -> stringResource(R.string.settings_feedback_development_title)
+                    },
                 onBack = callbacks.onBack,
-                trailingContent = null
+                trailingContent = null,
             )
 
-            val contentModifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(
-                    start = DesignTokens.ContentHorizontalPadding,
-                    end = DesignTokens.ContentHorizontalPadding,
-                    bottom = DesignTokens.SectionTopPadding
-                )
+            val contentModifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(
+                        start = DesignTokens.ContentHorizontalPadding,
+                        end = DesignTokens.ContentHorizontalPadding,
+                        bottom = DesignTokens.SectionTopPadding,
+                    )
 
             Column(
-                modifier = contentModifier
+                modifier = contentModifier,
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {
@@ -156,9 +158,10 @@ internal fun SettingsDetailScreen(
                             directSearchSetupExpanded = directSearchSetupExpanded,
                             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
-                            showDirectSearchAtTop = true
+                            showDirectSearchAtTop = true,
                         )
                     }
+
                     SettingsDetailType.EXCLUDED_ITEMS -> {
                         ExcludedItemScreen(
                             suggestionExcludedApps = state.suggestionExcludedApps,
@@ -176,9 +179,10 @@ internal fun SettingsDetailScreen(
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
                             showTitle = false,
-                            iconPackPackage = state.selectedIconPackPackage
+                            iconPackPackage = state.selectedIconPackPackage,
                         )
                     }
+
                     SettingsDetailType.SEARCH_RESULTS -> {
                         SearchResultsSettingsSection(
                             state = state,
@@ -187,15 +191,17 @@ internal fun SettingsDetailScreen(
                                 if (hasExcludedItems) {
                                     onNavigateToDetail(SettingsDetailType.EXCLUDED_ITEMS)
                                 } else {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.settings_excluded_items_empty),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            context.getString(R.string.settings_excluded_items_empty),
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
                                 }
-                            }
+                            },
                         )
                     }
+
                     SettingsDetailType.APPEARANCE -> {
                         val appearanceContext = LocalContext.current
 
@@ -215,18 +221,20 @@ internal fun SettingsDetailScreen(
                             onSelectIconPack = callbacks.onSelectIconPack,
                             onRefreshIconPacks = {
                                 callbacks.onRefreshIconPacks()
-                                Toast.makeText(
-                                    appearanceContext,
-                                    appearanceContext.getString(R.string.settings_refreshing_icon_packs),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        appearanceContext,
+                                        appearanceContext.getString(R.string.settings_refreshing_icon_packs),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
                             hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current),
                             hasWallpaperPermission = state.hasWallpaperPermission,
-                            wallpaperAvailable = state.wallpaperAvailable
+                            wallpaperAvailable = state.wallpaperAvailable,
                         )
                     }
+
                     SettingsDetailType.CALLS_TEXTS -> {
                         CallsTextsSettingsSection(
                             messagingApp = state.messagingApp,
@@ -239,9 +247,10 @@ internal fun SettingsDetailScreen(
                             contactsSectionEnabled = true, // Always show calls/texts settings regardless of permissions
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
-                            modifier = Modifier
+                            modifier = Modifier,
                         )
                     }
+
                     SettingsDetailType.FILES -> {
                         FileTypesSection(
                             enabledFileTypes = state.enabledFileTypes,
@@ -256,33 +265,36 @@ internal fun SettingsDetailScreen(
                             onRemoveExcludedExtension = callbacks.onRemoveExcludedFileExtension,
                             filesSectionEnabled = SearchSection.FILES !in state.disabledSections,
                             showTitle = false,
-                            modifier = Modifier
+                            modifier = Modifier,
                         )
                     }
+
                     SettingsDetailType.LAUNCH_OPTIONS -> {
                         LaunchOptionsSettings(
                             isDefaultAssistant = isDefaultAssistant,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
                             onAddHomeScreenWidget = callbacks.onAddHomeScreenWidget,
                             onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
-                            modifier = Modifier
+                            modifier = Modifier,
                         )
                     }
+
                     SettingsDetailType.PERMISSIONS -> {
                         PermissionsSettings(
                             onRequestUsagePermission = callbacks.onRequestUsagePermission,
                             onRequestContactPermission = callbacks.onRequestContactPermission,
                             onRequestFilePermission = callbacks.onRequestFilePermission,
                             onRequestCallPermission = callbacks.onRequestCallPermission,
-                            modifier = Modifier
+                            modifier = Modifier,
                         )
                     }
+
                     SettingsDetailType.FEEDBACK_DEVELOPMENT -> {
                         // Feedback & development content would go here
                         Text(
                             text = "Feedback & development options will be implemented here",
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(vertical = 24.dp)
+                            modifier = Modifier.padding(vertical = 24.dp),
                         )
                     }
                 }
@@ -292,16 +304,17 @@ internal fun SettingsDetailScreen(
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
             FloatingActionButton(
                 onClick = { showClearAllConfirmation = true },
-                modifier = Modifier
-                    .align(androidx.compose.ui.Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .align(androidx.compose.ui.Alignment.BottomEnd)
+                        .padding(16.dp),
                 containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError
+                contentColor = MaterialTheme.colorScheme.onError,
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Delete,
                     contentDescription = stringResource(R.string.settings_action_clear_all),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }
@@ -313,7 +326,7 @@ internal fun SettingsDetailScreen(
                     callbacks.onClearAllExclusions()
                     showClearAllConfirmation = false
                 },
-                onDismiss = { showClearAllConfirmation = false }
+                onDismiss = { showClearAllConfirmation = false },
             )
         }
     }
@@ -326,22 +339,23 @@ internal fun SettingsDetailScreen(
 private fun SettingsDetailHeader(
     title: String,
     onBack: () -> Unit,
-    trailingContent: (@Composable (() -> Unit))? = null
+    trailingContent: (@Composable (() -> Unit))? = null,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = DesignTokens.ContentHorizontalPadding,
-                vertical = DesignTokens.HeaderVerticalPadding
-            ),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = DesignTokens.ContentHorizontalPadding,
+                    vertical = DesignTokens.HeaderVerticalPadding,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.desc_navigate_back),
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
             )
         }
         Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
@@ -349,7 +363,7 @@ private fun SettingsDetailHeader(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         trailingContent?.let {
             Spacer(modifier = Modifier.width(DesignTokens.HeaderIconSpacing))
@@ -357,7 +371,6 @@ private fun SettingsDetailHeader(
         }
     }
 }
-
 
 /**
  * Enum to represent different types of settings detail screens.
@@ -371,5 +384,5 @@ enum class SettingsDetailType {
     FILES,
     LAUNCH_OPTIONS,
     PERMISSIONS,
-    FEEDBACK_DEVELOPMENT
+    FEEDBACK_DEVELOPMENT,
 }

@@ -15,22 +15,28 @@ class AppShortcutManagementHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val onStateChanged: () -> Unit,
-    private val onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
+    private val onUiStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit,
 ) : ManagementHandler<StaticShortcut> by GenericManagementHandler(
-    AppShortcutManagementConfig(),
-    userPreferences,
-    scope,
-    onStateChanged,
-    onUiStateUpdate
-) {
-
+        AppShortcutManagementConfig(),
+        userPreferences,
+        scope,
+        onStateChanged,
+        onUiStateUpdate,
+    ) {
     fun pinShortcut(shortcut: StaticShortcut) = pinItem(shortcut)
+
     fun unpinShortcut(shortcut: StaticShortcut) = unpinItem(shortcut)
+
     fun excludeShortcut(shortcut: StaticShortcut) = excludeItem(shortcut)
+
     fun removeExcludedShortcut(shortcut: StaticShortcut) = removeExcludedItem(shortcut)
-    fun setShortcutNickname(shortcut: StaticShortcut, nickname: String?) =
-        setItemNickname(shortcut, nickname)
-    fun getShortcutNickname(shortcutId: String): String? =
-        userPreferences.getAppShortcutNickname(shortcutId)
+
+    fun setShortcutNickname(
+        shortcut: StaticShortcut,
+        nickname: String?,
+    ) = setItemNickname(shortcut, nickname)
+
+    fun getShortcutNickname(shortcutId: String): String? = userPreferences.getAppShortcutNickname(shortcutId)
+
     fun clearAllExcludedShortcuts() = clearAllExcludedItems()
 }

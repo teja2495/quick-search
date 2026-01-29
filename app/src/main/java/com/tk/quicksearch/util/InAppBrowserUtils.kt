@@ -13,7 +13,10 @@ object InAppBrowserUtils {
     private val blockedPackages = setOf("com.github.android")
     private const val probeUrl = "https://www.example.com"
 
-    fun openUrl(context: Context, url: String) {
+    fun openUrl(
+        context: Context,
+        url: String,
+    ) {
         val uri = Uri.parse(url)
         val fallbackPackage = resolveBrowserPackage(context)
         val browserPackage = resolveCustomTabsPackage(context)
@@ -21,9 +24,11 @@ object InAppBrowserUtils {
             openFallback(context, uri, fallbackPackage)
             return
         }
-        val customTabsIntent = CustomTabsIntent.Builder()
-            .setShowTitle(true)
-            .build()
+        val customTabsIntent =
+            CustomTabsIntent
+                .Builder()
+                .setShowTitle(true)
+                .build()
         customTabsIntent.intent.setPackage(browserPackage)
 
         if (context !is Activity) {
@@ -37,15 +42,20 @@ object InAppBrowserUtils {
         }
     }
 
-    private fun openFallback(context: Context, uri: Uri, browserPackage: String?) {
-        val fallbackIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-            if (browserPackage != null) {
-                setPackage(browserPackage)
+    private fun openFallback(
+        context: Context,
+        uri: Uri,
+        browserPackage: String?,
+    ) {
+        val fallbackIntent =
+            Intent(Intent.ACTION_VIEW, uri).apply {
+                if (browserPackage != null) {
+                    setPackage(browserPackage)
+                }
+                if (context !is Activity) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             }
-            if (context !is Activity) {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        }
         try {
             context.startActivity(fallbackIntent)
         } catch (_: Exception) {
@@ -56,10 +66,11 @@ object InAppBrowserUtils {
         val packageManager = context.packageManager
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse(probeUrl))
         val resolvedActivities = queryIntentActivitiesCompat(packageManager, activityIntent)
-        val customTabsPackages = resolvedActivities
-            .mapNotNull { it.activityInfo?.packageName }
-            .filterNot { blockedPackages.contains(it) }
-            .filter { supportsCustomTabs(packageManager, it) }
+        val customTabsPackages =
+            resolvedActivities
+                .mapNotNull { it.activityInfo?.packageName }
+                .filterNot { blockedPackages.contains(it) }
+                .filter { supportsCustomTabs(packageManager, it) }
 
         if (customTabsPackages.isEmpty()) return null
 
@@ -76,9 +87,10 @@ object InAppBrowserUtils {
         val packageManager = context.packageManager
         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse(probeUrl))
         val resolvedActivities = queryIntentActivitiesCompat(packageManager, activityIntent)
-        val packages = resolvedActivities
-            .mapNotNull { it.activityInfo?.packageName }
-            .filterNot { blockedPackages.contains(it) }
+        val packages =
+            resolvedActivities
+                .mapNotNull { it.activityInfo?.packageName }
+                .filterNot { blockedPackages.contains(it) }
 
         if (packages.isEmpty()) return null
 
@@ -91,7 +103,10 @@ object InAppBrowserUtils {
         }
     }
 
-    private fun supportsCustomTabs(packageManager: PackageManager, packageName: String): Boolean {
+    private fun supportsCustomTabs(
+        packageManager: PackageManager,
+        packageName: String,
+    ): Boolean {
         val serviceIntent =
             Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION).setPackage(packageName)
         return resolveServiceCompat(packageManager, serviceIntent) != null
@@ -99,52 +114,49 @@ object InAppBrowserUtils {
 
     private fun queryIntentActivitiesCompat(
         packageManager: PackageManager,
-        intent: Intent
-    ): List<android.content.pm.ResolveInfo> {
-        return runCatching {
+        intent: Intent,
+    ): List<android.content.pm.ResolveInfo> =
+        runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.queryIntentActivities(
                     intent,
-                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
                 )
             } else {
                 @Suppress("DEPRECATION")
                 packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
             }
         }.getOrDefault(emptyList())
-    }
 
     private fun resolveActivityCompat(
         packageManager: PackageManager,
-        intent: Intent
-    ): android.content.pm.ResolveInfo? {
-        return runCatching {
+        intent: Intent,
+    ): android.content.pm.ResolveInfo? =
+        runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.resolveActivity(
                     intent,
-                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
                 )
             } else {
                 @Suppress("DEPRECATION")
                 packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
             }
         }.getOrNull()
-    }
 
     private fun resolveServiceCompat(
         packageManager: PackageManager,
-        intent: Intent
-    ): android.content.pm.ResolveInfo? {
-        return runCatching {
+        intent: Intent,
+    ): android.content.pm.ResolveInfo? =
+        runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.resolveService(
                     intent,
-                    PackageManager.ResolveInfoFlags.of(0)
+                    PackageManager.ResolveInfoFlags.of(0),
                 )
             } else {
                 @Suppress("DEPRECATION")
                 packageManager.resolveService(intent, 0)
             }
         }.getOrNull()
-    }
 }

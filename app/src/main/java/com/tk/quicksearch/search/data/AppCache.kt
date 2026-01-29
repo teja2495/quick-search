@@ -11,8 +11,9 @@ import org.json.JSONObject
  * Manages persistent caching of app list to enable instant loading on app startup.
  * Uses SharedPreferences to store app data as JSON for efficient serialization.
  */
-class AppCache(context: Context) {
-
+class AppCache(
+    context: Context,
+) {
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /**
@@ -36,10 +37,11 @@ class AppCache(context: Context) {
      * @param apps The list of apps to cache.
      * @return true if the save operation succeeded, false otherwise.
      */
-    fun saveApps(apps: List<AppInfo>): Boolean {
-        return runCatching {
+    fun saveApps(apps: List<AppInfo>): Boolean =
+        runCatching {
             val json = apps.toJsonArray().toString()
-            prefs.edit()
+            prefs
+                .edit()
                 .putString(KEY_APP_LIST, json)
                 .putLong(KEY_LAST_UPDATE, System.currentTimeMillis())
                 .apply()
@@ -47,14 +49,11 @@ class AppCache(context: Context) {
         }.onFailure { exception ->
             Log.e(TAG, "Failed to save apps to cache", exception)
         }.getOrDefault(false)
-    }
- 
+
     /**
      * @return Timestamp in milliseconds, or 0L if cache has never been updated.
      */
-    fun getLastUpdateTime(): Long {
-        return prefs.getLong(KEY_LAST_UPDATE, 0L)
-    }
+    fun getLastUpdateTime(): Long = prefs.getLong(KEY_LAST_UPDATE, 0L)
 
     fun clearCache() {
         prefs.edit().clear().apply()
@@ -74,8 +73,8 @@ class AppCache(context: Context) {
         private const val FIELD_LAUNCH_COUNT = "launchCount"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
 
-        private fun JSONArray.toAppInfoList(): List<AppInfo> {
-            return List(length()) { index ->
+        private fun JSONArray.toAppInfoList(): List<AppInfo> =
+            List(length()) { index ->
                 val jsonObject = getJSONObject(index)
                 AppInfo(
                     appName = jsonObject.getString(FIELD_APP_NAME),
@@ -83,13 +82,12 @@ class AppCache(context: Context) {
                     lastUsedTime = jsonObject.getLong(FIELD_LAST_USED_TIME),
                     totalTimeInForeground = jsonObject.optLong(FIELD_TOTAL_TIME_IN_FOREGROUND, 0L),
                     launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
-                    isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP)
+                    isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP),
                 )
             }
-        }
 
-        private fun List<AppInfo>.toJsonArray(): JSONArray {
-            return JSONArray().apply {
+        private fun List<AppInfo>.toJsonArray(): JSONArray =
+            JSONArray().apply {
                 forEach { app ->
                     put(
                         JSONObject().apply {
@@ -99,12 +97,9 @@ class AppCache(context: Context) {
                             put(FIELD_TOTAL_TIME_IN_FOREGROUND, app.totalTimeInForeground)
                             put(FIELD_LAUNCH_COUNT, app.launchCount)
                             put(FIELD_IS_SYSTEM_APP, app.isSystemApp)
-                        }
+                        },
                     )
                 }
             }
-        }
     }
 }
-
-

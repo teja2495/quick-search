@@ -1,11 +1,11 @@
 package com.tk.quicksearch.ui.theme
 
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardElevation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
  * Contains all colors used throughout the application including backgrounds, text, overlays, and theme colors.
  */
 object AppColors {
-
     // ============================================================================
     // THEME COLORS (PURPLE THEME)
     // ============================================================================
@@ -89,8 +88,6 @@ object AppColors {
     /** Dialog text color */
     val DialogText = Color.White
 
-
-
     // ============================================================================
     // CARD THEMING UTILITIES
     // ============================================================================
@@ -101,88 +98,98 @@ object AppColors {
      * When disabled, uses standard Material Design surface container color.
      */
     @Composable
-    fun getCardColors(showWallpaperBackground: Boolean): CardColors {
-        return if (showWallpaperBackground) {
+    fun getCardColors(showWallpaperBackground: Boolean): CardColors =
+        if (showWallpaperBackground) {
             CardDefaults.cardColors(
-                containerColor = OverlayMedium
+                containerColor = OverlayMedium,
             )
         } else {
             CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
             )
         }
-    }
 
     /**
      * Returns appropriate card elevation based on wallpaper background setting.
      * Cards with wallpaper background use no elevation, others use standard elevation.
      */
     @Composable
-    fun getCardElevation(showWallpaperBackground: Boolean): CardElevation {
-        return if (showWallpaperBackground) {
+    fun getCardElevation(showWallpaperBackground: Boolean): CardElevation =
+        if (showWallpaperBackground) {
             CardDefaults.cardElevation(defaultElevation = 0.dp)
         } else {
             CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         }
-    }
 
     // ============================================================================
     // GRADIENT COLOR PALETTES
     // ============================================================================
 
     /** Northern Lights (Cool & Mystical) gradient colors */
-    val AuroraColors = listOf(
-        Color(0xFF00E5FF), // Cyan Accent
-        Color(0xFF2979FF), // Royal Blue
-        ThemeDeepPurple,   // Deep Purple
-        ThemeNeonPurple,   // Neon Violet
-        Color(0xFF2979FF), // Back to Blue
-        Color(0xFF00E5FF)  // Back to Cyan loop
-    )
+    val AuroraColors =
+        listOf(
+            Color(0xFF00E5FF), // Cyan Accent
+            Color(0xFF2979FF), // Royal Blue
+            ThemeDeepPurple, // Deep Purple
+            ThemeNeonPurple, // Neon Violet
+            Color(0xFF2979FF), // Back to Blue
+            Color(0xFF00E5FF), // Back to Cyan loop
+        )
 
     /** Electric Cyberpunk (Vibrant & High Energy) gradient colors */
-    val ElectricColors = listOf(
-        ThemeNeonPurple,   // Neon Purple
-        Color(0xFFFF00CC), // Hot Pink
-        Color(0xFFFF3D00), // Electric Orange
-        Color(0xFFFF00CC), // Hot Pink
-        ThemeNeonPurple,   // Neon Purple
-        Color(0xFF2979FF), // Electric Blue
-        ThemeNeonPurple    // Loop
-    )
+    val ElectricColors =
+        listOf(
+            ThemeNeonPurple, // Neon Purple
+            Color(0xFFFF00CC), // Hot Pink
+            Color(0xFFFF3D00), // Electric Orange
+            Color(0xFFFF00CC), // Hot Pink
+            ThemeNeonPurple, // Neon Purple
+            Color(0xFF2979FF), // Electric Blue
+            ThemeNeonPurple, // Loop
+        )
 
     /** Golden Luxury (Warm & Premium) gradient colors */
-    val GoldenColors = listOf(
-        Color(0xFFFFD700), // Gold
-        Color(0xFFFF9100), // Deep Orange
-        Color(0xFFFFEA00), // Bright Yellow
-        Color(0xFFFFD700), // Gold
-        Color(0xFFFFA000), // Amber
-        Color(0xFFFFD700)  // Loop
-    )
+    val GoldenColors =
+        listOf(
+            Color(0xFFFFD700), // Gold
+            Color(0xFFFF9100), // Deep Orange
+            Color(0xFFFFEA00), // Bright Yellow
+            Color(0xFFFFD700), // Gold
+            Color(0xFFFFA000), // Amber
+            Color(0xFFFFD700), // Loop
+        )
 
     /** Google Brand Colors gradient */
-    val GoogleColors = listOf(
-        Color(0xFF4285F4), // 1. Blue
-        ThemeIndigo,       // 1.1 Indigo (Bridge to Purple)
-        ThemePurple,       // 1.2 Purple (Bridge to Red)
-        Color(0xFFE91E63), // 1.3 Pink (Bridge to Red)
-        Color(0xFFEA4335), // 2. Red
-        Color(0xFFFF5722), // 2.1 Deep Orange
-        Color(0xFFFF9800), // 2.2 Orange
-        Color(0xFFFFC107), // 2.3 Amber
-        Color(0xFFFBBC05), // 3. Yellow
-        Color(0xFFD4E157), // 3.1 Lime
-        Color(0xFFCDDC39), // 3.2 Light Green
-        Color(0xFF34A853), // 4. Green
-        Color(0xFF00BFA5), // 4.1 Teal Accent
-        Color(0xFF00BCD4), // 4.2 Cyan
-        Color(0xFF03A9F4), // 4.3 Light Blue
-        Color(0xFF4285F4), // 5. Back to Blue
-
-        // End Block: Solid White
-        Color.White, Color.White, Color.White, Color.White,
-        Color.White, Color.White, Color.White, Color.White,
-        Color.White, Color.White, Color.White, Color.White
-    )
+    val GoogleColors =
+        listOf(
+            Color(0xFF4285F4), // 1. Blue
+            ThemeIndigo, // 1.1 Indigo (Bridge to Purple)
+            ThemePurple, // 1.2 Purple (Bridge to Red)
+            Color(0xFFE91E63), // 1.3 Pink (Bridge to Red)
+            Color(0xFFEA4335), // 2. Red
+            Color(0xFFFF5722), // 2.1 Deep Orange
+            Color(0xFFFF9800), // 2.2 Orange
+            Color(0xFFFFC107), // 2.3 Amber
+            Color(0xFFFBBC05), // 3. Yellow
+            Color(0xFFD4E157), // 3.1 Lime
+            Color(0xFFCDDC39), // 3.2 Light Green
+            Color(0xFF34A853), // 4. Green
+            Color(0xFF00BFA5), // 4.1 Teal Accent
+            Color(0xFF00BCD4), // 4.2 Cyan
+            Color(0xFF03A9F4), // 4.3 Light Blue
+            Color(0xFF4285F4), // 5. Back to Blue
+            // End Block: Solid White
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+            Color.White,
+        )
 }

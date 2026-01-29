@@ -16,16 +16,15 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,9 +45,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.directSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
@@ -60,50 +59,57 @@ fun DirectSearchResult(
     showWallpaperBackground: Boolean = false,
     oneHandedMode: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
-    onEmailClick: (String) -> Unit = {}
+    onEmailClick: (String) -> Unit = {},
 ) {
     if (DirectSearchState.status == DirectSearchStatus.Idle) return
 
-    val showAttribution = DirectSearchState.status == DirectSearchStatus.Success &&
-        !DirectSearchState.answer.isNullOrBlank()
+    val showAttribution =
+        DirectSearchState.status == DirectSearchStatus.Success &&
+            !DirectSearchState.answer.isNullOrBlank()
 
     val clipboardManager = LocalClipboardManager.current
 
-    val onLongClick: (() -> Unit)? = if (DirectSearchState.status == DirectSearchStatus.Success && !DirectSearchState.answer.isNullOrBlank()) {
-        {
-            DirectSearchState.answer?.let { answer ->
-                clipboardManager.setText(AnnotatedString(answer))
+    val onLongClick: (() -> Unit)? =
+        if (DirectSearchState.status == DirectSearchStatus.Success &&
+            !DirectSearchState.answer.isNullOrBlank()
+        ) {
+            {
+                DirectSearchState.answer?.let { answer ->
+                    clipboardManager.setText(AnnotatedString(answer))
+                }
             }
+        } else {
+            null
         }
-    } else {
-        null
-    }
 
     val content: @Composable () -> Unit = {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(
-                    if (onLongClick != null) {
-                        Modifier.combinedClickable(
-                            onClick = {},
-                            onLongClick = onLongClick
-                        )
-                    } else {
-                        Modifier
-                    }
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onLongClick != null) {
+                            Modifier.combinedClickable(
+                                onClick = {},
+                                onLongClick = onLongClick,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    ),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(DesignTokens.SpacingLarge),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(DesignTokens.SpacingLarge),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 when (DirectSearchState.status) {
                     DirectSearchStatus.Loading -> {
                         GeminiLoadingAnimation()
                     }
+
                     DirectSearchStatus.Success -> {
                         DirectSearchState.answer?.let { answer ->
                             ClickableDirectSearchText(
@@ -111,18 +117,21 @@ fun DirectSearchResult(
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 onPhoneNumberClick = onPhoneNumberClick,
-                                onEmailClick = onEmailClick
+                                onEmailClick = onEmailClick,
                             )
                         }
                     }
+
                     DirectSearchStatus.Error -> {
                         Text(
-                            text = DirectSearchState.errorMessage
-                                ?: stringResource(R.string.direct_search_error_generic),
+                            text =
+                                DirectSearchState.errorMessage
+                                    ?: stringResource(R.string.direct_search_error_generic),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
                         )
                     }
+
                     DirectSearchStatus.Idle -> {}
                 }
             }
@@ -131,27 +140,30 @@ fun DirectSearchResult(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         if (showWallpaperBackground) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 175.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Black.copy(alpha = 0.4f)
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 175.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = Color.Black.copy(alpha = 0.4f),
+                    ),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
                 content()
             }
         } else {
             ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 175.dp),
-                shape = MaterialTheme.shapes.extraLarge
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 175.dp),
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 content()
             }
@@ -160,7 +172,7 @@ fun DirectSearchResult(
         if (showAttribution) {
             GeminiAttributionRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -173,7 +185,7 @@ fun DirectSearchResult(
 fun CalculatorResult(
     calculatorState: CalculatorState,
     showWallpaperBackground: Boolean = false,
-    oneHandedMode: Boolean = false
+    oneHandedMode: Boolean = false,
 ) {
     val result = calculatorState.result
     if (result == null) return
@@ -183,11 +195,12 @@ fun CalculatorResult(
     // Track if the animation has already played (only animate first time)
     var hasAnimated by remember { mutableStateOf(false) }
     val shouldAnimate = result.isNotEmpty() && !hasAnimated
-    val resultAlpha = animateFloatAsState(
-        targetValue = if (shouldAnimate) 1f else 1f,
-        animationSpec = tween(durationMillis = 150),
-        label = "calculatorResultFadeIn"
-    ) { hasAnimated = true }
+    val resultAlpha =
+        animateFloatAsState(
+            targetValue = if (shouldAnimate) 1f else 1f,
+            animationSpec = tween(durationMillis = 150),
+            label = "calculatorResultFadeIn",
+        ) { hasAnimated = true }
 
     val onLongClick = {
         clipboardManager.setText(AnnotatedString(result))
@@ -195,53 +208,57 @@ fun CalculatorResult(
 
     val content: @Composable () -> Unit = {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(DesignTokens.SpacingLarge),
-            verticalArrangement = Arrangement.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(DesignTokens.SpacingLarge),
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = "= $result",
                 style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         if (showWallpaperBackground) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 175.dp)
-                    .graphicsLayer(alpha = resultAlpha.value)
-                    .combinedClickable(
-                        onClick = {},
-                        onLongClick = onLongClick
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 175.dp)
+                        .graphicsLayer(alpha = resultAlpha.value)
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = onLongClick,
+                        ),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = Color.Black.copy(alpha = 0.4f),
                     ),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Black.copy(alpha = 0.4f)
-                ),
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
                 content()
             }
         } else {
             ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 175.dp)
-                    .graphicsLayer(alpha = resultAlpha.value)
-                    .combinedClickable(
-                        onClick = {},
-                        onLongClick = onLongClick
-                    ),
-                shape = MaterialTheme.shapes.extraLarge
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 175.dp)
+                        .graphicsLayer(alpha = resultAlpha.value)
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = onLongClick,
+                        ),
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 content()
             }
@@ -249,7 +266,7 @@ fun CalculatorResult(
 
         CalculatorAttributionRow(
             modifier = Modifier.fillMaxWidth(),
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -260,25 +277,26 @@ fun CalculatorResult(
 @Composable
 private fun GeminiAttributionRow(
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     Row(
         modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
             text = stringResource(R.string.direct_search_powered_by),
             style = MaterialTheme.typography.labelSmall,
-            color = contentColor
+            color = contentColor,
         )
         Image(
             painter = painterResource(id = R.drawable.gemini_logo),
             contentDescription = stringResource(R.string.direct_search_powered_by),
             contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .height(DesignTokens.SpacingMedium)
-                .aspectRatio(288f / 65f)
+            modifier =
+                Modifier
+                    .height(DesignTokens.SpacingMedium)
+                    .aspectRatio(288f / 65f),
         )
     }
 }
@@ -289,23 +307,23 @@ private fun GeminiAttributionRow(
 @Composable
 private fun CalculatorAttributionRow(
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     Row(
         modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Icon(
             imageVector = Icons.Rounded.Calculate,
             contentDescription = stringResource(R.string.calculator_toggle_title),
             tint = contentColor,
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier.size(14.dp),
         )
         Text(
             text = stringResource(R.string.calculator_toggle_title),
             style = MaterialTheme.typography.labelSmall,
-            color = contentColor
+            color = contentColor,
         )
     }
 }
@@ -319,7 +337,7 @@ private fun ClickableDirectSearchText(
     style: androidx.compose.ui.text.TextStyle,
     color: Color,
     onPhoneNumberClick: (String) -> Unit,
-    onEmailClick: (String) -> Unit
+    onEmailClick: (String) -> Unit,
 ) {
     // Regex patterns to match phone numbers (E.164 or grouped digits) and email addresses
     val phonePattern = Regex("""\+?\d[\d\s().-]{6,}""")
@@ -328,12 +346,13 @@ private fun ClickableDirectSearchText(
     data class ClickableMatch(
         val range: IntRange,
         val tag: String,
-        val value: String
+        val value: String,
     )
 
-    fun rangesOverlap(a: IntRange, b: IntRange): Boolean {
-        return a.first <= b.last && b.first <= a.last
-    }
+    fun rangesOverlap(
+        a: IntRange,
+        b: IntRange,
+    ): Boolean = a.first <= b.last && b.first <= a.last
 
     val matches = mutableListOf<ClickableMatch>()
 
@@ -350,61 +369,66 @@ private fun ClickableDirectSearchText(
     }
 
     // Remove overlapping matches by keeping the earliest occurrences
-    val dedupedMatches = matches
-        .sortedBy { it.range.first }
-        .fold(mutableListOf<ClickableMatch>()) { acc, match ->
-            if (acc.none { rangesOverlap(it.range, match.range) }) {
-                acc.add(match)
-            }
-            acc
-        }
-
-    val annotatedString = buildAnnotatedString {
-        var lastIndex = 0
-
-        dedupedMatches.forEach { match ->
-            val startIndex = match.range.first
-            val endIndex = match.range.last + 1
-
-            if (startIndex > lastIndex) {
-                append(text.substring(lastIndex, startIndex))
+    val dedupedMatches =
+        matches
+            .sortedBy { it.range.first }
+            .fold(mutableListOf<ClickableMatch>()) { acc, match ->
+                if (acc.none { rangesOverlap(it.range, match.range) }) {
+                    acc.add(match)
+                }
+                acc
             }
 
-            pushStringAnnotation(
-                tag = match.tag,
-                annotation = match.value
-            )
-            withStyle(
-                style = SpanStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    textDecoration = TextDecoration.Underline
+    val annotatedString =
+        buildAnnotatedString {
+            var lastIndex = 0
+
+            dedupedMatches.forEach { match ->
+                val startIndex = match.range.first
+                val endIndex = match.range.last + 1
+
+                if (startIndex > lastIndex) {
+                    append(text.substring(lastIndex, startIndex))
+                }
+
+                pushStringAnnotation(
+                    tag = match.tag,
+                    annotation = match.value,
                 )
-            ) {
-                append(text.substring(startIndex, endIndex))
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                ) {
+                    append(text.substring(startIndex, endIndex))
+                }
+                pop()
+
+                lastIndex = endIndex
             }
-            pop()
 
-            lastIndex = endIndex
+            if (lastIndex < text.length) {
+                append(text.substring(lastIndex))
+            }
         }
-
-        if (lastIndex < text.length) {
-            append(text.substring(lastIndex))
-        }
-    }
 
     ClickableText(
         text = annotatedString,
         style = style.copy(color = color),
         onClick = { offset ->
-            annotatedString.getStringAnnotations(
-                start = offset,
-                end = offset
-            ).firstOrNull()?.let { annotation ->
-                when (annotation.tag) {
-                    "PHONE" -> onPhoneNumberClick(annotation.item)
-                    "EMAIL" -> onEmailClick(annotation.item)
+            annotatedString
+                .getStringAnnotations(
+                    start = offset,
+                    end = offset,
+                ).firstOrNull()
+                ?.let { annotation ->
+                    when (annotation.tag) {
+                        "PHONE" -> onPhoneNumberClick(annotation.item)
+                        "EMAIL" -> onEmailClick(annotation.item)
+                    }
                 }
-            }
-        }
+        },
     )
 }

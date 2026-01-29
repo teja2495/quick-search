@@ -19,13 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
-import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 
 /**
  * Color for granted checkmark - Material Green (same as phone action color)
@@ -43,53 +43,55 @@ fun PermissionItem(
     permissionState: PermissionState,
     isMandatory: Boolean,
     onToggleChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(DesignTokens.SpacingXLarge),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(DesignTokens.SpacingXLarge),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (isMandatory) {
                     Text(
                         text = stringResource(R.string.permissions_mandatory_indicator),
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
             }
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        
+
         if (permissionState.isGranted) {
             Icon(
                 imageVector = Icons.Rounded.CheckCircle,
                 contentDescription = stringResource(R.string.permissions_granted),
                 tint = GrantedCheckmarkColor,
-                modifier = Modifier
-                    .padding(start = DesignTokens.SpacingLarge)
-                    .size(DesignTokens.IconSize)
+                modifier =
+                    Modifier
+                        .padding(start = DesignTokens.SpacingLarge)
+                        .size(DesignTokens.IconSize),
             )
         } else {
             Switch(
@@ -104,7 +106,7 @@ fun PermissionItem(
                         onToggleChange(false)
                     }
                 },
-                modifier = Modifier.padding(start = DesignTokens.SpacingLarge)
+                modifier = Modifier.padding(start = DesignTokens.SpacingLarge),
             )
         }
     }

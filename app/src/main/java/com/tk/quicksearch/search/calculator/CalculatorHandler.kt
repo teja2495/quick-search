@@ -8,9 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 class CalculatorHandler(
     private val scope: CoroutineScope,
     private val userPreferences: UserAppPreferences,
-    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
-
     fun processQuery(query: String): CalculatorState {
         val trimmedQuery = query.trim()
         if (userPreferences.isCalculatorEnabled() && CalculatorUtils.isMathExpression(trimmedQuery)) {

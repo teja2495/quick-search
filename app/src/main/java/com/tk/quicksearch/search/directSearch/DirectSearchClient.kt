@@ -7,8 +7,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -16,8 +16,9 @@ import java.net.URL
  * Lightweight client for fetching direct answers from the Gemini API.
  * Uses the public Gemini endpoint so it can be proxied via Firebase AI Logic.
  */
-class DirectSearchClient(private val apiKey: String) {
-
+class DirectSearchClient(
+    private val apiKey: String,
+) {
     companion object {
         private const val LOG_TAG = "DirectSearchClient"
         private const val MODEL = "gemini-flash-latest"
@@ -25,53 +26,62 @@ class DirectSearchClient(private val apiKey: String) {
             "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent"
         private const val SYSTEM_PROMPT =
             "Return only the direct answer as a single short sentence. " +
-            "Provide additional context ONLY when its needed. " +
-            "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~. " +
-            "Whenever a phone number is included, format it in E.164 with country code so it can be dialed directly."
+                "Provide additional context ONLY when its needed. " +
+                "Use plain text with no markdown, bullets, emphasis, or special characters like *, _, `, or ~. " +
+                "Whenever a phone number is included, format it in E.164 with country code so it can be dialed directly."
         private const val MAX_ATTEMPTS = 2
         private const val INITIAL_RETRY_DELAY_MS = 750L
     }
 
-    suspend fun fetchAnswer(query: String, personalContext: String? = null): Result<String> = withContext(Dispatchers.IO) {
-        var attempt = 1
-        var delayMs = INITIAL_RETRY_DELAY_MS
-        var lastError: Throwable? = null
+    suspend fun fetchAnswer(
+        query: String,
+        personalContext: String? = null,
+    ): Result<String> =
+        withContext(Dispatchers.IO) {
+            var attempt = 1
+            var delayMs = INITIAL_RETRY_DELAY_MS
+            var lastError: Throwable? = null
 
-        while (attempt <= MAX_ATTEMPTS) {
-            val result = executeRequest(query, personalContext)
-            if (result.isSuccess) return@withContext result
+            while (attempt <= MAX_ATTEMPTS) {
+                val result = executeRequest(query, personalContext)
+                if (result.isSuccess) return@withContext result
 
-            lastError = result.exceptionOrNull()
-            if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
-                return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                lastError = result.exceptionOrNull()
+                if (attempt == MAX_ATTEMPTS || !shouldRetry(lastError)) {
+                    return@withContext Result.failure(lastError ?: IllegalStateException("Unknown error"))
+                }
+
+                delay(delayMs)
+                delayMs *= 2
+                attempt++
             }
 
-            delay(delayMs)
-            delayMs *= 2
-            attempt++
+            Result.failure(lastError ?: IllegalStateException("Unknown error"))
         }
 
-        Result.failure(lastError ?: IllegalStateException("Unknown error"))
-    }
-
-    private fun executeRequest(query: String, personalContext: String?): Result<String> {
+    private fun executeRequest(
+        query: String,
+        personalContext: String?,
+    ): Result<String> {
         var connection: HttpURLConnection? = null
         return try {
             val url = URL("$BASE_URL?key=$apiKey")
-            connection = (url.openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                setRequestProperty("Content-Type", "application/json")
-                doOutput = true
-                connectTimeout = 15000
-                readTimeout = 20000
-            }
+            connection =
+                (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json")
+                    doOutput = true
+                    connectTimeout = 15000
+                    readTimeout = 20000
+                }
 
             val payload = buildRequestBody(query, personalContext)
-            val payloadForLogging = if (personalContext.isNullOrBlank()) {
-                payload
-            } else {
-                "[payload with personal context hidden]"
-            }
+            val payloadForLogging =
+                if (personalContext.isNullOrBlank()) {
+                    payload
+                } else {
+                    "[payload with personal context hidden]"
+                }
             Log.i(LOG_TAG, "Gemini request JSON: $payloadForLogging")
             connection.outputStream.use { output ->
                 output.write(payload.toByteArray(Charsets.UTF_8))
@@ -83,9 +93,10 @@ class DirectSearchClient(private val apiKey: String) {
             Log.i(LOG_TAG, "Gemini response JSON: $rawResponse")
 
             if (responseCode in 200..299) {
-                val answer = extractAnswer(rawResponse) ?: return Result.failure(
-                    IllegalStateException("Empty response from Gemini")
-                )
+                val answer =
+                    extractAnswer(rawResponse) ?: return Result.failure(
+                        IllegalStateException("Empty response from Gemini"),
+                    )
                 Result.success(answer)
             } else {
                 val message = parseError(rawResponse) ?: "Request failed ($responseCode)"
@@ -99,46 +110,58 @@ class DirectSearchClient(private val apiKey: String) {
         }
     }
 
-    private fun buildRequestBody(query: String, personalContext: String?): String {
-        val systemInstruction = JSONObject().apply {
-            val systemParts = JSONArray()
-            systemParts.put(JSONObject().put("text", SYSTEM_PROMPT))
-            if (!personalContext.isNullOrBlank()) {
-                systemParts.put(
-                    JSONObject().put(
-                        "text",
-                        "\n\nUser personal context:\n${personalContext.trim()}"
+    private fun buildRequestBody(
+        query: String,
+        personalContext: String?,
+    ): String {
+        val systemInstruction =
+            JSONObject().apply {
+                val systemParts = JSONArray()
+                systemParts.put(JSONObject().put("text", SYSTEM_PROMPT))
+                if (!personalContext.isNullOrBlank()) {
+                    systemParts.put(
+                        JSONObject().put(
+                            "text",
+                            "\n\nUser personal context:\n${personalContext.trim()}",
+                        ),
                     )
-                )
+                }
+                put("parts", systemParts)
             }
-            put("parts", systemParts)
-        }
-        val contentParts = JSONArray().apply {
-            put(JSONObject().put("text", query))
-        }
-        val content = JSONObject().apply {
-            put("parts", contentParts)
-        }
+        val contentParts =
+            JSONArray().apply {
+                put(JSONObject().put("text", query))
+            }
+        val content =
+            JSONObject().apply {
+                put("parts", contentParts)
+            }
         val tools = JSONArray().put(JSONObject().put("google_search", JSONObject()))
-        val generationConfig = JSONObject().apply {
-            put("responseMimeType", "text/plain")
-            put("temperature", 0.2)
-        }
+        val generationConfig =
+            JSONObject().apply {
+                put("responseMimeType", "text/plain")
+                put("temperature", 0.2)
+            }
 
-        return JSONObject().apply {
-            put("systemInstruction", systemInstruction)
-            put("contents", JSONArray().put(content))
-            put("tools", tools)
-            put("generationConfig", generationConfig)
-        }.toString()
+        return JSONObject()
+            .apply {
+                put("systemInstruction", systemInstruction)
+                put("contents", JSONArray().put(content))
+                put("tools", tools)
+                put("generationConfig", generationConfig)
+            }.toString()
     }
 
-    private fun readResponseBody(connection: HttpURLConnection, responseCode: Int): String {
-        val stream = if (responseCode in 200..299) {
-            connection.inputStream
-        } else {
-            connection.errorStream
-        } ?: return ""
+    private fun readResponseBody(
+        connection: HttpURLConnection,
+        responseCode: Int,
+    ): String {
+        val stream =
+            if (responseCode in 200..299) {
+                connection.inputStream
+            } else {
+                connection.errorStream
+            } ?: return ""
 
         return BufferedReader(InputStreamReader(stream)).use { reader ->
             buildString {
@@ -165,11 +188,12 @@ class DirectSearchClient(private val apiKey: String) {
             val rawAnswer = firstPart.optString("text")
             val sanitizedAnswer = rawAnswer.replace("*", "").trim()
             // Format temperature units properly
-            val formattedAnswer = sanitizedAnswer
-                .replace(Regex("degrees?\\s+Fahrenheit", RegexOption.IGNORE_CASE), "°F")
-                .replace(Regex("degrees?\\s+Celsius", RegexOption.IGNORE_CASE), "°C")
-                .replace(Regex("degrees?\\s+F", RegexOption.IGNORE_CASE), "°F")
-                .replace(Regex("degrees?\\s+C", RegexOption.IGNORE_CASE), "°C")
+            val formattedAnswer =
+                sanitizedAnswer
+                    .replace(Regex("degrees?\\s+Fahrenheit", RegexOption.IGNORE_CASE), "°F")
+                    .replace(Regex("degrees?\\s+Celsius", RegexOption.IGNORE_CASE), "°C")
+                    .replace(Regex("degrees?\\s+F", RegexOption.IGNORE_CASE), "°F")
+                    .replace(Regex("degrees?\\s+C", RegexOption.IGNORE_CASE), "°C")
             formattedAnswer.takeIf { it.isNotBlank() }
         }.getOrNull()
     }
@@ -183,15 +207,15 @@ class DirectSearchClient(private val apiKey: String) {
         }.getOrNull()
     }
 
-    private fun shouldRetry(error: Throwable?): Boolean {
-        return when (error) {
+    private fun shouldRetry(error: Throwable?): Boolean =
+        when (error) {
             is ResponseException -> error.code == 429 || error.code >= 500
             is IOException -> true
             else -> false
         }
-    }
 
-    private data class ResponseException(val code: Int, override val message: String) :
-        Exception(message)
+    private data class ResponseException(
+        val code: Int,
+        override val message: String,
+    ) : Exception(message)
 }
-

@@ -20,20 +20,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalView
 import com.tk.quicksearch.R
-import com.tk.quicksearch.util.hapticToggle
-import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.searchEnginesScreen.EditShortcutDialog
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineDivider
-import com.tk.quicksearch.settings.searchEnginesScreen.getSearchEngineIconColorFilter
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.settings.searchEnginesScreen.EditShortcutDialog
+import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineDivider
+import com.tk.quicksearch.settings.searchEnginesScreen.getSearchEngineIconColorFilter
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticToggle
 
 /**
  * Feature for managing search engine shortcuts.
@@ -44,23 +44,23 @@ fun SearchEngineShortcuts(
     setShortcutCode: (SearchEngine, String) -> Unit,
     shortcutEnabled: Map<SearchEngine, Boolean>,
     setShortcutEnabled: (SearchEngine, Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = stringResource(R.string.settings_shortcuts_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
-        modifier = modifier.padding(top = DesignTokens.SectionTopPadding, bottom = DesignTokens.SectionTitleBottomPadding)
+        modifier = modifier.padding(top = DesignTokens.SectionTopPadding, bottom = DesignTokens.SectionTitleBottomPadding),
     )
     Text(
         text = stringResource(R.string.settings_shortcuts_desc),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
+        modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
     )
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
             SearchEngine.values().forEachIndexed { index, engine ->
@@ -70,7 +70,7 @@ fun SearchEngineShortcuts(
                     isEnabled = shortcutEnabled[engine] ?: true,
                     onCodeChange = { code -> setShortcutCode(engine, code) },
                     onToggle = { enabled -> setShortcutEnabled(engine, enabled) },
-                    existingShortcuts = shortcutCodes.mapKeys { it.key.name }
+                    existingShortcuts = shortcutCodes.mapKeys { it.key.name },
                 )
                 if (index != SearchEngine.values().lastIndex) {
                     SearchEngineDivider()
@@ -91,7 +91,7 @@ internal fun ShortcutCodeDisplay(
     onToggle: ((Boolean) -> Unit)?,
     engineName: String = "",
     existingShortcuts: Map<String, String> = emptyMap(),
-    currentShortcutId: String? = null
+    currentShortcutId: String? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -104,32 +104,32 @@ internal fun ShortcutCodeDisplay(
             currentShortcutId = currentShortcutId,
             onSave = { code -> onCodeChange(code) },
             onToggle = onToggle,
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
         )
     }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         if (isEnabled) {
             Text(
                 text = stringResource(R.string.settings_shortcut_label),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = shortcutCode,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { showDialog = true }
+                modifier = Modifier.clickable { showDialog = true },
             )
         } else {
             Text(
                 text = stringResource(R.string.settings_add_shortcut),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { showDialog = true }
+                modifier = Modifier.clickable { showDialog = true },
             )
         }
     }
@@ -145,7 +145,7 @@ private fun ShortcutRow(
     isEnabled: Boolean,
     onCodeChange: (String) -> Unit,
     onToggle: (Boolean) -> Unit,
-    existingShortcuts: Map<String, String> = emptyMap()
+    existingShortcuts: Map<String, String> = emptyMap(),
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val view = LocalView.current
@@ -162,54 +162,55 @@ private fun ShortcutRow(
             currentShortcutId = engine.name,
             onSave = { code -> onCodeChange(code) },
             onToggle = { enabled -> onToggle(enabled) },
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
         )
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = DesignTokens.CardHorizontalPadding,
-                vertical = DesignTokens.CardVerticalPadding
-            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = DesignTokens.CardHorizontalPadding,
+                    vertical = DesignTokens.CardVerticalPadding,
+                ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Image(
             painter = painterResource(id = drawableId),
             contentDescription = engineName,
             modifier = Modifier.size(24.dp),
             contentScale = ContentScale.Fit,
-            colorFilter = getSearchEngineIconColorFilter(engine)
+            colorFilter = getSearchEngineIconColorFilter(engine),
         )
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
                 text = engineName,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 if (isEnabled) {
                     Text(
                         text = shortcutCode,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showDialog = true }
+                        modifier = Modifier.clickable { showDialog = true },
                     )
                 } else {
                     Text(
                         text = stringResource(R.string.settings_add_shortcut),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { showDialog = true }
+                        modifier = Modifier.clickable { showDialog = true },
                     )
                 }
             }
@@ -220,7 +221,7 @@ private fun ShortcutRow(
             onCheckedChange = { enabled ->
                 hapticToggle(view)()
                 onToggle(enabled)
-            }
+            },
         )
     }
 }

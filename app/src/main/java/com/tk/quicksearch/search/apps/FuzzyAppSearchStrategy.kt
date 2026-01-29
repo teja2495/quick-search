@@ -10,16 +10,15 @@ import com.tk.quicksearch.search.models.AppInfo
  * Handles fuzzy matching of app names and nicknames.
  */
 class FuzzyAppSearchStrategy(
-    override val config: FuzzySearchConfig
+    override val config: FuzzySearchConfig,
 ) : BaseFuzzySearchStrategy<AppInfo>() {
-
     /**
      * Finds fuzzy matches for apps based on the query.
      * Searches both app names and nicknames.
      */
     override fun findMatches(
         query: String,
-        candidates: List<AppInfo>
+        candidates: List<AppInfo>,
     ): List<FuzzySearchStrategy.Match<AppInfo>> {
         if (!config.enabled || query.isBlank()) return emptyList()
 
@@ -48,23 +47,24 @@ class FuzzyAppSearchStrategy(
     fun findMatchesWithNicknames(
         query: String,
         candidates: List<AppInfo>,
-        nicknameProvider: (AppInfo) -> String?
+        nicknameProvider: (AppInfo) -> String?,
     ): List<FuzzySearchStrategy.Match<AppInfo>> {
         if (!config.enabled || query.isBlank()) return emptyList()
 
-        return candidates.mapNotNull { app ->
-            val nickname = nicknameProvider(app)
-            val score = engine.computeScore(query, app.appName, nickname, config.minQueryLength)
-            if (score >= config.matchThreshold) {
-                FuzzySearchStrategy.Match(
-                    item = app,
-                    score = score,
-                    priority = config.priority,
-                    isFuzzyMatch = true
-                )
-            } else {
-                null
-            }
-        }.sortedByDescending { it.score }
+        return candidates
+            .mapNotNull { app ->
+                val nickname = nicknameProvider(app)
+                val score = engine.computeScore(query, app.appName, nickname, config.minQueryLength)
+                if (score >= config.matchThreshold) {
+                    FuzzySearchStrategy.Match(
+                        item = app,
+                        score = score,
+                        priority = config.priority,
+                        isFuzzyMatch = true,
+                    )
+                } else {
+                    null
+                }
+            }.sortedByDescending { it.score }
     }
 }

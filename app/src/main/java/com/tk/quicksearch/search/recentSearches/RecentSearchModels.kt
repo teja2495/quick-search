@@ -9,24 +9,34 @@ import org.json.JSONObject
 sealed class RecentSearchEntry {
     abstract val stableKey: String
 
-    data class Query(val query: String) : RecentSearchEntry() {
+    data class Query(
+        val query: String,
+    ) : RecentSearchEntry() {
         val trimmedQuery = query.trim()
         override val stableKey: String = "query:$trimmedQuery"
     }
 
-    data class Contact(val contactId: Long) : RecentSearchEntry() {
+    data class Contact(
+        val contactId: Long,
+    ) : RecentSearchEntry() {
         override val stableKey: String = "contact:$contactId"
     }
 
-    data class File(val uri: String) : RecentSearchEntry() {
+    data class File(
+        val uri: String,
+    ) : RecentSearchEntry() {
         override val stableKey: String = "file:$uri"
     }
 
-    data class Setting(val id: String) : RecentSearchEntry() {
+    data class Setting(
+        val id: String,
+    ) : RecentSearchEntry() {
         override val stableKey: String = "setting:$id"
     }
 
-    data class AppShortcut(val shortcutKey: String) : RecentSearchEntry() {
+    data class AppShortcut(
+        val shortcutKey: String,
+    ) : RecentSearchEntry() {
         override val stableKey: String = "app_shortcut:$shortcutKey"
     }
 
@@ -37,18 +47,22 @@ sealed class RecentSearchEntry {
                 json.put(FIELD_TYPE, TYPE_QUERY)
                 json.put(FIELD_QUERY, trimmedQuery)
             }
+
             is Contact -> {
                 json.put(FIELD_TYPE, TYPE_CONTACT)
                 json.put(FIELD_CONTACT_ID, contactId)
             }
+
             is File -> {
                 json.put(FIELD_TYPE, TYPE_FILE)
                 json.put(FIELD_FILE_URI, uri)
             }
+
             is Setting -> {
                 json.put(FIELD_TYPE, TYPE_SETTING)
                 json.put(FIELD_SETTING_ID, id)
             }
+
             is AppShortcut -> {
                 json.put(FIELD_TYPE, TYPE_APP_SHORTCUT)
                 json.put(FIELD_SHORTCUT_KEY, shortcutKey)
@@ -78,22 +92,44 @@ sealed class RecentSearchEntry {
                 runCatching {
                     val json = JSONObject(trimmed)
                     when (json.optString(FIELD_TYPE)) {
-                        TYPE_QUERY -> json.optString(FIELD_QUERY)
-                            .takeIf { it.isNotBlank() }
-                            ?.let { Query(it) }
-                        TYPE_CONTACT -> json.optLong(FIELD_CONTACT_ID, -1L)
-                            .takeIf { it >= 0L }
-                            ?.let { Contact(it) }
-                        TYPE_FILE -> json.optString(FIELD_FILE_URI)
-                            .takeIf { it.isNotBlank() }
-                            ?.let { File(it) }
-                        TYPE_SETTING -> json.optString(FIELD_SETTING_ID)
-                            .takeIf { it.isNotBlank() }
-                            ?.let { Setting(it) }
-                        TYPE_APP_SHORTCUT -> json.optString(FIELD_SHORTCUT_KEY)
-                            .takeIf { it.isNotBlank() }
-                            ?.let { AppShortcut(it) }
-                        else -> null
+                        TYPE_QUERY -> {
+                            json
+                                .optString(FIELD_QUERY)
+                                .takeIf { it.isNotBlank() }
+                                ?.let { Query(it) }
+                        }
+
+                        TYPE_CONTACT -> {
+                            json
+                                .optLong(FIELD_CONTACT_ID, -1L)
+                                .takeIf { it >= 0L }
+                                ?.let { Contact(it) }
+                        }
+
+                        TYPE_FILE -> {
+                            json
+                                .optString(FIELD_FILE_URI)
+                                .takeIf { it.isNotBlank() }
+                                ?.let { File(it) }
+                        }
+
+                        TYPE_SETTING -> {
+                            json
+                                .optString(FIELD_SETTING_ID)
+                                .takeIf { it.isNotBlank() }
+                                ?.let { Setting(it) }
+                        }
+
+                        TYPE_APP_SHORTCUT -> {
+                            json
+                                .optString(FIELD_SHORTCUT_KEY)
+                                .takeIf { it.isNotBlank() }
+                                ?.let { AppShortcut(it) }
+                        }
+
+                        else -> {
+                            null
+                        }
                     }
                 }.getOrNull()
 
@@ -102,27 +138,30 @@ sealed class RecentSearchEntry {
     }
 }
 
-sealed class RecentSearchItem(open val entry: RecentSearchEntry) {
-    data class Query(val value: String) :
-        RecentSearchItem(RecentSearchEntry.Query(value))
+sealed class RecentSearchItem(
+    open val entry: RecentSearchEntry,
+) {
+    data class Query(
+        val value: String,
+    ) : RecentSearchItem(RecentSearchEntry.Query(value))
 
     data class Contact(
         override val entry: RecentSearchEntry.Contact,
-        val contact: ContactInfo
+        val contact: ContactInfo,
     ) : RecentSearchItem(entry)
 
     data class File(
         override val entry: RecentSearchEntry.File,
-        val file: DeviceFile
+        val file: DeviceFile,
     ) : RecentSearchItem(entry)
 
     data class Setting(
         override val entry: RecentSearchEntry.Setting,
-        val setting: DeviceSetting
+        val setting: DeviceSetting,
     ) : RecentSearchItem(entry)
 
     data class AppShortcut(
         override val entry: RecentSearchEntry.AppShortcut,
-        val shortcut: StaticShortcut
+        val shortcut: StaticShortcut,
     ) : RecentSearchItem(entry)
 }

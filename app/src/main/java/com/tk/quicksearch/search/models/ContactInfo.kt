@@ -9,7 +9,7 @@ data class ContactInfo(
     val displayName: String,
     val phoneNumbers: List<String>,
     val photoUri: String? = null,
-    val contactMethods: List<ContactMethod> = emptyList()
+    val contactMethods: List<ContactMethod> = emptyList(),
 ) {
     val primaryNumber: String? = phoneNumbers.firstOrNull()
     val hasContactMethods: Boolean = contactMethods.isNotEmpty()

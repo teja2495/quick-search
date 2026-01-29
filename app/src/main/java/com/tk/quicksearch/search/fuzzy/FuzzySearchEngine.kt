@@ -8,7 +8,6 @@ import java.util.Locale
  * Handles the low-level fuzzy search operations.
  */
 class FuzzySearchEngine {
-
     companion object {
         private const val ACRONYM_MAX_LENGTH = 4
         private val WHITESPACE_REGEX = "\\s+".toRegex()
@@ -29,7 +28,7 @@ class FuzzySearchEngine {
         query: String,
         targetText: String,
         targetNickname: String? = null,
-        minQueryLength: Int = 3
+        minQueryLength: Int = 3,
     ): Int {
         val trimmedQuery = query.trim()
         val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
@@ -58,7 +57,11 @@ class FuzzySearchEngine {
     /**
      * Computes acronym matching score for short queries.
      */
-    private fun computeAcronymScore(query: String, targetText: String, nickname: String?): Int {
+    private fun computeAcronymScore(
+        query: String,
+        targetText: String,
+        nickname: String?,
+    ): Int {
         val targetAcronym = buildAcronym(targetText)
         if (targetAcronym == query) return 100
 

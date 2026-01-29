@@ -28,8 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.widget.voiceSearch.MicAction
 import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonIcon
+import com.tk.quicksearch.widget.voiceSearch.MicAction
 
 @Composable
 fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
@@ -37,21 +37,24 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
     val colors = calculatePreviewColors(state)
     val borderShape = RoundedCornerShape(state.borderRadiusDp.dp)
     val shouldShowBorder = state.borderWidthDp >= WidgetConfigConstants.BORDER_VISIBILITY_THRESHOLD
-    val iconPackPackage = remember(context) {
-        UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
-    }
+    val iconPackPackage =
+        remember(context) {
+            UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
+        }
     val customButtons = state.customButtons.filterNotNull()
 
-        Box(
-            modifier = Modifier
+    Box(
+        modifier =
+            Modifier
                 .fillMaxWidth()
                 .padding(
                     top = WidgetConfigConstants.PREVIEW_TOP_PADDING,
-                    bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING
-                )
-        ) {
-            Box(
-                modifier = Modifier
+                    bottom = WidgetConfigConstants.PREVIEW_BOTTOM_PADDING,
+                ),
+    ) {
+        Box(
+            modifier =
+                Modifier
                     .fillMaxWidth()
                     .height(WidgetConfigConstants.PREVIEW_HEIGHT)
                     .background(colors.background, shape = borderShape)
@@ -60,103 +63,109 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
                             Modifier.border(
                                 width = state.borderWidthDp.dp,
                                 color = colors.border,
-                                shape = borderShape
+                                shape = borderShape,
                             )
                         } else {
                             Modifier
-                        }
-                    )
-            ) {
+                        },
+                    ),
+        ) {
             if (state.iconAlignLeft) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                    contentAlignment = Alignment.Center,
                 ) {
                     if (state.showLabel) {
                         Text(
                             text = stringResource(R.string.widget_label_text),
                             color = colors.textIcon,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
 
                     if (state.showSearchIcon) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.CenterStart
+                            contentAlignment = Alignment.CenterStart,
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_widget_search),
                                 contentDescription = stringResource(R.string.desc_search_icon),
                                 tint = colors.textIcon,
-                                modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                                modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE),
                             )
                         }
                     }
                 }
             } else {
                 Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     if (state.showSearchIcon) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_widget_search),
                             contentDescription = stringResource(R.string.desc_search_icon),
                             tint = colors.textIcon,
-                            modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                            modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE),
                         )
                     }
                     if (state.showLabel) {
                         Text(
                             text = stringResource(R.string.widget_label_text),
-                            modifier = Modifier.padding(start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp),
+                            modifier =
+                                Modifier.padding(
+                                    start = if (state.showSearchIcon) WidgetConfigConstants.PREVIEW_ICON_TEXT_SPACING else 0.dp,
+                                ),
                             color = colors.textIcon,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
                 }
-                }
+            }
 
             if (customButtons.isNotEmpty() || state.micAction != MicAction.OFF) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(end = WidgetConfigConstants.PREVIEW_INNER_PADDING),
-                    contentAlignment = Alignment.CenterEnd
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(end = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                    contentAlignment = Alignment.CenterEnd,
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING)
+                        horizontalArrangement = Arrangement.spacedBy(WidgetConfigConstants.CUSTOM_BUTTON_SPACING),
                     ) {
                         customButtons.forEach { action ->
                             Box(
                                 modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.Center,
                             ) {
                                 CustomWidgetButtonIcon(
                                     action = action,
                                     iconSize = WidgetConfigConstants.PREVIEW_ICON_SIZE,
                                     iconPackPackage = iconPackPackage,
-                                    tintColor = colors.textIcon
+                                    tintColor = colors.textIcon,
                                 )
                             }
                         }
                         if (state.micAction != MicAction.OFF) {
                             Box(
                                 modifier = Modifier.size(36.dp), // Match micTouchSpace from actual widget
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.Center,
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_widget_mic),
                                     contentDescription = stringResource(R.string.desc_voice_search_icon),
                                     tint = colors.textIcon,
-                                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE)
+                                    modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE),
                                 )
                             }
                         }
@@ -170,7 +179,7 @@ fun WidgetPreviewCard(state: QuickSearchWidgetPreferences) {
 private data class PreviewColors(
     val background: Color,
     val border: Color,
-    val textIcon: Color
+    val textIcon: Color,
 )
 
 @Composable
@@ -178,26 +187,29 @@ private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): Preview
     val isSystemInDarkTheme = isSystemInDarkTheme()
 
     // Determine effective theme based on user selection
-    val effectiveTheme = when (state.theme) {
-        WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
-        else -> state.theme
-    }
+    val effectiveTheme =
+        when (state.theme) {
+            WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+            else -> state.theme
+        }
 
-    val background = WidgetColorUtils.getBackgroundColor(
-        effectiveTheme,
-        state.backgroundAlpha
-    )
+    val background =
+        WidgetColorUtils.getBackgroundColor(
+            effectiveTheme,
+            state.backgroundAlpha,
+        )
     val border = WidgetColorUtils.getBorderColor(state.borderColor, state.backgroundAlpha)
-    val textIcon = WidgetColorUtils.getTextIconColor(
-        state.theme,
-        state.backgroundAlpha,
-        state.textIconColorOverride,
-        isSystemInDarkTheme
-    )
+    val textIcon =
+        WidgetColorUtils.getTextIconColor(
+            state.theme,
+            state.backgroundAlpha,
+            state.textIconColorOverride,
+            isSystemInDarkTheme,
+        )
 
     return PreviewColors(
         background = background,
         border = border,
-        textIcon = textIcon
+        textIcon = textIcon,
     )
 }

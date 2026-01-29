@@ -1,24 +1,25 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-
 import android.util.Log
 
 /**
  * Preferences for Gemini API-related settings such as API key and personal context.
  * Uses encrypted storage for sensitive data.
  */
-class GeminiPreferences(context: Context) : BasePreferences(context) {
-
+class GeminiPreferences(
+    context: Context,
+) : BasePreferences(context) {
     // ============================================================================
     // Gemini API Preferences
     // ============================================================================
 
     fun getGeminiApiKey(): String? {
-        val securePrefs = encryptedPrefs ?: run {
-            Log.e("GeminiPreferences", "EncryptedSharedPreferences unavailable; Gemini API key not loaded")
-            return null
-        }
+        val securePrefs =
+            encryptedPrefs ?: run {
+                Log.e("GeminiPreferences", "EncryptedSharedPreferences unavailable; Gemini API key not loaded")
+                return null
+            }
 
         // First try to get from encrypted storage
         val encryptedKey = securePrefs.getString(BasePreferences.KEY_GEMINI_API_KEY, null)
@@ -38,10 +39,11 @@ class GeminiPreferences(context: Context) : BasePreferences(context) {
     }
 
     fun setGeminiApiKey(key: String?) {
-        val securePrefs = encryptedPrefs ?: run {
-            Log.e("GeminiPreferences", "EncryptedSharedPreferences unavailable; Gemini API key not persisted")
-            return
-        }
+        val securePrefs =
+            encryptedPrefs ?: run {
+                Log.e("GeminiPreferences", "EncryptedSharedPreferences unavailable; Gemini API key not persisted")
+                return
+            }
 
         if (key.isNullOrBlank()) {
             // Remove from both encrypted and plain text (for migration safety)
@@ -84,5 +86,4 @@ class GeminiPreferences(context: Context) : BasePreferences(context) {
             prefs.edit().putString(BasePreferences.KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
         }
     }
-
 }

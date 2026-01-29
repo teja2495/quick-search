@@ -28,23 +28,23 @@ fun IconWithText(
     text: String,
     modifier: Modifier = Modifier,
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge
+    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = iconTint,
-            modifier = Modifier.size(DesignTokens.IconSize)
+            modifier = Modifier.size(DesignTokens.IconSize),
         )
         Text(
             text = text,
             style = textStyle,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

@@ -41,6 +41,10 @@ private fun showErrorToast(context: Context) {
     showToast(context, R.string.home_screen_widget_error)
 }
 
-private fun showToast(context: Context, messageResId: Int, duration: Int = Toast.LENGTH_SHORT) {
+private fun showToast(
+    context: Context,
+    messageResId: Int,
+    duration: Int = Toast.LENGTH_SHORT,
+) {
     Toast.makeText(context, context.getString(messageResId), duration).show()
 }

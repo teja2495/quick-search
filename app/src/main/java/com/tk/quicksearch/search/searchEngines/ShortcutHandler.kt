@@ -8,17 +8,17 @@ import com.tk.quicksearch.search.directSearch.DirectSearchHandler
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutPrefix
 import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
-import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class ShortcutHandler(
-        private val userPreferences: UserAppPreferences,
-        private val scope: CoroutineScope,
-        private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
-        private val directSearchHandler: DirectSearchHandler,
-        private val searchTargetsProvider: () -> List<SearchTarget>
+    private val userPreferences: UserAppPreferences,
+    private val scope: CoroutineScope,
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
+    private val directSearchHandler: DirectSearchHandler,
+    private val searchTargetsProvider: () -> List<SearchTarget>,
 ) {
     private var shortcutCodes: Map<String, String> = emptyMap()
     private var shortcutEnabled: Map<String, Boolean> = emptyMap()
@@ -32,32 +32,39 @@ class ShortcutHandler(
                 userPreferences.setShortcutsEnabled(true)
             }
             val targets =
-                    searchTargetsProvider().ifEmpty {
-                        SearchEngine.values().map { SearchTarget.Engine(it) }
-                    }
+                searchTargetsProvider().ifEmpty {
+                    SearchEngine.values().map { SearchTarget.Engine(it) }
+                }
             shortcutCodes =
-                    targets.associate { target ->
-                        val id = target.getId()
-                        val code =
-                                when (target) {
-                                    is SearchTarget.Engine ->
-                                            userPreferences.getShortcutCode(target.engine)
-                                    is SearchTarget.Browser ->
-                                            userPreferences.getShortcutCode(id).orEmpty()
-                                }
-                        id to code
-                    }
+                targets.associate { target ->
+                    val id = target.getId()
+                    val code =
+                        when (target) {
+                            is SearchTarget.Engine -> {
+                                userPreferences.getShortcutCode(target.engine)
+                            }
+
+                            is SearchTarget.Browser -> {
+                                userPreferences.getShortcutCode(id).orEmpty()
+                            }
+                        }
+                    id to code
+                }
             shortcutEnabled =
-                    targets.associate { target ->
-                        val id = target.getId()
-                        val enabled =
-                                when (target) {
-                                    is SearchTarget.Engine ->
-                                            userPreferences.isShortcutEnabled(target.engine)
-                                    is SearchTarget.Browser -> shortcutCodes[id].orEmpty().isNotEmpty()
-                                }
-                        id to enabled
-                    }
+                targets.associate { target ->
+                    val id = target.getId()
+                    val enabled =
+                        when (target) {
+                            is SearchTarget.Engine -> {
+                                userPreferences.isShortcutEnabled(target.engine)
+                            }
+
+                            is SearchTarget.Browser -> {
+                                shortcutCodes[id].orEmpty().isNotEmpty()
+                            }
+                        }
+                    id to enabled
+                }
             isInitialized = true
         }
     }
@@ -65,9 +72,9 @@ class ShortcutHandler(
     fun getInitialState(): ShortcutsState {
         ensureInitialized()
         return ShortcutsState(
-                shortcutsEnabled = true,
-                shortcutCodes = shortcutCodes,
-                shortcutEnabled = shortcutEnabled
+            shortcutsEnabled = true,
+            shortcutCodes = shortcutCodes,
+            shortcutEnabled = shortcutEnabled,
         )
     }
 
@@ -79,7 +86,10 @@ class ShortcutHandler(
         }
     }
 
-    fun setShortcutCode(target: SearchTarget, code: String) {
+    fun setShortcutCode(
+        target: SearchTarget,
+        code: String,
+    ) {
         scope.launch(Dispatchers.IO) {
             val normalizedCode = normalizeShortcutCodeInput(code)
             if (!isValidShortcutCode(normalizedCode)) {
@@ -99,14 +109,17 @@ class ShortcutHandler(
             shortcutEnabled = shortcutEnabled.toMutableMap().apply { put(id, true) }
             uiStateUpdater {
                 it.copy(
-                        shortcutCodes = shortcutCodes,
-                        shortcutEnabled = shortcutEnabled
+                    shortcutCodes = shortcutCodes,
+                    shortcutEnabled = shortcutEnabled,
                 )
             }
         }
     }
 
-    fun setShortcutEnabled(target: SearchTarget, enabled: Boolean) {
+    fun setShortcutEnabled(
+        target: SearchTarget,
+        enabled: Boolean,
+    ) {
         scope.launch(Dispatchers.IO) {
             if (target is SearchTarget.Engine) {
                 userPreferences.setShortcutEnabled(target.engine, enabled)
@@ -120,19 +133,19 @@ class ShortcutHandler(
     fun getShortcutCode(target: SearchTarget): String {
         val id = target.getId()
         return shortcutCodes[id]
-                ?: when (target) {
-                    is SearchTarget.Engine -> userPreferences.getShortcutCode(target.engine)
-                    is SearchTarget.Browser -> userPreferences.getShortcutCode(id).orEmpty()
-                }
+            ?: when (target) {
+                is SearchTarget.Engine -> userPreferences.getShortcutCode(target.engine)
+                is SearchTarget.Browser -> userPreferences.getShortcutCode(id).orEmpty()
+            }
     }
 
     fun isShortcutEnabled(target: SearchTarget): Boolean {
         val id = target.getId()
         return shortcutEnabled[id]
-                ?: when (target) {
-                    is SearchTarget.Engine -> userPreferences.isShortcutEnabled(target.engine)
-                    is SearchTarget.Browser -> getShortcutCode(target).isNotEmpty()
-                }
+            ?: when (target) {
+                is SearchTarget.Engine -> userPreferences.isShortcutEnabled(target.engine)
+                is SearchTarget.Browser -> getShortcutCode(target).isNotEmpty()
+            }
     }
 
     fun detectShortcut(query: String): Pair<String, SearchTarget>? {
@@ -149,15 +162,16 @@ class ShortcutHandler(
 
         // Check each enabled search target for matching shortcut
         val targets =
-                searchTargetsProvider().ifEmpty {
-                    SearchEngine.values().map { SearchTarget.Engine(it) }
-                }
+            searchTargetsProvider().ifEmpty {
+                SearchEngine.values().map { SearchTarget.Engine(it) }
+            }
         for (target in targets) {
             if (target is SearchTarget.Engine &&
-                            target.engine == SearchEngine.DIRECT_SEARCH &&
-                            directSearchHandler.getGeminiApiKey().isNullOrBlank()
-            )
-                    continue
+                target.engine == SearchEngine.DIRECT_SEARCH &&
+                directSearchHandler.getGeminiApiKey().isNullOrBlank()
+            ) {
+                continue
+            }
             if (!isShortcutEnabled(target)) continue
 
             val shortcutCode = getShortcutCode(target).lowercase(Locale.getDefault())
@@ -185,15 +199,16 @@ class ShortcutHandler(
 
         // Check each enabled search target for matching shortcut
         val targets =
-                searchTargetsProvider().ifEmpty {
-                    SearchEngine.values().map { SearchTarget.Engine(it) }
-                }
+            searchTargetsProvider().ifEmpty {
+                SearchEngine.values().map { SearchTarget.Engine(it) }
+            }
         for (target in targets) {
             if (target is SearchTarget.Engine &&
-                            target.engine == SearchEngine.DIRECT_SEARCH &&
-                            directSearchHandler.getGeminiApiKey().isNullOrBlank()
-            )
-                    continue
+                target.engine == SearchEngine.DIRECT_SEARCH &&
+                directSearchHandler.getGeminiApiKey().isNullOrBlank()
+            ) {
+                continue
+            }
             if (!isShortcutEnabled(target)) continue
 
             val shortcutCode = getShortcutCode(target).lowercase(Locale.getDefault())
@@ -209,8 +224,8 @@ class ShortcutHandler(
     }
 
     data class ShortcutsState(
-            val shortcutsEnabled: Boolean,
-            val shortcutCodes: Map<String, String>,
-            val shortcutEnabled: Map<String, Boolean>
+        val shortcutsEnabled: Boolean,
+        val shortcutCodes: Map<String, String>,
+        val shortcutEnabled: Map<String, Boolean>,
     )
 }

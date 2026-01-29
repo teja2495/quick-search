@@ -14,63 +14,63 @@ sealed class ContactMethod {
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class Sms(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class WhatsAppCall(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class WhatsAppMessage(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class WhatsAppVideoCall(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class TelegramMessage(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class TelegramCall(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class TelegramVideoCall(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class Email(
         override val displayLabel: String,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class VideoCall(
@@ -78,14 +78,14 @@ sealed class ContactMethod {
         override val data: String,
         val packageName: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class GoogleMeet(
         override val displayLabel: String = GOOGLE_MEET_LABEL,
         override val data: String,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class CustomApp(
@@ -94,14 +94,14 @@ sealed class ContactMethod {
         val mimeType: String,
         val packageName: String?,
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     data class ViewInContactsApp(
         override val displayLabel: String = VIEW_IN_CONTACTS_LABEL,
         override val data: String = "",
         override val dataId: Long? = null,
-        override val isPrimary: Boolean = false
+        override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
     companion object {
@@ -117,10 +117,8 @@ object ContactMethodMimeTypes {
     const val WHATSAPP_VOICE_CALL = "vnd.android.cursor.item/vnd.com.whatsapp.voip.call"
     const val WHATSAPP_MESSAGE = "vnd.android.cursor.item/vnd.com.whatsapp.profile"
     const val WHATSAPP_VIDEO_CALL = "vnd.android.cursor.item/vnd.com.whatsapp.video.call"
-    
+
     const val TELEGRAM_MESSAGE = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.profile"
     const val TELEGRAM_CALL = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.call"
     const val TELEGRAM_VIDEO_CALL = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.call.video"
-    
 }
-

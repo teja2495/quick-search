@@ -33,64 +33,65 @@ import com.tk.quicksearch.util.hapticToggle
 /** Card for web suggestions and recent queries settings (without search engines navigation). */
 @Composable
 fun WebSuggestionsCard(
-        webSuggestionsEnabled: Boolean,
-        onWebSuggestionsToggle: (Boolean) -> Unit,
-        webSuggestionsCount: Int,
-        onWebSuggestionsCountChange: (Int) -> Unit,
-        recentQueriesEnabled: Boolean,
-        onRecentQueriesToggle: (Boolean) -> Unit,
-        recentQueriesCount: Int,
-        onRecentQueriesCountChange: (Int) -> Unit,
-        modifier: Modifier = Modifier,
-        contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+    webSuggestionsEnabled: Boolean,
+    onWebSuggestionsToggle: (Boolean) -> Unit,
+    webSuggestionsCount: Int,
+    onWebSuggestionsCountChange: (Int) -> Unit,
+    recentQueriesEnabled: Boolean,
+    onRecentQueriesToggle: (Boolean) -> Unit,
+    recentQueriesCount: Int,
+    onRecentQueriesCountChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
     val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             // Web Search Suggestions Toggle Section
             SettingsToggleRow(
-                    title = stringResource(R.string.web_search_suggestions_title),
-                    checked = webSuggestionsEnabled,
-                    onCheckedChange = onWebSuggestionsToggle,
-                    isFirstItem = true,
-                    isLastItem = false,
-                    showDivider = false
+                title = stringResource(R.string.web_search_suggestions_title),
+                checked = webSuggestionsEnabled,
+                onCheckedChange = onWebSuggestionsToggle,
+                isFirstItem = true,
+                isLastItem = false,
+                showDivider = false,
             )
 
             // Web Suggestions Count Slider (only show if enabled)
             if (webSuggestionsEnabled) {
                 var lastWebStep by remember { mutableStateOf(webSuggestionsCount) }
                 Row(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                start = 24.dp,
-                                                end = 24.dp,
-                                                top = 0.dp,
-                                                bottom = 16.dp
-                                        ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 24.dp,
+                                end = 24.dp,
+                                top = 0.dp,
+                                bottom = 16.dp,
+                            ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Slider(
-                            value = webSuggestionsCount.toFloat(),
-                            onValueChange = { value ->
-                                val step = value.toInt()
-                                if (step != lastWebStep) {
-                                    hapticToggle(view)()
-                                    lastWebStep = step
-                                }
-                                onWebSuggestionsCountChange(value.toInt())
-                            },
-                            valueRange = 1f..5f,
-                            steps = 3, // 1, 2, 3, 4, 5
-                            modifier = Modifier.weight(1f)
+                        value = webSuggestionsCount.toFloat(),
+                        onValueChange = { value ->
+                            val step = value.toInt()
+                            if (step != lastWebStep) {
+                                hapticToggle(view)()
+                                lastWebStep = step
+                            }
+                            onWebSuggestionsCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f),
                     )
                     Text(
-                            text = webSuggestionsCount.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.width(24.dp)
+                        text = webSuggestionsCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp),
                     )
                 }
 
@@ -103,48 +104,49 @@ fun WebSuggestionsCard(
 
             // Recent Queries Toggle Section
             SettingsToggleRow(
-                    title = stringResource(R.string.recent_queries_toggle_title),
-                    checked = recentQueriesEnabled,
-                    onCheckedChange = onRecentQueriesToggle,
-                    isFirstItem = false,
-                    isLastItem = false,
-                    showDivider = false
+                title = stringResource(R.string.recent_queries_toggle_title),
+                checked = recentQueriesEnabled,
+                onCheckedChange = onRecentQueriesToggle,
+                isFirstItem = false,
+                isLastItem = false,
+                showDivider = false,
             )
 
             // Recent Queries Count Slider (only show if enabled)
             if (recentQueriesEnabled) {
                 var lastRecentStep by remember { mutableStateOf(recentQueriesCount) }
                 Row(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                start = 24.dp,
-                                                end = 24.dp,
-                                                top = 0.dp,
-                                                bottom = 16.dp
-                                        ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 24.dp,
+                                end = 24.dp,
+                                top = 0.dp,
+                                bottom = 16.dp,
+                            ),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Slider(
-                            value = recentQueriesCount.toFloat(),
-                            onValueChange = { value ->
-                                val step = value.toInt()
-                                if (step != lastRecentStep) {
-                                    hapticToggle(view)()
-                                    lastRecentStep = step
-                                }
-                                onRecentQueriesCountChange(value.toInt())
-                            },
-                            valueRange = 1f..5f,
-                            steps = 3, // 1, 2, 3, 4, 5
-                            modifier = Modifier.weight(1f)
+                        value = recentQueriesCount.toFloat(),
+                        onValueChange = { value ->
+                            val step = value.toInt()
+                            if (step != lastRecentStep) {
+                                hapticToggle(view)()
+                                lastRecentStep = step
+                            }
+                            onRecentQueriesCountChange(value.toInt())
+                        },
+                        valueRange = 1f..5f,
+                        steps = 3, // 1, 2, 3, 4, 5
+                        modifier = Modifier.weight(1f),
                     )
                     Text(
-                            text = recentQueriesCount.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.width(24.dp)
+                        text = recentQueriesCount.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(24.dp),
                     )
                 }
             }
@@ -157,38 +159,38 @@ fun WebSuggestionsCard(
  */
 @Composable
 fun CombinedExcludedItemsCard(
-        calculatorEnabled: Boolean,
-        onToggleCalculator: (Boolean) -> Unit,
-        excludedItemsTitle: String,
-        excludedItemsDescription: String,
-        onNavigateToExcludedItems: () -> Unit,
-        modifier: Modifier = Modifier
+    calculatorEnabled: Boolean,
+    onToggleCalculator: (Boolean) -> Unit,
+    excludedItemsTitle: String,
+    excludedItemsDescription: String,
+    onNavigateToExcludedItems: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             // Calculator toggle
             SettingsToggleRow(
-                    title = stringResource(R.string.calculator_toggle_title),
-                    subtitle = stringResource(R.string.calculator_toggle_desc),
-                    checked = calculatorEnabled,
-                    onCheckedChange = onToggleCalculator,
-                    leadingIcon = Icons.Rounded.Calculate,
-                    isFirstItem = false,
-                    isLastItem = false,
-                    extraVerticalPadding = 4.dp
+                title = stringResource(R.string.calculator_toggle_title),
+                subtitle = stringResource(R.string.calculator_toggle_desc),
+                checked = calculatorEnabled,
+                onCheckedChange = onToggleCalculator,
+                leadingIcon = Icons.Rounded.Calculate,
+                isFirstItem = false,
+                isLastItem = false,
+                extraVerticalPadding = 4.dp,
             )
 
             // Excluded Items Section
             SettingsNavigationRow(
-                    item =
-                            SettingsCardItem(
-                                    title = excludedItemsTitle,
-                                    description = excludedItemsDescription,
-                                    icon = Icons.Rounded.VisibilityOff,
-                                    actionOnPress = onNavigateToExcludedItems
-                            ),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                item =
+                    SettingsCardItem(
+                        title = excludedItemsTitle,
+                        description = excludedItemsDescription,
+                        icon = Icons.Rounded.VisibilityOff,
+                        actionOnPress = onNavigateToExcludedItems,
+                    ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             )
         }
     }
@@ -197,41 +199,41 @@ fun CombinedExcludedItemsCard(
 /** Search Results settings section that combines all search results related settings. */
 @Composable
 fun SearchResultsSettingsSection(
-        state: SettingsScreenState,
-        callbacks: SettingsScreenCallbacks,
-        onNavigateToExcludedItems: () -> Unit,
-        modifier: Modifier = Modifier
+    state: SettingsScreenState,
+    callbacks: SettingsScreenCallbacks,
+    onNavigateToExcludedItems: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         // Search Sections Section
         SectionSettingsSection(
-                sectionOrder = ItemPriorityConfig.getSearchResultsPriority(),
-                disabledSections = state.disabledSections,
-                onToggleSection = callbacks.onToggleSection,
-                showTitle = false
+            sectionOrder = ItemPriorityConfig.getSearchResultsPriority(),
+            disabledSections = state.disabledSections,
+            onToggleSection = callbacks.onToggleSection,
+            showTitle = false,
         )
 
         // Web Suggestions Card
         WebSuggestionsCard(
-                webSuggestionsEnabled = state.webSuggestionsEnabled,
-                onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
-                webSuggestionsCount = state.webSuggestionsCount,
-                onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
-                recentQueriesEnabled = state.recentQueriesEnabled,
-                onRecentQueriesToggle = callbacks.onToggleRecentQueries,
-                recentQueriesCount = state.recentQueriesCount,
-                onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange,
-                modifier = Modifier.padding(top = 12.dp)
+            webSuggestionsEnabled = state.webSuggestionsEnabled,
+            onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
+            webSuggestionsCount = state.webSuggestionsCount,
+            onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
+            recentQueriesEnabled = state.recentQueriesEnabled,
+            onRecentQueriesToggle = callbacks.onToggleRecentQueries,
+            recentQueriesCount = state.recentQueriesCount,
+            onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange,
+            modifier = Modifier.padding(top = 12.dp),
         )
 
         // Combined Calculator and Excluded Items Card
         CombinedExcludedItemsCard(
-                calculatorEnabled = state.calculatorEnabled,
-                onToggleCalculator = callbacks.onToggleCalculator,
-                excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
-                excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
-                onNavigateToExcludedItems = onNavigateToExcludedItems,
-                modifier = Modifier.padding(top = 12.dp)
+            calculatorEnabled = state.calculatorEnabled,
+            onToggleCalculator = callbacks.onToggleCalculator,
+            excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
+            excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
+            onNavigateToExcludedItems = onNavigateToExcludedItems,
+            modifier = Modifier.padding(top = 12.dp),
         )
     }
 }

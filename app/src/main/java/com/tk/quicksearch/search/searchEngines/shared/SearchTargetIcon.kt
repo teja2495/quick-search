@@ -27,7 +27,7 @@ enum class IconRenderStyle {
     SIMPLE,
 
     /** Advanced icon rendering with color filtering for light/dark themes */
-    ADVANCED
+    ADVANCED,
 }
 
 /**
@@ -43,7 +43,7 @@ fun SearchTargetIcon(
     target: SearchTarget,
     iconSize: Dp,
     style: IconRenderStyle = IconRenderStyle.SIMPLE,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when (target) {
         is SearchTarget.Engine -> {
@@ -55,57 +55,92 @@ fun SearchTargetIcon(
                         painter = painterResource(id = targetEngine.getDrawableResId()),
                         contentDescription = targetEngine.getContentDescription(),
                         modifier = modifier.size(iconSize),
-                        tint = androidx.compose.ui.graphics.Color.Unspecified
+                        tint = androidx.compose.ui.graphics.Color.Unspecified,
                     )
                 }
 
                 IconRenderStyle.ADVANCED -> {
-                    val needsColorChange = targetEngine in setOf(
-                        SearchEngine.CHATGPT,
-                        SearchEngine.GROK,
-                        SearchEngine.AMAZON
-                    )
+                    val needsColorChange =
+                        targetEngine in
+                            setOf(
+                                SearchEngine.CHATGPT,
+                                SearchEngine.GROK,
+                                SearchEngine.AMAZON,
+                            )
 
                     val backgroundColor = MaterialTheme.colorScheme.background
                     val isLightMode =
                         backgroundColor.red > 0.9f &&
-                        backgroundColor.green > 0.9f &&
-                        backgroundColor.blue > 0.9f
+                            backgroundColor.green > 0.9f &&
+                            backgroundColor.blue > 0.9f
 
-                    val colorFilter = if (needsColorChange && isLightMode) {
-                        if (targetEngine == SearchEngine.AMAZON) {
-                            ColorFilter.colorMatrix(
-                                ColorMatrix(
-                                    floatArrayOf(
-                                        0.3f, 0f, 0f, 0f, 0f,
-                                        0f, 0.3f, 0f, 0f, 0f,
-                                        0f, 0f, 0.3f, 0f, 0f,
-                                        0f, 0f, 0f, 1f, 0f
-                                    )
+                    val colorFilter =
+                        if (needsColorChange && isLightMode) {
+                            if (targetEngine == SearchEngine.AMAZON) {
+                                ColorFilter.colorMatrix(
+                                    ColorMatrix(
+                                        floatArrayOf(
+                                            0.3f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0.3f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0.3f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            1f,
+                                            0f,
+                                        ),
+                                    ),
                                 )
-                            )
+                            } else {
+                                ColorFilter.colorMatrix(
+                                    ColorMatrix(
+                                        floatArrayOf(
+                                            -1f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            255f,
+                                            0f,
+                                            -1f,
+                                            0f,
+                                            0f,
+                                            255f,
+                                            0f,
+                                            0f,
+                                            -1f,
+                                            0f,
+                                            255f,
+                                            0f,
+                                            0f,
+                                            0f,
+                                            1f,
+                                            0f,
+                                        ),
+                                    ),
+                                )
+                            }
                         } else {
-                            ColorFilter.colorMatrix(
-                                ColorMatrix(
-                                    floatArrayOf(
-                                        -1f, 0f, 0f, 0f, 255f,
-                                        0f, -1f, 0f, 0f, 255f,
-                                        0f, 0f, -1f, 0f, 255f,
-                                        0f, 0f, 0f, 1f, 0f
-                                    )
-                                )
-                            )
+                            null
                         }
-                    } else {
-                        null
-                    }
 
                     Image(
                         painter = painterResource(id = targetEngine.getDrawableResId()),
                         contentDescription = targetEngine.getContentDescription(),
                         modifier = modifier.size(iconSize),
                         contentScale = ContentScale.Fit,
-                        colorFilter = colorFilter
+                        colorFilter = colorFilter,
                     )
                 }
             }
@@ -118,14 +153,14 @@ fun SearchTargetIcon(
                     bitmap = iconResult.bitmap!!,
                     contentDescription = target.app.label,
                     modifier = modifier.size(iconSize),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
                 )
             } else {
                 Icon(
                     imageVector = Icons.Rounded.Public,
                     contentDescription = target.app.label,
                     modifier = modifier.size(iconSize),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DirectSearchHandler(
-        private val context: Context,
-        private val userPreferences: UserAppPreferences,
-        private val scope: CoroutineScope,
-        private val showToastCallback: (Int) -> Unit
+    private val context: Context,
+    private val userPreferences: UserAppPreferences,
+    private val scope: CoroutineScope,
+    private val showToastCallback: (Int) -> Unit,
 ) {
     private val _directSearchState = MutableStateFlow(DirectSearchState())
     val directSearchState: StateFlow<DirectSearchState> = _directSearchState.asStateFlow()
@@ -89,9 +89,9 @@ class DirectSearchHandler(
         if (client == null || geminiApiKey.isNullOrBlank()) {
             _directSearchState.update {
                 DirectSearchState(
-                        status = DirectSearchStatus.Error,
-                        errorMessage = context.getString(R.string.direct_search_error_no_key),
-                        activeQuery = trimmedQuery
+                    status = DirectSearchStatus.Error,
+                    errorMessage = context.getString(R.string.direct_search_error_no_key),
+                    activeQuery = trimmedQuery,
                 )
             }
             return
@@ -99,45 +99,44 @@ class DirectSearchHandler(
 
         directSearchJob?.cancel()
         directSearchJob =
-                scope.launch {
-                    _directSearchState.update {
-                        DirectSearchState(
-                                status = DirectSearchStatus.Loading,
-                                activeQuery = trimmedQuery
-                        )
-                    }
-
-                    val result =
-                            client.fetchAnswer(
-                                    trimmedQuery,
-                                    personalContext.takeIf { it.isNotBlank() }
-                            )
-                    result
-                            .onSuccess { answer ->
-                                _directSearchState.update {
-                                    DirectSearchState(
-                                            status = DirectSearchStatus.Success,
-                                            answer = answer,
-                                            activeQuery = trimmedQuery
-                                    )
-                                }
-                            }
-                            .onFailure { error ->
-                                if (error is CancellationException) return@onFailure
-                                val message =
-                                        error.message
-                                                ?: context.getString(
-                                                        R.string.direct_search_error_generic
-                                                )
-                                _directSearchState.update {
-                                    DirectSearchState(
-                                            status = DirectSearchStatus.Error,
-                                            errorMessage = message,
-                                            activeQuery = trimmedQuery
-                                    )
-                                }
-                            }
+            scope.launch {
+                _directSearchState.update {
+                    DirectSearchState(
+                        status = DirectSearchStatus.Loading,
+                        activeQuery = trimmedQuery,
+                    )
                 }
+
+                val result =
+                    client.fetchAnswer(
+                        trimmedQuery,
+                        personalContext.takeIf { it.isNotBlank() },
+                    )
+                result
+                    .onSuccess { answer ->
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Success,
+                                answer = answer,
+                                activeQuery = trimmedQuery,
+                            )
+                        }
+                    }.onFailure { error ->
+                        if (error is CancellationException) return@onFailure
+                        val message =
+                            error.message
+                                ?: context.getString(
+                                    R.string.direct_search_error_generic,
+                                )
+                        _directSearchState.update {
+                            DirectSearchState(
+                                status = DirectSearchStatus.Error,
+                                errorMessage = message,
+                                activeQuery = trimmedQuery,
+                            )
+                        }
+                    }
+            }
     }
 
     fun clearDirectSearchState() {

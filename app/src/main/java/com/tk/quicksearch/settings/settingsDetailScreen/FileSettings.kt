@@ -13,8 +13,8 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -35,75 +35,73 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 
 // Constants for consistent spacing
 private object FileTypesSpacing {
-        val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
-        val cardVerticalPadding = DesignTokens.CardVerticalPadding
-        val chipButtonSize = 16.dp
-        val chipIconSize = 12.dp
-        val excludedExtensionsTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
-        val excludedExtensionsChipSpacing = 8.dp
+    val cardHorizontalPadding = DesignTokens.CardHorizontalPadding
+    val cardVerticalPadding = DesignTokens.CardVerticalPadding
+    val chipButtonSize = 16.dp
+    val chipIconSize = 12.dp
+    val excludedExtensionsTitleBottomPadding = DesignTokens.SectionTitleBottomPadding
+    val excludedExtensionsChipSpacing = 8.dp
 }
 
 /** Gets the display name for a file type. */
 @Composable
-private fun getFileTypeDisplayName(fileType: FileType): String {
-        return when (fileType) {
-                FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
-                FileType.PICTURES -> stringResource(R.string.file_type_pictures)
-                FileType.VIDEOS -> stringResource(R.string.file_type_videos)
-                FileType.AUDIO -> stringResource(R.string.file_type_audio)
-                FileType.APKS -> stringResource(R.string.file_type_apks)
-                FileType.OTHER -> stringResource(R.string.file_type_other)
-        }
-}
+private fun getFileTypeDisplayName(fileType: FileType): String =
+    when (fileType) {
+        FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
+        FileType.PICTURES -> stringResource(R.string.file_type_pictures)
+        FileType.VIDEOS -> stringResource(R.string.file_type_videos)
+        FileType.AUDIO -> stringResource(R.string.file_type_audio)
+        FileType.APKS -> stringResource(R.string.file_type_apks)
+        FileType.OTHER -> stringResource(R.string.file_type_other)
+    }
 
 /** Gets the icon for a file type. */
-private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector {
-        return when (fileType) {
-                FileType.DOCUMENTS -> Icons.Rounded.InsertDriveFile
-                FileType.PICTURES -> Icons.Rounded.Image
-                FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-                FileType.AUDIO -> Icons.Rounded.AudioFile
-                FileType.APKS -> Icons.Rounded.Android
-                FileType.OTHER -> Icons.Rounded.InsertDriveFile
-        }
-}
+private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector =
+    when (fileType) {
+        FileType.DOCUMENTS -> Icons.Rounded.InsertDriveFile
+        FileType.PICTURES -> Icons.Rounded.Image
+        FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+        FileType.AUDIO -> Icons.Rounded.AudioFile
+        FileType.APKS -> Icons.Rounded.Android
+        FileType.OTHER -> Icons.Rounded.InsertDriveFile
+    }
 
 /** Small chip component for displaying excluded file extensions with remove functionality. */
 @Composable
 private fun ExcludedExtensionChip(
-        extension: String,
-        onRemove: () -> Unit,
-        modifier: Modifier = Modifier
+    extension: String,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-        androidx.compose.material3.AssistChip(
-                onClick = { /* No click action, only the X button works */},
-                label = {
-                        Text(
-                                text = ".$extension",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                },
-                trailingIcon = {
-                        IconButton(
-                                onClick = onRemove,
-                                modifier = Modifier.size(FileTypesSpacing.chipButtonSize)
-                        ) {
-                                Icon(
-                                        imageVector = Icons.Rounded.Close,
-                                        contentDescription = stringResource(R.string.action_remove),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(FileTypesSpacing.chipIconSize)
-                                )
-                        }
-                },
-                modifier = modifier,
-                colors =
-                        androidx.compose.material3.AssistChipDefaults.assistChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-        )
+    androidx.compose.material3.AssistChip(
+        onClick = { /* No click action, only the X button works */ },
+        label = {
+            Text(
+                text = ".$extension",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingIcon = {
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(FileTypesSpacing.chipButtonSize),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.action_remove),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(FileTypesSpacing.chipIconSize),
+                )
+            }
+        },
+        modifier = modifier,
+        colors =
+            androidx.compose.material3.AssistChipDefaults.assistChipColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+    )
 }
 
 /**
@@ -125,170 +123,171 @@ private fun ExcludedExtensionChip(
  */
 @Composable
 fun FileTypesSection(
-        enabledFileTypes: Set<FileType>,
-        onToggleFileType: (FileType, Boolean) -> Unit,
-        showFolders: Boolean,
-        onToggleFolders: (Boolean) -> Unit,
-        showSystemFiles: Boolean,
-        onToggleSystemFiles: (Boolean) -> Unit,
-        showHiddenFiles: Boolean,
-        onToggleHiddenFiles: (Boolean) -> Unit,
-        excludedExtensions: Set<String>,
-        onRemoveExcludedExtension: (String) -> Unit,
-        filesSectionEnabled: Boolean = true,
-        showTitle: Boolean = true,
-        modifier: Modifier = Modifier
+    enabledFileTypes: Set<FileType>,
+    onToggleFileType: (FileType, Boolean) -> Unit,
+    showFolders: Boolean,
+    onToggleFolders: (Boolean) -> Unit,
+    showSystemFiles: Boolean,
+    onToggleSystemFiles: (Boolean) -> Unit,
+    showHiddenFiles: Boolean,
+    onToggleHiddenFiles: (Boolean) -> Unit,
+    excludedExtensions: Set<String>,
+    onRemoveExcludedExtension: (String) -> Unit,
+    filesSectionEnabled: Boolean = true,
+    showTitle: Boolean = true,
+    modifier: Modifier = Modifier,
 ) {
-        if (!filesSectionEnabled) {
-                return
-        }
+    if (!filesSectionEnabled) {
+        return
+    }
 
-        // Section title
-        if (showTitle) {
-                Column(modifier = modifier) {
-                        Text(
-                                text = stringResource(R.string.settings_file_types_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier =
-                                        Modifier.padding(
-                                                bottom = DesignTokens.SectionTitleBottomPadding
-                                        )
-                        )
-                }
+    // Section title
+    if (showTitle) {
+        Column(modifier = modifier) {
+            Text(
+                text = stringResource(R.string.settings_file_types_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier =
+                    Modifier.padding(
+                        bottom = DesignTokens.SectionTitleBottomPadding,
+                    ),
+            )
         }
+    }
 
-        // Card 1: Folders toggle
-        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
-                SettingsToggleRow(
-                        title = stringResource(R.string.settings_folders_toggle),
-                        checked = showFolders,
-                        onCheckedChange = onToggleFolders,
-                        leadingIcon = Icons.Rounded.Folder,
-                        isFirstItem = true,
-                        isLastItem = true
+    // Card 1: Folders toggle
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_folders_toggle),
+            checked = showFolders,
+            onCheckedChange = onToggleFolders,
+            leadingIcon = Icons.Rounded.Folder,
+            isFirstItem = true,
+            isLastItem = true,
+        )
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    // Card 2: File types with icons in specific order
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
+        Column {
+            // Define the order: Documents, Pictures, Videos, Music, APKs, Other
+            val orderedFileTypes =
+                listOf(
+                    FileType.DOCUMENTS,
+                    FileType.PICTURES,
+                    FileType.VIDEOS,
+                    FileType.AUDIO,
+                    FileType.APKS,
+                    FileType.OTHER,
                 )
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            orderedFileTypes.forEachIndexed { index, fileType ->
+                SettingsToggleRow(
+                    title = getFileTypeDisplayName(fileType),
+                    checked = fileType in enabledFileTypes,
+                    onCheckedChange = { enabled ->
+                        onToggleFileType(fileType, enabled)
+                    },
+                    leadingIcon = getFileTypeIcon(fileType),
+                    isFirstItem = index == 0,
+                    isLastItem = index == orderedFileTypes.lastIndex,
+                )
+            }
 
-        // Card 2: File types with icons in specific order
-        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
-                Column {
-                        // Define the order: Documents, Pictures, Videos, Music, APKs, Other
-                        val orderedFileTypes =
-                                listOf(
-                                        FileType.DOCUMENTS,
-                                        FileType.PICTURES,
-                                        FileType.VIDEOS,
-                                        FileType.AUDIO,
-                                        FileType.APKS,
-                                        FileType.OTHER
-                                )
+            // Excluded extensions section
+            if (excludedExtensions.isNotEmpty()) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                        orderedFileTypes.forEachIndexed { index, fileType ->
-                                SettingsToggleRow(
-                                        title = getFileTypeDisplayName(fileType),
-                                        checked = fileType in enabledFileTypes,
-                                        onCheckedChange = { enabled ->
-                                                onToggleFileType(fileType, enabled)
-                                        },
-                                        leadingIcon = getFileTypeIcon(fileType),
-                                        isFirstItem = index == 0,
-                                        isLastItem = index == orderedFileTypes.lastIndex
-                                )
-                        }
+                Spacer(
+                    modifier =
+                        Modifier.height(
+                            FileTypesSpacing.cardVerticalPadding,
+                        ),
+                )
 
-                        // Excluded extensions section
-                        if (excludedExtensions.isNotEmpty()) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                // Excluded extensions header
+                Text(
+                    text =
+                        stringResource(
+                            R.string.settings_excluded_extensions_title,
+                        ),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        Modifier.padding(
+                            start =
+                                FileTypesSpacing
+                                    .cardHorizontalPadding,
+                            top = FileTypesSpacing.cardVerticalPadding,
+                            end =
+                                FileTypesSpacing
+                                    .cardHorizontalPadding,
+                            bottom =
+                                FileTypesSpacing
+                                    .excludedExtensionsTitleBottomPadding,
+                        ),
+                )
 
-                                Spacer(
-                                        modifier =
-                                                Modifier.height(
-                                                        FileTypesSpacing.cardVerticalPadding
-                                                )
-                                )
-
-                                // Excluded extensions header
-                                Text(
-                                        text =
-                                                stringResource(
-                                                        R.string.settings_excluded_extensions_title
-                                                ),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier =
-                                                Modifier.padding(
-                                                        start =
-                                                                FileTypesSpacing
-                                                                        .cardHorizontalPadding,
-                                                        top = FileTypesSpacing.cardVerticalPadding,
-                                                        end =
-                                                                FileTypesSpacing
-                                                                        .cardHorizontalPadding,
-                                                        bottom =
-                                                                FileTypesSpacing
-                                                                        .excludedExtensionsTitleBottomPadding
-                                                )
-                                )
-
-                                // Excluded extensions chips
-                                Row(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .padding(
-                                                                start =
-                                                                        FileTypesSpacing
-                                                                                .cardHorizontalPadding,
-                                                                end =
-                                                                        FileTypesSpacing
-                                                                                .cardHorizontalPadding,
-                                                                bottom =
-                                                                        FileTypesSpacing
-                                                                                .cardVerticalPadding
-                                                        ),
-                                        horizontalArrangement =
-                                                Arrangement.spacedBy(
-                                                        FileTypesSpacing
-                                                                .excludedExtensionsChipSpacing
-                                                )
-                                ) {
-                                        excludedExtensions.sorted().forEach { extension ->
-                                                ExcludedExtensionChip(
-                                                        extension = extension,
-                                                        onRemove = {
-                                                                onRemoveExcludedExtension(extension)
-                                                        }
-                                                )
-                                        }
-                                }
-                        }
-                }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Card 3: System Files & Hidden Files toggles
-        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
-                Column {
-                        SettingsToggleRow(
-                                title = stringResource(R.string.settings_system_files_toggle),
-                                checked = showSystemFiles,
-                                onCheckedChange = onToggleSystemFiles,
-                                leadingIcon = Icons.Rounded.Visibility,
-                                isFirstItem = true,
-                                isLastItem = false
+                // Excluded extensions chips
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start =
+                                    FileTypesSpacing
+                                        .cardHorizontalPadding,
+                                end =
+                                    FileTypesSpacing
+                                        .cardHorizontalPadding,
+                                bottom =
+                                    FileTypesSpacing
+                                        .cardVerticalPadding,
+                            ),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(
+                            FileTypesSpacing
+                                .excludedExtensionsChipSpacing,
+                        ),
+                ) {
+                    excludedExtensions.sorted().forEach { extension ->
+                        ExcludedExtensionChip(
+                            extension = extension,
+                            onRemove = {
+                                onRemoveExcludedExtension(extension)
+                            },
                         )
-
-                        SettingsToggleRow(
-                                title = stringResource(R.string.settings_hidden_files_toggle),
-                                checked = showHiddenFiles,
-                                onCheckedChange = onToggleHiddenFiles,
-                                leadingIcon = Icons.Rounded.VisibilityOff,
-                                isFirstItem = false,
-                                isLastItem = true
-                        )
+                    }
                 }
+            }
         }
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    // Card 3: System Files & Hidden Files toggles
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
+        Column {
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_system_files_toggle),
+                checked = showSystemFiles,
+                onCheckedChange = onToggleSystemFiles,
+                leadingIcon = Icons.Rounded.Visibility,
+                isFirstItem = true,
+                isLastItem = false,
+            )
+
+            SettingsToggleRow(
+                title = stringResource(R.string.settings_hidden_files_toggle),
+                checked = showHiddenFiles,
+                onCheckedChange = onToggleHiddenFiles,
+                leadingIcon = Icons.Rounded.VisibilityOff,
+                isFirstItem = false,
+                isLastItem = true,
+            )
+        }
+    }
 }

@@ -1,10 +1,10 @@
 package com.tk.quicksearch.search.apps
 
 import android.app.Application
-import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.managers.IconPackManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +17,8 @@ class IconPackService(
     private val application: Application,
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
-    private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit
+    private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
-
     var selectedIconPackPackage: String? = userPreferences.getSelectedIconPackPackage()
         private set
 
@@ -31,9 +30,10 @@ class IconPackService(
     fun refreshIconPacks() {
         scope.launch(Dispatchers.IO) {
             val packs = IconPackManager.findInstalledIconPacks(application)
-            val normalizedSelection = selectedIconPackPackage?.takeIf { pkg ->
-                packs.any { it.packageName == pkg }
-            }
+            val normalizedSelection =
+                selectedIconPackPackage?.takeIf { pkg ->
+                    packs.any { it.packageName == pkg }
+                }
 
             if (normalizedSelection == null && selectedIconPackPackage != null) {
                 userPreferences.setSelectedIconPackPackage(null)
@@ -44,7 +44,7 @@ class IconPackService(
             onStateUpdate { state ->
                 state.copy(
                     availableIconPacks = packs,
-                    selectedIconPackPackage = normalizedSelection
+                    selectedIconPackPackage = normalizedSelection,
                 )
             }
         }
@@ -52,9 +52,10 @@ class IconPackService(
 
     fun setIconPackPackage(packageName: String?) {
         scope.launch(Dispatchers.IO) {
-            val normalizedSelection = packageName?.takeIf { pkg ->
-                availableIconPacks.any { it.packageName == pkg }
-            }
+            val normalizedSelection =
+                packageName?.takeIf { pkg ->
+                    availableIconPacks.any { it.packageName == pkg }
+                }
 
             selectedIconPackPackage = normalizedSelection
             userPreferences.setSelectedIconPackPackage(normalizedSelection)
@@ -65,18 +66,18 @@ class IconPackService(
         }
     }
 
-
     fun prefetchVisibleAppIcons(
         pinnedApps: List<com.tk.quicksearch.search.models.AppInfo>,
         recents: List<com.tk.quicksearch.search.models.AppInfo>,
-        searchResults: List<com.tk.quicksearch.search.models.AppInfo>
+        searchResults: List<com.tk.quicksearch.search.models.AppInfo>,
     ) {
         val iconPack = selectedIconPackPackage ?: return
-        val packageNames = buildList {
-            addAll(pinnedApps.map { it.packageName })
-            addAll(recents.map { it.packageName })
-            addAll(searchResults.take(10).map { it.packageName }) // 10 is default GRID_ITEM_COUNT
-        }
+        val packageNames =
+            buildList {
+                addAll(pinnedApps.map { it.packageName })
+                addAll(recents.map { it.packageName })
+                addAll(searchResults.take(10).map { it.packageName }) // 10 is default GRID_ITEM_COUNT
+            }
         if (packageNames.isEmpty()) return
 
         scope.launch(Dispatchers.IO) {
@@ -84,7 +85,7 @@ class IconPackService(
                 context = application,
                 packageNames = packageNames,
                 iconPackPackage = iconPack,
-                maxCount = 30
+                maxCount = 30,
             )
         }
     }

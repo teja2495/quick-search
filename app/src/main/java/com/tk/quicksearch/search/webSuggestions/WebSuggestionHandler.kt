@@ -10,9 +10,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class WebSuggestionHandler(
-        private val scope: CoroutineScope,
-        private val userPreferences: UserAppPreferences,
-        private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit
+    private val scope: CoroutineScope,
+    private val userPreferences: UserAppPreferences,
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
     private val webSuggestionsCount: Int
         get() = userPreferences.getWebSuggestionsCount()
@@ -36,10 +36,10 @@ class WebSuggestionHandler(
     }
 
     fun fetchWebSuggestions(
-            query: String,
-            currentQueryVersion: Long,
-            activeQueryVersionProvider: () -> Long,
-            activeQueryProvider: () -> String
+        query: String,
+        currentQueryVersion: Long,
+        activeQueryVersionProvider: () -> Long,
+        activeQueryProvider: () -> String,
     ) {
         val trimmedQuery = query.trim()
         if (!isEnabled) {
@@ -49,44 +49,44 @@ class WebSuggestionHandler(
         webSuggestionsJob?.cancel()
 
         webSuggestionsJob =
-                scope.launch(Dispatchers.IO) {
-                    try {
-                        // Add small delay to prevent immediate API calls while user is typing
-                        delay(50L)
+            scope.launch(Dispatchers.IO) {
+                try {
+                    // Add small delay to prevent immediate API calls while user is typing
+                    delay(50L)
 
-                        // Check if query version still matches after delay
-                        val activeVersion = activeQueryVersionProvider()
-                        val activeQuery = activeQueryProvider().trim()
-                        val versionMatches = activeVersion == currentQueryVersion
-                        val queryMatches = activeQuery == trimmedQuery
+                    // Check if query version still matches after delay
+                    val activeVersion = activeQueryVersionProvider()
+                    val activeQuery = activeQueryProvider().trim()
+                    val versionMatches = activeVersion == currentQueryVersion
+                    val queryMatches = activeQuery == trimmedQuery
 
-                        if (!versionMatches || !queryMatches) {
-                            return@launch
-                        }
+                    if (!versionMatches || !queryMatches) {
+                        return@launch
+                    }
 
-                        val suggestions = WebSuggestionsUtils.getSuggestions(trimmedQuery)
+                    val suggestions = WebSuggestionsUtils.getSuggestions(trimmedQuery)
 
-                        withContext(Dispatchers.Main) {
-                            // Only update if query hasn't changed
-                            val finalActiveVersion = activeQueryVersionProvider()
-                            val finalActiveQuery = activeQueryProvider().trim()
-                            val finalVersionMatches = finalActiveVersion == currentQueryVersion
-                            val finalQueryMatches = finalActiveQuery == trimmedQuery
+                    withContext(Dispatchers.Main) {
+                        // Only update if query hasn't changed
+                        val finalActiveVersion = activeQueryVersionProvider()
+                        val finalActiveQuery = activeQueryProvider().trim()
+                        val finalVersionMatches = finalActiveVersion == currentQueryVersion
+                        val finalQueryMatches = finalActiveQuery == trimmedQuery
 
-                            if (finalVersionMatches && finalQueryMatches) {
-                                val suggestionsToShow = suggestions.take(webSuggestionsCount)
+                        if (finalVersionMatches && finalQueryMatches) {
+                            val suggestionsToShow = suggestions.take(webSuggestionsCount)
 
-                                uiStateUpdater { state ->
-                                    state.copy(
-                                            webSuggestions = suggestionsToShow
-                                    )
-                                }
+                            uiStateUpdater { state ->
+                                state.copy(
+                                    webSuggestions = suggestionsToShow,
+                                )
                             }
                         }
-                    } catch (e: Exception) {
-                        // Silently fail - don't show suggestions on error
                     }
+                } catch (e: Exception) {
+                    // Silently fail - don't show suggestions on error
                 }
+            }
     }
 
     fun cancelSuggestions() {

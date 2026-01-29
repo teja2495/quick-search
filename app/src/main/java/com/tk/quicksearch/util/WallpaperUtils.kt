@@ -18,58 +18,59 @@ import kotlinx.coroutines.withContext
  * Utility functions for working with wallpapers.
  */
 object WallpaperUtils {
-
     // In-memory cache for the wallpaper bitmap
     @Volatile
     private var cachedBitmap: Bitmap? = null
 
     sealed class WallpaperLoadResult {
-        data class Success(val bitmap: Bitmap) : WallpaperLoadResult()
+        data class Success(
+            val bitmap: Bitmap,
+        ) : WallpaperLoadResult()
+
         object PermissionRequired : WallpaperLoadResult()
+
         object SecurityError : WallpaperLoadResult()
+
         object Unavailable : WallpaperLoadResult()
     }
 
     /**
      * Checks if the app has permission to access wallpapers on Android 13+.
      */
-    fun hasWallpaperPermission(context: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    fun hasWallpaperPermission(context: Context): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_MEDIA_IMAGES
+                Manifest.permission.READ_MEDIA_IMAGES,
             ) == PackageManager.PERMISSION_GRANTED
         } else {
             // On older Android versions, wallpaper access doesn't require special permissions
             true
         }
-    }
 
     /**
      * Checks if wallpaper access would require special permission on this device.
      * This is used to determine if we should show permission prompts to the user.
      */
-    fun wallpaperRequiresPermission(context: Context): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasWallpaperPermission(context)
-    }
-    
+    fun wallpaperRequiresPermission(context: Context): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasWallpaperPermission(context)
+
     /**
      * Gets the cached wallpaper bitmap synchronously.
      * Returns null if not cached yet.
      */
     fun getCachedWallpaperBitmap(): Bitmap? = cachedBitmap
-    
+
     /**
      * Gets the current wallpaper as a Bitmap.
      * Returns cached bitmap if available, otherwise loads from system.
      * Returns null if wallpaper cannot be retrieved.
      */
-    suspend fun getWallpaperBitmap(context: Context): Bitmap? {
-        return when (val result = getWallpaperBitmapResult(context)) {
+    suspend fun getWallpaperBitmap(context: Context): Bitmap? =
+        when (val result = getWallpaperBitmapResult(context)) {
             is WallpaperLoadResult.Success -> result.bitmap
             else -> null
         }
-    }
 
     suspend fun getWallpaperBitmapResult(context: Context): WallpaperLoadResult {
         cachedBitmap?.let { return WallpaperLoadResult.Success(it) }
@@ -106,7 +107,7 @@ object WallpaperUtils {
             }
         }
     }
-    
+
     /**
      * Preloads the wallpaper bitmap in the background.
      * This should be called early in the app lifecycle to ensure
@@ -126,7 +127,6 @@ object WallpaperUtils {
         val wallpaperDrawable = wallpaperManager.drawable
         return wallpaperDrawable?.toBitmap()
     }
-    
 }
 
 /**

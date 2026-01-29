@@ -10,7 +10,10 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 class QuickSearchWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = QuickSearchWidget()
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         super.onReceive(context, intent)
 
         // Handle configuration changes (including theme changes)
@@ -21,10 +24,11 @@ class QuickSearchWidgetReceiver : GlanceAppWidgetReceiver() {
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
             // Send update broadcast to all widget instances
-            val updateIntent = Intent(context, QuickSearchWidgetReceiver::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-            }
+            val updateIntent =
+                Intent(context, QuickSearchWidgetReceiver::class.java).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+                }
             context.sendBroadcast(updateIntent)
         }
     }

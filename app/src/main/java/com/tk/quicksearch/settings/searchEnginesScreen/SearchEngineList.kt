@@ -72,113 +72,124 @@ fun SearchEngineListCard(
     isSearchEngineCompactMode: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
-    showRequestSearchEngine: Boolean = true
+    showRequestSearchEngine: Boolean = true,
 ) {
     Column {
         val enabledEngines =
-                searchEngineOrder.filter { it.getId() !in disabledSearchEngines }
+            searchEngineOrder.filter { it.getId() !in disabledSearchEngines }
         val disabledEngines =
-                searchEngineOrder.filter { it.getId() in disabledSearchEngines }
+            searchEngineOrder.filter { it.getId() in disabledSearchEngines }
 
         if (enabledEngines.isNotEmpty()) {
             val view = LocalView.current
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 ReorderableColumn(
                     list = enabledEngines,
                     onSettle = { fromIndex, toIndex ->
                         if (fromIndex != toIndex) {
-                            val newOrder = enabledEngines.toMutableList().apply {
-                                add(toIndex, removeAt(fromIndex))
-                            }
+                            val newOrder =
+                                enabledEngines.toMutableList().apply {
+                                    add(toIndex, removeAt(fromIndex))
+                                }
                             onReorderSearchEngines(newOrder + disabledEngines)
                         }
                     },
                     onMove = {
                         ViewCompat.performHapticFeedback(
                             view,
-                            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK
+                            HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
                         )
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) { index, engine, isDragging ->
                     key(engine.getId()) {
                         val elevation by animateDpAsState(
                             targetValue = if (isDragging) 4.dp else 0.dp,
-                            label = "elevation"
+                            label = "elevation",
                         )
 
                         Surface(
                             shadowElevation = elevation,
                             color = if (isDragging) MaterialTheme.colorScheme.surface else Color.Transparent,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Column {
                                 val engineInfo = (engine as? SearchTarget.Engine)?.engine
                                 val targetId = engine.getId()
                                 val shortcutCode = shortcutCodes[targetId].orEmpty()
                                 val isShortcutEnabled =
-                                        shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
+                                    shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
                                 SearchEngineRowContent(
                                     engine = engine,
                                     isEnabled = true,
                                     onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                                    dragHandleModifier = Modifier.longPressDraggableHandle(
-                                        onDragStarted = {
-                                            ViewCompat.performHapticFeedback(
-                                                view,
-                                                HapticFeedbackConstantsCompat.GESTURE_START
-                                            )
-                                        },
-                                        onDragStopped = {
-                                            ViewCompat.performHapticFeedback(
-                                                view,
-                                                HapticFeedbackConstantsCompat.GESTURE_END
-                                            )
-                                        }
-                                    ),
+                                    dragHandleModifier =
+                                        Modifier.longPressDraggableHandle(
+                                            onDragStarted = {
+                                                ViewCompat.performHapticFeedback(
+                                                    view,
+                                                    HapticFeedbackConstantsCompat.GESTURE_START,
+                                                )
+                                            },
+                                            onDragStopped = {
+                                                ViewCompat.performHapticFeedback(
+                                                    view,
+                                                    HapticFeedbackConstantsCompat.GESTURE_END,
+                                                )
+                                            },
+                                        ),
                                     allowDrag = true,
                                     shortcutCode = shortcutCode,
                                     shortcutEnabled = isShortcutEnabled,
                                     onShortcutCodeChange =
-                                            setShortcutCode?.let { { code -> it(engine, code) } },
-                                    onShortcutToggle = engineInfo?.let {
-                                        setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
-                                    },
+                                        setShortcutCode?.let { { code -> it(engine, code) } },
+                                    onShortcutToggle =
+                                        engineInfo?.let {
+                                            setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                        },
                                     showToggle = true,
                                     switchEnabled = true,
                                     amazonDomain =
-                                            if (engineInfo == SearchEngine.AMAZON) {
-                                                amazonDomain
-                                            } else {
-                                                null
-                                            },
+                                        if (engineInfo == SearchEngine.AMAZON) {
+                                            amazonDomain
+                                        } else {
+                                            null
+                                        },
                                     onSetAmazonDomain =
-                                            if (engineInfo == SearchEngine.AMAZON) {
-                                                onSetAmazonDomain
-                                            } else {
-                                                null
-                                            },
-                                    onMoveToTop = if (index > 0) {
-                                        {
-                                            val newOrder = enabledEngines.toMutableList().apply {
-                                                add(0, removeAt(index))
+                                        if (engineInfo == SearchEngine.AMAZON) {
+                                            onSetAmazonDomain
+                                        } else {
+                                            null
+                                        },
+                                    onMoveToTop =
+                                        if (index > 0) {
+                                            {
+                                                val newOrder =
+                                                    enabledEngines.toMutableList().apply {
+                                                        add(0, removeAt(index))
+                                                    }
+                                                onReorderSearchEngines(newOrder + disabledEngines)
                                             }
-                                            onReorderSearchEngines(newOrder + disabledEngines)
-                                        }
-                                    } else null,
-                                    onMoveToBottom = if (index < enabledEngines.lastIndex) {
-                                        {
-                                            val newOrder = enabledEngines.toMutableList().apply {
-                                                add(enabledEngines.lastIndex, removeAt(index))
+                                        } else {
+                                            null
+                                        },
+                                    onMoveToBottom =
+                                        if (index < enabledEngines.lastIndex) {
+                                            {
+                                                val newOrder =
+                                                    enabledEngines.toMutableList().apply {
+                                                        add(enabledEngines.lastIndex, removeAt(index))
+                                                    }
+                                                onReorderSearchEngines(newOrder + disabledEngines)
                                             }
-                                            onReorderSearchEngines(newOrder + disabledEngines)
-                                        }
-                                    } else null,
-                                    existingShortcuts = shortcutCodes
+                                        } else {
+                                            null
+                                        },
+                                    existingShortcuts = shortcutCodes,
                                 )
 
                                 if (index != enabledEngines.lastIndex) {
@@ -196,16 +207,17 @@ fun SearchEngineListCard(
                 text = stringResource(R.string.settings_search_engines_more_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(
-                    start = DesignTokens.CardHorizontalPadding,
-                    top = 24.dp,
-                    bottom = 8.dp
-                )
+                modifier =
+                    Modifier.padding(
+                        start = DesignTokens.CardHorizontalPadding,
+                        top = 24.dp,
+                        bottom = 8.dp,
+                    ),
             )
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
                     disabledEngines.forEachIndexed { index, engine ->
@@ -213,7 +225,7 @@ fun SearchEngineListCard(
                         val targetId = engine.getId()
                         val shortcutCode = shortcutCodes[targetId].orEmpty()
                         val isShortcutEnabled =
-                                shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
+                            shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
                         SearchEngineRowContent(
                             engine = engine,
                             isEnabled = false,
@@ -223,27 +235,28 @@ fun SearchEngineListCard(
                             shortcutCode = shortcutCode,
                             shortcutEnabled = isShortcutEnabled,
                             onShortcutCodeChange =
-                                    setShortcutCode?.let { { code -> it(engine, code) } },
-                            onShortcutToggle = engineInfo?.let {
-                                setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
-                            },
+                                setShortcutCode?.let { { code -> it(engine, code) } },
+                            onShortcutToggle =
+                                engineInfo?.let {
+                                    setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                },
                             showToggle = true,
                             switchEnabled = true,
                             amazonDomain =
-                                    if (engineInfo == SearchEngine.AMAZON) {
-                                        amazonDomain
-                                    } else {
-                                        null
-                                    },
+                                if (engineInfo == SearchEngine.AMAZON) {
+                                    amazonDomain
+                                } else {
+                                    null
+                                },
                             onSetAmazonDomain =
-                                    if (engineInfo == SearchEngine.AMAZON) {
-                                        onSetAmazonDomain
-                                    } else {
-                                        null
-                                    },
+                                if (engineInfo == SearchEngine.AMAZON) {
+                                    onSetAmazonDomain
+                                } else {
+                                    null
+                                },
                             onMoveToTop = null,
                             onMoveToBottom = null,
-                            existingShortcuts = shortcutCodes
+                            existingShortcuts = shortcutCodes,
                         )
 
                         if (index != disabledEngines.lastIndex) {
@@ -257,26 +270,29 @@ fun SearchEngineListCard(
         if (showRequestSearchEngine) {
             val context = LocalContext.current
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 40.dp, bottom = 24.dp),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp, bottom = 24.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = stringResource(R.string.request_search_engine_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable {
-                        val subject = "Search Engine Request"
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}")
-                        }
-                        try {
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            // ignore
-                        }
-                    }
+                    modifier =
+                        Modifier.clickable {
+                            val subject = "Search Engine Request"
+                            val intent =
+                                Intent(Intent.ACTION_SENDTO).apply {
+                                    data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}")
+                                }
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // ignore
+                            }
+                        },
                 )
             }
         }
@@ -304,7 +320,7 @@ private fun SearchEngineRowContent(
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onMoveToTop: (() -> Unit)? = null,
     onMoveToBottom: (() -> Unit)? = null,
-    existingShortcuts: Map<String, String> = emptyMap()
+    existingShortcuts: Map<String, String> = emptyMap(),
 ) {
     val view = LocalView.current
     val engineInfo = (engine as? SearchTarget.Engine)?.engine
@@ -312,14 +328,15 @@ private fun SearchEngineRowContent(
     var showMenu by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = DesignTokens.CardHorizontalPadding,
-                vertical = DesignTokens.CardVerticalPadding
-            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = DesignTokens.CardHorizontalPadding,
+                    vertical = DesignTokens.CardVerticalPadding,
+                ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing)
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
         // Drag handle - long press to drag
         if (showToggle && allowDrag && dragHandleModifier != null) {
@@ -327,9 +344,10 @@ private fun SearchEngineRowContent(
                 imageVector = Icons.Rounded.DragHandle,
                 contentDescription = stringResource(R.string.settings_action_reorder),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .size(DesignTokens.IconSize)
-                    .then(dragHandleModifier)
+                modifier =
+                    Modifier
+                        .size(DesignTokens.IconSize)
+                        .then(dragHandleModifier),
             )
         }
 
@@ -341,9 +359,10 @@ private fun SearchEngineRowContent(
                     contentDescription = engineName,
                     modifier = Modifier.size(DesignTokens.IconSize),
                     contentScale = ContentScale.Fit,
-                    colorFilter = getSearchEngineIconColorFilter(engine.engine)
+                    colorFilter = getSearchEngineIconColorFilter(engine.engine),
                 )
             }
+
             is SearchTarget.Browser -> {
                 val iconResult = rememberAppIcon(packageName = engine.app.packageName)
                 if (iconResult.bitmap != null) {
@@ -351,14 +370,14 @@ private fun SearchEngineRowContent(
                         bitmap = iconResult.bitmap!!,
                         contentDescription = engineName,
                         modifier = Modifier.size(DesignTokens.IconSize),
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Fit,
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Public,
                         contentDescription = engineName,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(DesignTokens.IconSize)
+                        modifier = Modifier.size(DesignTokens.IconSize),
                     )
                 }
             }
@@ -367,12 +386,12 @@ private fun SearchEngineRowContent(
         // Engine name and details
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing)
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.TextColumnSpacing),
         ) {
             Text(
                 text = engineName,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
             if (onShortcutCodeChange != null) {
                 ShortcutCodeDisplay(
@@ -382,13 +401,13 @@ private fun SearchEngineRowContent(
                     onToggle = onShortcutToggle,
                     engineName = engineName,
                     existingShortcuts = existingShortcuts,
-                    currentShortcutId = engine.getId()
+                    currentShortcutId = engine.getId(),
                 )
             }
             if (engineInfo == SearchEngine.AMAZON && onSetAmazonDomain != null) {
                 AmazonDomainLink(
                     amazonDomain = amazonDomain,
-                    onSetAmazonDomain = onSetAmazonDomain
+                    onSetAmazonDomain = onSetAmazonDomain,
                 )
             }
         }
@@ -400,7 +419,7 @@ private fun SearchEngineRowContent(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                     shape = MaterialTheme.shapes.large,
-                    containerColor = AppColors.DialogBackground
+                    containerColor = AppColors.DialogBackground,
                 ) {
                     if (onMoveToTop != null) {
                         DropdownMenuItem(
@@ -408,13 +427,13 @@ private fun SearchEngineRowContent(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Rounded.ArrowUpward,
-                                    contentDescription = null
+                                    contentDescription = null,
                                 )
                             },
                             onClick = {
                                 onMoveToTop.invoke()
                                 showMenu = false
-                            }
+                            },
                         )
                     }
 
@@ -428,13 +447,13 @@ private fun SearchEngineRowContent(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Rounded.ArrowDownward,
-                                    contentDescription = null
+                                    contentDescription = null,
                                 )
                             },
                             onClick = {
                                 onMoveToBottom.invoke()
                                 showMenu = false
-                            }
+                            },
                         )
                     }
                 }
@@ -449,7 +468,7 @@ private fun SearchEngineRowContent(
                     hapticToggle(view)()
                     onToggle(enabled)
                 },
-                enabled = switchEnabled
+                enabled = switchEnabled,
             )
         }
     }
@@ -461,7 +480,7 @@ private fun SearchEngineRowContent(
 @Composable
 private fun AmazonDomainLink(
     amazonDomain: String?,
-    onSetAmazonDomain: (String?) -> Unit
+    onSetAmazonDomain: (String?) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -469,24 +488,24 @@ private fun AmazonDomainLink(
         EditAmazonDomainDialog(
             currentDomain = amazonDomain,
             onSave = onSetAmazonDomain,
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
         )
     }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
             text = stringResource(R.string.settings_amazon_domain_label),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
             text = amazonDomain ?: stringResource(R.string.settings_amazon_domain_default),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable { showDialog = true }
+            modifier = Modifier.clickable { showDialog = true },
         )
     }
 }

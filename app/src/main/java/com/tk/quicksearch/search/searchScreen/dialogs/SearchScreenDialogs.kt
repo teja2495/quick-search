@@ -22,25 +22,27 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.util.InAppBrowserUtils
 
 @Composable
 internal fun ReleaseNotesDialog(
     versionName: String?,
-    onAcknowledge: () -> Unit
+    onAcknowledge: () -> Unit,
 ) {
-    val title = if (versionName != null) {
-        stringResource(R.string.release_notes_title, versionName)
-    } else {
-        stringResource(R.string.release_notes_title_no_version)
-    }
-    val bulletPoints = stringResource(R.string.release_notes_points)
-        .split("\n")
-        .filter { it.isNotBlank() }
+    val title =
+        if (versionName != null) {
+            stringResource(R.string.release_notes_title, versionName)
+        } else {
+            stringResource(R.string.release_notes_title_no_version)
+        }
+    val bulletPoints =
+        stringResource(R.string.release_notes_points)
+            .split("\n")
+            .filter { it.isNotBlank() }
     val context = LocalContext.current
 
     AlertDialog(
@@ -49,7 +51,7 @@ internal fun ReleaseNotesDialog(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         },
         text = {
@@ -57,41 +59,43 @@ internal fun ReleaseNotesDialog(
                 bulletPoints.forEach { point ->
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.Top
+                        verticalAlignment = Alignment.Top,
                     ) {
                         Text(
                             text = "•",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = point,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // View all features link
-                val annotatedLink = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    ) {
-                        append(stringResource(R.string.release_notes_view_all_features))
+                val annotatedLink =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                        ) {
+                            append(stringResource(R.string.release_notes_view_all_features))
+                        }
                     }
-                }
-                
+
                 androidx.compose.foundation.text.ClickableText(
                     text = annotatedLink,
                     onClick = {
                         val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
                         InAppBrowserUtils.openUrl(context, url)
-                    }
+                    },
                 )
             }
         },
@@ -99,7 +103,7 @@ internal fun ReleaseNotesDialog(
             TextButton(onClick = onAcknowledge) {
                 Text(text = stringResource(R.string.release_notes_action_got_it))
             }
-        }
+        },
     )
 }
 
@@ -107,30 +111,30 @@ sealed class NicknameDialogState {
     data class App(
         val app: AppInfo,
         val currentNickname: String?,
-        val itemName: String
+        val itemName: String,
     ) : NicknameDialogState()
 
     data class AppShortcut(
         val shortcut: StaticShortcut,
         val currentNickname: String?,
-        val itemName: String
+        val itemName: String,
     ) : NicknameDialogState()
 
     data class Contact(
         val contact: ContactInfo,
         val currentNickname: String?,
-        val itemName: String
+        val itemName: String,
     ) : NicknameDialogState()
 
     data class File(
         val file: DeviceFile,
         val currentNickname: String?,
-        val itemName: String
+        val itemName: String,
     ) : NicknameDialogState()
 
     data class Setting(
         val setting: DeviceSetting,
         val currentNickname: String?,
-        val itemName: String
+        val itemName: String,
     ) : NicknameDialogState()
 }

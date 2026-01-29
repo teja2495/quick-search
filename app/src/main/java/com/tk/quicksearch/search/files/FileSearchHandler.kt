@@ -10,221 +10,222 @@ import com.tk.quicksearch.search.utils.SearchRankingUtils
 import java.util.Locale
 
 data class FileSearchResults(
-        val pinned: List<DeviceFile>,
-        val excluded: List<DeviceFile>,
-        val results: List<DeviceFile>
+    val pinned: List<DeviceFile>,
+    val excluded: List<DeviceFile>,
+    val results: List<DeviceFile>,
 )
 
 class FileSearchHandler(
-        private val fileRepository: FileSearchRepository,
-        private val userPreferences: UserAppPreferences
+    private val fileRepository: FileSearchRepository,
+    private val userPreferences: UserAppPreferences,
 ) {
+    companion object {
+        const val FILE_SEARCH_RESULT_LIMIT = 100
+    }
 
-        companion object {
-                const val FILE_SEARCH_RESULT_LIMIT = 100
-        }
+    fun getFileState(
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        isFilesSectionEnabled: Boolean,
+        currentResults: List<DeviceFile>,
+    ): FileSearchResults {
+        // Cache preference reads to avoid repeated SharedPreferences lookups
+        val pinnedUris = userPreferences.getPinnedFileUris()
+        val excludedUris = userPreferences.getExcludedFileUris()
+        val excludedExtensions = userPreferences.getExcludedFileExtensions()
 
-        fun getFileState(
-                query: String,
-                enabledFileTypes: Set<FileType>,
-                isFilesSectionEnabled: Boolean,
-                currentResults: List<DeviceFile>
-        ): FileSearchResults {
-                // Cache preference reads to avoid repeated SharedPreferences lookups
-                val pinnedUris = userPreferences.getPinnedFileUris()
-                val excludedUris = userPreferences.getExcludedFileUris()
-                val excludedExtensions = userPreferences.getExcludedFileExtensions()
+        val pinned =
+            fileRepository
+                .getFilesByUris(pinnedUris)
+                .filter { file ->
+                    val fileType = FileTypeUtils.getFileType(file)
+                    fileType in enabledFileTypes &&
+                        !excludedUris.contains(file.uri.toString())
+                }.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
 
-                val pinned =
-                        fileRepository
-                                .getFilesByUris(pinnedUris)
-                                .filter { file ->
-                                        val fileType = FileTypeUtils.getFileType(file)
-                                        fileType in enabledFileTypes &&
-                                                !excludedUris.contains(file.uri.toString())
-                                }
-                                .sortedBy { it.displayName.lowercase(Locale.getDefault()) }
+        val excluded =
+            fileRepository.getFilesByUris(excludedUris).sortedBy {
+                it.displayName.lowercase(Locale.getDefault())
+            }
 
-                val excluded =
-                        fileRepository.getFilesByUris(excludedUris).sortedBy {
-                                it.displayName.lowercase(Locale.getDefault())
-                        }
-
-                val results =
-                        if (query.isNotBlank() && isFilesSectionEnabled) {
-                                searchFilesInternal(
-                                        query,
-                                        enabledFileTypes,
-                                        excludedUris,
-                                        excludedExtensions,
-                                        userPreferences.getShowFoldersInResults(),
-                                        userPreferences.getShowSystemFiles(),
-                                        userPreferences.getShowHiddenFiles()
-                                )
-                        } else {
-                                emptyList()
-                        }
-
-                return FileSearchResults(pinned, excluded, results)
-        }
-
-        fun searchFiles(
-                query: String,
-                enabledFileTypes: Set<FileType>,
-                showFolders: Boolean = true,
-                showSystemFiles: Boolean = false,
-                showHiddenFiles: Boolean = false
-        ): List<DeviceFile> {
-                return searchFilesInternal(
-                        query,
-                        enabledFileTypes,
-                        userPreferences.getExcludedFileUris(),
-                        userPreferences.getExcludedFileExtensions(),
-                        showFolders,
-                        showSystemFiles,
-                        showHiddenFiles
+        val results =
+            if (query.isNotBlank() && isFilesSectionEnabled) {
+                searchFilesInternal(
+                    query,
+                    enabledFileTypes,
+                    excludedUris,
+                    excludedExtensions,
+                    userPreferences.getShowFoldersInResults(),
+                    userPreferences.getShowSystemFiles(),
+                    userPreferences.getShowHiddenFiles(),
                 )
-        }
+            } else {
+                emptyList()
+            }
 
-        private fun searchFilesInternal(
-                query: String,
-                enabledFileTypes: Set<FileType>,
-                excludedFileUris: Set<String>,
-                excludedFileExtensions: Set<String>,
-                showFolders: Boolean,
-                showSystemFiles: Boolean,
-                showHiddenFiles: Boolean
-        ): List<DeviceFile> {
-                if (query.isBlank() || !fileRepository.hasPermission()) return emptyList()
+        return FileSearchResults(pinned, excluded, results)
+    }
 
-                val trimmedQuery = query.trim()
-                if (trimmedQuery.length < 2) return emptyList()
+    fun searchFiles(
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        showFolders: Boolean = true,
+        showSystemFiles: Boolean = false,
+        showHiddenFiles: Boolean = false,
+    ): List<DeviceFile> =
+        searchFilesInternal(
+            query,
+            enabledFileTypes,
+            userPreferences.getExcludedFileUris(),
+            userPreferences.getExcludedFileExtensions(),
+            showFolders,
+            showSystemFiles,
+            showHiddenFiles,
+        )
 
-                // Get files from repository
-                val allFiles =
-                        fileRepository.searchFiles(trimmedQuery, FILE_SEARCH_RESULT_LIMIT)
+    private fun searchFilesInternal(
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        excludedFileUris: Set<String>,
+        excludedFileExtensions: Set<String>,
+        showFolders: Boolean,
+        showSystemFiles: Boolean,
+        showHiddenFiles: Boolean,
+    ): List<DeviceFile> {
+        if (query.isBlank() || !fileRepository.hasPermission()) return emptyList()
 
-                // Apply filters
-                val filteredFiles =
-                        allFiles.filter { file ->
-                                val fileType = FileTypeUtils.getFileType(file)
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.length < 2) return emptyList()
 
-                                // Check file type
-                                val fileTypeMatches = fileType in enabledFileTypes
+        // Get files from repository
+        val allFiles =
+            fileRepository.searchFiles(trimmedQuery, FILE_SEARCH_RESULT_LIMIT)
 
-                                // Check if it's a folder - filter based on showFolders preference
-                                if (file.isDirectory && !showFolders) return@filter false
+        // Apply filters
+        val filteredFiles =
+            allFiles.filter { file ->
+                val fileType = FileTypeUtils.getFileType(file)
 
-                                // Check if it's an APK - only show if APKS type is enabled
-                                val isApk = isApkFile(file)
-                                if (isApk && FileType.APKS !in enabledFileTypes) return@filter false
+                // Check file type
+                val fileTypeMatches = fileType in enabledFileTypes
 
-                                // Check system files/folders
-                                val isSystem = isSystemFolder(file) || isSystemFile(file)
-                                if (isSystem && !showSystemFiles) return@filter false
+                // Check if it's a folder - filter based on showFolders preference
+                if (file.isDirectory && !showFolders) return@filter false
 
-                                // Check hidden files (files starting with dot)
-                                val isHidden = file.displayName.startsWith(".")
-                                if (isHidden && !showHiddenFiles) return@filter false
+                // Check if it's an APK - only show if APKS type is enabled
+                val isApk = isApkFile(file)
+                if (isApk && FileType.APKS !in enabledFileTypes) return@filter false
 
-                                // Apply other filters
-                                fileTypeMatches &&
-                                        !excludedFileUris.contains(file.uri.toString()) &&
-                                        !FileUtils.isFileExtensionExcluded(
-                                                file.displayName,
-                                                excludedFileExtensions
-                                        )
-                        }
+                // Check system files/folders
+                val isSystem = isSystemFolder(file) || isSystemFile(file)
+                if (isSystem && !showSystemFiles) return@filter false
 
-                // Rank and return results
-                return rankFiles(filteredFiles, trimmedQuery).take(FILE_SEARCH_RESULT_LIMIT)
-        }
+                // Check hidden files (files starting with dot)
+                val isHidden = file.displayName.startsWith(".")
+                if (isHidden && !showHiddenFiles) return@filter false
 
-        private fun rankFiles(files: List<DeviceFile>, query: String): List<DeviceFile> {
-                if (files.isEmpty()) return emptyList()
+                // Apply other filters
+                fileTypeMatches &&
+                    !excludedFileUris.contains(file.uri.toString()) &&
+                    !FileUtils.isFileExtensionExcluded(
+                        file.displayName,
+                        excludedFileExtensions,
+                    )
+            }
 
-                val normalizedQuery = query.lowercase(Locale.getDefault())
-                val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        // Rank and return results
+        return rankFiles(filteredFiles, trimmedQuery).take(FILE_SEARCH_RESULT_LIMIT)
+    }
 
-                // Pre-fetch all file nicknames in a single call to reduce SharedPreferences reads
-                val distinctFiles = files.distinctBy { it.uri.toString() }
-                val fileNicknames =
-                        distinctFiles.associate { file ->
-                                file.uri.toString() to
-                                        userPreferences.getFileNickname(file.uri.toString())
-                        }
+    private fun rankFiles(
+        files: List<DeviceFile>,
+        query: String,
+    ): List<DeviceFile> {
+        if (files.isEmpty()) return emptyList()
 
-                return distinctFiles
-                        .mapNotNull { file ->
-                                val uriString = file.uri.toString()
-                                val nickname = fileNicknames[uriString]
-                                val priority =
-                                        SearchRankingUtils.calculateMatchPriorityWithNickname(
-                                                file.displayName,
-                                                nickname,
-                                                normalizedQuery,
-                                                queryTokens
-                                        )
-                                if (SearchRankingUtils.isOtherMatch(priority)) null
-                                else file to priority
-                        }
-                        .sortedWith(
-                                compareBy<Pair<DeviceFile, Int>> { it.second }.thenBy {
-                                        it.first.displayName.lowercase(Locale.getDefault())
-                                }
-                        )
-                        .map { it.first }
-        }
+        val normalizedQuery = query.lowercase(Locale.getDefault())
+        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
 
-        private fun isApkFile(deviceFile: DeviceFile): Boolean {
-                val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
-                if (mime == "application/vnd.android.package-archive") {
-                        return true
+        // Pre-fetch all file nicknames in a single call to reduce SharedPreferences reads
+        val distinctFiles = files.distinctBy { it.uri.toString() }
+        val fileNicknames =
+            distinctFiles.associate { file ->
+                file.uri.toString() to
+                    userPreferences.getFileNickname(file.uri.toString())
+            }
+
+        return distinctFiles
+            .mapNotNull { file ->
+                val uriString = file.uri.toString()
+                val nickname = fileNicknames[uriString]
+                val priority =
+                    SearchRankingUtils.calculateMatchPriorityWithNickname(
+                        file.displayName,
+                        nickname,
+                        normalizedQuery,
+                        queryTokens,
+                    )
+                if (SearchRankingUtils.isOtherMatch(priority)) {
+                    null
+                } else {
+                    file to priority
                 }
-                val name = deviceFile.displayName.lowercase(Locale.getDefault())
-                return name.endsWith(".apk")
+            }.sortedWith(
+                compareBy<Pair<DeviceFile, Int>> { it.second }.thenBy {
+                    it.first.displayName.lowercase(Locale.getDefault())
+                },
+            ).map { it.first }
+    }
+
+    private fun isApkFile(deviceFile: DeviceFile): Boolean {
+        val mime = deviceFile.mimeType?.lowercase(Locale.getDefault())
+        if (mime == "application/vnd.android.package-archive") {
+            return true
+        }
+        val name = deviceFile.displayName.lowercase(Locale.getDefault())
+        return name.endsWith(".apk")
+    }
+
+    private fun isSystemFile(deviceFile: DeviceFile): Boolean {
+        val name = deviceFile.displayName
+        // Check for hidden files (starting with dot)
+        if (name.startsWith(".")) return true
+
+        val extension =
+            FileUtils.getFileExtension(name)?.lowercase(Locale.getDefault())
+                ?: return false
+
+        val systemExcludedExtensions =
+            setOf(
+                "tmp",
+                "temp",
+                "cache",
+                "log",
+                "bak",
+                "backup",
+                "old",
+                "orig",
+                "swp",
+                "swo",
+                "part",
+                "crdownload",
+                "download",
+                "tmpfile",
+            )
+
+        // WhatsApp/Signal backup files (crypt, crypt12, crypt14, etc.)
+        if (extension.startsWith("crypt")) {
+            // Check if it's "crypt" or "crypt" followed by numbers
+            return extension == "crypt" || extension.drop(5).all { it.isDigit() }
         }
 
-        private fun isSystemFile(deviceFile: DeviceFile): Boolean {
-                val name = deviceFile.displayName
-                // Check for hidden files (starting with dot)
-                if (name.startsWith(".")) return true
+        return extension in systemExcludedExtensions
+    }
 
-                val extension =
-                        FileUtils.getFileExtension(name)?.lowercase(Locale.getDefault())
-                                ?: return false
+    private fun isSystemFolder(deviceFile: DeviceFile): Boolean {
+        if (!deviceFile.isDirectory) return false
 
-                val systemExcludedExtensions =
-                        setOf(
-                                "tmp",
-                                "temp",
-                                "cache",
-                                "log",
-                                "bak",
-                                "backup",
-                                "old",
-                                "orig",
-                                "swp",
-                                "swo",
-                                "part",
-                                "crdownload",
-                                "download",
-                                "tmpfile"
-                        )
-
-                // WhatsApp/Signal backup files (crypt, crypt12, crypt14, etc.)
-                if (extension.startsWith("crypt")) {
-                        // Check if it's "crypt" or "crypt" followed by numbers
-                        return extension == "crypt" || extension.drop(5).all { it.isDigit() }
-                }
-
-                return extension in systemExcludedExtensions
-        }
-
-        private fun isSystemFolder(deviceFile: DeviceFile): Boolean {
-                if (!deviceFile.isDirectory) return false
-
-                val name = deviceFile.displayName.lowercase(Locale.getDefault())
-                return name.startsWith("com.")
-        }
+        val name = deviceFile.displayName.lowercase(Locale.getDefault())
+        return name.startsWith("com.")
+    }
 }

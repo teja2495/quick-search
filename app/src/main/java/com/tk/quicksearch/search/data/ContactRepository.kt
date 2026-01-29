@@ -14,7 +14,7 @@ import java.util.Locale
 
 /**
  * Repository for querying and managing contact data from the device's contacts provider.
- * 
+ *
  * Responsibilities:
  * - Querying contacts by IDs or search query
  * - Aggregating multiple phone numbers per contact
@@ -22,11 +22,10 @@ import java.util.Locale
  * - Managing contact permissions
  */
 class ContactRepository(
-    private val context: Context
+    private val context: Context,
 ) {
-
     private val contentResolver = context.contentResolver
-    
+
     // Cache GoogleMeet availability to avoid repeated PackageManager queries
     private val isGoogleMeetInstalled: Boolean by lazy {
         try {
@@ -39,32 +38,35 @@ class ContactRepository(
 
     companion object {
         // Common projection fields for phone number queries
-        private val PHONE_PROJECTION = arrayOf(
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-            ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
-        )
+        private val PHONE_PROJECTION =
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+            )
 
         // Projection fields for photo URI queries
-        private val PHOTO_PROJECTION = arrayOf(
-            ContactsContract.Contacts._ID,
-            ContactsContract.Contacts.PHOTO_URI
-        )
+        private val PHOTO_PROJECTION =
+            arrayOf(
+                ContactsContract.Contacts._ID,
+                ContactsContract.Contacts.PHOTO_URI,
+            )
 
         // Projection fields for contact methods (Data table)
-        private val DATA_PROJECTION = arrayOf(
-            ContactsContract.Data._ID,
-            ContactsContract.Data.CONTACT_ID,
-            ContactsContract.Data.MIMETYPE,
-            ContactsContract.Data.DATA1,
-            ContactsContract.Data.DATA2,
-            ContactsContract.Data.DATA3,
-            ContactsContract.Data.DATA4,
-            ContactsContract.Data.DATA5,
-            ContactsContract.Data.IS_PRIMARY,
-            ContactsContract.Data.IS_SUPER_PRIMARY
-        )
+        private val DATA_PROJECTION =
+            arrayOf(
+                ContactsContract.Data._ID,
+                ContactsContract.Data.CONTACT_ID,
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.Data.DATA1,
+                ContactsContract.Data.DATA2,
+                ContactsContract.Data.DATA3,
+                ContactsContract.Data.DATA4,
+                ContactsContract.Data.DATA5,
+                ContactsContract.Data.IS_PRIMARY,
+                ContactsContract.Data.IS_SUPER_PRIMARY,
+            )
 
         // Sort order for contacts (most contacted first)
         private const val SORT_ORDER = "${ContactsContract.CommonDataKinds.Phone.TIMES_CONTACTED} DESC"
@@ -109,7 +111,7 @@ class ContactRepository(
         val contacts = queryContactsByIds(contactIds)
         fetchPhotoUris(contacts)
         fetchContactMethods(contacts)
-        
+
         return contacts.values
             .map { it.toContactInfo() }
             .sortedBy { it.displayName.lowercase(Locale.getDefault()) }
@@ -120,14 +122,17 @@ class ContactRepository(
      * @param limit Maximum number of unique contacts to return
      * @return List of contacts sorted by match priority, then alphabetically
      */
-    fun searchContacts(query: String, limit: Int): List<ContactInfo> {
+    fun searchContacts(
+        query: String,
+        limit: Int,
+    ): List<ContactInfo> {
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedQuery = normalizeSearchQuery(query)
         val contacts = queryContactsBySearch(normalizedQuery, limit)
         fetchPhotoUris(contacts)
         fetchContactMethods(contacts)
-        
+
         return contacts.values
             .map { it.toContactInfo() }
             .filterAndRank(query)
@@ -136,54 +141,59 @@ class ContactRepository(
     // ==================== Private Helpers ====================
 
     private fun queryContactsByIds(contactIds: Set<Long>): LinkedHashMap<Long, MutableContact> {
-        val selection = buildInClause(
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-            contactIds
-        )
+        val selection =
+            buildInClause(
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                contactIds,
+            )
 
-        val cursor = contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            PHONE_PROJECTION,
-            selection,
-            null,
-            SORT_ORDER
-        ) ?: return LinkedHashMap()
+        val cursor =
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                PHONE_PROJECTION,
+                selection,
+                null,
+                SORT_ORDER,
+            ) ?: return LinkedHashMap()
 
         return cursor.use { processPhoneCursor(it) }
     }
 
     private fun queryContactsBySearch(
         normalizedQuery: String,
-        limit: Int
+        limit: Int,
     ): LinkedHashMap<Long, MutableContact> {
         val selection = "LOWER(${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY}) LIKE ?"
         val selectionArgs = arrayOf("%$normalizedQuery%")
 
-        val cursor = contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            PHONE_PROJECTION,
-            selection,
-            selectionArgs,
-            SORT_ORDER
-        ) ?: return LinkedHashMap()
+        val cursor =
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                PHONE_PROJECTION,
+                selection,
+                selectionArgs,
+                SORT_ORDER,
+            ) ?: return LinkedHashMap()
 
         return cursor.use { processPhoneCursor(it, limit) }
     }
 
     private fun processPhoneCursor(
         cursor: Cursor,
-        limit: Int? = null
+        limit: Int? = null,
     ): LinkedHashMap<Long, MutableContact> {
         val contacts = LinkedHashMap<Long, MutableContact>()
-        
+
         val columnIndices = PhoneColumnIndices.fromCursor(cursor)
 
         while (cursor.moveToNext()) {
             val contactId = cursor.getLong(columnIndices.idIndex)
             val lookupKey = cursor.getString(columnIndices.lookupIndex) ?: continue
             val displayName = cursor.getString(columnIndices.nameIndex) ?: continue
-            val phoneNumber = cursor.getString(columnIndices.numberIndex)
-                ?.takeIf { it.isNotBlank() } ?: continue
+            val phoneNumber =
+                cursor
+                    .getString(columnIndices.numberIndex)
+                    ?.takeIf { it.isNotBlank() } ?: continue
 
             val existing = contacts[contactId]
             if (existing == null) {
@@ -191,12 +201,13 @@ class ContactRepository(
                 if (limit != null && contacts.size >= limit) {
                     break
                 }
-                contacts[contactId] = MutableContact(
-                    contactId = contactId,
-                    lookupKey = lookupKey,
-                    displayName = displayName,
-                    numbers = mutableListOf(phoneNumber)
-                )
+                contacts[contactId] =
+                    MutableContact(
+                        contactId = contactId,
+                        lookupKey = lookupKey,
+                        displayName = displayName,
+                        numbers = mutableListOf(phoneNumber),
+                    )
             } else {
                 addOrUpdatePhoneNumber(existing.numbers, phoneNumber)
             }
@@ -209,13 +220,14 @@ class ContactRepository(
         if (contacts.isEmpty()) return
 
         val selection = buildInClause(ContactsContract.Contacts._ID, contacts.keys)
-        val cursor = contentResolver.query(
-            ContactsContract.Contacts.CONTENT_URI,
-            PHOTO_PROJECTION,
-            selection,
-            null,
-            null
-        ) ?: return
+        val cursor =
+            contentResolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                PHOTO_PROJECTION,
+                selection,
+                null,
+                null,
+            ) ?: return
 
         cursor.use { c ->
             val idIndex = c.getColumnIndexOrThrow(ContactsContract.Contacts._ID)
@@ -223,15 +235,18 @@ class ContactRepository(
 
             while (c.moveToNext()) {
                 val contactId = c.getLong(idIndex)
-                val photoUri = if (photoUriIndex >= 0) {
-                    c.getString(photoUriIndex)
-                } else null
+                val photoUri =
+                    if (photoUriIndex >= 0) {
+                        c.getString(photoUriIndex)
+                    } else {
+                        null
+                    }
 
                 contacts[contactId]?.photoUri = photoUri?.takeIf { it.isNotBlank() }
             }
         }
     }
-    
+
     /**
      * Fetches all contact methods for the given contacts from the Data table.
      * This includes phone, email, and app-specific methods like WhatsApp, Telegram, etc.
@@ -240,14 +255,15 @@ class ContactRepository(
         if (contacts.isEmpty()) return
 
         val selection = buildInClause(ContactsContract.Data.CONTACT_ID, contacts.keys)
-        
-        val cursor = contentResolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            DATA_PROJECTION,
-            selection,
-            null,
-            "${ContactsContract.Data.IS_SUPER_PRIMARY} DESC, ${ContactsContract.Data.IS_PRIMARY} DESC"
-        ) ?: return
+
+        val cursor =
+            contentResolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                DATA_PROJECTION,
+                selection,
+                null,
+                "${ContactsContract.Data.IS_SUPER_PRIMARY} DESC, ${ContactsContract.Data.IS_PRIMARY} DESC",
+            ) ?: return
 
         cursor.use { c ->
             val dataIdIndex = c.getColumnIndexOrThrow(ContactsContract.Data._ID)
@@ -279,9 +295,10 @@ class ContactRepository(
                     // For Phone methods, create both Phone and SMS methods for each phone number
                     if (method is ContactMethod.Phone) {
                         // Check if we already have a Phone method for this specific phone number
-                        val hasPhoneForThisNumber = contact.contactMethods.any {
-                            it is ContactMethod.Phone && it.data == data1
-                        }
+                        val hasPhoneForThisNumber =
+                            contact.contactMethods.any {
+                                it is ContactMethod.Phone && it.data == data1
+                            }
 
                         if (!hasPhoneForThisNumber) {
                             contact.contactMethods.add(method)
@@ -290,11 +307,12 @@ class ContactRepository(
                             contact.contactMethods.add(smsMethod)
                             // Add Google Meet method if Meet is available
                             if (isGoogleMeetInstalled) {
-                                val meetMethod = ContactMethod.GoogleMeet(
-                                    data = data1,
-                                    dataId = dataId,
-                                    isPrimary = isPrimary
-                                )
+                                val meetMethod =
+                                    ContactMethod.GoogleMeet(
+                                        data = data1,
+                                        dataId = dataId,
+                                        isPrimary = isPrimary,
+                                    )
                                 contact.contactMethods.add(meetMethod)
                             }
                         }
@@ -314,9 +332,9 @@ class ContactRepository(
         data4: String?,
         data5: String?,
         dataId: Long,
-        isPrimary: Boolean
-    ): ContactMethod? {
-        return try {
+        isPrimary: Boolean,
+    ): ContactMethod? =
+        try {
             when (mimeType) {
                 ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
                     ContactMethod.Phone(CALL_LABEL, data1, dataId, isPrimary)
@@ -359,7 +377,7 @@ class ContactRepository(
                             mimeType = mimeType,
                             packageName = packageName,
                             dataId = dataId,
-                            isPrimary = isPrimary
+                            isPrimary = isPrimary,
                         )
                     } else {
                         null
@@ -370,8 +388,7 @@ class ContactRepository(
             Log.e(TAG, "Error parsing contact method: $mimeType", e)
             null
         }
-    }
-    
+
     /**
      * Attempts to extract package name from custom MIME type.
      * Format: vnd.android.cursor.item/vnd.com.package.name.xxx
@@ -389,15 +406,17 @@ class ContactRepository(
         }
     }
 
-    private fun normalizeSearchQuery(query: String): String {
-        return query
+    private fun normalizeSearchQuery(query: String): String =
+        query
             .trim()
             .lowercase(Locale.getDefault())
             .replace("%", "")
             .replace("_", "")
-    }
 
-    private fun buildInClause(columnName: String, ids: Collection<Long>): String {
+    private fun buildInClause(
+        columnName: String,
+        ids: Collection<Long>,
+    ): String {
         val idList = ids.joinToString(",")
         return "$columnName IN ($idList)"
     }
@@ -407,30 +426,29 @@ class ContactRepository(
      */
     private fun List<ContactInfo>.filterAndRank(query: String): List<ContactInfo> {
         if (isEmpty()) return emptyList()
-        
+
         // Pre-normalize and tokenize query once for efficient matching
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
         val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
-        
+
         return mapNotNull { contact ->
-            val priority = SearchRankingUtils.calculateMatchPriority(
-                contact.displayName,
-                normalizedQuery,
-                queryTokens
-            )
+            val priority =
+                SearchRankingUtils.calculateMatchPriority(
+                    contact.displayName,
+                    normalizedQuery,
+                    queryTokens,
+                )
             if (SearchRankingUtils.isOtherMatch(priority)) {
                 null
             } else {
                 contact to priority
             }
-        }
-        .sortedWith(
+        }.sortedWith(
             compareBy(
                 { it.second },
-                { it.first.displayName.lowercase(Locale.getDefault()) }
-            )
-        )
-        .map { it.first }
+                { it.first.displayName.lowercase(Locale.getDefault()) },
+            ),
+        ).map { it.first }
     }
 
     /**
@@ -438,16 +456,20 @@ class ContactRepository(
      * If a duplicate is found (same number, one with country code, one without),
      * the number with country code is kept and the one without is removed.
      */
-    private fun addOrUpdatePhoneNumber(existingNumbers: MutableList<String>, newNumber: String) {
+    private fun addOrUpdatePhoneNumber(
+        existingNumbers: MutableList<String>,
+        newNumber: String,
+    ) {
         // Check for exact match first
         if (existingNumbers.contains(newNumber)) {
             return
         }
 
         // Check for duplicate (same number but different format)
-        val duplicateIndex = existingNumbers.indexOfFirst {
-            PhoneNumberUtils.isSameNumber(it, newNumber)
-        }
+        val duplicateIndex =
+            existingNumbers.indexOfFirst {
+                PhoneNumberUtils.isSameNumber(it, newNumber)
+            }
 
         if (duplicateIndex >= 0) {
             val existingNumber = existingNumbers[duplicateIndex]
@@ -472,19 +494,24 @@ class ContactRepository(
         val displayName: String,
         val numbers: MutableList<String>,
         var photoUri: String? = null,
-        val contactMethods: MutableList<ContactMethod> = mutableListOf()
+        val contactMethods: MutableList<ContactMethod> = mutableListOf(),
     ) {
         fun toContactInfo(): ContactInfo {
             // Reorder contact methods so email comes last
-            val reorderedMethods = contactMethods.sortedWith(compareBy<ContactMethod> {
-                when (it) {
-                    is ContactMethod.Email -> 1 // Email comes last
-                    else -> 0 // Everything else comes first
-                }
-            }.thenBy {
-                // Within the same priority group, maintain original order
-                contactMethods.indexOf(it)
-            })
+            val reorderedMethods =
+                contactMethods.sortedWith(
+                    compareBy<ContactMethod> {
+                        when (it) {
+                            is ContactMethod.Email -> 1
+
+                            // Email comes last
+                            else -> 0 // Everything else comes first
+                        }
+                    }.thenBy {
+                        // Within the same priority group, maintain original order
+                        contactMethods.indexOf(it)
+                    },
+                )
 
             return ContactInfo(
                 contactId = contactId,
@@ -492,7 +519,7 @@ class ContactRepository(
                 displayName = displayName,
                 phoneNumbers = numbers,
                 photoUri = photoUri,
-                contactMethods = reorderedMethods
+                contactMethods = reorderedMethods,
             )
         }
     }
@@ -501,19 +528,16 @@ class ContactRepository(
         val idIndex: Int,
         val lookupIndex: Int,
         val nameIndex: Int,
-        val numberIndex: Int
+        val numberIndex: Int,
     ) {
         companion object {
-            fun fromCursor(cursor: Cursor): PhoneColumnIndices {
-                return PhoneColumnIndices(
+            fun fromCursor(cursor: Cursor): PhoneColumnIndices =
+                PhoneColumnIndices(
                     idIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID),
                     lookupIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY),
                     nameIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY),
-                    numberIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    numberIndex = cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER),
                 )
-            }
         }
     }
 }
-
-

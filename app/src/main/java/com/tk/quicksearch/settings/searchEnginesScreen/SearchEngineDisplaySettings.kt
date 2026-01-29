@@ -25,26 +25,28 @@ import com.tk.quicksearch.util.hapticToggle
 fun SearchEngineAppearanceCard(
     isSearchEngineCompactMode: Boolean,
     onToggleSearchEngineCompactMode: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
 
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        modifier =
+            modifier
+                .fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
-             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
-             verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = stringResource(R.string.settings_search_engine_display_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 16.dp)
+                modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 16.dp),
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
@@ -57,7 +59,7 @@ fun SearchEngineAppearanceCard(
                             hapticToggle(view)()
                             onToggleSearchEngineCompactMode(false)
                         }
-                    }
+                    },
                 )
 
                 SearchEngineDisplayOption(
@@ -69,7 +71,7 @@ fun SearchEngineAppearanceCard(
                             hapticToggle(view)()
                             onToggleSearchEngineCompactMode(true)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -81,30 +83,31 @@ private fun SearchEngineDisplayOption(
     title: String,
     description: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         androidx.compose.material3.RadioButton(
             selected = selected,
-            onClick = null // Handled by Row clickable
+            onClick = null, // Handled by Row clickable
         )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

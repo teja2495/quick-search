@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.data
 
-import android.app.usage.UsageStatsManager
 import android.app.usage.UsageStats
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Central data source that surfaces launchable apps together with their latest usage metadata.
- * 
+ *
  * Responsibilities:
  * - Loading launchable apps from the device
  * - Querying usage statistics for apps
@@ -24,9 +24,8 @@ import java.util.concurrent.TimeUnit
  * - Checking usage access permissions
  */
 class AppUsageRepository(
-    private val context: Context
+    private val context: Context,
 ) {
-
     private val packageManager: PackageManager = context.packageManager
     private val usageStatsManager: UsageStatsManager? =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
@@ -42,9 +41,7 @@ class AppUsageRepository(
      *
      * @return Cached list of apps, or null if no cache exists
      */
-    fun loadCachedApps(): List<AppInfo>? {
-        return appCache.loadCachedApps()
-    }
+    fun loadCachedApps(): List<AppInfo>? = appCache.loadCachedApps()
 
     fun cacheLastUpdatedMillis(): Long = appCache.getLastUpdateTime()
 
@@ -56,7 +53,7 @@ class AppUsageRepository(
      * Reads all launchable apps on the device alongside their last used timestamp.
      * Results are sorted by last used time (most recent first), then alphabetically by name.
      * Also saves the result to cache for instant loading next time.
-     * 
+     *
      * @param launchCounts Map of package name to local launch count
      * @return List of launchable apps sorted by usage and name
      */
@@ -66,16 +63,15 @@ class AppUsageRepository(
         val currentPackageName = context.packageName
         val defaultLauncherPackageName = getDefaultLauncherPackageName()
 
-        val apps = resolveInfos
-            .distinctBy { it.activityInfo.packageName }
-            .filter { resolveInfo ->
-                val packageName = resolveInfo.activityInfo.packageName
-                packageName != currentPackageName && packageName != defaultLauncherPackageName
-            }
-            .map { resolveInfo ->
-                createAppInfo(resolveInfo, usageMap, launchCounts)
-            }
-            .sortedWith(AppInfoComparator)
+        val apps =
+            resolveInfos
+                .distinctBy { it.activityInfo.packageName }
+                .filter { resolveInfo ->
+                    val packageName = resolveInfo.activityInfo.packageName
+                    packageName != currentPackageName && packageName != defaultLauncherPackageName
+                }.map { resolveInfo ->
+                    createAppInfo(resolveInfo, usageMap, launchCounts)
+                }.sortedWith(AppInfoComparator)
 
         appCache.saveApps(apps)
         return apps
@@ -88,7 +84,10 @@ class AppUsageRepository(
      * @param limit Maximum number of apps to return
      * @return List of apps sorted by last used time (descending)
      */
-    fun extractRecentlyOpenedApps(apps: List<AppInfo>, limit: Int): List<AppInfo> {
+    fun extractRecentlyOpenedApps(
+        apps: List<AppInfo>,
+        limit: Int,
+    ): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
         return apps.sortedByDescending { it.lastUsedTime }.take(limit)
     }
@@ -96,14 +95,15 @@ class AppUsageRepository(
     // ==================== Private Helpers ====================
 
     private fun queryLaunchableApps(): List<ResolveInfo> {
-        val launcherIntent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
+        val launcherIntent =
+            Intent(Intent.ACTION_MAIN, null).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            }
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.queryIntentActivities(
                 launcherIntent,
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong())
+                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong()),
             )
         } else {
             @Suppress("DEPRECATION")
@@ -112,19 +112,21 @@ class AppUsageRepository(
     }
 
     private fun getDefaultLauncherPackageName(): String? {
-        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-        }
+        val homeIntent =
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
 
-        val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.resolveActivity(
-                homeIntent,
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            packageManager.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
+        val resolveInfo =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.resolveActivity(
+                    homeIntent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+            }
 
         val packageName = resolveInfo?.activityInfo?.packageName
         return packageName?.takeIf { it.isNotBlank() && it != "android" }
@@ -133,7 +135,7 @@ class AppUsageRepository(
     private fun createAppInfo(
         resolveInfo: ResolveInfo,
         usageMap: Map<String, UsageStats>,
-        launchCounts: Map<String, Int>
+        launchCounts: Map<String, Int>,
     ): AppInfo {
         val packageName = resolveInfo.activityInfo.packageName
         val label = extractAppLabel(resolveInfo, packageName)
@@ -141,8 +143,11 @@ class AppUsageRepository(
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
         val launchCount = launchCounts[packageName] ?: 0
-        val isSystemApp = (resolveInfo.activityInfo.applicationInfo.flags 
-            and ApplicationInfo.FLAG_SYSTEM) != 0
+        val isSystemApp =
+            (
+                resolveInfo.activityInfo.applicationInfo.flags
+                    and ApplicationInfo.FLAG_SYSTEM
+            ) != 0
 
         return AppInfo(
             appName = label,
@@ -150,25 +155,27 @@ class AppUsageRepository(
             lastUsedTime = lastUsedTime,
             totalTimeInForeground = totalTimeInForeground,
             launchCount = launchCount,
-            isSystemApp = isSystemApp
+            isSystemApp = isSystemApp,
         )
     }
 
     /**
      * Extracts the display label for an app, falling back to a formatted package name if needed.
      */
-    private fun extractAppLabel(resolveInfo: ResolveInfo, packageName: String): String {
-        return resolveInfo.loadLabel(packageManager)
+    private fun extractAppLabel(
+        resolveInfo: ResolveInfo,
+        packageName: String,
+    ): String =
+        resolveInfo
+            .loadLabel(packageManager)
             ?.toString()
             ?.takeIf { it.isNotBlank() }
             ?: formatPackageNameAsLabel(packageName)
-    }
 
-    private fun formatPackageNameAsLabel(packageName: String): String {
-        return packageName
+    private fun formatPackageNameAsLabel(packageName: String): String =
+        packageName
             .substringAfterLast(".")
             .replaceFirstChar { it.titlecase(Locale.getDefault()) }
-    }
 
     private fun queryUsageStatsMap(): Map<String, UsageStats> {
         val manager = usageStatsManager ?: return emptyMap()
@@ -179,7 +186,7 @@ class AppUsageRepository(
 
             manager.queryAndAggregateUsageStats(
                 startTime,
-                endTime
+                endTime,
             )
         }.getOrDefault(emptyMap())
     }
@@ -188,7 +195,8 @@ class AppUsageRepository(
         /**
          * Comparator for sorting apps by launch count (descending), then by name (ascending).
          */
-        private val AppInfoComparator = compareByDescending<AppInfo> { it.launchCount }
-            .thenBy { it.appName.lowercase(Locale.getDefault()) }
+        private val AppInfoComparator =
+            compareByDescending<AppInfo> { it.launchCount }
+                .thenBy { it.appName.lowercase(Locale.getDefault()) }
     }
 }

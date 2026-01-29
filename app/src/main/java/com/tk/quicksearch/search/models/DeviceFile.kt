@@ -12,5 +12,5 @@ data class DeviceFile(
     val lastModified: Long,
     val isDirectory: Boolean,
     val relativePath: String? = null,
-    val volumeName: String? = null
+    val volumeName: String? = null,
 )

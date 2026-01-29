@@ -3,9 +3,6 @@ package com.tk.quicksearch.search.contacts.actions
 import android.app.Application
 import android.util.Log
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.models.ContactMethod
-import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
@@ -14,6 +11,9 @@ import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.PhoneNumberSelection
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 
 /**
@@ -29,9 +29,8 @@ class ContactActionHandler(
     private val getCurrentState: () -> SearchUiState,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val clearQuery: () -> Unit,
-    private val showToastCallback: (Int) -> Unit
+    private val showToastCallback: (Int) -> Unit,
 ) {
-
     fun callContact(contactInfo: ContactInfo) {
         if (contactInfo.phoneNumbers.isEmpty()) {
             showToastCallback(R.string.error_missing_phone_number)
@@ -79,10 +78,13 @@ class ContactActionHandler(
         }
 
         // Single number, use it directly
-            performMessaging(contactInfo, contactInfo.phoneNumbers.first())
+        performMessaging(contactInfo, contactInfo.phoneNumbers.first())
     }
 
-    fun onPhoneNumberSelected(phoneNumber: String, rememberChoice: Boolean) {
+    fun onPhoneNumberSelected(
+        phoneNumber: String,
+        rememberChoice: Boolean,
+    ) {
         val selection = getCurrentState().phoneNumberSelection ?: return
         val contactInfo = selection.contactInfo
 
@@ -106,14 +108,18 @@ class ContactActionHandler(
         uiStateUpdater { it.copy(phoneNumberSelection = null) }
     }
 
-    private fun beginCallFlow(contactName: String, phoneNumber: String) {
+    private fun beginCallFlow(
+        contactName: String,
+        phoneNumber: String,
+    ) {
         if (!getHasSeenDirectDialChoice()) {
             uiStateUpdater {
                 it.copy(
-                    directDialChoice = DirectDialChoice(
-                        contactName = contactName,
-                        phoneNumber = phoneNumber
-                    )
+                    directDialChoice =
+                        DirectDialChoice(
+                            contactName = contactName,
+                            phoneNumber = phoneNumber,
+                        ),
                 )
             }
             return
@@ -135,14 +141,17 @@ class ContactActionHandler(
         }
     }
 
-    fun onDirectDialChoiceSelected(option: DirectDialOption, rememberChoice: Boolean) {
+    fun onDirectDialChoiceSelected(
+        option: DirectDialOption,
+        rememberChoice: Boolean,
+    ) {
         val choice = getCurrentState().directDialChoice ?: return
         val useDirectDial = option == DirectDialOption.DIRECT_CALL
 
         uiStateUpdater {
             it.copy(
                 directDialChoice = null,
-                directDialEnabled = useDirectDial
+                directDialEnabled = useDirectDial,
             )
         }
 
@@ -165,7 +174,7 @@ class ContactActionHandler(
         uiStateUpdater {
             it.copy(
                 pendingDirectCallNumber = null,
-                pendingWhatsAppCallDataId = null
+                pendingWhatsAppCallDataId = null,
             )
         }
 
@@ -199,7 +208,10 @@ class ContactActionHandler(
         clearQuery()
     }
 
-    fun handleContactMethod(contactInfo: ContactInfo, method: ContactMethod) {
+    fun handleContactMethod(
+        contactInfo: ContactInfo,
+        method: ContactMethod,
+    ) {
         if (method !is ContactMethod.Phone) {
             trackRecentContactAction(contactInfo)
         }
@@ -266,12 +278,23 @@ class ContactActionHandler(
             is ContactMethod.CustomApp -> {
                 // Try to use dataId approach first, fallback to data approach
                 if (method.dataId != null) {
-                    val success = ContactIntentHelpers.openCustomAppWithDataId(context, method.dataId, method.mimeType, method.packageName) { resId -> showToastCallback(resId) }
+                    val success =
+                        ContactIntentHelpers.openCustomAppWithDataId(
+                            context,
+                            method.dataId,
+                            method.mimeType,
+                            method.packageName,
+                        ) { resId -> showToastCallback(resId) }
                     if (success) {
                         clearQueryIfEnabled()
                     }
                 } else {
-                    ContactIntentHelpers.openCustomApp(context, method.data, method.mimeType, method.packageName) { resId -> showToastCallback(resId) }
+                    ContactIntentHelpers.openCustomApp(
+                        context,
+                        method.data,
+                        method.mimeType,
+                        method.packageName,
+                    ) { resId -> showToastCallback(resId) }
                     clearQueryIfEnabled()
                 }
             }
@@ -295,11 +318,14 @@ class ContactActionHandler(
         ContactIntentHelpers.performSms(context, number)
     }
 
-    private fun performMessaging(contactInfo: ContactInfo, number: String) {
+    private fun performMessaging(
+        contactInfo: ContactInfo,
+        number: String,
+    ) {
         when (
             ContactMessagingAppResolver.resolveMessagingAppForContact(
                 contactInfo,
-                getMessagingApp()
+                getMessagingApp(),
             )
         ) {
             MessagingApp.MESSAGES -> performSms(number)

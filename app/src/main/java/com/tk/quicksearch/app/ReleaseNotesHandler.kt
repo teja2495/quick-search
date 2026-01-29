@@ -2,32 +2,32 @@ package com.tk.quicksearch.app
 
 import android.app.Application
 import android.os.Build
-import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.data.UserAppPreferences
 import kotlinx.coroutines.flow.update
 
 class ReleaseNotesHandler(
     private val application: Application,
     private val userPreferences: UserAppPreferences,
-    private val uiStateUpdater: ( (SearchUiState) -> SearchUiState ) -> Unit
+    private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
-
-    private fun getCurrentVersionName(): String? {
-        return try {
-            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                application.packageManager.getPackageInfo(
-                    application.packageName,
-                    android.content.pm.PackageManager.PackageInfoFlags.of(0)
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                application.packageManager.getPackageInfo(application.packageName, 0)
-            }
+    private fun getCurrentVersionName(): String? =
+        try {
+            val packageInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    application.packageManager.getPackageInfo(
+                        application.packageName,
+                        android.content.pm.PackageManager.PackageInfoFlags
+                            .of(0),
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    application.packageManager.getPackageInfo(application.packageName, 0)
+                }
             packageInfo.versionName
         } catch (e: Exception) {
             null
         }
-    }
 
     fun checkForReleaseNotes() {
         val currentVersion = getCurrentVersionName() ?: return
@@ -56,7 +56,7 @@ class ReleaseNotesHandler(
         uiStateUpdater {
             it.copy(
                 showReleaseNotesDialog = true,
-                releaseNotesVersionName = currentVersion
+                releaseNotesVersionName = currentVersion,
             )
         }
     }
@@ -69,7 +69,7 @@ class ReleaseNotesHandler(
         uiStateUpdater {
             it.copy(
                 showReleaseNotesDialog = false,
-                releaseNotesVersionName = versionToStore
+                releaseNotesVersionName = versionToStore,
             )
         }
     }

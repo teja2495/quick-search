@@ -18,10 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import java.util.Locale
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.components.ContactAvatar
 import com.tk.quicksearch.search.data.rememberShortcutIcon
+import java.util.Locale
 
 @Composable
 fun CustomWidgetButtonIcon(
@@ -29,29 +29,31 @@ fun CustomWidgetButtonIcon(
     iconSize: Dp,
     iconPackPackage: String?,
     modifier: Modifier = Modifier,
-    tintColor: Color = MaterialTheme.colorScheme.secondary
+    tintColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
     when (action) {
         is CustomWidgetButtonAction.App -> {
-            val iconBitmap = rememberAppIcon(
-                packageName = action.packageName,
-                iconPackPackage = iconPackPackage
-            ).bitmap
+            val iconBitmap =
+                rememberAppIcon(
+                    packageName = action.packageName,
+                    iconPackPackage = iconPackPackage,
+                ).bitmap
             if (iconBitmap != null) {
                 Image(
                     bitmap = iconBitmap,
                     contentDescription = action.contentDescription(),
-                    modifier = modifier.size(iconSize)
+                    modifier = modifier.size(iconSize),
                 )
             } else {
                 Icon(
                     imageVector = Icons.Rounded.Apps,
                     contentDescription = action.contentDescription(),
                     tint = tintColor,
-                    modifier = modifier.size(iconSize)
+                    modifier = modifier.size(iconSize),
                 )
             }
         }
+
         is CustomWidgetButtonAction.AppShortcut -> {
             val shortcut = remember(action) { action.toStaticShortcut() }
             val iconSizePx = with(LocalDensity.current) { iconSize.roundToPx() }
@@ -60,50 +62,59 @@ fun CustomWidgetButtonIcon(
                 Image(
                     bitmap = iconBitmap,
                     contentDescription = action.contentDescription(),
-                    modifier = modifier.size(iconSize)
+                    modifier = modifier.size(iconSize),
                 )
             } else {
                 // Fallback for when shortcut icon can't be loaded
-                val fallback = action.displayLabel().trim().take(1)
-                    .uppercase(
-                        Locale.getDefault())
-                    .ifBlank { "?" }
+                val fallback =
+                    action
+                        .displayLabel()
+                        .trim()
+                        .take(1)
+                        .uppercase(Locale.getDefault())
+                        .ifBlank { "?" }
                 Text(
                     text = fallback,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = modifier
+                    modifier = modifier,
                 )
             }
         }
+
         is CustomWidgetButtonAction.Contact -> {
             ContactAvatar(
                 photoUri = action.photoUri,
                 displayName = action.displayName,
                 onClick = null,
                 modifier = modifier.size(iconSize),
-                textStyle = MaterialTheme.typography.labelSmall
+                textStyle = MaterialTheme.typography.labelSmall,
             )
         }
+
         is CustomWidgetButtonAction.File -> {
             Icon(
                 imageVector = fileIconVector(action),
                 contentDescription = action.contentDescription(),
                 tint = tintColor,
-                modifier = modifier.size(iconSize)
+                modifier = modifier.size(iconSize),
             )
         }
+
         is CustomWidgetButtonAction.Setting -> {
             Icon(
                 imageVector = Icons.Rounded.Settings,
                 contentDescription = action.contentDescription(),
                 tint = tintColor,
-                modifier = modifier.size(iconSize)
+                modifier = modifier.size(iconSize),
             )
         }
     }
 }
 
 private fun fileIconVector(action: CustomWidgetButtonAction.File) =
-    if (action.isDirectory) Icons.Rounded.Folder
-    else Icons.AutoMirrored.Rounded.InsertDriveFile
+    if (action.isDirectory) {
+        Icons.Rounded.Folder
+    } else {
+        Icons.AutoMirrored.Rounded.InsertDriveFile
+    }

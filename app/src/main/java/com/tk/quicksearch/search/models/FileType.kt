@@ -7,32 +7,31 @@ enum class FileType {
     VIDEOS,
     AUDIO,
     APKS,
-    OTHER
+    OTHER,
 }
 
 /** Utility functions for categorizing files by MIME type. */
 object FileTypeUtils {
-
     private val IMAGE_PREFIX = "image/"
     private val VIDEO_PREFIX = "video/"
     private val AUDIO_PREFIX = "audio/"
     private val APK_MIME_TYPE = "application/vnd.android.package-archive"
 
     private val DOCUMENT_PREFIXES =
-            setOf(
-                    "application/pdf",
-                    "application/msword",
-                    "application/vnd.ms-word",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml",
-                    "application/vnd.ms-excel",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml",
-                    "application/vnd.ms-powerpoint",
-                    "application/vnd.openxmlformats-officedocument.presentationml",
-                    "application/vnd.oasis.opendocument",
-                    "application/rtf",
-                    "application/x-rtf",
-                    "text/"
-            )
+        setOf(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.ms-word",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml",
+            "application/vnd.oasis.opendocument",
+            "application/rtf",
+            "application/x-rtf",
+            "text/",
+        )
 
     fun getFileType(mimeType: String?): FileType {
         if (mimeType == null) return FileType.OTHER
@@ -57,9 +56,7 @@ object FileTypeUtils {
         }
     }
 
-    private fun isDocumentType(normalizedMime: String): Boolean {
-        return DOCUMENT_PREFIXES.any { normalizedMime.startsWith(it) }
-    }
+    private fun isDocumentType(normalizedMime: String): Boolean = DOCUMENT_PREFIXES.any { normalizedMime.startsWith(it) }
 
     fun getFileType(file: DeviceFile): FileType {
         if (file.isDirectory) {

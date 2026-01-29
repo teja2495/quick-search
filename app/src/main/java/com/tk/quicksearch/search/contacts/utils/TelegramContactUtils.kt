@@ -1,12 +1,12 @@
 package com.tk.quicksearch.search.contacts.utils
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
 import androidx.core.content.ContextCompat
-import android.Manifest
-import android.content.pm.PackageManager
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 
 /**
@@ -19,7 +19,6 @@ import com.tk.quicksearch.search.models.ContactMethodMimeTypes
  * 3. This gives us the data IDs for Telegram entries associated with that specific phone number
  */
 object TelegramContactUtils {
-
     /**
      * Gets the contact ID for a specific phone number using PhoneLookup.
      * This is important because the same contact can have multiple phone numbers,
@@ -31,30 +30,32 @@ object TelegramContactUtils {
      */
     private fun getContactIdByPhoneNumber(
         context: Context,
-        phoneNumber: String
+        phoneNumber: String,
     ): Long? {
         // Check permission
         if (ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return null
         }
 
         val contentResolver = context.contentResolver
-        val uri = Uri.withAppendedPath(
-            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-            Uri.encode(phoneNumber)
-        )
+        val uri =
+            Uri.withAppendedPath(
+                ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(phoneNumber),
+            )
 
-        val cursor: Cursor? = contentResolver.query(
-            uri,
-            arrayOf(ContactsContract.PhoneLookup._ID),
-            null,
-            null,
-            null
-        )
+        val cursor: Cursor? =
+            contentResolver.query(
+                uri,
+                arrayOf(ContactsContract.PhoneLookup._ID),
+                null,
+                null,
+                null,
+            )
 
         cursor?.use { c ->
             val idIndex = c.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID)
@@ -80,12 +81,12 @@ object TelegramContactUtils {
      */
     fun findTelegramDataIdsForPhoneNumber(
         context: Context,
-        phoneNumber: String
+        phoneNumber: String,
     ): Set<Long> {
         // Check permission
         if (ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return emptySet()
@@ -99,24 +100,27 @@ object TelegramContactUtils {
 
         // Query ContactsContract.Data for Telegram entries with this contact ID
         // Check all three Telegram MIME types: message, call, and video call
-        val selection = "${ContactsContract.Data.CONTACT_ID} = ? AND (" +
+        val selection =
+            "${ContactsContract.Data.CONTACT_ID} = ? AND (" +
                 "${ContactsContract.Data.MIMETYPE} = ? OR " +
                 "${ContactsContract.Data.MIMETYPE} = ? OR " +
                 "${ContactsContract.Data.MIMETYPE} = ?)"
-        val selectionArgs = arrayOf(
-            contactId.toString(),
-            ContactMethodMimeTypes.TELEGRAM_MESSAGE,
-            ContactMethodMimeTypes.TELEGRAM_CALL,
-            ContactMethodMimeTypes.TELEGRAM_VIDEO_CALL
-        )
+        val selectionArgs =
+            arrayOf(
+                contactId.toString(),
+                ContactMethodMimeTypes.TELEGRAM_MESSAGE,
+                ContactMethodMimeTypes.TELEGRAM_CALL,
+                ContactMethodMimeTypes.TELEGRAM_VIDEO_CALL,
+            )
 
-        val cursor: Cursor? = contentResolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            arrayOf(ContactsContract.Data._ID),
-            selection,
-            selectionArgs,
-            null
-        )
+        val cursor: Cursor? =
+            contentResolver.query(
+                ContactsContract.Data.CONTENT_URI,
+                arrayOf(ContactsContract.Data._ID),
+                selection,
+                selectionArgs,
+                null,
+            )
 
         cursor?.use { c ->
             val dataIdIndex = c.getColumnIndexOrThrow(ContactsContract.Data._ID)
@@ -141,7 +145,7 @@ object TelegramContactUtils {
     fun isTelegramMethodForPhoneNumber(
         context: Context,
         phoneNumber: String,
-        telegramMethod: com.tk.quicksearch.search.models.ContactMethod
+        telegramMethod: com.tk.quicksearch.search.models.ContactMethod,
     ): Boolean {
         // If the method doesn't have a dataId, we can't match it
         val methodDataId = telegramMethod.dataId ?: return false

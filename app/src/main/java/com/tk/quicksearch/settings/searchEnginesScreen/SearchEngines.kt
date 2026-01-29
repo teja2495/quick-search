@@ -15,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineListCard
-import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -52,21 +52,21 @@ fun SearchEngines(
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     showRequestSearchEngine: Boolean = true,
     showDirectSearchAtTop: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     if (showTitle) {
         Text(
             text = stringResource(R.string.settings_search_engines_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+            modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
         )
 
         Text(
             text = stringResource(R.string.settings_search_engines_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding)
+            modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
         )
     }
 
@@ -80,7 +80,7 @@ fun SearchEngines(
             personalContext = personalContext,
             onSetPersonalContext = onSetPersonalContext,
             isExpanded = directSearchSetupExpanded,
-            onToggleExpanded = onToggleDirectSearchSetupExpanded
+            onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )
         Spacer(modifier = Modifier.height(6.dp))
     }
@@ -88,17 +88,18 @@ fun SearchEngines(
     if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
         ShortcutHintBanner(
             onDismiss = onDismissShortcutHintBanner,
-            modifier = Modifier.padding(bottom = 18.dp)
+            modifier = Modifier.padding(bottom = 18.dp),
         )
     }
 
-    val enginesToDisplay = if (directSearchAvailable) {
-        searchEngineOrder
-    } else {
-        searchEngineOrder.filterNot {
-            it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
+    val enginesToDisplay =
+        if (directSearchAvailable) {
+            searchEngineOrder
+        } else {
+            searchEngineOrder.filterNot {
+                it is SearchTarget.Engine && it.engine == SearchEngine.DIRECT_SEARCH
+            }
         }
-    }
     SearchEngineListCard(
         searchEngineOrder = enginesToDisplay,
         disabledSearchEngines = disabledSearchEngines,
@@ -111,7 +112,7 @@ fun SearchEngines(
         isSearchEngineCompactMode = isSearchEngineCompactMode,
         amazonDomain = amazonDomain,
         onSetAmazonDomain = onSetAmazonDomain,
-        showRequestSearchEngine = showRequestSearchEngine
+        showRequestSearchEngine = showRequestSearchEngine,
     )
 
     // Show Direct Search card at bottom if not shown at top
@@ -124,20 +125,19 @@ fun SearchEngines(
             personalContext = personalContext,
             onSetPersonalContext = onSetPersonalContext,
             isExpanded = directSearchSetupExpanded,
-            onToggleExpanded = onToggleDirectSearchSetupExpanded
+            onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )
     }
-
 }
 
 @Composable
 private fun ShortcutHintBanner(
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TipBanner(
         text = stringResource(R.string.settings_shortcuts_hint_message),
         onDismiss = onDismiss,
-        modifier = modifier
+        modifier = modifier,
     )
 }

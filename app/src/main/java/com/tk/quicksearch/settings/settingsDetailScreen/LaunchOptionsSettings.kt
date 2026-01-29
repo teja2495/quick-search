@@ -23,27 +23,29 @@ fun LaunchOptionsSettings(
     onSetDefaultAssistant: () -> Unit,
     onAddHomeScreenWidget: () -> Unit,
     onAddQuickSettingsTile: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
             // Default Assistant Section
             SettingsNavigationRow(
-                item = SettingsCardItem(
-                    title = stringResource(R.string.settings_default_assistant_title),
-                    description = stringResource(
-                        if (isDefaultAssistant) {
-                            R.string.settings_default_assistant_desc_change
-                        } else {
-                            R.string.settings_default_assistant_desc
-                        }
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_default_assistant_title),
+                        description =
+                            stringResource(
+                                if (isDefaultAssistant) {
+                                    R.string.settings_default_assistant_desc_change
+                                } else {
+                                    R.string.settings_default_assistant_desc
+                                },
+                            ),
+                        actionOnPress = onSetDefaultAssistant,
                     ),
-                    actionOnPress = onSetDefaultAssistant
-                ),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             )
 
             // Divider
@@ -51,12 +53,13 @@ fun LaunchOptionsSettings(
 
             // Home Screen Widget Section
             SettingsNavigationRow(
-                item = SettingsCardItem(
-                    title = stringResource(R.string.settings_home_screen_widget_title),
-                    description = stringResource(R.string.settings_home_screen_widget_desc),
-                    actionOnPress = onAddHomeScreenWidget
-                ),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_home_screen_widget_title),
+                        description = stringResource(R.string.settings_home_screen_widget_desc),
+                        actionOnPress = onAddHomeScreenWidget,
+                    ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             )
 
             // Divider
@@ -64,12 +67,13 @@ fun LaunchOptionsSettings(
 
             // Quick Settings Tile Section
             SettingsNavigationRow(
-                item = SettingsCardItem(
-                    title = stringResource(R.string.settings_quick_settings_tile_title),
-                    description = stringResource(R.string.settings_quick_settings_tile_desc),
-                    actionOnPress = onAddQuickSettingsTile
-                ),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
+                item =
+                    SettingsCardItem(
+                        title = stringResource(R.string.settings_quick_settings_tile_title),
+                        description = stringResource(R.string.settings_quick_settings_tile_desc),
+                        actionOnPress = onAddQuickSettingsTile,
+                    ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             )
         }
     }

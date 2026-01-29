@@ -33,21 +33,21 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun NicknameDialog(
-        currentNickname: String?,
-        itemName: String,
-        onSave: (String?) -> Unit,
-        onDismiss: () -> Unit
+    currentNickname: String?,
+    itemName: String,
+    onSave: (String?) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val initialText = currentNickname ?: ""
     var nicknameText by
-            remember(currentNickname) {
-                mutableStateOf(
-                        TextFieldValue(
-                                text = initialText,
-                                selection = TextRange(initialText.length)
-                        )
-                )
-            }
+        remember(currentNickname) {
+            mutableStateOf(
+                TextFieldValue(
+                    text = initialText,
+                    selection = TextRange(initialText.length),
+                ),
+            )
+        }
     val hasExistingNickname = !currentNickname.isNullOrBlank()
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -62,59 +62,62 @@ fun NicknameDialog(
     }
 
     AlertDialog(
-            onDismissRequest = onDismiss,
-            title = {
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text =
+                    stringResource(
+                        if (hasExistingNickname) {
+                            R.string.dialog_nickname_title_edit
+                        } else {
+                            R.string.dialog_nickname_title
+                        },
+                    ),
+            )
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                        text =
-                                stringResource(
-                                        if (hasExistingNickname) R.string.dialog_nickname_title_edit
-                                        else R.string.dialog_nickname_title
-                                )
+                    text = stringResource(R.string.dialog_nickname_message, itemName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-            },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                            text = stringResource(R.string.dialog_nickname_message, itemName),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                    )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(
-                            value = nicknameText,
-                            onValueChange = { nicknameText = it },
-                            label = { Text(stringResource(R.string.dialog_nickname_hint)) },
-                            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                            singleLine = true,
-                            trailingIcon = {
-                                if (nicknameText.text.isNotEmpty()) {
-                                    IconButton(onClick = { nicknameText = TextFieldValue("") }) {
-                                        Icon(
-                                                imageVector = Icons.Rounded.Close,
-                                                contentDescription =
-                                                        stringResource(R.string.desc_clear_search),
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
+                OutlinedTextField(
+                    value = nicknameText,
+                    onValueChange = { nicknameText = it },
+                    label = { Text(stringResource(R.string.dialog_nickname_hint)) },
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    singleLine = true,
+                    trailingIcon = {
+                        if (nicknameText.text.isNotEmpty()) {
+                            IconButton(onClick = { nicknameText = TextFieldValue("") }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Close,
+                                    contentDescription =
+                                        stringResource(R.string.desc_clear_search),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                        onClick = {
-                            val trimmedNickname = nicknameText.text.trim()
-                            onSave(if (trimmedNickname.isBlank()) null else trimmedNickname)
                         }
-                ) { Text(text = stringResource(R.string.dialog_save)) }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(text = stringResource(R.string.dialog_cancel))
-                }
+                    },
+                )
             }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val trimmedNickname = nicknameText.text.trim()
+                    onSave(if (trimmedNickname.isBlank()) null else trimmedNickname)
+                },
+            ) { Text(text = stringResource(R.string.dialog_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        },
     )
 }

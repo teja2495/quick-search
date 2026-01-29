@@ -50,12 +50,12 @@ import kotlin.reflect.KClass
 
 @Composable
 fun ContactActionPickerDialog(
-        contactInfo: ContactInfo,
-        currentAction: ContactCardAction?,
-        onActionSelected: (ContactCardAction) -> Unit,
-        onDismiss: () -> Unit,
-        getLastShownPhoneNumber: (Long) -> String? = { null },
-        setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> }
+    contactInfo: ContactInfo,
+    currentAction: ContactCardAction?,
+    onActionSelected: (ContactCardAction) -> Unit,
+    onDismiss: () -> Unit,
+    getLastShownPhoneNumber: (Long) -> String? = { null },
+    setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> },
 ) {
     @Composable
     fun getActionDisplayName(action: ContactCardAction?): String {
@@ -77,40 +77,40 @@ fun ContactActionPickerDialog(
 
     // Reorder phone numbers to show last shown number first (only for multiple numbers)
     val reorderedPhoneNumbers =
-            remember(contactInfo.phoneNumbers, contactInfo.contactId, hasMultipleNumbers) {
-                if (!hasMultipleNumbers) {
+        remember(contactInfo.phoneNumbers, contactInfo.contactId, hasMultipleNumbers) {
+            if (!hasMultipleNumbers) {
+                contactInfo.phoneNumbers
+            } else {
+                val lastShownNumber = getLastShownPhoneNumber(contactInfo.contactId)
+                if (lastShownNumber == null || contactInfo.phoneNumbers.isEmpty()) {
                     contactInfo.phoneNumbers
                 } else {
-                    val lastShownNumber = getLastShownPhoneNumber(contactInfo.contactId)
-                    if (lastShownNumber == null || contactInfo.phoneNumbers.isEmpty()) {
-                        contactInfo.phoneNumbers
-                    } else {
-                        val lastShownIndex =
-                                contactInfo.phoneNumbers.indexOfFirst { number ->
-                                    PhoneNumberUtils.isSameNumber(number, lastShownNumber)
-                                }
-                        if (lastShownIndex >= 0) {
-                            val reordered = contactInfo.phoneNumbers.toMutableList()
-                            val lastShown = reordered.removeAt(lastShownIndex)
-                            reordered.add(0, lastShown)
-                            reordered
-                        } else {
-                            contactInfo.phoneNumbers
+                    val lastShownIndex =
+                        contactInfo.phoneNumbers.indexOfFirst { number ->
+                            PhoneNumberUtils.isSameNumber(number, lastShownNumber)
                         }
+                    if (lastShownIndex >= 0) {
+                        val reordered = contactInfo.phoneNumbers.toMutableList()
+                        val lastShown = reordered.removeAt(lastShownIndex)
+                        reordered.add(0, lastShown)
+                        reordered
+                    } else {
+                        contactInfo.phoneNumbers
                     }
                 }
             }
+        }
 
     // State for phone number selection
     var selectedPhoneIndex by remember { mutableStateOf(0) }
     val selectedPhoneNumber =
-            reorderedPhoneNumbers.getOrNull(selectedPhoneIndex) ?: contactInfo.primaryNumber
+        reorderedPhoneNumbers.getOrNull(selectedPhoneIndex) ?: contactInfo.primaryNumber
 
     LaunchedEffect(selectedPhoneIndex, reorderedPhoneNumbers, hasMultipleNumbers) {
         if (hasMultipleNumbers &&
-                        reorderedPhoneNumbers.isNotEmpty() &&
-                        selectedPhoneIndex >= 0 &&
-                        selectedPhoneIndex < reorderedPhoneNumbers.size
+            reorderedPhoneNumbers.isNotEmpty() &&
+            selectedPhoneIndex >= 0 &&
+            selectedPhoneIndex < reorderedPhoneNumbers.size
         ) {
             val number = reorderedPhoneNumbers[selectedPhoneIndex]
             if (number.isNotBlank()) {
@@ -120,108 +120,112 @@ fun ContactActionPickerDialog(
     }
 
     Dialog(
-            onDismissRequest = onDismiss,
-            properties =
-                    DialogProperties(
-                            usePlatformDefaultWidth = false,
-                            decorFitsSystemWindows = false
-                    )
+        onDismissRequest = onDismiss,
+        properties =
+            DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false,
+            ),
     ) {
         Box(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-                contentAlignment = Alignment.BottomCenter
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 24.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    tonalElevation = 6.dp
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 24.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                tonalElevation = 6.dp,
             ) {
                 Column(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
                     // Header with title and close button
                     Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
                             Text(
-                                    text = stringResource(
-                                            R.string.dialog_choose_contact_action_title,
-                                            "\"${getActionDisplayName(currentAction)}\""
+                                text =
+                                    stringResource(
+                                        R.string.dialog_choose_contact_action_title,
+                                        "\"${getActionDisplayName(currentAction)}\"",
                                     ),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = 16.dp)
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(start = 16.dp),
                             )
                         }
 
                         // Close button
                         IconButton(onClick = { onDismiss() }, modifier = Modifier.size(40.dp)) {
                             Icon(
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = stringResource(R.string.dialog_cancel),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = stringResource(R.string.dialog_cancel),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
 
                     // Card encompassing options with black background
                     Card(
-                            modifier = Modifier.fillMaxWidth().height(380.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Black),
-                            shape = MaterialTheme.shapes.large
+                        modifier = Modifier.fillMaxWidth().height(380.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Black),
+                        shape = MaterialTheme.shapes.large,
                     ) {
                         Column(
-                                modifier =
-                                        Modifier.fillMaxWidth()
-                                                .padding(
-                                                        start = 16.dp,
-                                                        top = 20.dp,
-                                                        end = 16.dp,
-                                                        bottom = 24.dp
-                                                ),
-                                verticalArrangement = Arrangement.spacedBy(20.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = 16.dp,
+                                        top = 20.dp,
+                                        end = 16.dp,
+                                        bottom = 24.dp,
+                                    ),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             // Phone number with navigation arrows
                             selectedPhoneNumber?.let { phoneNumber ->
                                 Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     // Left arrow
                                     if (reorderedPhoneNumbers.size > 1 && selectedPhoneIndex > 0) {
                                         IconButton(
-                                                onClick = {
-                                                    selectedPhoneIndex =
-                                                            (selectedPhoneIndex - 1).coerceAtLeast(
-                                                                    0
-                                                            )
-                                                },
-                                                modifier = Modifier.size(32.dp)
+                                            onClick = {
+                                                selectedPhoneIndex =
+                                                    (selectedPhoneIndex - 1).coerceAtLeast(
+                                                        0,
+                                                    )
+                                            },
+                                            modifier = Modifier.size(32.dp),
                                         ) {
                                             Icon(
-                                                    imageVector = Icons.Rounded.ChevronLeft,
-                                                    contentDescription =
-                                                            stringResource(
-                                                                    R.string
-                                                                            .contacts_action_previous_number
-                                                            ),
-                                                    tint = Color.White.copy(alpha = 0.7f),
-                                                    modifier = Modifier.size(20.dp)
+                                                imageVector = Icons.Rounded.ChevronLeft,
+                                                contentDescription =
+                                                    stringResource(
+                                                        R.string
+                                                            .contacts_action_previous_number,
+                                                    ),
+                                                tint = Color.White.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp),
                                             )
                                         }
                                     } else {
@@ -230,36 +234,36 @@ fun ContactActionPickerDialog(
 
                                     // Phone number
                                     Text(
-                                            text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = Color.White,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.weight(1f)
+                                        text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color.White,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.weight(1f),
                                     )
 
                                     // Right arrow
                                     if (reorderedPhoneNumbers.size > 1 &&
-                                                    selectedPhoneIndex <
-                                                            reorderedPhoneNumbers.size - 1
+                                        selectedPhoneIndex <
+                                        reorderedPhoneNumbers.size - 1
                                     ) {
                                         IconButton(
-                                                onClick = {
-                                                    selectedPhoneIndex =
-                                                            (selectedPhoneIndex + 1).coerceAtMost(
-                                                                    reorderedPhoneNumbers.size - 1
-                                                            )
-                                                },
-                                                modifier = Modifier.size(32.dp)
+                                            onClick = {
+                                                selectedPhoneIndex =
+                                                    (selectedPhoneIndex + 1).coerceAtMost(
+                                                        reorderedPhoneNumbers.size - 1,
+                                                    )
+                                            },
+                                            modifier = Modifier.size(32.dp),
                                         ) {
                                             Icon(
-                                                    imageVector = Icons.Rounded.ChevronRight,
-                                                    contentDescription =
-                                                            stringResource(
-                                                                    R.string
-                                                                            .contacts_action_next_number
-                                                            ),
-                                                    tint = Color.White.copy(alpha = 0.7f),
-                                                    modifier = Modifier.size(20.dp)
+                                                imageVector = Icons.Rounded.ChevronRight,
+                                                contentDescription =
+                                                    stringResource(
+                                                        R.string
+                                                            .contacts_action_next_number,
+                                                    ),
+                                                tint = Color.White.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(20.dp),
                                             )
                                         }
                                     } else {
@@ -271,33 +275,36 @@ fun ContactActionPickerDialog(
                             // Filter methods for selected number
                             val context = LocalContext.current
                             val methodsForSelectedNumber =
-                                    contactInfo.contactMethods.filter { method ->
-                                        when {
-                                            method is ContactMethod.TelegramMessage ||
-                                                    method is ContactMethod.TelegramCall ||
-                                                    method is ContactMethod.TelegramVideoCall -> {
-                                                if (selectedPhoneNumber != null) {
-                                                    TelegramContactUtils
-                                                            .isTelegramMethodForPhoneNumber(
-                                                                    context = context,
-                                                                    phoneNumber =
-                                                                            selectedPhoneNumber,
-                                                                    telegramMethod = method
-                                                            )
-                                                } else true
-                                            }
-                                            else -> {
-                                                val methodData =
-                                                        method.data.takeIf { it.isNotBlank() }
-                                                methodData != null &&
-                                                        selectedPhoneNumber != null &&
-                                                        PhoneNumberUtils.isSameNumber(
-                                                                methodData,
-                                                                selectedPhoneNumber
-                                                        )
+                                contactInfo.contactMethods.filter { method ->
+                                    when {
+                                        method is ContactMethod.TelegramMessage ||
+                                            method is ContactMethod.TelegramCall ||
+                                            method is ContactMethod.TelegramVideoCall -> {
+                                            if (selectedPhoneNumber != null) {
+                                                TelegramContactUtils
+                                                    .isTelegramMethodForPhoneNumber(
+                                                        context = context,
+                                                        phoneNumber =
+                                                        selectedPhoneNumber,
+                                                        telegramMethod = method,
+                                                    )
+                                            } else {
+                                                true
                                             }
                                         }
+
+                                        else -> {
+                                            val methodData =
+                                                method.data.takeIf { it.isNotBlank() }
+                                            methodData != null &&
+                                                selectedPhoneNumber != null &&
+                                                PhoneNumberUtils.isSameNumber(
+                                                    methodData,
+                                                    selectedPhoneNumber,
+                                                )
+                                        }
                                     }
+                                }
 
                             // First row: call, message, google meet
                             val firstRowMethods = mutableListOf<ContactMethod>()
@@ -314,35 +321,55 @@ fun ContactActionPickerDialog(
                             val onClick: (ContactMethod) -> Unit = { method ->
                                 selectedPhoneNumber?.let { phoneNumber ->
                                     val action =
-                                            when (method) {
-                                                is ContactMethod.Phone ->
-                                                        ContactCardAction.Phone(phoneNumber)
-                                                is ContactMethod.Sms ->
-                                                        ContactCardAction.Sms(phoneNumber)
-                                                is ContactMethod.WhatsAppCall ->
-                                                        ContactCardAction.WhatsAppCall(phoneNumber)
-                                                is ContactMethod.WhatsAppMessage ->
-                                                        ContactCardAction.WhatsAppMessage(
-                                                                phoneNumber
-                                                        )
-                                                is ContactMethod.WhatsAppVideoCall ->
-                                                        ContactCardAction.WhatsAppVideoCall(
-                                                                phoneNumber
-                                                        )
-                                                is ContactMethod.TelegramMessage ->
-                                                        ContactCardAction.TelegramMessage(
-                                                                phoneNumber
-                                                        )
-                                                is ContactMethod.TelegramCall ->
-                                                        ContactCardAction.TelegramCall(phoneNumber)
-                                                is ContactMethod.TelegramVideoCall ->
-                                                        ContactCardAction.TelegramVideoCall(
-                                                                phoneNumber
-                                                        )
-                                                is ContactMethod.GoogleMeet ->
-                                                        ContactCardAction.GoogleMeet(phoneNumber)
-                                                else -> null
+                                        when (method) {
+                                            is ContactMethod.Phone -> {
+                                                ContactCardAction.Phone(phoneNumber)
                                             }
+
+                                            is ContactMethod.Sms -> {
+                                                ContactCardAction.Sms(phoneNumber)
+                                            }
+
+                                            is ContactMethod.WhatsAppCall -> {
+                                                ContactCardAction.WhatsAppCall(phoneNumber)
+                                            }
+
+                                            is ContactMethod.WhatsAppMessage -> {
+                                                ContactCardAction.WhatsAppMessage(
+                                                    phoneNumber,
+                                                )
+                                            }
+
+                                            is ContactMethod.WhatsAppVideoCall -> {
+                                                ContactCardAction.WhatsAppVideoCall(
+                                                    phoneNumber,
+                                                )
+                                            }
+
+                                            is ContactMethod.TelegramMessage -> {
+                                                ContactCardAction.TelegramMessage(
+                                                    phoneNumber,
+                                                )
+                                            }
+
+                                            is ContactMethod.TelegramCall -> {
+                                                ContactCardAction.TelegramCall(phoneNumber)
+                                            }
+
+                                            is ContactMethod.TelegramVideoCall -> {
+                                                ContactCardAction.TelegramVideoCall(
+                                                    phoneNumber,
+                                                )
+                                            }
+
+                                            is ContactMethod.GoogleMeet -> {
+                                                ContactCardAction.GoogleMeet(phoneNumber)
+                                            }
+
+                                            else -> {
+                                                null
+                                            }
+                                        }
                                     action?.let {
                                         onActionSelected(it)
                                         onDismiss()
@@ -352,15 +379,15 @@ fun ContactActionPickerDialog(
 
                             if (firstRowMethods.isNotEmpty()) {
                                 Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceEvenly,
-                                        verticalAlignment = Alignment.Top
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.Top,
                                 ) {
                                     firstRowMethods.forEach { method ->
                                         ContactActionButton(
-                                                method = method,
-                                                onClick = { onClick(method) },
-                                                usePhoneIconForCallActions = true
+                                            method = method,
+                                            onClick = { onClick(method) },
+                                            usePhoneIconForCallActions = true,
                                         )
                                     }
                                 }
@@ -368,26 +395,26 @@ fun ContactActionPickerDialog(
 
                             // WhatsApp row
                             renderActionPickerRow(
-                                    methods = methodsForSelectedNumber,
-                                    methodTypes =
-                                            listOf(
-                                                    ContactMethod.WhatsAppCall::class,
-                                                    ContactMethod.WhatsAppMessage::class,
-                                                    ContactMethod.WhatsAppVideoCall::class
-                                            ),
-                                    onMethodClick = onClick
+                                methods = methodsForSelectedNumber,
+                                methodTypes =
+                                    listOf(
+                                        ContactMethod.WhatsAppCall::class,
+                                        ContactMethod.WhatsAppMessage::class,
+                                        ContactMethod.WhatsAppVideoCall::class,
+                                    ),
+                                onMethodClick = onClick,
                             )
 
                             // Telegram row
                             renderActionPickerRow(
-                                    methods = methodsForSelectedNumber,
-                                    methodTypes =
-                                            listOf(
-                                                    ContactMethod.TelegramMessage::class,
-                                                    ContactMethod.TelegramCall::class,
-                                                    ContactMethod.TelegramVideoCall::class
-                                            ),
-                                    onMethodClick = onClick
+                                methods = methodsForSelectedNumber,
+                                methodTypes =
+                                    listOf(
+                                        ContactMethod.TelegramMessage::class,
+                                        ContactMethod.TelegramCall::class,
+                                        ContactMethod.TelegramVideoCall::class,
+                                    ),
+                                onMethodClick = onClick,
                             )
                         }
                     }
@@ -399,24 +426,24 @@ fun ContactActionPickerDialog(
 
 @Composable
 private inline fun renderActionPickerRow(
-        methods: List<ContactMethod>,
-        methodTypes: List<KClass<out ContactMethod>>,
-        crossinline onMethodClick: (ContactMethod) -> Unit
+    methods: List<ContactMethod>,
+    methodTypes: List<KClass<out ContactMethod>>,
+    crossinline onMethodClick: (ContactMethod) -> Unit,
 ) {
     val filteredMethods =
-            methods.filter { method -> methodTypes.any { type -> type.isInstance(method) } }
+        methods.filter { method -> methodTypes.any { type -> type.isInstance(method) } }
 
     if (filteredMethods.isNotEmpty()) {
         Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Top
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Top,
         ) {
             filteredMethods.forEach { method ->
                 ContactActionButton(
-                        method = method,
-                        onClick = { onMethodClick(method) },
-                        usePhoneIconForCallActions = true
+                    method = method,
+                    onClick = { onMethodClick(method) },
+                    usePhoneIconForCallActions = true,
                 )
             }
         }
