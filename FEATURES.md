@@ -2,6 +2,10 @@
 
 **Version**: 1.5.1 (January 26 2026)
 
+## Overlay Mode
+
+- **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This dictates the main experience: search from any screen without leaving what you're doing.
+
 ## Core Search Capabilities
 
 ### Search Functions
@@ -73,7 +77,7 @@
 - **Enable/Disable Categories** - Toggle individual search result types on or off
 - **Auto-Expand Results** - Show all results at once without tapping "More" button (This option is available in additional settings)
 - **Sort Options** - Results are ordered by most-opened apps by default (can be disabled)
-- **Recent Searches** - Show your recently accessed files, contacts, settings, and app shortcuts when the search bar is empty (choose how many to display, default is 3)
+- **Recent Searches** - Show recently accessed items from all search types (apps, shortcuts, files, contacts, settings) when the search bar is empty (choose how many to display, default is 3)
 - **Delete Recent Queries** - Remove individual recent queries with a tap
 
 ### Visual Customization
@@ -138,6 +142,7 @@
 - Customize after adding by long pressing and tapping the settings button
 
 ### Widget Customization Options
+- **Custom Widget Buttons** - Add apps, shortcuts, files, contacts, and settings to your widget
 - **Background Color** - Choose black or white
 - **Corner Radius** - Adjust roundness of corners
 - **Border Thickness** - Modify border width
