@@ -127,11 +127,17 @@ fun MessagingSection(
         }
 
         if (isWhatsAppInstalled || isTelegramInstalled) {
+            val topSpacingModifier =
+                if (showDirectDial) {
+                    Modifier.padding(top = DesignTokens.SpacingMedium)
+                } else {
+                    Modifier
+                }
             DefaultMessagingAppCard(
                 messagingOptions = messagingOptions,
                 selectedApp = messagingApp,
                 onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
-                modifier = Modifier.padding(top = DesignTokens.SpacingMedium),
+                modifier = topSpacingModifier,
             )
         }
     }
