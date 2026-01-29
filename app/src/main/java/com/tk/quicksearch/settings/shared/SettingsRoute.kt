@@ -4,10 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -53,7 +51,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
@@ -575,37 +572,6 @@ fun SettingsRoute(
         viewModel.handleOptionalPermissionChange()
     }
 
-    var pendingOverlayEnable by remember { mutableStateOf(false) }
-    val overlayPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-            ) {
-                if (pendingOverlayEnable) {
-                    pendingOverlayEnable = false
-                    if (PermissionUtils.hasOverlayPermission(context)) {
-                        viewModel.setOverlayModeEnabled(true)
-                    } else {
-                        viewModel.setOverlayModeEnabled(false)
-                        Toast.makeText(
-                                        context,
-                                        context.getString(
-                                                R.string.settings_overlay_permission_denied
-                                        ),
-                                        Toast.LENGTH_SHORT
-                                )
-                                .show()
-                    }
-                }
-            }
-
-    // Overlay permission must be granted in system settings.
-    val requestOverlayPermission = {
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-            data = Uri.parse("package:${context.packageName}")
-        }
-        overlayPermissionLauncher.launch(intent)
-    }
-
     val contactsPermissionLauncher =
             rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestPermission()
@@ -693,15 +659,7 @@ fun SettingsRoute(
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
     val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
-        if (!enabled) {
-            pendingOverlayEnable = false
-            viewModel.setOverlayModeEnabled(false)
-        } else if (PermissionUtils.hasOverlayPermission(context)) {
-            viewModel.setOverlayModeEnabled(true)
-        } else {
-            pendingOverlayEnable = true
-            requestOverlayPermission()
-        }
+        viewModel.setOverlayModeEnabled(enabled)
     }
 
     // Define permission request handlers

@@ -49,7 +49,6 @@ import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.ShortcutHandler
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
-import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
@@ -1993,7 +1992,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val hasFiles = hasFilePermission()
         val hasCall = hasCallPermission()
         val hasWallpaper = hasWallpaperPermission()
-        val hasOverlay = PermissionUtils.hasOverlayPermission(getApplication())
         val previousState = _uiState.value
         val changed =
                 previousState.hasContactPermission != hasContacts ||
@@ -2001,10 +1999,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         previousState.hasCallPermission != hasCall ||
                         previousState.hasWallpaperPermission != hasWallpaper ||
                         previousState.wallpaperAvailable != wallpaperAvailable
-
-        if (!hasOverlay && overlayModeEnabled) {
-            setOverlayModeEnabled(false)
-        }
 
         if (changed) {
 

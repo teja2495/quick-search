@@ -13,6 +13,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,6 @@ fun MainContent(
         onSearchBackPressed: () -> Unit = {},
         navigationRequest: NavigationRequest? = null,
         onNavigationRequestHandled: () -> Unit = {},
-        isFromOverlay: Boolean = false,
         onFinishActivity: () -> Unit = {}
 ) {
     val isFirstLaunch = userPreferences.isFirstLaunch()
@@ -231,7 +231,6 @@ fun MainContent(
                         onSettingsDetailTypeChange = { settingsDetailType = it },
                         viewModel = searchViewModel,
                         onSearchBackPressed = onSearchBackPressed,
-                        isFromOverlay = isFromOverlay,
                         onFinishActivity = onFinishActivity
                 )
             }
@@ -247,10 +246,9 @@ private fun NavigationContent(
         onSettingsDetailTypeChange: (SettingsDetailType?) -> Unit,
         viewModel: SearchViewModel,
         onSearchBackPressed: () -> Unit,
-        isFromOverlay: Boolean,
         onFinishActivity: () -> Unit
 ) {
-    // Preserve scroll state for forward navigation but reset for back navigation
+    val uiState by viewModel.uiState.collectAsState()
     val settingsScrollState = rememberScrollState()
 
     LaunchedEffect(destination) {
@@ -350,7 +348,7 @@ private fun NavigationContent(
                     } else {
                         SettingsRoute(
                                 onBack = {
-                                    if (isFromOverlay) {
+                                    if (uiState.overlayModeEnabled) {
                                         onFinishActivity()
                                     } else {
                                         onDestinationChange(RootDestination.Search)

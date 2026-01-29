@@ -429,7 +429,7 @@ private fun IconPackOptionRow(
         selected: Boolean,
         onClick: () -> Unit
 ) {
-    val iconBitmap = packageName?.let { rememberAppIcon(packageName = it) }
+    val iconBitmap = packageName?.let { rememberAppIcon(packageName = it).bitmap }
     Row(
             modifier =
                     Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp),

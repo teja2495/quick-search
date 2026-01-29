@@ -21,7 +21,6 @@ import com.tk.quicksearch.navigation.RootDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.overlay.OverlayModeController
-import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.WallpaperUtils
@@ -43,7 +42,6 @@ class MainActivity : ComponentActivity() {
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
-    private val isFromOverlay = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -131,13 +129,9 @@ class MainActivity : ComponentActivity() {
                 intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
                         ?: false
         if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
-            if (PermissionUtils.hasOverlayPermission(this)) {
-                OverlayModeController.startOverlay(this)
-                finish()
-                return true
-            } else {
-                userPreferences.setOverlayModeEnabled(false)
-            }
+            OverlayModeController.startOverlay(this)
+            finish()
+            return true
         }
         return false
     }
@@ -161,7 +155,6 @@ class MainActivity : ComponentActivity() {
                             onSearchBackPressed = { moveTaskToBack(true) },
                             navigationRequest = navigationRequest.value,
                             onNavigationRequestHandled = { navigationRequest.value = null },
-                            isFromOverlay = isFromOverlay.value,
                             onFinishActivity = {
                                 if (userPreferences.isOverlayModeEnabled()) {
                                     OverlayModeController.startOverlay(this@MainActivity)
@@ -211,8 +204,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        isFromOverlay.value =
-                intent?.getBooleanExtra(OverlayModeController.EXTRA_FROM_OVERLAY, false) ?: false
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
             navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
         }

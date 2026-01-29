@@ -455,16 +455,16 @@ internal fun PersistentSearchField(
                                                         )
                                                 }
                                                 is SearchTarget.Browser -> {
-                                                        val iconBitmap =
+                                                        val iconResult =
                                                                 rememberAppIcon(
                                                                         packageName =
                                                                                 detectedShortcutTarget
                                                                                         .app
                                                                                         .packageName
                                                                 )
-                                                        if (iconBitmap != null) {
+                                                        if (iconResult.bitmap != null) {
                                                                 Image(
-                                                                        bitmap = iconBitmap,
+                                                                        bitmap = iconResult.bitmap!!,
                                                                         contentDescription = null,
                                                                         modifier =
                                                                                 Modifier.padding(

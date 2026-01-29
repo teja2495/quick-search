@@ -345,10 +345,10 @@ private fun SearchEngineRowContent(
                 )
             }
             is SearchTarget.Browser -> {
-                val iconBitmap = rememberAppIcon(packageName = engine.app.packageName)
-                if (iconBitmap != null) {
+                val iconResult = rememberAppIcon(packageName = engine.app.packageName)
+                if (iconResult.bitmap != null) {
                     Image(
-                        bitmap = iconBitmap,
+                        bitmap = iconResult.bitmap!!,
                         contentDescription = engineName,
                         modifier = Modifier.size(DesignTokens.IconSize),
                         contentScale = ContentScale.Fit

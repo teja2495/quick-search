@@ -7,7 +7,7 @@ import com.tk.quicksearch.app.MainActivity
 object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"
     const val EXTRA_OPEN_SETTINGS = "overlay_open_settings"
-    const val EXTRA_FROM_OVERLAY = "extra_from_overlay"
+    const val EXTRA_CLOSE_OVERLAY = "overlay_close"
     const val EXTRA_CONTACT_ACTION_PICKER = "overlay_contact_action_picker"
     const val EXTRA_CONTACT_ACTION_PICKER_ID = "overlay_contact_action_picker_id"
     const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
@@ -21,13 +21,24 @@ object OverlayModeController {
     )
 
     fun startOverlay(context: Context) {
-        val intent = Intent(context, OverlayService::class.java)
-        context.startService(intent)
+        val intent =
+                Intent(context, OverlayActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+        context.startActivity(intent)
     }
 
     fun stopOverlay(context: Context) {
-        val intent = Intent(context, OverlayService::class.java)
-        context.stopService(intent)
+        val intent =
+                Intent(context, OverlayActivity::class.java).apply {
+                    putExtra(EXTRA_CLOSE_OVERLAY, true)
+                    addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    )
+                }
+        context.startActivity(intent)
     }
 
     fun openMainActivity(
@@ -39,7 +50,6 @@ object OverlayModeController {
                 Intent(context, MainActivity::class.java).apply {
                     putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                     putExtra(EXTRA_OPEN_SETTINGS, openSettings)
-                    putExtra(EXTRA_FROM_OVERLAY, true)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     if (contactActionRequest != null) {
                         putExtra(EXTRA_CONTACT_ACTION_PICKER, true)

@@ -267,12 +267,12 @@ private fun ExcludedItemIcon(item: ExcludedItem, iconPackPackage: String?) {
 
 @Composable
 private fun AppShortcutIconPlaceholder(shortcut: StaticShortcut, iconPackPackage: String?) {
-    val iconBitmap =
+    val iconResult =
             rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage)
 
-    if (iconBitmap != null) {
+    if (iconResult.bitmap != null) {
         Image(
-                bitmap = iconBitmap,
+                bitmap = iconResult.bitmap!!,
                 contentDescription = null,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
                 contentScale = ContentScale.Fit
@@ -289,12 +289,12 @@ private fun AppShortcutIconPlaceholder(shortcut: StaticShortcut, iconPackPackage
 
 @Composable
 private fun AppIconPlaceholder(appInfo: AppInfo, iconPackPackage: String?) {
-    val iconBitmap =
+    val iconResult =
             rememberAppIcon(packageName = appInfo.packageName, iconPackPackage = iconPackPackage)
 
-    if (iconBitmap != null) {
+    if (iconResult.bitmap != null) {
         Image(
-                bitmap = iconBitmap,
+                bitmap = iconResult.bitmap!!,
                 contentDescription = null,
                 modifier = Modifier.size(DEFAULT_ICON_SIZE),
                 contentScale = ContentScale.Fit

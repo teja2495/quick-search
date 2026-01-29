@@ -80,20 +80,66 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.dp
 
 @Composable
+internal fun ExcludeUndoSnackbarHost(
+        hostState: SnackbarHostState,
+        modifier: Modifier = Modifier
+) {
+    SnackbarHost(
+            hostState = hostState,
+            snackbar = { data ->
+                val message = data.visuals.message
+                val marker = " excluded from "
+                val markerIndex = message.indexOf(marker)
+                val annotatedMessage =
+                        if (markerIndex > 0) {
+                            buildAnnotatedString {
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(message.substring(0, markerIndex))
+                                }
+                                append(message.substring(markerIndex))
+                            }
+                        } else {
+                            AnnotatedString(message)
+                        }
+                val actionLabel = data.visuals.actionLabel
+                Snackbar(
+                        action =
+                                actionLabel?.let { label ->
+                                    {
+                                        TextButton(onClick = { data.performAction() }) {
+                                            Text(text = label)
+                                        }
+                                    }
+                                },
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        actionContentColor = MaterialTheme.colorScheme.primary,
+                        shape = DesignTokens.ShapeLarge
+                ) {
+                    Text(
+                            text = annotatedMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            modifier = modifier
+    )
+}
+
+@Composable
 fun SearchRoute(
         modifier: Modifier = Modifier,
         onSettingsClick: () -> Unit = {},
         onSearchEngineLongPress: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
-        onOverlayShowContactMethods: ((ContactInfo) -> Unit)? = null,
-        onOverlayContactActionLongPress:
-                ((ContactInfo, Boolean, String?) -> Unit)? = null,
         onOverlayDismissRequest: (() -> Unit)? = null,
         onShowToast: (Int) -> Unit = {},
         viewModel: SearchViewModel = viewModel(),
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onWallpaperLoaded: (() -> Unit)? = null,
-        isOverlayPresentation: Boolean = false
+        isOverlayPresentation: Boolean = false,
+        overlaySnackbarHostState: SnackbarHostState? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -116,13 +162,14 @@ fun SearchRoute(
             remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutNickname(id) } }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
     val snackbarScope = rememberCoroutineScope()
     val undoLabel = stringResource(R.string.action_undo)
 
     val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo ->
         snackbarScope.launch {
             val result =
-                    snackbarHostState.showSnackbar(
+                    effectiveSnackbarHostState.showSnackbar(
                             message = message,
                             actionLabel = undoLabel,
                             duration = SnackbarDuration.Short
@@ -220,18 +267,7 @@ fun SearchRoute(
 
     val showContactMethodsBottomSheet: (ContactInfo) -> Unit = { contact ->
         viewModel.trackRecentContactTap(contact)
-        if (isOverlayPresentation && onOverlayShowContactMethods != null) {
-            onOverlayShowContactMethods(contact)
-        } else {
-            viewModel.showContactMethodsBottomSheet(contact)
-        }
-    }
-
-    fun performOverlayNavigation(action: () -> Unit) {
-        action()
-        if (isOverlayPresentation) {
-            onOverlayDismissRequest?.invoke()
-        }
+        viewModel.showContactMethodsBottomSheet(contact)
     }
 
     val dismissContactMethodsBottomSheet: () -> Unit = {
@@ -288,11 +324,11 @@ fun SearchRoute(
                 state = uiState,
                 onQueryChanged = viewModel::onQueryChange,
                 onClearQuery = viewModel::clearQuery,
-                onRequestUsagePermission = { performOverlayNavigation { viewModel.openUsageAccessSettings() } },
+                onRequestUsagePermission = { viewModel.openUsageAccessSettings() },
                 onSettingsClick = onSettingsClick,
-                onAppClick = { app -> performOverlayNavigation { viewModel.launchApp(app) } },
-                onAppInfoClick = { app -> performOverlayNavigation { viewModel.openAppInfo(app) } },
-                onUninstallClick = { app -> performOverlayNavigation { viewModel.requestUninstall(app) } },
+                onAppClick = { app -> viewModel.launchApp(app) },
+                onAppInfoClick = { app -> viewModel.openAppInfo(app) },
+                onUninstallClick = { app -> viewModel.requestUninstall(app) },
                 onHideApp = onHideAppWithUndo,
                 onPinApp = viewModel::pinApp,
                 onUnpinApp = viewModel::unpinApp,
@@ -302,7 +338,7 @@ fun SearchRoute(
                 onCallContact = callContactWithPermission,
                 onSmsContact = viewModel::smsContact,
                 onContactMethodClick = viewModel::handleContactMethod,
-                onFileClick = { file -> performOverlayNavigation { viewModel.openFile(file) } },
+                onFileClick = { file -> viewModel.openFile(file) },
                 onPinContact = viewModel::pinContact,
                 onUnpinContact = viewModel::unpinContact,
                 onExcludeContact = onExcludeContactWithUndo,
@@ -310,11 +346,11 @@ fun SearchRoute(
                 onUnpinFile = viewModel::unpinFile,
                 onExcludeFile = onExcludeFileWithUndo,
                 onExcludeFileExtension = onExcludeFileExtensionWithUndo,
-                onSettingClick = { setting -> performOverlayNavigation { viewModel.openSetting(setting) } },
+                onSettingClick = { setting -> viewModel.openSetting(setting) },
                 onPinSetting = viewModel::pinSetting,
                 onUnpinSetting = viewModel::unpinSetting,
                 onExcludeSetting = onExcludeSettingWithUndo,
-                onAppShortcutClick = { shortcut -> performOverlayNavigation { viewModel.launchAppShortcut(shortcut) } },
+                onAppShortcutClick = { shortcut -> viewModel.launchAppShortcut(shortcut) },
                 onPinAppShortcut = viewModel::pinAppShortcut,
                 onUnpinAppShortcut = viewModel::unpinAppShortcut,
                 onExcludeAppShortcut = onExcludeAppShortcutWithUndo,
@@ -322,12 +358,12 @@ fun SearchRoute(
                 onAppShortcutAppInfoClick = { shortcut -> viewModel.openAppInfo(shortcut.packageName) },
                 onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
                 onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
-                onSearchTargetClick = { query, target -> performOverlayNavigation { viewModel.openSearchTarget(query, target) } },
+                onSearchTargetClick = { query, target -> viewModel.openSearchTarget(query, target) },
                 onSearchEngineLongPress = onSearchEngineLongPress,
-                onDirectSearchEmailClick = { email -> performOverlayNavigation { viewModel.openEmail(email) } },
+                onDirectSearchEmailClick = { email -> viewModel.openEmail(email) },
                 onSetPersonalContext = viewModel::setPersonalContext,
-                onOpenAppSettings = { performOverlayNavigation { viewModel.openAppSettings() } },
-                onOpenStorageAccessSettings = { performOverlayNavigation { viewModel.openAllFilesAccessSettings() } },
+                onOpenAppSettings = { viewModel.openAppSettings() },
+                onOpenStorageAccessSettings = { viewModel.openAllFilesAccessSettings() },
                 onAppNicknameClick = { app ->
                     // This will be handled by the dialog state in SearchScreen
                 },
@@ -355,9 +391,6 @@ fun SearchRoute(
                 onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
                 onWebSuggestionClick = { suggestion: String ->
                     viewModel.onWebSuggestionTap(suggestion)
-                    if (uiState.detectedShortcutTarget != null) {
-                        onOverlayDismissRequest?.invoke()
-                    }
                 },
                 onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
                 onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
@@ -371,58 +404,22 @@ fun SearchRoute(
                 onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
                 onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
                 onWallpaperLoaded = onWallpaperLoaded,
-                isOverlayPresentation = isOverlayPresentation,
-                onOverlayContactActionLongPress = onOverlayContactActionLongPress
+                isOverlayPresentation = isOverlayPresentation
         )
 
-        SnackbarHost(
-                hostState = snackbarHostState,
-                snackbar = { data ->
-                    val message = data.visuals.message
-                    val marker = " excluded from "
-                    val markerIndex = message.indexOf(marker)
-                    val annotatedMessage =
-                            if (markerIndex > 0) {
-                                buildAnnotatedString {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(message.substring(0, markerIndex))
-                                    }
-                                    append(message.substring(markerIndex))
-                                }
-                            } else {
-                                AnnotatedString(message)
-                            }
-                    val actionLabel = data.visuals.actionLabel
-                    Snackbar(
-                            action =
-                                    actionLabel?.let { label ->
-                                        {
-                                            TextButton(onClick = { data.performAction() }) {
-                                                Text(text = label)
-                                            }
-                                        }
-                                    },
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            actionContentColor = MaterialTheme.colorScheme.primary,
-                            shape = DesignTokens.ShapeLarge
-                    ) {
-                        Text(
-                                text = annotatedMessage,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                modifier =
-                        Modifier.align(Alignment.BottomCenter)
-                                .imePadding()
-                                .padding(
-                                        start = DesignTokens.SpacingLarge,
-                                        end = DesignTokens.SpacingLarge,
-                                        bottom = DesignTokens.SpacingHuge
-                                )
-        )
+        if (overlaySnackbarHostState == null) {
+            ExcludeUndoSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier =
+                            Modifier.align(Alignment.BottomCenter)
+                                    .imePadding()
+                                    .padding(
+                                            start = DesignTokens.SpacingLarge,
+                                            end = DesignTokens.SpacingLarge,
+                                            bottom = DesignTokens.SpacingHuge
+                                    )
+            )
+        }
     }
 }
 
@@ -473,8 +470,6 @@ fun SearchScreen(
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onWallpaperLoaded: (() -> Unit)? = null,
         isOverlayPresentation: Boolean = false,
-        onOverlayContactActionLongPress:
-                ((ContactInfo, Boolean, String?) -> Unit)? = null,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
         onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -682,38 +677,20 @@ fun SearchScreen(
                     getAppNickname = getAppNickname,
                     getAppShortcutNickname = getAppShortcutNickname,
                     onPrimaryActionLongPress = { contact ->
-                        val pickerState =
+                        contactActionPickerDialogState =
                                 ContactActionPickerDialogState(
                                         contact,
                                         true,
                                         getDefaultContactAction(contact, true)
                                 )
-                        if (isOverlayPresentation && onOverlayContactActionLongPress != null) {
-                            onOverlayContactActionLongPress(
-                                    contact,
-                                    true,
-                                    pickerState.currentAction?.toSerializedString()
-                            )
-                        } else {
-                            contactActionPickerDialogState = pickerState
-                        }
                     },
                     onSecondaryActionLongPress = { contact ->
-                        val pickerState =
+                        contactActionPickerDialogState =
                                 ContactActionPickerDialogState(
                                         contact,
                                         false,
                                         getDefaultContactAction(contact, false)
                                 )
-                        if (isOverlayPresentation && onOverlayContactActionLongPress != null) {
-                            onOverlayContactActionLongPress(
-                                    contact,
-                                    false,
-                                    pickerState.currentAction?.toSerializedString()
-                            )
-                        } else {
-                            contactActionPickerDialogState = pickerState
-                        }
                     },
                     onCustomAction = onCustomAction,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,
