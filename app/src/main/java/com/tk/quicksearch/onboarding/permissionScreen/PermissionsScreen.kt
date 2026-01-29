@@ -308,7 +308,7 @@ fun PermissionsScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(
-                text = stringResource(R.string.permissions_action_continue),
+                text = stringResource(R.string.setup_action_next),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )

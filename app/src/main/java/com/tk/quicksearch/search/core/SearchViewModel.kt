@@ -689,6 +689,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private fun shouldShowSearchBarWelcome(): Boolean {
         // Show if not seen before, regardless of app open count.
         // This ensures existing users also see the new feature once.
+        if (userPreferences.consumeForceSearchBarWelcomeOnNextOpen()) {
+            userPreferences.setHasSeenSearchBarWelcome(true)
+            return true
+        }
+
         val hasSeen = userPreferences.hasSeenSearchBarWelcome()
 
         if (!hasSeen) {
@@ -698,7 +703,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         return false
     }
 
+    fun requestSearchBarWelcomeAnimationFromOnboarding() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setForceSearchBarWelcomeOnNextOpen(true)
+            userPreferences.setHasSeenSearchBarWelcome(true)
+        }
+        _uiState.update { it.copy(showSearchBarWelcomeAnimation = true) }
+    }
+
     fun onSearchBarWelcomeAnimationCompleted() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setForceSearchBarWelcomeOnNextOpen(false)
+        }
         _uiState.update { it.copy(showSearchBarWelcomeAnimation = false) }
     }
 

@@ -74,6 +74,7 @@ private data class MessagingOption(val app: MessagingApp, val labelRes: Int)
  * @param isWhatsAppInstalled Whether WhatsApp is available on the device
  * @param isTelegramInstalled Whether Telegram is available on the device
  * @param onMessagingAppSelected Callback when a messaging option is selected, handles installation check
+ * @param showDirectDial Whether to show the direct dial toggle (e.g. hidden in onboarding)
  * @param modifier Modifier to be applied to the section title
  */
 @Composable
@@ -88,6 +89,7 @@ fun MessagingSection(
     isTelegramInstalled: Boolean = false,
     onMessagingAppSelected: ((MessagingApp) -> Unit)? = null,
     showTitle: Boolean = true,
+    showDirectDial: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     if (!contactsSectionEnabled) {
@@ -112,18 +114,22 @@ fun MessagingSection(
                 }
         }
 
-        DirectDialCard(
-            directDialEnabled = directDialEnabled,
-            onToggleDirectDial = onToggleDirectDial,
-            hasCallPermission = hasCallPermission
-        )
+        if (showDirectDial) {
+            DirectDialCard(
+                directDialEnabled = directDialEnabled,
+                onToggleDirectDial = onToggleDirectDial,
+                hasCallPermission = hasCallPermission
+            )
+        }
 
-        DefaultMessagingAppCard(
-            messagingOptions = messagingOptions,
-            selectedApp = messagingApp,
-            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
-            modifier = Modifier.padding(top = DesignTokens.SpacingMedium)
-        )
+        if (isWhatsAppInstalled || isTelegramInstalled) {
+            DefaultMessagingAppCard(
+                messagingOptions = messagingOptions,
+                selectedApp = messagingApp,
+                onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
+                modifier = Modifier.padding(top = DesignTokens.SpacingMedium)
+            )
+        }
     }
 }
 

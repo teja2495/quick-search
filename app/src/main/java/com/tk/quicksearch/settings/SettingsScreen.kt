@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Refresh
@@ -146,6 +147,7 @@ fun SettingsScreen(
                             subtitle = stringResource(R.string.settings_overlay_mode_desc),
                             checked = state.overlayModeEnabled,
                             onCheckedChange = callbacks.onToggleOverlayMode,
+                            leadingIcon = Icons.Rounded.Layers,
                             isFirstItem = true,
                             isLastItem = true,
                             showDivider = false

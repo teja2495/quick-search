@@ -777,6 +777,20 @@ class UserAppPreferences(private val context: Context) {
         fun setHasSeenSearchBarWelcome(seen: Boolean) =
                 uiPreferences.setHasSeenSearchBarWelcome(seen)
 
+        fun shouldForceSearchBarWelcomeOnNextOpen(): Boolean =
+                uiPreferences.shouldForceSearchBarWelcomeOnNextOpen()
+
+        fun setForceSearchBarWelcomeOnNextOpen(force: Boolean) =
+                uiPreferences.setForceSearchBarWelcomeOnNextOpen(force)
+
+        fun consumeForceSearchBarWelcomeOnNextOpen(): Boolean {
+            val shouldForce = uiPreferences.shouldForceSearchBarWelcomeOnNextOpen()
+            if (shouldForce) {
+                uiPreferences.setForceSearchBarWelcomeOnNextOpen(false)
+            }
+            return shouldForce
+        }
+
         fun hasSeenContactActionHint(): Boolean = uiPreferences.hasSeenContactActionHint()
 
         fun setHasSeenContactActionHint(seen: Boolean) =

@@ -70,7 +70,6 @@ fun MainContent(
     val initialSettingsDetailType = navigationRequest?.settingsDetailType
     var destination by rememberSaveable { mutableStateOf(initialDestination) }
     var settingsDetailType by rememberSaveable { mutableStateOf(initialSettingsDetailType) }
-    var shouldShowFinalSetup by remember { mutableStateOf(false) }
 
     LaunchedEffect(navigationRequest) {
         navigationRequest?.let { request ->
@@ -143,25 +142,8 @@ fun MainContent(
             AppScreen.Permissions -> {
                 PermissionsScreen(
                         currentStep = 1,
-                        totalSteps = if (shouldShowFinalSetup) 3 else 2,
+                        totalSteps = 3,
                         onPermissionsComplete = {
-                            val hasContactsPermission =
-                                    context.checkSelfPermission(
-                                            android.Manifest.permission.READ_CONTACTS
-                                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-
-                            val hasFilesPermission =
-                                    if (android.os.Build.VERSION.SDK_INT >=
-                                                    android.os.Build.VERSION_CODES.R
-                                    ) {
-                                        android.os.Environment.isExternalStorageManager()
-                                    } else {
-                                        context.checkSelfPermission(
-                                                android.Manifest.permission.READ_EXTERNAL_STORAGE
-                                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                                    }
-
-                            shouldShowFinalSetup = hasContactsPermission || hasFilesPermission
                             currentScreen = AppScreen.SearchEngineSetup
                             searchViewModel.handleOptionalPermissionChange()
                         }
@@ -171,18 +153,9 @@ fun MainContent(
                 BackHandler { currentScreen = AppScreen.Permissions }
                 SearchEngineSetupScreen(
                         currentStep = 2,
-                        totalSteps = if (shouldShowFinalSetup) 3 else 2,
-                        onContinue = {
-                            if (shouldShowFinalSetup) {
-                                currentScreen = AppScreen.FinalSetup
-                            } else {
-                                userPreferences.setFirstLaunchCompleted()
-                                onFirstLaunchCompleted()
-                                currentScreen = AppScreen.Main
-                            }
-                        },
-                        viewModel = searchViewModel,
-                        shouldShowFinalSetup = shouldShowFinalSetup
+                        totalSteps = 3,
+                        onContinue = { currentScreen = AppScreen.FinalSetup },
+                        viewModel = searchViewModel
                 )
             }
             AppScreen.FinalSetup -> {
@@ -212,9 +185,14 @@ fun MainContent(
                         currentStep = 3,
                         totalSteps = 3,
                         onContinue = {
+                            searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
                             userPreferences.setFirstLaunchCompleted()
-                            onFirstLaunchCompleted()
-                            currentScreen = AppScreen.Main
+                            if (userPreferences.isOverlayModeEnabled()) {
+                                onFinishActivity()
+                            } else {
+                                onFirstLaunchCompleted()
+                                currentScreen = AppScreen.Main
+                            }
                         },
                         viewModel = searchViewModel,
                         hasContactsPermission = hasContactsPermission,

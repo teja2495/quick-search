@@ -105,7 +105,7 @@ fun OverlayRoot(
                         }
                         val assumeKeyboardOpen = !hasKeyboardBeenVisible
                         val overlayHeightRatio =
-                                if (assumeKeyboardOpen || isKeyboardVisible) 0.5f else 0.75f
+                                if (assumeKeyboardOpen || isKeyboardVisible) 0.45f else 0.75f
                         val targetOverlayHeight =
                                 minOf(maxHeight * overlayHeightRatio, availableHeight)
                         val overlayHeight by
@@ -165,6 +165,9 @@ fun OverlayRoot(
                                                 viewModel = viewModel,
                                                 isOverlayPresentation = true,
                                                 overlaySnackbarHostState = overlaySnackbarHostState,
+                                                onWelcomeAnimationCompleted = {
+                                                        viewModel.onSearchBarWelcomeAnimationCompleted()
+                                                },
                                                 onOverlayDismissRequest = { handleClose() },
                                                 onSettingsClick = {
                                                         OverlayModeController.openMainActivity(

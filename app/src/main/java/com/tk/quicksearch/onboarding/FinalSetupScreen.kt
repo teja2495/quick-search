@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Button
@@ -42,23 +44,23 @@ import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 
 /** Gets the icon for a file type. */
 private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector {
         return when (fileType) {
-                FileType.DOCUMENTS -> Icons.Rounded.Folder
+                FileType.DOCUMENTS -> Icons.Rounded.InsertDriveFile
                 FileType.PICTURES -> Icons.Rounded.Image
                 FileType.VIDEOS -> Icons.Rounded.VideoLibrary
                 FileType.AUDIO -> Icons.Rounded.AudioFile
                 FileType.APKS -> Icons.Rounded.Android
-                FileType.OTHER -> Icons.Rounded.Folder
+                FileType.OTHER -> Icons.Rounded.InsertDriveFile
         }
 }
 
 /**
- * Final setup screen shown after search engine setup when permissions are granted. Allows users to
- * configure Direct Dial, default messaging app, and file types. Only displayed when at least one of
- * contacts or files permissions is granted.
+ * Final setup screen shown after search engine setup. Allows users to configure Direct Dial,
+ * default messaging app, and file types.
  */
 @Composable
 fun FinalSetupScreen(
@@ -98,10 +100,27 @@ fun FinalSetupScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                        // Show Direct Dial and/or Messaging App sections when contacts permission
-                        // is granted
+                        ElevatedCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.extraLarge
+                        ) {
+                                SettingsToggleRow(
+                                        title = stringResource(R.string.settings_overlay_mode_title),
+                                        subtitle = stringResource(R.string.settings_overlay_mode_desc),
+                                        checked = uiState.overlayModeEnabled,
+                                        onCheckedChange = { viewModel.setOverlayModeEnabled(it) },
+                                        leadingIcon = Icons.Rounded.Layers,
+                                        isFirstItem = true,
+                                        isLastItem = true
+                                )
+                        }
+
                         if (hasContactsPermission) {
-                                MessagingSection(
+                                Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                        MessagingSection(
                                         messagingApp = uiState.messagingApp,
                                         onSetMessagingApp = viewModel::setMessagingApp,
                                         directDialEnabled = uiState.directDialEnabled,
@@ -110,6 +129,8 @@ fun FinalSetupScreen(
                                         contactsSectionEnabled = true,
                                         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                                         isTelegramInstalled = uiState.isTelegramInstalled,
+                                        showDirectDial = false,
+                                        showTitle = false,
                                         onMessagingAppSelected = { app ->
                                                 val isInstalled =
                                                         when (app) {
@@ -148,6 +169,7 @@ fun FinalSetupScreen(
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                 )
+                                }
                         }
 
                         // Show file types section only if files permission is granted

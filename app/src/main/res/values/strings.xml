@@ -17,7 +17,7 @@
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
     <string name="desc_close">Close</string>
-    <string name="overlay_close_tip">Tip: Tap anywhere outside of the overlay or use back gesture to close it.</string>
+    <string name="overlay_close_tip">Tip: Tap anywhere outside of the overlay to close it.</string>
 
     <!-- ============================================================================
          Search Screen
@@ -464,7 +464,6 @@
     <string name="permissions_calling_title">Calling</string>
     <string name="permissions_calling_desc">Required to call your contacts.</string>
     <string name="permissions_privacy_notice"></string>
-    <string name="permissions_action_continue">Continue</string>
     <string name="permissions_granted">Granted</string>
     <string name="permissions_reminder_dialog_title">Permissions Not Granted</string>
     <string name="permissions_reminder_dialog_message">If you later change your mind about %1$s permission, you can grant the permission from app settings.</string>

@@ -45,7 +45,6 @@ fun SearchEngineSetupScreen(
     viewModel: SearchViewModel,
     currentStep: Int,
     totalSteps: Int,
-    shouldShowFinalSetup: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -149,13 +148,7 @@ fun SearchEngineSetupScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(
-                text = stringResource(
-                    if (shouldShowFinalSetup) {
-                        R.string.setup_action_next
-                    } else {
-                        R.string.setup_action_start
-                    }
-                ),
+                text = stringResource(R.string.setup_action_next),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
