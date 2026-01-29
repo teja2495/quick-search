@@ -80,15 +80,66 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.dp
 
 @Composable
+internal fun ExcludeUndoSnackbarHost(
+        hostState: SnackbarHostState,
+        modifier: Modifier = Modifier
+) {
+    SnackbarHost(
+            hostState = hostState,
+            snackbar = { data ->
+                val message = data.visuals.message
+                val marker = " excluded from "
+                val markerIndex = message.indexOf(marker)
+                val annotatedMessage =
+                        if (markerIndex > 0) {
+                            buildAnnotatedString {
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(message.substring(0, markerIndex))
+                                }
+                                append(message.substring(markerIndex))
+                            }
+                        } else {
+                            AnnotatedString(message)
+                        }
+                val actionLabel = data.visuals.actionLabel
+                Snackbar(
+                        action =
+                                actionLabel?.let { label ->
+                                    {
+                                        TextButton(onClick = { data.performAction() }) {
+                                            Text(text = label)
+                                        }
+                                    }
+                                },
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        actionContentColor = MaterialTheme.colorScheme.primary,
+                        shape = DesignTokens.ShapeLarge
+                ) {
+                    Text(
+                            text = annotatedMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            modifier = modifier
+    )
+}
+
+@Composable
 fun SearchRoute(
         modifier: Modifier = Modifier,
         onSettingsClick: () -> Unit = {},
         onSearchEngineLongPress: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
+        onOverlayDismissRequest: (() -> Unit)? = null,
         onShowToast: (Int) -> Unit = {},
         viewModel: SearchViewModel = viewModel(),
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
-        onWallpaperLoaded: (() -> Unit)? = null
+        onWallpaperLoaded: (() -> Unit)? = null,
+        isOverlayPresentation: Boolean = false,
+        overlaySnackbarHostState: SnackbarHostState? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -111,13 +162,14 @@ fun SearchRoute(
             remember(nicknameUpdateVersion) { { id -> viewModel.getAppShortcutNickname(id) } }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val effectiveSnackbarHostState = overlaySnackbarHostState ?: snackbarHostState
     val snackbarScope = rememberCoroutineScope()
     val undoLabel = stringResource(R.string.action_undo)
 
     val showUndoSnackbar: (String, () -> Unit) -> Unit = { message, onUndo ->
         snackbarScope.launch {
             val result =
-                    snackbarHostState.showSnackbar(
+                    effectiveSnackbarHostState.showSnackbar(
                             message = message,
                             actionLabel = undoLabel,
                             duration = SnackbarDuration.Short
@@ -222,10 +274,13 @@ fun SearchRoute(
         viewModel.dismissContactMethodsBottomSheet()
     }
 
-    val callPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted -> viewModel.onCallPermissionResult(isGranted) }
+    val callPermissionLauncher = if (context is android.app.Activity) {
+        rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted -> viewModel.onCallPermissionResult(isGranted) }
+    } else {
+        null
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -244,24 +299,36 @@ fun SearchRoute(
 
         if (pendingNumber != null || pendingWhatsAppCall != null) {
             if (context is android.app.Activity) {
-                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                callPermissionLauncher?.launch(Manifest.permission.CALL_PHONE)
             } else {
                 viewModel.onCallPermissionResult(false)
             }
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    val containerModifier =
+        if (isOverlayPresentation) {
+            modifier.fillMaxWidth()
+        } else {
+            modifier.fillMaxSize()
+        }
+
+    Box(modifier = containerModifier) {
         SearchScreen(
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    if (isOverlayPresentation) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.fillMaxSize()
+                    },
                 state = uiState,
                 onQueryChanged = viewModel::onQueryChange,
                 onClearQuery = viewModel::clearQuery,
-                onRequestUsagePermission = viewModel::openUsageAccessSettings,
+                onRequestUsagePermission = { viewModel.openUsageAccessSettings() },
                 onSettingsClick = onSettingsClick,
-                onAppClick = viewModel::launchApp,
-                onAppInfoClick = viewModel::openAppInfo,
-                onUninstallClick = viewModel::requestUninstall,
+                onAppClick = { app -> viewModel.launchApp(app) },
+                onAppInfoClick = { app -> viewModel.openAppInfo(app) },
+                onUninstallClick = { app -> viewModel.requestUninstall(app) },
                 onHideApp = onHideAppWithUndo,
                 onPinApp = viewModel::pinApp,
                 onUnpinApp = viewModel::unpinApp,
@@ -271,7 +338,7 @@ fun SearchRoute(
                 onCallContact = callContactWithPermission,
                 onSmsContact = viewModel::smsContact,
                 onContactMethodClick = viewModel::handleContactMethod,
-                onFileClick = viewModel::openFile,
+                onFileClick = { file -> viewModel.openFile(file) },
                 onPinContact = viewModel::pinContact,
                 onUnpinContact = viewModel::unpinContact,
                 onExcludeContact = onExcludeContactWithUndo,
@@ -279,11 +346,11 @@ fun SearchRoute(
                 onUnpinFile = viewModel::unpinFile,
                 onExcludeFile = onExcludeFileWithUndo,
                 onExcludeFileExtension = onExcludeFileExtensionWithUndo,
-                onSettingClick = viewModel::openSetting,
+                onSettingClick = { setting -> viewModel.openSetting(setting) },
                 onPinSetting = viewModel::pinSetting,
                 onUnpinSetting = viewModel::unpinSetting,
                 onExcludeSetting = onExcludeSettingWithUndo,
-                onAppShortcutClick = viewModel::launchAppShortcut,
+                onAppShortcutClick = { shortcut -> viewModel.launchAppShortcut(shortcut) },
                 onPinAppShortcut = viewModel::pinAppShortcut,
                 onUnpinAppShortcut = viewModel::unpinAppShortcut,
                 onExcludeAppShortcut = onExcludeAppShortcutWithUndo,
@@ -293,10 +360,10 @@ fun SearchRoute(
                 onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
                 onSearchTargetClick = { query, target -> viewModel.openSearchTarget(query, target) },
                 onSearchEngineLongPress = onSearchEngineLongPress,
-                onDirectSearchEmailClick = viewModel::openEmail,
+                onDirectSearchEmailClick = { email -> viewModel.openEmail(email) },
                 onSetPersonalContext = viewModel::setPersonalContext,
-                onOpenAppSettings = viewModel::openAppSettings,
-                onOpenStorageAccessSettings = viewModel::openAllFilesAccessSettings,
+                onOpenAppSettings = { viewModel.openAppSettings() },
+                onOpenStorageAccessSettings = { viewModel.openAllFilesAccessSettings() },
                 onAppNicknameClick = { app ->
                     // This will be handled by the dialog state in SearchScreen
                 },
@@ -336,57 +403,23 @@ fun SearchRoute(
                 getSecondaryContactCardAction = viewModel::getSecondaryContactCardAction,
                 onSavePrimaryContactCardAction = viewModel::setPrimaryContactCardAction,
                 onSaveSecondaryContactCardAction = viewModel::setSecondaryContactCardAction,
-                onWallpaperLoaded = onWallpaperLoaded
+                onWallpaperLoaded = onWallpaperLoaded,
+                isOverlayPresentation = isOverlayPresentation
         )
 
-        SnackbarHost(
-                hostState = snackbarHostState,
-                snackbar = { data ->
-                    val message = data.visuals.message
-                    val marker = " excluded from "
-                    val markerIndex = message.indexOf(marker)
-                    val annotatedMessage =
-                            if (markerIndex > 0) {
-                                buildAnnotatedString {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append(message.substring(0, markerIndex))
-                                    }
-                                    append(message.substring(markerIndex))
-                                }
-                            } else {
-                                AnnotatedString(message)
-                            }
-                    val actionLabel = data.visuals.actionLabel
-                    Snackbar(
-                            action =
-                                    actionLabel?.let { label ->
-                                        {
-                                            TextButton(onClick = { data.performAction() }) {
-                                                Text(text = label)
-                                            }
-                                        }
-                                    },
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            actionContentColor = MaterialTheme.colorScheme.primary,
-                            shape = DesignTokens.ShapeLarge
-                    ) {
-                        Text(
-                                text = annotatedMessage,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                modifier =
-                        Modifier.align(Alignment.BottomCenter)
-                                .imePadding()
-                                .padding(
-                                        start = DesignTokens.SpacingLarge,
-                                        end = DesignTokens.SpacingLarge,
-                                        bottom = DesignTokens.SpacingHuge
-                                )
-        )
+        if (overlaySnackbarHostState == null) {
+            ExcludeUndoSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier =
+                            Modifier.align(Alignment.BottomCenter)
+                                    .imePadding()
+                                    .padding(
+                                            start = DesignTokens.SpacingLarge,
+                                            end = DesignTokens.SpacingLarge,
+                                            bottom = DesignTokens.SpacingHuge
+                                    )
+            )
+        }
     }
 }
 
@@ -436,6 +469,7 @@ fun SearchScreen(
         onSetPersonalContext: (String?) -> Unit = {},
         onWelcomeAnimationCompleted: (() -> Unit)? = null,
         onWallpaperLoaded: (() -> Unit)? = null,
+        isOverlayPresentation: Boolean = false,
         onOpenAppSettings: () -> Unit,
         onOpenStorageAccessSettings: () -> Unit,
         onPhoneNumberSelected: (String, Boolean) -> Unit,
@@ -464,6 +498,7 @@ fun SearchScreen(
         onPersonalContextHintDismissed: () -> Unit = {},
         onClearDetectedShortcut: () -> Unit = {},
         onCustomizeSearchEnginesClick: () -> Unit = {},
+        onConsumeContactActionRequest: () -> Unit = {},
         onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
         onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
         getPrimaryContactCardAction: (Long) -> ContactCardAction?,
@@ -493,6 +528,24 @@ fun SearchScreen(
 
     val derivedState = rememberDerivedState(state)
 
+    fun getDefaultContactAction(contact: ContactInfo, isPrimary: Boolean): ContactCardAction? {
+        val currentAction =
+                if (isPrimary) getPrimaryContactCardAction(contact.contactId)
+                else getSecondaryContactCardAction(contact.contactId)
+        if (currentAction != null) return currentAction
+
+        val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
+        return if (isPrimary) {
+            ContactCardAction.Phone(phoneNumber)
+        } else {
+            when (state.messagingApp) {
+                MessagingApp.MESSAGES -> ContactCardAction.Sms(phoneNumber)
+                MessagingApp.WHATSAPP -> ContactCardAction.WhatsAppMessage(phoneNumber)
+                MessagingApp.TELEGRAM -> ContactCardAction.TelegramMessage(phoneNumber)
+            }
+        }
+    }
+
     // Section expansion state
     var expandedSection by remember { mutableStateOf<ExpandedSection>(ExpandedSection.NONE) }
     val scrollState = rememberScrollState()
@@ -506,6 +559,18 @@ fun SearchScreen(
     // Contact Action Picker state
     var contactActionPickerDialogState by remember {
         mutableStateOf<ContactActionPickerDialogState?>(null)
+    }
+    val contactActionRequest = state.contactActionPickerRequest
+    LaunchedEffect(contactActionRequest) {
+        contactActionRequest?.let { request ->
+            contactActionPickerDialogState =
+                    ContactActionPickerDialogState(
+                            contact = request.contactInfo,
+                            isPrimary = request.isPrimary,
+                            currentAction = request.currentAction
+                    )
+            onConsumeContactActionRequest()
+        }
     }
 
     // Keyboard switching state
@@ -612,30 +677,20 @@ fun SearchScreen(
                     getAppNickname = getAppNickname,
                     getAppShortcutNickname = getAppShortcutNickname,
                     onPrimaryActionLongPress = { contact ->
-                        val currentAction = getPrimaryContactCardAction(contact.contactId)
-                        val defaultAction = if (currentAction == null) {
-                            // Default primary action is phone call
-                            contact.phoneNumbers.firstOrNull()?.let {
-                                com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(it)
-                            }
-                        } else currentAction
                         contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, true, defaultAction)
+                                ContactActionPickerDialogState(
+                                        contact,
+                                        true,
+                                        getDefaultContactAction(contact, true)
+                                )
                     },
                     onSecondaryActionLongPress = { contact ->
-                        val currentAction = getSecondaryContactCardAction(contact.contactId)
-                        val defaultAction = if (currentAction == null) {
-                            // Default secondary action depends on messaging app
-                            contact.phoneNumbers.firstOrNull()?.let { phoneNumber ->
-                                when (state.messagingApp) {
-                                    MessagingApp.MESSAGES -> com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
-                                    MessagingApp.WHATSAPP -> com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(phoneNumber)
-                                    MessagingApp.TELEGRAM -> com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(phoneNumber)
-                                }
-                            }
-                        } else currentAction
                         contactActionPickerDialogState =
-                                ContactActionPickerDialogState(contact, false, defaultAction as com.tk.quicksearch.search.contacts.models.ContactCardAction?)
+                                ContactActionPickerDialogState(
+                                        contact,
+                                        false,
+                                        getDefaultContactAction(contact, false)
+                                )
                     },
                     onCustomAction = onCustomAction,
                     getPrimaryContactCardAction = getPrimaryContactCardAction,
@@ -685,18 +740,31 @@ fun SearchScreen(
                     shortcutDetected = state.detectedShortcutTarget != null
             )
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // Background
-        SearchScreenBackground(
-                showWallpaperBackground = state.showWallpaperBackground,
-                wallpaperBitmap = wallpaperBitmap,
-                wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = state.wallpaperBlurRadius
-        )
+    val screenModifier =
+        if (isOverlayPresentation) {
+            modifier.fillMaxWidth()
+        } else {
+            modifier.fillMaxSize()
+        }
+
+    Box(modifier = screenModifier) {
+        if (!isOverlayPresentation) {
+            SearchScreenBackground(
+                    showWallpaperBackground = state.showWallpaperBackground,
+                    wallpaperBitmap = wallpaperBitmap,
+                    wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = state.wallpaperBlurRadius
+            )
+        }
 
         // Main content
         SearchScreenContent(
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    if (isOverlayPresentation) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.fillMaxSize()
+                    },
                 state = state,
                 renderingState = renderingState,
                 contactsParams = sectionParams.contactsParams,
@@ -735,7 +803,8 @@ fun SearchScreen(
                 expandedSection = expandedSection,
                 manuallySwitchedToNumberKeyboard = manuallySwitchedToNumberKeyboard,
                 scrollState = scrollState,
-                onClearDetectedShortcut = onClearDetectedShortcut
+                onClearDetectedShortcut = onClearDetectedShortcut,
+                isOverlayPresentation = isOverlayPresentation
         )
 
         // Search engine onboarding overlay

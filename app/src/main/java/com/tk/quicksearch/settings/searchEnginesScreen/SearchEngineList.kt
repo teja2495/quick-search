@@ -50,6 +50,7 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.getDrawableResId
 import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 import sh.calvin.reorderable.ReorderableColumn
@@ -344,10 +345,10 @@ private fun SearchEngineRowContent(
                 )
             }
             is SearchTarget.Browser -> {
-                val iconBitmap = rememberAppIcon(packageName = engine.app.packageName)
-                if (iconBitmap != null) {
+                val iconResult = rememberAppIcon(packageName = engine.app.packageName)
+                if (iconResult.bitmap != null) {
                     Image(
-                        bitmap = iconBitmap,
+                        bitmap = iconResult.bitmap!!,
                         contentDescription = engineName,
                         modifier = Modifier.size(DesignTokens.IconSize),
                         contentScale = ContentScale.Fit
@@ -398,7 +399,8 @@ private fun SearchEngineRowContent(
                 DropdownMenu(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
-                    shape = MaterialTheme.shapes.large
+                    shape = MaterialTheme.shapes.large,
+                    containerColor = AppColors.DialogBackground
                 ) {
                     if (onMoveToTop != null) {
                         DropdownMenuItem(

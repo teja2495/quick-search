@@ -4,9 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
 
-/**
- * Preferences for UI-related settings such as layout, messaging app, banners, etc.
- */
+/** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(context: Context) : BasePreferences(context) {
 
     // ============================================================================
@@ -17,6 +15,13 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun setOneHandedMode(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_ONE_HANDED_MODE, enabled)
+    }
+
+    fun isOverlayModeEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
+
+    fun setOverlayModeEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, enabled)
     }
 
     fun getMessagingApp(): MessagingApp {
@@ -48,7 +53,6 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         prefs.edit().putString(UiPreferences.KEY_MESSAGING_APP, app.name).apply()
     }
 
-
     fun isFirstLaunch(): Boolean {
         syncInstallTimeWithBackup()
         return getFirstLaunchFlag()
@@ -59,7 +63,8 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         recordCurrentInstallTime()
     }
 
-    fun shouldShowWallpaperBackground(): Boolean = getBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, true)
+    fun shouldShowWallpaperBackground(): Boolean =
+            getBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, true)
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) {
         setBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
@@ -67,36 +72,32 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun getWallpaperBackgroundAlpha(): Float {
         return prefs.getFloat(
-            UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
-            UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
+                UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
+                UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
         )
     }
 
     fun setWallpaperBackgroundAlpha(alpha: Float) {
         prefs.edit()
-            .putFloat(
-                UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
-                alpha.coerceIn(0f, 1f)
-            )
-            .apply()
+                .putFloat(UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA, alpha.coerceIn(0f, 1f))
+                .apply()
     }
 
     fun getWallpaperBlurRadius(): Float {
         return prefs.getFloat(
-            UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
-            UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
+                UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+                UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
         )
     }
 
     fun setWallpaperBlurRadius(radius: Float) {
         prefs.edit()
-            .putFloat(
-                UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
-                radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS)
-            )
-            .apply()
+                .putFloat(
+                        UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+                        radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS)
+                )
+                .apply()
     }
-
 
     fun getSelectedIconPackPackage(): String? {
         return sessionPrefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
@@ -112,16 +113,15 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         editor.apply()
     }
 
-
-
-
-    fun isDirectSearchSetupExpanded(): Boolean = getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
+    fun isDirectSearchSetupExpanded(): Boolean =
+            getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) {
         setBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
     }
 
-    fun hasSeenSearchBarWelcome(): Boolean = sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
+    fun hasSeenSearchBarWelcome(): Boolean =
+            sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) {
         sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen).apply()
@@ -141,7 +141,15 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, seen)
     }
 
-    fun getLastSeenVersionName(): String? = sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
+    fun hasSeenOverlayCloseTip(): Boolean =
+            sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_CLOSE_TIP, false)
+
+    fun setHasSeenOverlayCloseTip(seen: Boolean) {
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_CLOSE_TIP, seen).apply()
+    }
+
+    fun getLastSeenVersionName(): String? =
+            sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
         val normalized = versionName?.trim()
@@ -160,47 +168,56 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun incrementUsagePermissionBannerDismissCount() {
         val currentCount = getUsagePermissionBannerDismissCount()
-        firstLaunchPrefs.edit().putInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1).apply()
+        firstLaunchPrefs
+                .edit()
+                .putInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1)
+                .apply()
     }
 
     fun isUsagePermissionBannerSessionDismissed(): Boolean {
-        return firstLaunchPrefs.getBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
+        return firstLaunchPrefs.getBoolean(
+                UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED,
+                false
+        )
     }
 
     fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
-        firstLaunchPrefs.edit().putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed).apply()
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed)
+                .apply()
     }
 
     fun resetUsagePermissionBannerSessionDismissed() {
-        firstLaunchPrefs.edit().putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false).apply()
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
+                .apply()
     }
 
     fun shouldShowUsagePermissionBanner(): Boolean {
         // Show banner if: total dismiss count < 2 AND session not dismissed
-        return getUsagePermissionBannerDismissCount() < 2 && !isUsagePermissionBannerSessionDismissed()
+        return getUsagePermissionBannerDismissCount() < 2 &&
+                !isUsagePermissionBannerSessionDismissed()
     }
 
     // ============================================================================
     // Web Search Suggestions Preferences
     // ============================================================================
 
-    fun areWebSuggestionsEnabled(): Boolean = getBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, true)
+    fun areWebSuggestionsEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, true)
 
     fun setWebSuggestionsEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, enabled)
     }
 
-    /**
-     * Get the maximum number of web suggestions to show.
-     * Default is 3.
-     */
+    /** Get the maximum number of web suggestions to show. Default is 3. */
     fun getWebSuggestionsCount(): Int {
         return prefs.getInt(UiPreferences.KEY_WEB_SUGGESTIONS_COUNT, 3)
     }
 
-    /**
-     * Set the maximum number of web suggestions to show.
-     */
+    /** Set the maximum number of web suggestions to show. */
     fun setWebSuggestionsCount(count: Int) {
         prefs.edit().putInt(UiPreferences.KEY_WEB_SUGGESTIONS_COUNT, count).apply()
     }
@@ -225,19 +242,31 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun incrementShortcutHintBannerDismissCount() {
         val currentCount = getShortcutHintBannerDismissCount()
-        firstLaunchPrefs.edit().putInt(UiPreferences.KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, currentCount + 1).apply()
+        firstLaunchPrefs
+                .edit()
+                .putInt(UiPreferences.KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT, currentCount + 1)
+                .apply()
     }
 
     fun isShortcutHintBannerSessionDismissed(): Boolean {
-        return firstLaunchPrefs.getBoolean(UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false)
+        return firstLaunchPrefs.getBoolean(
+                UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED,
+                false
+        )
     }
 
     fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) {
-        firstLaunchPrefs.edit().putBoolean(UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, dismissed).apply()
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, dismissed)
+                .apply()
     }
 
     fun resetShortcutHintBannerSessionDismissed() {
-        firstLaunchPrefs.edit().putBoolean(UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false).apply()
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED, false)
+                .apply()
     }
 
     fun shouldShowShortcutHintBanner(): Boolean {
@@ -269,7 +298,10 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun recordFirstAppOpenTime() {
         if (getFirstAppOpenTime() == 0L) {
-            timingPrefs.edit().putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis()).apply()
+            timingPrefs
+                    .edit()
+                    .putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis())
+                    .apply()
         }
     }
 
@@ -278,7 +310,10 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     }
 
     fun recordReviewPromptTime() {
-        timingPrefs.edit().putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis()).apply()
+        timingPrefs
+                .edit()
+                .putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis())
+                .apply()
     }
 
     fun getReviewPromptedCount(): Int {
@@ -305,7 +340,10 @@ class UiPreferences(context: Context) : BasePreferences(context) {
 
     fun recordAppOpenCountAtPrompt() {
         val currentOpenCount = getAppOpenCount()
-        timingPrefs.edit().putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount).apply()
+        timingPrefs
+                .edit()
+                .putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount)
+                .apply()
     }
 
     fun shouldShowReviewPrompt(): Boolean {
@@ -314,15 +352,15 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         val lastPromptTime = getLastReviewPromptTime()
         val totalOpens = getAppOpenCount()
         val opensAtLastPrompt = getAppOpenCountAtLastPrompt()
-        
+
         // If never opened before, can't show review
         if (firstOpenTime == 0L) {
             return false
         }
-        
+
         val currentTime = System.currentTimeMillis()
         val daysSinceFirstOpen = (currentTime - firstOpenTime) / (1000 * 60 * 60 * 24)
-        
+
         return when (promptedCount) {
             0 -> {
                 // First review: at least 2 days AND at least 5 opens
@@ -337,7 +375,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
                     daysSinceLastPrompt >= 4 && opensSinceLastPrompt >= 5
                 }
             }
-            else -> false  // Never show after 2 prompts
+            else -> false // Never show after 2 prompts
         }
     }
 
@@ -346,32 +384,35 @@ class UiPreferences(context: Context) : BasePreferences(context) {
     // ============================================================================
 
     /**
-     * Check if an update check was performed this session.
-     * This is used to avoid showing both update and review prompts in the same session.
+     * Check if an update check was performed this session. This is used to avoid showing both
+     * update and review prompts in the same session.
      */
     fun hasShownUpdateCheckThisSession(): Boolean {
         return sessionPrefs.getBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
     }
 
-    /**
-     * Mark that an update check was shown this session.
-     */
+    /** Mark that an update check was shown this session. */
     fun setUpdateCheckShownThisSession() {
-        sessionPrefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true).apply()
+        sessionPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true)
+                .apply()
     }
 
-    /**
-     * Reset the update check session flag.
-     * Should be called when the app starts.
-     */
+    /** Reset the update check session flag. Should be called when the app starts. */
     fun resetUpdateCheckSession() {
-        sessionPrefs.edit().putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false).apply()
+        sessionPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
+                .apply()
     }
 
     companion object {
         // UI preferences keys
         const val KEY_ONE_HANDED_MODE = "one_handed_mode"
-        const val KEY_USE_WHATSAPP_FOR_MESSAGES = "use_whatsapp_for_messages" // Deprecated, kept for migration
+        const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
+        const val KEY_USE_WHATSAPP_FOR_MESSAGES =
+                "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
@@ -384,6 +425,7 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
+        const val KEY_HAS_SEEN_OVERLAY_CLOSE_TIP = "has_seen_overlay_close_tip"
 
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"
@@ -393,12 +435,15 @@ class UiPreferences(context: Context) : BasePreferences(context) {
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
 
         // Usage permission banner preferences keys
-        const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT = "usage_permission_banner_dismiss_count"
-        const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED = "usage_permission_banner_session_dismissed"
+        const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
+                "usage_permission_banner_dismiss_count"
+        const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED =
+                "usage_permission_banner_session_dismissed"
 
         // Shortcut hint banner preferences keys
         const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT = "shortcut_hint_banner_dismiss_count"
-        const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED = "shortcut_hint_banner_session_dismissed"
+        const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED =
+                "shortcut_hint_banner_session_dismissed"
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"

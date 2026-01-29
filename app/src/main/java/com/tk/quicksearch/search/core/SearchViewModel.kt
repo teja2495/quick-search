@@ -27,12 +27,8 @@ import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.launchStaticShortcut
-import com.tk.quicksearch.search.data.shortcutKey
-import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
-import com.tk.quicksearch.search.recentSearches.RecentSearchItem
 import com.tk.quicksearch.search.data.preferences.UiPreferences
-import com.tk.quicksearch.util.WallpaperUtils
-import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
@@ -46,12 +42,17 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.overlay.OverlayModeController
+import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+import com.tk.quicksearch.search.recentSearches.RecentSearchItem
 import com.tk.quicksearch.search.searchEngines.SearchEngineManager
 import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.ShortcutHandler
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
+import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.util.getAppGridColumns
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -309,6 +310,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var showHiddenFiles: Boolean = false
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
+    private var overlayModeEnabled: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var showWallpaperBackground: Boolean = true
@@ -529,6 +531,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         showHiddenFiles = prefs.showHiddenFiles
         excludedFileExtensions = prefs.excludedFileExtensions
         oneHandedMode = prefs.oneHandedMode
+        overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         showWallpaperBackground = prefs.showWallpaperBackground
@@ -544,6 +547,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     showHiddenFiles = showHiddenFiles,
                     excludedFileExtensions = excludedFileExtensions,
                     oneHandedMode = oneHandedMode,
+                    overlayModeEnabled = overlayModeEnabled,
                     directDialEnabled = directDialEnabled,
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -553,7 +557,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     recentQueriesCount = userPreferences.getRecentQueriesCount(),
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
                     shouldShowUsagePermissionBanner =
-                            userPreferences.shouldShowUsagePermissionBanner()
+                            userPreferences.shouldShowUsagePermissionBanner(),
+                    showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip()
             )
         }
 
@@ -576,11 +581,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     cacheLastUpdatedMillis = lastUpdated,
                     // Temporarily show all cached apps until we load hidden/pinned prefs
                     recentApps =
-                        extractSuggestedApps(
-                                apps = cachedAppsList,
-                                limit = getGridItemCount(),
-                                hasUsagePermission = hasUsagePermission
-                        ),
+                            extractSuggestedApps(
+                                    apps = cachedAppsList,
+                                    limit = getGridItemCount(),
+                                    hasUsagePermission = hasUsagePermission
+                            ),
                     indexedAppCount = cachedAppsList.size,
 
                     // Critical: update these to prevent flashing
@@ -624,8 +629,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
-                        showPersonalContextHint = !userPreferences.hasSeenPersonalContextHint() &&
-                                directSearchHandler.getPersonalContext().isBlank(),
+                        showPersonalContextHint =
+                                !userPreferences.hasSeenPersonalContextHint() &&
+                                        directSearchHandler.getPersonalContext().isBlank(),
                         // Messaging info
                         messagingApp = messagingInfo.messagingApp,
                         isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
@@ -733,6 +739,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun hasSeenOverlayCloseTip(): Boolean = userPreferences.hasSeenOverlayCloseTip()
+
+    fun dismissOverlayCloseTip() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setHasSeenOverlayCloseTip(true)
+            // No need to update UI state if we're not using it for rendering,
+            // but we might want to if we want the tip to disappear immediately.
+            _uiState.update { it.copy(showOverlayCloseTip = false) }
+        }
+    }
+
     fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)
 
     fun setWebSuggestionsCount(count: Int) {
@@ -774,31 +791,24 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
 
             val entries =
-                userPreferences
-                    .getRecentItems()
-                    .take(userPreferences.getRecentQueriesCount())
+                    userPreferences.getRecentItems().take(userPreferences.getRecentQueriesCount())
 
             val contactIds =
-                entries.filterIsInstance<RecentSearchEntry.Contact>()
-                    .map { it.contactId }
-                    .toSet()
-            val fileUris =
-                entries.filterIsInstance<RecentSearchEntry.File>()
-                    .map { it.uri }
-                    .toSet()
+                    entries.filterIsInstance<RecentSearchEntry.Contact>()
+                            .map { it.contactId }
+                            .toSet()
+            val fileUris = entries.filterIsInstance<RecentSearchEntry.File>().map { it.uri }.toSet()
             val settingIds =
-                entries.filterIsInstance<RecentSearchEntry.Setting>()
-                    .map { it.id }
-                    .toSet()
+                    entries.filterIsInstance<RecentSearchEntry.Setting>().map { it.id }.toSet()
             val shortcutKeys =
-                entries.filterIsInstance<RecentSearchEntry.AppShortcut>()
-                    .map { it.shortcutKey }
-                    .toSet()
+                    entries.filterIsInstance<RecentSearchEntry.AppShortcut>()
+                            .map { it.shortcutKey }
+                            .toSet()
 
             val contactsById =
-                contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
+                    contactRepository.getContactsByIds(contactIds).associateBy { it.contactId }
             val filesByUri =
-                fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
+                    fileRepository.getFilesByUris(fileUris).associateBy { it.uri.toString() }
             val settingsById = settingsSearchHandler.getSettingsByIds(settingIds)
             val shortcutsByKey = appShortcutSearchHandler.getShortcutsByKeys(shortcutKeys)
 
@@ -812,35 +822,36 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             val items = buildList {
                 entries.forEach { entry ->
                     when (entry) {
-                        is RecentSearchEntry.Query -> add(RecentSearchItem.Query(entry.trimmedQuery))
+                        is RecentSearchEntry.Query ->
+                                add(RecentSearchItem.Query(entry.trimmedQuery))
                         is RecentSearchEntry.Contact ->
-                            contactsById[entry.contactId]?.let {
-                                // Skip if contact is pinned
-                                if (entry.contactId !in pinnedContactIds) {
-                                    add(RecentSearchItem.Contact(entry, it))
+                                contactsById[entry.contactId]?.let {
+                                    // Skip if contact is pinned
+                                    if (entry.contactId !in pinnedContactIds) {
+                                        add(RecentSearchItem.Contact(entry, it))
+                                    }
                                 }
-                            }
                         is RecentSearchEntry.File ->
-                            filesByUri[entry.uri]?.let {
-                                // Skip if file is pinned
-                                if (entry.uri !in pinnedFileUris) {
-                                    add(RecentSearchItem.File(entry, it))
+                                filesByUri[entry.uri]?.let {
+                                    // Skip if file is pinned
+                                    if (entry.uri !in pinnedFileUris) {
+                                        add(RecentSearchItem.File(entry, it))
+                                    }
                                 }
-                            }
                         is RecentSearchEntry.Setting ->
-                            settingsById[entry.id]?.let {
-                                // Skip if setting is pinned
-                                if (entry.id !in pinnedSettingIds) {
-                                    add(RecentSearchItem.Setting(entry, it))
+                                settingsById[entry.id]?.let {
+                                    // Skip if setting is pinned
+                                    if (entry.id !in pinnedSettingIds) {
+                                        add(RecentSearchItem.Setting(entry, it))
+                                    }
                                 }
-                            }
                         is RecentSearchEntry.AppShortcut ->
-                            shortcutsByKey[entry.shortcutKey]?.let {
-                                // Skip if app shortcut is pinned
-                                if (entry.shortcutKey !in pinnedAppShortcutIds) {
-                                    add(RecentSearchItem.AppShortcut(entry, it))
+                                shortcutsByKey[entry.shortcutKey]?.let {
+                                    // Skip if app shortcut is pinned
+                                    if (entry.shortcutKey !in pinnedAppShortcutIds) {
+                                        add(RecentSearchItem.AppShortcut(entry, it))
+                                    }
                                 }
-                            }
                     }
                 }
             }
@@ -875,6 +886,58 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         contactPreferences.setSecondaryContactCardAction(contactId, action)
         _uiState.update { it.copy(contactActionsVersion = it.contactActionsVersion + 1) }
+    }
+
+    fun requestContactActionPicker(contactId: Long, isPrimary: Boolean, serializedAction: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val contact =
+                    contactRepository.getContactsByIds(setOf(contactId)).firstOrNull()
+                            ?: return@launch
+            val requestedAction =
+                    serializedAction?.let {
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction
+                                .fromSerializedString(it)
+                    }
+            val resolvedAction =
+                    requestedAction
+                            ?: if (isPrimary) getPrimaryContactCardAction(contactId)
+                            else
+                                    getSecondaryContactCardAction(contactId)
+                                            ?: getDefaultContactCardAction(contact, isPrimary)
+            _uiState.update {
+                it.copy(
+                        contactActionPickerRequest =
+                                ContactActionPickerRequest(contact, isPrimary, resolvedAction)
+                )
+            }
+        }
+    }
+
+    fun clearContactActionPickerRequest() {
+        _uiState.update { it.copy(contactActionPickerRequest = null) }
+    }
+
+    private fun getDefaultContactCardAction(
+            contact: ContactInfo,
+            isPrimary: Boolean
+    ): com.tk.quicksearch.search.contacts.models.ContactCardAction? {
+        val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
+        return if (isPrimary) {
+            com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(phoneNumber)
+        } else {
+            when (_uiState.value.messagingApp) {
+                MessagingApp.MESSAGES ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
+                MessagingApp.WHATSAPP ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage(
+                                phoneNumber
+                        )
+                MessagingApp.TELEGRAM ->
+                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage(
+                                phoneNumber
+                        )
+            }
+        }
     }
 
     fun onCustomAction(
@@ -1179,12 +1242,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 if (shouldSkipSearch || detectedTarget != null) {
                     emptyList()
                 } else {
-                    appSearchManager.deriveMatches(trimmedQuery, cachedAllSearchableApps, getGridItemCount()).also {
-                            results ->
-                        if (results.isEmpty()) {
-                            appSearchManager.setNoMatchPrefix(normalizedQuery)
-                        }
-                    }
+                    appSearchManager.deriveMatches(
+                                    trimmedQuery,
+                                    cachedAllSearchableApps,
+                                    getGridItemCount()
+                            )
+                            .also { results ->
+                                if (results.isEmpty()) {
+                                    appSearchManager.setNoMatchPrefix(normalizedQuery)
+                                }
+                            }
                 }
 
         // Clear web suggestions when query changes
@@ -1351,7 +1418,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun removeExcludedSetting(setting: DeviceSetting) =
             settingsManager.removeExcludedSetting(setting)
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
-    fun openSetting(setting: DeviceSetting) = settingsSearchHandler.openSetting(setting)
+    fun openSetting(setting: DeviceSetting) = navigationHandler.openSetting(setting)
 
     // App Shortcut Management Delegates
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
@@ -1545,6 +1612,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 stateUpdater = {
                     oneHandedMode = it
                     updateUiState { state -> state.copy(oneHandedMode = it) }
+                }
+        )
+    }
+
+    fun setOverlayModeEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setOverlayModeEnabled,
+                stateUpdater = {
+                    overlayModeEnabled = it
+                    updateUiState { state -> state.copy(overlayModeEnabled = it) }
+                    if (!it) {
+                        OverlayModeController.stopOverlay(getApplication())
+                    }
                 }
         )
     }
@@ -1791,7 +1872,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 if (trimmedQuery.isBlank()) {
                     emptyList()
                 } else {
-                    appSearchManager.deriveMatches(trimmedQuery, allSearchableApps, getGridItemCount())
+                    appSearchManager.deriveMatches(
+                            trimmedQuery,
+                            allSearchableApps,
+                            getGridItemCount()
+                    )
                 }
         val suggestionHiddenAppList =
                 apps.filter { suggestionHiddenPackages.contains(it.packageName) }.sortedBy {
@@ -1846,16 +1931,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     ): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
 
-        val suggestions = if (hasUsagePermission) {
-            repository.extractRecentlyOpenedApps(apps, limit)
-        } else {
-            val appByPackage = apps.associateBy { it.packageName }
-            userPreferences.getRecentAppLaunches()
-                    .asSequence()
-                    .mapNotNull { appByPackage[it] }
-                    .take(limit)
-                    .toList()
-        }
+        val suggestions =
+                if (hasUsagePermission) {
+                    repository.extractRecentlyOpenedApps(apps, limit)
+                } else {
+                    val appByPackage = apps.associateBy { it.packageName }
+                    userPreferences
+                            .getRecentAppLaunches()
+                            .asSequence()
+                            .mapNotNull { appByPackage[it] }
+                            .take(limit)
+                            .toList()
+                }
 
         // If we have enough suggestions, return them
         if (suggestions.size >= limit) {
@@ -1866,11 +1953,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         val remainingSpots = limit - suggestions.size
         val suggestionPackageNames = suggestions.map { it.packageName }.toSet()
 
-        // Fill remaining spots with apps sorted by launch count (most used first), excluding already suggested ones
-        val additionalApps = apps
-            .filterNot { suggestionPackageNames.contains(it.packageName) }
-            .sortedWith(compareByDescending<AppInfo> { it.launchCount }.thenBy { it.appName.lowercase(Locale.getDefault()) })
-            .take(remainingSpots)
+        // Fill remaining spots with apps sorted by launch count (most used first), excluding
+        // already suggested ones
+        val additionalApps =
+                apps
+                        .filterNot { suggestionPackageNames.contains(it.packageName) }
+                        .sortedWith(
+                                compareByDescending<AppInfo> { it.launchCount }.thenBy {
+                                    it.appName.lowercase(Locale.getDefault())
+                                }
+                        )
+                        .take(remainingSpots)
 
         return suggestions + additionalApps
     }

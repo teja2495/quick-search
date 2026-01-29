@@ -2,6 +2,8 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.Manifest
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,6 +67,7 @@ fun SettingsDetailRoute(
                     showHiddenFiles = uiState.showHiddenFiles,
                     excludedFileExtensions = uiState.excludedFileExtensions,
                     oneHandedMode = uiState.oneHandedMode,
+                    overlayModeEnabled = uiState.overlayModeEnabled,
                     shortcutCodes = uiState.shortcutCodes,
                     shortcutEnabled = uiState.shortcutEnabled,
                     messagingApp = uiState.messagingApp,
@@ -239,6 +242,7 @@ fun SettingsDetailRoute(
                     onToggleHiddenFiles = viewModel::setShowHiddenFiles,
                     onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
                     onToggleOneHandedMode = viewModel::setOneHandedMode,
+                    onToggleOverlayMode = viewModel::setOverlayModeEnabled,
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,

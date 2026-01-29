@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -15,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.calculator.CalculatorUtils
@@ -56,8 +60,11 @@ internal fun SearchScreenContent(
         manuallySwitchedToNumberKeyboard: Boolean,
         scrollState: androidx.compose.foundation.ScrollState,
         onClearDetectedShortcut: () -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        isOverlayPresentation: Boolean = false
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
             remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
@@ -110,17 +117,32 @@ internal fun SearchScreenContent(
     // Check for math expressions to determine pill visibility
     val hasMathExpression = CalculatorUtils.isMathExpression(state.query)
 
-    Column(
-            modifier =
-                    modifier.fillMaxSize()
-                            .safeDrawingPadding()
-                            .padding(
-                                    start = DesignTokens.SpacingXLarge,
-                                    top = DesignTokens.SpacingLarge,
-                                    end = DesignTokens.SpacingXLarge
-                            ),
-            verticalArrangement = Arrangement.Top
-    ) {
+    val contentModifier =
+            if (isOverlayPresentation) {
+                modifier.fillMaxWidth()
+                        .padding(
+                                start = DesignTokens.SpacingXLarge,
+                                top = DesignTokens.SpacingLarge,
+                                end = DesignTokens.SpacingXLarge
+                        )
+            } else {
+                modifier.fillMaxSize()
+                        .safeDrawingPadding()
+                        .padding(
+                                start = DesignTokens.SpacingXLarge,
+                                top = DesignTokens.SpacingLarge,
+                                end = DesignTokens.SpacingXLarge
+                        )
+            }
+
+    val searchEnginesModifier =
+            if (isOverlayPresentation) {
+                Modifier
+            } else {
+                Modifier.imePadding()
+            }
+
+    Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
         // Fixed search bar at the top
         PersistentSearchField(
                 query = state.query,
@@ -174,7 +196,18 @@ internal fun SearchScreenContent(
 
         // Scrollable content between search bar and search engines
         SearchContentArea(
-                modifier = Modifier.weight(1f),
+                modifier =
+                        if (isOverlayPresentation) {
+                            // In overlay mode, keep the compact search engine bar pinned to the
+                            // bottom by letting the content area fill the remaining space (similar
+                            // to the regular home screen layout).
+                            val shouldFillRemainingSpace =
+                                    state.isSearchEngineCompactMode &&
+                                            expandedSection == ExpandedSection.NONE
+                            Modifier.fillMaxWidth().weight(1f, fill = shouldFillRemainingSpace)
+                        } else {
+                            Modifier.weight(1f)
+                        },
                 state = state,
                 renderingState = renderingState,
                 contactsParams = contactsParams,
@@ -194,34 +227,51 @@ internal fun SearchScreenContent(
                 onDeleteRecentItem = onDeleteRecentItem,
                 showCalculator = state.calculatorState.result != null,
                 showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-                directSearchState = state.DirectSearchState
+                directSearchState = state.DirectSearchState,
+                isOverlayPresentation = isOverlayPresentation
         )
 
         // Keyboard switch pill - appears above search engines
         if (expandedSection == ExpandedSection.NONE) {
-            val pillText =
-                    if (manuallySwitchedToNumberKeyboard) {
-                        stringResource(R.string.keyboard_switch_back)
-                    } else if (state.query.isNotEmpty() &&
-                                    state.query.none { it.isLetter() } &&
-                                    state.detectedShortcutTarget == null
-                    ) {
-                        stringResource(R.string.keyboard_switch_to_number)
-                    } else {
-                        null
-                    }
+            val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
-            pillText?.let {
+            if (!isKeyboardVisible) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     KeyboardSwitchPill(
-                            text = it,
-                            onClick = onKeyboardSwitchToggle,
+                            text = stringResource(R.string.action_open_keyboard),
+                            onClick = { keyboardController?.show() },
                             modifier =
                                     Modifier.padding(
                                             top = DesignTokens.SpacingMedium,
                                             bottom = DesignTokens.SpacingMedium
                                     )
                     )
+                }
+            } else {
+                val pillText =
+                        if (manuallySwitchedToNumberKeyboard) {
+                            stringResource(R.string.keyboard_switch_back)
+                        } else if (state.query.isNotEmpty() &&
+                                        state.query.none { it.isLetter() } &&
+                                        state.detectedShortcutTarget == null
+                        ) {
+                            stringResource(R.string.keyboard_switch_to_number)
+                        } else {
+                            null
+                        }
+
+                pillText?.let {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        KeyboardSwitchPill(
+                                text = it,
+                                onClick = onKeyboardSwitchToggle,
+                                modifier =
+                                        Modifier.padding(
+                                                top = DesignTokens.SpacingMedium,
+                                                bottom = DesignTokens.SpacingMedium
+                                        )
+                        )
+                    }
                 }
             }
         }
@@ -234,7 +284,7 @@ internal fun SearchScreenContent(
         if (expandedSection == ExpandedSection.NONE) {
             SearchEnginesVisibility(
                     enginesState = state.searchEnginesState,
-                    modifier = Modifier.imePadding(),
+                    modifier = searchEnginesModifier,
                     compactContent = {
                         SearchEngineIconsSection(
                                 query = state.query,
@@ -245,7 +295,8 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = state.detectedShortcutTarget,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     fullContent = {
@@ -258,7 +309,8 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = state.detectedShortcutTarget,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     shortcutContent = { target ->
@@ -271,13 +323,14 @@ internal fun SearchScreenContent(
                                 externalScrollState = searchEngineScrollState,
                                 detectedShortcutTarget = target,
                                 onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation
                         )
                     },
                     hiddenContent = {
                         // Add padding when search engines are hidden to prevent keyboard from
                         // covering content
-                        Spacer(modifier = Modifier.imePadding())
+                        Spacer(modifier = searchEnginesModifier)
                     }
             )
         }

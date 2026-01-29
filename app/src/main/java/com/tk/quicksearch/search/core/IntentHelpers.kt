@@ -414,7 +414,7 @@ object IntentHelpers {
             return
         }
 
-        // APK Handling: Open containing folder instead of launching the APK
+        // APK Handling: Open containing folder using existing folder-opening logic
         if (isApk(deviceFile)) {
             openParentDirectory(context, deviceFile, onShowToast)
             return
@@ -448,50 +448,35 @@ object IntentHelpers {
             deviceFile: DeviceFile,
             onShowToast: ((Int, String?) -> Unit)? = null
     ) {
-        // relativePath typically ends with / and is the folder path
-        val relativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
-
-        if (relativePath.isNullOrBlank()) {
-            // If we can't determine parent, try to fallback to normal open (which might fail or do
-            // nothing desired)
-            // or show error.
+        val folderRelativePath = deviceFile.relativePath?.trim()?.trimStart('/')?.trimEnd('/')
+        if (folderRelativePath.isNullOrBlank()) {
             onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
             return
         }
 
-        // Try to open via DocumentsContract
-        val volumeId = toDocumentVolumeId(deviceFile.volumeName)
-        if (volumeId != null) {
-            val documentId = "$volumeId:$relativePath"
-            val documentsUri =
-                    DocumentsContract.buildDocumentUri(
-                            EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY,
-                            documentId
-                    )
+        val folderName =
+                folderRelativePath.substringAfterLast('/').takeIf { it.isNotBlank() }
+                        ?: run {
+                            onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+                            return
+                        }
 
-            val documentsIntent =
-                    Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(documentsUri, DocumentsContract.Document.MIME_TYPE_DIR)
-                        addFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK or
-                                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        )
-                    }
+        val folderDeviceFile =
+                DeviceFile(
+                        uri =
+                                DocumentsContract.buildDocumentUri(
+                                        EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY,
+                                        "${toDocumentVolumeId(deviceFile.volumeName) ?: "primary"}:$folderRelativePath"
+                                ),
+                        displayName = folderName,
+                        mimeType = DocumentsContract.Document.MIME_TYPE_DIR,
+                        lastModified = deviceFile.lastModified,
+                        isDirectory = true,
+                        relativePath = folderRelativePath,
+                        volumeName = deviceFile.volumeName
+                )
 
-            try {
-                context.startActivity(documentsIntent)
-                return
-            } catch (_: Exception) {
-                // Continue to fallback
-            }
-        }
-
-        // Fallback: If we can't construct the document URI, we can't easily open the specific
-        // folder
-        // without a proper URI.
-        // We could try to open the file URI as a directory, but that won't work for a file URI.
-        // So we default to error toast if we couldn't open the folder.
-        onShowToast?.invoke(R.string.error_open_file, deviceFile.displayName)
+        openDirectory(context, folderDeviceFile, onShowToast)
     }
 
     private fun openDirectory(

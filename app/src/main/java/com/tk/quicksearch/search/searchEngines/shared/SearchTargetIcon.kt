@@ -112,10 +112,10 @@ fun SearchTargetIcon(
         }
 
         is SearchTarget.Browser -> {
-            val iconBitmap = rememberAppIcon(packageName = target.app.packageName)
-            if (iconBitmap != null) {
+            val iconResult = rememberAppIcon(packageName = target.app.packageName)
+            if (iconResult.bitmap != null) {
                 Image(
-                    bitmap = iconBitmap,
+                    bitmap = iconResult.bitmap!!,
                     contentDescription = target.app.label,
                     modifier = modifier.size(iconSize),
                     contentScale = ContentScale.Fit

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.apps
 
 import android.content.Context
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.util.LruCache
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.tk.quicksearch.search.managers.IconPackManager
 
+private data class AppIconEntry(val bitmap: ImageBitmap, val isLegacy: Boolean)
+
 /**
  * In-memory cache for app icons to avoid repeated loading.
  */
@@ -20,20 +23,18 @@ private object AppIconCache {
     private const val MAX_CACHE_SIZE_BYTES = 8 * 1024 * 1024 // 8 MB cap to avoid OOM
     private const val BYTES_PER_PIXEL = 4
 
-    private val cache = object : LruCache<String, ImageBitmap>(MAX_CACHE_SIZE_BYTES) {
-        override fun sizeOf(key: String, value: ImageBitmap): Int {
-            val bytes = value.width.toLong() * value.height.toLong() * BYTES_PER_PIXEL
-            // LruCache uses Int units; guard against overflow and zero-sized bitmaps.
+    private val cache = object : LruCache<String, AppIconEntry>(MAX_CACHE_SIZE_BYTES) {
+        override fun sizeOf(key: String, value: AppIconEntry): Int {
+            val b = value.bitmap
+            val bytes = b.width.toLong() * b.height.toLong() * BYTES_PER_PIXEL
             return bytes.coerceIn(1, Int.MAX_VALUE.toLong()).toInt()
         }
     }
 
-    fun get(cacheKey: String): ImageBitmap? = cache.get(cacheKey)
+    fun get(cacheKey: String): AppIconEntry? = cache.get(cacheKey)
 
-    fun put(cacheKey: String, bitmap: ImageBitmap?) {
-        if (bitmap != null) {
-            cache.put(cacheKey, bitmap)
-        }
+    fun put(cacheKey: String, entry: AppIconEntry) {
+        cache.put(cacheKey, entry)
     }
 
     fun clear() {
@@ -41,42 +42,39 @@ private object AppIconCache {
     }
 }
 
+data class AppIconResult(val bitmap: ImageBitmap?, val isLegacy: Boolean)
+
 /**
  * Loads an app icon from cache or package manager.
- * Returns a State that holds the ImageBitmap, or null if the icon cannot be loaded.
+ * Returns bitmap and whether the icon is legacy (non-adaptive); legacy icons may need circular clip.
  */
 @Composable
 fun rememberAppIcon(
     packageName: String,
     iconPackPackage: String? = null
-): ImageBitmap? {
+): AppIconResult {
     val context = LocalContext.current
     val cacheKey = buildCacheKey(packageName, iconPackPackage)
-    
-    // Check cache immediately for initial value
     val cachedInitial = AppIconCache.get(cacheKey)
-    
-    val iconState = produceState<ImageBitmap?>(
-        initialValue = cachedInitial,
+
+    val iconState = produceState<AppIconResult>(
+        initialValue = cachedInitial?.let { AppIconResult(it.bitmap, it.isLegacy) }
+            ?: AppIconResult(null, false),
         key1 = packageName,
         key2 = iconPackPackage
     ) {
-        // If we already have it, just ensure value is set (redundant but safe)
         if (cachedInitial != null) {
-            value = cachedInitial
+            value = AppIconResult(cachedInitial.bitmap, cachedInitial.isLegacy)
             return@produceState
         }
 
-        // Double check cache before loading (in case it came in very recently)
         val cached = AppIconCache.get(cacheKey)
         if (cached != null) {
-            value = cached
+            value = AppIconResult(cached.bitmap, cached.isLegacy)
             return@produceState
         }
 
-        // Load from package manager on IO thread
-        val bitmap = withContext(Dispatchers.IO) {
-            // Try icon pack first if selected; fall back to system icon if not found.
+        val entry = withContext(Dispatchers.IO) {
             val iconPackBitmap = iconPackPackage?.let { pack ->
                 IconPackManager.loadIconBitmap(
                     context = context,
@@ -85,20 +83,24 @@ fun rememberAppIcon(
                 )
             }
 
-            iconPackBitmap ?: runCatching {
-                context.packageManager.getApplicationIcon(packageName)
-                    .toBitmap()
-                    .asImageBitmap()
-            }.getOrNull()
+            if (iconPackBitmap != null) {
+                AppIconEntry(iconPackBitmap, isLegacy = false)
+            } else {
+                runCatching {
+                    val drawable = context.packageManager.getApplicationIcon(packageName)
+                    val isLegacy = drawable !is AdaptiveIconDrawable
+                    val bitmap = drawable.toBitmap().asImageBitmap()
+                    AppIconEntry(bitmap, isLegacy)
+                }.getOrNull()
+            }
         }
 
-        // Cache and return the result
-        if (bitmap != null) {
-            AppIconCache.put(cacheKey, bitmap)
+        if (entry != null) {
+            AppIconCache.put(cacheKey, entry)
+            value = AppIconResult(entry.bitmap, entry.isLegacy)
         }
-        value = bitmap
     }
-    
+
     return iconState.value
 }
 
@@ -137,14 +139,19 @@ suspend fun prefetchAppIcons(
                 )
             }
 
-            val bitmap = iconPackBitmap ?: runCatching {
-                context.packageManager.getApplicationIcon(packageName)
-                    .toBitmap()
-                    .asImageBitmap()
-            }.getOrNull()
+            val entry = if (iconPackBitmap != null) {
+                AppIconEntry(iconPackBitmap, isLegacy = false)
+            } else {
+                runCatching {
+                    val drawable = context.packageManager.getApplicationIcon(packageName)
+                    val isLegacy = drawable !is AdaptiveIconDrawable
+                    val bitmap = drawable.toBitmap().asImageBitmap()
+                    AppIconEntry(bitmap, isLegacy)
+                }.getOrNull()
+            }
 
-            if (bitmap != null) {
-                AppIconCache.put(cacheKey, bitmap)
+            if (entry != null) {
+                AppIconCache.put(cacheKey, entry)
             }
         }
     }

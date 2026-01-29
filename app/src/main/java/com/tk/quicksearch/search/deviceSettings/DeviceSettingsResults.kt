@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -208,7 +209,8 @@ internal fun SettingResultRow(
         showDescription: Boolean = true,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -217,13 +219,13 @@ internal fun SettingResultRow(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .heightIn(min = ROW_MIN_HEIGHT.dp)
+                                .clip(DesignTokens.CardShape)
                                 .combinedClickable(
                                         onClick = {
                                                 hapticConfirm(view)()
                                                 onClick(shortcut)
                                         },
-                                        onLongClick =
-                                                onLongPressOverride
+                                        onLongClick = onLongPressOverride
                                                         ?: if (enableLongPress) {
                                                                 { showOptions = true }
                                                         } else {
@@ -237,7 +239,7 @@ internal fun SettingResultRow(
                 Icon(
                         imageVector = icon ?: Icons.Rounded.Settings,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = iconTint,
                         modifier =
                                 Modifier.size(if (icon != null) 30.dp else ICON_SIZE.dp)
                                         .padding(start = DesignTokens.SpacingXSmall)
@@ -255,7 +257,8 @@ internal fun SettingResultRow(
                                 overflow = TextOverflow.Ellipsis
                         )
                         if (showDescription) {
-                                shortcut.description?.takeIf { it.isNotBlank() }?.let { description ->
+                                shortcut.description?.takeIf { it.isNotBlank() }?.let { description
+                                        ->
                                         Text(
                                                 text = description,
                                                 style = MaterialTheme.typography.bodySmall,

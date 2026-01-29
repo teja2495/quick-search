@@ -108,6 +108,14 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.QuickSearch" />
 
+        <activity
+            android:name=".search.overlay.OverlayActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.QuickSearch"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+
         <!-- Widget Receiver -->
         <receiver
             android:name=".widget.QuickSearchWidgetReceiver"

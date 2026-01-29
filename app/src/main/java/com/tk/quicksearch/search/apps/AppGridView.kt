@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -262,7 +263,7 @@ private fun AppGridItem(
     iconPackPackage: String?
 ) {
     val context = LocalContext.current
-    val iconBitmap = rememberAppIcon(
+    val iconResult = rememberAppIcon(
         packageName = appInfo.packageName,
         iconPackPackage = iconPackPackage
     )
@@ -280,7 +281,8 @@ private fun AppGridItem(
             verticalArrangement = Arrangement.Center
         ) {
             AppIconSurface(
-                iconBitmap = iconBitmap,
+                iconBitmap = iconResult.bitmap,
+                iconIsLegacy = iconResult.isLegacy,
                 placeholderLabel = placeholderLabel,
                 appName = appInfo.appName,
                 onClick = appActions.onClick,
@@ -313,6 +315,7 @@ private fun AppGridItem(
 @Composable
 private fun AppIconSurface(
     iconBitmap: androidx.compose.ui.graphics.ImageBitmap?,
+    iconIsLegacy: Boolean,
     placeholderLabel: String,
     appName: String,
     onClick: () -> Unit,
@@ -344,7 +347,12 @@ private fun AppIconSurface(
                         R.string.desc_launch_app,
                         appName
                     ),
-                    modifier = Modifier.size(DesignTokens.IconSizeXLarge)
+                    modifier = Modifier
+                        .size(DesignTokens.IconSizeXLarge)
+                        .then(
+                            if (iconIsLegacy) Modifier.clip(DesignTokens.ShapeLarge)
+                            else Modifier
+                        )
                 )
             } else {
                 Text(

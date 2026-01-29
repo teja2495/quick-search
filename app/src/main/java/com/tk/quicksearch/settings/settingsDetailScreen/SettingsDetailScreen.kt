@@ -175,7 +175,6 @@ internal fun SettingsDetailScreen(
                             onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
                             onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
                             onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                            onClearAll = callbacks.onClearAllExclusions,
                             showTitle = false,
                             iconPackPackage = state.selectedIconPackPackage
                         )

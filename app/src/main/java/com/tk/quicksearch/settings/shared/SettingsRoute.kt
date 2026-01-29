@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -74,6 +75,7 @@ data class SettingsScreenState(
         val showHiddenFiles: Boolean,
         val excludedFileExtensions: Set<String>,
         val oneHandedMode: Boolean,
+        val overlayModeEnabled: Boolean,
         val shortcutCodes: Map<String, String>,
         val shortcutEnabled: Map<String, Boolean>,
         val messagingApp: MessagingApp,
@@ -119,6 +121,7 @@ data class SettingsScreenCallbacks(
         val onToggleHiddenFiles: (Boolean) -> Unit,
         val onRemoveExcludedFileExtension: (String) -> Unit,
         val onToggleOneHandedMode: (Boolean) -> Unit,
+        val onToggleOverlayMode: (Boolean) -> Unit,
         val setShortcutCode: (SearchTarget, String) -> Unit,
         val setShortcutEnabled: (SearchTarget, Boolean) -> Unit,
         val onSetMessagingApp: (MessagingApp) -> Unit,
@@ -533,6 +536,7 @@ fun SettingsRoute(
                     showHiddenFiles = uiState.showHiddenFiles,
                     excludedFileExtensions = uiState.excludedFileExtensions,
                     oneHandedMode = uiState.oneHandedMode,
+                    overlayModeEnabled = uiState.overlayModeEnabled,
                     shortcutCodes = uiState.shortcutCodes,
                     shortcutEnabled = uiState.shortcutEnabled,
                     messagingApp = uiState.messagingApp,
@@ -654,6 +658,10 @@ fun SettingsRoute(
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
+    val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
+        viewModel.setOverlayModeEnabled(enabled)
+    }
+
     // Define permission request handlers
     val onRequestUsagePermission = viewModel::openUsageAccessSettings
     val onRequestFilePermission = viewModel::openFilesPermissionSettings
@@ -676,6 +684,7 @@ fun SettingsRoute(
                     onToggleHiddenFiles = viewModel::setShowHiddenFiles,
                     onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
                     onToggleOneHandedMode = viewModel::setOneHandedMode,
+                    onToggleOverlayMode = onToggleOverlayMode,
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,

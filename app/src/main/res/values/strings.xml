@@ -17,6 +17,7 @@
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
     <string name="desc_close">Close</string>
+    <string name="overlay_close_tip">Tip: Tap anywhere outside of the overlay or use back gesture to close it.</string>
 
     <!-- ============================================================================
          Search Screen
@@ -32,6 +33,7 @@
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
     <string name="customize_search_engines">Customize Search Engines</string>
     <string name="keyboard_switch_to_number">Switch to number keyboard</string>
+    <string name="action_open_keyboard">Open keyboard</string>
     <string name="direct_answer_contact_name">Direct Answer</string>
 
     <!-- ============================================================================
@@ -255,6 +257,8 @@
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
     <string name="wallpaper_permission_fallback_message">Unable to fetch wallpaper using file permission. Do you want me to try another way?</string>
+    <string name="settings_overlay_mode_title">Overlay Mode</string>
+    <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
     <string name="settings_icon_pack_title">Icon Pack</string>
@@ -335,7 +339,7 @@
     <string name="file_type_documents">Documents</string>
     <string name="file_type_pictures">Pictures</string>
     <string name="file_type_videos">Videos</string>
-    <string name="file_type_music">Music</string>
+    <string name="file_type_audio">Audio</string>
     <string name="file_type_apks">APKs</string>
     <string name="file_type_other">Other</string>
 
@@ -403,6 +407,7 @@
     <string name="excluded_item_type_app_shortcut">App Shortcut</string>
     <string name="excluded_item_type_contact">Contact</string>
     <string name="excluded_item_type_file">File</string>
+    <string name="excluded_item_type_folder">Folder</string>
     <string name="excluded_item_type_file_extension">File Extension</string>
     <string name="excluded_item_type_setting">Setting</string>
 
@@ -438,7 +443,7 @@
     <string name="widget_custom_button_reset">Reset</string>
     <string name="widget_custom_button_add">Add</string>
     <string name="widget_custom_button_add_desc">Add custom button</string>
-    <string name="widget_quick_search_disabled_custom_buttons">Cannot enable when custom buttons are active.</string>
+    <string name="widget_custom_buttons_restriction">Not available when custom buttons are active.</string>
     <string name="widget_action_cancel">Cancel</string>
     <string name="widget_config_scroll_tip">Tip: Scroll to the bottom to add custom buttons to the widget to open apps, app shortcuts, contacts, files &amp; device settings.</string>
     <string name="desc_voice_search_icon">Start voice search</string>

@@ -36,7 +36,7 @@ fun CustomWidgetButtonIcon(
             val iconBitmap = rememberAppIcon(
                 packageName = action.packageName,
                 iconPackPackage = iconPackPackage
-            )
+            ).bitmap
             if (iconBitmap != null) {
                 Image(
                     bitmap = iconBitmap,

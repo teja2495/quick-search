@@ -17,10 +17,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
@@ -36,6 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -162,9 +164,7 @@ private fun FilesResultCard(
                         if (isExpanded)
                                 Modifier.fillMaxWidth()
                                         .heightIn(
-                                                max =
-                                                        SearchScreenConstants
-                                                                .EXPANDED_CARD_MAX_HEIGHT
+                                                max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT
                                         )
                         else Modifier.fillMaxWidth()
 
@@ -229,8 +229,7 @@ private fun FileCardContent(
         if (useLazyList) {
                 LazyColumn(
                         modifier = modifier,
-                        contentPadding =
-                                PaddingValues(horizontal = DesignTokens.SpacingMedium)
+                        contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium)
                 ) {
                         itemsIndexed(
                                 items = displayFiles,
@@ -262,9 +261,7 @@ private fun FileCardContent(
                                                 ExpandButton(
                                                         onClick = onExpandClick,
                                                         modifier =
-                                                                Modifier.align(
-                                                                                Alignment.Center
-                                                                        )
+                                                                Modifier.align(Alignment.Center)
                                                                         .height(
                                                                                 ContactUiConstants
                                                                                         .EXPAND_BUTTON_HEIGHT
@@ -310,7 +307,8 @@ private fun FileCardContent(
                                                 Modifier.align(Alignment.CenterHorizontally)
                                                         .height(
                                                                 ContactUiConstants
-                                                                        .EXPAND_BUTTON_HEIGHT.dp
+                                                                        .EXPAND_BUTTON_HEIGHT
+                                                                        .dp
                                                         )
                                                         .padding(top = EXPAND_BUTTON_TOP_PADDING.dp)
                                 )
@@ -328,7 +326,7 @@ private fun fileResultIcon(deviceFile: DeviceFile) =
                 deviceFile.isDirectory -> Icons.Rounded.Folder
                 else ->
                         when (FileTypeUtils.getFileType(deviceFile)) {
-                                FileType.MUSIC -> Icons.Rounded.MusicNote
+                                FileType.AUDIO -> Icons.Rounded.AudioFile
                                 FileType.PICTURES -> Icons.Rounded.Image
                                 FileType.VIDEOS -> Icons.Rounded.VideoLibrary
                                 FileType.APKS -> Icons.Rounded.Android
@@ -349,7 +347,8 @@ internal fun FileResultRow(
         hasNickname: Boolean = false,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -358,13 +357,13 @@ internal fun FileResultRow(
                 Column(
                         modifier =
                                 Modifier.fillMaxWidth()
+                                        .clip(DesignTokens.CardShape)
                                         .combinedClickable(
                                                 onClick = {
                                                         hapticConfirm(view)()
                                                         onClick(deviceFile)
                                                 },
-                                                onLongClick =
-                                                        onLongPressOverride
+                                                onLongClick = onLongPressOverride
                                                                 ?: if (enableLongPress) {
                                                                         { showOptions = true }
                                                                 } else {
@@ -381,9 +380,12 @@ internal fun FileResultRow(
                                 Icon(
                                         imageVector = icon ?: fileResultIcon(deviceFile),
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.secondary,
+                                        tint = iconTint,
                                         modifier =
-                                                Modifier.size(if (icon != null) 34.dp else FILE_ICON_SIZE.dp)
+                                                Modifier.size(
+                                                                if (icon != null) 34.dp
+                                                                else FILE_ICON_SIZE.dp
+                                                        )
                                                         .padding(start = DesignTokens.SpacingSmall)
                                 )
 

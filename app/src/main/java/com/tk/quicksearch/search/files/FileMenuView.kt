@@ -17,6 +17,7 @@ import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.ui.theme.AppColors
 
 /**
  * Menu item data class for file dropdown menu.
@@ -46,7 +47,8 @@ fun FileDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         shape = RoundedCornerShape(24.dp),
-        properties = PopupProperties(focusable = false)
+        properties = PopupProperties(focusable = false),
+        containerColor = AppColors.DialogBackground
     ) {
         val menuItems = buildList {
             add(

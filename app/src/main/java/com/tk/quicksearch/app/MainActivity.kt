@@ -15,17 +15,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import com.tk.quicksearch.navigation.MainContent
+import com.tk.quicksearch.navigation.NavigationRequest
+import com.tk.quicksearch.navigation.RootDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.overlay.OverlayModeController
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -38,6 +41,7 @@ class MainActivity : ComponentActivity() {
             }
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
+    private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -54,6 +58,11 @@ class MainActivity : ComponentActivity() {
         overridePendingTransition(0, 0)
 
         initializePreferences()
+
+        if (launchOverlayIfNeeded(intent)) {
+            return
+        }
+
         initializeVoiceSearchHandler()
         // Initialize ViewModel early to start loading cached data immediately
         // This ensures cached apps are ready when UI renders
@@ -62,13 +71,14 @@ class MainActivity : ComponentActivity() {
         // PRIORITY: Preload wallpaper immediately for seamless visual foundation
         // This ensures wallpaper is available when SearchScreen renders, providing
         // instant visual feedback alongside search bar and app list
-        lifecycleScope.launch(Dispatchers.IO) {
-            WallpaperUtils.preloadWallpaper(this@MainActivity)
-        }
+        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@MainActivity) }
+
+        // Handle intent BEFORE composing UI to avoid briefly showing the Search screen
+        // (which auto-focuses the search bar and can flash the keyboard) before navigating.
+        handleIntent(intent)
 
         setupContent()
         refreshPermissionStateIfNeeded()
-        handleIntent(intent)
 
         // Track first app open time and app open count
         // Only track after first launch is complete
@@ -99,6 +109,9 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (launchOverlayIfNeeded(intent)) {
+            return
+        }
         handleIntent(intent)
     }
 
@@ -111,6 +124,18 @@ class MainActivity : ComponentActivity() {
         userPreferences = UserAppPreferences(this)
     }
 
+    private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
+        val forceNormalLaunch =
+                intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
+                        ?: false
+        if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
+            OverlayModeController.startOverlay(this)
+            finish()
+            return true
+        }
+        return false
+    }
+
     private fun initializeVoiceSearchHandler() {
         voiceSearchHandler = VoiceSearchHandler(this, voiceInputLauncher)
     }
@@ -119,13 +144,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSearchTheme {
                 Box(
-                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                        modifier =
+                                Modifier.fillMaxSize()
+                                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     MainContent(
                             context = this@MainActivity,
                             userPreferences = userPreferences,
                             searchViewModel = searchViewModel,
-                            onSearchBackPressed = { moveTaskToBack(true) }
+                            onSearchBackPressed = { moveTaskToBack(true) },
+                            navigationRequest = navigationRequest.value,
+                            onNavigationRequestHandled = { navigationRequest.value = null },
+                            onFinishActivity = {
+                                if (userPreferences.isOverlayModeEnabled()) {
+                                    OverlayModeController.startOverlay(this@MainActivity)
+                                }
+                                finish()
+                            }
                     )
                     if (showReviewPromptDialog.value) {
                         EnjoyingAppDialog(
@@ -149,7 +184,10 @@ class MainActivity : ComponentActivity() {
                     if (showFeedbackDialog.value) {
                         SendFeedbackDialog(
                                 onSend = { feedbackText ->
-                                    FeedbackUtils.launchFeedbackEmail(this@MainActivity, feedbackText)
+                                    FeedbackUtils.launchFeedbackEmail(
+                                            this@MainActivity,
+                                            feedbackText
+                                    )
                                 },
                                 onDismiss = { showFeedbackDialog.value = false }
                         )
@@ -166,6 +204,46 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
+        }
+        val contactActionIntent = intent
+        if (contactActionIntent?.getBooleanExtra(
+                        OverlayModeController.EXTRA_CONTACT_ACTION_PICKER,
+                        false
+                ) == true
+        ) {
+            val contactId =
+                    contactActionIntent.getLongExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID,
+                            -1L
+                    )
+            val isPrimary =
+                    contactActionIntent.getBooleanExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY,
+                            true
+                    )
+            val serializedAction =
+                    contactActionIntent.getStringExtra(
+                            OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
+                    )
+            if (contactId != -1L) {
+                searchViewModel.requestContactActionPicker(
+                        contactId = contactId,
+                        isPrimary = isPrimary,
+                        serializedAction = serializedAction
+                )
+            }
+            contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER)
+            contactActionIntent.removeExtra(OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_ID)
+            contactActionIntent.removeExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY
+            )
+            contactActionIntent.removeExtra(
+                    OverlayModeController.EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION
+            )
+        }
+
         // Handle voice search from widget
         val shouldStartVoiceSearch =
                 intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
