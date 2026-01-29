@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -319,7 +320,11 @@ private fun RecentQueryRow(
     Row(
             modifier =
                     Modifier.fillMaxWidth()
-                            .combinedClickable(onClick = onClick, onLongClick = onLongPress)
+                            .clip(DesignTokens.CardShape)
+                            .combinedClickable(
+                                    onClick = onClick,
+                                    onLongClick = onLongPress
+                            )
                             .padding(
                                     start = QUERY_ICON_START_PADDING.dp,
                                     end = QUERY_TEXT_END_PADDING.dp,

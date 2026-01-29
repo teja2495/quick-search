@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -98,11 +99,9 @@ internal fun ContactResultRow(
                                                                         .CONTACT_ROW_MIN_HEIGHT
                                                                         .dp
                                                 )
+                                                .clip(DesignTokens.CardShape)
                                                 .combinedClickable(
                                                         onClick = {
-                                                                // Show contact methods bottom sheet
-                                                                // if available,
-                                                                // otherwise open contact
                                                                 if (contactInfo.hasContactMethods) {
                                                                         onShowContactMethods(
                                                                                 contactInfo
