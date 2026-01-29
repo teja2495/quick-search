@@ -16,12 +16,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -83,7 +80,8 @@ internal fun ContactResultRow(
         hasNickname: Boolean = false,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -113,32 +111,37 @@ internal fun ContactResultRow(
                                                                         onContactClick(contactInfo)
                                                                 }
                                                         },
-                                                        onLongClick =
-                                                                onLongPressOverride
+                                                        onLongClick = onLongPressOverride
                                                                         ?: if (enableLongPress) {
-                                                                                { showOptions = true }
+                                                                                {
+                                                                                        showOptions =
+                                                                                                true
+                                                                                }
                                                                         } else {
                                                                                 null
                                                                         }
                                                 )
                                                 .padding(vertical = DesignTokens.SpacingSmall),
-                                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                                horizontalArrangement =
+                                        Arrangement.spacedBy(DesignTokens.SpacingMedium),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
                                 Box(
                                         modifier =
-                                                Modifier.padding(
-                                                        start = DesignTokens.SpacingXSmall
-                                                )
+                                                Modifier.padding(start = DesignTokens.SpacingXSmall)
                                 ) {
                                         if (icon != null) {
                                                 Icon(
                                                         imageVector = icon,
                                                         contentDescription = null,
-                                                        tint = MaterialTheme.colorScheme.secondary,
-                                                        modifier = Modifier
-                                                                .size(30.dp)
-                                                                .padding(start = DesignTokens.SpacingXSmall)
+                                                        tint = iconTint,
+                                                        modifier =
+                                                                Modifier.size(30.dp)
+                                                                        .padding(
+                                                                                start =
+                                                                                        DesignTokens
+                                                                                                .SpacingXSmall
+                                                                        )
                                                 )
                                         } else {
                                                 ContactAvatar(
@@ -365,26 +368,26 @@ private fun ContactActionButtons(
                                 // Default messaging logic
                                 when (messagingApp) {
                                         MessagingApp.MESSAGES -> {
-                                                        Icon(
-                                                                imageVector = Icons.Rounded.Sms,
-                                                                contentDescription =
-                                                                        stringResource(
-                                                                                R.string.contacts_action_sms
+                                                Icon(
+                                                        imageVector = Icons.Rounded.Sms,
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string.contacts_action_sms
                                                                 ),
-                                                                tint =
-                                                                        if (hasNumber) Color.White
-                                                                        else
-                                                                                MaterialTheme.colorScheme
-                                                                                        .onSurfaceVariant,
-                                                                modifier =
-                                                                        Modifier.size(
-                                                                                (ContactUiConstants
+                                                        tint =
+                                                                if (hasNumber) Color.White
+                                                                else
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant,
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        (ContactUiConstants
                                                                                         .ACTION_ICON_SIZE *
                                                                                         0.9f)
-                                                                                        .dp
-                                                                        )
-                                                        )
-                                                }
+                                                                                .dp
+                                                                )
+                                                )
+                                        }
                                         MessagingApp.WHATSAPP -> {
                                                 Icon(
                                                         painter =
@@ -457,8 +460,7 @@ private fun ContactActionIconForButton(
         val tint = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
         val whiteTint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
         val modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-        val smsModifier =
-                Modifier.size((ContactUiConstants.ACTION_ICON_SIZE * 0.9f).dp)
+        val smsModifier = Modifier.size((ContactUiConstants.ACTION_ICON_SIZE * 0.9f).dp)
 
         when (action) {
                 // Calls -> Phone Icon
@@ -473,7 +475,15 @@ private fun ContactActionIconForButton(
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall,
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall -> {
                         Icon(
-                                painter = painterResource(id = if (action is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall) R.drawable.whatsapp_video_call else R.drawable.whatsapp_call),
+                                painter =
+                                        painterResource(
+                                                id =
+                                                        if (action is
+                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall
+                                                        )
+                                                                R.drawable.whatsapp_video_call
+                                                        else R.drawable.whatsapp_call
+                                        ),
                                 contentDescription = null,
                                 tint = tint,
                                 modifier = modifier
@@ -482,7 +492,15 @@ private fun ContactActionIconForButton(
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall,
                 is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
                         Icon(
-                                painter = painterResource(id = if (action is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall) R.drawable.telegram_video_call else R.drawable.telegram_call),
+                                painter =
+                                        painterResource(
+                                                id =
+                                                        if (action is
+                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall
+                                                        )
+                                                                R.drawable.telegram_video_call
+                                                        else R.drawable.telegram_call
+                                        ),
                                 contentDescription = null,
                                 tint = tint,
                                 modifier = modifier

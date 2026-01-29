@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -15,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.calculator.CalculatorUtils
@@ -59,6 +63,8 @@ internal fun SearchScreenContent(
         modifier: Modifier = Modifier,
         isOverlayPresentation: Boolean = false
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
             remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
@@ -227,29 +233,45 @@ internal fun SearchScreenContent(
 
         // Keyboard switch pill - appears above search engines
         if (expandedSection == ExpandedSection.NONE) {
-            val pillText =
-                    if (manuallySwitchedToNumberKeyboard) {
-                        stringResource(R.string.keyboard_switch_back)
-                    } else if (state.query.isNotEmpty() &&
-                                    state.query.none { it.isLetter() } &&
-                                    state.detectedShortcutTarget == null
-                    ) {
-                        stringResource(R.string.keyboard_switch_to_number)
-                    } else {
-                        null
-                    }
+            val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
-            pillText?.let {
+            if (!isKeyboardVisible) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     KeyboardSwitchPill(
-                            text = it,
-                            onClick = onKeyboardSwitchToggle,
+                            text = stringResource(R.string.action_open_keyboard),
+                            onClick = { keyboardController?.show() },
                             modifier =
                                     Modifier.padding(
                                             top = DesignTokens.SpacingMedium,
                                             bottom = DesignTokens.SpacingMedium
                                     )
                     )
+                }
+            } else {
+                val pillText =
+                        if (manuallySwitchedToNumberKeyboard) {
+                            stringResource(R.string.keyboard_switch_back)
+                        } else if (state.query.isNotEmpty() &&
+                                        state.query.none { it.isLetter() } &&
+                                        state.detectedShortcutTarget == null
+                        ) {
+                            stringResource(R.string.keyboard_switch_to_number)
+                        } else {
+                            null
+                        }
+
+                pillText?.let {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        KeyboardSwitchPill(
+                                text = it,
+                                onClick = onKeyboardSwitchToggle,
+                                modifier =
+                                        Modifier.padding(
+                                                top = DesignTokens.SpacingMedium,
+                                                bottom = DesignTokens.SpacingMedium
+                                        )
+                        )
+                    }
                 }
             }
         }

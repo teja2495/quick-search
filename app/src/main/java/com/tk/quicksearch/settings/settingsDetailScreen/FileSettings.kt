@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -22,19 +22,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.ui.theme.DesignTokens
-import com.tk.quicksearch.util.hapticToggle
 
 // Constants for consistent spacing
 private object FileTypesSpacing {
@@ -53,7 +49,7 @@ private fun getFileTypeDisplayName(fileType: FileType): String {
                 FileType.DOCUMENTS -> stringResource(R.string.file_type_documents)
                 FileType.PICTURES -> stringResource(R.string.file_type_pictures)
                 FileType.VIDEOS -> stringResource(R.string.file_type_videos)
-                FileType.MUSIC -> stringResource(R.string.file_type_music)
+                FileType.AUDIO -> stringResource(R.string.file_type_audio)
                 FileType.APKS -> stringResource(R.string.file_type_apks)
                 FileType.OTHER -> stringResource(R.string.file_type_other)
         }
@@ -65,7 +61,7 @@ private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.ve
                 FileType.DOCUMENTS -> Icons.Rounded.Folder
                 FileType.PICTURES -> Icons.Rounded.Image
                 FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-                FileType.MUSIC -> Icons.Rounded.MusicNote
+                FileType.AUDIO -> Icons.Rounded.AudioFile
                 FileType.APKS -> Icons.Rounded.Android
                 FileType.OTHER -> Icons.Rounded.Folder
         }
@@ -108,7 +104,6 @@ private fun ExcludedExtensionChip(
                         )
         )
 }
-
 
 /**
  * Settings section for configuring which files and folders are included in search results.
@@ -154,16 +149,16 @@ fun FileTypesSection(
                                 text = stringResource(R.string.settings_file_types_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding)
+                                modifier =
+                                        Modifier.padding(
+                                                bottom = DesignTokens.SectionTitleBottomPadding
+                                        )
                         )
                 }
         }
 
         // Card 1: Folders toggle
-        ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = DesignTokens.ExtraLargeCardShape
-        ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
                 SettingsToggleRow(
                         title = stringResource(R.string.settings_folders_toggle),
                         checked = showFolders,
@@ -177,10 +172,7 @@ fun FileTypesSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Card 2: File types with icons in specific order
-        ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = DesignTokens.ExtraLargeCardShape
-        ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
                 Column {
                         // Define the order: Documents, Pictures, Videos, Music, APKs, Other
                         val orderedFileTypes =
@@ -188,7 +180,7 @@ fun FileTypesSection(
                                         FileType.DOCUMENTS,
                                         FileType.PICTURES,
                                         FileType.VIDEOS,
-                                        FileType.MUSIC,
+                                        FileType.AUDIO,
                                         FileType.APKS,
                                         FileType.OTHER
                                 )
@@ -277,10 +269,7 @@ fun FileTypesSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Card 3: System Files & Hidden Files toggles
-        ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = DesignTokens.ExtraLargeCardShape
-        ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
                 Column {
                         SettingsToggleRow(
                                 title = stringResource(R.string.settings_system_files_toggle),

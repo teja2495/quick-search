@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -38,8 +39,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.ShortcutIcon
 import com.tk.quicksearch.search.contacts.ExpandButton
+import com.tk.quicksearch.search.data.ShortcutIcon
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
@@ -124,17 +125,17 @@ fun AppShortcutResultsSection(
                                                 pinnedShortcutIds = pinnedShortcutIds,
                                                 excludedShortcutIds = excludedShortcutIds,
                                                 onShortcutClick = onShortcutClick,
-                                        onTogglePin = onTogglePin,
-                                        onExclude = onExclude,
-                                        onInclude = onInclude,
-                                        onAppInfoClick = onAppInfoClick,
-                                        onNicknameClick = onNicknameClick,
-                                        getShortcutNickname = getShortcutNickname,
-                                        iconPackPackage = iconPackPackage,
-                                        shouldShowExpandButton = shouldShowExpandButton,
-                                        onExpandClick = onExpandClick
-                                )
-                        }
+                                                onTogglePin = onTogglePin,
+                                                onExclude = onExclude,
+                                                onInclude = onInclude,
+                                                onAppInfoClick = onAppInfoClick,
+                                                onNicknameClick = onNicknameClick,
+                                                getShortcutNickname = getShortcutNickname,
+                                                iconPackPackage = iconPackPackage,
+                                                shouldShowExpandButton = shouldShowExpandButton,
+                                                onExpandClick = onExpandClick
+                                        )
+                                }
                         }
 
                 if (showWallpaperBackground) {
@@ -224,7 +225,8 @@ internal fun AppShortcutRow(
         showAppLabel: Boolean = true,
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
-        icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary
 ) {
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
@@ -241,8 +243,7 @@ internal fun AppShortcutRow(
                                                 hapticConfirm(view)()
                                                 onShortcutClick(shortcut)
                                         },
-                                        onLongClick =
-                                                onLongPressOverride
+                                        onLongClick = onLongPressOverride
                                                         ?: if (enableLongPress) {
                                                                 { showOptions = true }
                                                         } else {
@@ -260,7 +261,7 @@ internal fun AppShortcutRow(
                                 Icon(
                                         imageVector = icon,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.secondary,
+                                        tint = iconTint,
                                         modifier = Modifier.size(OVERRIDE_ICON_SIZE.dp)
                                 )
                         } else {
@@ -334,7 +335,8 @@ private fun AppShortcutDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-                properties = PopupProperties(focusable = false)
+                properties = PopupProperties(focusable = false),
+                containerColor = AppColors.DialogBackground
         ) {
                 val menuItems = buildList {
                         add(

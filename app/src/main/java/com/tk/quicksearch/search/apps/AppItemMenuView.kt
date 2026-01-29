@@ -17,8 +17,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 /** Menu item data class for app dropdown menu. */
@@ -66,6 +69,7 @@ fun AppItemDropdownMenu(
             onDismissRequest = onDismiss,
             shape = RoundedCornerShape(24.dp),
             properties = PopupProperties(focusable = false),
+            containerColor = AppColors.DialogBackground,
             modifier = Modifier.padding(vertical = 0.dp)
     ) {
         val menuItems = buildList {
@@ -215,25 +219,27 @@ fun AppItemDropdownMenu(
             }
 
             HorizontalDivider()
-            Row(
-                    modifier =
-                            Modifier.fillMaxWidth()
-                                    .padding(
-                                            horizontal = DesignTokens.SpacingSmall,
-                                            vertical = DesignTokens.SpacingSmall
-                                    ),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-            ) {
-                menuItems.forEach { item ->
-                    val contentDescription = stringResource(item.textResId)
-                    IconButton(
-                            onClick = item.onClick,
-                            modifier =
-                                    Modifier.size(40.dp).semantics {
-                                        this.contentDescription = contentDescription
-                                    }
-                    ) { item.icon() }
+            CompositionLocalProvider(LocalContentColor provides AppColors.DialogText) {
+                Row(
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .padding(
+                                                horizontal = DesignTokens.SpacingSmall,
+                                                vertical = DesignTokens.SpacingSmall
+                                        ),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    menuItems.forEach { item ->
+                        val contentDescription = stringResource(item.textResId)
+                        IconButton(
+                                onClick = item.onClick,
+                                modifier =
+                                        Modifier.size(40.dp).semantics {
+                                            this.contentDescription = contentDescription
+                                        }
+                        ) { item.icon() }
+                    }
                 }
             }
         }

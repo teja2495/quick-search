@@ -889,13 +889,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { it.copy(contactActionsVersion = it.contactActionsVersion + 1) }
     }
 
-    fun requestContactActionPicker(
-            contactId: Long,
-            isPrimary: Boolean,
-            serializedAction: String?
-    ) {
+    fun requestContactActionPicker(contactId: Long, isPrimary: Boolean, serializedAction: String?) {
         viewModelScope.launch(Dispatchers.IO) {
-            val contact = contactRepository.getContactsByIds(setOf(contactId)).firstOrNull() ?: return@launch
+            val contact =
+                    contactRepository.getContactsByIds(setOf(contactId)).firstOrNull()
+                            ?: return@launch
             val requestedAction =
                     serializedAction?.let {
                         com.tk.quicksearch.search.contacts.models.ContactCardAction
@@ -903,10 +901,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }
             val resolvedAction =
                     requestedAction
-                            ?: if (isPrimary)
-                                getPrimaryContactCardAction(contactId)
-                            else getSecondaryContactCardAction(contactId)
-                            ?: getDefaultContactCardAction(contact, isPrimary)
+                            ?: if (isPrimary) getPrimaryContactCardAction(contactId)
+                            else
+                                    getSecondaryContactCardAction(contactId)
+                                            ?: getDefaultContactCardAction(contact, isPrimary)
             _uiState.update {
                 it.copy(
                         contactActionPickerRequest =
@@ -1421,7 +1419,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun removeExcludedSetting(setting: DeviceSetting) =
             settingsManager.removeExcludedSetting(setting)
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
-    fun openSetting(setting: DeviceSetting) = settingsSearchHandler.openSetting(setting)
+    fun openSetting(setting: DeviceSetting) = navigationHandler.openSetting(setting)
 
     // App Shortcut Management Delegates
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)

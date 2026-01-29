@@ -5,7 +5,7 @@ enum class FileType {
     DOCUMENTS,
     PICTURES,
     VIDEOS,
-    MUSIC,
+    AUDIO,
     APKS,
     OTHER
 }
@@ -42,7 +42,7 @@ object FileTypeUtils {
         return when {
             normalizedMime.startsWith(IMAGE_PREFIX) -> FileType.PICTURES
             normalizedMime.startsWith(VIDEO_PREFIX) -> FileType.VIDEOS
-            normalizedMime.startsWith(AUDIO_PREFIX) -> FileType.MUSIC
+            normalizedMime.startsWith(AUDIO_PREFIX) -> FileType.AUDIO
             normalizedMime == APK_MIME_TYPE -> FileType.APKS
             isDocumentType(normalizedMime) -> FileType.DOCUMENTS
             else -> FileType.OTHER

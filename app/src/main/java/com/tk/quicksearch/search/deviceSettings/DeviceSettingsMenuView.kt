@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
+import com.tk.quicksearch.ui.theme.AppColors
 
 /**
  * Menu item data class for settings dropdown menu.
@@ -42,7 +43,8 @@ fun DeviceSettingsDropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         shape = RoundedCornerShape(24.dp),
-        properties = PopupProperties(focusable = false)
+        properties = PopupProperties(focusable = false),
+        containerColor = AppColors.DialogBackground
     ) {
         val menuItems = buildList {
             add(
