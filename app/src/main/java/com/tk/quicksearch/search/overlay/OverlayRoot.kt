@@ -106,8 +106,12 @@ fun OverlayRoot(
             val assumeKeyboardOpen = !hasKeyboardBeenVisible
             val overlayHeightRatio =
                 if (assumeKeyboardOpen || isKeyboardVisible) 0.45f else 0.75f
+            val reservedVerticalSpace =
+                DesignTokens.Spacing40 + DesignTokens.SpacingLarge * 2
+            val maxOverlayHeight =
+                (availableHeight - reservedVerticalSpace).coerceAtLeast(0.dp)
             val targetOverlayHeight =
-                minOf(maxHeight * overlayHeightRatio, availableHeight)
+                minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
             val overlayHeight by
                 animateDpAsState(
                     targetValue = targetOverlayHeight,
@@ -162,6 +166,7 @@ fun OverlayRoot(
                             ) {},
                 ) {
                     SearchRoute(
+                        modifier = Modifier.fillMaxSize(),
                         viewModel = viewModel,
                         isOverlayPresentation = true,
                         overlaySnackbarHostState = overlaySnackbarHostState,
@@ -196,7 +201,18 @@ fun OverlayRoot(
 
             val uiState by viewModel.uiState.collectAsState()
 
-            if (uiState.showOverlayCloseTip) {
+            var tipDelayElapsed by remember { mutableStateOf(false) }
+            LaunchedEffect(isVisible, uiState.showOverlayCloseTip) {
+                when {
+                    !isVisible || !uiState.showOverlayCloseTip -> tipDelayElapsed = false
+                    else -> {
+                        delay(2000)
+                        tipDelayElapsed = true
+                    }
+                }
+            }
+
+            if (uiState.showOverlayCloseTip && tipDelayElapsed) {
                 TipBanner(
                     text = stringResource(R.string.overlay_close_tip),
                     onDismiss = { viewModel.dismissOverlayCloseTip() },

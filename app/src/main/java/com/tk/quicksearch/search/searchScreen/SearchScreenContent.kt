@@ -120,7 +120,7 @@ internal fun SearchScreenContent(
     val contentModifier =
         if (isOverlayPresentation) {
             modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(
                     start = DesignTokens.SpacingXLarge,
                     top = DesignTokens.SpacingLarge,
@@ -203,13 +203,7 @@ internal fun SearchScreenContent(
         SearchContentArea(
             modifier =
                 if (isOverlayPresentation) {
-                    // In overlay mode, keep the compact search engine bar pinned to the
-                    // bottom by letting the content area fill the remaining space (similar
-                    // to the regular home screen layout).
-                    val shouldFillRemainingSpace =
-                        state.isSearchEngineCompactMode &&
-                            expandedSection == ExpandedSection.NONE
-                    Modifier.fillMaxWidth().weight(1f, fill = shouldFillRemainingSpace)
+                    Modifier.fillMaxWidth().weight(1f, fill = true)
                 } else {
                     Modifier.weight(1f)
                 },
