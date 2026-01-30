@@ -271,7 +271,7 @@ class UiPreferences(
 
     fun getDisabledSections(): Set<String> {
         if (!prefs.contains(UiPreferences.KEY_DISABLED_SECTIONS)) {
-            return setOf(SearchSection.APP_SHORTCUTS.name)
+            return emptySet()
         }
         return getStringSet(UiPreferences.KEY_DISABLED_SECTIONS)
     }
