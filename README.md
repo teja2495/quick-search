@@ -6,24 +6,34 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## 📸 Screenshots
+
+| | |
+|---|---|
+| <img src="screenshots/image1.png" width="280" alt="Screenshot 1"> | <img src="screenshots/image2.png" width="280" alt="Screenshot 2"> |
+| <img src="screenshots/image3.png" width="280" alt="Screenshot 3"> | <img src="screenshots/image4.png" width="280" alt="Screenshot 4"> |
+| <img src="screenshots/image5.png" width="280" alt="Screenshot 5"> | <img src="screenshots/image6.png" width="280" alt="Screenshot 6"> |
+| <img src="screenshots/image7.png" width="280" alt="Screenshot 7"> | <img src="screenshots/image8.png" width="280" alt="Screenshot 8"> |
+
 ## ✨ Key Features
 
 ### 🔍 Unified Search
-- **Apps**: Search and launch installed applications with smart ranking
-- **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration
-- **Files**: Search device files (images, videos, documents, etc.)
+- **Apps**: Search and launch installed applications with smart ranking. App search ignores typos and allows abbreviations. Long press apps to access their shortcuts (if available); shortcuts appear in search results too.
+- **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration. Long press contact actions to customize them.
+- **Files**: Search device files and folders (images, videos, documents, etc.)
 - **Settings**: Search Android system settings
-- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions (choose how many to display)
+- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions (choose how many to display). Browsers can be added as search engines.
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
 - **Gemini API**: Direct search can be enabled by configuring your own Gemini API key
 
 ### 🎯 Smart Features
+- **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
 - **App Nicknames**: Assign custom names to apps for easier searching
 - **App Suggestions**: Shows recommended apps when search bar is empty
 - **Direct Search**: AI-powered answers using Gemini API (optional)
 - **Web Suggestions**: Google-powered search suggestions as you type
 - **Multi-App Search**: Tap search engine icons to search within specific apps
-- **Wallpaper Integration**: Automatic device wallpaper background
+- **Wallpaper Integration**: Automatic device wallpaper background with adjustable transparency and blur
 - **Quick Settings Tile**: Instant access from Android Quick Settings
 - **Assistant Integration**: Detects when app is set as default digital assistant
 - **Icon Pack Support**: Integration with icon pack launchers
@@ -31,7 +41,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Section Ordering**: Customize which content appears first
 - **Pinned Results**: Keep favorite results always visible
 - **Recent Apps**: Smart ranking based on usage patterns
-- **Recent Searches**: Show your recently accessed files, contacts, settings, and app shortcuts when the search bar is empty (choose how many to display, default is 3)
+- **Recent Searches**: Show recent searches across all types (files, contacts, settings, apps, web, etc.) when the search bar is empty (choose how many to display, default is 3)
 - **Haptic Feedback**: Context-aware vibration feedback for different interactions (tap, toggle, etc.)
 - **In-App Updates**: Automatic prompts for app updates from Play Store
 - **In-App Reviews**: Smart prompts to rate the app based on usage patterns
@@ -40,6 +50,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 
 ### 📱 Widget Support
 - Home screen widget with customizable appearance
+- **Custom widget buttons**: Add apps, shortcuts, files, contacts, and settings directly to your widget
 - Configurable colors, borders, and labels
 - Instant access to search functionality
 - Voice search with microphone button for hands-free searching
@@ -85,7 +96,8 @@ cd quick-search
 
 ### Quick Access
 - **Quick Settings Tile**: Add Quick Search to Android Quick Settings for instant access
-- **Home Screen Widget**: Add a customizable widget to your home screen
+- **Home Screen Widget**: Add a customizable widget with custom buttons (apps, shortcuts, files, contacts, settings)
+- **Overlay Mode**: Enable in settings to show the search bar over other apps, anywhere
 - **Digital Assistant**: Set Quick Search as your device's default digital assistant for enhanced search integration
 
 ### Search Shortcuts
@@ -105,6 +117,7 @@ Enable AI-powered answers by:
 
 ### Search Engines
 - **Supported** (22 total): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode
+- **Browsers**: Add installed browsers as search engines
 - **Customizable**: Reorder, enable/disable, and set shortcuts
 - **Direct Search**: AI answers with Gemini API integration and optional personal context
 - **Style**: Choose between inline (scrolls with content) or compact (fixed at bottom)
@@ -127,8 +140,12 @@ Filter which file types to include in search:
 - **Exclude Items**: Long press any result to hide it from future searches
 - **File Type Filtering**: Exclude specific file types from search results
 
+### Appearance
+- **Wallpaper background**: Adjust transparency and blur of the device wallpaper background
+
 ### Contact Preferences
 - Choose default messaging app (Messages, WhatsApp, Telegram)
+- **Customize contact actions**: Long press any contact action to change it
 - Google Meet integration for video calls
 - Enable direct dial (call without opening dialer)
 - Set preferred numbers per contact ("Remember my choice")
