@@ -616,7 +616,9 @@ class SearchViewModel(
                     shortcutEnabled = shortcutsState.shortcutEnabled,
                     disabledSections = sectionManager.disabledSections,
                     isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
-                    showSearchEngineOnboarding = false,
+                    showSearchEngineOnboarding =
+                        searchEngineManager.isSearchEngineCompactMode &&
+                            !userPreferences.hasSeenSearchEngineOnboarding(),
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = userPreferences.isCalculatorEnabled(),
