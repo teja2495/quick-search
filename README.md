@@ -11,8 +11,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 | | | |
 |---|---|---|
 | <img src="screenshots/image1.png" width="280" alt="Screenshot 1"> | <img src="screenshots/image2.png" width="280" alt="Screenshot 2"> | <img src="screenshots/image3.png" width="280" alt="Screenshot 3"> |
-| <img src="screenshots/image4.png" width="280" alt="Screenshot 4"> | <img src="screenshots/image5.png" width="280" alt="Screenshot 5"> | <img src="screenshots/image6.png" width="280" alt="Screenshot 6"> |
-| <img src="screenshots/image7.png" width="280" alt="Screenshot 7"> | <img src="screenshots/image8.png" width="280" alt="Screenshot 8"> | |
+| <img src="screenshots/image5.png" width="280" alt="Screenshot 5"> | <img src="screenshots/image6.png" width="280" alt="Screenshot 6"> | <img src="screenshots/image7.png" width="280" alt="Screenshot 7"> |
 
 ## ✨ Key Features
 
