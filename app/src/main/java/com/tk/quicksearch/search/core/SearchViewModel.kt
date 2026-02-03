@@ -62,6 +62,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Calendar
 import java.util.Locale
 
 class SearchViewModel(
@@ -314,6 +315,7 @@ class SearchViewModel(
     private var overlayModeEnabled: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
+    private var appSuggestionsEnabled: Boolean = true
     private var showWallpaperBackground: Boolean = true
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
@@ -479,18 +481,20 @@ class SearchViewModel(
         // Icons will lazy-load via rememberAppIcon() with placeholders until ready
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val visibleApps =
-                    extractSuggestedApps(
-                        apps = cachedAppsList,
-                        limit = getGridItemCount(),
-                        hasUsagePermission = hasUsagePermission,
+                if (userPreferences.areAppSuggestionsEnabled()) {
+                    val visibleApps =
+                        extractSuggestedApps(
+                            apps = cachedAppsList,
+                            limit = getGridItemCount(),
+                            hasUsagePermission = hasUsagePermission,
+                        )
+                    val iconPack = userPreferences.getSelectedIconPackPackage()
+                    prefetchAppIcons(
+                        context = getApplication(),
+                        packageNames = visibleApps.map { it.packageName },
+                        iconPackPackage = iconPack,
                     )
-                val iconPack = userPreferences.getSelectedIconPackPackage()
-                prefetchAppIcons(
-                    context = getApplication(),
-                    packageNames = visibleApps.map { it.packageName },
-                    iconPackPackage = iconPack,
-                )
+                }
             }
         }
     }
@@ -529,6 +533,7 @@ class SearchViewModel(
         overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
+        appSuggestionsEnabled = prefs.appSuggestionsEnabled
         showWallpaperBackground = prefs.showWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
@@ -544,6 +549,7 @@ class SearchViewModel(
                 oneHandedMode = oneHandedMode,
                 overlayModeEnabled = overlayModeEnabled,
                 directDialEnabled = directDialEnabled,
+                appSuggestionsEnabled = appSuggestionsEnabled,
                 showWallpaperBackground = showWallpaperBackground,
                 wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = wallpaperBlurRadius,
@@ -567,6 +573,7 @@ class SearchViewModel(
     ) {
         appSearchManager.initCache(cachedAppsList)
         val lastUpdated = repository.cacheLastUpdatedMillis()
+        val suggestionsEnabled = userPreferences.areAppSuggestionsEnabled()
 
         // Just show the raw list of apps first!
         // Don't filter, don't sort, don't check pinned apps yet
@@ -576,14 +583,19 @@ class SearchViewModel(
                 cacheLastUpdatedMillis = lastUpdated,
                 // Temporarily show all cached apps until we load hidden/pinned prefs
                 recentApps =
-                    extractSuggestedApps(
-                        apps = cachedAppsList,
-                        limit = getGridItemCount(),
-                        hasUsagePermission = hasUsagePermission,
-                    ),
+                    if (suggestionsEnabled) {
+                        extractSuggestedApps(
+                            apps = cachedAppsList,
+                            limit = getGridItemCount(),
+                            hasUsagePermission = hasUsagePermission,
+                        )
+                    } else {
+                        emptyList()
+                    },
                 indexedAppCount = cachedAppsList.size,
                 // Critical: update these to prevent flashing
                 oneHandedMode = oneHandedMode,
+                appSuggestionsEnabled = suggestionsEnabled,
             )
         }
     }
@@ -620,6 +632,7 @@ class SearchViewModel(
                         searchEngineManager.isSearchEngineCompactMode &&
                             !userPreferences.hasSeenSearchEngineOnboarding(),
                     showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
+                    appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
                     webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                     calculatorEnabled = userPreferences.isCalculatorEnabled(),
                     hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
@@ -760,6 +773,18 @@ class SearchViewModel(
             // but we might want to if we want the tip to disappear immediately.
             _uiState.update { it.copy(showOverlayCloseTip = false) }
         }
+    }
+
+    fun setAppSuggestionsEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+            value = enabled,
+            preferenceSetter = userPreferences::setAppSuggestionsEnabled,
+            stateUpdater = {
+                appSuggestionsEnabled = it
+                updateUiState { state -> state.copy(appSuggestionsEnabled = it) }
+                refreshDerivedState()
+            },
+        )
     }
 
     fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)
@@ -2019,13 +2044,14 @@ class SearchViewModel(
         val apps = appSearchManager.cachedApps
         val visibleAppList = appSearchManager.availableApps()
         val hasUsagePermission = _uiState.value.hasUsagePermission
+        val suggestionsEnabled = _uiState.value.appSuggestionsEnabled
 
         // Cache these to avoid multiple SharedPreferences reads
         val suggestionHiddenPackages = userPreferences.getSuggestionHiddenPackages()
         val resultHiddenPackages = userPreferences.getResultHiddenPackages()
         val pinnedPackages = userPreferences.getPinnedPackages()
 
-        if (!hasUsagePermission && userPreferences.getRecentAppLaunches().isEmpty()) {
+        if (suggestionsEnabled && !hasUsagePermission && userPreferences.getRecentAppLaunches().isEmpty()) {
             val initialRecents =
                 visibleAppList
                     .sortedBy { it.appName.lowercase(Locale.getDefault()) }
@@ -2034,15 +2060,25 @@ class SearchViewModel(
             userPreferences.setRecentAppLaunches(initialRecents)
         }
 
-        val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(suggestionHiddenPackages)
+        val pinnedAppsForSuggestions =
+            if (suggestionsEnabled) {
+                appSearchManager.computePinnedApps(suggestionHiddenPackages)
+            } else {
+                emptyList()
+            }
         val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
-        val recentsSource = visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
         val recents =
-            extractSuggestedApps(
-                apps = recentsSource,
-                limit = getGridItemCount(),
-                hasUsagePermission = hasUsagePermission,
-            )
+            if (suggestionsEnabled) {
+                val recentsSource =
+                    visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
+                extractSuggestedApps(
+                    apps = recentsSource,
+                    limit = getGridItemCount(),
+                    hasUsagePermission = hasUsagePermission,
+                )
+            } else {
+                emptyList()
+            }
 
         val query = _uiState.value.query
         val trimmedQuery = query.trim()
@@ -2125,22 +2161,65 @@ class SearchViewModel(
     ): List<AppInfo> {
         if (apps.isEmpty() || limit <= 0) return emptyList()
 
+        val (recentInstallStart, recentInstallEnd) = getRecentInstallWindow()
+        val recentInstalls =
+            repository
+                .extractRecentlyInstalledApps(apps, recentInstallStart, recentInstallEnd)
+
         val suggestions =
             if (hasUsagePermission) {
-                repository.extractRecentlyOpenedApps(apps, limit)
+                val recentlyOpened = repository.getRecentlyOpenedApps(apps)
+                val topRecent = recentlyOpened.firstOrNull()
+                val recentInstallsExcludingTop =
+                    recentInstalls.filterNot { it.packageName == topRecent?.packageName }
+                val excludedPackages =
+                    recentInstallsExcludingTop
+                        .asSequence()
+                        .map { it.packageName }
+                        .toSet()
+                        .let { packages ->
+                            topRecent?.packageName?.let { packages + it } ?: packages
+                        }
+                val remainingRecents =
+                    recentlyOpened.filterNot { excludedPackages.contains(it.packageName) }
+
+                buildList {
+                    topRecent?.let { add(it) }
+                    addAll(recentInstallsExcludingTop)
+                    addAll(remainingRecents)
+                }
             } else {
                 val appByPackage = apps.associateBy { it.packageName }
-                userPreferences
-                    .getRecentAppLaunches()
-                    .asSequence()
-                    .mapNotNull { appByPackage[it] }
-                    .take(limit)
-                    .toList()
+                val recentlyOpened =
+                    userPreferences
+                        .getRecentAppLaunches()
+                        .asSequence()
+                        .mapNotNull { appByPackage[it] }
+                        .toList()
+                val topRecent = recentlyOpened.firstOrNull()
+                val recentInstallsExcludingTop =
+                    recentInstalls.filterNot { it.packageName == topRecent?.packageName }
+                val excludedPackages =
+                    recentInstallsExcludingTop
+                        .asSequence()
+                        .map { it.packageName }
+                        .toSet()
+                        .let { packages ->
+                            topRecent?.packageName?.let { packages + it } ?: packages
+                        }
+                val remainingRecents =
+                    recentlyOpened.drop(1).filterNot { excludedPackages.contains(it.packageName) }
+
+                buildList {
+                    topRecent?.let { add(it) }
+                    addAll(recentInstallsExcludingTop)
+                    addAll(remainingRecents)
+                }
             }
 
         // If we have enough suggestions, return them
         if (suggestions.size >= limit) {
-            return suggestions
+            return suggestions.take(limit)
         }
 
         // Otherwise, keep existing suggestions and fill remaining spots with additional apps
@@ -2159,6 +2238,20 @@ class SearchViewModel(
                 ).take(remainingSpots)
 
         return suggestions + additionalApps
+    }
+
+    private fun getRecentInstallWindow(): Pair<Long, Long> {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startOfToday = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        val startOfTomorrow = calendar.timeInMillis
+        calendar.add(Calendar.DAY_OF_YEAR, -2)
+        val startOfYesterday = calendar.timeInMillis
+        return startOfYesterday to startOfTomorrow
     }
 
     // performSecondarySearches moved to SecondarySearchOrchestrator

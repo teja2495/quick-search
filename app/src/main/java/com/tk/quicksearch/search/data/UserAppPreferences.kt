@@ -78,6 +78,7 @@ class UserAppPreferences(
         val suggestionHiddenPackages: Set<String>,
         val resultHiddenPackages: Set<String>,
         val recentSearchesEnabled: Boolean,
+        val appSuggestionsEnabled: Boolean,
     )
 
     /**
@@ -253,6 +254,13 @@ class UserAppPreferences(
                 allPrefs[
                     com.tk.quicksearch.search.data.preferences.UiPreferences
                         .KEY_RECENT_QUERIES_ENABLED,
+                ] as?
+                    Boolean
+                    ?: true,
+            appSuggestionsEnabled =
+                allPrefs[
+                    com.tk.quicksearch.search.data.preferences.UiPreferences
+                        .KEY_APP_SUGGESTIONS_ENABLED,
                 ] as?
                     Boolean
                     ?: true,
@@ -438,6 +446,14 @@ class UserAppPreferences(
                         com.tk.quicksearch.search.data.preferences
                             .UiPreferences
                             .KEY_RECENT_QUERIES_ENABLED,
+                    ] as?
+                        Boolean
+                        ?: true,
+                appSuggestionsEnabled =
+                    allPrefs[
+                        com.tk.quicksearch.search.data.preferences
+                            .UiPreferences
+                            .KEY_APP_SUGGESTIONS_ENABLED,
                     ] as?
                         Boolean
                         ?: true,
@@ -824,6 +840,10 @@ class UserAppPreferences(
     // ============================================================================
     // Web Search Suggestions Preferences
     // ============================================================================
+
+    fun areAppSuggestionsEnabled(): Boolean = uiPreferences.areAppSuggestionsEnabled()
+
+    fun setAppSuggestionsEnabled(enabled: Boolean) = uiPreferences.setAppSuggestionsEnabled(enabled)
 
     fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 

@@ -92,6 +92,28 @@ class AppUsageRepository(
         return apps.sortedByDescending { it.lastUsedTime }.take(limit)
     }
 
+    /**
+     * Returns all recently opened apps sorted by last used timestamp.
+     */
+    fun getRecentlyOpenedApps(apps: List<AppInfo>): List<AppInfo> {
+        if (apps.isEmpty()) return emptyList()
+        return apps.sortedByDescending { it.lastUsedTime }
+    }
+
+    /**
+     * Returns apps installed within the provided time window, sorted by install time (newest first).
+     */
+    fun extractRecentlyInstalledApps(
+        apps: List<AppInfo>,
+        windowStartMillis: Long,
+        windowEndMillis: Long,
+    ): List<AppInfo> {
+        if (apps.isEmpty()) return emptyList()
+        return apps
+            .filter { it.firstInstallTime in windowStartMillis until windowEndMillis }
+            .sortedByDescending { it.firstInstallTime }
+    }
+
     // ==================== Private Helpers ====================
 
     private fun queryLaunchableApps(): List<ResolveInfo> {
@@ -143,6 +165,7 @@ class AppUsageRepository(
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
         val launchCount = launchCounts[packageName] ?: 0
+        val firstInstallTime = getFirstInstallTime(packageName)
         val isSystemApp =
             (
                 resolveInfo.activityInfo.applicationInfo.flags
@@ -155,6 +178,7 @@ class AppUsageRepository(
             lastUsedTime = lastUsedTime,
             totalTimeInForeground = totalTimeInForeground,
             launchCount = launchCount,
+            firstInstallTime = firstInstallTime,
             isSystemApp = isSystemApp,
         )
     }
@@ -190,6 +214,20 @@ class AppUsageRepository(
             )
         }.getOrDefault(emptyMap())
     }
+
+    private fun getFirstInstallTime(packageName: String): Long =
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager
+                    .getPackageInfo(
+                        packageName,
+                        PackageManager.PackageInfoFlags.of(0),
+                    ).firstInstallTime
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0).firstInstallTime
+            }
+        }.getOrDefault(0L)
 
     companion object {
         /**

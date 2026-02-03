@@ -552,6 +552,9 @@ abstract class BasePreferences(
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
         const val KEY_WEB_SUGGESTIONS_COUNT = "web_suggestions_count"
 
+        // App suggestions preferences keys
+        const val KEY_APP_SUGGESTIONS_ENABLED = "app_suggestions_enabled"
+
         // Recent queries preferences keys
         const val KEY_RECENT_QUERIES = "recent_queries"
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"

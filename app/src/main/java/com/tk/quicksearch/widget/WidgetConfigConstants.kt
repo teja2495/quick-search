@@ -6,7 +6,7 @@ object WidgetConfigConstants {
     // Border visibility threshold - below this value, border is considered invisible
     const val BORDER_VISIBILITY_THRESHOLD = 0.05f
 
-    val PREVIEW_HEIGHT = 64.dp
+    val PREVIEW_HEIGHT = 58.dp
     val PREVIEW_ICON_SIZE = 20.dp
 
     val SECTION_SPACING = 24.dp

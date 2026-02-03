@@ -546,6 +546,8 @@
          Web Search Suggestions
          ============================================================================ -->
     <string name="web_search_suggestions_title">Web Suggestions</string>
+    <string name="app_suggestions_toggle_title">App Suggestions</string>
+    <string name="app_suggestions_toggle_desc">Show or hide suggested apps on the home screen</string>
 
     <!-- ============================================================================
          Recent Queries

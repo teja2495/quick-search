@@ -71,6 +71,7 @@ class AppCache(
         private const val FIELD_LAST_USED_TIME = "lastUsedTime"
         private const val FIELD_TOTAL_TIME_IN_FOREGROUND = "totalTimeInForeground"
         private const val FIELD_LAUNCH_COUNT = "launchCount"
+        private const val FIELD_FIRST_INSTALL_TIME = "firstInstallTime"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
 
         private fun JSONArray.toAppInfoList(): List<AppInfo> =
@@ -82,6 +83,7 @@ class AppCache(
                     lastUsedTime = jsonObject.getLong(FIELD_LAST_USED_TIME),
                     totalTimeInForeground = jsonObject.optLong(FIELD_TOTAL_TIME_IN_FOREGROUND, 0L),
                     launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
+                    firstInstallTime = jsonObject.optLong(FIELD_FIRST_INSTALL_TIME, 0L),
                     isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP),
                 )
             }
@@ -96,6 +98,7 @@ class AppCache(
                             put(FIELD_LAST_USED_TIME, app.lastUsedTime)
                             put(FIELD_TOTAL_TIME_IN_FOREGROUND, app.totalTimeInForeground)
                             put(FIELD_LAUNCH_COUNT, app.launchCount)
+                            put(FIELD_FIRST_INSTALL_TIME, app.firstInstallTime)
                             put(FIELD_IS_SYSTEM_APP, app.isSystemApp)
                         },
                     )

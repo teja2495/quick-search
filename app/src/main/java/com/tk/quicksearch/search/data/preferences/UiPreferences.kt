@@ -202,6 +202,16 @@ class UiPreferences(
     }
 
     // ============================================================================
+    // App Suggestions Preferences
+    // ============================================================================
+
+    fun areAppSuggestionsEnabled(): Boolean = getBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, true)
+
+    fun setAppSuggestionsEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, enabled)
+    }
+
+    // ============================================================================
     // Web Search Suggestions Preferences
     // ============================================================================
 
@@ -435,6 +445,9 @@ class UiPreferences(
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
         const val KEY_WEB_SUGGESTIONS_COUNT = "web_suggestions_count"
+
+        // App suggestions preferences keys
+        const val KEY_APP_SUGGESTIONS_ENABLED = "app_suggestions_enabled"
 
         // Recent queries preferences keys
         const val KEY_RECENT_QUERIES = "recent_queries"

@@ -11,5 +11,6 @@ data class AppInfo(
     val lastUsedTime: Long,
     val totalTimeInForeground: Long,
     val launchCount: Int = 0,
+    val firstInstallTime: Long,
     val isSystemApp: Boolean,
 )

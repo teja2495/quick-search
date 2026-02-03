@@ -71,6 +71,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
                 lastUsedTime = 0L,
                 totalTimeInForeground = 0L,
                 launchCount = 0,
+                firstInstallTime = 0L,
                 isSystemApp = false,
             )
 

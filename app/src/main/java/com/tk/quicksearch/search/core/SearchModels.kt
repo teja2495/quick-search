@@ -277,6 +277,7 @@ data class SearchUiState(
     val disabledSections: Set<SearchSection> = emptySet(),
     val isSearchEngineCompactMode: Boolean = false,
     val amazonDomain: String? = null,
+    val appSuggestionsEnabled: Boolean = true,
     val webSuggestionsEnabled: Boolean = true,
     val webSuggestionsCount: Int = 3,
     val calculatorEnabled: Boolean = true,

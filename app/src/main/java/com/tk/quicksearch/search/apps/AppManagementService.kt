@@ -67,5 +67,6 @@ class AppManagementService(
         nickname: String?,
     ) = setItemNickname(appInfo, nickname)
 
-    fun getAppNickname(packageName: String): String? = getItemNickname(AppInfo("", packageName, 0L, 0L, 0, false))
+    fun getAppNickname(packageName: String): String? =
+        getItemNickname(AppInfo("", packageName, 0L, 0L, 0, 0L, false))
 }

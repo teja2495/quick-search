@@ -180,10 +180,8 @@ internal fun SearchScreenContent(
                 } else {
                     // Check if a shortcut is detected
                     if (state.detectedShortcutTarget != null) {
-                        // Remove the shortcut (first word) from the query
-                        val queryWithoutShortcut =
-                            trimmedQuery.split("\\s+".toRegex()).drop(1).joinToString(" ")
-                        onSearchTargetClick(queryWithoutShortcut, state.detectedShortcutTarget)
+                        // Query already has shortcut stripped by ViewModel when shortcut-at-start is detected
+                        onSearchTargetClick(trimmedQuery, state.detectedShortcutTarget)
                     } else {
                         val primaryTarget = enabledTargets.firstOrNull()
                         if (primaryTarget != null && trimmedQuery.isNotBlank()) {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
@@ -33,6 +34,8 @@ import com.tk.quicksearch.util.hapticToggle
 /** Card for web suggestions and recent queries settings (without search engines navigation). */
 @Composable
 fun WebSuggestionsCard(
+    appSuggestionsEnabled: Boolean,
+    onAppSuggestionsToggle: (Boolean) -> Unit,
     webSuggestionsEnabled: Boolean,
     onWebSuggestionsToggle: (Boolean) -> Unit,
     webSuggestionsCount: Int,
@@ -47,12 +50,24 @@ fun WebSuggestionsCard(
     val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
+            // App Suggestions Toggle Section
+            SettingsToggleRow(
+                title = stringResource(R.string.app_suggestions_toggle_title),
+                subtitle = stringResource(R.string.app_suggestions_toggle_desc),
+                checked = appSuggestionsEnabled,
+                onCheckedChange = onAppSuggestionsToggle,
+                leadingIcon = Icons.Rounded.Apps,
+                isFirstItem = true,
+                isLastItem = false,
+                showDivider = true,
+            )
+
             // Web Search Suggestions Toggle Section
             SettingsToggleRow(
                 title = stringResource(R.string.web_search_suggestions_title),
                 checked = webSuggestionsEnabled,
                 onCheckedChange = onWebSuggestionsToggle,
-                isFirstItem = true,
+                isFirstItem = false,
                 isLastItem = false,
                 showDivider = false,
             )
@@ -215,6 +230,8 @@ fun SearchResultsSettingsSection(
 
         // Web Suggestions Card
         WebSuggestionsCard(
+            appSuggestionsEnabled = state.appSuggestionsEnabled,
+            onAppSuggestionsToggle = callbacks.onToggleAppSuggestions,
             webSuggestionsEnabled = state.webSuggestionsEnabled,
             onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
             webSuggestionsCount = state.webSuggestionsCount,
