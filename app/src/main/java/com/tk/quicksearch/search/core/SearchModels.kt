@@ -30,6 +30,7 @@ enum class SearchEngine {
     X,
     YOUTUBE_MUSIC,
     SPOTIFY,
+    CLAUDE,
     GOOGLE_DRIVE,
     GOOGLE_PHOTOS,
     AI_MODE,

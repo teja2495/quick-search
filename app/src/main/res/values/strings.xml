@@ -510,6 +510,7 @@
     <string name="search_engine_youtube">YouTube</string>
     <string name="search_engine_youtube_music">YouTube Music</string>
     <string name="search_engine_spotify">Spotify</string>
+    <string name="search_engine_claude">Claude</string>
     <string name="search_engine_facebook_marketplace">Facebook Marketplace</string>
     <string name="search_engine_amazon">Amazon</string>
     <string name="search_engine_you_com">You.com</string>

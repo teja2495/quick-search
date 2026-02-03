@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import android.app.Application
+import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
@@ -150,6 +151,16 @@ object IntentHelpers {
                 return
             }
 
+            SearchEngine.CLAUDE -> {
+                openClaude(context, query)
+                return
+            }
+
+            SearchEngine.GOOGLE -> {
+                openGoogle(context, query)
+                return
+            }
+
             else -> {} // Continue to web URL
         }
 
@@ -276,6 +287,44 @@ object IntentHelpers {
 
         // If share intent fails, just log it (no user-facing error)
         Log.e("GeminiLaunch", "Failed to open Gemini app with query")
+    }
+
+    /** Opens Google app with search if installed, otherwise opens web URL. */
+    private fun openGoogle(
+        context: Application,
+        query: String,
+    ) {
+        if (query.isBlank()) {
+            val launchIntent =
+                context.packageManager.getLaunchIntentForPackage(
+                    PackageConstants.GOOGLE_APP_PACKAGE,
+                )
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
+            }
+        } else {
+            val searchIntent =
+                Intent(Intent.ACTION_WEB_SEARCH).apply {
+                    setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
+                    putExtra(SearchManager.QUERY, query)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            if (canResolveIntent(context, searchIntent)) {
+                try {
+                    context.startActivity(searchIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
+            }
+        }
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE))
     }
 
     /** Opens Google Photos app if installed, otherwise opens web URL. */
@@ -409,6 +458,54 @@ object IntentHelpers {
 
         // Fallback to web URL
         openWebUrl(context, buildSearchUrl(query, SearchEngine.SPOTIFY))
+    }
+
+    /** Opens Claude app if installed with query via share intent; otherwise opens web URL. */
+    private fun openClaude(
+        context: Application,
+        query: String,
+    ) {
+        val launchIntent =
+            context.packageManager.getLaunchIntentForPackage(
+                PackageConstants.CLAUDE_PACKAGE,
+            )
+
+        if (launchIntent == null) {
+            openWebUrl(context, buildSearchUrl(query, SearchEngine.CLAUDE))
+            return
+        }
+
+        if (query.isBlank()) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try {
+                context.startActivity(launchIntent)
+                return
+            } catch (e: Exception) {
+                Log.w("ClaudeLaunch", "Failed to launch Claude: ${e.message}")
+            }
+            openWebUrl(context, buildSearchUrl(query, SearchEngine.CLAUDE))
+            return
+        }
+
+        val shareIntent =
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, query)
+                setPackage(PackageConstants.CLAUDE_PACKAGE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        if (shareIntent.resolveActivity(context.packageManager) != null) {
+            try {
+                context.startActivity(shareIntent)
+                return
+            } catch (e: ActivityNotFoundException) {
+                Log.w("ClaudeLaunch", "Share intent failed: ${e.message}")
+            } catch (e: SecurityException) {
+                Log.w("ClaudeLaunch", "Share security exception: ${e.message}")
+            }
+        }
+
+        openWebUrl(context, buildSearchUrl(query, SearchEngine.CLAUDE))
     }
 
     /** Opens a web URL in a browser. */

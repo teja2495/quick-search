@@ -190,6 +190,7 @@ class SearchEngineManager(
                 SearchEngine.DIRECT_SEARCH -> hasGemini
                 SearchEngine.YOUTUBE_MUSIC -> isPackageInstalled(packageManager, PackageConstants.YOUTUBE_MUSIC_PACKAGE)
                 SearchEngine.SPOTIFY -> isPackageInstalled(packageManager, PackageConstants.SPOTIFY_PACKAGE)
+                SearchEngine.CLAUDE -> isPackageInstalled(packageManager, PackageConstants.CLAUDE_PACKAGE)
                 else -> true
             }
         }

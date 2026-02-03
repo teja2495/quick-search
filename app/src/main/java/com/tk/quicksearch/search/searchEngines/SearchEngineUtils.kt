@@ -115,6 +115,13 @@ private val SEARCH_ENGINE_METADATA: Map<SearchEngine, SearchEngineMetadata> =
                 urlTemplate = "https://open.spotify.com/search/%s",
                 defaultShortcutCode = "sfy",
             ),
+        SearchEngine.CLAUDE to
+            SearchEngineMetadata(
+                drawableResId = R.drawable.claude,
+                contentDescription = "Claude",
+                urlTemplate = "https://claude.ai/search?q=%s",
+                defaultShortcutCode = "cld",
+            ),
         SearchEngine.FACEBOOK_MARKETPLACE to
             SearchEngineMetadata(
                 drawableResId = R.drawable.facebook_marketplace,
@@ -260,6 +267,10 @@ fun buildSearchUrl(
                     "https://www.startpage.com"
                 }
 
+                SearchEngine.CLAUDE -> {
+                    "https://claude.ai"
+                }
+
                 else -> {
                     null
                 }
@@ -325,6 +336,7 @@ fun SearchEngine.getDisplayNameResId(): Int =
         SearchEngine.YOUTUBE -> R.string.search_engine_youtube
         SearchEngine.YOUTUBE_MUSIC -> R.string.search_engine_youtube_music
         SearchEngine.SPOTIFY -> R.string.search_engine_spotify
+        SearchEngine.CLAUDE -> R.string.search_engine_claude
         SearchEngine.FACEBOOK_MARKETPLACE -> R.string.search_engine_facebook_marketplace
         SearchEngine.AMAZON -> R.string.search_engine_amazon
         SearchEngine.YOU_COM -> R.string.search_engine_you_com

@@ -9,6 +9,7 @@ object PackageConstants {
     const val TELEGRAM_PACKAGE = "org.telegram.messenger"
 
     // Search engines and browsers
+    const val GOOGLE_APP_PACKAGE = "com.google.android.googlequicksearchbox"
     const val GEMINI_PACKAGE_NAME = "com.google.android.apps.bard"
     const val GOOGLE_PHOTOS_PACKAGE_NAME = "com.google.android.apps.photos"
     const val YOU_COM_PACKAGE_NAME = "com.you.browser"
@@ -20,4 +21,5 @@ object PackageConstants {
     const val REDDIT_PACKAGE = "com.reddit.frontpage"
     const val SPOTIFY_PACKAGE = "com.spotify.music"
     const val AMAZON_PACKAGE = "com.amazon.mShop.android.shopping"
+    const val CLAUDE_PACKAGE = "com.anthropic.claude"
 }
