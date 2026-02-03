@@ -68,7 +68,6 @@ import com.tk.quicksearch.search.data.FileSearchRepository
 fun PermissionsScreen(
     onPermissionsComplete: () -> Unit,
     currentStep: Int,
-    totalSteps: Int,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -94,6 +93,8 @@ fun PermissionsScreen(
     }
 
     var showPermissionReminderDialog by remember { mutableStateOf(false) }
+
+    val totalSteps = if (!contactsPermissionState.isGranted && !filesPermissionState.isGranted) 2 else 3
 
     val multiplePermissionsLauncher =
         rememberLauncherForActivityResult(

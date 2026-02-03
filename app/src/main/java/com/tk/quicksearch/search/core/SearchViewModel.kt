@@ -1671,8 +1671,17 @@ class SearchViewModel(
 
     fun requestDirectSearch(query: String) = directSearchHandler.requestDirectSearch(query)
 
+    fun setShowStartSearchingOnOnboarding(show: Boolean) {
+        _uiState.update { it.copy(showStartSearchingOnOnboarding = show) }
+    }
+
     fun onSearchEngineOnboardingDismissed() {
-        _uiState.update { it.copy(showSearchEngineOnboarding = false) }
+        _uiState.update {
+            it.copy(
+                showSearchEngineOnboarding = false,
+                showStartSearchingOnOnboarding = false,
+            )
+        }
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setHasSeenSearchEngineOnboarding(true)
         }

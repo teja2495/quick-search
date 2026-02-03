@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +53,7 @@ internal fun SearchEngineOnboardingOverlay(
         onDismiss: () -> Unit,
         modifier: Modifier = Modifier,
         isOverlayPresentation: Boolean = false,
+        showStartSearchingButton: Boolean = false,
 ) {
     AnimatedVisibility(
             visible = visible,
@@ -86,6 +90,7 @@ internal fun SearchEngineOnboardingOverlay(
             // Onboarding content positioned at the bottom, just above search engines
             OnboardingContent(
                     onDismiss = onDismiss,
+                    showStartSearchingButton = showStartSearchingButton,
                     modifier =
                             Modifier.align(Alignment.BottomCenter)
                                     .let { if (isOverlayPresentation) it else it.imePadding() }
@@ -99,6 +104,7 @@ internal fun SearchEngineOnboardingOverlay(
 @Composable
 private fun OnboardingContent(
         onDismiss: () -> Unit,
+        showStartSearchingButton: Boolean = false,
         modifier: Modifier = Modifier,
 ) {
     Box(
@@ -262,6 +268,20 @@ private fun OnboardingContent(
                         textAlign = TextAlign.Center,
                         lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 1.3f,
                 )
+                if (showStartSearchingButton) {
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.setup_action_start),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
             }
         }
 

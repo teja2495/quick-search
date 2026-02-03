@@ -45,6 +45,7 @@ fun SearchEngineSetupScreen(
     viewModel: SearchViewModel,
     currentStep: Int,
     totalSteps: Int,
+    continueButtonTextRes: Int = R.string.setup_action_next,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -152,7 +153,7 @@ fun SearchEngineSetupScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         ) {
             Text(
-                text = stringResource(R.string.setup_action_next),
+                text = stringResource(continueButtonTextRes),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
             )

@@ -832,6 +832,7 @@ fun SearchScreen(
             visible = state.showSearchEngineOnboarding,
             onDismiss = onSearchEngineOnboardingDismissed,
             isOverlayPresentation = isOverlayPresentation,
+            showStartSearchingButton = state.showStartSearchingOnOnboarding,
         )
     }
 

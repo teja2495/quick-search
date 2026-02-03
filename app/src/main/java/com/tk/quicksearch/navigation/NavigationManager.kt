@@ -26,6 +26,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
+import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.SettingsRoute
 
@@ -150,7 +151,6 @@ fun MainContent(
             AppScreen.Permissions -> {
                 PermissionsScreen(
                     currentStep = 1,
-                    totalSteps = 3,
                     onPermissionsComplete = {
                         currentScreen = AppScreen.SearchEngineSetup
                         searchViewModel.handleOptionalPermissionChange()
@@ -160,10 +160,38 @@ fun MainContent(
 
             AppScreen.SearchEngineSetup -> {
                 BackHandler { currentScreen = AppScreen.Permissions }
+                val hasContactsPermission =
+                    context.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
+                val hasFilesPermission =
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        android.os.Environment.isExternalStorageManager()
+                    } else {
+                        context.checkSelfPermission(
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                    }
+                val skipFinalSetup = !hasContactsPermission && !hasFilesPermission
+                val searchEngineTotalSteps = if (skipFinalSetup) 2 else 3
                 SearchEngineSetupScreen(
                     currentStep = 2,
-                    totalSteps = 3,
-                    onContinue = { currentScreen = AppScreen.FinalSetup },
+                    totalSteps = searchEngineTotalSteps,
+                    continueButtonTextRes = if (skipFinalSetup) R.string.setup_action_start else R.string.setup_action_next,
+                    onContinue = {
+                        if (skipFinalSetup) {
+                            searchViewModel.requestSearchBarWelcomeAnimationFromOnboarding()
+                            searchViewModel.setShowStartSearchingOnOnboarding(true)
+                            userPreferences.setFirstLaunchCompleted()
+                            if (userPreferences.isOverlayModeEnabled()) {
+                                onFinishActivity()
+                            } else {
+                                onFirstLaunchCompleted()
+                                currentScreen = AppScreen.Main
+                            }
+                        } else {
+                            currentScreen = AppScreen.FinalSetup
+                        }
+                    },
                     viewModel = searchViewModel,
                 )
             }
