@@ -303,4 +303,5 @@ data class SearchUiState(
     val contactActionsVersion: Int = 0,
     val nicknameUpdateVersion: Int = 0,
     val showOverlayCloseTip: Boolean = false,
+    val hasSeenOverlayAssistantTip: Boolean = true,
 )

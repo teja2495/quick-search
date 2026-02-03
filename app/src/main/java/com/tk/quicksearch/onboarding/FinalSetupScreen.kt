@@ -21,7 +21,6 @@ import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -44,7 +43,6 @@ import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
-import com.tk.quicksearch.settings.shared.SettingsToggleRow
 
 /** Gets the icon for a file type. */
 private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector =
@@ -100,21 +98,6 @@ fun FinalSetupScreen(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge,
-            ) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.settings_overlay_mode_title),
-                    subtitle = stringResource(R.string.settings_overlay_mode_desc),
-                    checked = uiState.overlayModeEnabled,
-                    onCheckedChange = { viewModel.setOverlayModeEnabled(it) },
-                    leadingIcon = Icons.Rounded.Layers,
-                    isFirstItem = true,
-                    isLastItem = true,
-                )
-            }
-
             if (hasContactsPermission) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),

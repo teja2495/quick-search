@@ -560,6 +560,7 @@ class SearchViewModel(
                 shouldShowUsagePermissionBanner =
                     userPreferences.shouldShowUsagePermissionBanner(),
                 showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip(),
+                hasSeenOverlayAssistantTip = userPreferences.hasSeenOverlayAssistantTip(),
             )
         }
 
@@ -769,9 +770,14 @@ class SearchViewModel(
     fun dismissOverlayCloseTip() {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setHasSeenOverlayCloseTip(true)
-            // No need to update UI state if we're not using it for rendering,
-            // but we might want to if we want the tip to disappear immediately.
             _uiState.update { it.copy(showOverlayCloseTip = false) }
+        }
+    }
+
+    fun dismissOverlayAssistantTip() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setHasSeenOverlayAssistantTip(true)
+            _uiState.update { it.copy(hasSeenOverlayAssistantTip = true) }
         }
     }
 

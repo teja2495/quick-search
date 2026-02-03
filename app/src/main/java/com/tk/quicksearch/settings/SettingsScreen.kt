@@ -157,6 +157,52 @@ fun SettingsScreen(
                 }
             }
 
+            if (state.overlayModeEnabled && !state.hasSeenOverlayAssistantTip) {
+                val tipText = stringResource(R.string.settings_overlay_assistant_tip)
+                val setupNow = stringResource(R.string.settings_overlay_assistant_setup_now)
+                val fullText = tipText + " " + setupNow
+                val linkTag = "setup_now"
+                val annotatedText =
+                    buildAnnotatedString {
+                        append(fullText)
+                        val startIndex = fullText.indexOf(setupNow)
+                        if (startIndex >= 0) {
+                            val endIndex = startIndex + setupNow.length
+                            addStyle(
+                                style =
+                                    SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                                start = startIndex,
+                                end = endIndex,
+                            )
+                            addStringAnnotation(
+                                tag = linkTag,
+                                annotation = setupNow,
+                                start = startIndex,
+                                end = endIndex,
+                            )
+                        }
+                    }
+                TipBanner(
+                    modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding),
+                    annotatedText = annotatedText,
+                    onTextClick = { offset ->
+                        val annotations =
+                            annotatedText.getStringAnnotations(
+                                tag = linkTag,
+                                start = offset,
+                                end = offset,
+                            )
+                        if (annotations.isNotEmpty()) {
+                            onNavigateToDetail(SettingsDetailType.LAUNCH_OPTIONS)
+                        }
+                    },
+                    onDismiss = callbacks.onDismissOverlayAssistantTip,
+                )
+            }
+
             // Search Results and Search Engines Card
             val navigationItems =
                 listOf(

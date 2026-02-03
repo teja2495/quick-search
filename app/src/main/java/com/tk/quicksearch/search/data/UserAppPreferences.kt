@@ -821,6 +821,10 @@ class UserAppPreferences(
 
     fun setHasSeenOverlayCloseTip(seen: Boolean) = uiPreferences.setHasSeenOverlayCloseTip(seen)
 
+    fun hasSeenOverlayAssistantTip(): Boolean = uiPreferences.hasSeenOverlayAssistantTip()
+
+    fun setHasSeenOverlayAssistantTip(seen: Boolean) = uiPreferences.setHasSeenOverlayAssistantTip(seen)
+
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) = uiPreferences.setLastSeenVersionName(versionName)

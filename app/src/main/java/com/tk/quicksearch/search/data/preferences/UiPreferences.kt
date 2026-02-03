@@ -152,6 +152,12 @@ class UiPreferences(
         sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_CLOSE_TIP, seen).apply()
     }
 
+    fun hasSeenOverlayAssistantTip(): Boolean = sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, false)
+
+    fun setHasSeenOverlayAssistantTip(seen: Boolean) {
+        sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, seen).apply()
+    }
+
     fun getLastSeenVersionName(): String? = sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
@@ -423,6 +429,7 @@ class UiPreferences(
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_HAS_SEEN_OVERLAY_CLOSE_TIP = "has_seen_overlay_close_tip"
+        const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
 
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"
