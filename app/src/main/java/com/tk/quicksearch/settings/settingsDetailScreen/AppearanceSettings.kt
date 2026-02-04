@@ -2,6 +2,8 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,9 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -35,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
@@ -387,7 +393,10 @@ private fun IconPackPickerDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                        .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (availableIconPacks.isEmpty()) {
@@ -413,8 +422,8 @@ private fun IconPackPickerDialog(
                             selected = selectedPackage == null,
                             onClick = { onSelect(null) },
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         availableIconPacks.forEach { pack ->
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             IconPackOptionRow(
                                 label = pack.label,
                                 packageName = pack.packageName,
@@ -449,9 +458,13 @@ private fun IconPackOptionRow(
         modifier =
             Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        RadioButton(selected = selected, onClick = onClick)
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            modifier = Modifier.offset(x = (-4).dp),
+        )
         if (iconBitmap != null) {
             Image(bitmap = iconBitmap, contentDescription = null, modifier = Modifier.size(24.dp))
         } else {
@@ -466,6 +479,9 @@ private fun IconPackOptionRow(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }
