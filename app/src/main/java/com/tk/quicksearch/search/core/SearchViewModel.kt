@@ -369,8 +369,8 @@ class SearchViewModel(
     }
 
     fun handleOnStop() {
+        clearQuery()
         if (pendingNavigationClear) {
-            clearQuery()
             pendingNavigationClear = false
         }
     }
