@@ -54,8 +54,10 @@ fun OverlayRoot(
         val handleClose = { isVisible = false }
 
         // Call onCloseRequested immediately when isVisible becomes false
+        val animationDuration = 500
         LaunchedEffect(isVisible) {
                 if (!isVisible) {
+                        delay(animationDuration.toLong())
                         onCloseRequested()
                 }
         }
@@ -97,7 +99,21 @@ fun OverlayRoot(
 
                         val overlayHeight = targetOverlayHeight
 
-                        if (isVisible) {
+                        androidx.compose.animation.AnimatedVisibility(
+                                visible = isVisible,
+                                enter =
+                                        androidx.compose.animation.fadeIn(
+                                                androidx.compose.animation.core.tween(
+                                                        animationDuration
+                                                )
+                                        ),
+                                exit =
+                                        androidx.compose.animation.fadeOut(
+                                                androidx.compose.animation.core.tween(
+                                                        animationDuration
+                                                )
+                                        )
+                        ) {
                                 Box(
                                         modifier =
                                                 Modifier.align(Alignment.TopCenter)

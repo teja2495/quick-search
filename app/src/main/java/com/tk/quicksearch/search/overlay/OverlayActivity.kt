@@ -38,14 +38,11 @@ class OverlayActivity : ComponentActivity() {
         setContent {
             QuickSearchTheme {
                 Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color.Transparent),
+                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
                 ) {
                     OverlayRoot(
-                        viewModel = searchViewModel,
-                        onCloseRequested = { finish() },
+                            viewModel = searchViewModel,
+                            onCloseRequested = { finish() },
                     )
                 }
             }
