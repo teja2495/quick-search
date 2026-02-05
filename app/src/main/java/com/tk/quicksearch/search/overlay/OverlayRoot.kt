@@ -1,14 +1,6 @@
 package com.tk.quicksearch.search.overlay
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,203 +41,184 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun OverlayRoot(
-    viewModel: SearchViewModel,
-    onCloseRequested: () -> Unit,
-    modifier: Modifier = Modifier,
+        viewModel: SearchViewModel,
+        onCloseRequested: () -> Unit,
+        modifier: Modifier = Modifier,
 ) {
-    var isVisible by remember { mutableStateOf(false) }
+        var isVisible by remember { mutableStateOf(false) }
 
-    // Trigger entry animation
-    LaunchedEffect(Unit) { isVisible = true }
+        // Trigger entry animation
+        LaunchedEffect(Unit) { isVisible = true }
 
-    // Handle closing with animation
-    val handleClose = { isVisible = false }
+        // Handle closing with animation
+        val handleClose = { isVisible = false }
 
-    // Wait for exit animation to complete before calling onCloseRequested
-    LaunchedEffect(isVisible) {
-        if (!isVisible) {
-            delay(DesignTokens.AnimationDurationMedium.toLong())
-            onCloseRequested()
+        // Call onCloseRequested immediately when isVisible becomes false
+        LaunchedEffect(isVisible) {
+                if (!isVisible) {
+                        onCloseRequested()
+                }
         }
-    }
 
-    BackHandler(enabled = isVisible) { handleClose() }
+        BackHandler(enabled = isVisible) { handleClose() }
 
-    var hasKeyboardBeenVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(isVisible) {
-        if (!isVisible) hasKeyboardBeenVisible = false
-    }
+        var hasKeyboardBeenVisible by remember { mutableStateOf(false) }
+        LaunchedEffect(isVisible) { if (!isVisible) hasKeyboardBeenVisible = false }
 
-    val context = LocalContext.current
-    val tipAlpha by
-        animateFloatAsState(
-            targetValue = if (isVisible) 1f else 0f,
-            animationSpec =
-                tween(durationMillis = DesignTokens.AnimationDurationMedium),
-            label = "tipAlpha",
-        )
+        val context = LocalContext.current
+        val tipAlpha = if (isVisible) 1f else 0f
 
-    val overlaySnackbarHostState = remember { SnackbarHostState() }
-    QuickSearchTheme {
-        BoxWithConstraints(
-            modifier =
-                modifier.fillMaxSize().clickable(
-                    interactionSource =
-                        remember { MutableInteractionSource() },
-                    indication = null,
-                ) { handleClose() },
-        ) {
-            val imeBottomPadding =
-                WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-            val availableHeight =
-                (maxHeight - imeBottomPadding).coerceAtLeast(0.dp)
-            val isKeyboardVisible = imeBottomPadding > 0.dp
-            LaunchedEffect(imeBottomPadding) {
-                if (imeBottomPadding > 0.dp) hasKeyboardBeenVisible = true
-            }
-            val assumeKeyboardOpen = !hasKeyboardBeenVisible
-            val overlayHeightRatio =
-                if (assumeKeyboardOpen || isKeyboardVisible) 0.45f else 0.75f
-            val reservedVerticalSpace =
-                DesignTokens.Spacing40 + DesignTokens.SpacingLarge * 2
-            val maxOverlayHeight =
-                (availableHeight - reservedVerticalSpace).coerceAtLeast(0.dp)
-            val targetOverlayHeight =
-                minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
-            val overlayHeight by
-                animateDpAsState(
-                    targetValue = targetOverlayHeight,
-                    animationSpec =
-                        tween(
-                            durationMillis =
-                                DesignTokens.AnimationDurationShort,
-                        ),
-                    label = "overlayHeight",
-                )
-
-            AnimatedVisibility(
-                visible = isVisible,
-                enter =
-                    fadeIn(tween(DesignTokens.AnimationDurationMedium)) +
-                        slideInVertically(
-                            tween(DesignTokens.AnimationDurationMedium),
-                        ) { -it / 10 },
-                exit =
-                    fadeOut(tween(DesignTokens.AnimationDurationMedium)) +
-                        slideOutVertically(
-                            tween(DesignTokens.AnimationDurationMedium),
-                        ) { -it / 10 },
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = DesignTokens.Spacing40),
-            ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .padding(
-                                horizontal =
-                                    DesignTokens
-                                        .ContentHorizontalPadding,
-                                vertical = DesignTokens.SpacingLarge,
-                            ).fillMaxWidth()
-                            .height(overlayHeight)
-                            .background(
-                                color =
-                                    MaterialTheme.colorScheme
-                                        .background,
-                                shape =
-                                    DesignTokens
-                                        .ExtraLargeCardShape,
-                            ).clickable(
-                                interactionSource =
-                                    remember {
-                                        MutableInteractionSource()
-                                    },
-                                indication = null,
-                            ) {},
+        val overlaySnackbarHostState = remember { SnackbarHostState() }
+        QuickSearchTheme {
+                BoxWithConstraints(
+                        modifier =
+                                modifier.fillMaxSize().clickable(
+                                                interactionSource =
+                                                        remember { MutableInteractionSource() },
+                                                indication = null,
+                                        ) { handleClose() },
                 ) {
-                    SearchRoute(
-                        modifier = Modifier.fillMaxSize(),
-                        viewModel = viewModel,
-                        isOverlayPresentation = true,
-                        overlaySnackbarHostState = overlaySnackbarHostState,
-                        onWelcomeAnimationCompleted = {
-                            viewModel.onSearchBarWelcomeAnimationCompleted()
-                        },
-                        onOverlayDismissRequest = { handleClose() },
-                        onSettingsClick = {
-                            OverlayModeController.openMainActivity(
-                                context,
-                                openSettings = true,
-                            )
-                            handleClose()
-                        },
-                        onSearchEngineLongPress = {
-                            OverlayModeController.openMainActivity(
-                                context,
-                                openSettings = true,
-                            )
-                            handleClose()
-                        },
-                        onCustomizeSearchEnginesClick = {
-                            OverlayModeController.openMainActivity(
-                                context,
-                                openSettings = true,
-                            )
-                            handleClose()
-                        },
-                    )
+                        val imeBottomPadding =
+                                WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                        val availableHeight = (maxHeight - imeBottomPadding).coerceAtLeast(0.dp)
+                        val isKeyboardVisible = imeBottomPadding > 0.dp
+                        LaunchedEffect(imeBottomPadding) {
+                                if (imeBottomPadding > 0.dp) hasKeyboardBeenVisible = true
+                        }
+                        val assumeKeyboardOpen = !hasKeyboardBeenVisible
+                        val overlayHeightRatio =
+                                if (assumeKeyboardOpen || isKeyboardVisible) 0.45f else 0.75f
+                        val reservedVerticalSpace =
+                                DesignTokens.Spacing40 + DesignTokens.SpacingLarge * 2
+                        val maxOverlayHeight =
+                                (availableHeight - reservedVerticalSpace).coerceAtLeast(0.dp)
+                        val targetOverlayHeight =
+                                minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
+
+                        val overlayHeight = targetOverlayHeight
+
+                        if (isVisible) {
+                                Box(
+                                        modifier =
+                                                Modifier.align(Alignment.TopCenter)
+                                                        .padding(top = DesignTokens.Spacing40),
+                                ) {
+                                        Box(
+                                                modifier =
+                                                        Modifier.padding(
+                                                                        horizontal =
+                                                                                DesignTokens
+                                                                                        .ContentHorizontalPadding,
+                                                                        vertical =
+                                                                                DesignTokens
+                                                                                        .SpacingLarge,
+                                                                )
+                                                                .fillMaxWidth()
+                                                                .height(overlayHeight)
+                                                                .background(
+                                                                        color =
+                                                                                MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .background,
+                                                                        shape =
+                                                                                DesignTokens
+                                                                                        .ExtraLargeCardShape,
+                                                                )
+                                                                .clickable(
+                                                                        interactionSource =
+                                                                                remember {
+                                                                                        MutableInteractionSource()
+                                                                                },
+                                                                        indication = null,
+                                                                ) {},
+                                        ) {
+                                                SearchRoute(
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        viewModel = viewModel,
+                                                        isOverlayPresentation = true,
+                                                        overlaySnackbarHostState =
+                                                                overlaySnackbarHostState,
+                                                        onWelcomeAnimationCompleted = {
+                                                                viewModel
+                                                                        .onSearchBarWelcomeAnimationCompleted()
+                                                        },
+                                                        onOverlayDismissRequest = { handleClose() },
+                                                        onSettingsClick = {
+                                                                OverlayModeController
+                                                                        .openMainActivity(
+                                                                                context,
+                                                                                openSettings = true,
+                                                                        )
+                                                                handleClose()
+                                                        },
+                                                        onSearchEngineLongPress = {
+                                                                OverlayModeController
+                                                                        .openMainActivity(
+                                                                                context,
+                                                                                openSettings = true,
+                                                                        )
+                                                                handleClose()
+                                                        },
+                                                        onCustomizeSearchEnginesClick = {
+                                                                OverlayModeController
+                                                                        .openMainActivity(
+                                                                                context,
+                                                                                openSettings = true,
+                                                                        )
+                                                                handleClose()
+                                                        },
+                                                )
+                                        }
+                                }
+                        }
+
+                        val uiState by viewModel.uiState.collectAsState()
+
+                        var tipDelayElapsed by remember { mutableStateOf(false) }
+                        LaunchedEffect(isVisible, uiState.showOverlayCloseTip) {
+                                when {
+                                        !isVisible || !uiState.showOverlayCloseTip ->
+                                                tipDelayElapsed = false
+                                        else -> {
+                                                delay(2000)
+                                                tipDelayElapsed = true
+                                        }
+                                }
+                        }
+
+                        if (uiState.showOverlayCloseTip && tipDelayElapsed) {
+                                TipBanner(
+                                        text = stringResource(R.string.overlay_close_tip),
+                                        onDismiss = { viewModel.dismissOverlayCloseTip() },
+                                        modifier =
+                                                Modifier.align(Alignment.BottomCenter)
+                                                        .navigationBarsPadding()
+                                                        .imePadding()
+                                                        .padding(
+                                                                start =
+                                                                        DesignTokens
+                                                                                .ContentHorizontalPadding,
+                                                                end =
+                                                                        DesignTokens
+                                                                                .ContentHorizontalPadding,
+                                                                bottom = DesignTokens.SpacingLarge,
+                                                        )
+                                                        .alpha(tipAlpha),
+                                )
+                        }
+
+                        ExcludeUndoSnackbarHost(
+                                hostState = overlaySnackbarHostState,
+                                modifier =
+                                        Modifier.align(Alignment.BottomCenter)
+                                                .navigationBarsPadding()
+                                                .imePadding()
+                                                .padding(
+                                                        start = DesignTokens.SpacingLarge,
+                                                        end = DesignTokens.SpacingLarge,
+                                                        bottom = DesignTokens.SpacingHuge,
+                                                ),
+                        )
                 }
-            }
-
-            val uiState by viewModel.uiState.collectAsState()
-
-            var tipDelayElapsed by remember { mutableStateOf(false) }
-            LaunchedEffect(isVisible, uiState.showOverlayCloseTip) {
-                when {
-                    !isVisible || !uiState.showOverlayCloseTip -> tipDelayElapsed = false
-                    else -> {
-                        delay(2000)
-                        tipDelayElapsed = true
-                    }
-                }
-            }
-
-            if (uiState.showOverlayCloseTip && tipDelayElapsed) {
-                TipBanner(
-                    text = stringResource(R.string.overlay_close_tip),
-                    onDismiss = { viewModel.dismissOverlayCloseTip() },
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .navigationBarsPadding()
-                            .imePadding()
-                            .padding(
-                                start =
-                                    DesignTokens
-                                        .ContentHorizontalPadding,
-                                end =
-                                    DesignTokens
-                                        .ContentHorizontalPadding,
-                                bottom = DesignTokens.SpacingLarge,
-                            ).alpha(tipAlpha),
-                )
-            }
-
-            ExcludeUndoSnackbarHost(
-                hostState = overlaySnackbarHostState,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .imePadding()
-                        .padding(
-                            start = DesignTokens.SpacingLarge,
-                            end = DesignTokens.SpacingLarge,
-                            bottom = DesignTokens.SpacingHuge,
-                        ),
-            )
         }
-    }
 }
