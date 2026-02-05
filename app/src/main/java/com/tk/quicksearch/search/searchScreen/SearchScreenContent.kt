@@ -123,7 +123,7 @@ internal fun SearchScreenContent(
                 .fillMaxSize()
                 .padding(
                     start = DesignTokens.SpacingXLarge,
-                    top = DesignTokens.SpacingLarge,
+                    top = DesignTokens.Spacing28,
                     end = DesignTokens.SpacingXLarge,
                 )
         } else {

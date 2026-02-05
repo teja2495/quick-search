@@ -24,6 +24,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -116,7 +118,11 @@ fun OverlayRoot(
                         val targetOverlayHeight =
                                 minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
 
-                        val overlayHeight = targetOverlayHeight
+                        val overlayHeight by animateDpAsState(
+                                targetValue = targetOverlayHeight,
+                                animationSpec = tween(durationMillis = 300),
+                                label = "overlayHeight",
+                        )
 
                         val uiState by viewModel.uiState.collectAsState()
 
