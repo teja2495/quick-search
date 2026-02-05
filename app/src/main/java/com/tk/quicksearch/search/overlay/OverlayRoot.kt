@@ -27,6 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,9 +37,11 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import com.tk.quicksearch.search.searchScreen.SearchRoute
+import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.delay
 
 @Composable
@@ -71,6 +76,20 @@ fun OverlayRoot(
         val tipAlpha = if (isVisible) 1f else 0f
 
         val overlaySnackbarHostState = remember { SnackbarHostState() }
+
+        var wallpaperBitmap by remember {
+                mutableStateOf<ImageBitmap?>(
+                        WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+                )
+        }
+
+        LaunchedEffect(Unit) {
+                if (wallpaperBitmap == null) {
+                        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
+                        wallpaperBitmap = bitmap?.asImageBitmap()
+                }
+        }
+
         QuickSearchTheme {
                 BoxWithConstraints(
                         modifier =
@@ -98,6 +117,8 @@ fun OverlayRoot(
                                 minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
 
                         val overlayHeight = targetOverlayHeight
+
+                        val uiState by viewModel.uiState.collectAsState()
 
                         androidx.compose.animation.AnimatedVisibility(
                                 visible = isVisible,
@@ -131,14 +152,22 @@ fun OverlayRoot(
                                                                 )
                                                                 .fillMaxWidth()
                                                                 .height(overlayHeight)
-                                                                .background(
-                                                                        color =
-                                                                                MaterialTheme
-                                                                                        .colorScheme
-                                                                                        .background,
-                                                                        shape =
-                                                                                DesignTokens
-                                                                                        .ExtraLargeCardShape,
+                                                                .clip(
+                                                                        DesignTokens
+                                                                                .ExtraLargeCardShape
+                                                                )
+                                                                .then(
+                                                                        if (uiState.showWallpaperBackground
+                                                                        ) {
+                                                                                Modifier
+                                                                        } else {
+                                                                                Modifier.background(
+                                                                                        color =
+                                                                                                MaterialTheme
+                                                                                                        .colorScheme
+                                                                                                        .background,
+                                                                                )
+                                                                        }
                                                                 )
                                                                 .clickable(
                                                                         interactionSource =
@@ -148,6 +177,17 @@ fun OverlayRoot(
                                                                         indication = null,
                                                                 ) {},
                                         ) {
+                                                SearchScreenBackground(
+                                                        showWallpaperBackground =
+                                                                uiState.showWallpaperBackground,
+                                                        wallpaperBitmap = wallpaperBitmap,
+                                                        wallpaperBackgroundAlpha =
+                                                                uiState.wallpaperBackgroundAlpha,
+                                                        wallpaperBlurRadius =
+                                                                uiState.wallpaperBlurRadius,
+                                                        modifier = Modifier.fillMaxSize(),
+                                                )
+
                                                 SearchRoute(
                                                         modifier = Modifier.fillMaxSize(),
                                                         viewModel = viewModel,
@@ -187,8 +227,6 @@ fun OverlayRoot(
                                         }
                                 }
                         }
-
-                        val uiState by viewModel.uiState.collectAsState()
 
                         var tipDelayElapsed by remember { mutableStateOf(false) }
                         LaunchedEffect(isVisible, uiState.showOverlayCloseTip) {
