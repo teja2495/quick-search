@@ -61,10 +61,9 @@ fun TipBanner(
                     .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Content area - optionally clickable
             val contentModifier =
                 Modifier.weight(1f).let { mod ->
-                    if (onContentClick != null && annotatedText == null) {
+                    if (onContentClick != null) {
                         mod.clickable(onClick = onContentClick)
                     } else {
                         mod
@@ -79,7 +78,13 @@ fun TipBanner(
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                         ),
                     modifier = contentModifier,
-                    onClick = onTextClick ?: { /* No-op */ },
+                    onClick = { offset ->
+                        if (onContentClick != null) {
+                            onContentClick()
+                        } else {
+                            onTextClick?.invoke(offset)
+                        }
+                    },
                 )
             } else if (text != null) {
                 Text(
