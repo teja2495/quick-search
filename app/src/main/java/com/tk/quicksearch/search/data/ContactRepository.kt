@@ -103,6 +103,30 @@ class ContactRepository(
     fun hasPermission(): Boolean = PermissionUtils.hasContactsPermission(context)
 
     /**
+     * Performs a lightweight provider read to refresh contact data visibility from ContactsProvider.
+     * Returns true when the query succeeds (even if there are no contacts).
+     */
+    fun refreshContactsProviderSnapshot(): Boolean {
+        if (!hasPermission()) return false
+
+        val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+        return runCatching {
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                projection,
+                null,
+                null,
+                SORT_ORDER,
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.getLong(0)
+                }
+            }
+            true
+        }.getOrDefault(false)
+    }
+
+    /**
      * @param contactIds Set of contact IDs to retrieve
      * @return List of contacts sorted alphabetically by display name
      */

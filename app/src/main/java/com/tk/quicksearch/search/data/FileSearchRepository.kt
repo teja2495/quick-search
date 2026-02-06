@@ -45,6 +45,31 @@ class FileSearchRepository(
 
     fun hasPermission(): Boolean = PermissionUtils.hasFileAccessPermission(context)
 
+    /**
+     * Performs a lightweight MediaStore read to refresh file data visibility from the provider.
+     * Returns true when the query succeeds (even if no files are returned).
+     */
+    fun refreshFilesProviderSnapshot(): Boolean {
+        if (!hasPermission()) return false
+
+        val projection = arrayOf(MediaStore.Files.FileColumns._ID)
+        return runCatching {
+            contentResolver
+                .query(
+                    getFilesContentUri(),
+                    projection,
+                    null,
+                    null,
+                    DATE_MODIFIED_SORT,
+                )?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        cursor.getLong(0)
+                    }
+                }
+            true
+        }.getOrDefault(false)
+    }
+
     fun getFilesByUris(uris: Set<String>): List<DeviceFile> {
         if (uris.isEmpty() || !hasPermission()) return emptyList()
 

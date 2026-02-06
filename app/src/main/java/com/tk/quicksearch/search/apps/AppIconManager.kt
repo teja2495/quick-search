@@ -15,11 +15,14 @@ import com.tk.quicksearch.search.common.UserHandleUtils
 import com.tk.quicksearch.search.managers.IconPackManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicLong
 
 private data class AppIconEntry(
     val bitmap: ImageBitmap,
     val isLegacy: Boolean,
 )
+
+private val appIconCacheEpoch = AtomicLong(0L)
 
 /**
  * In-memory cache for app icons to avoid repeated loading.
@@ -54,6 +57,11 @@ private object AppIconCache {
     }
 }
 
+fun invalidateAppIconCache() {
+    AppIconCache.clear()
+    appIconCacheEpoch.incrementAndGet()
+}
+
 data class AppIconResult(
     val bitmap: ImageBitmap?,
     val isLegacy: Boolean,
@@ -72,7 +80,8 @@ fun rememberAppIcon(
 ): AppIconResult {
     val context = LocalContext.current
     val densityDpi = context.resources.displayMetrics.densityDpi
-    val cacheKey = buildCacheKey(packageName, iconPackPackage, userHandleId)
+    val cacheEpoch = appIconCacheEpoch.get()
+    val cacheKey = buildCacheKey(packageName, iconPackPackage, userHandleId, cacheEpoch)
     val cachedInitial = AppIconCache.get(cacheKey)
 
     val iconState =
@@ -80,9 +89,7 @@ fun rememberAppIcon(
             initialValue =
                 cachedInitial?.let { AppIconResult(it.bitmap, it.isLegacy) }
                     ?: AppIconResult(null, false),
-            key1 = packageName,
-            key2 = iconPackPackage,
-            key3 = userHandleId,
+            key1 = cacheKey,
         ) {
             if (cachedInitial != null) {
                 value = AppIconResult(cachedInitial.bitmap, cachedInitial.isLegacy)
@@ -213,8 +220,9 @@ private fun buildCacheKey(
     packageName: String,
     iconPackPackage: String?,
     userHandleId: Int? = null,
+    cacheEpoch: Long = appIconCacheEpoch.get(),
 ): String {
     val prefix = iconPackPackage ?: "system"
     val suffix = userHandleId?.let { ":work:$it" } ?: ""
-    return "$prefix:$packageName$suffix"
+    return "$cacheEpoch:$prefix:$packageName$suffix"
 }

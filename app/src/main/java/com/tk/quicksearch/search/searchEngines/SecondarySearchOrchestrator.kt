@@ -202,6 +202,14 @@ class SecondarySearchOrchestrator(
             }
     }
 
+    fun resetNoResultTracking() {
+        lastQueryWithNoContacts = null
+        lastQueryWithNoFiles = null
+        lastQueryWithNoSettings = null
+        lastQueryWithNoAppShortcuts = null
+        lastQueryLength = 0
+    }
+
     fun performWebSuggestionsOnly(query: String) {
         searchJob?.cancel()
         val trimmedQuery = query.trim()

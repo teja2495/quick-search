@@ -51,6 +51,37 @@ class PinningHandler(
         }
     }
 
+    fun loadPinnedAndExcludedContacts() {
+        scope.launch(Dispatchers.IO) {
+            val hasContactPermission = permissionManager.hasContactPermission()
+            val pinnedContacts = loadPinnedContacts(hasContactPermission)
+            val excludedContacts = loadExcludedContacts(hasContactPermission)
+
+            uiStateUpdater { state ->
+                state.copy(
+                    pinnedContacts = pinnedContacts,
+                    excludedContacts = excludedContacts,
+                )
+            }
+        }
+    }
+
+    fun loadPinnedAndExcludedFiles() {
+        scope.launch(Dispatchers.IO) {
+            val hasFilePermission = permissionManager.hasFilePermission()
+            val pinnedFiles = loadPinnedFiles(hasFilePermission)
+            val excludedFiles = loadExcludedFiles(hasFilePermission)
+
+            uiStateUpdater { state ->
+                state.copy(
+                    pinnedFiles = pinnedFiles,
+                    excludedFiles = excludedFiles,
+                    excludedFileExtensions = userPreferences.getExcludedFileExtensions(),
+                )
+            }
+        }
+    }
+
     private fun checkPermissions() =
         PermissionsState(
             contacts = permissionManager.hasContactPermission(),

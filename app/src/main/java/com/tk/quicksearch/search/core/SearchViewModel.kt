@@ -13,6 +13,7 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
 import com.tk.quicksearch.search.apps.AppManagementService
 import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
+import com.tk.quicksearch.search.apps.invalidateAppIconCache
 import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.search.calculator.CalculatorHandler
 import com.tk.quicksearch.search.common.PinningHandler
@@ -1209,27 +1210,52 @@ class SearchViewModel(
             showToast: Boolean = false,
             forceUiUpdate: Boolean = false,
     ) {
-        appSearchManager.refreshApps(showToast, forceUiUpdate)
+        val shouldInvalidateIcons = showToast || forceUiUpdate
+        if (shouldInvalidateIcons) {
+            invalidateAppIconCache()
+        }
+        appSearchManager.refreshApps(showToast, forceUiUpdate = forceUiUpdate || showToast)
     }
 
     fun refreshContacts(showToast: Boolean = false) {
-        // Contacts are queried directly from the system provider, so we don't need to refresh a
-        // cache
-        // Instead, we can clear any current contact results to force a fresh query on next search
-        _uiState.update { it.copy(contactResults = emptyList()) }
-        // Show success toast only for user-triggered refreshes
-        if (showToast) {
-            showToast(R.string.contacts_refreshed_successfully)
+        viewModelScope.launch(Dispatchers.IO) {
+            contactRepository.refreshContactsProviderSnapshot()
+            pinningHandler.loadPinnedAndExcludedContacts()
+
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.resetNoResultTracking()
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            } else {
+                _uiState.update { it.copy(contactResults = emptyList()) }
+            }
+
+            if (showToast) {
+                withContext(Dispatchers.Main) {
+                    showToast(R.string.contacts_refreshed_successfully)
+                }
+            }
         }
     }
 
     fun refreshFiles(showToast: Boolean = false) {
-        // Files are queried directly from MediaStore, so we don't need to refresh a cache
-        // Instead, we can clear any current file results to force a fresh query on next search
-        _uiState.update { it.copy(fileResults = emptyList()) }
-        // Show success toast only for user-triggered refreshes
-        if (showToast) {
-            showToast(R.string.files_refreshed_successfully)
+        viewModelScope.launch(Dispatchers.IO) {
+            fileRepository.refreshFilesProviderSnapshot()
+            pinningHandler.loadPinnedAndExcludedFiles()
+
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.resetNoResultTracking()
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            } else {
+                _uiState.update { it.copy(fileResults = emptyList()) }
+            }
+
+            if (showToast) {
+                withContext(Dispatchers.Main) {
+                    showToast(R.string.files_refreshed_successfully)
+                }
+            }
         }
     }
 
