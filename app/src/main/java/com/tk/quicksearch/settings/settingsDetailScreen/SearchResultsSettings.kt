@@ -15,7 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -58,16 +59,18 @@ fun WebSuggestionsCard(
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             // App Suggestions Toggle Section
-            SettingsToggleRow(
-                title = stringResource(R.string.app_suggestions_toggle_title),
-                subtitle = stringResource(R.string.app_suggestions_toggle_desc),
-                checked = appSuggestionsEnabled,
-                onCheckedChange = onAppSuggestionsToggle,
-                leadingIcon = Icons.Rounded.Apps,
-                isFirstItem = true,
-                isLastItem = false,
-                showDivider = true,
-            )
+            Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                SettingsToggleRow(
+                    title = stringResource(R.string.app_suggestions_toggle_title),
+                    subtitle = stringResource(R.string.app_suggestions_toggle_desc),
+                    checked = appSuggestionsEnabled,
+                    onCheckedChange = onAppSuggestionsToggle,
+                    isFirstItem = true,
+                    isLastItem = false,
+                    showDivider = false,
+                )
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Web Search Suggestions Toggle Section
             SettingsToggleRow(
@@ -246,6 +249,7 @@ fun RefreshDataCard(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .clip(itemShape)
                         .clickable(onClick = { onRefreshApps(true) })
                         .border(1.dp, borderColor, itemShape)
                         .padding(12.dp),
@@ -267,6 +271,7 @@ fun RefreshDataCard(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .clip(itemShape)
                         .clickable(onClick = { onRefreshContacts(true) })
                         .border(1.dp, borderColor, itemShape)
                         .padding(12.dp),
@@ -288,6 +293,7 @@ fun RefreshDataCard(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .clip(itemShape)
                         .clickable(onClick = { onRefreshFiles(true) })
                         .border(1.dp, borderColor, itemShape)
                         .padding(12.dp),
@@ -295,7 +301,7 @@ fun RefreshDataCard(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Folder,
+                        imageVector = Icons.Rounded.InsertDriveFile,
                         contentDescription = stringResource(R.string.settings_refresh_files_title),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(24.dp),

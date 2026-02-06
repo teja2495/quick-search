@@ -61,7 +61,7 @@ fun OverlayRoot(
         val handleClose = { isVisible = false }
 
         // Call onCloseRequested immediately when isVisible becomes false
-        val animationDuration = 500
+        val animationDuration = 250
         LaunchedEffect(isVisible) {
                 if (!isVisible) {
                         delay(animationDuration.toLong())

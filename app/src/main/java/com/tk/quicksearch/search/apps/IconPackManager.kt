@@ -57,7 +57,8 @@ object IconPackManager {
 
     /**
      * Discovers packages that contain icon packs by querying known intent actions and categories,
-     * with a fallback to scanning for appfilter.xml files.
+     * with a fallback to scanning for appfilter.xml files. Excludes home launchers (e.g. Nova,
+     * Lawnchair) that also declare THEME intents.
      */
     private fun discoverIconPackPackages(packageManager: PackageManager): Set<String> {
         val packages = mutableSetOf<String>()
@@ -72,12 +73,17 @@ object IconPackManager {
             packages.addAll(queryPackages(packageManager, intent))
         }
 
-        // Fallback: scan for appfilter.xml on installed apps if nothing matched the known intents.
         if (packages.isEmpty()) {
             packages.addAll(findAppFilterCandidates(packageManager))
         }
 
+        packages.removeAll(getHomeLauncherPackages(packageManager))
         return packages
+    }
+
+    private fun getHomeLauncherPackages(packageManager: PackageManager): Set<String> {
+        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        return queryPackages(packageManager, intent)
     }
 
     /**
