@@ -15,7 +15,6 @@ class FuzzySearchConfigurationManager(
      */
     fun getAppFuzzyConfig(): FuzzySearchConfig =
         FuzzySearchConfig.create(
-            enabled = preferences.isAppFuzzySearchEnabled(),
             matchThreshold = preferences.getAppFuzzyMatchThreshold(),
             minQueryLength = preferences.getAppFuzzyMinQueryLength(),
             priority = preferences.getAppFuzzyPriority(),
@@ -25,23 +24,10 @@ class FuzzySearchConfigurationManager(
      * Updates the app fuzzy search configuration.
      */
     fun updateAppFuzzyConfig(config: FuzzySearchConfig) {
-        preferences.setAppFuzzySearchEnabled(config.enabled)
         preferences.setAppFuzzyMatchThreshold(config.matchThreshold)
         preferences.setAppFuzzyMinQueryLength(config.minQueryLength)
         preferences.setAppFuzzyPriority(config.priority)
     }
-
-    /**
-     * Enables or disables fuzzy search for apps.
-     */
-    fun setAppFuzzySearchEnabled(enabled: Boolean) {
-        preferences.setAppFuzzySearchEnabled(enabled)
-    }
-
-    /**
-     * Gets the current enabled state for app fuzzy search.
-     */
-    fun isAppFuzzySearchEnabled(): Boolean = preferences.isAppFuzzySearchEnabled()
 
     companion object {
         /**
@@ -54,10 +40,6 @@ class FuzzySearchConfigurationManager(
      * Default implementation for testing or when UiPreferences is not available.
      */
     private class DefaultFuzzySearchPreferences : FuzzySearchPreferences {
-        override fun isAppFuzzySearchEnabled(): Boolean = FuzzySearchConfig.DEFAULT_APP_CONFIG.enabled
-
-        override fun setAppFuzzySearchEnabled(enabled: Boolean) {}
-
         override fun getAppFuzzyMatchThreshold(): Int = FuzzySearchConfig.DEFAULT_APP_CONFIG.matchThreshold
 
         override fun setAppFuzzyMatchThreshold(threshold: Int) {}
@@ -77,11 +59,6 @@ class FuzzySearchConfigurationManager(
  * Abstracts the preference storage mechanism.
  */
 interface FuzzySearchPreferences {
-    // App fuzzy search settings
-    fun isAppFuzzySearchEnabled(): Boolean
-
-    fun setAppFuzzySearchEnabled(enabled: Boolean)
-
     fun getAppFuzzyMatchThreshold(): Int
 
     fun setAppFuzzyMatchThreshold(threshold: Int)
@@ -106,14 +83,6 @@ interface FuzzySearchPreferences {
 class UiPreferencesFuzzySearchAdapter(
     private val uiPreferences: com.tk.quicksearch.search.data.preferences.UiPreferences,
 ) : FuzzySearchPreferences {
-    override fun isAppFuzzySearchEnabled(): Boolean {
-        return true // Always enabled by default
-    }
-
-    override fun setAppFuzzySearchEnabled(enabled: Boolean) {
-        // No-op: always enabled
-    }
-
     override fun getAppFuzzyMatchThreshold(): Int {
         return 70 // Default threshold
     }

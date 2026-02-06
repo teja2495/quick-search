@@ -46,7 +46,7 @@ abstract class BaseFuzzySearchStrategy<T> : FuzzySearchStrategy<T> {
         query: String,
         scoreSelector: (T) -> Int,
     ): List<FuzzySearchStrategy.Match<T>> {
-        if (!config.enabled || query.isBlank()) return emptyList()
+        if (query.isBlank()) return emptyList()
 
         return this
             .mapNotNull { candidate ->

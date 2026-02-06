@@ -105,13 +105,6 @@ class AppSearchManager(
         // VM should update preference
     }
 
-    fun setFuzzySearchEnabled(enabled: Boolean) {
-        fuzzySearchStrategy =
-            FuzzyAppSearchStrategy(
-                fuzzySearchStrategy.config.copy(enabled = enabled),
-            )
-    }
-
     fun resetNoMatchPrefixIfNeeded(normalizedQuery: String) {
         val prefix = noMatchPrefix ?: return
         if (!normalizedQuery.startsWith(prefix)) {
@@ -121,6 +114,7 @@ class AppSearchManager(
 
     fun shouldSkipDueToNoMatchPrefix(normalizedQuery: String): Boolean {
         val prefix = noMatchPrefix ?: return false
+        if (normalizedQuery.length >= fuzzySearchStrategy.config.minQueryLength) return false
         return normalizedQuery.length >= prefix.length && normalizedQuery.startsWith(prefix)
     }
 
@@ -204,7 +198,6 @@ class AppSearchManager(
         normalizedQuery: String,
         queryTokens: List<String>,
     ): AppMatch? {
-        // Use cached nickname to avoid SharedPreferences lookup per item
         val nickname = cachedAppNicknames[app.packageName]
         val priority =
             SearchRankingUtils.calculateMatchPriorityWithNickname(
@@ -214,10 +207,10 @@ class AppSearchManager(
                 queryTokens,
             )
         if (!SearchRankingUtils.isOtherMatch(priority)) {
+            if (!queryTokensCoveredByApp(queryTokens, app.appName, nickname)) return null
             return AppMatch(app, priority, 0, false)
         }
 
-        // Try fuzzy search if regular matching failed
         val fuzzyMatches =
             fuzzySearchStrategy.findMatchesWithNicknames(
                 normalizedQuery,
@@ -225,7 +218,19 @@ class AppSearchManager(
             ) { cachedAppNicknames[it.packageName] }
 
         return fuzzyMatches.firstOrNull()?.let { match ->
+            if (!queryTokensCoveredByApp(queryTokens, app.appName, nickname)) return null
             AppMatch(app, match.priority, match.score, true)
+        }
+    }
+
+    private fun queryTokensCoveredByApp(
+        queryTokens: List<String>,
+        appName: String,
+        nickname: String?,
+    ): Boolean {
+        if (queryTokens.size <= 1) return true
+        return queryTokens.all { token ->
+            fuzzySearchStrategy.isTokenCoveredByApp(token, appName, nickname)
         }
     }
 

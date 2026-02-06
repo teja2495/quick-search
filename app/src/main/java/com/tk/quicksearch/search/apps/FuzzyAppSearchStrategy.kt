@@ -4,6 +4,7 @@ import com.tk.quicksearch.search.fuzzy.BaseFuzzySearchStrategy
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.fuzzy.FuzzySearchStrategy
 import com.tk.quicksearch.search.models.AppInfo
+import java.util.Locale
 
 /**
  * Fuzzy search strategy specifically for app search.
@@ -20,7 +21,7 @@ class FuzzyAppSearchStrategy(
         query: String,
         candidates: List<AppInfo>,
     ): List<FuzzySearchStrategy.Match<AppInfo>> {
-        if (!config.enabled || query.isBlank()) return emptyList()
+        if (query.isBlank()) return emptyList()
 
         return candidates.filterByFuzzySearch(query) { app ->
             // Get nickname from app (this would be provided by AppSearchManager)
@@ -49,7 +50,7 @@ class FuzzyAppSearchStrategy(
         candidates: List<AppInfo>,
         nicknameProvider: (AppInfo) -> String?,
     ): List<FuzzySearchStrategy.Match<AppInfo>> {
-        if (!config.enabled || query.isBlank()) return emptyList()
+        if (query.isBlank()) return emptyList()
 
         return candidates
             .mapNotNull { app ->
@@ -66,5 +67,16 @@ class FuzzyAppSearchStrategy(
                     null
                 }
             }.sortedByDescending { it.score }
+    }
+
+    fun isTokenCoveredByApp(token: String, appName: String, nickname: String?): Boolean {
+        val tokenLower = token.lowercase(Locale.getDefault())
+        val nameLower = appName.lowercase(Locale.getDefault())
+        if (nameLower.contains(tokenLower)) return true
+        nickname?.let { nick ->
+            if (nick.lowercase(Locale.getDefault()).contains(tokenLower)) return true
+        }
+        val score = engine.computeScore(token, appName, nickname, config.minQueryLength)
+        return score >= config.matchThreshold
     }
 }

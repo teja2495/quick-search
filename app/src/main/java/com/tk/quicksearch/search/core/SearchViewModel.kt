@@ -516,7 +516,6 @@ class SearchViewModel(
 
             // Sync handlers with loaded prefs
             appSearchManager.setSortAppsByUsage(true)
-            appSearchManager.setFuzzySearchEnabled(true)
 
             // Now we can compute the full state including pinned/hidden apps
             val lastUpdated =
