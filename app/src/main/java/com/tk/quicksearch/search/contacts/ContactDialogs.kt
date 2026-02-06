@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -265,6 +267,7 @@ fun ContactMethodsDialog(
     setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> },
 ) {
     val hasMultipleNumbers = contactInfo.phoneNumbers.size > 1
+    val maxCardHeight = LocalConfiguration.current.screenHeightDp.dp * 0.72f
 
     // Reorder phone numbers to show last shown number first (only for multiple numbers)
     val reorderedPhoneNumbers =
@@ -371,17 +374,19 @@ fun ContactMethodsDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(380.dp),
+                                 .heightIn(max = maxCardHeight),
                         colors =
                             CardDefaults.cardColors(
                                 containerColor = Color.Black,
                             ),
                         shape = MaterialTheme.shapes.large,
                     ) {
+                        val optionsScrollState = rememberScrollState()
                         Column(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .verticalScroll(optionsScrollState)
                                     .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 24.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -508,6 +513,18 @@ fun ContactMethodsDialog(
                                 onDismiss()
                             }
 
+                            renderMethodRow(
+                                methodsForSelectedNumber,
+                                listOf(
+                                    ContactMethod.SignalMessage::class,
+                                    ContactMethod.SignalCall::class,
+                                    ContactMethod.SignalVideoCall::class,
+                                ),
+                            ) { method ->
+                                onContactMethodClick(contactInfo, method)
+                                onDismiss()
+                            }
+
                             // Show message if no methods available
                             if (contactInfo.contactMethods.filterNot { it is ContactMethod.Email }.isEmpty()) {
                                 Text(
@@ -589,6 +606,16 @@ private fun filterMethodsByPhoneNumber(
                 } else {
                     // If no phone number is selected, show all Telegram methods
                     true
+                }
+            }
+
+            method is ContactMethod.SignalMessage ||
+                method is ContactMethod.SignalCall ||
+                method is ContactMethod.SignalVideoCall -> {
+                if (selectedPhoneNumber == null) {
+                    true
+                } else {
+                    method.data.isBlank() || PhoneNumberUtils.isSameNumber(method.data, selectedPhoneNumber)
                 }
             }
 

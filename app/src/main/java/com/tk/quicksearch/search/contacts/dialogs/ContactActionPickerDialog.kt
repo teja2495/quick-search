@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +59,8 @@ fun ContactActionPickerDialog(
     getLastShownPhoneNumber: (Long) -> String? = { null },
     setLastShownPhoneNumber: (Long, String) -> Unit = { _, _ -> },
 ) {
+    val maxCardHeight = LocalConfiguration.current.screenHeightDp.dp * 0.72f
+
     @Composable
     fun getActionDisplayName(action: ContactCardAction?): String {
         if (action == null) return ""
@@ -69,6 +73,9 @@ fun ContactActionPickerDialog(
             is ContactCardAction.TelegramMessage -> "Telegram"
             is ContactCardAction.TelegramCall -> "Telegram Call"
             is ContactCardAction.TelegramVideoCall -> "Telegram Video"
+            is ContactCardAction.SignalMessage -> "Signal"
+            is ContactCardAction.SignalCall -> "Signal Call"
+            is ContactCardAction.SignalVideoCall -> "Signal Video"
             is ContactCardAction.GoogleMeet -> "Google Meet"
         }
     }
@@ -182,14 +189,16 @@ fun ContactActionPickerDialog(
 
                     // Card encompassing options with black background
                     Card(
-                        modifier = Modifier.fillMaxWidth().height(380.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = maxCardHeight),
                         colors = CardDefaults.cardColors(containerColor = Color.Black),
                         shape = MaterialTheme.shapes.large,
                     ) {
+                        val optionsScrollState = rememberScrollState()
                         Column(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
+                                    .verticalScroll(optionsScrollState)
                                     .padding(
                                         start = 16.dp,
                                         top = 20.dp,
@@ -293,6 +302,20 @@ fun ContactActionPickerDialog(
                                             }
                                         }
 
+                                        method is ContactMethod.SignalMessage ||
+                                            method is ContactMethod.SignalCall ||
+                                            method is ContactMethod.SignalVideoCall -> {
+                                            if (selectedPhoneNumber == null) {
+                                                true
+                                            } else {
+                                                method.data.isBlank() ||
+                                                    PhoneNumberUtils.isSameNumber(
+                                                        method.data,
+                                                        selectedPhoneNumber,
+                                                    )
+                                            }
+                                        }
+
                                         else -> {
                                             val methodData =
                                                 method.data.takeIf { it.isNotBlank() }
@@ -362,6 +385,22 @@ fun ContactActionPickerDialog(
                                                 )
                                             }
 
+                                            is ContactMethod.SignalMessage -> {
+                                                ContactCardAction.SignalMessage(
+                                                    phoneNumber,
+                                                )
+                                            }
+
+                                            is ContactMethod.SignalCall -> {
+                                                ContactCardAction.SignalCall(phoneNumber)
+                                            }
+
+                                            is ContactMethod.SignalVideoCall -> {
+                                                ContactCardAction.SignalVideoCall(
+                                                    phoneNumber,
+                                                )
+                                            }
+
                                             is ContactMethod.GoogleMeet -> {
                                                 ContactCardAction.GoogleMeet(phoneNumber)
                                             }
@@ -413,6 +452,18 @@ fun ContactActionPickerDialog(
                                         ContactMethod.TelegramMessage::class,
                                         ContactMethod.TelegramCall::class,
                                         ContactMethod.TelegramVideoCall::class,
+                                    ),
+                                onMethodClick = onClick,
+                            )
+
+                            // Signal row
+                            renderActionPickerRow(
+                                methods = methodsForSelectedNumber,
+                                methodTypes =
+                                    listOf(
+                                        ContactMethod.SignalMessage::class,
+                                        ContactMethod.SignalCall::class,
+                                        ContactMethod.SignalVideoCall::class,
                                     ),
                                 onMethodClick = onClick,
                             )

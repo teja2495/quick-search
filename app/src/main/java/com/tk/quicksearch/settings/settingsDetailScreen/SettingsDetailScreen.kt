@@ -251,6 +251,7 @@ internal fun SettingsDetailScreen(
                             contactsSectionEnabled = true, // Always show calls/texts settings regardless of permissions
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
+                            isSignalInstalled = state.isSignalInstalled,
                             modifier = Modifier,
                         )
                     }

@@ -263,6 +263,27 @@ class ContactActionHandler(
                 }
             }
 
+            is ContactMethod.SignalMessage -> {
+                val success = ContactIntentHelpers.openSignalChat(context, method.dataId) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
+            }
+
+            is ContactMethod.SignalCall -> {
+                val success = ContactIntentHelpers.openSignalCall(context, method.dataId) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
+            }
+
+            is ContactMethod.SignalVideoCall -> {
+                val success = ContactIntentHelpers.openSignalVideoCall(context, method.dataId) { resId -> showToastCallback(resId) }
+                if (success) {
+                    clearQueryIfEnabled()
+                }
+            }
+
             is ContactMethod.VideoCall -> {
                 ContactIntentHelpers.openVideoCall(context, method.data, method.packageName) { resId -> showToastCallback(resId) }
                 clearQueryIfEnabled()
@@ -331,6 +352,7 @@ class ContactActionHandler(
             MessagingApp.MESSAGES -> performSms(number)
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number) { resId -> showToastCallback(resId) }
+            MessagingApp.SIGNAL -> ContactIntentHelpers.openSignalChat(context, number) { resId -> showToastCallback(resId) }
         }
     }
 

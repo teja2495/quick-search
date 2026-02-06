@@ -112,6 +112,7 @@ fun FinalSetupScreen(
                         contactsSectionEnabled = true,
                         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                         isTelegramInstalled = uiState.isTelegramInstalled,
+                        isSignalInstalled = uiState.isSignalInstalled,
                         showDirectDial = false,
                         showTitle = false,
                         onMessagingAppSelected = { app ->
@@ -127,6 +128,10 @@ fun FinalSetupScreen(
 
                                     MessagingApp.TELEGRAM -> {
                                         uiState.isTelegramInstalled
+                                    }
+
+                                    MessagingApp.SIGNAL -> {
+                                        uiState.isSignalInstalled
                                     }
                                 }
 
@@ -146,6 +151,13 @@ fun FinalSetupScreen(
                                             context.getString(
                                                 R.string
                                                     .settings_messaging_option_telegram,
+                                            )
+                                        }
+
+                                        MessagingApp.SIGNAL -> {
+                                            context.getString(
+                                                R.string
+                                                    .settings_messaging_option_signal,
                                             )
                                         }
 

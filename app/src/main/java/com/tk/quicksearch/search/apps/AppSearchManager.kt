@@ -73,14 +73,18 @@ class AppSearchManager(
                     }
 
                     if (showToast) {
-                        showToastCallback(R.string.apps_refreshed_successfully)
+                        scope.launch(Dispatchers.Main) {
+                            showToastCallback(R.string.apps_refreshed_successfully)
+                        }
                     }
                 }.onFailure { error ->
                     val fallbackMessage = context.getString(R.string.error_loading_user_apps)
                     onLoadingStateChanged(false, error.localizedMessage ?: fallbackMessage)
 
                     if (showToast) {
-                        showToastCallback(R.string.failed_to_refresh_apps)
+                        scope.launch(Dispatchers.Main) {
+                            showToastCallback(R.string.failed_to_refresh_apps)
+                        }
                     }
                 }
         }
@@ -95,7 +99,9 @@ class AppSearchManager(
             onLoadingStateChanged(true, null)
             onAppsUpdated() // VM will see empty cachedApps
 
-            showToastCallback(R.string.settings_cache_cleared_toast)
+            scope.launch(Dispatchers.Main) {
+                showToastCallback(R.string.settings_cache_cleared_toast)
+            }
             refreshApps()
         }
     }

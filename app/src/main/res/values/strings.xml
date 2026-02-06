@@ -55,6 +55,7 @@
     <string name="contacts_action_sms">Message contact</string>
     <string name="contacts_action_whatsapp">WhatsApp contact</string>
     <string name="contacts_action_telegram">Telegram contact</string>
+    <string name="contacts_action_signal">Signal contact</string>
     <string name="contacts_action_button_call">Call</string>
     <string name="contacts_action_button_message">Message</string>
     <string name="contacts_action_button_voice_call">Voice Call</string>
@@ -83,6 +84,10 @@
     <string name="error_telegram_web_fallback_failed">Telegram is not installed and web fallback failed</string>
     <string name="error_telegram_chat_failed">Failed to open Telegram chat</string>
     <string name="error_telegram_call_failed">Telegram call failed. Please ensure Telegram is installed.</string>
+    <string name="error_signal_not_installed">Signal is not installed</string>
+    <string name="error_signal_chat_failed">Failed to open Signal chat</string>
+    <string name="error_signal_call_failed">Signal call failed. Please ensure Signal is installed.</string>
+    <string name="error_signal_video_call_failed">Failed to open Signal video call</string>
     <string name="error_google_meet_not_installed">Google Meet is not installed</string>
     <string name="error_google_meet_no_phone">Cannot make Google Meet call - no phone number found</string>
     <string name="error_google_meet_call_failed">Google Meet call failed - app may not support this method</string>
@@ -373,6 +378,7 @@
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>
     <string name="settings_messaging_option_telegram">Telegram</string>
+    <string name="settings_messaging_option_signal">Signal</string>
     <string name="settings_messaging_app_not_installed">%s is not installed on your device</string>
 
     <!-- ============================================================================

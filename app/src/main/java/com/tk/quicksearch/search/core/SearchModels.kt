@@ -69,6 +69,7 @@ enum class MessagingApp {
     MESSAGES,
     WHATSAPP,
     TELEGRAM,
+    SIGNAL,
 }
 
 enum class DirectSearchStatus {
@@ -270,6 +271,7 @@ data class SearchUiState(
     val messagingApp: MessagingApp = MessagingApp.MESSAGES,
     val isWhatsAppInstalled: Boolean = false,
     val isTelegramInstalled: Boolean = false,
+    val isSignalInstalled: Boolean = false,
     val showWallpaperBackground: Boolean = true,
     val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
     val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,

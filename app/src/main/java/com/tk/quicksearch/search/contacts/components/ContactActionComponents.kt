@@ -60,6 +60,11 @@ internal fun ContactActionButton(
             is ContactMethod.TelegramVideoCall,
             -> DesignTokens.ColorTelegram
 
+            is ContactMethod.SignalMessage,
+            is ContactMethod.SignalCall,
+            is ContactMethod.SignalVideoCall,
+            -> DesignTokens.ColorSignal
+
             is ContactMethod.GoogleMeet -> Color.Unspecified
 
             is ContactMethod.Email -> DesignTokens.ColorEmail
@@ -200,6 +205,33 @@ private fun ContactActionIcon(
             )
         }
 
+        is ContactMethod.SignalVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal_video_call),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(DesignTokens.LargeIconSize),
+            )
+        }
+
+        is ContactMethod.SignalCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal_call),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(DesignTokens.LargeIconSize),
+            )
+        }
+
+        is ContactMethod.SignalMessage -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
+            )
+        }
+
         is ContactMethod.GoogleMeet -> {
             Icon(
                 painter = painterResource(id = R.drawable.google_meet),
@@ -279,6 +311,18 @@ private fun getActionButtonLabel(method: ContactMethod): String =
         }
 
         is ContactMethod.TelegramVideoCall -> {
+            stringResource(R.string.contacts_action_button_video_call)
+        }
+
+        is ContactMethod.SignalMessage -> {
+            stringResource(R.string.contacts_action_button_chat)
+        }
+
+        is ContactMethod.SignalCall -> {
+            stringResource(R.string.contacts_action_button_voice_call)
+        }
+
+        is ContactMethod.SignalVideoCall -> {
             stringResource(R.string.contacts_action_button_video_call)
         }
 

@@ -17,7 +17,7 @@
           android:pathData="M44,35 L34,29 L34,19 L44,13 z" />
 
       <group
-          android:translateX="9"
+          android:translateX="8"
           android:translateY="13"
           android:scaleX="0.0859375"
           android:scaleY="0.0859375">

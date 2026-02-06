@@ -20,26 +20,32 @@ class MessagingHandler(
 
     var isTelegramInstalled: Boolean = false
         private set
+    var isSignalInstalled: Boolean = false
+        private set
 
     fun resolveMessagingApp(
         whatsappInstalled: Boolean,
         telegramInstalled: Boolean,
+        signalInstalled: Boolean,
     ): MessagingApp =
         when (messagingApp) {
             MessagingApp.WHATSAPP -> if (whatsappInstalled) MessagingApp.WHATSAPP else MessagingApp.MESSAGES
             MessagingApp.TELEGRAM -> if (telegramInstalled) MessagingApp.TELEGRAM else MessagingApp.MESSAGES
+            MessagingApp.SIGNAL -> if (signalInstalled) MessagingApp.SIGNAL else MessagingApp.MESSAGES
             MessagingApp.MESSAGES -> MessagingApp.MESSAGES
         }
 
     fun updateMessagingAvailability(
         whatsappInstalled: Boolean,
         telegramInstalled: Boolean,
+        signalInstalled: Boolean,
         updateState: Boolean = true,
     ): MessagingApp {
         isWhatsAppInstalled = whatsappInstalled
         isTelegramInstalled = telegramInstalled
+        isSignalInstalled = signalInstalled
 
-        val resolvedMessagingApp = resolveMessagingApp(whatsappInstalled, telegramInstalled)
+        val resolvedMessagingApp = resolveMessagingApp(whatsappInstalled, telegramInstalled, signalInstalled)
         if (resolvedMessagingApp != messagingApp) {
             messagingApp = resolvedMessagingApp
             userPreferences.setMessagingApp(resolvedMessagingApp)
@@ -51,6 +57,7 @@ class MessagingHandler(
                     messagingApp = messagingApp,
                     isWhatsAppInstalled = whatsappInstalled,
                     isTelegramInstalled = telegramInstalled,
+                    isSignalInstalled = signalInstalled,
                 )
             }
         }
@@ -65,6 +72,7 @@ class MessagingHandler(
         updateMessagingAvailability(
             whatsappInstalled = isWhatsAppInstalled,
             telegramInstalled = isTelegramInstalled,
+            signalInstalled = isSignalInstalled,
         )
     }
 

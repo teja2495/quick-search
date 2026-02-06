@@ -563,6 +563,7 @@ fun SearchScreen(
                 MessagingApp.MESSAGES -> ContactCardAction.Sms(phoneNumber)
                 MessagingApp.WHATSAPP -> ContactCardAction.WhatsAppMessage(phoneNumber)
                 MessagingApp.TELEGRAM -> ContactCardAction.TelegramMessage(phoneNumber)
+                MessagingApp.SIGNAL -> ContactCardAction.SignalMessage(phoneNumber)
             }
         }
     }

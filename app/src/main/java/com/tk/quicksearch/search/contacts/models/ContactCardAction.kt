@@ -40,6 +40,18 @@ sealed class ContactCardAction {
         override val phoneNumber: String,
     ) : ContactCardAction()
 
+    data class SignalMessage(
+        override val phoneNumber: String,
+    ) : ContactCardAction()
+
+    data class SignalCall(
+        override val phoneNumber: String,
+    ) : ContactCardAction()
+
+    data class SignalVideoCall(
+        override val phoneNumber: String,
+    ) : ContactCardAction()
+
     data class GoogleMeet(
         override val phoneNumber: String,
     ) : ContactCardAction()
@@ -58,6 +70,9 @@ sealed class ContactCardAction {
                 is TelegramMessage -> TYPE_TELEGRAM_MESSAGE
                 is TelegramCall -> TYPE_TELEGRAM_CALL
                 is TelegramVideoCall -> TYPE_TELEGRAM_VIDEO_CALL
+                is SignalMessage -> TYPE_SIGNAL_MESSAGE
+                is SignalCall -> TYPE_SIGNAL_CALL
+                is SignalVideoCall -> TYPE_SIGNAL_VIDEO_CALL
                 is GoogleMeet -> TYPE_GOOGLE_MEET
             }
         return "$type:$phoneNumber"
@@ -72,6 +87,9 @@ sealed class ContactCardAction {
         private const val TYPE_TELEGRAM_MESSAGE = "TELEGRAM_MESSAGE"
         private const val TYPE_TELEGRAM_CALL = "TELEGRAM_CALL"
         private const val TYPE_TELEGRAM_VIDEO_CALL = "TELEGRAM_VIDEO_CALL"
+        private const val TYPE_SIGNAL_MESSAGE = "SIGNAL_MESSAGE"
+        private const val TYPE_SIGNAL_CALL = "SIGNAL_CALL"
+        private const val TYPE_SIGNAL_VIDEO_CALL = "SIGNAL_VIDEO_CALL"
         private const val TYPE_GOOGLE_MEET = "GOOGLE_MEET"
 
         /**
@@ -93,6 +111,9 @@ sealed class ContactCardAction {
                 TYPE_TELEGRAM_MESSAGE -> TelegramMessage(phoneNumber)
                 TYPE_TELEGRAM_CALL -> TelegramCall(phoneNumber)
                 TYPE_TELEGRAM_VIDEO_CALL -> TelegramVideoCall(phoneNumber)
+                TYPE_SIGNAL_MESSAGE -> SignalMessage(phoneNumber)
+                TYPE_SIGNAL_CALL -> SignalCall(phoneNumber)
+                TYPE_SIGNAL_VIDEO_CALL -> SignalVideoCall(phoneNumber)
                 TYPE_GOOGLE_MEET -> GoogleMeet(phoneNumber)
                 else -> null
             }

@@ -1,18 +1,25 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -211,6 +218,99 @@ fun CombinedExcludedItemsCard(
     }
 }
 
+@Composable
+fun RefreshDataCard(
+    onRefreshApps: (Boolean) -> Unit,
+    onRefreshContacts: (Boolean) -> Unit,
+    onRefreshFiles: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_refresh_data_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 24.dp, top = 8.dp, end = 16.dp, bottom = 12.dp),
+            )
+            val itemShape = RoundedCornerShape(12.dp)
+            val borderColor = MaterialTheme.colorScheme.outlineVariant
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = { onRefreshApps(true) })
+                        .border(1.dp, borderColor, itemShape)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Apps,
+                        contentDescription = stringResource(R.string.settings_refresh_apps_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_apps_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = { onRefreshContacts(true) })
+                        .border(1.dp, borderColor, itemShape)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Contacts,
+                        contentDescription = stringResource(R.string.settings_refresh_contacts_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_contacts_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(onClick = { onRefreshFiles(true) })
+                        .border(1.dp, borderColor, itemShape)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Folder,
+                        contentDescription = stringResource(R.string.settings_refresh_files_title),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_refresh_files_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        }
+    }
+}
+
 /** Search Results settings section that combines all search results related settings. */
 @Composable
 fun SearchResultsSettingsSection(
@@ -250,6 +350,13 @@ fun SearchResultsSettingsSection(
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
             onNavigateToExcludedItems = onNavigateToExcludedItems,
+            modifier = Modifier.padding(top = 12.dp),
+        )
+
+        RefreshDataCard(
+            onRefreshApps = callbacks.onRefreshApps,
+            onRefreshContacts = callbacks.onRefreshContacts,
+            onRefreshFiles = callbacks.onRefreshFiles,
             modifier = Modifier.padding(top = 12.dp),
         )
     }

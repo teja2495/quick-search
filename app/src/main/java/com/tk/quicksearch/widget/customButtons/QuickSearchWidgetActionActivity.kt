@@ -128,6 +128,24 @@ class QuickSearchWidgetActionActivity : ComponentActivity() {
                 ContactIntentHelpers.openTelegramVideoCall(application, method.dataId, method.data)
             }
 
+            is ContactMethod.SignalMessage -> {
+                ContactIntentHelpers.openSignalChat(application, method.dataId) { resId ->
+                    showToast(resId)
+                }
+            }
+
+            is ContactMethod.SignalCall -> {
+                ContactIntentHelpers.openSignalCall(application, method.dataId) { resId ->
+                    showToast(resId)
+                }
+            }
+
+            is ContactMethod.SignalVideoCall -> {
+                ContactIntentHelpers.openSignalVideoCall(application, method.dataId) { resId ->
+                    showToast(resId)
+                }
+            }
+
             is ContactMethod.VideoCall -> {
                 ContactIntentHelpers.openVideoCall(application, method.data, method.packageName) { resId ->
                     showToast(resId)

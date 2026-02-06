@@ -73,6 +73,7 @@ fun SettingsDetailRoute(
                     messagingApp = uiState.messagingApp,
                     isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                     isTelegramInstalled = uiState.isTelegramInstalled,
+                    isSignalInstalled = uiState.isSignalInstalled,
                     hasWallpaperPermission = uiState.hasWallpaperPermission,
                     wallpaperAvailable = uiState.wallpaperAvailable,
                     showWallpaperBackground = uiState.showWallpaperBackground,

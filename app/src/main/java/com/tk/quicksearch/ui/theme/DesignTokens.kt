@@ -132,6 +132,9 @@ object DesignTokens {
     /** Large icon size - 28dp M3 Large usually 40dp+, but 28dp fits grid. */
     val LargeIconSize = 28.dp
 
+    /** Smaller icon for Signal message (logo has more visual weight). */
+    val SignalMessageIconSize = 26.dp
+
     /** Extra large icon size - 52dp App icons in grid. (52/4 = 13). Fits grid. */
     val IconSizeXLarge = 52.dp
 
@@ -217,6 +220,9 @@ object DesignTokens {
 
     /** Telegram brand color Use for: Telegram-related actions and icons */
     val ColorTelegram = Color(0xFF0088CC)
+
+    /** Signal brand color Use for: Signal-related actions and icons */
+    val ColorSignal = Color(0xFF3B45FD)
 
     /** Email action color - Material Orange Use for: Email actions, warnings */
     val ColorEmail = Color(0xFFFF9800)

@@ -86,6 +86,9 @@ class ContactRepository(
         private const val TELEGRAM_MESSAGE_LABEL = "Telegram"
         private const val TELEGRAM_VOICE_CALL_LABEL = "Telegram voice call"
         private const val TELEGRAM_VIDEO_CALL_LABEL = "Telegram video call"
+        private const val SIGNAL_MESSAGE_LABEL = "Signal"
+        private const val SIGNAL_VOICE_CALL_LABEL = "Signal voice call"
+        private const val SIGNAL_VIDEO_CALL_LABEL = "Signal video call"
         private const val OTHER_LABEL = "Other"
 
         // Package name extraction constants
@@ -368,7 +371,29 @@ class ContactRepository(
                     ContactMethod.TelegramVideoCall(TELEGRAM_VIDEO_CALL_LABEL, data1, dataId, isPrimary)
                 }
 
+                ContactMethodMimeTypes.SIGNAL_MESSAGE -> {
+                    ContactMethod.SignalMessage(SIGNAL_MESSAGE_LABEL, data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.SIGNAL_CALL -> {
+                    ContactMethod.SignalCall(SIGNAL_VOICE_CALL_LABEL, data1, dataId, isPrimary)
+                }
+
+                ContactMethodMimeTypes.SIGNAL_VIDEO_CALL -> {
+                    ContactMethod.SignalVideoCall(SIGNAL_VIDEO_CALL_LABEL, data1, dataId, isPrimary)
+                }
+
                 else -> {
+                    if (mimeType.startsWith("vnd.android.cursor.item/vnd.org.thoughtcrime.securesms")) {
+                        when {
+                            mimeType.contains("video", ignoreCase = true) ->
+                                ContactMethod.SignalVideoCall(SIGNAL_VIDEO_CALL_LABEL, data1, dataId, isPrimary)
+                            mimeType.contains("call", ignoreCase = true) ->
+                                ContactMethod.SignalCall(SIGNAL_VOICE_CALL_LABEL, data1, dataId, isPrimary)
+                            else ->
+                                ContactMethod.SignalMessage(SIGNAL_MESSAGE_LABEL, data1, dataId, isPrimary)
+                        }
+                    } else
                     if (mimeType.startsWith(VND_MIME_PREFIX)) {
                         val packageName = extractPackageFromMimeType(mimeType)
                         ContactMethod.CustomApp(

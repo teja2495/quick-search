@@ -10,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -76,6 +77,7 @@ private data class MessagingOption(
  * @param contactsSectionEnabled Whether the contacts section is enabled. If false, this section is not displayed.
  * @param isWhatsAppInstalled Whether WhatsApp is available on the device
  * @param isTelegramInstalled Whether Telegram is available on the device
+ * @param isSignalInstalled Whether Signal is available on the device
  * @param onMessagingAppSelected Callback when a messaging option is selected, handles installation check
  * @param showDirectDial Whether to show the direct dial toggle (e.g. hidden in onboarding)
  * @param modifier Modifier to be applied to the section title
@@ -90,6 +92,7 @@ fun MessagingSection(
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
+    isSignalInstalled: Boolean = false,
     onMessagingAppSelected: ((MessagingApp) -> Unit)? = null,
     showTitle: Boolean = true,
     showDirectDial: Boolean = true,
@@ -104,6 +107,7 @@ fun MessagingSection(
             add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
             add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
             add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
+            add(MessagingOption(MessagingApp.SIGNAL, R.string.settings_messaging_option_signal))
         }
 
     Column(modifier = modifier) {
@@ -126,7 +130,7 @@ fun MessagingSection(
             )
         }
 
-        if (isWhatsAppInstalled || isTelegramInstalled) {
+        if (isWhatsAppInstalled || isTelegramInstalled || isSignalInstalled) {
             val topSpacingModifier =
                 if (showDirectDial) {
                     Modifier.padding(top = DesignTokens.SpacingMedium)
@@ -216,20 +220,32 @@ private fun DefaultMessagingAppCard(
             )
 
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                messagingOptions.forEach { option ->
-                    MessagingOptionChip(
-                        option = option,
-                        selected = selectedApp == option.app,
-                        onClick = { onMessagingAppSelected(option.app) },
-                        modifier = Modifier.weight(1f),
-                    )
+                val rowSize = if (messagingOptions.size > 3) 2 else messagingOptions.size
+                Column(
+                    modifier = Modifier.fillMaxWidth().selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                ) {
+                    messagingOptions.chunked(rowSize).forEach { rowOptions ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            rowOptions.forEach { option ->
+                                MessagingOptionChip(
+                                    option = option,
+                                    selected = selectedApp == option.app,
+                                    onClick = { onMessagingAppSelected(option.app) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            repeat(rowSize - rowOptions.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -315,6 +331,14 @@ private fun MessagingOptionIcon(app: MessagingApp) {
                 modifier = Modifier.size(MessagingSpacing.iconSize),
             )
         }
+
+        MessagingApp.SIGNAL -> {
+            Image(
+                painter = painterResource(id = R.drawable.signal),
+                contentDescription = null,
+                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
+            )
+        }
     }
 }
 
@@ -334,6 +358,7 @@ fun CallsTextsSettingsSection(
     contactsSectionEnabled: Boolean = true,
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
+    isSignalInstalled: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (!contactsSectionEnabled) {
@@ -396,6 +421,8 @@ fun CallsTextsSettingsSection(
                 MessagingApp.WHATSAPP -> isWhatsAppInstalled
 
                 MessagingApp.TELEGRAM -> isTelegramInstalled
+
+                MessagingApp.SIGNAL -> isSignalInstalled
             }
 
         if (isInstalled) {
@@ -409,6 +436,10 @@ fun CallsTextsSettingsSection(
 
                     MessagingApp.TELEGRAM -> {
                         context.getString(R.string.settings_messaging_option_telegram)
+                    }
+
+                    MessagingApp.SIGNAL -> {
+                        context.getString(R.string.settings_messaging_option_signal)
                     }
 
                     MessagingApp.MESSAGES -> {
@@ -436,6 +467,7 @@ fun CallsTextsSettingsSection(
         contactsSectionEnabled = contactsSectionEnabled,
         isWhatsAppInstalled = isWhatsAppInstalled,
         isTelegramInstalled = isTelegramInstalled,
+        isSignalInstalled = isSignalInstalled,
         onMessagingAppSelected = onMessagingAppSelected,
         showTitle = false,
         modifier = modifier,

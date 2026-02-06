@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.ui.theme.DesignTokens
 
 // ============================================================================
 // Contact Methods List
@@ -151,6 +152,36 @@ private fun ContactMethodIcon(method: ContactMethod) {
                     contentDescription = null,
                     tint = Color(0xFF0088CC),
                     modifier = Modifier.size(24.dp),
+                )
+                return
+            }
+
+            is ContactMethod.SignalVideoCall -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.signal_video_call),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp),
+                )
+                return
+            }
+
+            is ContactMethod.SignalCall -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.signal_call),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp),
+                )
+                return
+            }
+
+            is ContactMethod.SignalMessage -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.signal),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
                 )
                 return
             }

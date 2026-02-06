@@ -18,6 +18,10 @@ object ContactMessagingAppResolver {
                 if (contactInfo.hasTelegramMethods()) MessagingApp.TELEGRAM else MessagingApp.MESSAGES
             }
 
+            MessagingApp.SIGNAL -> {
+                if (contactInfo.hasSignalMethods()) MessagingApp.SIGNAL else MessagingApp.MESSAGES
+            }
+
             MessagingApp.MESSAGES -> {
                 MessagingApp.MESSAGES
             }
@@ -35,5 +39,12 @@ object ContactMessagingAppResolver {
             method is ContactMethod.TelegramMessage ||
                 method is ContactMethod.TelegramCall ||
                 method is ContactMethod.TelegramVideoCall
+        }
+
+    private fun ContactInfo.hasSignalMethods(): Boolean =
+        contactMethods.any { method ->
+            method is ContactMethod.SignalMessage ||
+                method is ContactMethod.SignalCall ||
+                method is ContactMethod.SignalVideoCall
         }
 }

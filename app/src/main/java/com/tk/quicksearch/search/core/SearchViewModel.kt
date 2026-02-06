@@ -657,6 +657,7 @@ class SearchViewModel(
                         messagingApp = messagingInfo.messagingApp,
                         isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
                         isTelegramInstalled = messagingInfo.isTelegramInstalled,
+                        isSignalInstalled = messagingInfo.isSignalInstalled,
                 )
             }
 
@@ -752,19 +753,32 @@ class SearchViewModel(
                 } else {
                     messagingHandler.isPackageInstalled(PackageConstants.TELEGRAM_PACKAGE)
                 }
+        val isSignalInstalled =
+                if (packageNames.isNotEmpty()) {
+                    packageNames.contains(PackageConstants.SIGNAL_PACKAGE)
+                } else {
+                    messagingHandler.isPackageInstalled(PackageConstants.SIGNAL_PACKAGE)
+                }
         val resolvedMessagingApp =
                 messagingHandler.updateMessagingAvailability(
                         whatsappInstalled = isWhatsAppInstalled,
                         telegramInstalled = isTelegramInstalled,
+                        signalInstalled = isSignalInstalled,
                         updateState = false,
                 )
 
-        return MessagingAppInfo(isWhatsAppInstalled, isTelegramInstalled, resolvedMessagingApp)
+        return MessagingAppInfo(
+                isWhatsAppInstalled,
+                isTelegramInstalled,
+                isSignalInstalled,
+                resolvedMessagingApp,
+        )
     }
 
     private data class MessagingAppInfo(
             val isWhatsAppInstalled: Boolean,
             val isTelegramInstalled: Boolean,
+            val isSignalInstalled: Boolean,
             val messagingApp: MessagingApp,
     )
 
@@ -1005,6 +1019,11 @@ class SearchViewModel(
                             phoneNumber,
                     )
                 }
+                MessagingApp.SIGNAL -> {
+                    com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage(
+                            phoneNumber,
+                    )
+                }
             }
         }
     }
@@ -1030,6 +1049,9 @@ class SearchViewModel(
                             phoneNumber = action.phoneNumber,
                             telegramMethod = method,
                     ) || matchesPhoneNumber(method)
+
+            fun matchesSignalNumber(method: ContactMethod): Boolean =
+                    method.data.isBlank() || matchesPhoneNumber(method)
 
             // Match the action to a ContactMethod
             val matchedMethod: ContactMethod? =
@@ -1063,6 +1085,18 @@ class SearchViewModel(
                             is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall -> {
                                 method is ContactMethod.TelegramVideoCall &&
                                         matchesTelegramNumber(method)
+                            }
+                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {
+                                method is ContactMethod.SignalMessage &&
+                                        matchesSignalNumber(method)
+                            }
+                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
+                                method is ContactMethod.SignalCall &&
+                                        matchesSignalNumber(method)
+                            }
+                            is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalVideoCall -> {
+                                method is ContactMethod.SignalVideoCall &&
+                                        matchesSignalNumber(method)
                             }
                             is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
                                 method is ContactMethod.GoogleMeet && matchesPhoneNumber(method)
@@ -2114,10 +2148,12 @@ class SearchViewModel(
         val packageNames = apps.map { it.packageName }.toSet()
         val isWhatsAppInstalled = packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
         val isTelegramInstalled = packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
+        val isSignalInstalled = packageNames.contains(PackageConstants.SIGNAL_PACKAGE)
         val resolvedMessagingApp =
                 messagingHandler.updateMessagingAvailability(
                         whatsappInstalled = isWhatsAppInstalled,
                         telegramInstalled = isTelegramInstalled,
+                        signalInstalled = isSignalInstalled,
                         updateState = false,
                 )
 
@@ -2159,6 +2195,7 @@ class SearchViewModel(
                     messagingApp = resolvedMessagingApp,
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
+                    isSignalInstalled = isSignalInstalled,
                     nicknameUpdateVersion = state.nicknameUpdateVersion + 1,
             )
         }

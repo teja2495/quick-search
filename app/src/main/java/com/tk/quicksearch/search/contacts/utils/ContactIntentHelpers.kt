@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.contacts.utils
 import com.tk.quicksearch.search.contacts.actions.CallSmsActions
 import com.tk.quicksearch.search.contacts.actions.CustomAppActions
 import com.tk.quicksearch.search.contacts.actions.GoogleMeetActions
+import com.tk.quicksearch.search.contacts.actions.SignalActions
 import com.tk.quicksearch.search.contacts.actions.TelegramActions
 import com.tk.quicksearch.search.contacts.actions.WhatsAppActions
 import com.tk.quicksearch.search.models.ContactInfo
@@ -100,6 +101,31 @@ object ContactIntentHelpers {
         dataId: Long?,
         phoneNumber: String?,
     ): Boolean = TelegramActions.openTelegramVideoCall(context, dataId, phoneNumber)
+
+    // ===== SIGNAL ACTIONS =====
+    fun openSignalChat(
+        context: android.app.Application,
+        dataId: Long?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean = SignalActions.openSignalChat(context, dataId, onShowToast)
+
+    fun openSignalChat(
+        context: android.app.Application,
+        phoneNumber: String,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean = SignalActions.openSignalChat(context, phoneNumber, onShowToast)
+
+    fun openSignalCall(
+        context: android.app.Application,
+        dataId: Long?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean = SignalActions.openSignalCall(context, dataId, onShowToast)
+
+    fun openSignalVideoCall(
+        context: android.app.Application,
+        dataId: Long?,
+        onShowToast: ((Int) -> Unit)? = null,
+    ): Boolean = SignalActions.openSignalVideoCall(context, dataId, onShowToast)
 
     // ===== GOOGLE MEET ACTIONS =====
     fun openGoogleMeet(

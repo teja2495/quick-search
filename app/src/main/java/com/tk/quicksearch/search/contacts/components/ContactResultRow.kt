@@ -451,6 +451,31 @@ private fun ContactActionButtons(
                                 ),
                         )
                     }
+
+                    MessagingApp.SIGNAL -> {
+                        Icon(
+                            painter =
+                                painterResource(
+                                    id = R.drawable.signal,
+                                ),
+                            contentDescription =
+                                stringResource(
+                                    R.string
+                                        .contacts_action_signal,
+                                ),
+                            tint =
+                                if (hasNumber) {
+                                    DesignTokens.ColorSignal
+                                } else {
+                                    MaterialTheme.colorScheme
+                                        .onSurfaceVariant
+                                },
+                            modifier =
+                                Modifier.size(
+                                    DesignTokens.SignalMessageIconSize,
+                                ),
+                        )
+                    }
                 }
             }
         },
@@ -555,6 +580,33 @@ private fun ContactActionIconForButton(
                 contentDescription = null,
                 tint = tint,
                 modifier = modifier,
+            )
+        }
+
+        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalVideoCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal_video_call),
+                contentDescription = null,
+                tint = tint,
+                modifier = modifier,
+            )
+        }
+
+        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal_call),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = modifier,
+            )
+        }
+
+        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {
+            Icon(
+                painter = painterResource(id = R.drawable.signal),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
             )
         }
 

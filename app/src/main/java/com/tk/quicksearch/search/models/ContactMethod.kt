@@ -66,6 +66,27 @@ sealed class ContactMethod {
         override val isPrimary: Boolean = false,
     ) : ContactMethod()
 
+    data class SignalMessage(
+        override val displayLabel: String,
+        override val data: String,
+        override val dataId: Long? = null,
+        override val isPrimary: Boolean = false,
+    ) : ContactMethod()
+
+    data class SignalCall(
+        override val displayLabel: String,
+        override val data: String,
+        override val dataId: Long? = null,
+        override val isPrimary: Boolean = false,
+    ) : ContactMethod()
+
+    data class SignalVideoCall(
+        override val displayLabel: String,
+        override val data: String,
+        override val dataId: Long? = null,
+        override val isPrimary: Boolean = false,
+    ) : ContactMethod()
+
     data class Email(
         override val displayLabel: String,
         override val data: String,
@@ -121,4 +142,8 @@ object ContactMethodMimeTypes {
     const val TELEGRAM_MESSAGE = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.profile"
     const val TELEGRAM_CALL = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.call"
     const val TELEGRAM_VIDEO_CALL = "vnd.android.cursor.item/vnd.org.telegram.messenger.android.call.video"
+
+    const val SIGNAL_MESSAGE = "vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.contact"
+    const val SIGNAL_CALL = "vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.call"
+    const val SIGNAL_VIDEO_CALL = "vnd.android.cursor.item/vnd.org.thoughtcrime.securesms.videocall"
 }
