@@ -553,6 +553,19 @@ object IntentHelpers {
         }
     }
 
+    /** Opens the folder containing the file, or the folder itself if it is a directory. */
+    fun openContainingFolder(
+        context: Application,
+        deviceFile: DeviceFile,
+        onShowToast: ((Int, String?) -> Unit)? = null,
+    ) {
+        if (deviceFile.isDirectory) {
+            openDirectory(context, deviceFile, onShowToast)
+        } else {
+            openParentDirectory(context, deviceFile, onShowToast)
+        }
+    }
+
     /** Opens a file with appropriate app. */
     fun openFile(
         context: Application,

@@ -19,6 +19,7 @@ data class FilesSectionParams(
     val isExpanded: Boolean,
     val pinnedFileUris: Set<String>,
     val onFileClick: (DeviceFile) -> Unit,
+    val onOpenFolder: (DeviceFile) -> Unit,
     val onRequestPermission: () -> Unit,
     val onTogglePin: (DeviceFile) -> Unit,
     val onExclude: (DeviceFile) -> Unit,
@@ -141,6 +142,7 @@ internal fun buildSectionParams(
     state: SearchUiState,
     derivedState: DerivedState,
     onFileClick: (DeviceFile) -> Unit,
+    onOpenFolder: (DeviceFile) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
@@ -190,6 +192,7 @@ internal fun buildSectionParams(
     derivedState,
     expandedSection,
     onFileClick,
+    onOpenFolder,
     onPinFile,
     onUnpinFile,
     onExcludeFile,
@@ -241,6 +244,7 @@ internal fun buildSectionParams(
             isExpanded = expandedSection == ExpandedSection.FILES,
             pinnedFileUris = derivedState.pinnedFileUris,
             onFileClick = onFileClick,
+            onOpenFolder = onOpenFolder,
             onRequestPermission = onOpenStorageAccessSettings,
             onTogglePin = { file ->
                 if (derivedState.pinnedFileUris.contains(

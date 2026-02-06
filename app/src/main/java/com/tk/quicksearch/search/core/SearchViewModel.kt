@@ -1446,6 +1446,8 @@ class SearchViewModel(
 
     fun openFile(deviceFile: DeviceFile) = navigationHandler.openFile(deviceFile)
 
+    fun openContainingFolder(deviceFile: DeviceFile) = navigationHandler.openContainingFolder(deviceFile)
+
     fun openContact(contactInfo: ContactInfo) = navigationHandler.openContact(contactInfo)
 
     fun openEmail(email: String) = navigationHandler.openEmail(email)

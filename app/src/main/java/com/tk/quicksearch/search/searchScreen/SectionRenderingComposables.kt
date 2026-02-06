@@ -51,6 +51,7 @@ private fun renderFilesSection(
             files = filesParams.files,
             isExpanded = filesParams.isExpanded,
             onFileClick = filesParams.onFileClick,
+            onOpenFolder = filesParams.onOpenFolder,
             onRequestPermission = filesParams.onRequestPermission,
             pinnedFileUris = filesParams.pinnedFileUris,
             onTogglePin = filesParams.onTogglePin,

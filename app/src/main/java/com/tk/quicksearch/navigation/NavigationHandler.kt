@@ -154,12 +154,16 @@ class NavigationHandler(
 
     fun openFile(deviceFile: DeviceFile) {
         IntentHelpers.openFile(application, deviceFile) { stringResId, _ ->
-            // For now, just show the string resource ID since we can't format from UI layer
-            // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
         userPreferences.addRecentItem(RecentSearchEntry.File(deviceFile.uri.toString()))
-        // Always clear query after opening file
+        onClearQuery()
+    }
+
+    fun openContainingFolder(deviceFile: DeviceFile) {
+        IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, _ ->
+            showToastCallback(stringResId)
+        }
         onClearQuery()
     }
 

@@ -71,6 +71,7 @@ fun FileResultsSection(
     files: List<DeviceFile>,
     isExpanded: Boolean,
     onFileClick: (DeviceFile) -> Unit,
+    onOpenFolder: (DeviceFile) -> Unit = {},
     onRequestPermission: () -> Unit,
     pinnedFileUris: Set<String> = emptySet(),
     onTogglePin: (DeviceFile) -> Unit = {},
@@ -99,6 +100,7 @@ fun FileResultsSection(
                     showAllResults = showAllResults,
                     showExpandControls = showExpandControls,
                     onFileClick = onFileClick,
+                    onOpenFolder = onOpenFolder,
                     pinnedFileUris = pinnedFileUris,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
@@ -133,6 +135,7 @@ private fun FilesResultCard(
     showAllResults: Boolean,
     showExpandControls: Boolean,
     onFileClick: (DeviceFile) -> Unit,
+    onOpenFolder: (DeviceFile) -> Unit,
     pinnedFileUris: Set<String>,
     onTogglePin: (DeviceFile) -> Unit,
     onExclude: (DeviceFile) -> Unit,
@@ -179,6 +182,7 @@ private fun FilesResultCard(
                     displayFiles = displayFiles,
                     shouldShowExpandButton = shouldShowExpandButton,
                     onFileClick = onFileClick,
+                    onOpenFolder = onOpenFolder,
                     pinnedFileUris = pinnedFileUris,
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
@@ -221,6 +225,7 @@ private fun FileCardContent(
     displayFiles: List<DeviceFile>,
     shouldShowExpandButton: Boolean,
     onFileClick: (DeviceFile) -> Unit,
+    onOpenFolder: (DeviceFile) -> Unit,
     pinnedFileUris: Set<String>,
     onTogglePin: (DeviceFile) -> Unit,
     onExclude: (DeviceFile) -> Unit,
@@ -242,6 +247,7 @@ private fun FileCardContent(
                 FileResultRow(
                     deviceFile = file,
                     onClick = onFileClick,
+                    onOpenFolder = onOpenFolder,
                     isPinned = pinnedFileUris.contains(file.uri.toString()),
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
@@ -287,6 +293,7 @@ private fun FileCardContent(
                 FileResultRow(
                     deviceFile = file,
                     onClick = onFileClick,
+                    onOpenFolder = onOpenFolder,
                     isPinned = pinnedFileUris.contains(file.uri.toString()),
                     onTogglePin = onTogglePin,
                     onExclude = onExclude,
@@ -347,6 +354,7 @@ private fun fileResultIcon(deviceFile: DeviceFile) =
 internal fun FileResultRow(
     deviceFile: DeviceFile,
     onClick: (DeviceFile) -> Unit,
+    onOpenFolder: (DeviceFile) -> Unit = {},
     isPinned: Boolean = false,
     onTogglePin: (DeviceFile) -> Unit = {},
     onExclude: (DeviceFile) -> Unit = {},
@@ -359,6 +367,7 @@ internal fun FileResultRow(
     iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
     var showOptions by remember { mutableStateOf(false) }
+    var showFileInfoDialog by remember { mutableStateOf(false) }
     val view = LocalView.current
 
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -421,6 +430,14 @@ internal fun FileResultRow(
                 onExclude = { onExclude(deviceFile) },
                 onExcludeExtension = { onExcludeExtension(deviceFile) },
                 onNicknameClick = { onNicknameClick(deviceFile) },
+                onOpenFolderClick = { onOpenFolder(deviceFile) },
+                onFileInfoClick = { showFileInfoDialog = true },
+            )
+        }
+        if (showFileInfoDialog) {
+            FileInfoDialog(
+                deviceFile = deviceFile,
+                onDismiss = { showFileInfoDialog = false },
             )
         }
     }

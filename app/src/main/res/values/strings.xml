@@ -95,6 +95,13 @@
     <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
     <string name="error_open_file">Unable to open %1$s</string>
     <string name="error_open_setting">Unable to open %1$s</string>
+    <string name="action_file_info">File Info</string>
+    <string name="action_open_folder">Open Folder</string>
+    <string name="file_info_type">Type</string>
+    <string name="file_info_file_type">File type</string>
+    <string name="file_info_size">Size</string>
+    <string name="file_info_modified">Modified</string>
+    <string name="file_info_path">Path</string>
 
     <!-- ============================================================================
          Settings Shortcuts
