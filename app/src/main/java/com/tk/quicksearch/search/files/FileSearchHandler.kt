@@ -20,7 +20,7 @@ class FileSearchHandler(
     private val userPreferences: UserAppPreferences,
 ) {
     companion object {
-        const val FILE_SEARCH_RESULT_LIMIT = 100
+        const val FILE_SEARCH_RESULT_LIMIT = 25
     }
 
     fun getFileState(

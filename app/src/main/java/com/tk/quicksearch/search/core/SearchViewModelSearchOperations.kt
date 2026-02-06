@@ -8,10 +8,10 @@ class SearchOperations(
     private val contactRepository: ContactRepository,
 ) {
     companion object {
-        private const val CONTACT_RESULT_LIMIT = 5
+        private const val CONTACT_RESULT_LIMIT = 25
 
         // Prefetch more than we display so ranking isn't biased by provider sort order.
-        private const val CONTACT_PREFETCH_MULTIPLIER = 10
+        private const val CONTACT_PREFETCH_MULTIPLIER = 2
         private const val MIN_QUERY_LENGTH = 2
     }
 
