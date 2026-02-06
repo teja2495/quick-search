@@ -2,7 +2,15 @@ package com.tk.quicksearch.search.searchScreen
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 // ============================================================================
 // Constants
@@ -134,5 +142,105 @@ fun OneHandedModeScrollBehavior(
         if (expandedSection != ExpandedSection.NONE) {
             scrollToTop(scrollState, reverseScrolling)
         }
+    }
+}
+
+/**
+ * Handles keyboard visibility based on scroll position when overlay mode is off.
+ *
+ * When overlay mode is OFF:
+ * - Scroll down: hide keyboard
+ * - Reach top: show keyboard
+ *
+ * When one-handed mode is ON (reversed behavior):
+ * - Scroll up: hide keyboard
+ * - Reach bottom: show keyboard
+ */
+@Composable
+fun ScrollBasedKeyboardBehavior(
+    scrollState: ScrollState,
+    overlayModeEnabled: Boolean,
+    oneHandedMode: Boolean,
+    reverseScrolling: Boolean,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    
+    if (overlayModeEnabled) return
+    
+    val threshold = 10
+    
+    LaunchedEffect(scrollState, oneHandedMode, reverseScrolling) {
+        var previousScrollValue = scrollState.value
+        
+        snapshotFlow { scrollState.value }
+            .distinctUntilChanged()
+            .collect { currentScrollValue ->
+                val maxScroll = scrollState.maxValue
+                
+                if (maxScroll == 0) {
+                    previousScrollValue = currentScrollValue
+                    return@collect
+                }
+                
+                val scrollDelta = currentScrollValue - previousScrollValue
+                val hasScrolled = kotlin.math.abs(scrollDelta) > 0
+                
+                if (!hasScrolled) {
+                    previousScrollValue = currentScrollValue
+                    return@collect
+                }
+                
+                if (oneHandedMode) {
+                    val isAtBottom = if (reverseScrolling) {
+                        currentScrollValue <= threshold
+                    } else {
+                        currentScrollValue >= maxScroll - threshold
+                    }
+                    
+                    val wasAtBottom = if (reverseScrolling) {
+                        previousScrollValue <= threshold
+                    } else {
+                        previousScrollValue >= maxScroll - threshold
+                    }
+                    
+                    val isScrollingUp = if (reverseScrolling) {
+                        scrollDelta > 0
+                    } else {
+                        scrollDelta < 0
+                    }
+                    
+                    if (isAtBottom && !wasAtBottom) {
+                        keyboardController?.show()
+                    } else if (isScrollingUp && !isAtBottom) {
+                        keyboardController?.hide()
+                    }
+                } else {
+                    val isAtTop = if (reverseScrolling) {
+                        currentScrollValue >= maxScroll - threshold
+                    } else {
+                        currentScrollValue <= threshold
+                    }
+                    
+                    val wasAtTop = if (reverseScrolling) {
+                        previousScrollValue >= maxScroll - threshold
+                    } else {
+                        previousScrollValue <= threshold
+                    }
+                    
+                    val isScrollingDown = if (reverseScrolling) {
+                        scrollDelta < 0
+                    } else {
+                        scrollDelta > 0
+                    }
+                    
+                    if (isAtTop && !wasAtTop) {
+                        keyboardController?.show()
+                    } else if (isScrollingDown && !isAtTop) {
+                        keyboardController?.hide()
+                    }
+                }
+                
+                previousScrollValue = currentScrollValue
+            }
     }
 }

@@ -658,6 +658,14 @@ fun SearchScreen(
         reverseScrolling = alignResultsToBottom,
     )
 
+    // Handle keyboard visibility based on scroll position when overlay mode is off
+    ScrollBasedKeyboardBehavior(
+        scrollState = scrollState,
+        overlayModeEnabled = state.overlayModeEnabled,
+        oneHandedMode = state.oneHandedMode,
+        reverseScrolling = alignResultsToBottom,
+    )
+
     val sectionParams =
         buildSectionParams(
             state = state,
