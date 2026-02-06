@@ -3,10 +3,18 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +33,29 @@ fun LaunchOptionsSettings(
     onAddQuickSettingsTile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var showWidgetConfirmDialog by remember { mutableStateOf(false) }
+
+    if (showWidgetConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showWidgetConfirmDialog = false },
+            title = { Text(stringResource(R.string.settings_home_screen_widget_title)) },
+            text = { Text(stringResource(R.string.settings_home_screen_widget_confirm_message)) },
+            confirmButton = {
+                Button(onClick = {
+                    showWidgetConfirmDialog = false
+                    onAddHomeScreenWidget()
+                }) {
+                    Text(stringResource(R.string.dialog_okay))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWidgetConfirmDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            },
+        )
+    }
+
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -57,7 +88,7 @@ fun LaunchOptionsSettings(
                     SettingsCardItem(
                         title = stringResource(R.string.settings_home_screen_widget_title),
                         description = stringResource(R.string.settings_home_screen_widget_desc),
-                        actionOnPress = onAddHomeScreenWidget,
+                        actionOnPress = { showWidgetConfirmDialog = true },
                     ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
             )

@@ -392,6 +392,7 @@
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
     <string name="settings_home_screen_widget_title">Home Screen Widget</string>
     <string name="settings_home_screen_widget_desc">Add Quick Search widget to your home screen.</string>
+    <string name="settings_home_screen_widget_confirm_message">You are about to add Quick Search widget to your home screen. Long press on the widget to access widget settings page that has many customization options.</string>
     <string name="settings_quick_settings_tile_title">Quick Settings Tile</string>
     <string name="settings_quick_settings_tile_desc">Add Quick Search to Quick Settings tiles.</string>
     <string name="quick_settings_tile_label">Quick Search</string>
