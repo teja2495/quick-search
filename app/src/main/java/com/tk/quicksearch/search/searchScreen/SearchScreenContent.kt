@@ -1,5 +1,10 @@
 package com.tk.quicksearch.search.searchScreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -232,43 +237,41 @@ internal fun SearchScreenContent(
         if (expandedSection == ExpandedSection.NONE) {
             val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
-            if (!isKeyboardVisible) {
+            val pillText =
+                if (!isKeyboardVisible) {
+                    stringResource(R.string.action_open_keyboard)
+                } else if (manuallySwitchedToNumberKeyboard) {
+                    stringResource(R.string.keyboard_switch_back)
+                } else if (state.query.isNotEmpty() &&
+                    state.query.none { it.isLetter() } &&
+                    state.detectedShortcutTarget == null
+                ) {
+                    stringResource(R.string.keyboard_switch_to_number)
+                } else {
+                    null
+                }
+
+            AnimatedVisibility(
+                visible = pillText != null,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+            ) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     KeyboardSwitchPill(
-                        text = stringResource(R.string.action_open_keyboard),
-                        onClick = { keyboardController?.show() },
+                        text = pillText.orEmpty(),
+                        onClick = {
+                            if (!isKeyboardVisible) {
+                                keyboardController?.show()
+                            } else {
+                                onKeyboardSwitchToggle()
+                            }
+                        },
                         modifier =
                             Modifier.padding(
                                 top = DesignTokens.SpacingMedium,
                                 bottom = DesignTokens.SpacingMedium,
                             ),
                     )
-                }
-            } else {
-                val pillText =
-                    if (manuallySwitchedToNumberKeyboard) {
-                        stringResource(R.string.keyboard_switch_back)
-                    } else if (state.query.isNotEmpty() &&
-                        state.query.none { it.isLetter() } &&
-                        state.detectedShortcutTarget == null
-                    ) {
-                        stringResource(R.string.keyboard_switch_to_number)
-                    } else {
-                        null
-                    }
-
-                pillText?.let {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        KeyboardSwitchPill(
-                            text = it,
-                            onClick = onKeyboardSwitchToggle,
-                            modifier =
-                                Modifier.padding(
-                                    top = DesignTokens.SpacingMedium,
-                                    bottom = DesignTokens.SpacingMedium,
-                                ),
-                        )
-                    }
                 }
             }
         }
