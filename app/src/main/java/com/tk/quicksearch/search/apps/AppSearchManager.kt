@@ -2,7 +2,7 @@ package com.tk.quicksearch.search.apps
 
 import android.content.Context
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.data.AppUsageRepository
+import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.models.AppInfo
@@ -16,7 +16,7 @@ private val WHITESPACE_REGEX = "\\s+".toRegex()
 
 class AppSearchManager(
     private val context: Context,
-    private val repository: AppUsageRepository,
+    private val repository: AppsRepository,
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val onAppsUpdated: () -> Unit,

@@ -30,7 +30,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionItem
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
-import com.tk.quicksearch.search.data.AppUsageRepository
+import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.utils.PermissionUtils
@@ -50,12 +50,12 @@ fun PermissionsSettings(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val appUsageRepository = remember { AppUsageRepository(context) }
+    val appsRepository = remember { AppsRepository(context) }
     val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
 
     var usagePermissionState by remember {
-        mutableStateOf(createInitialPermissionState(appUsageRepository.hasUsageAccess()))
+        mutableStateOf(createInitialPermissionState(appsRepository.hasUsageAccess()))
     }
     var contactsPermissionState by remember {
         mutableStateOf(createInitialPermissionState(contactRepository.hasPermission()))
@@ -108,7 +108,7 @@ fun PermissionsSettings(
         val observer =
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_RESUME) {
-                    val hasUsageAccess = appUsageRepository.hasUsageAccess()
+                    val hasUsageAccess = appsRepository.hasUsageAccess()
                     val hasContactsPermission = contactRepository.hasPermission()
                     val hasFilesPermission = fileRepository.hasPermission()
 

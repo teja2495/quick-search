@@ -19,12 +19,12 @@ HSPLcom/tk/quicksearch/search/core/SearchViewModel;->initializeServices()V
 HSPLcom/tk/quicksearch/search/core/SearchViewModel;->setupDirectSearchStateListener()V
 
 # Repository Classes - Data Loading
-Lcom/tk/quicksearch/search/data/AppUsageRepository;
-HSPLcom/tk/quicksearch/search/data/AppUsageRepository;-><init>(Landroid/content/Context;)V
-HSPLcom/tk/quicksearch/search/data/AppUsageRepository;->loadCachedApps()Ljava/util/List;
-HSPLcom/tk/quicksearch/search/data/AppUsageRepository;->hasUsageAccess()Z
-HSPLcom/tk/quicksearch/search/data/AppUsageRepository;->extractRecentlyOpenedApps(Ljava/util/List;I)Ljava/util/List;
-HSPLcom/tk/quicksearch/search/data/AppUsageRepository;->cacheLastUpdatedMillis()J
+Lcom/tk/quicksearch/search/data/AppsRepository;
+HSPLcom/tk/quicksearch/search/data/AppsRepository;-><init>(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/search/data/AppsRepository;->loadCachedApps()Ljava/util/List;
+HSPLcom/tk/quicksearch/search/data/AppsRepository;->hasUsageAccess()Z
+HSPLcom/tk/quicksearch/search/data/AppsRepository;->extractRecentlyOpenedApps(Ljava/util/List;I)Ljava/util/List;
+HSPLcom/tk/quicksearch/search/data/AppsRepository;->cacheLastUpdatedMillis()J
 
 Lcom/tk/quicksearch/search/data/ContactRepository;
 HSPLcom/tk/quicksearch/search/data/ContactRepository;-><init>(Landroid/content/Context;)V
@@ -38,7 +38,7 @@ HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsRepository;-><init>(L
 
 # Manager and Service Classes
 Lcom/tk/quicksearch/search/apps/AppSearchManager;
-HSPLcom/tk/quicksearch/search/apps/AppSearchManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/AppUsageRepository;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
+HSPLcom/tk/quicksearch/search/apps/AppSearchManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/AppsRepository;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->initCache(Ljava/util/List;)V
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->availableApps()Ljava/util/List;
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->setSortAppsByUsageEnabled(Z)V

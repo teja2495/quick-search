@@ -8,7 +8,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
-import androidx.core.content.ContextCompat
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.PermissionUtils
 import java.util.Locale
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit
  * - Managing app cache for faster startup
  * - Checking usage access permissions
  */
-class AppUsageRepository(
+class AppsRepository(
     private val context: Context,
 ) {
     private val packageManager: PackageManager = context.packageManager

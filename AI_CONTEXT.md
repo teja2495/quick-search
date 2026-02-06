@@ -70,7 +70,7 @@ data class SearchUiState(
 
 **Repository Pattern** with specialized repositories:
 
-1. **AppUsageRepository** (`search/data/AppUsageRepository.kt`)
+1. **AppsRepository** (`search/data/AppsRepository.kt`)
    - Loads launchable apps and usage statistics
    - Manages app cache for fast startup
 
@@ -134,7 +134,7 @@ app/src/main/java/com/tk/quicksearch/
 │   │   └── FileType.kt          # Enum for file types
 │   │
 │   ├── data/                     # Data layer
-│   │   ├── AppUsageRepository.kt
+│   │   ├── AppsRepository.kt
 │   │   ├── AppCache.kt
 │   │   ├── AppShortcutRepository.kt
 │   │   ├── ContactRepository.kt

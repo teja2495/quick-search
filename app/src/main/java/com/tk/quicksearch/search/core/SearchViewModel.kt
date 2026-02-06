@@ -21,7 +21,7 @@ import com.tk.quicksearch.search.contacts.utils.ContactManagementHandler
 import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
 import com.tk.quicksearch.search.data.AppShortcutRepository
-import com.tk.quicksearch.search.data.AppUsageRepository
+import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.StaticShortcut
@@ -68,7 +68,7 @@ import kotlinx.coroutines.withContext
 class SearchViewModel(
         application: Application,
 ) : AndroidViewModel(application) {
-    private val repository by lazy { AppUsageRepository(application.applicationContext) }
+    private val repository by lazy { AppsRepository(application.applicationContext) }
     private val appShortcutRepository by lazy {
         AppShortcutRepository(application.applicationContext)
     }
