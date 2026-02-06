@@ -94,11 +94,11 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             visibleAppLimit,
         ) {
             if (!isSearching) {
-                val pinnedPackages = state.pinnedApps.map { it.packageName }.toSet()
+                val pinnedPackages = state.pinnedApps.map { it.launchCountKey() }.toSet()
                 (
                     state.pinnedApps +
                         state.recentApps.filterNot {
-                            pinnedPackages.contains(it.packageName)
+                            pinnedPackages.contains(it.launchCountKey())
                         }
                 ).take(visibleAppLimit)
             } else {
@@ -107,7 +107,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         }
 
     val pinnedPackageNames =
-        remember(state.pinnedApps) { state.pinnedApps.map { it.packageName }.toSet() }
+        remember(state.pinnedApps) { state.pinnedApps.map { it.launchCountKey() }.toSet() }
     val hasAppResults = displayApps.isNotEmpty()
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()

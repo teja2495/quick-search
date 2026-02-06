@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.apps
 
 import android.content.Context
+import android.content.pm.LauncherApps
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.util.LruCache
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
+import com.tk.quicksearch.search.common.UserHandleUtils
 import com.tk.quicksearch.search.managers.IconPackManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,15 +61,18 @@ data class AppIconResult(
 
 /**
  * Loads an app icon from cache or package manager.
+ * When [userHandleId] is set (work profile), loads the badged icon via LauncherApps.
  * Returns bitmap and whether the icon is legacy (non-adaptive); legacy icons may need circular clip.
  */
 @Composable
 fun rememberAppIcon(
     packageName: String,
     iconPackPackage: String? = null,
+    userHandleId: Int? = null,
 ): AppIconResult {
     val context = LocalContext.current
-    val cacheKey = buildCacheKey(packageName, iconPackPackage)
+    val densityDpi = context.resources.displayMetrics.densityDpi
+    val cacheKey = buildCacheKey(packageName, iconPackPackage, userHandleId)
     val cachedInitial = AppIconCache.get(cacheKey)
 
     val iconState =
@@ -77,6 +82,7 @@ fun rememberAppIcon(
                     ?: AppIconResult(null, false),
             key1 = packageName,
             key2 = iconPackPackage,
+            key3 = userHandleId,
         ) {
             if (cachedInitial != null) {
                 value = AppIconResult(cachedInitial.bitmap, cachedInitial.isLegacy)
@@ -91,24 +97,28 @@ fun rememberAppIcon(
 
             val entry =
                 withContext(Dispatchers.IO) {
-                    val iconPackBitmap =
-                        iconPackPackage?.let { pack ->
-                            IconPackManager.loadIconBitmap(
-                                context = context,
-                                iconPackPackage = pack,
-                                targetPackage = packageName,
-                            )
-                        }
-
-                    if (iconPackBitmap != null) {
-                        AppIconEntry(iconPackBitmap, isLegacy = false)
+                    if (userHandleId != null) {
+                        loadWorkProfileBadgedIcon(context, packageName, userHandleId, densityDpi)
                     } else {
-                        runCatching {
-                            val drawable = context.packageManager.getApplicationIcon(packageName)
-                            val isLegacy = drawable !is AdaptiveIconDrawable
-                            val bitmap = drawable.toBitmap().asImageBitmap()
-                            AppIconEntry(bitmap, isLegacy)
-                        }.getOrNull()
+                        val iconPackBitmap =
+                            iconPackPackage?.let { pack ->
+                                IconPackManager.loadIconBitmap(
+                                    context = context,
+                                    iconPackPackage = pack,
+                                    targetPackage = packageName,
+                                )
+                            }
+
+                        if (iconPackBitmap != null) {
+                            AppIconEntry(iconPackBitmap, isLegacy = false)
+                        } else {
+                            runCatching {
+                                val drawable = context.packageManager.getApplicationIcon(packageName)
+                                val isLegacy = drawable !is AdaptiveIconDrawable
+                                val bitmap = drawable.toBitmap().asImageBitmap()
+                                AppIconEntry(bitmap, isLegacy)
+                            }.getOrNull()
+                        }
                     }
                 }
 
@@ -119,6 +129,29 @@ fun rememberAppIcon(
         }
 
     return iconState.value
+}
+
+private fun loadWorkProfileBadgedIcon(
+    context: Context,
+    packageName: String,
+    userHandleId: Int,
+    densityDpi: Int,
+): AppIconEntry? {
+    val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps ?: return null
+    val userManager = context.getSystemService(Context.USER_SERVICE) as? android.os.UserManager ?: return null
+    val userHandle =
+        UserHandleUtils.of(userHandleId)
+            ?: userManager.userProfiles.find { UserHandleUtils.getIdentifier(it) == userHandleId }
+    if (userHandle == null) return null
+    val activityInfo = runCatching {
+        launcherApps.getActivityList(packageName, userHandle).firstOrNull()
+    }.getOrNull() ?: return null
+    return runCatching {
+        val drawable = activityInfo.getBadgedIcon(densityDpi)
+        val isLegacy = drawable !is AdaptiveIconDrawable
+        val bitmap = drawable.toBitmap().asImageBitmap()
+        AppIconEntry(bitmap, isLegacy)
+    }.getOrNull()
 }
 
 /**
@@ -179,7 +212,9 @@ suspend fun prefetchAppIcons(
 private fun buildCacheKey(
     packageName: String,
     iconPackPackage: String?,
+    userHandleId: Int? = null,
 ): String {
     val prefix = iconPackPackage ?: "system"
-    return "$prefix:$packageName"
+    val suffix = userHandleId?.let { ":work:$it" } ?: ""
+    return "$prefix:$packageName$suffix"
 }

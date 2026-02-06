@@ -73,10 +73,14 @@ class AppCache(
         private const val FIELD_LAUNCH_COUNT = "launchCount"
         private const val FIELD_FIRST_INSTALL_TIME = "firstInstallTime"
         private const val FIELD_IS_SYSTEM_APP = "isSystemApp"
+        private const val FIELD_USER_HANDLE_ID = "userHandleId"
+        private const val FIELD_COMPONENT_NAME = "componentName"
 
         private fun JSONArray.toAppInfoList(): List<AppInfo> =
             List(length()) { index ->
                 val jsonObject = getJSONObject(index)
+                val userHandleId =
+                    jsonObject.optInt(FIELD_USER_HANDLE_ID, -1).takeIf { it >= 0 }
                 AppInfo(
                     appName = jsonObject.getString(FIELD_APP_NAME),
                     packageName = jsonObject.getString(FIELD_PACKAGE_NAME),
@@ -85,6 +89,8 @@ class AppCache(
                     launchCount = jsonObject.optInt(FIELD_LAUNCH_COUNT, 0),
                     firstInstallTime = jsonObject.optLong(FIELD_FIRST_INSTALL_TIME, 0L),
                     isSystemApp = jsonObject.getBoolean(FIELD_IS_SYSTEM_APP),
+                    userHandleId = userHandleId,
+                    componentName = jsonObject.optString(FIELD_COMPONENT_NAME).takeIf { it.isNotBlank() },
                 )
             }
 
@@ -100,6 +106,8 @@ class AppCache(
                             put(FIELD_LAUNCH_COUNT, app.launchCount)
                             put(FIELD_FIRST_INSTALL_TIME, app.firstInstallTime)
                             put(FIELD_IS_SYSTEM_APP, app.isSystemApp)
+                            if (app.userHandleId != null) put(FIELD_USER_HANDLE_ID, app.userHandleId)
+                            if (app.componentName != null) put(FIELD_COMPONENT_NAME, app.componentName)
                         },
                     )
                 }

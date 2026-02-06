@@ -2084,7 +2084,7 @@ class SearchViewModel(
                     visibleAppList
                             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
                             .take(getGridItemCount())
-                            .map { it.packageName }
+                            .map { it.launchCountKey() }
             userPreferences.setRecentAppLaunches(initialRecents)
         }
 
@@ -2098,7 +2098,7 @@ class SearchViewModel(
         val recents =
                 if (suggestionsEnabled) {
                     val recentsSource =
-                            visibleAppList.filterNot { pinnedPackages.contains(it.packageName) }
+                            visibleAppList.filterNot { pinnedPackages.contains(it.launchCountKey()) }
                     extractSuggestedApps(
                             apps = recentsSource,
                             limit = getGridItemCount(),
@@ -2123,7 +2123,7 @@ class SearchViewModel(
         // Always update the searchable apps cache regardless of query state
         // Include both pinned and non-pinned apps in search, let ranking determine order
         val nonPinnedApps = appSearchManager.searchSourceApps()
-        val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.packageName }
+        val allSearchableApps = (pinnedAppsForResults + nonPinnedApps).distinctBy { it.launchCountKey() }
         cachedAllSearchableApps = allSearchableApps
 
         val searchResults =
@@ -2137,11 +2137,11 @@ class SearchViewModel(
                     )
                 }
         val suggestionHiddenAppList =
-                apps.filter { suggestionHiddenPackages.contains(it.packageName) }.sortedBy {
+                apps.filter { suggestionHiddenPackages.contains(it.launchCountKey()) }.sortedBy {
                     it.appName.lowercase(Locale.getDefault())
                 }
         val resultHiddenAppList =
-                apps.filter { resultHiddenPackages.contains(it.packageName) }.sortedBy {
+                apps.filter { resultHiddenPackages.contains(it.launchCountKey()) }.sortedBy {
                     it.appName.lowercase(Locale.getDefault())
                 }
 
@@ -2198,17 +2198,17 @@ class SearchViewModel(
                     val recentlyOpened = repository.getRecentlyOpenedApps(apps)
                     val topRecent = recentlyOpened.firstOrNull()
                     val recentInstallsExcludingTop =
-                            recentInstalls.filterNot { it.packageName == topRecent?.packageName }
+                            recentInstalls.filterNot { it.launchCountKey() == topRecent?.launchCountKey() }
                     val excludedPackages =
                             recentInstallsExcludingTop
                                     .asSequence()
-                                    .map { it.packageName }
+                                    .map { it.launchCountKey() }
                                     .toSet()
                                     .let { packages ->
-                                        topRecent?.packageName?.let { packages + it } ?: packages
+                                        topRecent?.launchCountKey()?.let { packages + it } ?: packages
                                     }
                     val remainingRecents =
-                            recentlyOpened.filterNot { excludedPackages.contains(it.packageName) }
+                            recentlyOpened.filterNot { excludedPackages.contains(it.launchCountKey()) }
 
                     buildList {
                         topRecent?.let { add(it) }
@@ -2216,27 +2216,27 @@ class SearchViewModel(
                         addAll(remainingRecents)
                     }
                 } else {
-                    val appByPackage = apps.associateBy { it.packageName }
+                    val appByKey = apps.associateBy { it.launchCountKey() }
                     val recentlyOpened =
                             userPreferences
                                     .getRecentAppLaunches()
                                     .asSequence()
-                                    .mapNotNull { appByPackage[it] }
+                                    .mapNotNull { appByKey[it] }
                                     .toList()
                     val topRecent = recentlyOpened.firstOrNull()
                     val recentInstallsExcludingTop =
-                            recentInstalls.filterNot { it.packageName == topRecent?.packageName }
+                            recentInstalls.filterNot { it.launchCountKey() == topRecent?.launchCountKey() }
                     val excludedPackages =
                             recentInstallsExcludingTop
                                     .asSequence()
-                                    .map { it.packageName }
+                                    .map { it.launchCountKey() }
                                     .toSet()
                                     .let { packages ->
-                                        topRecent?.packageName?.let { packages + it } ?: packages
+                                        topRecent?.launchCountKey()?.let { packages + it } ?: packages
                                     }
                     val remainingRecents =
                             recentlyOpened.drop(1).filterNot {
-                                excludedPackages.contains(it.packageName)
+                                excludedPackages.contains(it.launchCountKey())
                             }
 
                     buildList {
@@ -2253,13 +2253,13 @@ class SearchViewModel(
 
         // Otherwise, keep existing suggestions and fill remaining spots with additional apps
         val remainingSpots = limit - suggestions.size
-        val suggestionPackageNames = suggestions.map { it.packageName }.toSet()
+        val suggestionPackageNames = suggestions.map { it.launchCountKey() }.toSet()
 
         // Fill remaining spots with apps sorted by launch count (most used first), excluding
         // already suggested ones
         val additionalApps =
                 apps
-                        .filterNot { suggestionPackageNames.contains(it.packageName) }
+                        .filterNot { suggestionPackageNames.contains(it.launchCountKey()) }
                         .sortedWith(
                                 compareByDescending<AppInfo> { it.launchCount }.thenBy {
                                     it.appName.lowercase(Locale.getDefault())

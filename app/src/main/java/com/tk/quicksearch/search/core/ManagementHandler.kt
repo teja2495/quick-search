@@ -166,31 +166,31 @@ class GenericManagementHandler<T>(
 
 /** Configuration for managing AppInfo items. */
 class AppManagementConfig : ManagementHandlerConfig<AppInfo> {
-    override fun getItemId(item: AppInfo): String = item.packageName
+    override fun getItemId(item: AppInfo): String = item.launchCountKey()
 
-    override fun canPinItem(item: AppInfo): Boolean = true // Apps can always be pinned - validation done elsewhere
+    override fun canPinItem(item: AppInfo): Boolean = true
 
     override fun pinItemInPreferences(
         item: AppInfo,
         preferences: UserAppPreferences,
     ) {
-        preferences.pinPackage(item.packageName)
+        preferences.pinPackage(item.launchCountKey())
     }
 
     override fun unpinItemInPreferences(
         item: AppInfo,
         preferences: UserAppPreferences,
     ) {
-        preferences.unpinPackage(item.packageName)
+        preferences.unpinPackage(item.launchCountKey())
     }
 
     override fun excludeItemInPreferences(
         item: AppInfo,
         preferences: UserAppPreferences,
     ) {
-        preferences.hidePackageInSuggestions(item.packageName)
-        if (preferences.getPinnedPackages().contains(item.packageName)) {
-            preferences.unpinPackage(item.packageName)
+        preferences.hidePackageInSuggestions(item.launchCountKey())
+        if (preferences.getPinnedPackages().contains(item.launchCountKey())) {
+            preferences.unpinPackage(item.launchCountKey())
         }
     }
 
@@ -198,7 +198,7 @@ class AppManagementConfig : ManagementHandlerConfig<AppInfo> {
         item: AppInfo,
         preferences: UserAppPreferences,
     ) {
-        preferences.unhidePackageInSuggestions(item.packageName)
+        preferences.unhidePackageInSuggestions(item.launchCountKey())
     }
 
     override fun setItemNicknameInPreferences(

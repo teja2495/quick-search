@@ -203,8 +203,8 @@ private fun AppGrid(
                 { app: AppInfo ->
                     AppState(
                         hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
-                        isPinned = pinnedPackageNames.contains(app.packageName),
-                        showUninstall = !app.isSystemApp,
+                        isPinned = pinnedPackageNames.contains(app.launchCountKey()),
+                        showUninstall = !app.isSystemApp && app.userHandleId == null,
                         showAppLabel = true,
                     )
                 }
@@ -273,6 +273,7 @@ private fun AppGridItem(
         rememberAppIcon(
             packageName = appInfo.packageName,
             iconPackPackage = iconPackPackage,
+            userHandleId = appInfo.userHandleId,
         )
     var showOptions by remember { mutableStateOf(false) }
     val placeholderLabel =

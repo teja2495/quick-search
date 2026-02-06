@@ -61,9 +61,9 @@ class NavigationHandler(
             // TODO: Consider passing formatted strings or extending the callback
             showToastCallback(stringResId)
         }
-        userPreferences.incrementAppLaunchCount(appInfo.packageName)
+        userPreferences.incrementAppLaunchCount(appInfo.packageName, appInfo.userHandleId)
         if (shouldTrackRecentFallback) {
-            userPreferences.addRecentAppLaunch(appInfo.packageName)
+            userPreferences.addRecentAppLaunch(appInfo.launchCountKey())
         }
         onClearQuery()
     }

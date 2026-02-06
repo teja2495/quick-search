@@ -54,12 +54,21 @@ class AppPreferences(
 
     fun clearAllHiddenAppsInResults(): Set<String> = clearStringSet(BasePreferences.KEY_HIDDEN_RESULTS)
 
-    fun getAppLaunchCount(packageName: String): Int = launchCountsPrefs.getInt(packageName, 0)
+    fun getAppLaunchCount(packageName: String): Int = getAppLaunchCount(packageName, null)
 
-    fun incrementAppLaunchCount(packageName: String) {
-        val current = getAppLaunchCount(packageName)
-        launchCountsPrefs.edit().putInt(packageName, current + 1).apply()
+    fun getAppLaunchCount(packageName: String, userHandleId: Int?): Int =
+        launchCountsPrefs.getInt(launchCountKey(packageName, userHandleId), 0)
+
+    fun incrementAppLaunchCount(packageName: String) = incrementAppLaunchCount(packageName, null)
+
+    fun incrementAppLaunchCount(packageName: String, userHandleId: Int?) {
+        val key = launchCountKey(packageName, userHandleId)
+        val current = launchCountsPrefs.getInt(key, 0)
+        launchCountsPrefs.edit().putInt(key, current + 1).apply()
     }
+
+    private fun launchCountKey(packageName: String, userHandleId: Int?): String =
+        if (userHandleId == null) packageName else "$packageName:$userHandleId"
 
     fun getAllAppLaunchCounts(): Map<String, Int> =
         launchCountsPrefs.all

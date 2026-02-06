@@ -55,11 +55,11 @@ class AppSearchManager(
             val launchCounts = userPreferences.getAllAppLaunchCounts()
             runCatching { repository.loadLaunchableApps(launchCounts) }
                 .onSuccess { apps ->
-                    val currentPackageSet = cachedApps.map { it.packageName }.toSet()
-                    val newPackageSet = apps.map { it.packageName }.toSet()
+                    val currentPackageSet = cachedApps.map { it.launchCountKey() }.toSet()
+                    val newPackageSet = apps.map { it.launchCountKey() }.toSet()
                     val appSetChanged = currentPackageSet != newPackageSet
-                    val currentUsageMap = cachedApps.associate { it.packageName to it.launchCount }
-                    val newUsageMap = apps.associate { it.packageName to it.launchCount }
+                    val currentUsageMap = cachedApps.associate { it.launchCountKey() to it.launchCount }
+                    val newUsageMap = apps.associate { it.launchCountKey() to it.launchCount }
                     val usageStatsChanged = currentUsageMap != newUsageMap
 
                     if (showToast || cachedApps.isEmpty() || appSetChanged || usageStatsChanged || forceUiUpdate) {
@@ -130,14 +130,20 @@ class AppSearchManager(
 
     fun availableApps(): List<AppInfo> {
         if (cachedApps.isEmpty()) return emptyList()
-        return cachedApps.filterNot { userPreferences.getSuggestionHiddenPackages().contains(it.packageName) }
+        val hidden = userPreferences.getSuggestionHiddenPackages()
+        return cachedApps.filterNot { app ->
+            hidden.contains(app.launchCountKey()) || hidden.contains(app.packageName)
+        }
     }
 
     fun searchSourceApps(): List<AppInfo> {
         if (cachedApps.isEmpty()) return emptyList()
-        return cachedApps.filterNot {
-            userPreferences.getResultHiddenPackages().contains(it.packageName) ||
-                userPreferences.getPinnedPackages().contains(it.packageName)
+        val resultHidden = userPreferences.getResultHiddenPackages()
+        val pinned = userPreferences.getPinnedPackages()
+        return cachedApps.filterNot { app ->
+            resultHidden.contains(app.launchCountKey()) ||
+                resultHidden.contains(app.packageName) ||
+                pinned.contains(app.launchCountKey())
         }
     }
 
@@ -147,7 +153,7 @@ class AppSearchManager(
 
         return cachedApps
             .asSequence()
-            .filter { pinnedPackages.contains(it.packageName) && !exclusion.contains(it.packageName) }
+            .filter { pinnedPackages.contains(it.launchCountKey()) && !exclusion.contains(it.launchCountKey()) }
             .sortedBy { it.appName.lowercase(Locale.getDefault()) }
             .toList()
     }

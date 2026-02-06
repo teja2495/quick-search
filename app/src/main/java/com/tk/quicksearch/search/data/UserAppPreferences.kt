@@ -475,8 +475,14 @@ class UserAppPreferences(
 
     fun getAppLaunchCount(packageName: String): Int = appPreferences.getAppLaunchCount(packageName)
 
+    fun getAppLaunchCount(packageName: String, userHandleId: Int?): Int =
+        appPreferences.getAppLaunchCount(packageName, userHandleId)
+
     fun incrementAppLaunchCount(packageName: String) =
-            appPreferences.incrementAppLaunchCount(packageName)
+        appPreferences.incrementAppLaunchCount(packageName)
+
+    fun incrementAppLaunchCount(packageName: String, userHandleId: Int?) =
+        appPreferences.incrementAppLaunchCount(packageName, userHandleId)
 
     fun getAllAppLaunchCounts(): Map<String, Int> = appPreferences.getAllAppLaunchCounts()
 

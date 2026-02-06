@@ -5,9 +5,14 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.content.pm.LauncherActivityInfo
+import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
+import android.os.Process
+import android.os.UserManager
+import com.tk.quicksearch.search.common.UserHandleUtils
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.PermissionUtils
 import java.util.Locale
@@ -28,6 +33,10 @@ class AppsRepository(
     private val packageManager: PackageManager = context.packageManager
     private val usageStatsManager: UsageStatsManager? =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager
+    private val launcherApps: LauncherApps? =
+        context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+    private val userManager: UserManager? =
+        context.getSystemService(Context.USER_SERVICE) as? UserManager
     private val appCache = AppCache(context)
 
     // ==================== Public API ====================
@@ -57,23 +66,33 @@ class AppsRepository(
      * @return List of launchable apps sorted by usage and name
      */
     suspend fun loadLaunchableApps(launchCounts: Map<String, Int> = emptyMap()): List<AppInfo> {
-        val resolveInfos = queryLaunchableApps()
         val usageMap = queryUsageStatsMap()
         val currentPackageName = context.packageName
         val defaultLauncherPackageName = getDefaultLauncherPackageName()
 
+        val activityInfos = queryLaunchableAppsFromAllProfiles()
         val apps =
-            resolveInfos
-                .distinctBy { it.activityInfo.packageName }
-                .filter { resolveInfo ->
-                    val packageName = resolveInfo.activityInfo.packageName
-                    packageName != currentPackageName && packageName != defaultLauncherPackageName
-                }.map { resolveInfo ->
-                    createAppInfo(resolveInfo, usageMap, launchCounts)
-                }.sortedWith(AppInfoComparator)
+            if (activityInfos.isNotEmpty()) {
+                activityInfos
+                    .distinctBy { "${it.applicationInfo.packageName}_${UserHandleUtils.getIdentifier(it.user)}" }
+                    .filter {
+                        it.applicationInfo.packageName != currentPackageName &&
+                            it.applicationInfo.packageName != defaultLauncherPackageName
+                    }
+                    .map { createAppInfo(it, usageMap, launchCounts) }
+            } else {
+                val resolveInfos = queryLaunchableAppsLegacy()
+                resolveInfos
+                    .distinctBy { it.activityInfo.packageName }
+                    .filter {
+                        val pkg = it.activityInfo.packageName
+                        pkg != currentPackageName && pkg != defaultLauncherPackageName
+                    }
+                    .map { createAppInfo(it, usageMap, launchCounts) }
+            }
 
-        appCache.saveApps(apps)
-        return apps
+        appCache.saveApps(apps.sortedWith(AppInfoComparator))
+        return apps.sortedWith(AppInfoComparator)
     }
 
     /**
@@ -115,12 +134,24 @@ class AppsRepository(
 
     // ==================== Private Helpers ====================
 
-    private fun queryLaunchableApps(): List<ResolveInfo> {
+    private fun queryLaunchableAppsFromAllProfiles(): List<LauncherActivityInfo> {
+        val launcherApps = this.launcherApps ?: return emptyList()
+        val userManager = this.userManager ?: return emptyList()
+
+        val profiles = runCatching { userManager.userProfiles }.getOrNull() ?: return emptyList()
+
+        return profiles.flatMap { userHandle ->
+            runCatching {
+                launcherApps.getActivityList(null, userHandle)
+            }.getOrNull().orEmpty()
+        }
+    }
+
+    private fun queryLaunchableAppsLegacy(): List<ResolveInfo> {
         val launcherIntent =
             Intent(Intent.ACTION_MAIN, null).apply {
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
-
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.queryIntentActivities(
                 launcherIntent,
@@ -154,16 +185,52 @@ class AppsRepository(
     }
 
     private fun createAppInfo(
+        info: LauncherActivityInfo,
+        usageMap: Map<String, UsageStats>,
+        launchCounts: Map<String, Int>,
+    ): AppInfo {
+        val packageName = info.applicationInfo.packageName
+        val userHandleId =
+            runCatching {
+                val id = UserHandleUtils.getIdentifier(info.user)
+                if (id == UserHandleUtils.getIdentifier(Process.myUserHandle())) null else id
+            }.getOrNull()
+        val launchCountKey = if (userHandleId == null) packageName else "$packageName:$userHandleId"
+        val label =
+            info.label?.toString()?.takeIf { it.isNotBlank() }
+                ?: formatPackageNameAsLabel(packageName)
+        val stats = usageMap[packageName]
+        val lastUsedTime = stats?.lastTimeUsed ?: 0L
+        val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
+        val launchCount = launchCounts[launchCountKey] ?: 0
+        val firstInstallTime = info.firstInstallTime
+        val appInfo = info.applicationInfo
+        val isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+
+        return AppInfo(
+            appName = label,
+            packageName = packageName,
+            lastUsedTime = lastUsedTime,
+            totalTimeInForeground = totalTimeInForeground,
+            launchCount = launchCount,
+            firstInstallTime = firstInstallTime,
+            isSystemApp = isSystemApp,
+            userHandleId = userHandleId,
+            componentName = info.componentName.flattenToString(),
+        )
+    }
+
+    private fun createAppInfo(
         resolveInfo: ResolveInfo,
         usageMap: Map<String, UsageStats>,
         launchCounts: Map<String, Int>,
     ): AppInfo {
         val packageName = resolveInfo.activityInfo.packageName
+        val launchCount = launchCounts[packageName] ?: 0
         val label = extractAppLabel(resolveInfo, packageName)
         val stats = usageMap[packageName]
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
         val totalTimeInForeground = stats?.totalTimeInForeground ?: 0L
-        val launchCount = launchCounts[packageName] ?: 0
         val firstInstallTime = getFirstInstallTime(packageName)
         val isSystemApp =
             (
@@ -179,12 +246,11 @@ class AppsRepository(
             launchCount = launchCount,
             firstInstallTime = firstInstallTime,
             isSystemApp = isSystemApp,
+            userHandleId = null,
+            componentName = "${resolveInfo.activityInfo.packageName}/${resolveInfo.activityInfo.name}",
         )
     }
 
-    /**
-     * Extracts the display label for an app, falling back to a formatted package name if needed.
-     */
     private fun extractAppLabel(
         resolveInfo: ResolveInfo,
         packageName: String,

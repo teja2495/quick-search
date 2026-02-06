@@ -4,8 +4,12 @@ import android.app.Application
 import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.net.Uri
+import android.os.UserManager
+import com.tk.quicksearch.search.common.UserHandleUtils
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.Settings
@@ -77,19 +81,38 @@ object IntentHelpers {
         }
     }
 
-    /** Launches an app by package name. */
+    /** Launches an app by package name. Uses LauncherApps for work profile apps. */
     fun launchApp(
         context: Application,
         appInfo: AppInfo,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+        val userHandleId = appInfo.userHandleId
+        val componentNameStr = appInfo.componentName
 
+        if (userHandleId != null && componentNameStr != null) {
+            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+            val userManager = context.getSystemService(Context.USER_SERVICE) as? UserManager
+            val userHandle =
+                UserHandleUtils.of(userHandleId)
+                    ?: userManager?.userProfiles?.find { UserHandleUtils.getIdentifier(it) == userHandleId }
+            if (launcherApps != null && userHandle != null) {
+                runCatching {
+                    val component = ComponentName.unflattenFromString(componentNameStr)
+                        ?: return@runCatching
+                    launcherApps.startMainActivity(component, userHandle, null, null)
+                }.onFailure {
+                    onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
+                }
+                return
+            }
+        }
+
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
         if (launchIntent == null) {
             onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
             return
         }
-
         launchIntent.addFlags(
             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
         )

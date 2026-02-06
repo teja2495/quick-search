@@ -32,9 +32,9 @@ class AppManagementService(
     ) {
         scope.launch {
             if (isSearching) {
-                userPreferences.hidePackageInResults(appInfo.packageName)
+                userPreferences.hidePackageInResults(appInfo.launchCountKey())
             } else {
-                excludeItem(appInfo) // Use the base exclude logic for suggestions
+                excludeItem(appInfo)
             }
             onStateChanged()
         }
@@ -42,7 +42,7 @@ class AppManagementService(
 
     fun unhideAppFromResults(appInfo: AppInfo) {
         scope.launch {
-            userPreferences.unhidePackageInResults(appInfo.packageName)
+            userPreferences.unhidePackageInResults(appInfo.launchCountKey())
             onStateChanged()
         }
     }

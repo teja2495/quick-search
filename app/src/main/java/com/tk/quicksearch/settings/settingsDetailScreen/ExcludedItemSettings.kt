@@ -331,7 +331,11 @@ private fun AppIconPlaceholder(
     iconPackPackage: String?,
 ) {
     val iconResult =
-        rememberAppIcon(packageName = appInfo.packageName, iconPackPackage = iconPackPackage)
+        rememberAppIcon(
+            packageName = appInfo.packageName,
+            iconPackPackage = iconPackPackage,
+            userHandleId = appInfo.userHandleId,
+        )
 
     if (iconResult.bitmap != null) {
         Image(
