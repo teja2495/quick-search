@@ -327,6 +327,22 @@ class UiPreferences(
     fun shouldShowShortcutHintBanner(): Boolean =
             getShortcutHintBannerDismissCount() < 2 && !isShortcutHintBannerSessionDismissed()
 
+    fun isDefaultEngineHintBannerDismissed(): Boolean =
+            firstLaunchPrefs.getBoolean(
+                    UiPreferences.KEY_DEFAULT_ENGINE_HINT_BANNER_DISMISSED,
+                    false,
+            )
+
+    fun setDefaultEngineHintBannerDismissed(dismissed: Boolean) {
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_DEFAULT_ENGINE_HINT_BANNER_DISMISSED, dismissed)
+                .apply()
+    }
+
+    fun shouldShowDefaultEngineHintBanner(): Boolean =
+            getShortcutHintBannerDismissCount() >= 1 && !isDefaultEngineHintBannerDismissed()
+
     // ============================================================================
     // Section Preferences
     // ============================================================================
@@ -498,6 +514,8 @@ class UiPreferences(
         const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT = "shortcut_hint_banner_dismiss_count"
         const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED =
                 "shortcut_hint_banner_session_dismissed"
+        const val KEY_DEFAULT_ENGINE_HINT_BANNER_DISMISSED =
+                "default_engine_hint_banner_dismissed"
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"

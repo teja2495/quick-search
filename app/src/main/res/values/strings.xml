@@ -321,6 +321,7 @@
     <string name="settings_shortcuts_title">Shortcuts</string>
     <string name="settings_shortcuts_desc">Adding shortcuts at the end of your query will start search instantly.</string>
     <string name="settings_shortcuts_hint_message">Tip: Add a search engine shortcut at the start or end of your query to quickly search with that engine.</string>
+    <string name="settings_default_search_engine_hint_message">Tip: The first search engine in the list becomes your default. It is used when you press the keyboard\'s search button when there are no other results.</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
     <string name="settings_direct_search_toggle">Direct Search Setup</string>

@@ -178,6 +178,13 @@ fun SettingsDetailRoute(
                                 userPreferences.shouldShowShortcutHintBanner(),
                 )
             }
+    var shouldShowDefaultEngineHint by
+            remember(detailType) {
+                mutableStateOf(
+                        detailType == SettingsDetailType.SEARCH_ENGINES &&
+                                userPreferences.shouldShowDefaultEngineHintBanner(),
+                )
+            }
     var isDefaultAssistant by remember { mutableStateOf(context.isDefaultDigitalAssistant()) }
     var directSearchSetupExpanded by
             remember(detailType) {
@@ -201,10 +208,12 @@ fun SettingsDetailRoute(
                 Lifecycle.Event.ON_START -> {
                     userPreferences.resetShortcutHintBannerSessionDismissed()
                     shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                    shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                    shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                 }
                 else -> {}
@@ -229,6 +238,12 @@ fun SettingsDetailRoute(
         userPreferences.incrementShortcutHintBannerDismissCount()
         userPreferences.setShortcutHintBannerSessionDismissed(true)
         shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+        shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
+    }
+
+    val onDismissDefaultEngineHint = {
+        userPreferences.setDefaultEngineHintBannerDismissed(true)
+        shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
     }
 
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
@@ -326,6 +341,8 @@ fun SettingsDetailRoute(
             detailType = detailType,
             showShortcutHintBanner = shouldShowShortcutHint,
             onDismissShortcutHintBanner = onDismissShortcutHint,
+            showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
+            onDismissDefaultEngineHintBanner = onDismissDefaultEngineHint,
             isDefaultAssistant = isDefaultAssistant,
             directSearchSetupExpanded = directSearchSetupExpanded,
             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,

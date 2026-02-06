@@ -956,6 +956,12 @@ class UserAppPreferences(
 
     fun shouldShowShortcutHintBanner(): Boolean = uiPreferences.shouldShowShortcutHintBanner()
 
+    fun shouldShowDefaultEngineHintBanner(): Boolean =
+            uiPreferences.shouldShowDefaultEngineHintBanner()
+
+    fun setDefaultEngineHintBannerDismissed(dismissed: Boolean) =
+            uiPreferences.setDefaultEngineHintBannerDismissed(dismissed)
+
     // ============================================================================
     // Section Preferences
     // ============================================================================

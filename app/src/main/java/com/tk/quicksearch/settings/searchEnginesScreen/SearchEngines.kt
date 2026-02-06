@@ -48,6 +48,8 @@ fun SearchEngines(
     directSearchAvailable: Boolean = false,
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: (() -> Unit)? = null,
+    showDefaultEngineHintBanner: Boolean = false,
+    onDismissDefaultEngineHintBanner: (() -> Unit)? = null,
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     showRequestSearchEngine: Boolean = true,
@@ -88,6 +90,11 @@ fun SearchEngines(
     if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
         ShortcutHintBanner(
             onDismiss = onDismissShortcutHintBanner,
+            modifier = Modifier.padding(bottom = 18.dp),
+        )
+    } else if (showDefaultEngineHintBanner && onDismissDefaultEngineHintBanner != null) {
+        DefaultEngineHintBanner(
+            onDismiss = onDismissDefaultEngineHintBanner,
             modifier = Modifier.padding(bottom = 18.dp),
         )
     }
@@ -137,6 +144,18 @@ private fun ShortcutHintBanner(
 ) {
     TipBanner(
         text = stringResource(R.string.settings_shortcuts_hint_message),
+        onDismiss = onDismiss,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun DefaultEngineHintBanner(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    TipBanner(
+        text = stringResource(R.string.settings_default_search_engine_hint_message),
         onDismiss = onDismiss,
         modifier = modifier,
     )
