@@ -68,4 +68,10 @@ object FileTypeUtils {
         }
         return getFileTypeFromName(file.displayName) ?: FileType.OTHER
     }
+
+    fun isPdf(file: DeviceFile): Boolean {
+        if (file.isDirectory) return false
+        if (file.mimeType?.lowercase() == "application/pdf") return true
+        return file.displayName.lowercase().endsWith(".pdf")
+    }
 }

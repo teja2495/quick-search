@@ -1,6 +1,10 @@
 package com.tk.quicksearch.search.files
 
+import android.os.Build
+import android.os.CancellationSignal
+import android.util.Size
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +33,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +44,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile
@@ -55,10 +74,28 @@ import com.tk.quicksearch.util.hapticConfirm
 // Constants
 // ============================================================================
 
-private const val FILE_ICON_SIZE = 28
+private const val FILE_ICON_SIZE = 24
+private const val PDF_ICON_SIZE = 20
+private const val THUMBNAIL_SIZE_DP = 60
+private const val THUMBNAIL_LOAD_SIZE_PX = 160
+private const val THUMBNAIL_CACHE_MAX_SIZE = 60
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private const val DROPDOWN_CORNER_RADIUS = 24
+
+private object FileThumbnailCache {
+    private val cache = object : LinkedHashMap<String, ImageBitmap>(THUMBNAIL_CACHE_MAX_SIZE, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ImageBitmap>) = size > THUMBNAIL_CACHE_MAX_SIZE
+    }
+
+    @Synchronized
+    fun get(uri: String): ImageBitmap? = cache[uri]
+
+    @Synchronized
+    fun put(uri: String, bitmap: ImageBitmap) {
+        cache[uri] = bitmap
+    }
+}
 
 // ============================================================================
 // Public API
@@ -332,22 +369,104 @@ private fun FileCardContent(
 // File Row
 // ============================================================================
 
-private fun fileResultIcon(deviceFile: DeviceFile) =
+@Composable
+private fun fileResultIcon(deviceFile: DeviceFile): ImageVector =
     when {
-        deviceFile.isDirectory -> {
-            Icons.Rounded.Folder
+        deviceFile.isDirectory -> Icons.Rounded.Folder
+        FileTypeUtils.isPdf(deviceFile) -> ImageVector.vectorResource(R.drawable.ic_pdf)
+        else -> when (FileTypeUtils.getFileType(deviceFile)) {
+            FileType.AUDIO -> Icons.Rounded.AudioFile
+            FileType.PICTURES -> Icons.Rounded.Image
+            FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+            FileType.APKS -> Icons.Rounded.Android
+            else -> Icons.AutoMirrored.Rounded.InsertDriveFile
         }
+    }
 
-        else -> {
-            when (FileTypeUtils.getFileType(deviceFile)) {
-                FileType.AUDIO -> Icons.Rounded.AudioFile
-                FileType.PICTURES -> Icons.Rounded.Image
-                FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-                FileType.APKS -> Icons.Rounded.Android
-                else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+@Composable
+private fun FileResultThumbnailOrIcon(
+    deviceFile: DeviceFile,
+    iconOverride: ImageVector?,
+    iconTint: Color,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val fileType = FileTypeUtils.getFileType(deviceFile)
+    val showThumbnail = !deviceFile.isDirectory && (fileType == FileType.PICTURES || fileType == FileType.VIDEOS)
+    val uriString = deviceFile.uri.toString()
+    var thumbnailBitmap by remember(uriString) {
+        mutableStateOf<ImageBitmap?>(FileThumbnailCache.get(uriString))
+    }
+
+    if (showThumbnail && iconOverride == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        LaunchedEffect(uriString) {
+            if (thumbnailBitmap != null) return@LaunchedEffect
+            val signal = CancellationSignal()
+            currentCoroutineContext()[Job]?.invokeOnCompletion { cause ->
+                if (cause is CancellationException) signal.cancel()
+            }
+            val bitmap = withContext(Dispatchers.IO) {
+                try {
+                    context.contentResolver.loadThumbnail(
+                        deviceFile.uri,
+                        Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
+                        signal,
+                    )
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            val imageBitmap = bitmap?.asImageBitmap()
+            if (imageBitmap != null) {
+                FileThumbnailCache.put(uriString, imageBitmap)
+                thumbnailBitmap = imageBitmap
             }
         }
     }
+
+    val isPdf = iconOverride == null && FileTypeUtils.isPdf(deviceFile)
+    val iconSize = when {
+        iconOverride != null -> 34.dp
+        isPdf -> PDF_ICON_SIZE.dp
+        else -> FILE_ICON_SIZE.dp
+    }
+
+    if (thumbnailBitmap != null && iconOverride == null) {
+        val thumbnailAlpha = remember(uriString) { Animatable(0f) }
+        LaunchedEffect(uriString) {
+            thumbnailAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 200),
+            )
+        }
+        Box(modifier = modifier.size(THUMBNAIL_SIZE_DP.dp)) {
+            Icon(
+                imageVector = fileResultIcon(deviceFile),
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier
+                    .size(THUMBNAIL_SIZE_DP.dp)
+                    .alpha(1f - thumbnailAlpha.value),
+            )
+            Image(
+                bitmap = thumbnailBitmap!!,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(THUMBNAIL_SIZE_DP.dp)
+                    .clip(DesignTokens.CardShape)
+                    .alpha(thumbnailAlpha.value),
+                contentScale = ContentScale.Crop,
+            )
+        }
+    } else {
+        Icon(
+            imageVector = iconOverride ?: fileResultIcon(deviceFile),
+            contentDescription = null,
+            tint = if (isPdf) Color.Unspecified else iconTint,
+            modifier = modifier.size(iconSize),
+        )
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -363,7 +482,7 @@ internal fun FileResultRow(
     hasNickname: Boolean = false,
     enableLongPress: Boolean = true,
     onLongPressOverride: (() -> Unit)? = null,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    icon: ImageVector? = null,
     iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
     var showOptions by remember { mutableStateOf(false) }
@@ -395,19 +514,11 @@ internal fun FileResultRow(
                     Arrangement.spacedBy(DesignTokens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = icon ?: fileResultIcon(deviceFile),
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier =
-                        Modifier
-                            .size(
-                                if (icon != null) {
-                                    34.dp
-                                } else {
-                                    FILE_ICON_SIZE.dp
-                                },
-                            ).padding(start = DesignTokens.SpacingSmall),
+                FileResultThumbnailOrIcon(
+                    deviceFile = deviceFile,
+                    iconOverride = icon,
+                    iconTint = iconTint,
+                    modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
                 )
 
                 Text(
