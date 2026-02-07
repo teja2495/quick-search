@@ -56,6 +56,7 @@ internal object WidgetDefaults {
     // Default to dark theme for higher contrast out of the box.
     val THEME = WidgetTheme.DARK
     const val BACKGROUND_ALPHA = 0.35f
+    const val BORDER_ALPHA = BACKGROUND_ALPHA
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
 
     // Default to theme-based colors (null means follow theme)
@@ -81,6 +82,7 @@ private object WidgetKeys {
     val SHOW_MIC_ICON = booleanPreferencesKey("quick_search_widget_show_mic_icon")
     val THEME = stringPreferencesKey("quick_search_widget_theme")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
+    val BORDER_ALPHA = floatPreferencesKey("quick_search_widget_border_alpha")
     val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
     val TEXT_ICON_COLOR_OVERRIDE =
         stringPreferencesKey("quick_search_widget_text_icon_color_override")
@@ -107,6 +109,7 @@ data class QuickSearchWidgetPreferences(
     val showMicIcon: Boolean = WidgetDefaults.SHOW_MIC_ICON,
     val theme: WidgetTheme = WidgetDefaults.THEME,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
+    val borderAlpha: Float = WidgetDefaults.BORDER_ALPHA,
     val micAction: MicAction = WidgetDefaults.MIC_ACTION,
     val textIconColorOverride: TextIconColorOverride = TextIconColorOverride.THEME,
     val customButtons: List<CustomWidgetButtonAction?> = WidgetDefaults.CUSTOM_BUTTONS,
@@ -142,6 +145,11 @@ data class QuickSearchWidgetPreferences(
                 ),
             backgroundAlpha =
                 backgroundAlpha.coerceIn(
+                    WidgetRanges.BACKGROUND_ALPHA_MIN,
+                    WidgetRanges.BACKGROUND_ALPHA_MAX,
+                ),
+            borderAlpha =
+                borderAlpha.coerceIn(
                     WidgetRanges.BACKGROUND_ALPHA_MIN,
                     WidgetRanges.BACKGROUND_ALPHA_MAX,
                 ),
@@ -226,6 +234,9 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
         backgroundAlpha =
             this[WidgetKeys.BACKGROUND_ALPHA]
                 ?: WidgetDefaults.BACKGROUND_ALPHA,
+        borderAlpha =
+            this[WidgetKeys.BORDER_ALPHA]
+                ?: (this[WidgetKeys.BACKGROUND_ALPHA] ?: WidgetDefaults.BORDER_ALPHA),
         micAction =
             this[WidgetKeys.MIC_ACTION]?.let { actionString ->
                 MicAction.entries.find { it.value == actionString }
@@ -262,6 +273,7 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.SHOW_MIC_ICON] = validated.showMicIcon
     this[WidgetKeys.THEME] = validated.theme.value
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
+    this[WidgetKeys.BORDER_ALPHA] = validated.borderAlpha
     this[WidgetKeys.MIC_ACTION] = validated.micAction.value
     this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE] = validated.textIconColorOverride.value
     val customButtons = normalizeCustomButtons(validated.customButtons)

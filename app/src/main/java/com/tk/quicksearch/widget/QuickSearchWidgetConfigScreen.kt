@@ -263,13 +263,29 @@ private fun WidgetSlidersSection(
             valueFormatter = { formatBorderWidth(it) },
             onValueChange = { onStateChange(state.copy(borderWidthDp = it)) },
         )
+        Text(
+            text = stringResource(R.string.widget_slider_transparency),
+            style = MaterialTheme.typography.titleSmall,
+        )
         SliderRow(
-            label = stringResource(R.string.widget_slider_transparency),
+            label = stringResource(R.string.widget_slider_transparency_background),
             value = state.backgroundAlpha,
             valueRange = 0f..1f,
             steps = 10,
             valueFormatter = { "${(it * 100).roundToInt()}%" },
+            labelTextStyle = MaterialTheme.typography.bodySmall,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             onValueChange = { onStateChange(state.copy(backgroundAlpha = it)) },
+        )
+        SliderRow(
+            label = stringResource(R.string.widget_slider_transparency_border),
+            value = state.borderAlpha,
+            valueRange = 0f..1f,
+            steps = 10,
+            valueFormatter = { "${(it * 100).roundToInt()}%" },
+            labelTextStyle = MaterialTheme.typography.bodySmall,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            onValueChange = { onStateChange(state.copy(borderAlpha = it)) },
         )
     }
 }
@@ -288,6 +304,8 @@ private fun SliderRow(
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int,
     valueFormatter: (Float) -> String,
+    labelTextStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
+    labelColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
     onValueChange: (Float) -> Unit,
 ) {
     val view = LocalView.current
@@ -308,7 +326,11 @@ private fun SliderRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = label)
+            Text(
+                text = label,
+                style = labelTextStyle,
+                color = labelColor,
+            )
             Text(
                 text = valueFormatter(value),
                 style = MaterialTheme.typography.labelLarge,

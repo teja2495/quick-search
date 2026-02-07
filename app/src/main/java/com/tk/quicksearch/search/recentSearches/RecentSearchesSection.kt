@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.recentSearches
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -148,10 +149,25 @@ fun RecentSearchesSection(
                             onAppShortcutClick = onAppShortcutClick,
                             onDeleteRecentItem = onDeleteRecentItem,
                             onDisableSearchHistory = onDisableSearchHistory,
-                            showDivider = index < displayItems.lastIndex,
+                            showDivider = true,
                             showWallpaperBackground = showWallpaperBackground,
                         )
                     }
+                    val disableDividerColor =
+                        if (showWallpaperBackground) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium),
+                        color = disableDividerColor,
+                    )
+                    DisableSearchHistoryRow(
+                        textColor = textColor,
+                        iconColor = iconColor,
+                        onClick = onDisableSearchHistory,
+                    )
                 }
                 CollapseButton(
                     onClick = {
@@ -359,19 +375,6 @@ private fun RecentSearchItemRow(
                     onDeleteRecentItem(item.entry)
                 },
             )
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-            )
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_disable_search_history)) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Rounded.VisibilityOff, contentDescription = null)
-                },
-                onClick = {
-                    showRemoveMenu = false
-                    onDisableSearchHistory()
-                },
-            )
         }
     }
 
@@ -410,6 +413,47 @@ private fun dividerPadding(item: RecentSearchItem) =
         else -> DesignTokens.SpacingMedium
     }
 
+@Composable
+private fun DisableSearchHistoryRow(
+    textColor: Color,
+    iconColor: Color,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(DesignTokens.CardShape)
+                .clickable(onClick = onClick)
+                .padding(
+                    start = QUERY_ICON_START_PADDING.dp,
+                    end = QUERY_TEXT_END_PADDING.dp,
+                    top = DesignTokens.SpacingSmall,
+                    bottom = DesignTokens.SpacingSmall,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.VisibilityOff,
+            contentDescription = null,
+            tint = iconColor,
+            modifier =
+                Modifier
+                    .size(QUERY_ICON_SIZE.dp)
+                    .padding(
+                        start = DesignTokens.SpacingXSmall,
+                        end = QUERY_TEXT_START_PADDING.dp,
+                    ),
+        )
+        Text(
+            text = stringResource(R.string.action_disable_search_history),
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RecentQueryRow(
@@ -430,8 +474,8 @@ private fun RecentQueryRow(
                 ).padding(
                     start = QUERY_ICON_START_PADDING.dp,
                     end = QUERY_TEXT_END_PADDING.dp,
-                    top = DesignTokens.SpacingSmall,
-                    bottom = DesignTokens.SpacingSmall,
+                    top = DesignTokens.SpacingLarge,
+                    bottom = DesignTokens.SpacingLarge,
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {

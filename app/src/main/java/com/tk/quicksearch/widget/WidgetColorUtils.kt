@@ -48,10 +48,10 @@ object WidgetColorUtils {
      */
     fun getBorderColor(
         borderColor: Int,
-        backgroundAlpha: Float,
+        borderAlpha: Float,
     ): Color {
-        // Keep some transparency even if the user picks a fully opaque background.
-        val appliedAlpha = backgroundAlpha.coerceAtMost(0.4f)
+        // Keep some transparency even if the user picks a fully opaque border.
+        val appliedAlpha = borderAlpha.coerceAtMost(0.4f)
         return Color.White.copy(alpha = appliedAlpha)
     }
 
