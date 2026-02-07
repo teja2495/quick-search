@@ -301,7 +301,6 @@ data class SearchUiState(
     val webSuggestionWasSelected: Boolean = false,
     val recentItems: List<RecentSearchItem> = emptyList(),
     val recentQueriesEnabled: Boolean = true,
-    val recentQueriesCount: Int = 3,
     val shouldShowUsagePermissionBanner: Boolean = false,
     val contactActionsVersion: Int = 0,
     val nicknameUpdateVersion: Int = 0,

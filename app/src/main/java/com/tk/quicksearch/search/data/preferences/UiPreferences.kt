@@ -527,7 +527,6 @@ class UiPreferences(
         // Recent queries preferences keys
         const val KEY_RECENT_QUERIES = "recent_queries"
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
-        const val KEY_RECENT_QUERIES_COUNT = "recent_queries_count"
 
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA = 0.5f
         const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f

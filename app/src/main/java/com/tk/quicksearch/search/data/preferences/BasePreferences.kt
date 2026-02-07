@@ -559,7 +559,6 @@ abstract class BasePreferences(
         // Recent queries preferences keys
         const val KEY_RECENT_QUERIES = "recent_queries"
         const val KEY_RECENT_QUERIES_ENABLED = "recent_queries_enabled"
-        const val KEY_RECENT_QUERIES_COUNT = "recent_queries_count"
 
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"

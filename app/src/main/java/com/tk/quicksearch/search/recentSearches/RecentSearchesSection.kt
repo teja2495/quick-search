@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -20,6 +26,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,12 +36,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
+import com.tk.quicksearch.search.contacts.CollapseButton
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
@@ -48,6 +56,8 @@ import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
+
+private val EXPANDED_HISTORY_MAX_HEIGHT = 420.dp
 
 private const val QUERY_ICON_SIZE = 42
 private const val QUERY_ICON_START_PADDING = 16
@@ -77,9 +87,15 @@ fun RecentSearchesSection(
     onSettingClick: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
+    onDisableSearchHistory: () -> Unit = {},
+    onExpandedChange: (Boolean) -> Unit = {},
     showWallpaperBackground: Boolean = false,
 ) {
     if (items.isEmpty()) return
+    var isExpanded by remember(items) { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val displayItems = if (isExpanded) items else items.take(1)
+    val canExpand = items.size > 1
 
     val textColor =
         if (showWallpaperBackground) {
@@ -101,31 +117,98 @@ fun RecentSearchesSection(
         colors = AppColors.getCardColors(showWallpaperBackground),
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
-        Column {
-            items.forEachIndexed { index, item ->
-                RecentSearchItemRow(
-                    item = item,
-                    textColor = textColor,
-                    iconColor = iconColor,
-                    messagingApp = messagingApp,
-                    onRecentQueryClick = onRecentQueryClick,
-                    onContactClick = onContactClick,
-                    onShowContactMethods = onShowContactMethods,
-                    onCallContact = onCallContact,
-                    onSmsContact = onSmsContact,
-                    onContactMethodClick = onContactMethodClick,
-                    getPrimaryContactCardAction = getPrimaryContactCardAction,
-                    getSecondaryContactCardAction = getSecondaryContactCardAction,
-                    onPrimaryActionLongPress = onPrimaryActionLongPress,
-                    onSecondaryActionLongPress = onSecondaryActionLongPress,
-                    onCustomAction = onCustomAction,
-                    onFileClick = onFileClick,
-                    onSettingClick = onSettingClick,
-                    onAppShortcutClick = onAppShortcutClick,
-                    onDeleteRecentItem = onDeleteRecentItem,
-                    showDivider = index < items.lastIndex,
-                    showWallpaperBackground = showWallpaperBackground,
+        if (isExpanded) {
+            Column {
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .height(EXPANDED_HISTORY_MAX_HEIGHT)
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
+                ) {
+                    displayItems.forEachIndexed { index, item ->
+                        RecentSearchItemRow(
+                            item = item,
+                            textColor = textColor,
+                            iconColor = iconColor,
+                            messagingApp = messagingApp,
+                            onRecentQueryClick = onRecentQueryClick,
+                            onContactClick = onContactClick,
+                            onShowContactMethods = onShowContactMethods,
+                            onCallContact = onCallContact,
+                            onSmsContact = onSmsContact,
+                            onContactMethodClick = onContactMethodClick,
+                            getPrimaryContactCardAction = getPrimaryContactCardAction,
+                            getSecondaryContactCardAction = getSecondaryContactCardAction,
+                            onPrimaryActionLongPress = onPrimaryActionLongPress,
+                            onSecondaryActionLongPress = onSecondaryActionLongPress,
+                            onCustomAction = onCustomAction,
+                            onFileClick = onFileClick,
+                            onSettingClick = onSettingClick,
+                            onAppShortcutClick = onAppShortcutClick,
+                            onDeleteRecentItem = onDeleteRecentItem,
+                            onDisableSearchHistory = onDisableSearchHistory,
+                            showDivider = index < displayItems.lastIndex,
+                            showWallpaperBackground = showWallpaperBackground,
+                        )
+                    }
+                }
+                CollapseButton(
+                    onClick = {
+                        isExpanded = false
+                        onExpandedChange(false)
+                        keyboardController?.show()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = DesignTokens.SpacingXXLarge),
                 )
+            }
+        } else {
+            Column {
+                displayItems.forEachIndexed { index, item ->
+                    RecentSearchItemRow(
+                        item = item,
+                        textColor = textColor,
+                        iconColor = iconColor,
+                        messagingApp = messagingApp,
+                        onRecentQueryClick = onRecentQueryClick,
+                        onContactClick = onContactClick,
+                        onShowContactMethods = onShowContactMethods,
+                        onCallContact = onCallContact,
+                        onSmsContact = onSmsContact,
+                        onContactMethodClick = onContactMethodClick,
+                        getPrimaryContactCardAction = getPrimaryContactCardAction,
+                        getSecondaryContactCardAction = getSecondaryContactCardAction,
+                        onPrimaryActionLongPress = onPrimaryActionLongPress,
+                        onSecondaryActionLongPress = onSecondaryActionLongPress,
+                        onCustomAction = onCustomAction,
+                        onFileClick = onFileClick,
+                        onSettingClick = onSettingClick,
+                        onAppShortcutClick = onAppShortcutClick,
+                        onDeleteRecentItem = onDeleteRecentItem,
+                        onDisableSearchHistory = onDisableSearchHistory,
+                        showDivider = index < displayItems.lastIndex,
+                        showWallpaperBackground = showWallpaperBackground,
+                    )
+                }
+
+                if (canExpand) {
+                    TextButton(
+                        onClick = {
+                            isExpanded = true
+                            onExpandedChange(true)
+                            keyboardController?.hide()
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    ) {
+                        Text(text = stringResource(R.string.action_more_search_history))
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = stringResource(R.string.desc_expand),
+                        )
+                    }
+                }
             }
         }
     }
@@ -153,6 +236,7 @@ private fun RecentSearchItemRow(
     onSettingClick: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
+    onDisableSearchHistory: () -> Unit = {},
     showDivider: Boolean,
     showWallpaperBackground: Boolean,
 ) {
@@ -200,7 +284,6 @@ private fun RecentSearchItemRow(
                         },
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        icon = Icons.Rounded.History,
                         iconTint = iconColor,
                     )
                 }
@@ -213,7 +296,6 @@ private fun RecentSearchItemRow(
                         onClick = onFileClick,
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        icon = Icons.Rounded.History,
                         iconTint = iconColor,
                     )
                 }
@@ -232,7 +314,6 @@ private fun RecentSearchItemRow(
                         showDescription = false,
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        icon = Icons.Rounded.History,
                         iconTint = iconColor,
                     )
                 }
@@ -255,7 +336,6 @@ private fun RecentSearchItemRow(
                         showAppLabel = false,
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        icon = Icons.Rounded.History,
                         iconTint = iconColor,
                     )
                 }
@@ -270,13 +350,26 @@ private fun RecentSearchItemRow(
             containerColor = AppColors.DialogBackground,
         ) {
             DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_remove)) },
+                text = { Text(text = stringResource(R.string.action_remove_from_history)) },
                 leadingIcon = {
                     Icon(imageVector = Icons.Rounded.Close, contentDescription = null)
                 },
                 onClick = {
                     showRemoveMenu = false
                     onDeleteRecentItem(item.entry)
+                },
+            )
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_disable_search_history)) },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Rounded.VisibilityOff, contentDescription = null)
+                },
+                onClick = {
+                    showRemoveMenu = false
+                    onDisableSearchHistory()
                 },
             )
         }
@@ -343,7 +436,7 @@ private fun RecentQueryRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = Icons.Rounded.History,
+            imageVector = Icons.Rounded.Search,
             contentDescription = stringResource(R.string.desc_search_icon),
             tint = iconColor,
             modifier =
@@ -359,8 +452,6 @@ private fun RecentQueryRow(
             text = query,
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
     }

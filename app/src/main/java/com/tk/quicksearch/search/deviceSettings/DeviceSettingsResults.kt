@@ -153,8 +153,10 @@ fun DeviceSettingsResultsSection(
                 Column(
                     modifier =
                         Modifier.padding(
-                            horizontal = DesignTokens.SpacingMedium,
-                            vertical = 4.dp,
+                            start = DesignTokens.SpacingLarge,
+                            top = 4.dp,
+                            end = DesignTokens.SpacingMedium,
+                            bottom = 4.dp,
                         ),
                 ) {
                     displaySettings.forEachIndexed { index, shortcut ->

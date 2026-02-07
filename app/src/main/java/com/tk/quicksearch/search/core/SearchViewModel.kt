@@ -567,7 +567,6 @@ class SearchViewModel(
                     wallpaperBlurRadius = activeBlur,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
-                    recentQueriesCount = userPreferences.getRecentQueriesCount(),
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
                     shouldShowUsagePermissionBanner =
                             userPreferences.shouldShowUsagePermissionBanner(),
@@ -840,18 +839,6 @@ class SearchViewModel(
         }
     }
 
-    fun setRecentQueriesCount(count: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setRecentQueriesCount(count)
-            _uiState.update { it.copy(recentQueriesCount = count) }
-
-            // Refresh recent queries display if query is empty
-            if (_uiState.value.query.isEmpty()) {
-                refreshRecentItems()
-            }
-        }
-    }
-
     private fun refreshRecentItems() {
         viewModelScope.launch(Dispatchers.IO) {
             if (!_uiState.value.recentQueriesEnabled) {
@@ -859,8 +846,7 @@ class SearchViewModel(
                 return@launch
             }
 
-            val entries =
-                    userPreferences.getRecentItems().take(userPreferences.getRecentQueriesCount())
+            val entries = userPreferences.getRecentItems().take(MAX_RECENT_ITEMS)
 
             val contactIds =
                     entries.filterIsInstance<RecentSearchEntry.Contact>()
@@ -2115,6 +2101,7 @@ class SearchViewModel(
 
     companion object {
         private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
+        private const val MAX_RECENT_ITEMS = 10
     }
 
     private fun getGridItemCount(): Int =

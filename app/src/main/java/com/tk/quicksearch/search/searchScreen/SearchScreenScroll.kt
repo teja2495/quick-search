@@ -21,6 +21,7 @@ private object ScrollBehaviorConstants {
     const val POLLING_INTERVAL_MS = 20L
     const val MAX_POLLING_ATTEMPTS = 10
     const val STABLE_COUNT_THRESHOLD = 2
+    const val KEYBOARD_HIDE_SHOW_COOLDOWN_MS = 500L
 }
 
 // ============================================================================
@@ -167,10 +168,11 @@ fun ScrollBasedKeyboardBehavior(
     
     if (overlayModeEnabled) return
     
-    val threshold = 10
+    val threshold = 100
     
     LaunchedEffect(scrollState, oneHandedMode, reverseScrolling) {
         var previousScrollValue = scrollState.value
+        var lastHideTime = 0L
         
         snapshotFlow { scrollState.value }
             .distinctUntilChanged()
@@ -189,6 +191,9 @@ fun ScrollBasedKeyboardBehavior(
                     previousScrollValue = currentScrollValue
                     return@collect
                 }
+                
+                val now = System.currentTimeMillis()
+                val isInCooldown = (now - lastHideTime) < ScrollBehaviorConstants.KEYBOARD_HIDE_SHOW_COOLDOWN_MS
                 
                 if (oneHandedMode) {
                     val isAtBottom = if (reverseScrolling) {
@@ -209,10 +214,11 @@ fun ScrollBasedKeyboardBehavior(
                         scrollDelta < 0
                     }
                     
-                    if (isAtBottom && !wasAtBottom) {
+                    if (isAtBottom && !wasAtBottom && !isInCooldown) {
                         keyboardController?.show()
                     } else if (isScrollingUp && !isAtBottom) {
                         keyboardController?.hide()
+                        lastHideTime = now
                     }
                 } else {
                     val isAtTop = if (reverseScrolling) {
@@ -233,10 +239,11 @@ fun ScrollBasedKeyboardBehavior(
                         scrollDelta > 0
                     }
                     
-                    if (isAtTop && !wasAtTop) {
+                    if (isAtTop && !wasAtTop && !isInCooldown) {
                         keyboardController?.show()
                     } else if (isScrollingDown && !isAtTop) {
                         keyboardController?.hide()
+                        lastHideTime = now
                     }
                 }
                 

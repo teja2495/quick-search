@@ -116,6 +116,7 @@ fun SearchContentArea(
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onDisableSearchHistory: () -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null,
@@ -468,6 +469,7 @@ fun SearchContentArea(
                     onCustomizeSearchEnginesClick,
                     onSearchTargetClick = onSearchTargetClick,
                     onDeleteRecentItem = onDeleteRecentItem,
+                    onDisableSearchHistory = onDisableSearchHistory,
                 )
             }
         }
@@ -572,6 +574,7 @@ fun ContentLayout(
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onDisableSearchHistory: () -> Unit = {},
 ) {
     // 1. Determine Layout Order based on ItemPriorityConfig
     val hasQuery = state.query.isNotBlank()
@@ -628,6 +631,14 @@ fun ContentLayout(
     // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
     val showRecentItems =
         !hasQuery && state.recentQueriesEnabled && state.recentItems.isNotEmpty()
+
+    var recentSearchesExpanded by remember { mutableStateOf(false) }
+    LaunchedEffect(showRecentItems) {
+        if (!showRecentItems) recentSearchesExpanded = false
+    }
+
+    val hidePinnedAndAppsWhenSearchHistoryExpanded =
+        showRecentItems && recentSearchesExpanded
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         finalLayoutOrder.forEach { itemType ->
@@ -739,8 +750,9 @@ fun ContentLayout(
                 // We delegate to renderSection provided by
                 // SectionRenderingComposables
                 // using the pre-calculated context.
+                // When search history is expanded, hide app suggestions and pinned items.
                 ItemPriorityConfig.ItemType.APPS_SECTION -> {
-                    if (!hideResults) {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
                         renderSection(
                             SearchSection.APPS,
                             sectionParams,
@@ -750,7 +762,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> {
-                    if (!hideResults) {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
                         renderSection(
                             SearchSection.APP_SHORTCUTS,
                             sectionParams,
@@ -760,7 +772,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.FILES_SECTION -> {
-                    if (!hideResults) {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
                         renderSection(
                             SearchSection.FILES,
                             sectionParams,
@@ -770,7 +782,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.CONTACTS_SECTION -> {
-                    if (!hideResults) {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
                         renderSection(
                             SearchSection.CONTACTS,
                             sectionParams,
@@ -780,7 +792,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.SETTINGS_SECTION -> {
-                    if (!hideResults) {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
                         renderSection(
                             SearchSection.SETTINGS,
                             sectionParams,
@@ -878,6 +890,9 @@ fun ContentLayout(
                                         .onShortcutClick,
                                 onDeleteRecentItem =
                                 onDeleteRecentItem,
+                                onDisableSearchHistory =
+                                onDisableSearchHistory,
+                                onExpandedChange = { recentSearchesExpanded = it },
                                 showWallpaperBackground =
                                     state.showWallpaperBackground,
                                 modifier = Modifier.fillMaxWidth(),

@@ -927,12 +927,6 @@ class UserAppPreferences(
 
     fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
 
-    fun getRecentQueriesCount(): Int = recentSearchesPreferences.getRecentQueriesCount()
-
-    fun setRecentQueriesCount(count: Int) {
-        recentSearchesPreferences.setRecentQueriesCount(count)
-    }
-
     fun setRecentQueriesEnabled(enabled: Boolean) =
             recentSearchesPreferences.setRecentQueriesEnabled(enabled)
 

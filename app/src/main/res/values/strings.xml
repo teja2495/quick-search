@@ -170,6 +170,9 @@
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_edit_nickname">Edit Nickname</string>
     <string name="action_expand_more">More</string>
+    <string name="action_more_search_history">More History</string>
+    <string name="action_disable_search_history">Disable search history</string>
+    <string name="action_remove_from_history">Remove from history</string>
     <string name="action_collapse">Collapse</string>
     <string name="action_retry">Retry</string>
     <string name="permission_action_manage_android">Manage in Android settings</string>
@@ -570,7 +573,8 @@
     <!-- ============================================================================
          Recent Queries
          ============================================================================ -->
-    <string name="recent_queries_toggle_title">Recent Searches</string>
+    <string name="recent_queries_toggle_title">Search History</string>
+    <string name="recent_queries_toggle_desc">Show your search history in the home screen.</string>
 
     <!-- ============================================================================
          Calculator

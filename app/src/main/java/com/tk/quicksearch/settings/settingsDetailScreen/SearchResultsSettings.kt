@@ -50,8 +50,6 @@ fun WebSuggestionsCard(
     onWebSuggestionsCountChange: (Int) -> Unit,
     recentQueriesEnabled: Boolean,
     onRecentQueriesToggle: (Boolean) -> Unit,
-    recentQueriesCount: Int,
-    onRecentQueriesCountChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
@@ -130,51 +128,13 @@ fun WebSuggestionsCard(
             // Recent Queries Toggle Section
             SettingsToggleRow(
                 title = stringResource(R.string.recent_queries_toggle_title),
+                subtitle = stringResource(R.string.recent_queries_toggle_desc),
                 checked = recentQueriesEnabled,
                 onCheckedChange = onRecentQueriesToggle,
                 isFirstItem = false,
-                isLastItem = false,
+                isLastItem = true,
                 showDivider = false,
             )
-
-            // Recent Queries Count Slider (only show if enabled)
-            if (recentQueriesEnabled) {
-                var lastRecentStep by remember { mutableStateOf(recentQueriesCount) }
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = 24.dp,
-                                end = 24.dp,
-                                top = 0.dp,
-                                bottom = 16.dp,
-                            ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Slider(
-                        value = recentQueriesCount.toFloat(),
-                        onValueChange = { value ->
-                            val step = value.toInt()
-                            if (step != lastRecentStep) {
-                                hapticToggle(view)()
-                                lastRecentStep = step
-                            }
-                            onRecentQueriesCountChange(value.toInt())
-                        },
-                        valueRange = 1f..5f,
-                        steps = 3, // 1, 2, 3, 4, 5
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        text = recentQueriesCount.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.width(24.dp),
-                    )
-                }
-            }
         }
     }
 }
@@ -344,8 +304,6 @@ fun SearchResultsSettingsSection(
             onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
             recentQueriesEnabled = state.recentQueriesEnabled,
             onRecentQueriesToggle = callbacks.onToggleRecentQueries,
-            recentQueriesCount = state.recentQueriesCount,
-            onRecentQueriesCountChange = callbacks.onRecentQueriesCountChange,
             modifier = Modifier.padding(top = 12.dp),
         )
 

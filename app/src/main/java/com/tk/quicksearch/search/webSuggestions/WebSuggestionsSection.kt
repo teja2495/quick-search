@@ -197,8 +197,8 @@ private fun WebSuggestionItem(
             text = suggestion,
             style = MaterialTheme.typography.bodyMedium,
             color = textColor,
-            maxLines = if (isRecentQuery) 1 else Int.MAX_VALUE,
-            overflow = if (isRecentQuery) TextOverflow.Ellipsis else TextOverflow.Clip,
+            maxLines = Int.MAX_VALUE,
+            overflow = TextOverflow.Clip,
             modifier = Modifier.weight(1f),
         )
 

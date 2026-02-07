@@ -95,16 +95,4 @@ class RecentSearchesPreferences(
         setBooleanPref(BasePreferences.KEY_RECENT_QUERIES_ENABLED, enabled)
     }
 
-    /**
-     * Get the maximum number of recent queries to show.
-     * Default is 3.
-     */
-    fun getRecentQueriesCount(): Int = prefs.getInt(BasePreferences.KEY_RECENT_QUERIES_COUNT, 3)
-
-    /**
-     * Set the maximum number of recent queries to show.
-     */
-    fun setRecentQueriesCount(count: Int) {
-        prefs.edit().putInt(BasePreferences.KEY_RECENT_QUERIES_COUNT, count).apply()
-    }
 }

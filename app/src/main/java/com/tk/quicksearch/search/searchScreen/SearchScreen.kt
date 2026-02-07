@@ -406,6 +406,7 @@ fun SearchRoute(
             onPersonalContextHintDismissed = viewModel::onPersonalContextHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onDeleteRecentItem = viewModel::deleteRecentItem,
+            onDisableSearchHistory = { viewModel.setRecentQueriesEnabled(false) },
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
             getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
@@ -515,6 +516,7 @@ fun SearchScreen(
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onDisableSearchHistory: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
@@ -829,6 +831,7 @@ fun SearchScreen(
             onWebSuggestionClick = onWebSuggestionClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onDeleteRecentItem = onDeleteRecentItem,
+            onDisableSearchHistory = onDisableSearchHistory,
             onKeyboardSwitchToggle = {
                 manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard
             },
