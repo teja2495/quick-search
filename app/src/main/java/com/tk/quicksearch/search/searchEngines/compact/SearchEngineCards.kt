@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.searchEngines.compact
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,8 @@ fun NoResultsSearchEngineCards(
     enabledEngines: List<SearchTarget>,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onCustomizeClick: () -> Unit,
+    onSearchEngineLongPress: (() -> Unit)? = null,
+    showCustomizeCard: Boolean = true,
     modifier: Modifier = Modifier,
     isReversed: Boolean = false,
     showWallpaperBackground: Boolean = false,
@@ -59,14 +62,14 @@ fun NoResultsSearchEngineCards(
         }
 
     // Show customize card when there are any enabled engines
-    val showCustomizeCard = enabledEngines.isNotEmpty()
+    val shouldShowCustomizeCard = showCustomizeCard && enabledEngines.isNotEmpty()
 
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // When reversed (results at bottom), show customize card at the top
-        if (isReversed && showCustomizeCard) {
+        if (isReversed && shouldShowCustomizeCard) {
             CustomizeSearchEnginesCard(
                 onClick = onCustomizeClick,
                 showWallpaperBackground = showWallpaperBackground,
@@ -77,12 +80,13 @@ fun NoResultsSearchEngineCards(
             SearchTargetCard(
                 target = engine,
                 onClick = { onSearchEngineClick(query, engine) },
+                onLongClick = onSearchEngineLongPress,
                 showWallpaperBackground = showWallpaperBackground,
             )
         }
 
         // When not reversed, show customize card at the bottom
-        if (!isReversed && showCustomizeCard) {
+        if (!isReversed && shouldShowCustomizeCard) {
             CustomizeSearchEnginesCard(
                 onClick = onCustomizeClick,
                 showWallpaperBackground = showWallpaperBackground,
@@ -170,6 +174,7 @@ fun SearchEngineCard(
 private fun SearchTargetCard(
     target: SearchTarget,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
 ) {
@@ -180,10 +185,13 @@ private fun SearchTargetCard(
             modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraLarge)
-                .clickable {
-                    hapticConfirm(view)()
-                    onClick()
-                },
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick()
+                    },
+                    onLongClick = onLongClick,
+                ),
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
         elevation = AppColors.getCardElevation(showWallpaperBackground),

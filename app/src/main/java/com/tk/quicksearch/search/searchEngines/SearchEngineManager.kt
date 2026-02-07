@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
-import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
@@ -75,24 +73,6 @@ class SearchEngineManager(
                 }
             }
 
-            // Prevent disabling the last enabled search engine
-            if (!enabled) {
-                val wouldBeDisabled = disabledSearchTargetIds.toMutableSet().apply { add(target.getId()) }
-                val remainingEnabledCount = searchTargetsOrder.count { it.getId() !in wouldBeDisabled }
-                if (remainingEnabledCount == 0) {
-                    // Show toast on main thread
-                    scope.launch(Dispatchers.Main) {
-                        Toast
-                            .makeText(
-                                context,
-                                R.string.settings_search_engines_at_least_one_required,
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                    }
-                    return@launch
-                }
-            }
-
             val disabled = disabledSearchTargetIds.toMutableSet()
             val id = target.getId()
             if (enabled) {
@@ -101,8 +81,20 @@ class SearchEngineManager(
                 disabled.add(id)
             }
             disabledSearchTargetIds = disabled
+
+            val hasEnabledTargets = searchTargetsOrder.any { it.getId() !in disabledSearchTargetIds }
+            if (!hasEnabledTargets && isSearchEngineCompactMode) {
+                isSearchEngineCompactMode = false
+                userPreferences.setSearchEngineCompactMode(false)
+            }
+
             userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
-            onStateUpdate { state -> state.copy(disabledSearchTargetIds = disabledSearchTargetIds) }
+            onStateUpdate { state ->
+                state.copy(
+                    disabledSearchTargetIds = disabledSearchTargetIds,
+                    isSearchEngineCompactMode = isSearchEngineCompactMode,
+                )
+            }
         }
     }
 
@@ -116,8 +108,10 @@ class SearchEngineManager(
 
     fun setSearchEngineCompactMode(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
-            isSearchEngineCompactMode = enabled
-            userPreferences.setSearchEngineCompactMode(enabled)
+            val hasEnabledTargets = searchTargetsOrder.any { it.getId() !in disabledSearchTargetIds }
+            val resolvedEnabled = if (enabled && !hasEnabledTargets) false else enabled
+            isSearchEngineCompactMode = resolvedEnabled
+            userPreferences.setSearchEngineCompactMode(resolvedEnabled)
             onStateUpdate { state ->
                 state.copy(
                     isSearchEngineCompactMode = isSearchEngineCompactMode,

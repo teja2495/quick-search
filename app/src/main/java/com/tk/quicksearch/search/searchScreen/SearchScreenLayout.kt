@@ -918,6 +918,9 @@ fun ContentLayout(
                             onSearchEngineClick = onSearchTargetClick,
                             onCustomizeClick =
                             onCustomizeSearchEnginesClick,
+                            onSearchEngineLongPress =
+                            onCustomizeSearchEnginesClick,
+                            showCustomizeCard = false,
                             isReversed = isReversed,
                             showWallpaperBackground =
                                 state.showWallpaperBackground,

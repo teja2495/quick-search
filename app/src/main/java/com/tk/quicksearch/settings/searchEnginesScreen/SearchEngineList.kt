@@ -203,17 +203,21 @@ fun SearchEngineListCard(
         }
 
         if (disabledEngines.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.settings_search_engines_more_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        start = DesignTokens.CardHorizontalPadding,
-                        top = 24.dp,
-                        bottom = 8.dp,
-                    ),
-            )
+            val showDisabledSectionTitle = enabledEngines.isNotEmpty()
+
+            if (showDisabledSectionTitle) {
+                Text(
+                    text = stringResource(R.string.settings_search_engines_more_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        Modifier.padding(
+                            start = DesignTokens.CardHorizontalPadding,
+                            top = 24.dp,
+                            bottom = 8.dp,
+                        ),
+                )
+            }
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),

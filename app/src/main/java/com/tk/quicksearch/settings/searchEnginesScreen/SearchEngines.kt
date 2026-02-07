@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineListCard
 import com.tk.quicksearch.settings.shared.*
@@ -56,6 +57,14 @@ fun SearchEngines(
     showDirectSearchAtTop: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val hasEnabledEngines =
+        searchEngineOrder.any { searchTarget ->
+            searchTarget.getId() !in disabledSearchEngines &&
+                (directSearchAvailable ||
+                    searchTarget !is SearchTarget.Engine ||
+                    searchTarget.engine != SearchEngine.DIRECT_SEARCH)
+        }
+
     if (showTitle) {
         Text(
             text = stringResource(R.string.settings_search_engines_title),
@@ -64,12 +73,14 @@ fun SearchEngines(
             modifier = modifier.padding(bottom = DesignTokens.SectionTitleBottomPadding),
         )
 
-        Text(
-            text = stringResource(R.string.settings_search_engines_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
-        )
+        if (hasEnabledEngines) {
+            Text(
+                text = stringResource(R.string.settings_search_engines_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = DesignTokens.SectionDescriptionBottomPadding),
+            )
+        }
     }
 
     // Show Direct Search card at top or bottom based on the showDirectSearchAtTop parameter
@@ -87,12 +98,16 @@ fun SearchEngines(
         Spacer(modifier = Modifier.height(6.dp))
     }
 
-    if (showShortcutHintBanner && onDismissShortcutHintBanner != null) {
+    if (hasEnabledEngines && showShortcutHintBanner && onDismissShortcutHintBanner != null) {
         ShortcutHintBanner(
             onDismiss = onDismissShortcutHintBanner,
             modifier = Modifier.padding(bottom = 18.dp),
         )
-    } else if (showDefaultEngineHintBanner && onDismissDefaultEngineHintBanner != null) {
+    } else if (
+        hasEnabledEngines &&
+        showDefaultEngineHintBanner &&
+        onDismissDefaultEngineHintBanner != null
+    ) {
         DefaultEngineHintBanner(
             onDismiss = onDismissDefaultEngineHintBanner,
             modifier = Modifier.padding(bottom = 18.dp),
