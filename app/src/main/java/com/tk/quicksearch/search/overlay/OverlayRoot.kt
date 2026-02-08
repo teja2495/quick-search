@@ -9,12 +9,13 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -45,6 +47,11 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.delay
+
+private const val OVERLAY_WIDTH_PERCENT = 0.9f
+private const val OVERLAY_HEIGHT_PERCENT_WITH_KEYBOARD = 0.8f
+private const val OVERLAY_HEIGHT_PERCENT_WITHOUT_KEYBOARD = 0.8f
+private val OVERLAY_TOP_OFFSET = 16.dp
 
 @Composable
 fun OverlayRoot(
@@ -101,27 +108,51 @@ fun OverlayRoot(
                                                 indication = null,
                                         ) { handleClose() },
                 ) {
+                        val layoutDirection = LocalLayoutDirection.current
+                        val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
                         val imeBottomPadding =
                                 WindowInsets.ime.asPaddingValues().calculateBottomPadding()
-                        val availableHeight = (maxHeight - imeBottomPadding).coerceAtLeast(0.dp)
+                        val topSafePadding = systemBarsPadding.calculateTopPadding()
+                        val leftSafePadding = systemBarsPadding.calculateLeftPadding(layoutDirection)
+                        val rightSafePadding =
+                                systemBarsPadding.calculateRightPadding(layoutDirection)
+                        val bottomSafePadding =
+                                maxOf(
+                                        systemBarsPadding.calculateBottomPadding(),
+                                        imeBottomPadding,
+                                )
+                        val overlayTopPadding = topSafePadding + OVERLAY_TOP_OFFSET
+                        val availableHeight =
+                                (maxHeight - overlayTopPadding - bottomSafePadding).coerceAtLeast(
+                                        0.dp
+                                )
+                        val availableWidth =
+                                (maxWidth - leftSafePadding - rightSafePadding).coerceAtLeast(0.dp)
                         val isKeyboardVisible = imeBottomPadding > 0.dp
                         LaunchedEffect(imeBottomPadding) {
                                 if (imeBottomPadding > 0.dp) hasKeyboardBeenVisible = true
                         }
                         val assumeKeyboardOpen = !hasKeyboardBeenVisible
-                        val overlayHeightRatio =
-                                if (assumeKeyboardOpen || isKeyboardVisible) 0.45f else 0.75f
-                        val reservedVerticalSpace =
-                                DesignTokens.Spacing40 + DesignTokens.SpacingLarge * 2
-                        val maxOverlayHeight =
-                                (availableHeight - reservedVerticalSpace).coerceAtLeast(0.dp)
+                        val overlayHeightPercent =
+                                if (assumeKeyboardOpen || isKeyboardVisible) {
+                                        OVERLAY_HEIGHT_PERCENT_WITH_KEYBOARD
+                                } else {
+                                        OVERLAY_HEIGHT_PERCENT_WITHOUT_KEYBOARD
+                                }
                         val targetOverlayHeight =
-                                minOf(maxHeight * overlayHeightRatio, maxOverlayHeight)
+                                (availableHeight * overlayHeightPercent).coerceAtLeast(0.dp)
+                        val targetOverlayWidth =
+                                (availableWidth * OVERLAY_WIDTH_PERCENT).coerceAtLeast(0.dp)
 
                         val overlayHeight by animateDpAsState(
                                 targetValue = targetOverlayHeight,
                                 animationSpec = tween(durationMillis = 300),
                                 label = "overlayHeight",
+                        )
+                        val overlayWidth by animateDpAsState(
+                                targetValue = targetOverlayWidth,
+                                animationSpec = tween(durationMillis = 300),
+                                label = "overlayWidth",
                         )
 
                         val uiState by viewModel.uiState.collectAsState()
@@ -144,19 +175,17 @@ fun OverlayRoot(
                                 Box(
                                         modifier =
                                                 Modifier.align(Alignment.TopCenter)
-                                                        .padding(top = DesignTokens.Spacing40),
+                                                        .padding(
+                                                                start = leftSafePadding,
+                                                                end = rightSafePadding,
+                                                                top = overlayTopPadding,
+                                                        )
+                                                        .fillMaxSize(),
+                                        contentAlignment = Alignment.TopCenter,
                                 ) {
                                         Box(
                                                 modifier =
-                                                        Modifier.padding(
-                                                                        horizontal =
-                                                                                DesignTokens
-                                                                                        .ContentHorizontalPadding,
-                                                                        vertical =
-                                                                                DesignTokens
-                                                                                        .SpacingLarge,
-                                                                )
-                                                                .fillMaxWidth()
+                                                        Modifier.width(overlayWidth)
                                                                 .height(overlayHeight)
                                                                 .clip(
                                                                         DesignTokens
