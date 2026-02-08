@@ -63,9 +63,11 @@ private val EXPANDED_HISTORY_MAX_HEIGHT = 420.dp
 private val EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY = 300.dp
 
 private const val QUERY_ICON_SIZE = 42
+private const val QUERY_ROW_ICON_SIZE = 40
 private const val QUERY_ICON_START_PADDING = 16
 private const val QUERY_TEXT_START_PADDING = 12
 private const val QUERY_TEXT_END_PADDING = 16
+private const val QUERY_ROW_VERTICAL_PADDING = 10
 private const val SETTINGS_HORIZONTAL_PADDING = 16
 private const val SETTINGS_VERTICAL_PADDING = 4
 private const val SHORTCUT_VERTICAL_PADDING = 4
@@ -489,8 +491,8 @@ private fun RecentQueryRow(
                 ).padding(
                     start = QUERY_ICON_START_PADDING.dp,
                     end = QUERY_TEXT_END_PADDING.dp,
-                    top = DesignTokens.SpacingLarge,
-                    bottom = DesignTokens.SpacingLarge,
+                    top = QUERY_ROW_VERTICAL_PADDING.dp,
+                    bottom = QUERY_ROW_VERTICAL_PADDING.dp,
                 ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -500,7 +502,7 @@ private fun RecentQueryRow(
             tint = iconColor,
             modifier =
                 Modifier
-                    .size(QUERY_ICON_SIZE.dp)
+                    .size(QUERY_ROW_ICON_SIZE.dp)
                     .padding(
                         start = DesignTokens.SpacingXSmall,
                         end = QUERY_TEXT_START_PADDING.dp,

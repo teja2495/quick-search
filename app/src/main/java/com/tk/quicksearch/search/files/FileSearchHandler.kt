@@ -124,6 +124,9 @@ class FileSearchHandler(
                 val isHidden = file.displayName.startsWith(".")
                 if (isHidden && !showHiddenFiles) return@filter false
 
+                // When hidden files are disabled, ignore trash folders and their contents.
+                if (!showHiddenFiles && isInTrashFolder(file)) return@filter false
+
                 // Apply other filters
                 fileTypeMatches &&
                     !excludedFileUris.contains(file.uri.toString()) &&
@@ -227,5 +230,19 @@ class FileSearchHandler(
 
         val name = deviceFile.displayName.lowercase(Locale.getDefault())
         return name.startsWith("com.")
+    }
+
+    private fun isInTrashFolder(deviceFile: DeviceFile): Boolean {
+        if (deviceFile.displayName.equals(".Trash", ignoreCase = true)) return true
+
+        val relativePath = deviceFile.relativePath ?: return false
+        return relativePath
+            .split('/')
+            .asSequence()
+            .filter { it.isNotBlank() }
+            .map { it.lowercase(Locale.getDefault()) }
+            .any { segment ->
+                segment == ".trash" || segment.startsWith(".trash-")
+            }
     }
 }

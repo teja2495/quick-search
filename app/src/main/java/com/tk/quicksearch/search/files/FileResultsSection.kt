@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.files
 
 import android.os.Build
-import android.os.CancellationSignal
+import android.os.SystemClock
 import android.util.Size
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -56,10 +56,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.models.DeviceFile
@@ -79,14 +81,18 @@ private const val PDF_ICON_SIZE = 20
 private const val THUMBNAIL_SIZE_DP = 60
 private const val THUMBNAIL_LOAD_SIZE_PX = 160
 private const val THUMBNAIL_CACHE_MAX_SIZE = 60
+private const val THUMBNAIL_FAILURE_RETRY_DELAY_MS = 30_000L
 private const val EXPAND_BUTTON_TOP_PADDING = 2
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 private const val DROPDOWN_CORNER_RADIUS = 24
 
 private object FileThumbnailCache {
+    private val loadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val cache = object : LinkedHashMap<String, ImageBitmap>(THUMBNAIL_CACHE_MAX_SIZE, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ImageBitmap>) = size > THUMBNAIL_CACHE_MAX_SIZE
     }
+    private val inFlightLoads = mutableMapOf<String, Deferred<ImageBitmap?>>()
+    private val failureTimestamps = mutableMapOf<String, Long>()
 
     @Synchronized
     fun get(uri: String): ImageBitmap? = cache[uri]
@@ -94,6 +100,53 @@ private object FileThumbnailCache {
     @Synchronized
     fun put(uri: String, bitmap: ImageBitmap) {
         cache[uri] = bitmap
+        failureTimestamps.remove(uri)
+    }
+
+    suspend fun getOrLoad(uri: String, loader: suspend () -> ImageBitmap?): ImageBitmap? {
+        get(uri)?.let { return it }
+
+        val deferred =
+            synchronized(this) {
+                cache[uri]?.let { return it }
+
+                inFlightLoads[uri]?.let { return@synchronized it }
+
+                val now = SystemClock.elapsedRealtime()
+                val lastFailure = failureTimestamps[uri]
+                if (lastFailure != null && now - lastFailure < THUMBNAIL_FAILURE_RETRY_DELAY_MS) {
+                    return@synchronized null
+                }
+
+                loadScope.async(start = CoroutineStart.LAZY) {
+                    var loadedBitmap: ImageBitmap? = null
+                    try {
+                        loadedBitmap = loader()
+                    } catch (_: Exception) {
+                        loadedBitmap = null
+                    } finally {
+                        synchronized(this@FileThumbnailCache) {
+                            inFlightLoads.remove(uri)
+                            if (loadedBitmap != null) {
+                                cache[uri] = loadedBitmap!!
+                                failureTimestamps.remove(uri)
+                            } else {
+                                failureTimestamps[uri] = SystemClock.elapsedRealtime()
+                            }
+                        }
+                    }
+                    loadedBitmap
+                }.also { inFlightLoads[uri] = it }
+            } ?: return null
+
+        if (!deferred.isActive && !deferred.isCompleted) deferred.start()
+        return try {
+            deferred.await()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (_: Exception) {
+            null
+        }
     }
 }
 
@@ -401,24 +454,19 @@ private fun FileResultThumbnailOrIcon(
     if (showThumbnail && iconOverride == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         LaunchedEffect(uriString) {
             if (thumbnailBitmap != null) return@LaunchedEffect
-            val signal = CancellationSignal()
-            currentCoroutineContext()[Job]?.invokeOnCompletion { cause ->
-                if (cause is CancellationException) signal.cancel()
-            }
-            val bitmap = withContext(Dispatchers.IO) {
-                try {
-                    context.contentResolver.loadThumbnail(
-                        deviceFile.uri,
-                        Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
-                        signal,
-                    )
-                } catch (_: Exception) {
-                    null
+            val imageBitmap =
+                FileThumbnailCache.getOrLoad(uriString) {
+                    try {
+                        context.contentResolver.loadThumbnail(
+                            deviceFile.uri,
+                            Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
+                            null,
+                        )?.asImageBitmap()
+                    } catch (_: Exception) {
+                        null
+                    }
                 }
-            }
-            val imageBitmap = bitmap?.asImageBitmap()
             if (imageBitmap != null) {
-                FileThumbnailCache.put(uriString, imageBitmap)
                 thumbnailBitmap = imageBitmap
             }
         }

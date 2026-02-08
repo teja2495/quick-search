@@ -15,10 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -37,50 +37,30 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
 
-/** Card for web suggestions and recent queries settings (without search engines navigation). */
+/** Card for web search suggestions settings. */
 @Composable
-fun WebSuggestionsCard(
-    appSuggestionsEnabled: Boolean,
-    onAppSuggestionsToggle: (Boolean) -> Unit,
+fun WebSearchSuggestionsCard(
     webSuggestionsEnabled: Boolean,
     onWebSuggestionsToggle: (Boolean) -> Unit,
     webSuggestionsCount: Int,
     onWebSuggestionsCountChange: (Int) -> Unit,
-    recentQueriesEnabled: Boolean,
-    onRecentQueriesToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
     val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
-        Column {
-            // App Suggestions Toggle Section
-            Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.app_suggestions_toggle_title),
-                    subtitle = stringResource(R.string.app_suggestions_toggle_desc),
-                    checked = appSuggestionsEnabled,
-                    onCheckedChange = onAppSuggestionsToggle,
-                    isFirstItem = true,
-                    isLastItem = false,
-                    showDivider = false,
-                )
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-            // Web Search Suggestions Toggle Section
+        Column(modifier = Modifier.padding(bottom = 8.dp)) {
             SettingsToggleRow(
                 title = stringResource(R.string.web_search_suggestions_title),
                 checked = webSuggestionsEnabled,
                 onCheckedChange = onWebSuggestionsToggle,
-                isFirstItem = false,
-                isLastItem = false,
+                isFirstItem = true,
+                isLastItem = !webSuggestionsEnabled,
                 showDivider = false,
             )
 
-            // Web Suggestions Count Slider (only show if enabled)
             if (webSuggestionsEnabled) {
                 var lastWebStep by remember { mutableStateOf(webSuggestionsCount) }
                 Row(
@@ -91,7 +71,7 @@ fun WebSuggestionsCard(
                                 start = 24.dp,
                                 end = 24.dp,
                                 top = 0.dp,
-                                bottom = 16.dp,
+                                bottom = 24.dp,
                             ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -117,33 +97,21 @@ fun WebSuggestionsCard(
                         modifier = Modifier.width(24.dp),
                     )
                 }
-
-                // Divider
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            } else {
-                // Divider (when slider is hidden)
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }
 
-            // Recent Queries Toggle Section
-            SettingsToggleRow(
-                title = stringResource(R.string.recent_queries_toggle_title),
-                subtitle = stringResource(R.string.recent_queries_toggle_desc),
-                checked = recentQueriesEnabled,
-                onCheckedChange = onRecentQueriesToggle,
-                isFirstItem = false,
-                isLastItem = true,
-                showDivider = false,
-            )
         }
     }
 }
 
 /**
- * Combined card for calculator toggle and excluded items navigation.
+ * Card for app suggestions, recent queries, calculator and excluded items.
  */
 @Composable
-fun CombinedExcludedItemsCard(
+fun SearchOptionsCard(
+    appSuggestionsEnabled: Boolean,
+    onAppSuggestionsToggle: (Boolean) -> Unit,
+    recentQueriesEnabled: Boolean,
+    onRecentQueriesToggle: (Boolean) -> Unit,
     calculatorEnabled: Boolean,
     onToggleCalculator: (Boolean) -> Unit,
     excludedItemsTitle: String,
@@ -151,10 +119,28 @@ fun CombinedExcludedItemsCard(
     onNavigateToExcludedItems: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val view = LocalView.current
     ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
         Column {
-            // Calculator toggle
+            SettingsToggleRow(
+                title = stringResource(R.string.app_suggestions_toggle_title),
+                subtitle = stringResource(R.string.app_suggestions_toggle_desc),
+                checked = appSuggestionsEnabled,
+                onCheckedChange = onAppSuggestionsToggle,
+                leadingIcon = Icons.Rounded.Apps,
+                isFirstItem = true,
+                isLastItem = false,
+            )
+
+            SettingsToggleRow(
+                title = stringResource(R.string.recent_queries_toggle_title),
+                subtitle = stringResource(R.string.recent_queries_toggle_desc),
+                checked = recentQueriesEnabled,
+                onCheckedChange = onRecentQueriesToggle,
+                leadingIcon = Icons.Rounded.History,
+                isFirstItem = false,
+                isLastItem = false,
+            )
+
             SettingsToggleRow(
                 title = stringResource(R.string.calculator_toggle_title),
                 subtitle = stringResource(R.string.calculator_toggle_desc),
@@ -166,7 +152,6 @@ fun CombinedExcludedItemsCard(
                 extraVerticalPadding = 4.dp,
             )
 
-            // Excluded Items Section
             SettingsNavigationRow(
                 item =
                     SettingsCardItem(
@@ -294,34 +279,32 @@ fun SearchResultsSettingsSection(
             showTitle = false,
         )
 
-        // Web Suggestions Card
-        WebSuggestionsCard(
-            appSuggestionsEnabled = state.appSuggestionsEnabled,
-            onAppSuggestionsToggle = callbacks.onToggleAppSuggestions,
+        WebSearchSuggestionsCard(
             webSuggestionsEnabled = state.webSuggestionsEnabled,
             onWebSuggestionsToggle = callbacks.onToggleWebSuggestions,
             webSuggestionsCount = state.webSuggestionsCount,
             onWebSuggestionsCountChange = callbacks.onWebSuggestionsCountChange,
-            recentQueriesEnabled = state.recentQueriesEnabled,
-            onRecentQueriesToggle = callbacks.onToggleRecentQueries,
-            modifier = Modifier.padding(top = 12.dp),
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
 
-        // Combined Calculator and Excluded Items Card
-        CombinedExcludedItemsCard(
+        SearchOptionsCard(
+            appSuggestionsEnabled = state.appSuggestionsEnabled,
+            onAppSuggestionsToggle = callbacks.onToggleAppSuggestions,
+            recentQueriesEnabled = state.recentQueriesEnabled,
+            onRecentQueriesToggle = callbacks.onToggleRecentQueries,
             calculatorEnabled = state.calculatorEnabled,
             onToggleCalculator = callbacks.onToggleCalculator,
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),
             onNavigateToExcludedItems = onNavigateToExcludedItems,
-            modifier = Modifier.padding(top = 12.dp),
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
 
         RefreshDataCard(
             onRefreshApps = callbacks.onRefreshApps,
             onRefreshContacts = callbacks.onRefreshContacts,
             onRefreshFiles = callbacks.onRefreshFiles,
-            modifier = Modifier.padding(top = 12.dp),
+            modifier = Modifier.padding(top = DesignTokens.SpacingLarge),
         )
     }
 }
