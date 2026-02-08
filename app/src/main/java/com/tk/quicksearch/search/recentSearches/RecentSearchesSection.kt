@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.recentSearches
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -8,7 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -59,6 +60,7 @@ import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 private val EXPANDED_HISTORY_MAX_HEIGHT = 420.dp
+private val EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY = 300.dp
 
 private const val QUERY_ICON_SIZE = 42
 private const val QUERY_ICON_START_PADDING = 16
@@ -91,12 +93,25 @@ fun RecentSearchesSection(
     onDisableSearchHistory: () -> Unit = {},
     onExpandedChange: (Boolean) -> Unit = {},
     showWallpaperBackground: Boolean = false,
+    isOverlayPresentation: Boolean = false,
 ) {
     if (items.isEmpty()) return
-    var isExpanded by remember(items) { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val displayItems = if (isExpanded) items else items.take(1)
     val canExpand = items.size > 1
+    val expandedHistoryMaxHeight =
+        if (isOverlayPresentation) {
+            EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY
+        } else {
+            EXPANDED_HISTORY_MAX_HEIGHT
+        }
+
+    BackHandler(enabled = isExpanded) {
+        isExpanded = false
+        onExpandedChange(false)
+        keyboardController?.show()
+    }
 
     val textColor =
         if (showWallpaperBackground) {
@@ -123,7 +138,7 @@ fun RecentSearchesSection(
                 val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
-                        .height(EXPANDED_HISTORY_MAX_HEIGHT)
+                        .heightIn(max = expandedHistoryMaxHeight)
                         .fillMaxWidth()
                         .verticalScroll(scrollState),
                 ) {

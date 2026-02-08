@@ -31,6 +31,8 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 fun SearchEngines(
     searchEngineOrder: List<SearchTarget>,
     disabledSearchEngines: Set<String>,
+    disabledSearchEnginesExpanded: Boolean = true,
+    onToggleDisabledSearchEnginesExpanded: (() -> Unit)? = null,
     onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
     onReorderSearchEngines: (List<SearchTarget>) -> Unit,
     shortcutCodes: Map<String, String> = emptyMap(),
@@ -128,6 +130,8 @@ fun SearchEngines(
     SearchEngineListCard(
         searchEngineOrder = enginesToDisplay,
         disabledSearchEngines = disabledSearchEngines,
+        disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
+        onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
         onToggleSearchEngine = onToggleSearchEngine,
         onReorderSearchEngines = onReorderSearchEngines,
         shortcutCodes = shortcutCodes,

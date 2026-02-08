@@ -1,7 +1,11 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,6 +64,8 @@ import sh.calvin.reorderable.ReorderableColumn
 fun SearchEngineListCard(
     searchEngineOrder: List<SearchTarget>,
     disabledSearchEngines: Set<String>,
+    disabledSearchEnginesExpanded: Boolean = true,
+    onToggleDisabledSearchEnginesExpanded: (() -> Unit)? = null,
     onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
     onReorderSearchEngines: (List<SearchTarget>) -> Unit,
     shortcutCodes: Map<String, String>,
@@ -74,6 +82,13 @@ fun SearchEngineListCard(
 ) {
     var showAddSearchEngineDialog by remember { mutableStateOf(false) }
     var customEngineToEdit by remember { mutableStateOf<CustomSearchEngine?>(null) }
+    var localDisabledSectionExpanded by remember { mutableStateOf(disabledSearchEnginesExpanded) }
+    val isDisabledSectionExpanded =
+        if (onToggleDisabledSearchEnginesExpanded != null) {
+            disabledSearchEnginesExpanded
+        } else {
+            localDisabledSectionExpanded
+        }
 
     if (showAddSearchEngineDialog && onAddCustomSearchEngine != null) {
         AddSearchEngineDialog(
@@ -243,74 +258,143 @@ fun SearchEngineListCard(
         }
 
         if (disabledEngines.isNotEmpty()) {
-            val showDisabledSectionTitle = enabledEngines.isNotEmpty()
+            val disabledHeaderModifier =
+                Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    if (onToggleDisabledSearchEnginesExpanded != null) {
+                        onToggleDisabledSearchEnginesExpanded()
+                    } else {
+                        localDisabledSectionExpanded = !localDisabledSectionExpanded
+                    }
+                }
+            val collapsedHeaderTextRes =
+                if (isDisabledSectionExpanded) {
+                    R.string.settings_search_engines_more_title
+                } else {
+                    R.string.settings_search_engines_more_search_engines
+                }
 
-            if (showDisabledSectionTitle) {
-                Text(
-                    text = stringResource(R.string.settings_search_engines_more_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+            if (isDisabledSectionExpanded) {
+                Row(
                     modifier =
-                        Modifier.padding(
-                            start = DesignTokens.CardHorizontalPadding,
-                            top = 24.dp,
-                            bottom = 8.dp,
-                        ),
-                )
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = DesignTokens.CardHorizontalPadding,
+                                top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp,
+                                end = DesignTokens.CardHorizontalPadding,
+                                bottom = 8.dp,
+                            ).then(disabledHeaderModifier),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = stringResource(collapsedHeaderTextRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.ExpandLess,
+                        contentDescription = stringResource(R.string.desc_collapse),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            } else {
+                ElevatedCard(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = 8.dp)
+                            .then(disabledHeaderModifier),
+                    shape = MaterialTheme.shapes.extraLarge,
+                ) {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = DesignTokens.CardHorizontalPadding,
+                                    vertical = 16.dp,
+                                ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(collapsedHeaderTextRes),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = stringResource(R.string.desc_expand),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                }
             }
 
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge,
+            AnimatedVisibility(
+                visible = isDisabledSectionExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
             ) {
-                Column {
-                    disabledEngines.forEachIndexed { index, engine ->
-                        val engineInfo = (engine as? SearchTarget.Engine)?.engine
-                        val targetId = engine.getId()
-                        val shortcutCode = shortcutCodes[targetId].orEmpty()
-                        val isShortcutEnabled =
-                            shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
-                        SearchEngineRowContent(
-                            engine = engine,
-                            isEnabled = false,
-                            onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
-                            dragHandleModifier = null,
-                            allowDrag = false,
-                            shortcutCode = shortcutCode,
-                            shortcutEnabled = isShortcutEnabled,
-                            onShortcutCodeChange =
-                                setShortcutCode?.let { { code -> it(engine, code) } },
-                            onShortcutToggle =
-                                engineInfo?.let {
-                                    setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
-                                },
-                            showToggle = true,
-                            switchEnabled = true,
-                            amazonDomain =
-                                if (engineInfo == SearchEngine.AMAZON) {
-                                    amazonDomain
-                                } else {
-                                    null
-                                },
-                            onSetAmazonDomain =
-                                if (engineInfo == SearchEngine.AMAZON) {
-                                    onSetAmazonDomain
-                                } else {
-                                    null
-                                },
-                            onMoveToTop = null,
-                            onMoveToBottom = null,
-                            onCustomEngineClick =
-                                if (engine is SearchTarget.Custom) {
-                                    { customEngineToEdit = engine.custom }
-                                } else {
-                                    null
-                                },
-                            existingShortcuts = shortcutCodes,
-                        )
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
+                ) {
+                    Column {
+                        disabledEngines.forEachIndexed { index, engine ->
+                            val engineInfo = (engine as? SearchTarget.Engine)?.engine
+                            val targetId = engine.getId()
+                            val shortcutCode = shortcutCodes[targetId].orEmpty()
+                            val isShortcutEnabled =
+                                shortcutEnabled[targetId] ?: shortcutCode.isNotEmpty()
+                            SearchEngineRowContent(
+                                engine = engine,
+                                isEnabled = false,
+                                onToggle = { enabled -> onToggleSearchEngine(engine, enabled) },
+                                dragHandleModifier = null,
+                                allowDrag = false,
+                                shortcutCode = shortcutCode,
+                                shortcutEnabled = isShortcutEnabled,
+                                onShortcutCodeChange =
+                                    setShortcutCode?.let { { code -> it(engine, code) } },
+                                onShortcutToggle =
+                                    engineInfo?.let {
+                                        setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                    },
+                                showToggle = true,
+                                switchEnabled = true,
+                                amazonDomain =
+                                    if (engineInfo == SearchEngine.AMAZON) {
+                                        amazonDomain
+                                    } else {
+                                        null
+                                    },
+                                onSetAmazonDomain =
+                                    if (engineInfo == SearchEngine.AMAZON) {
+                                        onSetAmazonDomain
+                                    } else {
+                                        null
+                                    },
+                                onMoveToTop = null,
+                                onMoveToBottom = null,
+                                onCustomEngineClick =
+                                    if (engine is SearchTarget.Custom) {
+                                        { customEngineToEdit = engine.custom }
+                                    } else {
+                                        null
+                                    },
+                                existingShortcuts = shortcutCodes,
+                            )
 
-                        if (index != disabledEngines.lastIndex) {
-                            SearchEngineDivider()
+                            if (index != disabledEngines.lastIndex) {
+                                SearchEngineDivider()
+                            }
                         }
                     }
                 }

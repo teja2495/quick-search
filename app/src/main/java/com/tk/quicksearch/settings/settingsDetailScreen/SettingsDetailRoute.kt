@@ -197,6 +197,16 @@ fun SettingsDetailRoute(
                         },
                 )
             }
+    var disabledSearchEnginesExpanded by
+            remember(detailType) {
+                mutableStateOf(
+                        if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                            userPreferences.isDisabledSearchEnginesExpanded()
+                        } else {
+                            true
+                        },
+                )
+            }
 
     DisposableEffect(lifecycleOwner, detailType) {
         val observer = LifecycleEventObserver { _, event ->
@@ -335,6 +345,13 @@ fun SettingsDetailRoute(
             userPreferences.setDirectSearchSetupExpanded(newExpanded)
         }
     }
+    val onToggleDisabledSearchEnginesExpanded = {
+        val newExpanded = !disabledSearchEnginesExpanded
+        disabledSearchEnginesExpanded = newExpanded
+        if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+            userPreferences.setDisabledSearchEnginesExpanded(newExpanded)
+        }
+    }
 
     SettingsDetailScreen(
             modifier = modifier,
@@ -348,6 +365,8 @@ fun SettingsDetailRoute(
             isDefaultAssistant = isDefaultAssistant,
             directSearchSetupExpanded = directSearchSetupExpanded,
             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+            disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
+            onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
             onNavigateToDetail = onNavigateToDetail,
     )
 

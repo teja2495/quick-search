@@ -72,6 +72,8 @@ internal fun SettingsDetailScreen(
     onDismissDefaultEngineHintBanner: () -> Unit = {},
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
+    disabledSearchEnginesExpanded: Boolean = true,
+    onToggleDisabledSearchEnginesExpanded: (() -> Unit)? = null,
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -164,6 +166,8 @@ internal fun SettingsDetailScreen(
                             onDismissDefaultEngineHintBanner = onDismissDefaultEngineHintBanner,
                             directSearchSetupExpanded = directSearchSetupExpanded,
                             onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                            disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
+                            onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             showDirectSearchAtTop = true,
                         )

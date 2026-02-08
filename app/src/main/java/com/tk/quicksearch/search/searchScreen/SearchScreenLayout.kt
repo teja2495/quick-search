@@ -459,6 +459,7 @@ fun SearchContentArea(
                     showCalculator = showCalculator,
                     showDirectSearch = showDirectSearch,
                     directSearchState = directSearchState,
+                    isOverlayPresentation = isOverlayPresentation,
                     onPhoneNumberClick = onPhoneNumberClick,
                     onEmailClick = onEmailClick,
                     onOpenPersonalContextDialog = onOpenPersonalContextDialog,
@@ -566,6 +567,7 @@ fun ContentLayout(
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null,
+    isOverlayPresentation: Boolean = false,
     onPhoneNumberClick: (String) -> Unit = {},
     onEmailClick: (String) -> Unit = {},
     onOpenPersonalContextDialog: () -> Unit = {},
@@ -895,6 +897,7 @@ fun ContentLayout(
                                 onExpandedChange = { recentSearchesExpanded = it },
                                 showWallpaperBackground =
                                     state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }

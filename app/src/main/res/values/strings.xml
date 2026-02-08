@@ -321,6 +321,7 @@
     <string name="settings_edit_search_engine_url_label">URL</string>
     <string name="dialog_delete">Delete</string>
     <string name="settings_search_engines_more_title">More</string>
+    <string name="settings_search_engines_more_search_engines">More Search Engines</string>
 
     <!-- ============================================================================
          Settings - App Shortcuts

@@ -833,6 +833,11 @@ class UserAppPreferences(
     fun setDirectSearchSetupExpanded(expanded: Boolean) =
             uiPreferences.setDirectSearchSetupExpanded(expanded)
 
+    fun isDisabledSearchEnginesExpanded(): Boolean = uiPreferences.isDisabledSearchEnginesExpanded()
+
+    fun setDisabledSearchEnginesExpanded(expanded: Boolean) =
+            uiPreferences.setDisabledSearchEnginesExpanded(expanded)
+
     fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
