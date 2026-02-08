@@ -522,7 +522,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Smoother overlay animations\nWallpaper background can now be enabled for Overlay\nOption to hide app suggestions\nLong press to copy Calculator/Gemini API result\nGoogle queries will open within Google app (if installed)\nRecently installed apps will appear in suggestions\nNew Search Engine: Claude (requires app)\nBug fixes</string>
+    <string name="release_notes_points">Ability to search work profile &amp; dual messenger apps\nAbility to add custom search engines\nAdded support for Signal messenger for contact results\nImproved search history UI\nAbility to hide all search engines\nThumbnails for photo/video results\nAdded option to manually Refresh data\nUI refinements &amp; bug fixes</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
