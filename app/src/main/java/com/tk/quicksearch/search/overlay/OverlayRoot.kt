@@ -49,8 +49,11 @@ import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.delay
 
 private const val OVERLAY_WIDTH_PERCENT = 0.9f
+private const val OVERLAY_DEFAULT_HEIGHT_PERCENT = 0.488f
 private const val OVERLAY_HEIGHT_PERCENT_WITH_KEYBOARD = 0.8f
 private const val OVERLAY_HEIGHT_PERCENT_WITHOUT_KEYBOARD = 0.8f
+private const val KEYBOARD_HEIGHT_CALCULATION_DELAY_MS = 250L
+private const val KEYBOARD_APPEARANCE_GRACE_PERIOD_MS = 250L
 private val OVERLAY_TOP_OFFSET = 16.dp
 
 @Composable
@@ -78,8 +81,21 @@ fun OverlayRoot(
 
         BackHandler(enabled = isVisible) { handleClose() }
 
-        var hasKeyboardBeenVisible by remember { mutableStateOf(false) }
-        LaunchedEffect(isVisible) { if (!isVisible) hasKeyboardBeenVisible = false }
+        var useKeyboardAwareHeight by remember { mutableStateOf(false) }
+        var allowKeyboardLessHeight by remember { mutableStateOf(false) }
+        LaunchedEffect(isVisible) {
+                if (isVisible) {
+                        useKeyboardAwareHeight = false
+                        allowKeyboardLessHeight = false
+                        delay(KEYBOARD_HEIGHT_CALCULATION_DELAY_MS)
+                        useKeyboardAwareHeight = true
+                        delay(KEYBOARD_APPEARANCE_GRACE_PERIOD_MS)
+                        allowKeyboardLessHeight = true
+                } else {
+                        useKeyboardAwareHeight = false
+                        allowKeyboardLessHeight = false
+                }
+        }
 
         val context = LocalContext.current
         val tipAlpha = if (isVisible) 1f else 0f
@@ -129,15 +145,19 @@ fun OverlayRoot(
                         val availableWidth =
                                 (maxWidth - leftSafePadding - rightSafePadding).coerceAtLeast(0.dp)
                         val isKeyboardVisible = imeBottomPadding > 0.dp
-                        LaunchedEffect(imeBottomPadding) {
-                                if (imeBottomPadding > 0.dp) hasKeyboardBeenVisible = true
-                        }
-                        val assumeKeyboardOpen = !hasKeyboardBeenVisible
-                        val overlayHeightPercent =
-                                if (assumeKeyboardOpen || isKeyboardVisible) {
+                        val keyboardAwareOverlayHeightPercent =
+                                if (isKeyboardVisible) {
                                         OVERLAY_HEIGHT_PERCENT_WITH_KEYBOARD
-                                } else {
+                                } else if (allowKeyboardLessHeight) {
                                         OVERLAY_HEIGHT_PERCENT_WITHOUT_KEYBOARD
+                                } else {
+                                        OVERLAY_DEFAULT_HEIGHT_PERCENT
+                                }
+                        val overlayHeightPercent =
+                                if (useKeyboardAwareHeight) {
+                                        keyboardAwareOverlayHeightPercent
+                                } else {
+                                        OVERLAY_DEFAULT_HEIGHT_PERCENT
                                 }
                         val targetOverlayHeight =
                                 (availableHeight * overlayHeightPercent).coerceAtLeast(0.dp)
