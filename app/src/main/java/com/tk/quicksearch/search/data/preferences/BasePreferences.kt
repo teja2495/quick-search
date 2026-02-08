@@ -247,28 +247,28 @@ abstract class BasePreferences(
         appContext.getSharedPreferences(SESSION_PREFS_NAME, Context.MODE_PRIVATE)
 
     // Encrypted SharedPreferences for sensitive data like API keys.
+    // Initialize only when needed so non-sensitive preference reads never hit keystore Binder work.
     // If encryption cannot be initialized, sensitive data will not be persisted.
-    protected val encryptedPrefs: SharedPreferences? =
-        run {
-            try {
-                val masterKey =
-                    MasterKey
-                        .Builder(appContext)
-                        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                        .build()
+    protected val encryptedPrefs: SharedPreferences? by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        try {
+            val masterKey =
+                MasterKey
+                    .Builder(appContext)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
 
-                EncryptedSharedPreferences.create(
-                    appContext,
-                    ENCRYPTED_PREFS_NAME,
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to create EncryptedSharedPreferences", e)
-                null
-            }
+            EncryptedSharedPreferences.create(
+                appContext,
+                ENCRYPTED_PREFS_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create EncryptedSharedPreferences", e)
+            null
         }
+    }
 
     // ============================================================================
     // Shared Utility Functions (delegated to PreferenceUtils)

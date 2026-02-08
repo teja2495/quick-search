@@ -16,6 +16,13 @@ import com.tk.quicksearch.search.recentSearches.RecentSearchesPreferences
 class UserAppPreferences(
         private val context: Context,
 ) {
+    private val sharedPrefs by lazy {
+        context.getSharedPreferences(
+                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
+                android.content.Context.MODE_PRIVATE,
+        )
+    }
+
     // Feature-specific preference managers - lazy to avoid blocking construction
     private val appPreferences by lazy { AppPreferences(context) }
     private val contactPreferences by lazy { ContactPreferences(context) }
@@ -539,10 +546,22 @@ class UserAppPreferences(
     fun setHasSeenDirectDialChoice(seen: Boolean) =
             contactPreferences.setHasSeenDirectDialChoice(seen)
 
-    fun isDirectDialManuallyDisabled(): Boolean = contactPreferences.isDirectDialManuallyDisabled()
+    fun isDirectDialManuallyDisabled(): Boolean =
+            sharedPrefs.getBoolean(
+                    com.tk.quicksearch.search.data.preferences.BasePreferences
+                            .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
+                    false,
+            )
 
-    fun setDirectDialManuallyDisabled(disabled: Boolean) =
-            contactPreferences.setDirectDialManuallyDisabled(disabled)
+    fun setDirectDialManuallyDisabled(disabled: Boolean) {
+        sharedPrefs
+                .edit()
+                .putBoolean(
+                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
+                        disabled,
+                ).apply()
+    }
 
     // ============================================================================
     // File Preferences
