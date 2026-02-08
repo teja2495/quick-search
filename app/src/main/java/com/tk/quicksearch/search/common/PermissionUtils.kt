@@ -2,7 +2,6 @@ package com.tk.quicksearch.search.utils
 
 import android.Manifest
 import android.app.AppOpsManager
-import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -23,37 +22,15 @@ object PermissionUtils {
                 ?: return false
 
         val mode =
-            appOps.unsafeCheckOpNoThrow(
-                AppOpsManager.OPSTR_GET_USAGE_STATS,
-                Process.myUid(),
-                context.packageName,
-            )
+            runCatching {
+                appOps.checkOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    Process.myUid(),
+                    context.packageName,
+                )
+            }.getOrElse { return false }
 
-        return when (mode) {
-            AppOpsManager.MODE_ALLOWED -> {
-                true
-            }
-
-            AppOpsManager.MODE_DEFAULT -> {
-                // Check if we have permission via PackageManager
-                try {
-                    val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-                    val mode2 =
-                        appOpsManager.checkOpNoThrow(
-                            AppOpsManager.OPSTR_GET_USAGE_STATS,
-                            Process.myUid(),
-                            context.packageName,
-                        )
-                    mode2 == AppOpsManager.MODE_ALLOWED
-                } catch (e: Exception) {
-                    false
-                }
-            }
-
-            else -> {
-                false
-            }
-        }
+        return mode == AppOpsManager.MODE_ALLOWED
     }
 
     /**

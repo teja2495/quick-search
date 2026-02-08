@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.core.view.ViewCompat
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.SearchEngine
@@ -54,6 +53,7 @@ import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
+import com.tk.quicksearch.util.performHapticFeedbackSafely
 import sh.calvin.reorderable.ReorderableColumn
 
 /**
@@ -148,7 +148,7 @@ fun SearchEngineListCard(
                         }
                     },
                     onMove = {
-                        ViewCompat.performHapticFeedback(
+                        performHapticFeedbackSafely(
                             view,
                             HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK,
                         )
@@ -179,13 +179,13 @@ fun SearchEngineListCard(
                                     dragHandleModifier =
                                         Modifier.longPressDraggableHandle(
                                             onDragStarted = {
-                                                ViewCompat.performHapticFeedback(
+                                                performHapticFeedbackSafely(
                                                     view,
                                                     HapticFeedbackConstantsCompat.GESTURE_START,
                                                 )
                                             },
                                             onDragStopped = {
-                                                ViewCompat.performHapticFeedback(
+                                                performHapticFeedbackSafely(
                                                     view,
                                                     HapticFeedbackConstantsCompat.GESTURE_END,
                                                 )
