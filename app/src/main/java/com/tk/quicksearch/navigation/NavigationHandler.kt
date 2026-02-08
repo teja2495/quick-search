@@ -144,6 +144,20 @@ class NavigationHandler(
 
                 onClearQuery()
             }
+
+            is SearchTarget.Custom -> {
+                if (addToRecentSearches && trimmedQuery.isNotEmpty()) {
+                    userPreferences.addRecentItem(RecentSearchEntry.Query(trimmedQuery))
+                }
+
+                IntentHelpers.openCustomSearchUrl(
+                    application,
+                    trimmedQuery,
+                    target.custom.urlTemplate,
+                ) { stringResId, _ -> showToastCallback(stringResId) }
+
+                onClearQuery()
+            }
         }
     }
 

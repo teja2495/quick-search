@@ -47,6 +47,10 @@ class ShortcutHandler(
                             is SearchTarget.Browser -> {
                                 userPreferences.getShortcutCode(id).orEmpty()
                             }
+
+                            is SearchTarget.Custom -> {
+                                userPreferences.getShortcutCode(id).orEmpty()
+                            }
                         }
                     id to code
                 }
@@ -60,6 +64,10 @@ class ShortcutHandler(
                             }
 
                             is SearchTarget.Browser -> {
+                                shortcutCodes[id].orEmpty().isNotEmpty()
+                            }
+
+                            is SearchTarget.Custom -> {
                                 shortcutCodes[id].orEmpty().isNotEmpty()
                             }
                         }
@@ -104,6 +112,7 @@ class ShortcutHandler(
             when (target) {
                 is SearchTarget.Engine -> userPreferences.setShortcutCode(target.engine, normalizedCode)
                 is SearchTarget.Browser -> userPreferences.setShortcutCode(id, normalizedCode)
+                is SearchTarget.Custom -> userPreferences.setShortcutCode(id, normalizedCode)
             }
             shortcutCodes = shortcutCodes.toMutableMap().apply { put(id, normalizedCode) }
             shortcutEnabled = shortcutEnabled.toMutableMap().apply { put(id, true) }
@@ -136,6 +145,7 @@ class ShortcutHandler(
             ?: when (target) {
                 is SearchTarget.Engine -> userPreferences.getShortcutCode(target.engine)
                 is SearchTarget.Browser -> userPreferences.getShortcutCode(id).orEmpty()
+                is SearchTarget.Custom -> userPreferences.getShortcutCode(id).orEmpty()
             }
     }
 
@@ -145,6 +155,7 @@ class ShortcutHandler(
             ?: when (target) {
                 is SearchTarget.Engine -> userPreferences.isShortcutEnabled(target.engine)
                 is SearchTarget.Browser -> getShortcutCode(target).isNotEmpty()
+                is SearchTarget.Custom -> getShortcutCode(target).isNotEmpty()
             }
     }
 

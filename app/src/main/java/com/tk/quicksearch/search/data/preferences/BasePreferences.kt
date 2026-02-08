@@ -500,6 +500,7 @@ abstract class BasePreferences(
         const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
         const val KEY_SEARCH_ENGINE_COMPACT_MODE = "search_engine_compact_mode"
         const val KEY_SEARCH_ENGINE_ONBOARDING_SEEN = "search_engine_onboarding_seen"
+        const val KEY_CUSTOM_SEARCH_ENGINES = "custom_search_engines"
 
         // Shortcut preferences keys
         const val KEY_SHORTCUTS_ENABLED = "shortcuts_enabled"

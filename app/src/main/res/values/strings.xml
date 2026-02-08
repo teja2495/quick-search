@@ -308,7 +308,18 @@
     <string name="settings_permissions_desc">Permissions this app needs to enable features</string>
     <string name="settings_feedback_development_title">Feedback &amp; Development</string>
     <string name="settings_feedback_development_desc">Send feedback, see app\'s source code</string>
-    <string name="request_search_engine_text">Request a search engine</string>
+    <string name="settings_add_search_engine_button">Add Search Engine</string>
+    <string name="settings_add_search_engine_dialog_title">Add Search Engine</string>
+    <string name="settings_add_search_engine_dialog_message">Enter URL with query placeholder.\n\nExample:\nhttps://www.google.com/search?q={{query}}</string>
+    <string name="settings_add_search_engine_error_required">Please enter a URL template.</string>
+    <string name="settings_add_search_engine_error_invalid_url">Enter a valid URL.</string>
+    <string name="settings_add_search_engine_error_scheme">URL must start with http:// or https://</string>
+    <string name="settings_add_search_engine_error_placeholder">URL must include {{query}}</string>
+    <string name="settings_add_search_engine_error_multiple_placeholders">Use {{query}} only once.</string>
+    <string name="settings_edit_search_engine_dialog_title">Edit Search Engine</string>
+    <string name="settings_edit_search_engine_name_label">Name</string>
+    <string name="settings_edit_search_engine_url_label">URL</string>
+    <string name="dialog_delete">Delete</string>
     <string name="settings_search_engines_more_title">More</string>
 
     <!-- ============================================================================
@@ -339,6 +350,7 @@
     <string name="settings_default_search_engine_hint_message">Tip: The first search engine in the list becomes your default. It is used when you press the keyboard\'s search button when there are no other results.</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
+    <string name="settings_edit_label">Edit</string>
     <string name="settings_direct_search_toggle">Direct Search Setup</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>

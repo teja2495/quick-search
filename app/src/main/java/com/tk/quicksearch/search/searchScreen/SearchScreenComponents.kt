@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
@@ -71,10 +69,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticStrong
@@ -429,76 +427,12 @@ internal fun PersistentSearchField(
             maxLines = 3,
             leadingIcon = {
                 if (detectedShortcutTarget != null) {
-                    when (detectedShortcutTarget) {
-                        is SearchTarget.Engine -> {
-                            Icon(
-                                painter =
-                                    androidx.compose.ui.res
-                                        .painterResource(
-                                            id =
-                                                detectedShortcutTarget
-                                                    .engine
-                                                    .getDrawableResId(),
-                                        ),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                                modifier =
-                                    Modifier
-                                        .padding(
-                                            start =
-                                                DesignTokens
-                                                    .SpacingSmall,
-                                        ).size(
-                                            DesignTokens
-                                                .IconSize,
-                                        ),
-                            )
-                        }
-
-                        is SearchTarget.Browser -> {
-                            val iconResult =
-                                rememberAppIcon(
-                                    packageName =
-                                        detectedShortcutTarget
-                                            .app
-                                            .packageName,
-                                )
-                            if (iconResult.bitmap != null) {
-                                Image(
-                                    bitmap = iconResult.bitmap!!,
-                                    contentDescription = null,
-                                    modifier =
-                                        Modifier
-                                            .padding(
-                                                start =
-                                                    DesignTokens
-                                                        .SpacingSmall,
-                                            ).size(
-                                                DesignTokens
-                                                    .IconSize,
-                                            ),
-                                )
-                            } else {
-                                Icon(
-                                    imageVector =
-                                        Icons.Rounded
-                                            .Public,
-                                    contentDescription = null,
-                                    tint = iconAndTextColor,
-                                    modifier =
-                                        Modifier
-                                            .padding(
-                                                start =
-                                                    DesignTokens
-                                                        .SpacingSmall,
-                                            ).size(
-                                                DesignTokens
-                                                    .IconSize,
-                                            ),
-                                )
-                            }
-                        }
-                    }
+                    SearchTargetIcon(
+                        target = detectedShortcutTarget,
+                        iconSize = DesignTokens.IconSize,
+                        style = IconRenderStyle.ADVANCED,
+                        modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+                    )
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Search,

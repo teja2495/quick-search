@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Context
+import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
@@ -719,6 +720,12 @@ class UserAppPreferences(
 
     fun setHasSeenSearchEngineOnboarding(seen: Boolean) =
             searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
+
+    fun getCustomSearchEngines(): List<CustomSearchEngine> =
+            searchEnginePreferences.getCustomSearchEngines()
+
+    fun setCustomSearchEngines(engines: List<CustomSearchEngine>) =
+            searchEnginePreferences.setCustomSearchEngines(engines)
 
     // ============================================================================
     // Shortcut Preferences

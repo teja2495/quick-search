@@ -17,6 +17,7 @@ import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.searchEngines.buildCustomSearchUrl
 import com.tk.quicksearch.search.searchEngines.buildSearchUrl
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
 import com.tk.quicksearch.util.PackageConstants
@@ -240,6 +241,30 @@ object IntentHelpers {
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
                 setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        if (!canResolveIntent(context, intent)) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            return
+        }
+        try {
+            context.startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+        } catch (exception: SecurityException) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+        }
+    }
+
+    fun openCustomSearchUrl(
+        context: Application,
+        query: String,
+        urlTemplate: String,
+        onShowToast: ((Int, String?) -> Unit)? = null,
+    ) {
+        val url = buildCustomSearchUrl(query, urlTemplate)
+        val intent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         if (!canResolveIntent(context, intent)) {

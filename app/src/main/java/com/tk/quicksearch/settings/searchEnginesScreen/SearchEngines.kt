@@ -53,7 +53,10 @@ fun SearchEngines(
     onDismissDefaultEngineHintBanner: (() -> Unit)? = null,
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
-    showRequestSearchEngine: Boolean = true,
+    showAddSearchEngineButton: Boolean = true,
+    onAddCustomSearchEngine: ((String, String) -> Unit)? = null,
+    onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
     showDirectSearchAtTop: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
@@ -134,7 +137,10 @@ fun SearchEngines(
         isSearchEngineCompactMode = isSearchEngineCompactMode,
         amazonDomain = amazonDomain,
         onSetAmazonDomain = onSetAmazonDomain,
-        showRequestSearchEngine = showRequestSearchEngine,
+        showAddSearchEngineButton = showAddSearchEngineButton,
+        onAddCustomSearchEngine = onAddCustomSearchEngine,
+        onUpdateCustomSearchEngine = onUpdateCustomSearchEngine,
+        onDeleteCustomSearchEngine = onDeleteCustomSearchEngine,
     )
 
     // Show Direct Search card at bottom if not shown at top

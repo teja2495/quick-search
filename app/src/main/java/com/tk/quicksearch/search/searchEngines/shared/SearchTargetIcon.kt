@@ -1,15 +1,21 @@
 package com.tk.quicksearch.search.searchEngines.shared
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -159,6 +165,34 @@ fun SearchTargetIcon(
                 Icon(
                     imageVector = Icons.Rounded.Public,
                     contentDescription = target.app.label,
+                    modifier = modifier.size(iconSize),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        is SearchTarget.Custom -> {
+            val faviconBitmap =
+                remember(target.custom.faviconBase64) {
+                    val encoded = target.custom.faviconBase64 ?: return@remember null
+                    val bytes = runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+                        ?: return@remember null
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                }
+            if (faviconBitmap != null) {
+                Image(
+                    bitmap = faviconBitmap,
+                    contentDescription = target.custom.name,
+                    modifier =
+                        modifier
+                            .size(iconSize)
+                            .clip(RoundedCornerShape(iconSize * 0.2f)),
+                    contentScale = ContentScale.Fit,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Rounded.Public,
+                    contentDescription = target.custom.name,
                     modifier = modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

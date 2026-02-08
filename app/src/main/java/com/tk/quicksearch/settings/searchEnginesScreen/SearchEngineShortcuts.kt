@@ -94,8 +94,10 @@ internal fun ShortcutCodeDisplay(
     currentShortcutId: String? = null,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val isCustomEngine = currentShortcutId?.startsWith("custom:") == true
+    val allowShortcutDialog = !isCustomEngine
 
-    if (showDialog && onCodeChange != null) {
+    if (showDialog && onCodeChange != null && allowShortcutDialog) {
         EditShortcutDialog(
             engineName = engineName,
             currentCode = shortcutCode,
@@ -112,7 +114,13 @@ internal fun ShortcutCodeDisplay(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        if (isEnabled) {
+        if (isCustomEngine) {
+            Text(
+                text = stringResource(R.string.settings_edit_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        } else if (isEnabled) {
             Text(
                 text = stringResource(R.string.settings_shortcut_label),
                 style = MaterialTheme.typography.bodyMedium,
@@ -122,14 +130,29 @@ internal fun ShortcutCodeDisplay(
                 text = shortcutCode,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { showDialog = true },
+                modifier =
+                    if (allowShortcutDialog) {
+                        Modifier.clickable { showDialog = true }
+                    } else {
+                        Modifier
+                    },
             )
         } else {
             Text(
-                text = stringResource(R.string.settings_add_shortcut),
+                text =
+                    if (isCustomEngine) {
+                        stringResource(R.string.settings_edit_label)
+                    } else {
+                        stringResource(R.string.settings_add_shortcut)
+                    },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable { showDialog = true },
+                modifier =
+                    if (allowShortcutDialog) {
+                        Modifier.clickable { showDialog = true }
+                    } else {
+                        Modifier
+                    },
             )
         }
     }

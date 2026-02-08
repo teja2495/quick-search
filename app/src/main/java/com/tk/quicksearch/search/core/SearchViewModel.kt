@@ -1781,6 +1781,21 @@ class SearchViewModel(
     fun reorderSearchTargets(newOrder: List<SearchTarget>) =
             searchEngineManager.reorderSearchTargets(newOrder)
 
+    fun addCustomSearchEngine(
+            normalizedTemplate: String,
+            faviconBase64: String,
+    ) = searchEngineManager.addCustomSearchEngine(normalizedTemplate, faviconBase64)
+
+    fun updateCustomSearchEngine(
+            customId: String,
+            name: String,
+            urlTemplateInput: String,
+            faviconBase64: String?,
+    ) = searchEngineManager.updateCustomSearchEngine(customId, name, urlTemplateInput, faviconBase64)
+
+    fun deleteCustomSearchEngine(customId: String) =
+            searchEngineManager.deleteCustomSearchEngine(customId)
+
     fun setSearchEngineCompactMode(enabled: Boolean) =
             searchEngineManager.setSearchEngineCompactMode(enabled)
 

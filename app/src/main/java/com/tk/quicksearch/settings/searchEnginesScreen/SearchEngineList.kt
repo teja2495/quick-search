@@ -1,9 +1,6 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.DragHandle
-import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -35,21 +32,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.getDisplayName
-import com.tk.quicksearch.search.searchEngines.getDrawableResId
 import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
@@ -72,8 +67,47 @@ fun SearchEngineListCard(
     isSearchEngineCompactMode: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
-    showRequestSearchEngine: Boolean = true,
+    showAddSearchEngineButton: Boolean = true,
+    onAddCustomSearchEngine: ((String, String) -> Unit)? = null,
+    onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
+    onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
 ) {
+    var showAddSearchEngineDialog by remember { mutableStateOf(false) }
+    var customEngineToEdit by remember { mutableStateOf<CustomSearchEngine?>(null) }
+
+    if (showAddSearchEngineDialog && onAddCustomSearchEngine != null) {
+        AddSearchEngineDialog(
+            onSave = { normalizedTemplate, faviconBase64 ->
+                onAddCustomSearchEngine(normalizedTemplate, faviconBase64)
+                showAddSearchEngineDialog = false
+            },
+            onDismiss = { showAddSearchEngineDialog = false },
+        )
+    }
+
+    if (customEngineToEdit != null &&
+        onUpdateCustomSearchEngine != null &&
+        onDeleteCustomSearchEngine != null
+    ) {
+        EditCustomSearchEngineDialog(
+            customEngine = customEngineToEdit!!,
+            existingShortcuts = shortcutCodes,
+            currentShortcutCode = shortcutCodes["custom:${customEngineToEdit!!.id}"].orEmpty(),
+            onSave = { name, normalizedTemplate, shortcutCode, iconBase64 ->
+                val editingEngine = customEngineToEdit!!
+                onUpdateCustomSearchEngine(editingEngine.id, name, normalizedTemplate, iconBase64)
+                setShortcutCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
+                setShortcutEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
+                customEngineToEdit = null
+            },
+            onDelete = {
+                onDeleteCustomSearchEngine(customEngineToEdit!!.id)
+                customEngineToEdit = null
+            },
+            onDismiss = { customEngineToEdit = null },
+        )
+    }
+
     Column {
         val enabledEngines =
             searchEngineOrder.filter { it.getId() !in disabledSearchEngines }
@@ -189,6 +223,12 @@ fun SearchEngineListCard(
                                         } else {
                                             null
                                         },
+                                    onCustomEngineClick =
+                                        if (engine is SearchTarget.Custom) {
+                                            { customEngineToEdit = engine.custom }
+                                        } else {
+                                            null
+                                        },
                                     existingShortcuts = shortcutCodes,
                                 )
 
@@ -260,6 +300,12 @@ fun SearchEngineListCard(
                                 },
                             onMoveToTop = null,
                             onMoveToBottom = null,
+                            onCustomEngineClick =
+                                if (engine is SearchTarget.Custom) {
+                                    { customEngineToEdit = engine.custom }
+                                } else {
+                                    null
+                                },
                             existingShortcuts = shortcutCodes,
                         )
 
@@ -271,33 +317,17 @@ fun SearchEngineListCard(
             }
         }
 
-        if (showRequestSearchEngine) {
-            val context = LocalContext.current
+        if (showAddSearchEngineButton && onAddCustomSearchEngine != null) {
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(top = 40.dp, bottom = 24.dp),
+                        .padding(top = 24.dp, bottom = 24.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = stringResource(R.string.request_search_engine_text),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier =
-                        Modifier.clickable {
-                            val subject = "Search Engine Request"
-                            val intent =
-                                Intent(Intent.ACTION_SENDTO).apply {
-                                    data = Uri.parse("mailto:tejakarlapudi.apps@gmail.com?subject=${Uri.encode(subject)}")
-                                }
-                            try {
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // ignore
-                            }
-                        },
-                )
+                Button(onClick = { showAddSearchEngineDialog = true }) {
+                    Text(text = stringResource(R.string.settings_add_search_engine_button))
+                }
             }
         }
     }
@@ -324,6 +354,7 @@ private fun SearchEngineRowContent(
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     onMoveToTop: (() -> Unit)? = null,
     onMoveToBottom: (() -> Unit)? = null,
+    onCustomEngineClick: (() -> Unit)? = null,
     existingShortcuts: Map<String, String> = emptyMap(),
 ) {
     val view = LocalView.current
@@ -335,6 +366,13 @@ private fun SearchEngineRowContent(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .then(
+                    if (onCustomEngineClick != null) {
+                        Modifier.clickable(onClick = onCustomEngineClick)
+                    } else {
+                        Modifier
+                    },
+                )
                 .padding(
                     horizontal = DesignTokens.CardHorizontalPadding,
                     vertical = DesignTokens.CardVerticalPadding,
@@ -355,37 +393,11 @@ private fun SearchEngineRowContent(
             )
         }
 
-        // Search engine icon
-        when (engine) {
-            is SearchTarget.Engine -> {
-                Image(
-                    painter = painterResource(id = engine.engine.getDrawableResId()),
-                    contentDescription = engineName,
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = getSearchEngineIconColorFilter(engine.engine),
-                )
-            }
-
-            is SearchTarget.Browser -> {
-                val iconResult = rememberAppIcon(packageName = engine.app.packageName)
-                if (iconResult.bitmap != null) {
-                    Image(
-                        bitmap = iconResult.bitmap!!,
-                        contentDescription = engineName,
-                        modifier = Modifier.size(DesignTokens.IconSize),
-                        contentScale = ContentScale.Fit,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.Public,
-                        contentDescription = engineName,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(DesignTokens.IconSize),
-                    )
-                }
-            }
-        }
+        SearchTargetIcon(
+            target = engine,
+            iconSize = DesignTokens.IconSize,
+            style = IconRenderStyle.ADVANCED,
+        )
 
         // Engine name and details
         Column(

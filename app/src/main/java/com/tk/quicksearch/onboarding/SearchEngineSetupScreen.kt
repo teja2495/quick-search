@@ -128,7 +128,7 @@ fun SearchEngineSetupScreen(
                     viewModel.reorderSearchTargets(newOrder)
                 },
                 showTitle = false, // We have our own title
-                showRequestSearchEngine = false, // Hide request text in setup
+                showAddSearchEngineButton = false,
                 onSetGeminiApiKey = viewModel::setGeminiApiKey,
                 geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
                 personalContext = uiState.personalContext,

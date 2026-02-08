@@ -47,6 +47,13 @@ data class BrowserApp(
     val label: String,
 )
 
+data class CustomSearchEngine(
+    val id: String,
+    val name: String,
+    val urlTemplate: String,
+    val faviconBase64: String? = null,
+)
+
 sealed class SearchTarget {
     data class Engine(
         val engine: SearchEngine,
@@ -54,6 +61,10 @@ sealed class SearchTarget {
 
     data class Browser(
         val app: BrowserApp,
+    ) : SearchTarget()
+
+    data class Custom(
+        val custom: CustomSearchEngine,
     ) : SearchTarget()
 }
 

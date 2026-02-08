@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import com.tk.quicksearch.search.core.BrowserApp
+import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
@@ -34,6 +35,8 @@ class SearchEngineManager(
     var isSearchEngineCompactMode: Boolean = false
         private set
 
+    private var customSearchEngines: List<CustomSearchEngine> = emptyList()
+
     private var isInitialized = false
 
     fun ensureInitialized() {
@@ -41,14 +44,22 @@ class SearchEngineManager(
             val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
             val availableEngines = getAvailableEngines(hasGemini)
             val availableBrowsers = loadInstalledBrowsers()
+            customSearchEngines = userPreferences.getCustomSearchEngines()
             val savedOrder = userPreferences.getSearchEngineOrder()
             searchTargetsOrder =
-                loadSearchTargetsOrder(savedOrder, availableEngines, availableBrowsers, hasGemini)
+                loadSearchTargetsOrder(
+                    savedOrder = savedOrder,
+                    availableEngines = availableEngines,
+                    availableBrowsers = availableBrowsers,
+                    customEngines = customSearchEngines,
+                    hasGemini = hasGemini,
+                )
             disabledSearchTargetIds =
                 loadDisabledSearchTargetIds(
                     savedOrder,
                     availableEngines,
                     availableBrowsers,
+                    customSearchEngines,
                     hasGemini,
                 )
             isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
@@ -103,6 +114,122 @@ class SearchEngineManager(
             searchTargetsOrder = newOrder
             userPreferences.setSearchEngineOrder(newOrder.map { it.getId() })
             onStateUpdate { state -> state.copy(searchTargetsOrder = searchTargetsOrder) }
+        }
+    }
+
+    fun addCustomSearchEngine(
+        normalizedTemplate: String,
+        faviconBase64: String,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            ensureInitialized()
+            val resolvedFavicon =
+                faviconBase64.ifBlank {
+                    fetchFaviconAsBase64(normalizedTemplate).orEmpty()
+                }
+
+            val customEngine =
+                createCustomSearchEngine(
+                    normalizedTemplate = normalizedTemplate,
+                    faviconBase64 = resolvedFavicon.ifBlank { null },
+                ) ?: return@launch
+
+            if (customSearchEngines.any { it.id == customEngine.id }) {
+                return@launch
+            }
+
+            customSearchEngines = customSearchEngines + customEngine
+            userPreferences.setCustomSearchEngines(customSearchEngines)
+
+            val newTarget = SearchTarget.Custom(customEngine)
+            searchTargetsOrder = insertCustomTarget(searchTargetsOrder, newTarget)
+            disabledSearchTargetIds = disabledSearchTargetIds - newTarget.getId()
+
+            userPreferences.setSearchEngineOrder(searchTargetsOrder.map { it.getId() })
+            userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
+
+            onStateUpdate { state ->
+                state.copy(
+                    searchTargetsOrder = searchTargetsOrder,
+                    disabledSearchTargetIds = disabledSearchTargetIds,
+                )
+            }
+        }
+    }
+
+    fun updateCustomSearchEngine(
+        customId: String,
+        name: String,
+        urlTemplateInput: String,
+        faviconBase64: String?,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            ensureInitialized()
+
+            val trimmedName = name.trim()
+            if (trimmedName.isBlank()) return@launch
+
+            val validated = validateCustomSearchTemplate(urlTemplateInput)
+            val normalizedTemplate =
+                (validated as? CustomSearchTemplateValidation.Valid)?.normalizedTemplate
+                    ?: return@launch
+
+            val existing = customSearchEngines.firstOrNull { it.id == customId } ?: return@launch
+            val updated =
+                existing.copy(
+                    name = trimmedName,
+                    urlTemplate = normalizedTemplate,
+                    faviconBase64 = faviconBase64,
+                )
+
+            customSearchEngines =
+                customSearchEngines.map { custom ->
+                    if (custom.id == customId) {
+                        updated
+                    } else {
+                        custom
+                    }
+                }
+            userPreferences.setCustomSearchEngines(customSearchEngines)
+
+            searchTargetsOrder =
+                searchTargetsOrder.map { target ->
+                    if (target is SearchTarget.Custom && target.custom.id == customId) {
+                        SearchTarget.Custom(updated)
+                    } else {
+                        target
+                    }
+                }
+            userPreferences.setSearchEngineOrder(searchTargetsOrder.map { it.getId() })
+
+            onStateUpdate { state ->
+                state.copy(
+                    searchTargetsOrder = searchTargetsOrder,
+                )
+            }
+        }
+    }
+
+    fun deleteCustomSearchEngine(customId: String) {
+        scope.launch(Dispatchers.IO) {
+            ensureInitialized()
+            val targetId = "$CUSTOM_ID_PREFIX$customId"
+
+            customSearchEngines = customSearchEngines.filterNot { it.id == customId }
+            userPreferences.setCustomSearchEngines(customSearchEngines)
+
+            searchTargetsOrder = searchTargetsOrder.filterNot { it.getId() == targetId }
+            disabledSearchTargetIds = disabledSearchTargetIds - targetId
+
+            userPreferences.setSearchEngineOrder(searchTargetsOrder.map { it.getId() })
+            userPreferences.setDisabledSearchEngines(disabledSearchTargetIds)
+
+            onStateUpdate { state ->
+                state.copy(
+                    searchTargetsOrder = searchTargetsOrder,
+                    disabledSearchTargetIds = disabledSearchTargetIds,
+                )
+            }
         }
     }
 
@@ -194,25 +321,35 @@ class SearchEngineManager(
         savedOrder: List<String>,
         availableEngines: List<SearchEngine>,
         availableBrowsers: List<BrowserApp>,
+        customEngines: List<CustomSearchEngine>,
         hasGemini: Boolean,
     ): List<SearchTarget> {
         val browserMap = availableBrowsers.associateBy { it.packageName }
+        val customMap = customEngines.associateBy { it.id }
 
         if (savedOrder.isEmpty()) {
             val defaultEngines = availableEngines.map { SearchTarget.Engine(it) }
+            val defaultCustomTargets = customEngines.map { SearchTarget.Custom(it) }
             val defaultBrowsers = availableBrowsers.map { SearchTarget.Browser(it) }
-            val defaultOrder = insertBrowsersAfterAnchor(defaultEngines, defaultBrowsers)
+            val defaultOrder =
+                insertBrowsersAfterAnchor(defaultEngines + defaultCustomTargets, defaultBrowsers)
             userPreferences.setSearchEngineOrder(defaultOrder.map { it.getId() })
             return defaultOrder
         }
 
         val savedTargets =
             savedOrder.mapNotNull { id ->
-                parseSearchTargetId(id, availableEngines, browserMap)
+                parseSearchTargetId(
+                    id = id,
+                    availableEngines = availableEngines,
+                    browserMap = browserMap,
+                    customMap = customMap,
+                )
             }
         val directAdjusted = applyDirectSearchAvailability(savedTargets, hasGemini)
         val withNewEngines = mergeMissingEngines(directAdjusted, availableEngines)
-        val finalOrder = mergeBrowsers(withNewEngines, availableBrowsers)
+        val withCustomTargets = mergeMissingCustomTargets(withNewEngines, customEngines)
+        val finalOrder = mergeBrowsers(withCustomTargets, availableBrowsers)
 
         val savedIds = savedOrder
         val finalIds = finalOrder.map { it.getId() }
@@ -227,6 +364,7 @@ class SearchEngineManager(
         savedOrder: List<String>,
         availableEngines: List<SearchEngine>,
         availableBrowsers: List<BrowserApp>,
+        customEngines: List<CustomSearchEngine>,
         hasGemini: Boolean,
     ): Set<String> {
         val hasPreference = userPreferences.hasDisabledSearchEnginesPreference()
@@ -234,6 +372,7 @@ class SearchEngineManager(
         val engineNames = availableEngines.map { it.name }.toSet()
         val browserIds =
             availableBrowsers.map { buildBrowserId(it.packageName) }.toSet()
+        val customIds = customEngines.map { "$CUSTOM_ID_PREFIX${it.id}" }.toSet()
         val hasBrowserTargetsInOrder = savedOrder.any { it.startsWith(BROWSER_ID_PREFIX) }
 
         val savedDisabled =
@@ -241,6 +380,7 @@ class SearchEngineManager(
                 .filter { id ->
                     when {
                         id.startsWith(BROWSER_ID_PREFIX) -> id in browserIds
+                        id.startsWith(CUSTOM_ID_PREFIX) -> id in customIds
                         else -> id in engineNames
                     }
                 }.toMutableSet()
@@ -302,11 +442,16 @@ class SearchEngineManager(
         id: String,
         availableEngines: List<SearchEngine>,
         browserMap: Map<String, BrowserApp>,
+        customMap: Map<String, CustomSearchEngine>,
     ): SearchTarget? {
         return if (id.startsWith(BROWSER_ID_PREFIX)) {
             val packageName = id.removePrefix(BROWSER_ID_PREFIX)
             val browser = browserMap[packageName] ?: return null
             SearchTarget.Browser(browser)
+        } else if (id.startsWith(CUSTOM_ID_PREFIX)) {
+            val customId = id.removePrefix(CUSTOM_ID_PREFIX)
+            val custom = customMap[customId] ?: return null
+            SearchTarget.Custom(custom)
         } else {
             val engine = availableEngines.firstOrNull { it.name == id } ?: return null
             SearchTarget.Engine(engine)
@@ -322,6 +467,19 @@ class SearchEngineManager(
         val missingEngines =
             availableEngines.filter { it !in existingEngines }.map { SearchTarget.Engine(it) }
         return order + missingEngines
+    }
+
+    private fun mergeMissingCustomTargets(
+        order: List<SearchTarget>,
+        customEngines: List<CustomSearchEngine>,
+    ): List<SearchTarget> {
+        val existingCustomIds =
+            order.filterIsInstance<SearchTarget.Custom>().map { it.custom.id }.toSet()
+        val missingCustomTargets =
+            customEngines
+                .filter { it.id !in existingCustomIds }
+                .map { SearchTarget.Custom(it) }
+        return order + missingCustomTargets
     }
 
     private fun mergeBrowsers(
@@ -378,6 +536,22 @@ class SearchEngineManager(
     }
 
     private fun buildBrowserId(packageName: String): String = "$BROWSER_ID_PREFIX$packageName"
+
+    private fun insertCustomTarget(
+        order: List<SearchTarget>,
+        target: SearchTarget.Custom,
+    ): List<SearchTarget> {
+        if (order.any { it.getId() == target.getId() }) return order
+
+        val firstBrowserIndex = order.indexOfFirst { it is SearchTarget.Browser }
+        return order.toMutableList().apply {
+            if (firstBrowserIndex >= 0) {
+                add(firstBrowserIndex, target)
+            } else {
+                add(target)
+            }
+        }
+    }
 
     private fun loadInstalledBrowsers(): List<BrowserApp> {
         val packageManager = context.packageManager
