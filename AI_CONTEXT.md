@@ -526,13 +526,14 @@ fun matches(query: String): Boolean {
 
 ### 1. Search Engines
 
-**Supported Engines** (23 total):
-Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx), Grok (grk), Reddit (rdt), Google Maps (mps), Google Drive (gdr), Google Photos (gph), Google Play (gpl), YouTube (ytb), YouTube Music (ytm), Spotify (sfy), Amazon (amz), X/Twitter (twt), Facebook Marketplace (fbm), Bing (bng), DuckDuckGo (ddg), Brave (brv), Startpage (stp), You.com (yu), AI Mode (gai)
+**Supported Engines** (24 total):
+Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx), Grok (grk), Reddit (rdt), Google Maps (mps), Google Drive (gdr), Google Photos (gph), Google Play (gpl), YouTube (ytb), YouTube Music (ytm), Spotify (sfy), Amazon (amz), X/Twitter (twt), Facebook Marketplace (fbm), Bing (bng), DuckDuckGo (ddg), Brave (brv), Startpage (stp), You.com (yu), AI Mode (gai), Claude (cld)
 
 **Features**:
 - **Shortcuts**: Custom keyboard shortcuts (e.g., "ggl" for Google)
 - **Reordering**: User-customizable order
 - **Enable/Disable**: Toggle individual engines
+- **Custom Search Engines**: Users can add their own search engines from settings
 - **Direct Search**: Gemini API integration with optional personal context
 - **Display Modes**: Inline (scrolls) vs Compact (fixed at bottom)
 
@@ -544,6 +545,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - Default SMS/Messages
 - WhatsApp (chat, audio, video)
 - Telegram (chat, audio, video)
+- Signal
 - Google Meet
 
 **Features**:
@@ -560,6 +562,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - Basic operations: `+`, `-`, `*`, `/`
 - Brackets for precedence
 - Real-time evaluation in search bar
+- Long-press calculator results to copy to clipboard
 
 **Implementation**: `search/calculator/CalculatorHandler.kt`
 
@@ -892,6 +895,7 @@ Sections are shown/hidden based on:
 **Technology**: Jetpack Glance App Widget framework
 
 **Features**:
+- Custom widget buttons for apps, shortcuts, files, contacts, and settings
 - Customizable colors (background, text, icons)
 - Adjustable border thickness
 - Configurable transparency
@@ -1032,5 +1036,5 @@ Sections are shown/hidden based on:
 
 ---
 
-**Last Updated**: January 2026 (v1.5.1)
+**Last Updated**: February 2026 (v2.2)
 **For Questions**: Refer to code comments, README.md, FEATURES.md, or analyze usage patterns in codebase

@@ -1,6 +1,6 @@
 # Quick Search - Complete Feature Documentation
 
-**Version**: 1.5.1 (January 26 2026)
+**Version**: 2.2 (February 2026)
 
 ## Overlay Mode
 
@@ -13,7 +13,7 @@
 - **Contact Search** - Quickly locate contacts in your phone
 - **File Search** - Search through device files
 - **Settings Search** - Find specific device settings
-- **App Suggestions** - Displays suggested apps when no search query is entered
+- **App Suggestions** - Displays suggested apps when no search query is entered (can be turned off in settings)
 - **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard)
 - **Advanced Fuzzy Search** - Intelligent search with typo tolerance, acronym matching, and smart ranking
 
@@ -21,9 +21,10 @@
 - **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
 - **Horizontal Scroll** - Swipe horizontally to access additional search engines
 - **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
+- **Custom Search Engines** - Add your own search engines from the Search Engines settings screen
 - **Search Engine Shortcuts** - Add a search engine shortcut at the start of your query to quickly search with that search engine
 - **Browser Integration** - Installed browsers automatically appear as search engine options
-- **Supported Search Engines** (23 total):
+- **Supported Search Engines** (24 total):
   - **Direct Search** (dsh) - AI-powered answers using Gemini API
   - **Google** (ggl) - Default web search
   - **ChatGPT** (cgpt) - OpenAI's conversational AI
@@ -47,6 +48,7 @@
   - **Startpage** (stp) - Privacy-focused search engine
   - **You.com** (yu) - AI-powered search platform
   - **AI Mode** (gai) - Google's AI-focused search
+  - **Claude** (cld) - Anthropic's AI assistant (requires the Claude app)
 - **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results (choose how many to display)
 - **Search Engine Style** - Choose between:
   - **Inline Mode**: Search engines scroll with the content
@@ -91,6 +93,7 @@
   - Call, SMS, Google Meet
   - WhatsApp: chat, audio call, video call
   - Telegram: chat, audio call, video call
+  - Signal: chat, audio call, video call
 - **Default Messaging App** - Set your preferred messaging app (Messages/WhatsApp/Telegram). The default messaging app will appear for contact results.
 - **Direct Calling Toggle** - Enable to call immediately, or disable to open dialer first
 - **Multiple Numbers** - When you open a contact result which has multiple phone numbers, tap the arrow beside the phone number to access other numbers. The app will remember the last opened number and opens it first when you reopen the contact.
