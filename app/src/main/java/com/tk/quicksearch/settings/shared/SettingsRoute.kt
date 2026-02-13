@@ -85,6 +85,7 @@ data class SettingsScreenState(
     val shortcutEnabled: Map<String, Boolean>,
     val allAppShortcuts: List<com.tk.quicksearch.search.data.StaticShortcut>,
     val allDeviceSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
+    val allApps: List<com.tk.quicksearch.search.models.AppInfo>,
     val disabledAppShortcutIds: Set<String>,
     val messagingApp: MessagingApp,
     val isWhatsAppInstalled: Boolean,
@@ -157,6 +158,8 @@ data class SettingsScreenCallbacks(
     val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (com.tk.quicksearch.search.deviceSettings.DeviceSetting) -> Unit,
+    val onRequestAppUninstall: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
+    val onOpenAppInfo: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
     val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
@@ -229,6 +232,9 @@ fun SectionSettingsSection(
     sectionOrder: List<SearchSection>,
     disabledSections: Set<SearchSection>,
     onToggleSection: (SearchSection, Boolean) -> Unit,
+    appsSubtitle: String? = null,
+    onAppsClick: (() -> Unit)? = null,
+    onAppsClickNoRipple: Boolean = false,
     appShortcutsSubtitle: String? = null,
     onAppShortcutsClick: (() -> Unit)? = null,
     onAppShortcutsClickNoRipple: Boolean = false,
@@ -250,6 +256,7 @@ fun SectionSettingsSection(
     ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
         Column(modifier = Modifier.fillMaxWidth()) {
             sectionOrder.forEachIndexed { index, section ->
+                val isAppsRow = section == SearchSection.APPS
                 val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 SectionRowWithoutDrag(
@@ -258,18 +265,21 @@ fun SectionSettingsSection(
                     onToggle = { enabled -> onToggleSection(section, enabled) },
                     subtitle =
                         when {
+                            isAppsRow -> appsSubtitle
                             isAppShortcutsRow -> appShortcutsSubtitle
                             isDeviceSettingsRow -> deviceSettingsSubtitle
                             else -> null
                         },
                     onRowClick =
                         when {
+                            isAppsRow -> onAppsClick
                             isAppShortcutsRow -> onAppShortcutsClick
                             isDeviceSettingsRow -> onDeviceSettingsClick
                             else -> null
                         },
                     noRippleOnRowClick =
                         when {
+                            isAppsRow -> onAppsClickNoRipple
                             isAppShortcutsRow -> onAppShortcutsClickNoRipple
                             isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
                             else -> false
@@ -637,6 +647,7 @@ fun SettingsRoute(
             shortcutEnabled = uiState.shortcutEnabled,
             allAppShortcuts = uiState.allAppShortcuts,
             allDeviceSettings = uiState.allDeviceSettings,
+            allApps = uiState.allApps,
             disabledAppShortcutIds = uiState.disabledAppShortcutIds,
             messagingApp = uiState.messagingApp,
             isWhatsAppInstalled = uiState.isWhatsAppInstalled,
@@ -812,6 +823,8 @@ fun SettingsRoute(
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,
             onLaunchDeviceSetting = viewModel::openSetting,
+            onRequestAppUninstall = viewModel::requestUninstall,
+            onOpenAppInfo = viewModel::openAppInfo,
             onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
             onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
             onSetDefaultAssistant = {

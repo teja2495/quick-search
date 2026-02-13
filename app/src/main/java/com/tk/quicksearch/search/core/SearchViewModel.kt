@@ -2235,6 +2235,7 @@ class SearchViewModel(
 
         _uiState.update { state ->
             state.copy(
+                    allApps = apps,
                     recentApps = recents,
                     searchResults = searchResults,
                     pinnedApps = pinnedAppsForSuggestions,

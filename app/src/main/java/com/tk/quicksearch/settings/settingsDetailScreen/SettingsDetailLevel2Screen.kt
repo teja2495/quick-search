@@ -70,57 +70,74 @@ internal fun SettingsDetailLevel2Screen(
                 onBack = callbacks.onBack,
             )
 
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .padding(
-                            start = DesignTokens.ContentHorizontalPadding,
-                            end = DesignTokens.ContentHorizontalPadding,
-                            bottom = DesignTokens.SectionTopPadding,
-                        ),
-            ) {
-                when (detailType) {
-                    SettingsDetailType.EXCLUDED_ITEMS -> {
-                        ExcludedItemScreen(
-                            suggestionExcludedApps = state.suggestionExcludedApps,
-                            resultExcludedApps = state.resultExcludedApps,
-                            excludedContacts = state.excludedContacts,
-                            excludedFiles = state.excludedFiles,
-                            excludedFileExtensions = state.excludedFileExtensions,
-                            excludedSettings = state.excludedSettings,
-                            excludedAppShortcuts = state.excludedAppShortcuts,
-                            onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
-                            onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
-                            onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                            onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                            onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
-                            onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
-                            onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                            showTitle = false,
-                            iconPackPackage = state.selectedIconPackPackage,
-                        )
-                    }
+            if (detailType == SettingsDetailType.APP_MANAGEMENT) {
+                AppManagementSettingsSection(
+                    apps = state.allApps,
+                    iconPackPackage = state.selectedIconPackPackage,
+                    onRequestAppUninstall = callbacks.onRequestAppUninstall,
+                    onOpenAppInfo = callbacks.onOpenAppInfo,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = DesignTokens.SectionTopPadding,
+                            ),
+                )
+            } else {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = DesignTokens.SectionTopPadding,
+                            ),
+                ) {
+                    when (detailType) {
+                        SettingsDetailType.EXCLUDED_ITEMS -> {
+                            ExcludedItemScreen(
+                                suggestionExcludedApps = state.suggestionExcludedApps,
+                                resultExcludedApps = state.resultExcludedApps,
+                                excludedContacts = state.excludedContacts,
+                                excludedFiles = state.excludedFiles,
+                                excludedFileExtensions = state.excludedFileExtensions,
+                                excludedSettings = state.excludedSettings,
+                                excludedAppShortcuts = state.excludedAppShortcuts,
+                                onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
+                                onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
+                                onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
+                                onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
+                                onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
+                                onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
+                                onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
+                                showTitle = false,
+                                iconPackPackage = state.selectedIconPackPackage,
+                            )
+                        }
 
-                    SettingsDetailType.APP_SHORTCUTS -> {
-                        AppShortcutsSettingsSection(
-                            shortcuts = state.allAppShortcuts,
-                            disabledShortcutIds = state.disabledAppShortcutIds,
-                            iconPackPackage = state.selectedIconPackPackage,
-                            onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
-                            onShortcutNameClick = callbacks.onLaunchAppShortcut,
-                        )
-                    }
+                        SettingsDetailType.APP_SHORTCUTS -> {
+                            AppShortcutsSettingsSection(
+                                shortcuts = state.allAppShortcuts,
+                                disabledShortcutIds = state.disabledAppShortcutIds,
+                                iconPackPackage = state.selectedIconPackPackage,
+                                onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
+                                onShortcutNameClick = callbacks.onLaunchAppShortcut,
+                            )
+                        }
 
-                    SettingsDetailType.DEVICE_SETTINGS -> {
-                        DeviceSettingsSettingsSection(
-                            settings = state.allDeviceSettings,
-                            onSettingClick = callbacks.onLaunchDeviceSetting,
-                        )
-                    }
+                        SettingsDetailType.DEVICE_SETTINGS -> {
+                            DeviceSettingsSettingsSection(
+                                settings = state.allDeviceSettings,
+                                onSettingClick = callbacks.onLaunchDeviceSetting,
+                            )
+                        }
 
-                    else -> Unit
+                        else -> Unit
+                    }
                 }
             }
         }
