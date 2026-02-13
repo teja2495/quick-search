@@ -268,6 +268,7 @@ fun SearchResultsSettingsSection(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     onNavigateToExcludedItems: () -> Unit,
+    onNavigateToAppShortcuts: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -276,6 +277,9 @@ fun SearchResultsSettingsSection(
             sectionOrder = ItemPriorityConfig.getSearchResultsPriority(),
             disabledSections = state.disabledSections,
             onToggleSection = callbacks.onToggleSection,
+            appShortcutsSubtitle = stringResource(R.string.settings_manage_shortcuts),
+            onAppShortcutsClick = onNavigateToAppShortcuts,
+            onAppShortcutsClickNoRipple = true,
             showTitle = false,
         )
 

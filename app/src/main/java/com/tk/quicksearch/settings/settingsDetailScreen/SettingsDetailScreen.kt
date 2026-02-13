@@ -1,6 +1,5 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -10,57 +9,34 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.SearchSection
-import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.models.ContactInfo
-import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.PermissionUtils
-import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
-import com.tk.quicksearch.settings.settingsDetailScreen.CallsTextsSettingsSection
-import com.tk.quicksearch.settings.settingsDetailScreen.ClearAllConfirmationDialog
-import com.tk.quicksearch.settings.settingsDetailScreen.ExcludedItemScreen
-import com.tk.quicksearch.settings.settingsDetailScreen.FileTypesSection
-import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.ui.theme.DesignTokens
-import com.tk.quicksearch.util.hapticToggle
 
 @Composable
-internal fun SettingsDetailScreen(
+internal fun SettingsDetailLevel1Screen(
     modifier: Modifier = Modifier,
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
@@ -76,13 +52,11 @@ internal fun SettingsDetailScreen(
     onToggleDisabledSearchEnginesExpanded: (() -> Unit)? = null,
     onNavigateToDetail: (SettingsDetailType) -> Unit = {},
 ) {
+    if (detailType.isLevel2()) return
+
     val context = LocalContext.current
-    val view = LocalView.current
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
-    var showClearAllConfirmation by remember { mutableStateOf(false) }
-
-    // Navigate back to settings when all excluded items are cleared
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||
@@ -91,11 +65,6 @@ internal fun SettingsDetailScreen(
             state.excludedFileExtensions.isNotEmpty() ||
             state.excludedSettings.isNotEmpty() ||
             state.excludedAppShortcuts.isNotEmpty()
-    LaunchedEffect(hasExcludedItems) {
-        if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
-            callbacks.onBack()
-        }
-    }
 
     Box(
         modifier =
@@ -104,38 +73,22 @@ internal fun SettingsDetailScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .safeDrawingPadding(),
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             SettingsDetailHeader(
-                title =
-                    when (detailType) {
-                        SettingsDetailType.SEARCH_ENGINES -> stringResource(R.string.settings_search_engines_title)
-                        SettingsDetailType.EXCLUDED_ITEMS -> stringResource(R.string.settings_excluded_items_title)
-                        SettingsDetailType.SEARCH_RESULTS -> stringResource(R.string.settings_search_results_title)
-                        SettingsDetailType.APPEARANCE -> stringResource(R.string.settings_appearance_title)
-                        SettingsDetailType.CALLS_TEXTS -> stringResource(R.string.settings_calls_texts_title)
-                        SettingsDetailType.FILES -> stringResource(R.string.settings_file_types_title)
-                        SettingsDetailType.LAUNCH_OPTIONS -> stringResource(R.string.settings_launch_options_title)
-                        SettingsDetailType.PERMISSIONS -> stringResource(R.string.settings_permissions_title)
-                        SettingsDetailType.FEEDBACK_DEVELOPMENT -> stringResource(R.string.settings_feedback_development_title)
-                    },
+                title = stringResource(detailType.titleResId()),
                 onBack = callbacks.onBack,
-                trailingContent = null,
             )
 
-            val contentModifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(
-                        start = DesignTokens.ContentHorizontalPadding,
-                        end = DesignTokens.ContentHorizontalPadding,
-                        bottom = DesignTokens.SectionTopPadding,
-                    )
-
             Column(
-                modifier = contentModifier,
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(
+                            start = DesignTokens.ContentHorizontalPadding,
+                            end = DesignTokens.ContentHorizontalPadding,
+                            bottom = DesignTokens.SectionTopPadding,
+                        ),
             ) {
                 when (detailType) {
                     SettingsDetailType.SEARCH_ENGINES -> {
@@ -173,27 +126,6 @@ internal fun SettingsDetailScreen(
                         )
                     }
 
-                    SettingsDetailType.EXCLUDED_ITEMS -> {
-                        ExcludedItemScreen(
-                            suggestionExcludedApps = state.suggestionExcludedApps,
-                            resultExcludedApps = state.resultExcludedApps,
-                            excludedContacts = state.excludedContacts,
-                            excludedFiles = state.excludedFiles,
-                            excludedFileExtensions = state.excludedFileExtensions,
-                            excludedSettings = state.excludedSettings,
-                            excludedAppShortcuts = state.excludedAppShortcuts,
-                            onRemoveSuggestionExcludedApp = callbacks.onRemoveSuggestionExcludedApp,
-                            onRemoveResultExcludedApp = callbacks.onRemoveResultExcludedApp,
-                            onRemoveExcludedContact = callbacks.onRemoveExcludedContact,
-                            onRemoveExcludedFile = callbacks.onRemoveExcludedFile,
-                            onRemoveExcludedFileExtension = callbacks.onRemoveExcludedFileExtension,
-                            onRemoveExcludedSetting = callbacks.onRemoveExcludedSetting,
-                            onRemoveExcludedAppShortcut = callbacks.onRemoveExcludedAppShortcut,
-                            showTitle = false,
-                            iconPackPackage = state.selectedIconPackPackage,
-                        )
-                    }
-
                     SettingsDetailType.SEARCH_RESULTS -> {
                         SearchResultsSettingsSection(
                             state = state,
@@ -210,12 +142,13 @@ internal fun SettingsDetailScreen(
                                         ).show()
                                 }
                             },
+                            onNavigateToAppShortcuts = {
+                                onNavigateToDetail(SettingsDetailType.APP_SHORTCUTS)
+                            },
                         )
                     }
 
                     SettingsDetailType.APPEARANCE -> {
-                        val appearanceContext = LocalContext.current
-
                         AppearanceSettingsSection(
                             oneHandedMode = state.oneHandedMode,
                             onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
@@ -234,13 +167,13 @@ internal fun SettingsDetailScreen(
                                 callbacks.onRefreshIconPacks()
                                 Toast
                                     .makeText(
-                                        appearanceContext,
-                                        appearanceContext.getString(R.string.settings_refreshing_icon_packs),
+                                        context,
+                                        context.getString(R.string.settings_refreshing_icon_packs),
                                         Toast.LENGTH_SHORT,
                                     ).show()
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
-                            hasFilePermission = PermissionUtils.hasFileAccessPermission(LocalContext.current),
+                            hasFilePermission = PermissionUtils.hasFileAccessPermission(context),
                             hasWallpaperPermission = state.hasWallpaperPermission,
                             wallpaperAvailable = state.wallpaperAvailable,
                         )
@@ -252,10 +185,10 @@ internal fun SettingsDetailScreen(
                             onSetMessagingApp = callbacks.onSetMessagingApp,
                             directDialEnabled = state.directDialEnabled,
                             onToggleDirectDial = callbacks.onToggleDirectDial,
-                            hasCallPermission = PermissionRequestHandler.checkCallPermission(LocalContext.current),
-                            hasContactPermission = PermissionUtils.hasContactsPermission(LocalContext.current),
+                            hasCallPermission = PermissionRequestHandler.checkCallPermission(context),
+                            hasContactPermission = PermissionUtils.hasContactsPermission(context),
                             onNavigateToPermissions = { onNavigateToDetail(SettingsDetailType.PERMISSIONS) },
-                            contactsSectionEnabled = true, // Always show calls/texts settings regardless of permissions
+                            contactsSectionEnabled = true,
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
                             isSignalInstalled = state.isSignalInstalled,
@@ -302,53 +235,24 @@ internal fun SettingsDetailScreen(
                     }
 
                     SettingsDetailType.FEEDBACK_DEVELOPMENT -> {
-                        // Feedback & development content would go here
                         Text(
                             text = "Feedback & development options will be implemented here",
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(vertical = 24.dp),
                         )
                     }
+
+                    SettingsDetailType.EXCLUDED_ITEMS,
+                    SettingsDetailType.APP_SHORTCUTS,
+                    -> Unit
                 }
             }
-        }
-
-        if (detailType == SettingsDetailType.EXCLUDED_ITEMS) {
-            FloatingActionButton(
-                onClick = { showClearAllConfirmation = true },
-                modifier =
-                    Modifier
-                        .align(androidx.compose.ui.Alignment.BottomEnd)
-                        .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Delete,
-                    contentDescription = stringResource(R.string.settings_action_clear_all),
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-        }
-
-        // Clear All confirmation dialog
-        if (showClearAllConfirmation && detailType == SettingsDetailType.EXCLUDED_ITEMS) {
-            ClearAllConfirmationDialog(
-                onConfirm = {
-                    callbacks.onClearAllExclusions()
-                    showClearAllConfirmation = false
-                },
-                onDismiss = { showClearAllConfirmation = false },
-            )
         }
     }
 }
 
-/**
- * Header component for the settings detail screen.
- */
 @Composable
-private fun SettingsDetailHeader(
+internal fun SettingsDetailHeader(
     title: String,
     onBack: () -> Unit,
     trailingContent: (@Composable (() -> Unit))? = null,
@@ -384,6 +288,25 @@ private fun SettingsDetailHeader(
     }
 }
 
+internal fun SettingsDetailType.titleResId(): Int =
+    when (this) {
+        SettingsDetailType.SEARCH_ENGINES -> R.string.settings_search_engines_title
+        SettingsDetailType.EXCLUDED_ITEMS -> R.string.settings_excluded_items_title
+        SettingsDetailType.SEARCH_RESULTS -> R.string.settings_search_results_title
+        SettingsDetailType.APP_SHORTCUTS -> R.string.section_app_shortcuts
+        SettingsDetailType.APPEARANCE -> R.string.settings_appearance_title
+        SettingsDetailType.CALLS_TEXTS -> R.string.settings_calls_texts_title
+        SettingsDetailType.FILES -> R.string.settings_file_types_title
+        SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
+        SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
+        SettingsDetailType.FEEDBACK_DEVELOPMENT -> R.string.settings_feedback_development_title
+    }
+
+internal fun SettingsDetailType.isLevel2(): Boolean =
+    this == SettingsDetailType.APP_SHORTCUTS || this == SettingsDetailType.EXCLUDED_ITEMS
+
+internal fun SettingsDetailType.level(): Int = if (isLevel2()) 2 else 1
+
 /**
  * Enum to represent different types of settings detail screens.
  */
@@ -391,6 +314,7 @@ enum class SettingsDetailType {
     SEARCH_ENGINES,
     EXCLUDED_ITEMS,
     SEARCH_RESULTS,
+    APP_SHORTCUTS,
     APPEARANCE,
     CALLS_TEXTS,
     FILES,

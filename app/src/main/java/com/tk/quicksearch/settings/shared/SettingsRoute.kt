@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,11 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -79,6 +83,8 @@ data class SettingsScreenState(
     val hasSeenOverlayAssistantTip: Boolean = true,
     val shortcutCodes: Map<String, String>,
     val shortcutEnabled: Map<String, Boolean>,
+    val allAppShortcuts: List<com.tk.quicksearch.search.data.StaticShortcut>,
+    val disabledAppShortcutIds: Set<String>,
     val messagingApp: MessagingApp,
     val isWhatsAppInstalled: Boolean,
     val isTelegramInstalled: Boolean,
@@ -147,6 +153,8 @@ data class SettingsScreenCallbacks(
     val onToggleRecentQueries: (Boolean) -> Unit,
     val onSetGeminiApiKey: (String?) -> Unit,
     val onSetPersonalContext: (String?) -> Unit,
+    val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
+    val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
@@ -219,6 +227,9 @@ fun SectionSettingsSection(
     sectionOrder: List<SearchSection>,
     disabledSections: Set<SearchSection>,
     onToggleSection: (SearchSection, Boolean) -> Unit,
+    appShortcutsSubtitle: String? = null,
+    onAppShortcutsClick: (() -> Unit)? = null,
+    onAppShortcutsClickNoRipple: Boolean = false,
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
 ) {
@@ -234,10 +245,14 @@ fun SectionSettingsSection(
     ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
         Column(modifier = Modifier.fillMaxWidth()) {
             sectionOrder.forEachIndexed { index, section ->
+                val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
                 SectionRowWithoutDrag(
                     section = section,
                     isEnabled = section !in disabledSections,
                     onToggle = { enabled -> onToggleSection(section, enabled) },
+                    subtitle = if (isAppShortcutsRow) appShortcutsSubtitle else null,
+                    onRowClick = if (isAppShortcutsRow) onAppShortcutsClick else null,
+                    noRippleOnRowClick = isAppShortcutsRow && onAppShortcutsClickNoRipple,
                 )
 
                 if (index != sectionOrder.lastIndex) {
@@ -253,10 +268,15 @@ private fun SectionRowWithoutDrag(
     section: SearchSection,
     isEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
+    subtitle: String? = null,
+    onRowClick: (() -> Unit)? = null,
+    noRippleOnRowClick: Boolean = false,
     bottomPadding: Dp = DragConstants.rowVerticalPadding,
 ) {
     val view = LocalView.current
     val metadata = getSectionMetadata(section)
+    val rowInteractionSource = remember { MutableInteractionSource() }
+    val rowIndication = LocalIndication.current
 
     Row(
         modifier =
@@ -271,19 +291,48 @@ private fun SectionRowWithoutDrag(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DragConstants.rowSpacing),
     ) {
-        Icon(
-            imageVector = metadata.icon,
-            contentDescription = metadata.name,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DragConstants.iconSize),
-        )
+        Row(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .let { rowModifier ->
+                        if (onRowClick != null) {
+                            rowModifier.clickable(
+                                interactionSource = rowInteractionSource,
+                                indication = if (noRippleOnRowClick) null else rowIndication,
+                                onClick = onRowClick,
+                            )
+                        } else {
+                            rowModifier
+                        }
+                    },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DragConstants.rowSpacing),
+        ) {
+            Icon(
+                imageVector = metadata.icon,
+                contentDescription = metadata.name,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DragConstants.iconSize),
+            )
 
-        Text(
-            text = metadata.name,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = metadata.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+
+                if (!subtitle.isNullOrBlank()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
+            }
+        }
 
         androidx.compose.material3.Switch(
             checked = isEnabled,
@@ -565,6 +614,8 @@ fun SettingsRoute(
             hasSeenOverlayAssistantTip = uiState.hasSeenOverlayAssistantTip,
             shortcutCodes = uiState.shortcutCodes,
             shortcutEnabled = uiState.shortcutEnabled,
+            allAppShortcuts = uiState.allAppShortcuts,
+            disabledAppShortcutIds = uiState.disabledAppShortcutIds,
             messagingApp = uiState.messagingApp,
             isWhatsAppInstalled = uiState.isWhatsAppInstalled,
             isTelegramInstalled = uiState.isTelegramInstalled,
@@ -736,6 +787,8 @@ fun SettingsRoute(
             onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
             onSetGeminiApiKey = viewModel::setGeminiApiKey,
             onSetPersonalContext = viewModel::setPersonalContext,
+            onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
+            onLaunchAppShortcut = viewModel::launchAppShortcut,
             onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
             onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
             onSetDefaultAssistant = {

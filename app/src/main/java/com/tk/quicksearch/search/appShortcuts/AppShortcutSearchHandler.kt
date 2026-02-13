@@ -24,6 +24,8 @@ class AppShortcutSearchHandler(
 ) {
     private var availableShortcuts: List<StaticShortcut> = emptyList()
 
+    fun getAvailableShortcuts(): List<StaticShortcut> = availableShortcuts
+
     suspend fun loadShortcuts() {
         val cached = repository.loadCachedShortcuts()
         if (cached != null) {
@@ -41,8 +43,9 @@ class AppShortcutSearchHandler(
         if (availableShortcuts.isEmpty()) {
             loadShortcuts()
         }
+        val disabledIds = userPreferences.getDisabledAppShortcutIds()
         return availableShortcuts
-            .filter { keys.contains(shortcutKey(it)) }
+            .filter { keys.contains(shortcutKey(it)) && shortcutKey(it) !in disabledIds }
             .associateBy { shortcutKey(it) }
     }
 
@@ -54,12 +57,14 @@ class AppShortcutSearchHandler(
 
         val pinnedIds = userPreferences.getPinnedAppShortcutIds()
         val excludedIds = userPreferences.getExcludedAppShortcutIds()
+        val disabledIds = userPreferences.getDisabledAppShortcutIds()
 
         val pinned =
             availableShortcuts
                 .filter {
                     pinnedIds.contains(shortcutKey(it)) &&
-                        !excludedIds.contains(shortcutKey(it))
+                        !excludedIds.contains(shortcutKey(it)) &&
+                        !disabledIds.contains(shortcutKey(it))
                 }.sortedBy { shortcutDisplayName(it).lowercase(Locale.getDefault()) }
 
         val excluded =
@@ -76,12 +81,14 @@ class AppShortcutSearchHandler(
     ): AppShortcutSearchResults {
         val pinnedIds = userPreferences.getPinnedAppShortcutIds()
         val excludedIds = userPreferences.getExcludedAppShortcutIds()
+        val disabledIds = userPreferences.getDisabledAppShortcutIds()
 
         val pinned =
             availableShortcuts
                 .filter {
                     pinnedIds.contains(shortcutKey(it)) &&
-                        !excludedIds.contains(shortcutKey(it))
+                        !excludedIds.contains(shortcutKey(it)) &&
+                        !disabledIds.contains(shortcutKey(it))
                 }.sortedBy { shortcutDisplayName(it).lowercase(Locale.getDefault()) }
 
         val excluded =
@@ -91,7 +98,7 @@ class AppShortcutSearchHandler(
 
         val results =
             if (query.isNotBlank() && isSectionEnabled) {
-                searchShortcutsInternal(query, excludedIds)
+                searchShortcutsInternal(query, excludedIds, disabledIds)
             } else {
                 emptyList()
             }
@@ -99,11 +106,17 @@ class AppShortcutSearchHandler(
         return AppShortcutSearchResults(pinned, excluded, results)
     }
 
-    fun searchShortcuts(query: String): List<StaticShortcut> = searchShortcutsInternal(query, userPreferences.getExcludedAppShortcutIds())
+    fun searchShortcuts(query: String): List<StaticShortcut> =
+        searchShortcutsInternal(
+            query = query,
+            excludedIds = userPreferences.getExcludedAppShortcutIds(),
+            disabledIds = userPreferences.getDisabledAppShortcutIds(),
+        )
 
     private fun searchShortcutsInternal(
         query: String,
         excludedIds: Set<String>,
+        disabledIds: Set<String>,
     ): List<StaticShortcut> {
         if (availableShortcuts.isEmpty()) return emptyList()
         val trimmed = query.trim()
@@ -116,6 +129,7 @@ class AppShortcutSearchHandler(
         return availableShortcuts
             .asSequence()
             .filterNot { excludedIds.contains(shortcutKey(it)) }
+            .filterNot { disabledIds.contains(shortcutKey(it)) }
             .mapNotNull { shortcut ->
                 val shortcutId = shortcutKey(shortcut)
                 val displayName = shortcutDisplayName(shortcut)

@@ -70,6 +70,8 @@ fun SettingsDetailRoute(
                     hasSeenOverlayAssistantTip = uiState.hasSeenOverlayAssistantTip,
                     shortcutCodes = uiState.shortcutCodes,
                     shortcutEnabled = uiState.shortcutEnabled,
+                    allAppShortcuts = uiState.allAppShortcuts,
+                    disabledAppShortcutIds = uiState.disabledAppShortcutIds,
                     messagingApp = uiState.messagingApp,
                     isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                     isTelegramInstalled = uiState.isTelegramInstalled,
@@ -261,9 +263,16 @@ fun SettingsDetailRoute(
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
 
+    val onBackAction: () -> Unit =
+            if (detailType.isLevel2()) {
+                { onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS) }
+            } else {
+                onBack
+            }
+
     val callbacks =
             SettingsScreenCallbacks(
-                    onBack = onBack,
+                    onBack = onBackAction,
                     onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
                     onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
                     onRemoveExcludedContact = viewModel::removeExcludedContact,
@@ -304,6 +313,8 @@ fun SettingsDetailRoute(
                     onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
                     onSetGeminiApiKey = viewModel::setGeminiApiKey,
                     onSetPersonalContext = viewModel::setPersonalContext,
+                    onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
+                    onLaunchAppShortcut = viewModel::launchAppShortcut,
                     onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
                     onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
                     onSetDefaultAssistant = {
@@ -353,22 +364,31 @@ fun SettingsDetailRoute(
         }
     }
 
-    SettingsDetailScreen(
-            modifier = modifier,
-            state = state,
-            callbacks = callbacks,
-            detailType = detailType,
-            showShortcutHintBanner = shouldShowShortcutHint,
-            onDismissShortcutHintBanner = onDismissShortcutHint,
-            showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
-            onDismissDefaultEngineHintBanner = onDismissDefaultEngineHint,
-            isDefaultAssistant = isDefaultAssistant,
-            directSearchSetupExpanded = directSearchSetupExpanded,
-            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
-            disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
-            onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
-            onNavigateToDetail = onNavigateToDetail,
-    )
+    if (detailType.isLevel2()) {
+        SettingsDetailLevel2Screen(
+                modifier = modifier,
+                state = state,
+                callbacks = callbacks,
+                detailType = detailType,
+        )
+    } else {
+        SettingsDetailLevel1Screen(
+                modifier = modifier,
+                state = state,
+                callbacks = callbacks,
+                detailType = detailType,
+                showShortcutHintBanner = shouldShowShortcutHint,
+                onDismissShortcutHintBanner = onDismissShortcutHint,
+                showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
+                onDismissDefaultEngineHintBanner = onDismissDefaultEngineHint,
+                isDefaultAssistant = isDefaultAssistant,
+                directSearchSetupExpanded = directSearchSetupExpanded,
+                onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+                disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
+                onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
+                onNavigateToDetail = onNavigateToDetail,
+        )
+    }
 
     if (showWallpaperPermissionFallbackDialog) {
         AlertDialog(

@@ -641,6 +641,9 @@ class UserAppPreferences(
     fun getExcludedAppShortcutIds(): Set<String> =
             appShortcutPreferences.getExcludedAppShortcutIds()
 
+    fun getDisabledAppShortcutIds(): Set<String> =
+            appShortcutPreferences.getDisabledAppShortcutIds()
+
     fun pinAppShortcut(id: String): Set<String> = appShortcutPreferences.pinAppShortcut(id)
 
     fun unpinAppShortcut(id: String): Set<String> = appShortcutPreferences.unpinAppShortcut(id)
@@ -652,6 +655,11 @@ class UserAppPreferences(
 
     fun clearAllExcludedAppShortcuts(): Set<String> =
             appShortcutPreferences.clearAllExcludedAppShortcuts()
+
+    fun setAppShortcutEnabled(
+            id: String,
+            enabled: Boolean,
+    ): Set<String> = appShortcutPreferences.setAppShortcutEnabled(id, enabled)
 
     // ============================================================================
     // Nickname Preferences

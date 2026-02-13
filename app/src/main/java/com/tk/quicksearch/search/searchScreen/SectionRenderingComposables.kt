@@ -135,6 +135,7 @@ private fun renderAppsSection(
             onNicknameClick = params.appsParams.onNicknameClick,
             getAppNickname = params.appsParams.getAppNickname,
             pinnedPackageNames = params.appsParams.pinnedPackageNames,
+            disabledShortcutIds = params.appsParams.disabledAppShortcutIds,
             rowCount = params.appsParams.rowCount,
             iconPackPackage = params.appsParams.iconPackPackage,
             oneHandedMode = params.appsParams.oneHandedMode,

@@ -25,6 +25,7 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
+import com.tk.quicksearch.settings.settingsDetailScreen.level
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -318,49 +319,40 @@ private fun NavigationContent(
                 AnimatedContent(
                     targetState = settingsDetailType,
                     transitionSpec = {
-                        // Disable animation for excluded items screen
-                        if (targetState == SettingsDetailType.EXCLUDED_ITEMS ||
-                            initialState == SettingsDetailType.EXCLUDED_ITEMS
-                        ) {
-                            // Instant transition for excluded items
-                            androidx.compose.animation.EnterTransition.None togetherWith
-                                androidx.compose.animation.ExitTransition.None
-                        } else {
-                            val isForward = initialState == null && targetState != null
+                        val initialLevel = initialState?.level() ?: 0
+                        val targetLevel = targetState?.level() ?: 0
+                        val isForward = targetLevel > initialLevel
 
-                            if (isForward) {
-                                // Forward (Settings main -> Detail): slide in from right, slide
-                                // out to left
-                                slideInHorizontally(
+                        if (isForward) {
+                            // Forward (Settings main -> Level 1, Level 1 -> Level 2)
+                            slideInHorizontally(
+                                animationSpec =
+                                    androidx.compose.animation.core
+                                        .tween(300),
+                                initialOffsetX = { it },
+                            ) togetherWith
+                                slideOutHorizontally(
                                     animationSpec =
-                                        androidx.compose.animation.core
-                                            .tween(300),
-                                    initialOffsetX = { it },
-                                ) togetherWith
-                                    slideOutHorizontally(
-                                        animationSpec =
-                                            androidx.compose.animation.core.tween(
-                                                300,
-                                            ),
-                                        targetOffsetX = { -it },
-                                    )
-                            } else {
-                                // Backward (Detail -> Settings main): slide in from left, slide
-                                // out to right
-                                slideInHorizontally(
+                                        androidx.compose.animation.core.tween(
+                                            300,
+                                        ),
+                                    targetOffsetX = { -it },
+                                )
+                        } else {
+                            // Backward (Level 2 -> Level 1, Detail -> Settings main)
+                            slideInHorizontally(
+                                animationSpec =
+                                    androidx.compose.animation.core
+                                        .tween(300),
+                                initialOffsetX = { -it },
+                            ) togetherWith
+                                slideOutHorizontally(
                                     animationSpec =
-                                        androidx.compose.animation.core
-                                            .tween(300),
-                                    initialOffsetX = { -it },
-                                ) togetherWith
-                                    slideOutHorizontally(
-                                        animationSpec =
-                                            androidx.compose.animation.core.tween(
-                                                300,
-                                            ),
-                                        targetOffsetX = { it },
-                                    )
-                            }
+                                        androidx.compose.animation.core.tween(
+                                            300,
+                                        ),
+                                    targetOffsetX = { it },
+                                )
                         }
                     },
                     label = "SettingsDetailTransition",

@@ -41,6 +41,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.AppShortcutRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
+import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.getAppGridColumns
@@ -85,6 +86,7 @@ fun AppGridView(
     onNicknameClick: (AppInfo) -> Unit,
     getAppNickname: (String) -> String?,
     pinnedPackageNames: Set<String>,
+    disabledShortcutIds: Set<String>,
     modifier: Modifier = Modifier,
     rowCount: Int = ROW_COUNT,
     iconPackPackage: String? = null,
@@ -95,8 +97,11 @@ fun AppGridView(
     val shortcutRepository = remember(context) { AppShortcutRepository(context) }
     var shortcuts by remember { mutableStateOf<List<StaticShortcut>>(emptyList()) }
     val shortcutsByPackage =
-        remember(shortcuts) {
-            shortcuts.groupBy { it.packageName }
+        remember(shortcuts, disabledShortcutIds) {
+            shortcuts
+                .asSequence()
+                .filterNot { shortcut -> disabledShortcutIds.contains(shortcutKey(shortcut)) }
+                .groupBy { it.packageName }
         }
 
     LaunchedEffect(shortcutRepository) {

@@ -12,6 +12,8 @@ class AppShortcutPreferences(
 
     fun getExcludedAppShortcutIds(): Set<String> = getExcludedStringItems(BasePreferences.KEY_EXCLUDED_APP_SHORTCUTS)
 
+    fun getDisabledAppShortcutIds(): Set<String> = getStringSet(BasePreferences.KEY_DISABLED_APP_SHORTCUTS)
+
     fun pinAppShortcut(id: String): Set<String> = pinStringItem(BasePreferences.KEY_PINNED_APP_SHORTCUTS, id)
 
     fun unpinAppShortcut(id: String): Set<String> = unpinStringItem(BasePreferences.KEY_PINNED_APP_SHORTCUTS, id)
@@ -21,4 +23,16 @@ class AppShortcutPreferences(
     fun removeExcludedAppShortcut(id: String): Set<String> = removeExcludedStringItem(BasePreferences.KEY_EXCLUDED_APP_SHORTCUTS, id)
 
     fun clearAllExcludedAppShortcuts(): Set<String> = clearAllExcludedStringItems(BasePreferences.KEY_EXCLUDED_APP_SHORTCUTS)
+
+    fun setAppShortcutEnabled(
+        id: String,
+        enabled: Boolean,
+    ): Set<String> =
+        updateStringSet(BasePreferences.KEY_DISABLED_APP_SHORTCUTS) { disabledIds ->
+            if (enabled) {
+                disabledIds.remove(id)
+            } else {
+                disabledIds.add(id)
+            }
+        }
 }

@@ -463,12 +463,14 @@ class SearchViewModel(
         // This is just a fast JSON parse
         val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
         val hasUsagePermission = repository.hasUsageAccess()
+        val disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds()
 
         // Apply immediately - DO NOT BLOCK on icon loading
         withContext(Dispatchers.Main) {
             _uiState.update {
                 it.copy(
                         oneHandedMode = oneHandedMode,
+                        disabledAppShortcutIds = disabledAppShortcutIds,
                         // We don't have full prefs yet, so keep initializing flag true
                         // but show the apps we found in cache
                         isInitializing = true,
@@ -562,6 +564,7 @@ class SearchViewModel(
                     overlayModeEnabled = overlayModeEnabled,
                     directDialEnabled = directDialEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
+                    disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                     showWallpaperBackground = showWallpaperBackground,
                     wallpaperBackgroundAlpha = activeAlpha,
                     wallpaperBlurRadius = activeBlur,
@@ -645,6 +648,7 @@ class SearchViewModel(
                                         !userPreferences.hasSeenSearchEngineOnboarding(),
                         showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                         appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
+                        disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
@@ -676,6 +680,8 @@ class SearchViewModel(
                 val pinnedAppShortcutsState = appShortcutSearchHandler.getPinnedAndExcludedOnly()
                 updateUiState { state ->
                     state.copy(
+                            allAppShortcuts = appShortcutSearchHandler.getAvailableShortcuts(),
+                            disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                             pinnedAppShortcuts = pinnedAppShortcutsState.pinned,
                             excludedAppShortcuts = pinnedAppShortcutsState.excluded,
                     )
@@ -1171,6 +1177,7 @@ class SearchViewModel(
 
     private fun refreshAppShortcutsState(updateResults: Boolean = true) {
         val query = if (updateResults) _uiState.value.query else ""
+        val disabledShortcutIds = userPreferences.getDisabledAppShortcutIds()
         val currentState =
                 appShortcutSearchHandler.getShortcutsState(
                         query = query,
@@ -1180,6 +1187,8 @@ class SearchViewModel(
 
         updateUiState { state ->
             state.copy(
+                    allAppShortcuts = appShortcutSearchHandler.getAvailableShortcuts(),
+                    disabledAppShortcutIds = disabledShortcutIds,
                     pinnedAppShortcuts = currentState.pinned,
                     excludedAppShortcuts = currentState.excluded,
                     appShortcutResults =
@@ -1621,6 +1630,19 @@ class SearchViewModel(
             shortcut: StaticShortcut,
             nickname: String?,
     ) = appShortcutManager.setShortcutNickname(shortcut, nickname)
+
+    fun setAppShortcutEnabled(
+            shortcut: StaticShortcut,
+            enabled: Boolean,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setAppShortcutEnabled(shortcutKey(shortcut), enabled)
+            withContext(Dispatchers.Main) {
+                refreshAppShortcutsState()
+                refreshRecentItems()
+            }
+        }
+    }
 
     fun getAppShortcutNickname(shortcutId: String): String? =
             appShortcutManager.getShortcutNickname(shortcutId)
