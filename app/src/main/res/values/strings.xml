@@ -422,10 +422,17 @@
     </plurals>
     <string name="settings_apps_empty">No apps found.</string>
     <string name="settings_app_sort_by_format">Sort by: %1$s</string>
-    <string name="settings_app_sort_alphabetical">Alphabetical</string>
+    <string name="settings_app_sort_name">Name</string>
+    <string name="settings_app_sort_apk_size">APK Size</string>
     <string name="settings_app_sort_most_used">Most Used</string>
     <string name="settings_app_sort_least_used">Least Used</string>
-    <string name="settings_app_sort_recently_used">Recently Used</string>
+    <string name="settings_app_sort_installation_date">Installation Date</string>
+    <string name="settings_app_sort_last_update">Last Update</string>
+    <string name="settings_app_sort_api_level">API Level</string>
+    <string name="settings_app_sort_ascending">Sort ascending</string>
+    <string name="settings_app_sort_descending">Sort descending</string>
+    <string name="settings_app_apk_size_format">APK Size: %1$.2f Mb</string>
+    <string name="settings_app_uninstall_selected_format">Uninstall (%1$d)</string>
     <string name="settings_app_icon_tap_for_details">Tap app icon for app details</string>
     <string name="settings_app_info_not_available">Not available</string>
     <string name="settings_app_info_package_name">Package Name</string>

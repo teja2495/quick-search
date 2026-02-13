@@ -107,6 +107,7 @@ internal fun SettingsDetailLevel2Screen(
                     iconPackPackage = state.selectedIconPackPackage,
                     onRequestAppUninstall = callbacks.onRequestAppUninstall,
                     onOpenAppInfo = callbacks.onOpenAppInfo,
+                    onRefreshApps = callbacks.onRefreshApps,
                     modifier =
                         Modifier
                             .fillMaxSize()
