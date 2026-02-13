@@ -184,14 +184,33 @@ internal fun SearchScreenContent(
                 if (firstApp != null) {
                     onAppClick(firstApp)
                 } else {
-                    // Check if a shortcut is detected
-                    if (state.detectedShortcutTarget != null) {
-                        // Query already has shortcut stripped by ViewModel when shortcut-at-start is detected
-                        onSearchTargetClick(trimmedQuery, state.detectedShortcutTarget)
+                    val firstAppShortcut = renderingState.appShortcutResults.firstOrNull()
+                    if (firstAppShortcut != null) {
+                        appShortcutsParams.onShortcutClick(firstAppShortcut)
                     } else {
-                        val primaryTarget = enabledTargets.firstOrNull()
-                        if (primaryTarget != null && trimmedQuery.isNotBlank()) {
-                            onSearchTargetClick(trimmedQuery, primaryTarget)
+                        val firstContact = renderingState.contactResults.firstOrNull()
+                        if (firstContact != null) {
+                            if (firstContact.hasContactMethods) {
+                                contactsParams.onShowContactMethods(firstContact)
+                            } else {
+                                contactsParams.onContactClick(firstContact)
+                            }
+                        } else {
+                            val firstFile = renderingState.fileResults.firstOrNull()
+                            if (firstFile != null) {
+                                filesParams.onFileClick(firstFile)
+                            } else {
+                                // Check if a shortcut is detected
+                                if (state.detectedShortcutTarget != null) {
+                                    // Query already has shortcut stripped by ViewModel when shortcut-at-start is detected
+                                    onSearchTargetClick(trimmedQuery, state.detectedShortcutTarget)
+                                } else {
+                                    val primaryTarget = enabledTargets.firstOrNull()
+                                    if (primaryTarget != null && trimmedQuery.isNotBlank()) {
+                                        onSearchTargetClick(trimmedQuery, primaryTarget)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
