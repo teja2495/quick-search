@@ -84,6 +84,7 @@ data class SettingsScreenState(
     val shortcutCodes: Map<String, String>,
     val shortcutEnabled: Map<String, Boolean>,
     val allAppShortcuts: List<com.tk.quicksearch.search.data.StaticShortcut>,
+    val allDeviceSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
     val disabledAppShortcutIds: Set<String>,
     val messagingApp: MessagingApp,
     val isWhatsAppInstalled: Boolean,
@@ -155,6 +156,7 @@ data class SettingsScreenCallbacks(
     val onSetPersonalContext: (String?) -> Unit,
     val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
+    val onLaunchDeviceSetting: (com.tk.quicksearch.search.deviceSettings.DeviceSetting) -> Unit,
     val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
@@ -230,6 +232,9 @@ fun SectionSettingsSection(
     appShortcutsSubtitle: String? = null,
     onAppShortcutsClick: (() -> Unit)? = null,
     onAppShortcutsClickNoRipple: Boolean = false,
+    deviceSettingsSubtitle: String? = null,
+    onDeviceSettingsClick: (() -> Unit)? = null,
+    onDeviceSettingsClickNoRipple: Boolean = false,
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
 ) {
@@ -246,13 +251,29 @@ fun SectionSettingsSection(
         Column(modifier = Modifier.fillMaxWidth()) {
             sectionOrder.forEachIndexed { index, section ->
                 val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
+                val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 SectionRowWithoutDrag(
                     section = section,
                     isEnabled = section !in disabledSections,
                     onToggle = { enabled -> onToggleSection(section, enabled) },
-                    subtitle = if (isAppShortcutsRow) appShortcutsSubtitle else null,
-                    onRowClick = if (isAppShortcutsRow) onAppShortcutsClick else null,
-                    noRippleOnRowClick = isAppShortcutsRow && onAppShortcutsClickNoRipple,
+                    subtitle =
+                        when {
+                            isAppShortcutsRow -> appShortcutsSubtitle
+                            isDeviceSettingsRow -> deviceSettingsSubtitle
+                            else -> null
+                        },
+                    onRowClick =
+                        when {
+                            isAppShortcutsRow -> onAppShortcutsClick
+                            isDeviceSettingsRow -> onDeviceSettingsClick
+                            else -> null
+                        },
+                    noRippleOnRowClick =
+                        when {
+                            isAppShortcutsRow -> onAppShortcutsClickNoRipple
+                            isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
+                            else -> false
+                        },
                 )
 
                 if (index != sectionOrder.lastIndex) {
@@ -615,6 +636,7 @@ fun SettingsRoute(
             shortcutCodes = uiState.shortcutCodes,
             shortcutEnabled = uiState.shortcutEnabled,
             allAppShortcuts = uiState.allAppShortcuts,
+            allDeviceSettings = uiState.allDeviceSettings,
             disabledAppShortcutIds = uiState.disabledAppShortcutIds,
             messagingApp = uiState.messagingApp,
             isWhatsAppInstalled = uiState.isWhatsAppInstalled,
@@ -789,6 +811,7 @@ fun SettingsRoute(
             onSetPersonalContext = viewModel::setPersonalContext,
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,
+            onLaunchDeviceSetting = viewModel::openSetting,
             onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
             onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
             onSetDefaultAssistant = {

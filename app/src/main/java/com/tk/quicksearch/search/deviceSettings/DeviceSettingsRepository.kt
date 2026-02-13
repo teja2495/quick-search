@@ -29,11 +29,6 @@ class DeviceSettingsRepository(
 
     private fun allShortcuts(): List<DeviceSetting> {
         val packageUri = "package:{packageName}"
-        val packageExtras =
-            mapOf(
-                Settings.EXTRA_APP_PACKAGE to "{packageName}",
-                Intent.EXTRA_PACKAGE_NAME to "{packageName}",
-            )
 
         return buildList {
             // System & Device shortcuts
@@ -46,7 +41,7 @@ class DeviceSettingsRepository(
             addSecurityPrivacyShortcuts()
 
             // Apps & Permissions shortcuts
-            addAppsPermissionsShortcuts(packageUri, packageExtras)
+            addAppsPermissionsShortcuts(packageUri)
 
             // Battery & Performance shortcuts
             addBatteryPerformanceShortcuts()
@@ -55,7 +50,7 @@ class DeviceSettingsRepository(
             addLanguageInputShortcuts()
 
             // Notifications & Accessibility shortcuts
-            addNotificationsAccessibilityShortcuts(packageUri)
+            addNotificationsAccessibilityShortcuts()
 
             // Developer & Advanced shortcuts
             addDeveloperShortcuts()
@@ -63,16 +58,6 @@ class DeviceSettingsRepository(
     }
 
     private fun MutableList<DeviceSetting>.addSystemDeviceShortcuts() {
-        add(
-            createShortcut(
-                id = "system_settings",
-                titleRes = R.string.settings_shortcut_system,
-                description = "System & Device",
-                keywords = listOf("android", "system", "main"),
-                action = Settings.ACTION_SETTINGS,
-            ),
-        )
-
         add(
             createShortcut(
                 id = "location",
@@ -187,11 +172,31 @@ class DeviceSettingsRepository(
 
         add(
             createShortcut(
+                id = "data_usage",
+                titleRes = R.string.settings_shortcut_data_usage,
+                description = "Network & Connectivity",
+                keywords = listOf("data usage", "mobile data", "network usage"),
+                action = Settings.ACTION_DATA_USAGE_SETTINGS,
+            ),
+        )
+
+        add(
+            createShortcut(
                 id = "airplane",
                 titleRes = R.string.settings_shortcut_airplane,
                 description = "Network & Connectivity",
                 keywords = listOf("flight", "offline"),
                 action = Settings.ACTION_AIRPLANE_MODE_SETTINGS,
+            ),
+        )
+
+        add(
+            createShortcut(
+                id = "hotspot",
+                titleRes = R.string.settings_shortcut_hotspot,
+                description = "Network & Connectivity",
+                keywords = listOf("hotspot", "tethering", "wifi hotspot"),
+                action = "android.settings.TETHER_SETTINGS",
             ),
         )
 
@@ -237,35 +242,9 @@ class DeviceSettingsRepository(
                 action = Settings.ACTION_SECURITY_SETTINGS,
             ),
         )
-
-        add(
-            createShortcut(
-                id = "biometric",
-                titleRes = R.string.settings_shortcut_biometric,
-                description = "Security & Privacy",
-                keywords = listOf("fingerprint", "face", "unlock"),
-                action = Settings.ACTION_BIOMETRIC_ENROLL,
-                minSdk = Build.VERSION_CODES.R,
-            ),
-        )
     }
 
-    private fun MutableList<DeviceSetting>.addAppsPermissionsShortcuts(
-        packageUri: String,
-        packageExtras: Map<String, String>,
-    ) {
-        add(
-            createShortcut(
-                id = "app_notifications",
-                titleRes = R.string.settings_shortcut_app_notifications,
-                description = "Apps & Permissions",
-                keywords = listOf("notifications", "this app", "alerts"),
-                action = Settings.ACTION_APP_NOTIFICATION_SETTINGS,
-                extras = packageExtras,
-                minSdk = Build.VERSION_CODES.O,
-            ),
-        )
-
+    private fun MutableList<DeviceSetting>.addAppsPermissionsShortcuts(packageUri: String) {
         add(
             createShortcut(
                 id = "apps_list",
@@ -273,17 +252,6 @@ class DeviceSettingsRepository(
                 description = "Apps & Permissions",
                 keywords = listOf("manage", "permissions", "default"),
                 action = Settings.ACTION_APPLICATION_SETTINGS,
-            ),
-        )
-
-        add(
-            createShortcut(
-                id = "app_info",
-                titleRes = R.string.settings_shortcut_app_info,
-                description = "Apps & Permissions",
-                keywords = listOf("details", "info", "manage"),
-                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                data = packageUri,
             ),
         )
 
@@ -301,36 +269,12 @@ class DeviceSettingsRepository(
 
         add(
             createShortcut(
-                id = "write_settings",
-                titleRes = R.string.settings_shortcut_write_settings,
-                description = "Apps & Permissions",
-                keywords = listOf("system settings", "modify", "write"),
-                action = Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                data = packageUri,
-                minSdk = Build.VERSION_CODES.M,
-            ),
-        )
-
-        add(
-            createShortcut(
                 id = "all_files_access",
                 titleRes = R.string.settings_shortcut_all_files,
                 description = "Apps & Permissions",
                 keywords = listOf("files", "storage", "manage"),
                 action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION,
                 minSdk = Build.VERSION_CODES.R,
-            ),
-        )
-
-        add(
-            createShortcut(
-                id = "unknown_sources",
-                titleRes = R.string.settings_shortcut_unknown_sources,
-                description = "Apps & Permissions",
-                keywords = listOf("install", "apk", "sideload"),
-                action = Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                data = packageUri,
-                minSdk = Build.VERSION_CODES.O,
             ),
         )
 
@@ -351,6 +295,17 @@ class DeviceSettingsRepository(
                 description = "Apps & Permissions",
                 keywords = listOf("launcher", "default", "home app"),
                 action = Settings.ACTION_HOME_SETTINGS,
+            ),
+        )
+
+        add(
+            createShortcut(
+                id = "default_apps",
+                titleRes = R.string.settings_shortcut_default_apps,
+                description = "Apps & Permissions",
+                keywords = listOf("default apps", "defaults", "open by default"),
+                action = Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS,
+                minSdk = Build.VERSION_CODES.N,
             ),
         )
     }
@@ -375,6 +330,17 @@ class DeviceSettingsRepository(
                 keywords = listOf("doze", "optimize", "ignore"),
                 action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS,
                 minSdk = Build.VERSION_CODES.M,
+            ),
+        )
+
+        add(
+            createShortcut(
+                id = "battery_usage",
+                titleRes = R.string.settings_shortcut_battery_usage,
+                description = "Battery & Performance",
+                keywords = listOf("battery usage", "power usage", "consumption"),
+                action = "android.settings.BATTERY_USAGE_SETTINGS",
+                minSdk = Build.VERSION_CODES.P,
             ),
         )
     }
@@ -411,7 +377,7 @@ class DeviceSettingsRepository(
         )
     }
 
-    private fun MutableList<DeviceSetting>.addNotificationsAccessibilityShortcuts(packageUri: String) {
+    private fun MutableList<DeviceSetting>.addNotificationsAccessibilityShortcuts() {
         add(
             createShortcut(
                 id = "notifications",
@@ -419,6 +385,17 @@ class DeviceSettingsRepository(
                 description = "Notifications & Accessibility",
                 keywords = listOf("alerts", "sounds", "banner"),
                 action = Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS,
+                minSdk = Build.VERSION_CODES.M,
+            ),
+        )
+
+        add(
+            createShortcut(
+                id = "do_not_disturb",
+                titleRes = R.string.settings_shortcut_do_not_disturb,
+                description = "Notifications & Accessibility",
+                keywords = listOf("dnd", "focus", "zen mode"),
+                action = "android.settings.ZEN_MODE_SETTINGS",
                 minSdk = Build.VERSION_CODES.M,
             ),
         )

@@ -232,6 +232,7 @@ data class SearchUiState(
     val searchResults: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
     val appShortcutResults: List<StaticShortcut> = emptyList(),
     val allAppShortcuts: List<StaticShortcut> = emptyList(),
+    val allDeviceSettings: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> = emptyList(),
     val pinnedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
     val suggestionExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),
     val resultExcludedApps: List<com.tk.quicksearch.search.models.AppInfo> = emptyList(),

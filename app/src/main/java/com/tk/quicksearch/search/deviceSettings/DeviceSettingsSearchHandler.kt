@@ -37,6 +37,9 @@ class DeviceSettingsSearchHandler(
             .associateBy { it.id }
     }
 
+    fun getAvailableSettings(): List<DeviceSetting> =
+        availableSettings.sortedBy { it.title.lowercase(Locale.getDefault()) }
+
     suspend fun getPinnedAndExcludedOnly(): DeviceSettingsSearchResults {
         if (availableSettings.isEmpty()) {
             availableSettings = repository.loadShortcuts()

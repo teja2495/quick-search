@@ -145,6 +145,9 @@ internal fun SettingsDetailLevel1Screen(
                             onNavigateToAppShortcuts = {
                                 onNavigateToDetail(SettingsDetailType.APP_SHORTCUTS)
                             },
+                            onNavigateToDeviceSettings = {
+                                onNavigateToDetail(SettingsDetailType.DEVICE_SETTINGS)
+                            },
                         )
                     }
 
@@ -244,6 +247,7 @@ internal fun SettingsDetailLevel1Screen(
 
                     SettingsDetailType.EXCLUDED_ITEMS,
                     SettingsDetailType.APP_SHORTCUTS,
+                    SettingsDetailType.DEVICE_SETTINGS,
                     -> Unit
                 }
             }
@@ -294,6 +298,7 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.EXCLUDED_ITEMS -> R.string.settings_excluded_items_title
         SettingsDetailType.SEARCH_RESULTS -> R.string.settings_search_results_title
         SettingsDetailType.APP_SHORTCUTS -> R.string.section_app_shortcuts
+        SettingsDetailType.DEVICE_SETTINGS -> R.string.section_settings
         SettingsDetailType.APPEARANCE -> R.string.settings_appearance_title
         SettingsDetailType.CALLS_TEXTS -> R.string.settings_calls_texts_title
         SettingsDetailType.FILES -> R.string.settings_file_types_title
@@ -303,7 +308,9 @@ internal fun SettingsDetailType.titleResId(): Int =
     }
 
 internal fun SettingsDetailType.isLevel2(): Boolean =
-    this == SettingsDetailType.APP_SHORTCUTS || this == SettingsDetailType.EXCLUDED_ITEMS
+    this == SettingsDetailType.APP_SHORTCUTS ||
+        this == SettingsDetailType.EXCLUDED_ITEMS ||
+        this == SettingsDetailType.DEVICE_SETTINGS
 
 internal fun SettingsDetailType.level(): Int = if (isLevel2()) 2 else 1
 
@@ -315,6 +322,7 @@ enum class SettingsDetailType {
     EXCLUDED_ITEMS,
     SEARCH_RESULTS,
     APP_SHORTCUTS,
+    DEVICE_SETTINGS,
     APPEARANCE,
     CALLS_TEXTS,
     FILES,

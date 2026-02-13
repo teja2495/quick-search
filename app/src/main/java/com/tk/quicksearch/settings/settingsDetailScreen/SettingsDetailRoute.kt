@@ -71,6 +71,7 @@ fun SettingsDetailRoute(
                     shortcutCodes = uiState.shortcutCodes,
                     shortcutEnabled = uiState.shortcutEnabled,
                     allAppShortcuts = uiState.allAppShortcuts,
+                    allDeviceSettings = uiState.allDeviceSettings,
                     disabledAppShortcutIds = uiState.disabledAppShortcutIds,
                     messagingApp = uiState.messagingApp,
                     isWhatsAppInstalled = uiState.isWhatsAppInstalled,
@@ -315,6 +316,7 @@ fun SettingsDetailRoute(
                     onSetPersonalContext = viewModel::setPersonalContext,
                     onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
                     onLaunchAppShortcut = viewModel::launchAppShortcut,
+                    onLaunchDeviceSetting = viewModel::openSetting,
                     onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
                     onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
                     onSetDefaultAssistant = {

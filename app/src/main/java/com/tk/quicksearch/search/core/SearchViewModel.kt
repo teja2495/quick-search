@@ -1171,6 +1171,7 @@ class SearchViewModel(
                     pinnedSettings = currentState.pinned,
                     excludedSettings = currentState.excluded,
                     settingResults = currentState.results,
+                    allDeviceSettings = settingsSearchHandler.getAvailableSettings(),
             )
         }
     }

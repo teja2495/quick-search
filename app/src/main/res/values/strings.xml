@@ -111,21 +111,20 @@
     <!-- ============================================================================
          Settings Shortcuts
          ============================================================================ -->
-    <string name="settings_shortcut_system">System settings</string>
     <string name="settings_shortcut_wifi">Wi\u2011Fi</string>
     <string name="settings_shortcut_bluetooth">Bluetooth</string>
     <string name="settings_shortcut_network">Network &amp; internet</string>
     <string name="settings_shortcut_mobile_data">Mobile Data</string>
+    <string name="settings_shortcut_data_usage">Data Usage</string>
     <string name="settings_shortcut_airplane">Airplane Mode</string>
+    <string name="settings_shortcut_hotspot">Hotspot &amp; Tethering</string>
     <string name="settings_shortcut_nfc">NFC</string>
     <string name="settings_shortcut_vpn">VPN</string>
     <string name="settings_shortcut_location">Location</string>
     <string name="settings_shortcut_privacy">Privacy</string>
     <string name="settings_shortcut_security">Security</string>
     <string name="settings_shortcut_notifications">Notifications</string>
-    <string name="settings_shortcut_app_notifications">App Notifications</string>
     <string name="settings_shortcut_apps_list">Apps</string>
-    <string name="settings_shortcut_app_info">App Info</string>
     <string name="settings_shortcut_display">Display</string>
     <string name="settings_shortcut_sound">Sound &amp; Vibration</string>
     <string name="settings_shortcut_storage">Storage</string>
@@ -138,15 +137,15 @@
     <string name="settings_shortcut_about_phone">About Phone</string>
     <string name="settings_shortcut_accessibility">Accessibility</string>
     <string name="settings_shortcut_overlay_permission">Display Over Other Apps</string>
-    <string name="settings_shortcut_write_settings">Modify System Settings</string>
     <string name="settings_shortcut_all_files">All Files Access</string>
-    <string name="settings_shortcut_unknown_sources">Install Unknown Apps</string>
     <string name="settings_shortcut_notification_listener">Notification Access</string>
     <string name="settings_shortcut_usage_access">Usage Access</string>
     <string name="settings_shortcut_home">Default Launcher</string>
+    <string name="settings_shortcut_default_apps">Default Apps</string>
     <string name="settings_shortcut_cast">Cast</string>
-    <string name="settings_shortcut_biometric">Biometric Setup</string>
-    <string name="settings_shortcut_voice_input">Voice Input</string>
+    <string name="settings_shortcut_voice_input">Digital Assistant</string>
+    <string name="settings_shortcut_do_not_disturb">Do Not Disturb</string>
+    <string name="settings_shortcut_battery_usage">Battery Usage</string>
 
     <!-- ============================================================================
          Common Actions
@@ -404,6 +403,7 @@
     <string name="section_apps">Apps</string>
     <string name="section_app_shortcuts">App Shortcuts</string>
     <string name="settings_manage_shortcuts">Manage</string>
+    <string name="settings_view_all">View All</string>
     <string name="settings_app_shortcuts_empty">No app shortcuts found.</string>
     <string name="settings_app_shortcuts_available_count">Available shortcuts: %1$d</string>
     <plurals name="settings_app_shortcuts_card_count">
@@ -413,6 +413,7 @@
     <string name="section_contacts">Contacts</string>
     <string name="section_files">Files</string>
     <string name="section_settings">Device Settings</string>
+    <string name="settings_device_settings_empty">No device settings available.</string>
     <string name="settings_sections_at_least_one_required">At least one item must be enabled</string>
 
     <!-- ========================================&====================================

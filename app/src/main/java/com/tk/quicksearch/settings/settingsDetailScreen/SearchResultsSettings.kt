@@ -269,6 +269,7 @@ fun SearchResultsSettingsSection(
     callbacks: SettingsScreenCallbacks,
     onNavigateToExcludedItems: () -> Unit,
     onNavigateToAppShortcuts: () -> Unit,
+    onNavigateToDeviceSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -280,6 +281,9 @@ fun SearchResultsSettingsSection(
             appShortcutsSubtitle = stringResource(R.string.settings_manage_shortcuts),
             onAppShortcutsClick = onNavigateToAppShortcuts,
             onAppShortcutsClickNoRipple = true,
+            deviceSettingsSubtitle = stringResource(R.string.settings_view_all),
+            onDeviceSettingsClick = onNavigateToDeviceSettings,
+            onDeviceSettingsClickNoRipple = true,
             showTitle = false,
         )
 

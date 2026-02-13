@@ -113,6 +113,13 @@ internal fun SettingsDetailLevel2Screen(
                         )
                     }
 
+                    SettingsDetailType.DEVICE_SETTINGS -> {
+                        DeviceSettingsSettingsSection(
+                            settings = state.allDeviceSettings,
+                            onSettingClick = callbacks.onLaunchDeviceSetting,
+                        )
+                    }
+
                     else -> Unit
                 }
             }
