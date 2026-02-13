@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -43,6 +44,7 @@ internal fun SettingsDetailLevel2Screen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
+    appShortcutFocusShortcut: StaticShortcut? = null,
     appShortcutFocusPackageName: String? = null,
     onAppShortcutFocusHandled: () -> Unit = {},
 ) {
@@ -164,6 +166,7 @@ internal fun SettingsDetailLevel2Screen(
                                 onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
                                 onShortcutNameClick = callbacks.onLaunchAppShortcut,
                                 onDeleteCustomShortcut = callbacks.onDeleteCustomAppShortcut,
+                                focusShortcut = appShortcutFocusShortcut,
                                 focusPackageName = appShortcutFocusPackageName,
                                 onFocusHandled = onAppShortcutFocusHandled,
                             )

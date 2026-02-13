@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import android.util.TypedValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -34,6 +37,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import java.util.Locale
+import java.io.ByteArrayOutputStream
 
 private const val CUSTOM_SHORTCUT_ID_PREFIX = "custom_"
 
@@ -44,6 +48,7 @@ data class StaticShortcut(
     val shortLabel: String?,
     val longLabel: String?,
     val iconResId: Int?,
+    val iconBase64: String? = null,
     val enabled: Boolean,
     val intents: List<Intent>,
 )
@@ -107,6 +112,7 @@ private class AppShortcutCache(
         private const val FIELD_SHORT_LABEL = "shortLabel"
         private const val FIELD_LONG_LABEL = "longLabel"
         private const val FIELD_ICON_RES_ID = "iconResId"
+        private const val FIELD_ICON_BASE64 = "iconBase64"
         private const val FIELD_ENABLED = "enabled"
         private const val FIELD_INTENTS = "intents"
 
@@ -144,6 +150,12 @@ private class AppShortcutCache(
                     } else {
                         null
                     }
+                val iconBase64 =
+                    if (jsonObject.has(FIELD_ICON_BASE64) && !jsonObject.isNull(FIELD_ICON_BASE64)) {
+                        jsonObject.getString(FIELD_ICON_BASE64).takeIf { it.isNotBlank() }
+                    } else {
+                        null
+                    }
                 val intentsJson = jsonObject.optJSONArray(FIELD_INTENTS) ?: JSONArray()
                 val intents = intentsJson.toIntentList(packageName)
 
@@ -155,6 +167,7 @@ private class AppShortcutCache(
                         shortLabel = shortLabel,
                         longLabel = longLabel,
                         iconResId = iconResId,
+                        iconBase64 = iconBase64,
                         enabled = enabled,
                         intents = intents,
                     ),
@@ -174,6 +187,7 @@ private class AppShortcutCache(
                             shortcut.shortLabel?.let { put(FIELD_SHORT_LABEL, it) }
                             shortcut.longLabel?.let { put(FIELD_LONG_LABEL, it) }
                             shortcut.iconResId?.let { put(FIELD_ICON_RES_ID, it) }
+                            shortcut.iconBase64?.let { put(FIELD_ICON_BASE64, it) }
                             put(FIELD_ENABLED, shortcut.enabled)
                             put(FIELD_INTENTS, shortcut.intents.toIntentJsonArray())
                         },
@@ -475,6 +489,7 @@ class AppShortcutRepository(
                 ?: packageName
         val customId =
             "$CUSTOM_SHORTCUT_ID_PREFIX${System.currentTimeMillis()}_${(Math.random() * 100000).toInt()}"
+        val iconBase64 = extractCustomShortcutIconBase64(data)
         val shortcut =
             StaticShortcut(
                 packageName = packageName,
@@ -483,11 +498,56 @@ class AppShortcutRepository(
                 shortLabel = customLabel,
                 longLabel = customLabel,
                 iconResId = null,
+                iconBase64 = iconBase64,
                 enabled = true,
                 intents = listOf(launchIntent),
             )
         return filterShortcuts(listOf(shortcut)).firstOrNull()
     }
+
+    private fun extractCustomShortcutIconBase64(data: Intent): String? {
+        val directBitmap =
+            data.getParcelableExtraCompat(Intent.EXTRA_SHORTCUT_ICON, Bitmap::class.java)
+        if (directBitmap != null) {
+            return bitmapToBase64Png(directBitmap)
+        }
+
+        val iconResource =
+            data.getParcelableExtraCompat(
+                Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource::class.java,
+            )
+        if (iconResource != null) {
+            val targetContext =
+                runCatching { context.createPackageContext(iconResource.packageName, 0) }.getOrNull()
+                    ?: return null
+            val resId =
+                runCatching {
+                    targetContext.resources.getIdentifier(
+                        iconResource.resourceName,
+                        null,
+                        iconResource.packageName,
+                    )
+                }.getOrDefault(0)
+            if (resId != 0) {
+                val drawable = runCatching { targetContext.resources.getDrawable(resId, targetContext.theme) }.getOrNull()
+                val bitmap = drawable?.toBitmap()
+                if (bitmap != null) {
+                    return bitmapToBase64Png(bitmap)
+                }
+            }
+        }
+
+        return null
+    }
+
+    private fun bitmapToBase64Png(bitmap: Bitmap): String? =
+        runCatching {
+            ByteArrayOutputStream().use { output ->
+                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) return null
+                Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+            }
+        }.getOrNull()
 
     private fun resolveShortcutPackage(intent: Intent): String? =
         intent.component?.packageName
@@ -916,7 +976,7 @@ internal fun rememberShortcutIcon(
             initialValue = null,
             key1 = shortcut.packageName,
             key2 = shortcut.iconResId,
-            key3 = iconSizePx,
+            key3 = shortcut.iconBase64 to iconSizePx,
         ) {
             value =
                 withContext(Dispatchers.IO) {
@@ -935,6 +995,15 @@ private fun loadShortcutIconBitmap(
     shortcut: StaticShortcut,
     iconSizePx: Int,
 ): ImageBitmap? {
+    shortcut.iconBase64?.let { encoded ->
+        val decoded = runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+        val bitmap =
+            decoded?.let { bytes -> BitmapFactory.decodeByteArray(bytes, 0, bytes.size) }
+        if (bitmap != null) {
+            return bitmap.asImageBitmap()
+        }
+    }
+
     val resId = shortcut.iconResId ?: return null
     val targetContext =
         runCatching { context.createPackageContext(shortcut.packageName, 0) }.getOrNull()

@@ -27,6 +27,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.settings.shared.*
@@ -266,6 +267,7 @@ fun SettingsDetailRoute(
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
     var showShortcutSourcePicker by remember { mutableStateOf(false) }
+    var appShortcutFocusShortcut by remember { mutableStateOf<StaticShortcut?>(null) }
     var appShortcutFocusPackageName by remember { mutableStateOf<String?>(null) }
     val addAppShortcutLauncher =
             rememberLauncherForActivityResult(
@@ -276,6 +278,7 @@ fun SettingsDetailRoute(
                             resultData = result.data,
                             showDefaultToast = false,
                             onShortcutAdded = { addedShortcut ->
+                                appShortcutFocusShortcut = addedShortcut
                                 appShortcutFocusPackageName = addedShortcut.packageName
                                 Toast.makeText(
                                                 context,
@@ -414,8 +417,12 @@ fun SettingsDetailRoute(
                 state = state,
                 callbacks = callbacks,
                 detailType = detailType,
+                appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
-                onAppShortcutFocusHandled = { appShortcutFocusPackageName = null },
+                onAppShortcutFocusHandled = {
+                    appShortcutFocusShortcut = null
+                    appShortcutFocusPackageName = null
+                },
         )
     } else {
         SettingsDetailLevel1Screen(

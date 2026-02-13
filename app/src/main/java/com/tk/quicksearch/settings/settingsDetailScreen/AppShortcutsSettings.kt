@@ -64,13 +64,20 @@ fun AppShortcutsSettingsSection(
     onShortcutEnabledChange: (StaticShortcut, Boolean) -> Unit,
     onShortcutNameClick: (StaticShortcut) -> Unit,
     onDeleteCustomShortcut: (StaticShortcut) -> Unit,
+    focusShortcut: StaticShortcut? = null,
     focusPackageName: String? = null,
     onFocusHandled: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val displayShortcuts =
+        remember(shortcuts, focusShortcut) {
+            val shortcutToFocus = focusShortcut ?: return@remember shortcuts
+            val exists = shortcuts.any { shortcutKey(it) == shortcutKey(shortcutToFocus) }
+            if (exists) shortcuts else shortcuts + shortcutToFocus
+        }
     val shortcutGroups =
-        remember(shortcuts) {
-            shortcuts
+        remember(displayShortcuts) {
+            displayShortcuts
                 .groupBy { it.packageName }
                 .mapNotNull { (packageName, appShortcuts) ->
                     if (appShortcuts.isEmpty()) {
@@ -290,8 +297,7 @@ private fun ShortcutToggleRow(
         }
     val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
     val appIconResult = rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage)
-    val isCustomShortcut = isUserCreatedShortcut(shortcut)
-    val displayIcon = iconBitmap ?: if (isCustomShortcut) appIconResult.bitmap else null
+    val displayIcon = iconBitmap ?: appIconResult.bitmap
 
     Row(
         modifier =
