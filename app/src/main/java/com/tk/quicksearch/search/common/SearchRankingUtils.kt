@@ -1,7 +1,5 @@
 package com.tk.quicksearch.search.utils
 
-import java.util.Locale
-
 /**
  * Utility object for calculating search result ranking priorities.
  *
@@ -33,7 +31,7 @@ object SearchRankingUtils {
     ): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
 
@@ -51,7 +49,7 @@ object SearchRankingUtils {
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
-        val normalizedText = text.lowercase(Locale.getDefault())
+        val normalizedText = SearchTextNormalizer.normalizeForSearch(text)
         val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
 
@@ -133,7 +131,7 @@ object SearchRankingUtils {
     ): Int {
         if (query.isBlank()) return PRIORITY_NO_MATCH
 
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         // Parse query tokens once for reuse
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
 
@@ -151,7 +149,7 @@ object SearchRankingUtils {
     ): Int {
         if (normalizedQuery.isBlank()) return PRIORITY_NO_MATCH
 
-        val normalizedNickname = nickname?.lowercase(Locale.getDefault())
+        val normalizedNickname = nickname?.let { SearchTextNormalizer.normalizeForSearch(it) }
 
         if (normalizedNickname?.contains(normalizedQuery) == true) {
             return 0

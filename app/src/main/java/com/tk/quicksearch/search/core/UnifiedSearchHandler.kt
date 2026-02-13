@@ -12,6 +12,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -54,7 +55,7 @@ class UnifiedSearchHandler(
                 return@withContext UnifiedSearchResults()
             }
 
-            val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
+            val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
 
             // Search contacts by display name
             val contactResults =

@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 private const val MIN_QUERY_LENGTH = 2
@@ -123,7 +124,7 @@ class AppShortcutSearchHandler(
         val trimmed = query.trim()
         if (trimmed.length < MIN_QUERY_LENGTH) return emptyList()
 
-        val normalizedQuery = trimmed.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmed)
         val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
         val shortcutNicknames = userPreferences.getAllAppShortcutNicknames()
 

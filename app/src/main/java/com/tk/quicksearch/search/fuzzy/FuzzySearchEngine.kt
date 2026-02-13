@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.fuzzy
 
 import com.frosch2010.fuzzywuzzy_kotlin.FuzzySearch
-import java.util.Locale
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 /**
  * Core fuzzy search engine providing fuzzy matching algorithms.
@@ -11,7 +11,7 @@ class FuzzySearchEngine {
     companion object {
         private const val ACRONYM_MAX_LENGTH = 4
         private val WHITESPACE_REGEX = "\\s+".toRegex()
-        private val NON_ALPHANUMERIC_REGEX = "[^A-Za-z0-9]+".toRegex()
+        private val NON_ALPHANUMERIC_REGEX = "[^\\p{L}\\p{N}]+".toRegex()
         private val CAMEL_CASE_REGEX = "([a-z])([A-Z])".toRegex()
     }
 
@@ -31,7 +31,7 @@ class FuzzySearchEngine {
         minQueryLength: Int = 3,
     ): Int {
         val trimmedQuery = query.trim()
-        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
 
         // Acronym matching for short queries (2-4 characters)
         if (trimmedQuery.length in 2..ACRONYM_MAX_LENGTH) {
@@ -41,13 +41,17 @@ class FuzzySearchEngine {
 
         if (trimmedQuery.length < minQueryLength) return 0
 
-        val normalizedTarget = targetText.lowercase(Locale.getDefault())
+        val normalizedTarget = SearchTextNormalizer.normalizeForSearch(targetText)
 
         var bestScore = FuzzySearch.tokenSetRatio(normalizedQuery, normalizedTarget)
 
         // Check nickname if available
         targetNickname?.let { nickname ->
-            val nicknameScore = FuzzySearch.tokenSetRatio(normalizedQuery, nickname.lowercase(Locale.getDefault()))
+            val nicknameScore =
+                FuzzySearch.tokenSetRatio(
+                    normalizedQuery,
+                    SearchTextNormalizer.normalizeForSearch(nickname),
+                )
             bestScore = maxOf(bestScore, nicknameScore)
         }
 
@@ -79,7 +83,7 @@ class FuzzySearchEngine {
     private fun buildAcronym(text: String): String {
         if (text.isBlank()) return ""
 
-        val separated = text.replace(CAMEL_CASE_REGEX, "$1 $2")
+        val separated = SearchTextNormalizer.normalizeForSearch(text).replace(CAMEL_CASE_REGEX, "$1 $2")
         val tokens = separated.split(WHITESPACE_REGEX).flatMap { it.split(NON_ALPHANUMERIC_REGEX) }.filter { it.isNotBlank() }
 
         if (tokens.isEmpty()) return ""

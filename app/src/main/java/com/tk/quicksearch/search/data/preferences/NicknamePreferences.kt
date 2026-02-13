@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
-import java.util.Locale
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -159,12 +159,12 @@ class NicknamePreferences(
      * lookup instead of O(n) SharedPreferences iteration.
      */
     fun findContactsWithMatchingNickname(query: String): Set<Long> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
 
         val matchingContactIds = mutableSetOf<Long>()
         for ((contactId, nickname) in contactNicknameCache) {
-            if (nickname.lowercase(Locale.getDefault()).contains(normalizedQuery)) {
+            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
                 matchingContactIds.add(contactId)
             }
         }
@@ -177,12 +177,12 @@ class NicknamePreferences(
      * instead of O(n) SharedPreferences iteration.
      */
     fun findFilesWithMatchingNickname(query: String): Set<String> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
 
         val matchingFileUris = mutableSetOf<String>()
         for ((uri, nickname) in fileNicknameCache) {
-            if (nickname.lowercase(Locale.getDefault()).contains(normalizedQuery)) {
+            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
                 matchingFileUris.add(uri)
             }
         }
@@ -195,12 +195,12 @@ class NicknamePreferences(
      * instead of O(n) SharedPreferences iteration.
      */
     fun findSettingsWithMatchingNickname(query: String): Set<String> {
-        val normalizedQuery = query.lowercase(Locale.getDefault()).trim()
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
         if (normalizedQuery.isBlank()) return emptySet()
 
         val matchingSettingIds = mutableSetOf<String>()
         for ((id, nickname) in settingNicknameCache) {
-            if (nickname.lowercase(Locale.getDefault()).contains(normalizedQuery)) {
+            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
                 matchingSettingIds.add(id)
             }
         }

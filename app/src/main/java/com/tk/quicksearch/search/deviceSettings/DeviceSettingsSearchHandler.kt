@@ -5,6 +5,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
 
@@ -98,7 +99,7 @@ class DeviceSettingsSearchHandler(
         val trimmed = query.trim()
         if (trimmed.length < 2) return emptyList()
 
-        val normalizedQuery = trimmed.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmed)
         val nicknameMatches =
             userPreferences
                 .findSettingsWithMatchingNickname(trimmed)
@@ -146,16 +147,16 @@ class DeviceSettingsSearchHandler(
     ): MatchResult {
         val nickname = nicknameCache[shortcut.id]
         val hasNicknameMatch =
-            nickname?.lowercase(Locale.getDefault())?.contains(normalizedQuery) == true
+            nickname?.let { SearchTextNormalizer.normalizeForSearch(it) }?.contains(normalizedQuery) == true
         val keywordText = shortcut.keywords.joinToString(" ")
         val hasFieldMatch =
-            shortcut.title.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+            SearchTextNormalizer.normalizeForSearch(shortcut.title).contains(normalizedQuery) ||
                 (
                     shortcut.description
-                        ?.lowercase(Locale.getDefault())
+                        ?.let { SearchTextNormalizer.normalizeForSearch(it) }
                         ?.contains(normalizedQuery) == true
                 ) ||
-                keywordText.lowercase(Locale.getDefault()).contains(normalizedQuery) ||
+                SearchTextNormalizer.normalizeForSearch(keywordText).contains(normalizedQuery) ||
                 nicknameMatches.contains(shortcut.id)
 
         return MatchResult(
@@ -171,8 +172,8 @@ class DeviceSettingsSearchHandler(
     ): Int {
         if (matchResult.hasNicknameMatch) return 0
 
-        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
-        val normalizedTitle = shortcut.title.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
+        val normalizedTitle = SearchTextNormalizer.normalizeForSearch(shortcut.title)
 
         // 1. Exact match
         if (normalizedTitle == normalizedQuery) return 1

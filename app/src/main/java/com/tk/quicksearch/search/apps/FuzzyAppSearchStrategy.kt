@@ -4,7 +4,7 @@ import com.tk.quicksearch.search.fuzzy.BaseFuzzySearchStrategy
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.fuzzy.FuzzySearchStrategy
 import com.tk.quicksearch.search.models.AppInfo
-import java.util.Locale
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 /**
  * Fuzzy search strategy specifically for app search.
@@ -70,11 +70,11 @@ class FuzzyAppSearchStrategy(
     }
 
     fun isTokenCoveredByApp(token: String, appName: String, nickname: String?): Boolean {
-        val tokenLower = token.lowercase(Locale.getDefault())
-        val nameLower = appName.lowercase(Locale.getDefault())
+        val tokenLower = SearchTextNormalizer.normalizeForSearch(token)
+        val nameLower = SearchTextNormalizer.normalizeForSearch(appName)
         if (nameLower.contains(tokenLower)) return true
         nickname?.let { nick ->
-            if (nick.lowercase(Locale.getDefault()).contains(tokenLower)) return true
+            if (SearchTextNormalizer.normalizeForSearch(nick).contains(tokenLower)) return true
         }
         val score = engine.computeScore(token, appName, nickname, config.minQueryLength)
         return score >= config.matchThreshold

@@ -53,6 +53,7 @@ import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
 import com.tk.quicksearch.search.searchEngines.ShortcutHandler
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
 import com.tk.quicksearch.util.WallpaperUtils
@@ -1376,7 +1377,7 @@ class SearchViewModel(
                     CalculatorState()
                 }
 
-        val normalizedQuery = trimmedQuery.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
         appSearchManager.resetNoMatchPrefixIfNeeded(normalizedQuery)
 
         val shouldSkipSearch = appSearchManager.shouldSkipDueToNoMatchPrefix(normalizedQuery)

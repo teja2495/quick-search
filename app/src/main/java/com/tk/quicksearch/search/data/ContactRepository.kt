@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.models.ContactMethodMimeTypes
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 /**
@@ -477,7 +478,7 @@ class ContactRepository(
         if (isEmpty()) return emptyList()
 
         // Pre-normalize and tokenize query once for efficient matching
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
 
         return mapNotNull { contact ->

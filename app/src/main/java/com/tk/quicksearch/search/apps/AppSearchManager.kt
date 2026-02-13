@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -177,7 +178,7 @@ class AppSearchManager(
         if (query.isBlank()) return emptyList()
 
         // Pre-compute normalized query and tokens once
-        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
 
         val appMatches =
