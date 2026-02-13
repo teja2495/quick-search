@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
@@ -28,6 +30,8 @@ internal fun SearchScreenBackground(
     wallpaperBitmap: ImageBitmap?,
     wallpaperBackgroundAlpha: Float,
     wallpaperBlurRadius: Float,
+    fallbackBackgroundAlpha: Float = 1f,
+    useGradientFallback: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     // Check if we're in dark mode by checking the background color luminance
@@ -48,6 +52,7 @@ internal fun SearchScreenBackground(
     val shouldAnimate = showWallpaperBackground && wallpaperBitmap != null && !hasAnimated
     val overlayAlpha = wallpaperBackgroundAlpha.coerceIn(0f, 1f)
     val blurRadius = wallpaperBlurRadius.coerceIn(0f, UiPreferences.MAX_WALLPAPER_BLUR_RADIUS)
+    val fallbackAlpha = fallbackBackgroundAlpha.coerceIn(0f, 1f)
 
     // Animate fade-in only the first time wallpaper background becomes visible
     val wallpaperAlpha =
@@ -101,13 +106,79 @@ internal fun SearchScreenBackground(
             }
         }
 
-        // Fallback background if wallpaper is disabled or not available
+    // Fallback background if wallpaper is disabled or not available
         if (!showWallpaperBackground || wallpaperBitmap == null) {
-            Box(
-                modifier =
+            val fallbackModifier =
+                if (useGradientFallback) {
+                    val fallbackGradientBrush =
+                        Brush.linearGradient(
+                            colors =
+                                if (isDarkMode) {
+                                    listOf(
+                                        Color(0xFF2A3042).copy(
+                                            alpha = fallbackAlpha,
+                                        ),
+                                        Color(0xFF3B2F49).copy(
+                                            alpha = fallbackAlpha * 0.92f,
+                                        ),
+                                        Color(0xFF1F3D48).copy(
+                                            alpha = fallbackAlpha * 0.9f,
+                                        ),
+                                        Color(0xFF4A4B26).copy(
+                                            alpha = fallbackAlpha * 0.85f,
+                                        ),
+                                        Color(0xFF4A342C).copy(
+                                            alpha = fallbackAlpha * 0.88f,
+                                        ),
+                                    )
+                                } else {
+                                    listOf(
+                                        Color(0xFFE7EDF9).copy(
+                                            alpha = fallbackAlpha,
+                                        ),
+                                        Color(0xFFE8DFF1).copy(
+                                            alpha = fallbackAlpha * 0.86f,
+                                        ),
+                                        Color(0xFFDCEDEF).copy(
+                                            alpha = fallbackAlpha * 0.84f,
+                                        ),
+                                        Color(0xFFF0E8D8).copy(
+                                            alpha = fallbackAlpha * 0.82f,
+                                        ),
+                                    )
+                                },
+                            start = Offset.Zero,
+                            end = Offset(1800f, 2200f),
+                        )
                     Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(fallbackGradientBrush)
+                        .background(
+                            Brush.verticalGradient(
+                                colors =
+                                    if (isDarkMode) {
+                                        listOf(
+                                            Color.Black.copy(alpha = 0.22f),
+                                            Color.Black.copy(alpha = 0.12f),
+                                            Color.Black.copy(alpha = 0.3f),
+                                        )
+                                    } else {
+                                        listOf(
+                                            Color.White.copy(alpha = 0.12f),
+                                            Color.Transparent,
+                                            Color.Black.copy(alpha = 0.06f),
+                                        )
+                                    },
+                            ),
+                        )
+                } else {
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = fallbackAlpha))
+                }
+
+            Box(
+                modifier = fallbackModifier,
             )
         }
     }

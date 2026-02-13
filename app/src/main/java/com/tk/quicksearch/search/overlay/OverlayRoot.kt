@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -118,7 +117,9 @@ fun OverlayRoot(
         QuickSearchTheme {
                 BoxWithConstraints(
                         modifier =
-                                modifier.fillMaxSize().clickable(
+                                modifier
+                                        .fillMaxSize()
+                                        .clickable(
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
                                                 indication = null,
@@ -211,19 +212,6 @@ fun OverlayRoot(
                                                                         DesignTokens
                                                                                 .ExtraLargeCardShape
                                                                 )
-                                                                .then(
-                                                                        if (uiState.showWallpaperBackground
-                                                                        ) {
-                                                                                Modifier
-                                                                        } else {
-                                                                                Modifier.background(
-                                                                                        color =
-                                                                                                MaterialTheme
-                                                                                                        .colorScheme
-                                                                                                        .background,
-                                                                                )
-                                                                        }
-                                                                )
                                                                 .clickable(
                                                                         interactionSource =
                                                                                 remember {
@@ -240,6 +228,8 @@ fun OverlayRoot(
                                                                 uiState.wallpaperBackgroundAlpha,
                                                         wallpaperBlurRadius =
                                                                 uiState.wallpaperBlurRadius,
+                                                        fallbackBackgroundAlpha = 1f,
+                                                        useGradientFallback = true,
                                                         modifier = Modifier.fillMaxSize(),
                                                 )
 
