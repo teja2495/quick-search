@@ -70,6 +70,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
     }
 
+    fun shouldShowOverlayWallpaperBackground(): Boolean =
+            getBooleanPref(UiPreferences.KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND, false)
+
+    fun setShowOverlayWallpaperBackground(showWallpaper: Boolean) {
+        setBooleanPref(UiPreferences.KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND, showWallpaper)
+    }
+
     fun getWallpaperBackgroundAlpha(): Float =
             prefs.getFloat(
                     UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
@@ -489,6 +496,7 @@ class UiPreferences(
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
+        const val KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND = "show_overlay_wallpaper_background"
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = "overlay_wallpaper_background_alpha"

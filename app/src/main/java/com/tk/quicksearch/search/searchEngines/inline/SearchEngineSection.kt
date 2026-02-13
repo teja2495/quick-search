@@ -98,6 +98,7 @@ fun SearchEngineIconsSection(
                 target = detectedShortcutTarget,
                 query = query,
                 onClick = { onSearchEngineClick(query, detectedShortcutTarget) },
+                onLongClick = onSearchEngineLongPress,
                 onClear = onClearDetectedShortcut,
                 showWallpaperBackground = showWallpaperBackground,
             )

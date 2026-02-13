@@ -77,6 +77,7 @@ class UserAppPreferences(
             val hasSeenDirectDialChoice: Boolean,
             val hasSeenSearchEngineOnboarding: Boolean,
             val showWallpaperBackground: Boolean,
+            val showOverlayWallpaperBackground: Boolean,
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
             val amazonDomain: String?,
@@ -208,6 +209,13 @@ class UserAppPreferences(
                         ] as?
                                 Boolean
                                 ?: true,
+                showOverlayWallpaperBackground =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND,
+                        ] as?
+                                Boolean
+                                ?: false,
                 wallpaperBackgroundAlpha =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -384,6 +392,13 @@ class UserAppPreferences(
                                 ] as?
                                         Boolean
                                         ?: true,
+                        showOverlayWallpaperBackground =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND,
+                                ] as?
+                                        Boolean
+                                        ?: false,
                         wallpaperBackgroundAlpha =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -830,6 +845,12 @@ class UserAppPreferences(
 
     fun setShowWallpaperBackground(showWallpaper: Boolean) =
             uiPreferences.setShowWallpaperBackground(showWallpaper)
+
+    fun shouldShowOverlayWallpaperBackground(): Boolean =
+            uiPreferences.shouldShowOverlayWallpaperBackground()
+
+    fun setShowOverlayWallpaperBackground(showWallpaper: Boolean) =
+            uiPreferences.setShowOverlayWallpaperBackground(showWallpaper)
 
     fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
 

@@ -3,10 +3,12 @@ package com.tk.quicksearch.search.overlay
 import android.content.Context
 import android.content.Intent
 import com.tk.quicksearch.app.MainActivity
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 
 object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"
     const val EXTRA_OPEN_SETTINGS = "overlay_open_settings"
+    const val EXTRA_OPEN_SETTINGS_DETAIL = "overlay_open_settings_detail"
     const val EXTRA_CLOSE_OVERLAY = "overlay_close"
     const val EXTRA_CONTACT_ACTION_PICKER = "overlay_contact_action_picker"
     const val EXTRA_CONTACT_ACTION_PICKER_ID = "overlay_contact_action_picker_id"
@@ -44,12 +46,14 @@ object OverlayModeController {
     fun openMainActivity(
         context: Context,
         openSettings: Boolean = false,
+        settingsDetailType: SettingsDetailType? = null,
         contactActionRequest: ContactActionRequest? = null,
     ) {
         val intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                 putExtra(EXTRA_OPEN_SETTINGS, openSettings)
+                settingsDetailType?.let { putExtra(EXTRA_OPEN_SETTINGS_DETAIL, it.name) }
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 if (contactActionRequest != null) {
                     putExtra(EXTRA_CONTACT_ACTION_PICKER, true)

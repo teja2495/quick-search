@@ -114,6 +114,7 @@ fun SearchContentArea(
     onPersonalContextHintDismissed: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
+    onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
@@ -466,6 +467,7 @@ fun SearchContentArea(
                     onPersonalContextHintDismissed =
                     onPersonalContextHintDismissed,
                     onWebSuggestionClick = onWebSuggestionClick,
+                    onSearchEngineLongPress = onSearchEngineLongPress,
                     onCustomizeSearchEnginesClick =
                     onCustomizeSearchEnginesClick,
                     onSearchTargetClick = onSearchTargetClick,
@@ -573,6 +575,7 @@ fun ContentLayout(
     onOpenPersonalContextDialog: () -> Unit = {},
     onPersonalContextHintDismissed: () -> Unit = {},
     onWebSuggestionClick: (String) -> Unit = {},
+    onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
@@ -922,7 +925,7 @@ fun ContentLayout(
                             onCustomizeClick =
                             onCustomizeSearchEnginesClick,
                             onSearchEngineLongPress =
-                            onCustomizeSearchEnginesClick,
+                            onSearchEngineLongPress,
                             showCustomizeCard = false,
                             isReversed = isReversed,
                             showWallpaperBackground =

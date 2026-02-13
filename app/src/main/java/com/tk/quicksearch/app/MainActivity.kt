@@ -21,6 +21,7 @@ import com.tk.quicksearch.navigation.RootDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.overlay.OverlayModeController
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.WallpaperUtils
@@ -205,7 +206,18 @@ class MainActivity : ComponentActivity() {
 
     private fun handleIntent(intent: Intent?) {
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
-            navigationRequest.value = NavigationRequest(destination = RootDestination.Settings)
+            val requestedDetail =
+                intent.getStringExtra(OverlayModeController.EXTRA_OPEN_SETTINGS_DETAIL)
+                    ?.let { name ->
+                        runCatching { SettingsDetailType.valueOf(name) }.getOrNull()
+                    }
+            navigationRequest.value =
+                NavigationRequest(
+                    destination = RootDestination.Settings,
+                    settingsDetailType = requestedDetail,
+                )
+            intent.removeExtra(OverlayModeController.EXTRA_OPEN_SETTINGS)
+            intent.removeExtra(OverlayModeController.EXTRA_OPEN_SETTINGS_DETAIL)
         }
         val contactActionIntent = intent
         if (contactActionIntent?.getBooleanExtra(

@@ -103,6 +103,7 @@ fun SearchEngineCard(
     target: SearchTarget,
     query: String,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
     onClear: (() -> Unit)? = null,
@@ -115,10 +116,13 @@ fun SearchEngineCard(
             modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraLarge)
-                .clickable {
-                    hapticConfirm(view)()
-                    onClick()
-                },
+                .combinedClickable(
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick()
+                    },
+                    onLongClick = onLongClick,
+                ),
         colors = AppColors.getCardColors(showWallpaperBackground),
         shape = MaterialTheme.shapes.extraLarge,
         elevation = AppColors.getCardElevation(showWallpaperBackground),

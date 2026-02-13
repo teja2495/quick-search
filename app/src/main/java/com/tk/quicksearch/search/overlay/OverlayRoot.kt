@@ -41,6 +41,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
+import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
@@ -257,6 +258,9 @@ fun OverlayRoot(
                                                                         .openMainActivity(
                                                                                 context,
                                                                                 openSettings = true,
+                                                                                settingsDetailType =
+                                                                                        SettingsDetailType
+                                                                                                .SEARCH_ENGINES,
                                                                         )
                                                                 handleClose()
                                                         },
@@ -265,6 +269,9 @@ fun OverlayRoot(
                                                                         .openMainActivity(
                                                                                 context,
                                                                                 openSettings = true,
+                                                                                settingsDetailType =
+                                                                                        SettingsDetailType
+                                                                                                .SEARCH_ENGINES,
                                                                         )
                                                                 handleClose()
                                                         },

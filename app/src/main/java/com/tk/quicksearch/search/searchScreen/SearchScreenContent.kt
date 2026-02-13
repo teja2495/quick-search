@@ -245,6 +245,7 @@ internal fun SearchScreenContent(
             onPersonalContextHintDismissed = onPersonalContextHintDismissed,
             onWebSuggestionClick = onWebSuggestionClick,
             onSearchTargetClick = onSearchTargetClick,
+            onSearchEngineLongPress = onSearchEngineLongPress,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
             onDeleteRecentItem = onDeleteRecentItem,
             onDisableSearchHistory = onDisableSearchHistory,

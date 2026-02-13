@@ -321,6 +321,7 @@ class SearchViewModel(
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
     private var showWallpaperBackground: Boolean = true
+    private var showOverlayWallpaperBackground: Boolean = false
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     private var overlayWallpaperBackgroundAlpha: Float =
@@ -545,12 +546,15 @@ class SearchViewModel(
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
         showWallpaperBackground = prefs.showWallpaperBackground
+        showOverlayWallpaperBackground = prefs.showOverlayWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayWallpaperBackgroundAlpha = userPreferences.getOverlayWallpaperBackgroundAlpha()
         overlayWallpaperBlurRadius = userPreferences.getOverlayWallpaperBlurRadius()
         amazonDomain = prefs.amazonDomain
 
+        val activeShowWallpaper =
+                if (overlayModeEnabled) showOverlayWallpaperBackground else showWallpaperBackground
         val activeAlpha =
                 if (overlayModeEnabled) overlayWallpaperBackgroundAlpha
                 else wallpaperBackgroundAlpha
@@ -568,7 +572,7 @@ class SearchViewModel(
                     directDialEnabled = directDialEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
-                    showWallpaperBackground = showWallpaperBackground,
+                    showWallpaperBackground = activeShowWallpaper,
                     wallpaperBackgroundAlpha = activeAlpha,
                     wallpaperBlurRadius = activeBlur,
                     amazonDomain = amazonDomain,
@@ -1719,8 +1723,13 @@ class SearchViewModel(
                 return@launch
             }
 
-            userPreferences.setShowWallpaperBackground(showWallpaper)
-            showWallpaperBackground = showWallpaper
+            if (overlayModeEnabled) {
+                userPreferences.setShowOverlayWallpaperBackground(showWallpaper)
+                showOverlayWallpaperBackground = showWallpaper
+            } else {
+                userPreferences.setShowWallpaperBackground(showWallpaper)
+                showWallpaperBackground = showWallpaper
+            }
             _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
         }
     }
@@ -1955,19 +1964,23 @@ class SearchViewModel(
                     updateUiState { state -> state.copy(overlayModeEnabled = it) }
                     if (!it) {
                         OverlayModeController.stopOverlay(getApplication())
+                        val normalShowWallpaper = showWallpaperBackground
                         val normalAlpha = wallpaperBackgroundAlpha
                         val normalBlur = wallpaperBlurRadius
                         _uiState.update { state ->
                             state.copy(
+                                    showWallpaperBackground = normalShowWallpaper,
                                     wallpaperBackgroundAlpha = normalAlpha,
                                     wallpaperBlurRadius = normalBlur
                             )
                         }
                     } else {
+                        val overlayShowWallpaper = showOverlayWallpaperBackground
                         val overlayAlpha = overlayWallpaperBackgroundAlpha
                         val overlayBlur = overlayWallpaperBlurRadius
                         _uiState.update { state ->
                             state.copy(
+                                    showWallpaperBackground = overlayShowWallpaper,
                                     wallpaperBackgroundAlpha = overlayAlpha,
                                     wallpaperBlurRadius = overlayBlur
                             )
@@ -2458,14 +2471,20 @@ class SearchViewModel(
 
         if (changed) {
             // Handle wallpaper background based on files permission
-            val userPrefValue = userPreferences.shouldShowWallpaperBackground()
+            val userPrefValue =
+                    if (overlayModeEnabled) {
+                        userPreferences.shouldShowOverlayWallpaperBackground()
+                    } else {
+                        userPreferences.shouldShowWallpaperBackground()
+                    }
+            var activeShowWallpaper = previousState.showWallpaperBackground
             val filesPermissionGranted = !previousState.hasFilePermission && hasFiles
             val shouldUpdateWallpaper =
                     when {
                         // If files permission is revoked, disable wallpaper (but keep user
                         // preference unchanged)
-                        !hasFiles && showWallpaperBackground -> {
-                            showWallpaperBackground = false
+                        !hasFiles && activeShowWallpaper -> {
+                            activeShowWallpaper = false
                             true
                         }
                         else -> {
@@ -2473,7 +2492,7 @@ class SearchViewModel(
                         }
                     }
 
-            if (filesPermissionGranted && userPrefValue && !showWallpaperBackground) {
+            if (filesPermissionGranted && userPrefValue && !activeShowWallpaper) {
                 attemptAutoEnableWallpaperBackground()
             }
 
@@ -2499,7 +2518,7 @@ class SearchViewModel(
                         fileResults = if (hasFiles) state.fileResults else emptyList(),
                         showWallpaperBackground =
                                 if (shouldUpdateWallpaper) {
-                                    showWallpaperBackground
+                                    activeShowWallpaper
                                 } else {
                                     state.showWallpaperBackground
                                 },
