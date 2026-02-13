@@ -237,18 +237,26 @@ object IntentHelpers {
             return
         }
 
-        val searchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
         val intent =
-            Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
+            Intent(Intent.ACTION_WEB_SEARCH).apply {
                 setPackage(browserPackageName)
+                putExtra(SearchManager.QUERY, trimmedQuery)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        if (!canResolveIntent(context, intent)) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
-            return
-        }
         try {
-            context.startActivity(intent)
+            if (canResolveIntent(context, intent)) {
+                context.startActivity(intent)
+                return
+            }
+
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(browserPackageName)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(launchIntent)
+                return
+            }
+
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
         } catch (exception: ActivityNotFoundException) {
             onShowToast?.invoke(R.string.error_open_search_engine, null)
         } catch (exception: SecurityException) {
