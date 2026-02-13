@@ -426,7 +426,7 @@
     <string name="settings_app_sort_apk_size">APK Size</string>
     <string name="settings_app_sort_most_used">Most Used</string>
     <string name="settings_app_sort_least_used">Least Used</string>
-    <string name="settings_app_sort_installation_date">Installation Date</string>
+    <string name="settings_app_sort_installation_date">Install Date</string>
     <string name="settings_app_sort_last_update">Last Update</string>
     <string name="settings_app_sort_api_level">API Level</string>
     <string name="settings_app_sort_ascending">Sort ascending</string>

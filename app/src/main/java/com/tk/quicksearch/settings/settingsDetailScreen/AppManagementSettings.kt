@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -200,6 +201,10 @@ fun AppManagementSettingsSection(
         onRefreshApps(false)
     }
 
+    BackHandler(enabled = selectedCount > 0) {
+        selectedAppKeys = emptySet()
+    }
+
     DisposableEffect(lifecycleOwner, waitingForUninstallReturn, currentUninstallKey) {
         val observer =
             LifecycleEventObserver { _, event ->
@@ -386,6 +391,7 @@ fun AppManagementSettingsSection(
     selectedAppForDetails?.let { app ->
         AppDetailsDialog(
             app = app,
+            iconPackPackage = iconPackPackage,
             onOpenAppInfo = onOpenAppInfo,
             onDismiss = { selectedAppForDetails = null },
         )
@@ -468,10 +474,17 @@ private fun AppManagementRow(
 @Composable
 private fun AppDetailsDialog(
     app: AppInfo,
+    iconPackPackage: String?,
     onOpenAppInfo: (AppInfo) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val iconResult =
+        rememberAppIcon(
+            packageName = app.packageName,
+            iconPackPackage = iconPackPackage,
+            userHandleId = app.userHandleId,
+        )
     val notAvailableText = stringResource(R.string.settings_app_info_not_available)
     val dateTimeFormatter =
         remember {
@@ -489,9 +502,32 @@ private fun AppDetailsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = app.appName) },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+            ) {
+                Box(modifier = Modifier.size(DesignTokens.IconSize), contentAlignment = Alignment.Center) {
+                    if (iconResult.bitmap != null) {
+                        Image(
+                            bitmap = iconResult.bitmap,
+                            contentDescription = null,
+                            modifier = Modifier.size(DesignTokens.IconSize),
+                            contentScale = ContentScale.Fit,
+                        )
+                    } else {
+                        Text(
+                            text = app.appName.take(1).uppercase(Locale.getDefault()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Text(text = app.appName)
+            }
+        },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall)) {
                 AppDetailLine(
                     label = stringResource(R.string.settings_app_info_package_name),
                     value = metadata.packageName,
@@ -545,11 +581,18 @@ private fun AppDetailLine(
     label: String,
     value: String,
 ) {
-    Text(
-        text = "$label: $value",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
 }
 
 private fun formatDateTime(
