@@ -35,6 +35,8 @@ import org.json.JSONObject
 import org.xmlpull.v1.XmlPullParser
 import java.util.Locale
 
+private const val CUSTOM_SHORTCUT_ID_PREFIX = "custom_"
+
 data class StaticShortcut(
     val packageName: String,
     val appLabel: String,
@@ -73,6 +75,22 @@ private class AppShortcutCache(
             true
         }.getOrDefault(false)
 
+    fun loadCustomShortcuts(): List<StaticShortcut>? {
+        if (!prefs.contains(KEY_CUSTOM_SHORTCUT_LIST)) return null
+        return runCatching {
+            val json = prefs.getString(KEY_CUSTOM_SHORTCUT_LIST, null) ?: return null
+            if (json.isBlank() || json == "[]") return emptyList()
+            JSONArray(json).toShortcutList()
+        }.getOrNull()
+    }
+
+    fun saveCustomShortcuts(shortcuts: List<StaticShortcut>): Boolean =
+        runCatching {
+            val json = shortcuts.toShortcutJsonArray().toString()
+            prefs.edit().putString(KEY_CUSTOM_SHORTCUT_LIST, json).apply()
+            true
+        }.getOrDefault(false)
+
     fun clearCache() {
         prefs.edit().clear().apply()
     }
@@ -80,6 +98,7 @@ private class AppShortcutCache(
     companion object {
         private const val PREFS_NAME = "app_shortcut_cache"
         private const val KEY_SHORTCUT_LIST = "shortcut_list"
+        private const val KEY_CUSTOM_SHORTCUT_LIST = "custom_shortcut_list"
         private const val KEY_LAST_UPDATE = "last_update"
 
         private const val FIELD_PACKAGE_NAME = "packageName"
@@ -312,12 +331,15 @@ class AppShortcutRepository(
             return it
         }
         return withContext(Dispatchers.IO) {
-            val cached = shortcutCache.loadCachedShortcuts()
-            val filtered = cached?.let { filterShortcuts(it) }
-            if (filtered != null) {
-                inMemoryShortcuts = filtered
+            val cached = shortcutCache.loadCachedShortcuts().orEmpty()
+            val custom = shortcutCache.loadCustomShortcuts().orEmpty()
+            val merged = mergeAndSortShortcuts(staticShortcuts = cached, customShortcuts = custom)
+            if (merged.isNotEmpty()) {
+                inMemoryShortcuts = merged
+                merged
+            } else {
+                null
             }
-            filtered
         }
     }
 
@@ -328,10 +350,43 @@ class AppShortcutRepository(
 
     suspend fun loadStaticShortcuts(): List<StaticShortcut> =
         withContext(Dispatchers.IO) {
-            val shortcuts = loadShortcutsFromSystem()
-            shortcutCache.saveShortcuts(shortcuts)
-            inMemoryShortcuts = shortcuts
-            shortcuts
+            val systemShortcuts = loadShortcutsFromSystem()
+            shortcutCache.saveShortcuts(systemShortcuts)
+            val merged = mergeAndSortShortcuts(staticShortcuts = systemShortcuts)
+            inMemoryShortcuts = merged
+            merged
+        }
+
+    suspend fun addCustomShortcutFromPickerResult(resultData: Intent?): StaticShortcut? =
+        withContext(Dispatchers.IO) {
+            val shortcut = parseCustomShortcutFromPickerResult(resultData) ?: return@withContext null
+            val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty().toMutableList()
+            customShortcuts.add(shortcut)
+            if (!shortcutCache.saveCustomShortcuts(customShortcuts)) {
+                return@withContext null
+            }
+            inMemoryShortcuts =
+                mergeAndSortShortcuts(
+                    staticShortcuts = inMemoryShortcuts.orEmpty().filterNot(::isUserCreatedShortcut),
+                    customShortcuts = customShortcuts,
+                )
+            shortcut
+        }
+
+    suspend fun removeCustomShortcut(shortcut: StaticShortcut): Boolean =
+        withContext(Dispatchers.IO) {
+            if (!isUserCreatedShortcut(shortcut)) return@withContext false
+            val keyToRemove = shortcutKey(shortcut)
+            val existing = shortcutCache.loadCustomShortcuts().orEmpty()
+            val updated = existing.filterNot { shortcutKey(it) == keyToRemove }
+            if (existing.size == updated.size) return@withContext false
+            if (!shortcutCache.saveCustomShortcuts(updated)) return@withContext false
+            inMemoryShortcuts =
+                mergeAndSortShortcuts(
+                    staticShortcuts = inMemoryShortcuts.orEmpty().filterNot(::isUserCreatedShortcut),
+                    customShortcuts = updated,
+                )
+            true
         }
 
     private fun loadShortcutsFromSystem(): List<StaticShortcut> {
@@ -387,6 +442,62 @@ class AppShortcutRepository(
                 .thenBy { shortcutDisplayName(it).lowercase(locale) }
                 .thenBy { it.id },
         )
+    }
+
+    private fun mergeAndSortShortcuts(
+        staticShortcuts: List<StaticShortcut>,
+        customShortcuts: List<StaticShortcut> = shortcutCache.loadCustomShortcuts().orEmpty(),
+    ): List<StaticShortcut> {
+        val locale = Locale.getDefault()
+        return filterShortcuts(staticShortcuts + customShortcuts)
+            .distinctBy { shortcutKey(it) }
+            .sortedWith(
+                compareBy<StaticShortcut> { it.appLabel.lowercase(locale) }
+                    .thenBy { shortcutDisplayName(it).lowercase(locale) }
+                    .thenBy { it.id },
+            )
+    }
+
+    private fun parseCustomShortcutFromPickerResult(resultData: Intent?): StaticShortcut? {
+        val data = resultData ?: return null
+        val shortcutIntent =
+            data.getParcelableExtraCompat(Intent.EXTRA_SHORTCUT_INTENT, Intent::class.java)
+                ?: return null
+        val launchIntent =
+            Intent(shortcutIntent).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        val packageName = resolveShortcutPackage(launchIntent) ?: return null
+        val appLabel = resolveAppLabel(packageName)
+        val customLabel =
+            data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)?.trim().takeIf { !it.isNullOrBlank() }
+                ?: launchIntent.component?.shortClassName
+                ?: packageName
+        val customId =
+            "$CUSTOM_SHORTCUT_ID_PREFIX${System.currentTimeMillis()}_${(Math.random() * 100000).toInt()}"
+        val shortcut =
+            StaticShortcut(
+                packageName = packageName,
+                appLabel = appLabel,
+                id = customId,
+                shortLabel = customLabel,
+                longLabel = customLabel,
+                iconResId = null,
+                enabled = true,
+                intents = listOf(launchIntent),
+            )
+        return filterShortcuts(listOf(shortcut)).firstOrNull()
+    }
+
+    private fun resolveShortcutPackage(intent: Intent): String? =
+        intent.component?.packageName
+            ?: intent.`package`
+            ?: packageManager.resolveActivity(intent, 0)?.activityInfo?.packageName
+
+    private fun resolveAppLabel(packageName: String): String {
+        val appInfo = runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
+        val label = appInfo?.let { runCatching { packageManager.getApplicationLabel(it)?.toString() }.getOrNull() }
+        return label?.takeIf { it.isNotBlank() } ?: packageName
     }
 
     private fun queryLaunchableApps() =
@@ -742,6 +853,7 @@ class AppShortcutRepository(
         shortcuts.filter { shortcut ->
             shortcut.enabled &&
                 shortcut.packageName != "com.android.chrome" &&
+                shortcut.packageName != "com.brave.browser" &&
                 shortcut.intents.isNotEmpty() &&
                 canLaunchShortcut(shortcut)
         }
@@ -751,6 +863,17 @@ class AppShortcutRepository(
         private const val META_DATA_SHORTCUTS = "android.app.shortcuts"
     }
 }
+
+private fun <T> Intent.getParcelableExtraCompat(
+    key: String,
+    clazz: Class<T>,
+): T? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, clazz)
+    } else {
+        @Suppress("DEPRECATION")
+        getParcelableExtra(key) as? T
+    }
 
 @Composable
 internal fun ShortcutIcon(
@@ -832,6 +955,9 @@ internal fun shortcutDisplayName(shortcut: StaticShortcut): String =
         ?: shortcut.longLabel?.takeIf { it.isNotBlank() } ?: shortcut.id
 
 internal fun shortcutKey(shortcut: StaticShortcut): String = "${shortcut.packageName}:${shortcut.id}"
+
+internal fun isUserCreatedShortcut(shortcut: StaticShortcut): Boolean =
+    shortcut.id.startsWith(CUSTOM_SHORTCUT_ID_PREFIX)
 
 private fun isValidShortcutId(id: String): Boolean {
     val trimmed = id.trim()

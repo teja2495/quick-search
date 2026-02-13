@@ -11,6 +11,7 @@ import java.util.Locale
 private const val MIN_QUERY_LENGTH = 2
 private const val RESULT_LIMIT = 6
 private const val CHROME_PACKAGE = "com.android.chrome"
+private const val BRAVE_PACKAGE = "com.brave.browser"
 
 data class AppShortcutSearchResults(
     val pinned: List<StaticShortcut>,
@@ -164,7 +165,7 @@ class AppShortcutSearchHandler(
     }
 
     private fun normalizeShortcuts(shortcuts: List<StaticShortcut>): List<StaticShortcut> =
-        shortcuts.filterNot { it.packageName == CHROME_PACKAGE }.distinctBy {
-            shortcutKey(it)
-        }
+        shortcuts
+            .filterNot { it.packageName == CHROME_PACKAGE || it.packageName == BRAVE_PACKAGE }
+            .distinctBy { shortcutKey(it) }
 }

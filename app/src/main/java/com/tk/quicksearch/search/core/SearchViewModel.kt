@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import android.app.Application
+import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +28,7 @@ import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.data.shortcutKey
@@ -1650,6 +1652,53 @@ class SearchViewModel(
 
     fun removeExcludedAppShortcut(shortcut: StaticShortcut) =
             appShortcutManager.removeExcludedShortcut(shortcut)
+
+    fun addCustomAppShortcutFromPickerResult(
+        resultData: Intent?,
+        showDefaultToast: Boolean = true,
+        onShortcutAdded: ((StaticShortcut) -> Unit)? = null,
+        onAddFailed: (() -> Unit)? = null,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val addedShortcut = appShortcutRepository.addCustomShortcutFromPickerResult(resultData)
+            if (addedShortcut != null) {
+                appShortcutSearchHandler.loadShortcuts()
+                withContext(Dispatchers.Main) {
+                    refreshAppShortcutsState()
+                    onShortcutAdded?.invoke(addedShortcut)
+                    if (showDefaultToast) {
+                        showToast(R.string.settings_app_shortcuts_add_success)
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    if (showDefaultToast) {
+                        showToast(R.string.settings_app_shortcuts_add_failed)
+                    }
+                    onAddFailed?.invoke()
+                }
+            }
+        }
+    }
+
+    fun deleteCustomAppShortcut(shortcut: StaticShortcut) {
+        if (!isUserCreatedShortcut(shortcut)) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val removed = appShortcutRepository.removeCustomShortcut(shortcut)
+            if (!removed) return@launch
+            val id = shortcutKey(shortcut)
+            userPreferences.unpinAppShortcut(id)
+            userPreferences.removeExcludedAppShortcut(id)
+            userPreferences.setAppShortcutEnabled(id, true)
+            userPreferences.setAppShortcutNickname(id, null)
+            appShortcutSearchHandler.loadShortcuts()
+            withContext(Dispatchers.Main) {
+                refreshAppShortcutsState()
+                refreshRecentItems()
+                showToast(R.string.settings_app_shortcuts_delete_success)
+            }
+        }
+    }
 
     // Global Actions
     fun clearAllExclusions() {

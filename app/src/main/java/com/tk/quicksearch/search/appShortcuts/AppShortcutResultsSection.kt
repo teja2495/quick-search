@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.contacts.ExpandButton
 import com.tk.quicksearch.search.data.ShortcutIcon
 import com.tk.quicksearch.search.data.StaticShortcut
@@ -237,6 +238,8 @@ internal fun AppShortcutRow(
     val displayName = shortcutDisplayName(shortcut)
     val iconSizePx = with(LocalDensity.current) { ICON_SIZE.dp.roundToPx() }
     val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
+    val appIconResult = rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage)
+    val displayIcon = iconBitmap ?: appIconResult.bitmap
 
     Row(
         modifier =
@@ -272,7 +275,7 @@ internal fun AppShortcutRow(
                 )
             } else {
                 ShortcutIcon(
-                    icon = iconBitmap,
+                    icon = displayIcon,
                     displayName = displayName,
                     size = ICON_SIZE.dp,
                 )

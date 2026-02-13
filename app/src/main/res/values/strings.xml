@@ -408,6 +408,14 @@
     <string name="settings_view_all">View All</string>
     <string name="settings_app_shortcuts_empty">No app shortcuts found.</string>
     <string name="settings_app_shortcuts_available_count">Available shortcuts: %1$d</string>
+    <string name="settings_app_shortcuts_add_button">Add Shortcut</string>
+    <string name="settings_app_shortcuts_add_dialog_title">Choose Shortcut Source</string>
+    <string name="settings_app_shortcuts_delete_action">Delete shortcut</string>
+    <string name="settings_app_shortcuts_create_not_supported">No app supports shortcut creation on this device.</string>
+    <string name="settings_app_shortcuts_add_success">Shortcut added.</string>
+    <string name="settings_app_shortcuts_add_success_with_app_name">New shortcut is added to %1$s</string>
+    <string name="settings_app_shortcuts_add_failed">Unable to add shortcut.</string>
+    <string name="settings_app_shortcuts_delete_success">Shortcut deleted.</string>
     <plurals name="settings_app_shortcuts_card_count">
         <item quantity="one">%d shortcut</item>
         <item quantity="other">%d shortcuts</item>

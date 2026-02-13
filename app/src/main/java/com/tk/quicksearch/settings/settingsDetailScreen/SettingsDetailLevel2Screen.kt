@@ -11,15 +11,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -28,6 +33,9 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.ui.theme.DesignTokens
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 @Composable
 internal fun SettingsDetailLevel2Screen(
@@ -35,12 +43,17 @@ internal fun SettingsDetailLevel2Screen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
+    appShortcutFocusPackageName: String? = null,
+    onAppShortcutFocusHandled: () -> Unit = {},
 ) {
     if (!detailType.isLevel2()) return
 
     BackHandler(onBack = callbacks.onBack)
     val scrollState = rememberScrollState()
     var showClearAllConfirmation by remember { mutableStateOf(false) }
+    var isScrollingDown by remember { mutableStateOf(false) }
+    var lastScrollOffset by remember { mutableIntStateOf(0) }
+    val scrollDeltaThreshold = 6
 
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
@@ -55,6 +68,24 @@ internal fun SettingsDetailLevel2Screen(
         if (detailType == SettingsDetailType.EXCLUDED_ITEMS && !hasExcludedItems) {
             callbacks.onBack()
         }
+    }
+
+    LaunchedEffect(detailType, scrollState) {
+        if (detailType != SettingsDetailType.APP_SHORTCUTS) return@LaunchedEffect
+        snapshotFlow { scrollState.value }
+            .map { offset ->
+                val delta = offset - lastScrollOffset
+                val direction = when {
+                    delta > scrollDeltaThreshold -> true
+                    delta < -scrollDeltaThreshold -> false
+                    else -> isScrollingDown
+                }
+                lastScrollOffset = offset
+                direction
+            }.distinctUntilChanged()
+            .collectLatest { down ->
+                isScrollingDown = down
+            }
     }
 
     Box(
@@ -94,7 +125,12 @@ internal fun SettingsDetailLevel2Screen(
                             .padding(
                                 start = DesignTokens.ContentHorizontalPadding,
                                 end = DesignTokens.ContentHorizontalPadding,
-                                bottom = DesignTokens.SectionTopPadding,
+                                bottom =
+                                    if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+                                        96.dp
+                                    } else {
+                                        DesignTokens.SectionTopPadding
+                                    },
                             ),
                 ) {
                     when (detailType) {
@@ -126,6 +162,9 @@ internal fun SettingsDetailLevel2Screen(
                                 iconPackPackage = state.selectedIconPackPackage,
                                 onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
                                 onShortcutNameClick = callbacks.onLaunchAppShortcut,
+                                onDeleteCustomShortcut = callbacks.onDeleteCustomAppShortcut,
+                                focusPackageName = appShortcutFocusPackageName,
+                                onFocusHandled = onAppShortcutFocusHandled,
                             )
                         }
 
@@ -158,6 +197,26 @@ internal fun SettingsDetailLevel2Screen(
                     modifier = Modifier.size(24.dp),
                 )
             }
+        }
+
+        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+            ExtendedFloatingActionButton(
+                onClick = callbacks.onOpenAddAppShortcutDialog,
+                modifier =
+                    Modifier
+                        .align(androidx.compose.ui.Alignment.BottomEnd)
+                        .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                expanded = !isScrollingDown,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = null,
+                    )
+                },
+                text = { Text(text = stringResource(R.string.settings_app_shortcuts_add_button)) },
+            )
         }
 
         if (showClearAllConfirmation && detailType == SettingsDetailType.EXCLUDED_ITEMS) {

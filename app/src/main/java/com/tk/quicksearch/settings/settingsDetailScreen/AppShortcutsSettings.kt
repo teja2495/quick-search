@@ -7,6 +7,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +17,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -37,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.StaticShortcut
+import com.tk.quicksearch.search.data.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
@@ -57,6 +63,9 @@ fun AppShortcutsSettingsSection(
     iconPackPackage: String?,
     onShortcutEnabledChange: (StaticShortcut, Boolean) -> Unit,
     onShortcutNameClick: (StaticShortcut) -> Unit,
+    onDeleteCustomShortcut: (StaticShortcut) -> Unit,
+    focusPackageName: String? = null,
+    onFocusHandled: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val shortcutGroups =
@@ -71,21 +80,32 @@ fun AppShortcutsSettingsSection(
                             packageName = packageName,
                             appLabel = appShortcuts.first().appLabel,
                             shortcuts =
-                                appShortcuts.sortedBy {
-                                    shortcutDisplayName(it).lowercase(Locale.getDefault())
-                                },
+                                appShortcuts.sortedWith(
+                                    compareBy(
+                                        { isUserCreatedShortcut(it) },
+                                        { shortcutDisplayName(it).lowercase(Locale.getDefault()) },
+                                    ),
+                                ),
                         )
                     }
                 }.sortedBy { it.appLabel.lowercase(Locale.getDefault()) }
         }
-    val expandedCards =
-        remember(shortcutGroups) {
-            mutableStateMapOf<String, Boolean>().apply {
-                shortcutGroups.forEach { group ->
-                    put(group.packageName, false)
-                }
+    val expandedCards = remember { mutableStateMapOf<String, Boolean>() }
+
+    LaunchedEffect(shortcutGroups) {
+        val currentPackages = shortcutGroups.map { it.packageName }.toSet()
+        val existingPackages = expandedCards.keys.toSet()
+
+        shortcutGroups.forEach { group ->
+            if (group.packageName !in expandedCards) {
+                expandedCards[group.packageName] = false
             }
         }
+
+        (existingPackages - currentPackages).forEach { removedPackage ->
+            expandedCards.remove(removedPackage)
+        }
+    }
 
     if (shortcutGroups.isEmpty()) {
         Text(
@@ -110,8 +130,21 @@ fun AppShortcutsSettingsSection(
 
         shortcutGroups.forEach { group ->
             val isExpanded = expandedCards[group.packageName] == true
+            val bringIntoViewRequester = remember(group.packageName) { BringIntoViewRequester() }
+
+            LaunchedEffect(focusPackageName, group.packageName) {
+                if (focusPackageName == group.packageName) {
+                    expandedCards[group.packageName] = true
+                    bringIntoViewRequester.bringIntoView()
+                    onFocusHandled()
+                }
+            }
+
             ElevatedCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .bringIntoViewRequester(bringIntoViewRequester),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 AppShortcutCardHeader(
@@ -135,13 +168,22 @@ fun AppShortcutsSettingsSection(
 
                         group.shortcuts.forEachIndexed { index, shortcut ->
                             val shortcutId = shortcutKey(shortcut)
+                            val isCustomShortcut = isUserCreatedShortcut(shortcut)
                             ShortcutToggleRow(
                                 shortcut = shortcut,
                                 checked = !disabledShortcutIds.contains(shortcutId),
+                                showToggle = !isCustomShortcut,
                                 onCheckedChange = { enabled ->
                                     onShortcutEnabledChange(shortcut, enabled)
                                 },
                                 onShortcutNameClick = { onShortcutNameClick(shortcut) },
+                                onDeleteClick =
+                                    if (isCustomShortcut) {
+                                        { onDeleteCustomShortcut(shortcut) }
+                                    } else {
+                                        null
+                                    },
+                                iconPackPackage = iconPackPackage,
                             )
 
                             if (index < group.shortcuts.lastIndex) {
@@ -231,8 +273,11 @@ private fun AppShortcutCardHeader(
 private fun ShortcutToggleRow(
     shortcut: StaticShortcut,
     checked: Boolean,
+    showToggle: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onShortcutNameClick: () -> Unit,
+    onDeleteClick: (() -> Unit)?,
+    iconPackPackage: String?,
 ) {
     val view = LocalView.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -244,6 +289,9 @@ private fun ShortcutToggleRow(
             with(density) { iconSize.roundToPx().coerceAtLeast(1) }
         }
     val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
+    val appIconResult = rememberAppIcon(packageName = shortcut.packageName, iconPackPackage = iconPackPackage)
+    val isCustomShortcut = isUserCreatedShortcut(shortcut)
+    val displayIcon = iconBitmap ?: if (isCustomShortcut) appIconResult.bitmap else null
 
     Row(
         modifier =
@@ -256,9 +304,9 @@ private fun ShortcutToggleRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        if (iconBitmap != null) {
+        if (displayIcon != null) {
             Image(
-                bitmap = iconBitmap,
+                bitmap = displayIcon,
                 contentDescription = shortcutName,
                 modifier = Modifier.size(iconSize),
                 contentScale = ContentScale.Fit,
@@ -292,12 +340,24 @@ private fun ShortcutToggleRow(
                     ),
         )
 
-        Switch(
-            checked = checked,
-            onCheckedChange = {
-                hapticToggle(view)()
-                onCheckedChange(it)
-            },
-        )
+        if (onDeleteClick != null) {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
+                    contentDescription = stringResource(R.string.settings_app_shortcuts_delete_action),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+
+        if (showToggle) {
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    hapticToggle(view)()
+                    onCheckedChange(it)
+                },
+            )
+        }
     }
 }

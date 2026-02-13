@@ -157,6 +157,8 @@ data class SettingsScreenCallbacks(
     val onSetPersonalContext: (String?) -> Unit,
     val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
+    val onOpenAddAppShortcutDialog: () -> Unit,
+    val onDeleteCustomAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (com.tk.quicksearch.search.deviceSettings.DeviceSetting) -> Unit,
     val onRequestAppUninstall: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
     val onOpenAppInfo: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
@@ -772,6 +774,20 @@ fun SettingsRoute(
     val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
         viewModel.setOverlayModeEnabled(enabled)
     }
+    var showShortcutSourcePicker by remember { mutableStateOf(false) }
+
+    val addAppShortcutLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                viewModel.addCustomAppShortcutFromPickerResult(result.data)
+            }
+        }
+
+    val onOpenAddAppShortcutDialog: () -> Unit = {
+        showShortcutSourcePicker = true
+    }
 
     // Define permission request handlers
     val onRequestUsagePermission = viewModel::openUsageAccessSettings
@@ -822,6 +838,8 @@ fun SettingsRoute(
             onSetPersonalContext = viewModel::setPersonalContext,
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,
+            onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,
+            onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
             onLaunchDeviceSetting = viewModel::openSetting,
             onRequestAppUninstall = viewModel::requestUninstall,
             onOpenAppInfo = viewModel::openAppInfo,
@@ -943,4 +961,22 @@ fun SettingsRoute(
         onNavigateToDetail = onNavigateToDetail,
         scrollState = scrollState,
     )
+
+    if (showShortcutSourcePicker) {
+        AppShortcutSourcePickerDialog(
+            onDismiss = { showShortcutSourcePicker = false },
+            onSourceSelected = { sourceIntent ->
+                showShortcutSourcePicker = false
+                runCatching { addAppShortcutLauncher.launch(sourceIntent) }
+                    .onFailure {
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(R.string.settings_app_shortcuts_create_not_supported),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                    }
+            },
+        )
+    }
 }

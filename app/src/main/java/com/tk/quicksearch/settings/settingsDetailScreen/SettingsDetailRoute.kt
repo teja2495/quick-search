@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
@@ -264,6 +265,42 @@ fun SettingsDetailRoute(
 
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
+    var showShortcutSourcePicker by remember { mutableStateOf(false) }
+    var appShortcutFocusPackageName by remember { mutableStateOf<String?>(null) }
+    val addAppShortcutLauncher =
+            rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult(),
+            ) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    viewModel.addCustomAppShortcutFromPickerResult(
+                            resultData = result.data,
+                            showDefaultToast = false,
+                            onShortcutAdded = { addedShortcut ->
+                                appShortcutFocusPackageName = addedShortcut.packageName
+                                Toast.makeText(
+                                                context,
+                                                context.getString(
+                                                        R.string.settings_app_shortcuts_add_success_with_app_name,
+                                                        addedShortcut.appLabel,
+                                                ),
+                                                Toast.LENGTH_SHORT,
+                                        )
+                                        .show()
+                            },
+                            onAddFailed = {
+                                Toast.makeText(
+                                                context,
+                                                context.getString(R.string.settings_app_shortcuts_add_failed),
+                                                Toast.LENGTH_SHORT,
+                                        )
+                                        .show()
+                            },
+                    )
+                }
+            }
+    val onOpenAddAppShortcutDialog: () -> Unit = {
+        showShortcutSourcePicker = true
+    }
 
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
@@ -317,6 +354,8 @@ fun SettingsDetailRoute(
                     onSetPersonalContext = viewModel::setPersonalContext,
                     onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
                     onLaunchAppShortcut = viewModel::launchAppShortcut,
+                    onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,
+                    onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
                     onLaunchDeviceSetting = viewModel::openSetting,
                     onRequestAppUninstall = viewModel::requestUninstall,
                     onOpenAppInfo = viewModel::openAppInfo,
@@ -375,6 +414,8 @@ fun SettingsDetailRoute(
                 state = state,
                 callbacks = callbacks,
                 detailType = detailType,
+                appShortcutFocusPackageName = appShortcutFocusPackageName,
+                onAppShortcutFocusHandled = { appShortcutFocusPackageName = null },
         )
     } else {
         SettingsDetailLevel1Screen(
@@ -412,6 +453,27 @@ fun SettingsDetailRoute(
                     TextButton(onClick = { showWallpaperPermissionFallbackDialog = false }) {
                         Text(stringResource(R.string.dialog_no))
                     }
+                },
+        )
+    }
+
+    if (showShortcutSourcePicker) {
+        AppShortcutSourcePickerDialog(
+                onDismiss = { showShortcutSourcePicker = false },
+                onSourceSelected = { sourceIntent ->
+                    showShortcutSourcePicker = false
+                    runCatching { addAppShortcutLauncher.launch(sourceIntent) }
+                            .onFailure {
+                                Toast
+                                        .makeText(
+                                                context,
+                                                context.getString(
+                                                        R.string.settings_app_shortcuts_create_not_supported,
+                                                ),
+                                                Toast.LENGTH_SHORT,
+                                        )
+                                        .show()
+                            }
                 },
         )
     }
