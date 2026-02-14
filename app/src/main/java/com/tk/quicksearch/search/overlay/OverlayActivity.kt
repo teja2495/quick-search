@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.lifecycleScope
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.util.WallpaperUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class OverlayActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
@@ -34,6 +38,9 @@ class OverlayActivity : ComponentActivity() {
             finish()
             return
         }
+
+        // Match MainActivity behavior so cold overlay opens with wallpaper already warming.
+        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@OverlayActivity) }
 
         setContent {
             QuickSearchTheme {

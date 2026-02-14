@@ -212,6 +212,22 @@ class UiPreferences(
                 .apply()
     }
 
+    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
+            if (prefs.contains(UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP)) {
+                prefs.getFloat(UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP, 0f)
+            } else {
+                null
+            }
+
+    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) {
+        prefs.edit()
+                .putFloat(
+                        UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP,
+                        heightDp.coerceAtLeast(0f),
+                )
+                .apply()
+    }
+
     fun getLastSeenVersionName(): String? =
             sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
@@ -512,6 +528,8 @@ class UiPreferences(
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_HAS_SEEN_OVERLAY_CLOSE_TIP = "has_seen_overlay_close_tip"
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
+        const val KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP =
+                "last_overlay_keyboard_open_height_dp"
 
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"

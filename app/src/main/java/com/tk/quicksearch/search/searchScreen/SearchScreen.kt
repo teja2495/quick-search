@@ -527,19 +527,26 @@ fun SearchScreen(
     val context = LocalContext.current
     val directAnswerContactName = stringResource(R.string.direct_answer_contact_name)
 
-    var wallpaperBitmap by remember {
-        mutableStateOf<ImageBitmap?>(WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap())
+    var wallpaperBitmap by remember(isOverlayPresentation) {
+        mutableStateOf<ImageBitmap?>(
+            if (isOverlayPresentation) {
+                null
+            } else {
+                WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+            },
+        )
     }
 
-    LaunchedEffect(Unit) {
-        // Only load if not already cached
-        if (wallpaperBitmap == null) {
-            val bitmap = WallpaperUtils.getWallpaperBitmap(context)
-            wallpaperBitmap = bitmap?.asImageBitmap()
-            // If wallpaper loaded successfully, notify that it should be enabled
-            if (bitmap != null) {
-                onWallpaperLoaded?.invoke()
-            }
+    LaunchedEffect(isOverlayPresentation, wallpaperBitmap) {
+        // Overlay background is provided by OverlayRoot; skip duplicate wallpaper loads here.
+        if (isOverlayPresentation || wallpaperBitmap != null) {
+            return@LaunchedEffect
+        }
+        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
+        wallpaperBitmap = bitmap?.asImageBitmap()
+        // If wallpaper loaded successfully, notify that it should be enabled
+        if (bitmap != null) {
+            onWallpaperLoaded?.invoke()
         }
     }
 

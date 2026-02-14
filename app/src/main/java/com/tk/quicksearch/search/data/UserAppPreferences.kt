@@ -922,6 +922,12 @@ class UserAppPreferences(
     fun setHasSeenOverlayAssistantTip(seen: Boolean) =
             uiPreferences.setHasSeenOverlayAssistantTip(seen)
 
+    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
+            uiPreferences.getLastOverlayKeyboardOpenHeightDp()
+
+    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) =
+            uiPreferences.setLastOverlayKeyboardOpenHeightDp(heightDp)
+
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) =
