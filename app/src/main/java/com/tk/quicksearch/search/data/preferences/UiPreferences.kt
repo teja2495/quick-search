@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.OverlayGradientTheme
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -132,6 +133,17 @@ class UiPreferences(
                         radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS),
                 )
                 .apply()
+    }
+
+    fun getOverlayGradientTheme(): OverlayGradientTheme {
+        val saved = prefs.getString(KEY_OVERLAY_GRADIENT_THEME, DEFAULT_OVERLAY_GRADIENT_THEME)
+        return saved?.let {
+            runCatching { OverlayGradientTheme.valueOf(it) }.getOrNull()
+        } ?: OverlayGradientTheme.DUSK
+    }
+
+    fun setOverlayGradientTheme(theme: OverlayGradientTheme) {
+        prefs.edit().putString(KEY_OVERLAY_GRADIENT_THEME, theme.name).apply()
     }
 
     fun getSelectedIconPackPackage(): String? =
@@ -517,6 +529,7 @@ class UiPreferences(
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = "overlay_wallpaper_background_alpha"
         const val KEY_OVERLAY_WALLPAPER_BLUR_RADIUS = "overlay_wallpaper_blur_radius"
+        const val KEY_OVERLAY_GRADIENT_THEME = "overlay_gradient_theme"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
@@ -566,6 +579,7 @@ class UiPreferences(
         const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
         const val DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = 0.75f
         const val DEFAULT_OVERLAY_WALLPAPER_BLUR_RADIUS = 30f
+        const val DEFAULT_OVERLAY_GRADIENT_THEME = "DUSK"
         const val MAX_WALLPAPER_BLUR_RADIUS = 40f
 
         // Calculator preferences keys

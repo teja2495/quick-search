@@ -83,6 +83,14 @@ enum class MessagingApp {
     SIGNAL,
 }
 
+enum class OverlayGradientTheme {
+    DUSK,
+    FOREST,
+    OCEAN,
+    SLATE,
+    SAND,
+}
+
 enum class DirectSearchStatus {
     Idle,
     Loading,
@@ -290,6 +298,7 @@ data class SearchUiState(
     val showWallpaperBackground: Boolean = true,
     val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
     val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
+    val overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.DUSK,
     val selectedIconPackPackage: String? = null,
     val availableIconPacks: List<IconPackInfo> = emptyList(),
     val disabledSections: Set<SearchSection> = emptySet(),

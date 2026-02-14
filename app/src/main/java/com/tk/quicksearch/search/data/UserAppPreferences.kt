@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data
 import android.content.Context
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
 import com.tk.quicksearch.search.models.FileType
@@ -80,6 +81,7 @@ class UserAppPreferences(
             val showOverlayWallpaperBackground: Boolean,
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
+            val overlayGradientTheme: OverlayGradientTheme,
             val amazonDomain: String?,
             val pinnedPackages: Set<String>,
             val suggestionHiddenPackages: Set<String>,
@@ -232,6 +234,18 @@ class UserAppPreferences(
                                 Float
                                 ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .DEFAULT_WALLPAPER_BLUR_RADIUS,
+                overlayGradientTheme =
+                        (
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_OVERLAY_GRADIENT_THEME,
+                                ] as?
+                                        String
+                                )
+                                ?.let { value ->
+                                    runCatching { OverlayGradientTheme.valueOf(value) }.getOrNull()
+                                }
+                                ?: OverlayGradientTheme.DUSK,
                 amazonDomain =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -415,6 +429,19 @@ class UserAppPreferences(
                                         Float
                                         ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .DEFAULT_WALLPAPER_BLUR_RADIUS,
+                        overlayGradientTheme =
+                                (
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                        .KEY_OVERLAY_GRADIENT_THEME,
+                                        ] as?
+                                                String
+                                        )
+                                        ?.let { value ->
+                                            runCatching { OverlayGradientTheme.valueOf(value) }
+                                                    .getOrNull()
+                                        }
+                                        ?: OverlayGradientTheme.DUSK,
                         amazonDomain =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -870,6 +897,11 @@ class UserAppPreferences(
 
     fun setOverlayWallpaperBlurRadius(radius: Float) =
             uiPreferences.setOverlayWallpaperBlurRadius(radius)
+
+    fun getOverlayGradientTheme(): OverlayGradientTheme = uiPreferences.getOverlayGradientTheme()
+
+    fun setOverlayGradientTheme(theme: OverlayGradientTheme) =
+            uiPreferences.setOverlayGradientTheme(theme)
 
     fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 

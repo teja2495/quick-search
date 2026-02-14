@@ -1,9 +1,12 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +39,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,7 +50,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.IconPackInfo
+import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.searchScreen.overlayGradientColors
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.util.hapticToggle
@@ -273,6 +281,8 @@ fun AppearanceSettingsSection(
         onToggleShowWallpaperBackground: (Boolean) -> Unit,
         onWallpaperBackgroundAlphaChange: (Float) -> Unit,
         onWallpaperBlurRadiusChange: (Float) -> Unit,
+        overlayGradientTheme: OverlayGradientTheme,
+        onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
         isSearchEngineCompactMode: Boolean,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         selectedIconPackPackage: String?,
@@ -307,6 +317,13 @@ fun AppearanceSettingsSection(
                 hasFilePermission = hasFilePermission,
                 hasWallpaperPermission = hasWallpaperPermission,
                 wallpaperAvailable = wallpaperAvailable,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OverlayThemeCard(
+                selectedTheme = overlayGradientTheme,
+                onThemeSelected = onSetOverlayGradientTheme,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -360,6 +377,122 @@ fun AppearanceSettingsSection(
         )
     }
 }
+
+@Composable
+private fun OverlayThemeCard(
+        selectedTheme: OverlayGradientTheme,
+        onThemeSelected: (OverlayGradientTheme) -> Unit,
+        modifier: Modifier = Modifier,
+) {
+    val view = LocalView.current
+    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
+    val themeOptions =
+            remember {
+                listOf(
+                        OverlayThemeOption(
+                                theme = OverlayGradientTheme.DUSK,
+                                labelRes = R.string.settings_overlay_theme_dusk,
+                        ),
+                        OverlayThemeOption(
+                                theme = OverlayGradientTheme.FOREST,
+                                labelRes = R.string.settings_overlay_theme_forest,
+                        ),
+                        OverlayThemeOption(
+                                theme = OverlayGradientTheme.OCEAN,
+                                labelRes = R.string.settings_overlay_theme_ocean,
+                        ),
+                        OverlayThemeOption(
+                                theme = OverlayGradientTheme.SLATE,
+                                labelRes = R.string.settings_overlay_theme_slate,
+                        ),
+                        OverlayThemeOption(
+                                theme = OverlayGradientTheme.SAND,
+                                labelRes = R.string.settings_overlay_theme_sand,
+                        ),
+                )
+            }
+
+    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+        Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                    text = stringResource(R.string.settings_overlay_theme_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+            )
+
+            Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                themeOptions.forEach { option ->
+                    val isSelected = selectedTheme == option.theme
+                    Column(
+                            modifier =
+                                    Modifier.weight(1f)
+                                            .clickable {
+                                                if (!isSelected) {
+                                                    hapticToggle(view)()
+                                                    onThemeSelected(option.theme)
+                                                }
+                                            },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Box(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .height(44.dp)
+                                                .clip(MaterialTheme.shapes.medium)
+                                                .background(
+                                                        Brush.linearGradient(
+                                                                colors =
+                                                                        overlayGradientColors(
+                                                                                theme = option.theme,
+                                                                                isDarkMode = isDarkMode,
+                                                                        ),
+                                                        ),
+                                                )
+                                                .border(
+                                                        width = if (isSelected) 2.dp else 1.dp,
+                                                        color =
+                                                                if (isSelected) {
+                                                                    MaterialTheme.colorScheme
+                                                                            .primary
+                                                                } else {
+                                                                    MaterialTheme.colorScheme
+                                                                            .outlineVariant
+                                                                },
+                                                        shape = MaterialTheme.shapes.medium,
+                                                ),
+                        )
+                        Text(
+                                text = stringResource(option.labelRes),
+                                style = MaterialTheme.typography.labelSmall,
+                                color =
+                                        if (isSelected) {
+                                            MaterialTheme.colorScheme.onSurface
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private data class OverlayThemeOption(
+        val theme: OverlayGradientTheme,
+        val labelRes: Int,
+)
 
 @Composable
 private fun IconPackPickerDialog(

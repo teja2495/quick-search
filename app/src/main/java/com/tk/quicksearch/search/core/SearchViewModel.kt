@@ -324,6 +324,7 @@ class SearchViewModel(
     private var showOverlayWallpaperBackground: Boolean = false
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
+    private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.DUSK
     private var overlayWallpaperBackgroundAlpha: Float =
             UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA
     private var overlayWallpaperBlurRadius: Float =
@@ -549,6 +550,7 @@ class SearchViewModel(
         showOverlayWallpaperBackground = prefs.showOverlayWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
+        overlayGradientTheme = prefs.overlayGradientTheme
         overlayWallpaperBackgroundAlpha = userPreferences.getOverlayWallpaperBackgroundAlpha()
         overlayWallpaperBlurRadius = userPreferences.getOverlayWallpaperBlurRadius()
         amazonDomain = prefs.amazonDomain
@@ -575,6 +577,7 @@ class SearchViewModel(
                     showWallpaperBackground = activeShowWallpaper,
                     wallpaperBackgroundAlpha = activeAlpha,
                     wallpaperBlurRadius = activeBlur,
+                    overlayGradientTheme = overlayGradientTheme,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
@@ -1759,6 +1762,15 @@ class SearchViewModel(
                 wallpaperBlurRadius = sanitizedRadius
             }
             _uiState.update { it.copy(wallpaperBlurRadius = sanitizedRadius) }
+        }
+    }
+
+    fun setOverlayGradientTheme(theme: OverlayGradientTheme) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (overlayGradientTheme == theme) return@launch
+            userPreferences.setOverlayGradientTheme(theme)
+            overlayGradientTheme = theme
+            _uiState.update { it.copy(overlayGradientTheme = theme) }
         }
     }
 

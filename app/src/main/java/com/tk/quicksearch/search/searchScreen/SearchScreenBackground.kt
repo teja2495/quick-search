@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -32,6 +33,7 @@ internal fun SearchScreenBackground(
     wallpaperBlurRadius: Float,
     fallbackBackgroundAlpha: Float = 1f,
     useGradientFallback: Boolean = false,
+    overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.DUSK,
     modifier: Modifier = Modifier,
 ) {
     // Check if we're in dark mode by checking the background color luminance
@@ -113,40 +115,11 @@ internal fun SearchScreenBackground(
                     val fallbackGradientBrush =
                         Brush.linearGradient(
                             colors =
-                                if (isDarkMode) {
-                                    listOf(
-                                        Color(0xFF2A3042).copy(
-                                            alpha = fallbackAlpha,
-                                        ),
-                                        Color(0xFF3B2F49).copy(
-                                            alpha = fallbackAlpha * 0.92f,
-                                        ),
-                                        Color(0xFF1F3D48).copy(
-                                            alpha = fallbackAlpha * 0.9f,
-                                        ),
-                                        Color(0xFF4A4B26).copy(
-                                            alpha = fallbackAlpha * 0.85f,
-                                        ),
-                                        Color(0xFF4A342C).copy(
-                                            alpha = fallbackAlpha * 0.88f,
-                                        ),
-                                    )
-                                } else {
-                                    listOf(
-                                        Color(0xFFE7EDF9).copy(
-                                            alpha = fallbackAlpha,
-                                        ),
-                                        Color(0xFFE8DFF1).copy(
-                                            alpha = fallbackAlpha * 0.86f,
-                                        ),
-                                        Color(0xFFDCEDEF).copy(
-                                            alpha = fallbackAlpha * 0.84f,
-                                        ),
-                                        Color(0xFFF0E8D8).copy(
-                                            alpha = fallbackAlpha * 0.82f,
-                                        ),
-                                    )
-                                },
+                                overlayGradientColors(
+                                    theme = overlayGradientTheme,
+                                    isDarkMode = isDarkMode,
+                                    alpha = fallbackAlpha,
+                                ),
                             start = Offset.Zero,
                             end = Offset(1800f, 2200f),
                         )

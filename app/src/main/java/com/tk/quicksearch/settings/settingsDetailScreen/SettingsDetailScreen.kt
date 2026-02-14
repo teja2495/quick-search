@@ -164,6 +164,8 @@ internal fun SettingsDetailLevel1Screen(
                             onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
                             onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
                             onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
+                            overlayGradientTheme = state.overlayGradientTheme,
+                            onSetOverlayGradientTheme = callbacks.onSetOverlayGradientTheme,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             selectedIconPackPackage = state.selectedIconPackPackage,

@@ -285,6 +285,12 @@
     <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>
     <string name="settings_icon_pack_search_query">Free icon packs</string>
+    <string name="settings_overlay_theme_title">Overlay Theme</string>
+    <string name="settings_overlay_theme_dusk">Dusk</string>
+    <string name="settings_overlay_theme_forest">Forest</string>
+    <string name="settings_overlay_theme_ocean">Ocean</string>
+    <string name="settings_overlay_theme_slate">Slate</string>
+    <string name="settings_overlay_theme_sand">Sand</string>
 
     <!-- ============================================================================
          Settings - Search Engines
