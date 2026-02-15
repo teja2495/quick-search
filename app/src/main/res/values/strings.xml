@@ -27,7 +27,11 @@
     <string name="direct_search_error_no_key">Add your Gemini API key in settings to fetch direct answers.</string>
     <string name="direct_search_error_generic">Couldn\u2019t fetch a direct answer. Try again.</string>
     <string name="direct_search_enter_query">Please enter a query to search.</string>
-    <string name="direct_search_powered_by">Powered by </string>
+    <string name="direct_search_powered_by">Powered by</string>
+    <string name="direct_search_mode">Model: %1$s</string>
+    <string name="direct_search_grounding">Google search grounding: %1$s</string>
+    <string name="direct_search_grounding_enabled">Enabled</string>
+    <string name="direct_search_grounding_disabled">Disabled</string>
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_open_search_engine">Unable to open %1$s</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
@@ -345,9 +349,15 @@
     <string name="settings_gemini_api_key_paste">Paste from clipboard</string>
     <string name="settings_gemini_api_key_add">Add Key</string>
     <string name="settings_gemini_api_key_reset">Reset Key</string>
+    <string name="settings_direct_search_configure">Configure</string>
+    <string name="settings_direct_search_configure_title">Configure Gemini API</string>
+    <string name="settings_direct_search_model_label">Model</string>
+    <string name="settings_direct_search_grounding_label">Grounding with Google Search</string>
     <string name="settings_direct_search_personal_context">Personal Context</string>
     <string name="settings_direct_search_personal_context_title">Personal Context</string>
     <string name="settings_direct_search_personal_context_hint">Add any context you want Gemini to use when generating answers.</string>
+    <string name="dialog_gemini_model_picker_title">Select Model</string>
+    <string name="dialog_gemini_model_no_grounding_info">This model does not support personal context and google search grounding</string>
 
     <!-- ============================================================================
          Settings - Shortcuts

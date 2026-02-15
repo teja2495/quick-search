@@ -63,6 +63,9 @@ import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.search.directSearch.GeminiModelPickerDialog
+import com.tk.quicksearch.search.directSearch.GeminiTextModel
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -133,6 +136,7 @@ fun SearchRoute(
     onSettingsClick: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
     onOverlayDismissRequest: (() -> Unit)? = null,
     onShowToast: (Int) -> Unit = {},
     viewModel: SearchViewModel = viewModel(),
@@ -371,6 +375,9 @@ fun SearchRoute(
             onSearchEngineLongPress = onSearchEngineLongPress,
             onDirectSearchEmailClick = { email -> viewModel.openEmail(email) },
             onSetPersonalContext = viewModel::setPersonalContext,
+            onSetGeminiModel = viewModel::setGeminiModel,
+            onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
+            onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
             onOpenAppSettings = { viewModel.openAppSettings() },
             onOpenStorageAccessSettings = { viewModel.openAllFilesAccessSettings() },
             onAppNicknameClick = { app ->
@@ -405,6 +412,7 @@ fun SearchRoute(
             onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
             onPersonalContextHintDismissed = viewModel::onPersonalContextHintDismissed,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             onDeleteRecentItem = viewModel::deleteRecentItem,
             onDisableSearchHistory = { viewModel.setRecentQueriesEnabled(false) },
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
@@ -483,6 +491,9 @@ fun SearchScreen(
     onSearchEngineLongPress: () -> Unit,
     onDirectSearchEmailClick: (String) -> Unit,
     onSetPersonalContext: (String?) -> Unit = {},
+    onSetGeminiModel: (String?) -> Unit = {},
+    onSetGeminiGroundingEnabled: (Boolean) -> Unit = {},
+    onRefreshAvailableGeminiModels: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
     onWallpaperLoaded: (() -> Unit)? = null,
     isOverlayPresentation: Boolean = false,
@@ -514,6 +525,7 @@ fun SearchScreen(
     onPersonalContextHintDismissed: () -> Unit = {},
     onClearDetectedShortcut: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
@@ -608,6 +620,7 @@ fun SearchScreen(
     var manuallySwitchedToNumberKeyboard by remember { mutableStateOf(false) }
 
     var showPersonalContextDialog by remember { mutableStateOf(false) }
+    var showGeminiModelDialog by remember { mutableStateOf(false) }
     var personalContextInput by remember {
         mutableStateOf(
             TextFieldValue(
@@ -838,8 +851,10 @@ fun SearchScreen(
             },
             onWebSuggestionClick = onWebSuggestionClick,
             onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             onDeleteRecentItem = onDeleteRecentItem,
             onDisableSearchHistory = onDisableSearchHistory,
+            onGeminiModelInfoClick = { showGeminiModelDialog = true },
             onKeyboardSwitchToggle = {
                 manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard
             },
@@ -897,6 +912,33 @@ fun SearchScreen(
                 TextButton(onClick = { showPersonalContextDialog = false }) {
                     Text(text = stringResource(R.string.dialog_cancel))
                 }
+            },
+        )
+    }
+
+    if (showGeminiModelDialog) {
+        val modelOptions = remember(state.geminiModel, state.availableGeminiModels) {
+            val allKnown = state.availableGeminiModels + GeminiModelCatalog.FALLBACK_TEXT_MODELS
+            val currentModel = allKnown.find { it.id == state.geminiModel }
+                ?: GeminiTextModel(state.geminiModel, state.geminiModel)
+            (state.availableGeminiModels + currentModel).distinctBy { it.id }
+                .sortedBy { it.displayName.lowercase() }
+        }
+        GeminiModelPickerDialog(
+            selectedModelId = state.geminiModel,
+            models = modelOptions,
+            groundingEnabled = state.geminiGroundingEnabled,
+            onGroundingChange = onSetGeminiGroundingEnabled,
+            onModelSelected = { modelId ->
+                onSetGeminiModel(modelId)
+                val newModel = modelOptions.firstOrNull { it.id == modelId }
+                if (newModel?.supportsGrounding == false && state.geminiGroundingEnabled) {
+                    onSetGeminiGroundingEnabled(false)
+                }
+            },
+            onDismiss = {
+                showGeminiModelDialog = false
+                onRefreshAvailableGeminiModels()
             },
         )
     }

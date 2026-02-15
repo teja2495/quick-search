@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -176,6 +177,20 @@ internal fun SettingsDetailLevel2Screen(
                             DeviceSettingsSettingsSection(
                                 settings = state.allDeviceSettings,
                                 onSettingClick = callbacks.onLaunchDeviceSetting,
+                            )
+                        }
+
+                        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
+                            DirectSearchConfigureSettingsSection(
+                                personalContext = state.personalContext,
+                                geminiModel = state.geminiModel,
+                                geminiGroundingEnabled = state.geminiGroundingEnabled,
+                                availableGeminiModels = state.availableGeminiModels,
+                                onSetPersonalContext = callbacks.onSetPersonalContext,
+                                onSetGeminiModel = callbacks.onSetGeminiModel,
+                                onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
+                                onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
 

@@ -1,6 +1,7 @@
 package com.tk.quicksearch.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,7 @@ import com.tk.quicksearch.ui.theme.DesignTokens
  * @param text The text content to display
  * @param annotatedText Optional annotated text with styling/links (takes precedence over text if provided)
  * @param onContentClick Optional click handler for the content area (for plain text)
+ * @param onContentLongClick Optional long-press handler for the content area
  * @param onTextClick Optional click handler for annotated text (receives click offset)
  * @param onDismiss Callback when the dismiss button is clicked
  * @param modifier Modifier to be applied to the banner
@@ -40,6 +43,7 @@ fun TipBanner(
     text: String? = null,
     annotatedText: AnnotatedString? = null,
     onContentClick: (() -> Unit)? = null,
+    onContentLongClick: (() -> Unit)? = null,
     onTextClick: ((Int) -> Unit)? = null,
     onDismiss: (() -> Unit)? = null,
     showDismissButton: Boolean = true,
@@ -63,10 +67,16 @@ fun TipBanner(
         ) {
             val contentModifier =
                 Modifier.weight(1f).let { mod ->
+                    val withLongClick =
+                        if (onContentLongClick != null) {
+                            mod.pointerInput(Unit) {
+                                detectTapGestures(onLongPress = { onContentLongClick.invoke() })
+                            }
+                        } else mod
                     if (onContentClick != null) {
-                        mod.clickable(onClick = onContentClick)
+                        withLongClick.clickable(onClick = onContentClick)
                     } else {
-                        mod
+                        withLongClick
                     }
                 }
 

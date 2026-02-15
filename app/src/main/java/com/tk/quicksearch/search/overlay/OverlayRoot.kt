@@ -402,6 +402,17 @@ fun OverlayRoot(
                                                                         )
                                                                 handleClose()
                                                         },
+                                                        onOpenDirectSearchConfigure = {
+                                                                OverlayModeController
+                                                                        .openMainActivity(
+                                                                                context,
+                                                                                openSettings = true,
+                                                                                settingsDetailType =
+                                                                                        SettingsDetailType
+                                                                                                .DIRECT_SEARCH_CONFIGURE,
+                                                                        )
+                                                                handleClose()
+                                                        },
                                                 )
                                         }
                                 }

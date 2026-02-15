@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.directSearch.GeminiTextModel
 import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.settings.searchEnginesScreen.DirectSearchSetupCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineListCard
@@ -47,6 +48,13 @@ fun SearchEngines(
     geminiApiKeyLast4: String? = null,
     personalContext: String = "",
     onSetPersonalContext: ((String?) -> Unit)? = null,
+    geminiModel: String,
+    geminiGroundingEnabled: Boolean,
+    availableGeminiModels: List<GeminiTextModel>,
+    onSetGeminiModel: ((String?) -> Unit)? = null,
+    onSetGeminiGroundingEnabled: ((Boolean) -> Unit)? = null,
+    onRefreshAvailableGeminiModels: (() -> Unit)? = null,
+    onOpenDirectSearchConfigure: (() -> Unit)? = null,
     showTitle: Boolean = true,
     directSearchAvailable: Boolean = false,
     showShortcutHintBanner: Boolean = false,
@@ -95,8 +103,7 @@ fun SearchEngines(
             directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,
-            personalContext = personalContext,
-            onSetPersonalContext = onSetPersonalContext,
+            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )
@@ -154,8 +161,7 @@ fun SearchEngines(
             directSearchEnabled = directSearchAvailable,
             onSetGeminiApiKey = onSetGeminiApiKey,
             geminiApiKeyLast4 = geminiApiKeyLast4,
-            personalContext = personalContext,
-            onSetPersonalContext = onSetPersonalContext,
+            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )

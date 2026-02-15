@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.directSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
@@ -112,6 +113,9 @@ data class SettingsScreenState(
     val hasGeminiApiKey: Boolean = false,
     val geminiApiKeyLast4: String? = null,
     val personalContext: String = "",
+    val geminiModel: String,
+    val geminiGroundingEnabled: Boolean,
+    val availableGeminiModels: List<GeminiTextModel>,
 )
 
 /** Data class to hold all settings screen callbacks. */
@@ -159,6 +163,10 @@ data class SettingsScreenCallbacks(
     val onToggleRecentQueries: (Boolean) -> Unit,
     val onSetGeminiApiKey: (String?) -> Unit,
     val onSetPersonalContext: (String?) -> Unit,
+    val onSetGeminiModel: (String?) -> Unit,
+    val onSetGeminiGroundingEnabled: (Boolean) -> Unit,
+    val onRefreshAvailableGeminiModels: () -> Unit,
+    val onOpenDirectSearchConfigure: () -> Unit,
     val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onOpenAddAppShortcutDialog: () -> Unit,
@@ -680,6 +688,9 @@ fun SettingsRoute(
             hasGeminiApiKey = uiState.hasGeminiApiKey,
             geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
             personalContext = uiState.personalContext,
+            geminiModel = uiState.geminiModel,
+            geminiGroundingEnabled = uiState.geminiGroundingEnabled,
+            availableGeminiModels = uiState.availableGeminiModels,
         )
 
     val shouldShowBanner = remember { mutableStateOf(uiState.shouldShowUsagePermissionBanner) }
@@ -844,6 +855,12 @@ fun SettingsRoute(
             onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
             onSetGeminiApiKey = viewModel::setGeminiApiKey,
             onSetPersonalContext = viewModel::setPersonalContext,
+            onSetGeminiModel = viewModel::setGeminiModel,
+            onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
+            onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
+            onOpenDirectSearchConfigure = {
+                onNavigateToDetail(com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+            },
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,
             onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,

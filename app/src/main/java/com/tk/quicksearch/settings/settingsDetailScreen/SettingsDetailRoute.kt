@@ -101,6 +101,9 @@ fun SettingsDetailRoute(
                     hasGeminiApiKey = uiState.hasGeminiApiKey,
                     geminiApiKeyLast4 = uiState.geminiApiKeyLast4,
                     personalContext = uiState.personalContext,
+                    geminiModel = uiState.geminiModel,
+                    geminiGroundingEnabled = uiState.geminiGroundingEnabled,
+                    availableGeminiModels = uiState.availableGeminiModels,
             )
 
     val context = LocalContext.current
@@ -309,7 +312,16 @@ fun SettingsDetailRoute(
 
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
-                { onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS) }
+                {
+                    when (detailType) {
+                        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
+                            onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
+                        }
+                        else -> {
+                            onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
+                        }
+                    }
+                }
             } else {
                 onBack
             }
@@ -359,6 +371,12 @@ fun SettingsDetailRoute(
                     onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
                     onSetGeminiApiKey = viewModel::setGeminiApiKey,
                     onSetPersonalContext = viewModel::setPersonalContext,
+                    onSetGeminiModel = viewModel::setGeminiModel,
+                    onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
+                    onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
+                    onOpenDirectSearchConfigure = {
+                        onNavigateToDetail(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                    },
                     onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
                     onLaunchAppShortcut = viewModel::launchAppShortcut,
                     onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,

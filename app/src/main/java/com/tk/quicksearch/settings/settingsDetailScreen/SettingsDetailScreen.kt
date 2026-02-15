@@ -111,6 +111,13 @@ internal fun SettingsDetailLevel1Screen(
                             geminiApiKeyLast4 = state.geminiApiKeyLast4,
                             personalContext = state.personalContext,
                             onSetPersonalContext = callbacks.onSetPersonalContext,
+                            geminiModel = state.geminiModel,
+                            geminiGroundingEnabled = state.geminiGroundingEnabled,
+                            availableGeminiModels = state.availableGeminiModels,
+                            onSetGeminiModel = callbacks.onSetGeminiModel,
+                            onSetGeminiGroundingEnabled = callbacks.onSetGeminiGroundingEnabled,
+                            onRefreshAvailableGeminiModels = callbacks.onRefreshAvailableGeminiModels,
+                            onOpenDirectSearchConfigure = callbacks.onOpenDirectSearchConfigure,
                             directSearchAvailable = state.hasGeminiApiKey,
                             showTitle = false,
                             showShortcutHintBanner = showShortcutHintBanner,
@@ -257,6 +264,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.APP_MANAGEMENT,
                     SettingsDetailType.APP_SHORTCUTS,
                     SettingsDetailType.DEVICE_SETTINGS,
+                    SettingsDetailType.DIRECT_SEARCH_CONFIGURE,
                     -> Unit
                 }
             }
@@ -315,13 +323,15 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
         SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
         SettingsDetailType.FEEDBACK_DEVELOPMENT -> R.string.settings_feedback_development_title
+        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> R.string.settings_direct_search_configure_title
     }
 
 internal fun SettingsDetailType.isLevel2(): Boolean =
     this == SettingsDetailType.APP_MANAGEMENT ||
         this == SettingsDetailType.APP_SHORTCUTS ||
         this == SettingsDetailType.EXCLUDED_ITEMS ||
-        this == SettingsDetailType.DEVICE_SETTINGS
+        this == SettingsDetailType.DEVICE_SETTINGS ||
+        this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE
 
 internal fun SettingsDetailType.level(): Int = if (isLevel2()) 2 else 1
 
@@ -341,4 +351,5 @@ enum class SettingsDetailType {
     LAUNCH_OPTIONS,
     PERMISSIONS,
     FEEDBACK_DEVELOPMENT,
+    DIRECT_SEARCH_CONFIGURE,
 }

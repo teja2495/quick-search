@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import android.util.Log
+import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
 
 /**
  * Preferences for Gemini API-related settings such as API key and personal context.
@@ -85,5 +86,29 @@ class GeminiPreferences(
         } else {
             prefs.edit().putString(BasePreferences.KEY_GEMINI_PERSONAL_CONTEXT, trimmed).apply()
         }
+    }
+
+    fun getGeminiModel(): String {
+        val model = prefs.getString(BasePreferences.KEY_GEMINI_MODEL, null)?.trim()
+        return model.takeUnless { it.isNullOrEmpty() } ?: GeminiModelCatalog.DEFAULT_MODEL_ID
+    }
+
+    fun setGeminiModel(modelId: String?) {
+        val normalized = modelId?.trim()
+        if (normalized.isNullOrEmpty()) {
+            prefs.edit().remove(BasePreferences.KEY_GEMINI_MODEL).apply()
+            return
+        }
+        prefs.edit().putString(BasePreferences.KEY_GEMINI_MODEL, normalized).apply()
+    }
+
+    fun isGeminiGroundingEnabled(): Boolean =
+        prefs.getBoolean(
+            BasePreferences.KEY_GEMINI_GROUNDING_ENABLED,
+            GeminiModelCatalog.DEFAULT_GROUNDING_ENABLED,
+        )
+
+    fun setGeminiGroundingEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(BasePreferences.KEY_GEMINI_GROUNDING_ENABLED, enabled).apply()
     }
 }

@@ -37,6 +37,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.directSearch.DirectSearchHandler
+import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.search.files.FileManagementHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfigurationManager
@@ -654,6 +655,9 @@ class SearchViewModel(
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
+                        geminiModel = directSearchHandler.getGeminiModel(),
+                        geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled(),
+                        availableGeminiModels = directSearchHandler.getAvailableGeminiModels(),
                         showPersonalContextHint =
                                 !userPreferences.hasSeenPersonalContextHint() &&
                                         directSearchHandler.getPersonalContext().isBlank(),
@@ -663,6 +667,13 @@ class SearchViewModel(
                         isTelegramInstalled = messagingInfo.isTelegramInstalled,
                         isSignalInstalled = messagingInfo.isSignalInstalled,
                 )
+            }
+
+            if (!directSearchHandler.getGeminiApiKey().isNullOrBlank()) {
+                launch(Dispatchers.IO) {
+                    val models = directSearchHandler.refreshAvailableGeminiModels()
+                    _uiState.update { state -> state.copy(availableGeminiModels = models) }
+                }
             }
 
             // 3. Start heavy background loads
@@ -2007,10 +2018,19 @@ class SearchViewModel(
             val hasGemini = !apiKey.isNullOrBlank()
             searchEngineManager.updateSearchTargetsForGemini(hasGemini)
 
+            val availableModels =
+                if (hasGemini) {
+                    directSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
+                } else {
+                    directSearchHandler.getAvailableGeminiModels()
+                }
+
             _uiState.update {
                 it.copy(
                         hasGeminiApiKey = hasGemini,
                         geminiApiKeyLast4 = apiKey?.trim()?.takeLast(4),
+                        geminiModel = directSearchHandler.getGeminiModel(),
+                        availableGeminiModels = availableModels,
                 )
             }
         }
@@ -2020,6 +2040,32 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             directSearchHandler.setPersonalContext(context)
             _uiState.update { it.copy(personalContext = context?.trim().orEmpty()) }
+        }
+    }
+
+    fun setGeminiModel(modelId: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            directSearchHandler.setGeminiModel(modelId)
+            val normalized = modelId?.trim().takeUnless { it.isNullOrBlank() }
+            _uiState.update {
+                it.copy(
+                        geminiModel = normalized ?: GeminiModelCatalog.DEFAULT_MODEL_ID,
+                )
+            }
+        }
+    }
+
+    fun setGeminiGroundingEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            directSearchHandler.setGeminiGroundingEnabled(enabled)
+            _uiState.update { it.copy(geminiGroundingEnabled = enabled) }
+        }
+    }
+
+    fun refreshAvailableGeminiModels() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val models = directSearchHandler.refreshAvailableGeminiModels(forceRefresh = true)
+            _uiState.update { it.copy(availableGeminiModels = models) }
         }
     }
 

@@ -118,8 +118,10 @@ fun SearchContentArea(
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
+    onGeminiModelInfoClick: () -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
     directSearchState: DirectSearchState? = null,
@@ -508,9 +510,11 @@ fun SearchContentArea(
                     onSearchEngineLongPress = onSearchEngineLongPress,
                     onCustomizeSearchEnginesClick =
                     onCustomizeSearchEnginesClick,
+                    onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
                     onSearchTargetClick = onSearchTargetClick,
                     onDeleteRecentItem = onDeleteRecentItem,
                     onDisableSearchHistory = onDisableSearchHistory,
+                    onGeminiModelInfoClick = onGeminiModelInfoClick,
                 )
             }
         }
@@ -616,9 +620,11 @@ fun ContentLayout(
     onWebSuggestionClick: (String) -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
+    onGeminiModelInfoClick: () -> Unit = {},
 ) {
     // 1. Determine Layout Order based on ItemPriorityConfig
     val hasQuery = state.query.isNotBlank()
@@ -761,6 +767,8 @@ fun ContentLayout(
                                     PersonalContextHintBanner(
                                         onOpenPersonalContext =
                                         onOpenPersonalContextDialog,
+                                        onOpenDirectSearchConfigure =
+                                        onOpenDirectSearchConfigure,
                                         onDismiss = {
                                             isPersonalContextHintVisible =
                                                 false
@@ -782,6 +790,9 @@ fun ContentLayout(
                                 showWallpaperBackground =
                                     state.showWallpaperBackground,
                                 oneHandedMode = state.oneHandedMode,
+                                onGeminiModelInfoClick = onGeminiModelInfoClick,
+                                onOpenDirectSearchConfigure =
+                                onOpenDirectSearchConfigure,
                                 onPhoneNumberClick =
                                 onPhoneNumberClick,
                                 onEmailClick = onEmailClick,

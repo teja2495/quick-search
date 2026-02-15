@@ -850,6 +850,15 @@ class UserAppPreferences(
 
     fun setPersonalContext(context: String?) = geminiPreferences.setPersonalContext(context)
 
+    fun getGeminiModel(): String = geminiPreferences.getGeminiModel()
+
+    fun setGeminiModel(modelId: String?) = geminiPreferences.setGeminiModel(modelId)
+
+    fun isGeminiGroundingEnabled(): Boolean = geminiPreferences.isGeminiGroundingEnabled()
+
+    fun setGeminiGroundingEnabled(enabled: Boolean) =
+            geminiPreferences.setGeminiGroundingEnabled(enabled)
+
     // ============================================================================
     // UI Preferences
     // ============================================================================

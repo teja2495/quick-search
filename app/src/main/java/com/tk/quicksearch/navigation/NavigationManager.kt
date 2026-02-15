@@ -401,6 +401,11 @@ private fun NavigationContent(
                         onDestinationChange(RootDestination.Settings)
                         onSettingsDetailTypeChange(SettingsDetailType.SEARCH_ENGINES)
                     },
+                    onOpenDirectSearchConfigure = {
+                        keyboardController?.hide()
+                        onDestinationChange(RootDestination.Settings)
+                        onSettingsDetailTypeChange(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                    },
                     onWelcomeAnimationCompleted = {
                         viewModel.onSearchBarWelcomeAnimationCompleted()
                     },

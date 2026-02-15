@@ -614,6 +614,7 @@ internal fun InfoBanner(message: String) {
 @Composable
 internal fun PersonalContextHintBanner(
     onOpenPersonalContext: () -> Unit,
+    onOpenDirectSearchConfigure: () -> Unit = {},
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -647,6 +648,7 @@ internal fun PersonalContextHintBanner(
 
     TipBanner(
         annotatedText = annotatedText,
+        onContentLongClick = onOpenDirectSearchConfigure,
         onTextClick = { offset ->
             val annotations =
                 annotatedText.getStringAnnotations(

@@ -539,6 +539,8 @@ abstract class BasePreferences(
         const val KEY_AMAZON_DOMAIN = "amazon_domain"
         const val KEY_GEMINI_API_KEY = "gemini_api_key"
         const val KEY_GEMINI_PERSONAL_CONTEXT = "gemini_personal_context"
+        const val KEY_GEMINI_MODEL = "gemini_model"
+        const val KEY_GEMINI_GROUNDING_ENABLED = "gemini_grounding_enabled"
 
         // Usage permission banner preferences keys
         const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
