@@ -30,6 +30,14 @@ internal fun ExpandButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val overlayActionColor = LocalOverlayActionColor.current
+    val moreActionColor =
+        if (overlayActionColor != null) {
+            Color.White
+        } else {
+            MaterialTheme.colorScheme.primary
+        }
+
     TextButton(
         onClick = onClick,
         modifier = modifier,
@@ -38,12 +46,12 @@ internal fun ExpandButton(
         Text(
             text = stringResource(R.string.action_expand_more),
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = moreActionColor,
         )
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
-            tint = Color.White,
+            tint = moreActionColor,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }
