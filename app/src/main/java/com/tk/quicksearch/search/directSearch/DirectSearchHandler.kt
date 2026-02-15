@@ -174,7 +174,9 @@ class DirectSearchHandler(
                     val result =
                             client.fetchAnswer(
                                     query = trimmedQuery,
-                                    personalContext = personalContext.takeIf { it.isNotBlank() },
+                                    personalContext =
+                                            if (selectedModel?.supportsSystemInstructions == false) null
+                                            else personalContext.takeIf { it.isNotBlank() },
                                     modelId = geminiModel,
                                     useGroundingWithGoogleSearch =
                                             geminiGroundingEnabled &&
