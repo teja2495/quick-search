@@ -18,6 +18,11 @@ object PermissionRequestHandler {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
+    fun createUsageAccessFallbackIntent(): Intent =
+        Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
     fun createAllFilesAccessIntent(context: Context): Intent =
         Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
             data = Uri.parse("package:${context.packageName}")
@@ -28,6 +33,11 @@ object PermissionRequestHandler {
     fun createAppSettingsIntent(context: Context): Intent =
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.parse("package:${context.packageName}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+    private fun createGeneralSettingsIntent(): Intent =
+        Intent(Settings.ACTION_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
@@ -88,6 +98,27 @@ object PermissionRequestHandler {
                 launcher.launch(createAllFilesAccessFallbackIntent())
             }
     }
+
+    private fun launchIfResolvable(
+        context: Context,
+        intent: Intent,
+    ): Boolean {
+        if (intent.resolveActivity(context.packageManager) == null) return false
+        return runCatching {
+            context.startActivity(intent)
+            true
+        }.getOrDefault(false)
+    }
+
+    fun launchUsageAccessRequest(context: Context): Boolean =
+        launchIfResolvable(context, createUsageAccessIntent(context)) ||
+            launchIfResolvable(context, createUsageAccessFallbackIntent()) ||
+            launchIfResolvable(context, createAppSettingsIntent(context)) ||
+            launchIfResolvable(context, createGeneralSettingsIntent())
+
+    fun launchAppSettingsRequest(context: Context): Boolean =
+        launchIfResolvable(context, createAppSettingsIntent(context)) ||
+            launchIfResolvable(context, createGeneralSettingsIntent())
 
     fun shouldRequestWallpaperPermission(context: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&

@@ -57,8 +57,10 @@ object IconPackManager {
 
     /**
      * Discovers packages that contain icon packs by querying known intent actions and categories,
-     * with a fallback to scanning for appfilter.xml files. Excludes home launchers (e.g. Nova,
-     * Lawnchair) that also declare THEME intents.
+     * then excluding home launchers (e.g. Nova, Lawnchair) that also declare THEME intents.
+     *
+     * Avoid scanning all installed APK resources as a fallback. Opening arbitrary APK assets can
+     * trigger native allocation failures on some devices/firmware.
      */
     private fun discoverIconPackPackages(packageManager: PackageManager): Set<String> {
         val packages = mutableSetOf<String>()
@@ -71,10 +73,6 @@ object IconPackManager {
         ICON_PACK_CATEGORIES.forEach { category ->
             val intent = Intent(Intent.ACTION_MAIN).addCategory(category)
             packages.addAll(queryPackages(packageManager, intent))
-        }
-
-        if (packages.isEmpty()) {
-            packages.addAll(findAppFilterCandidates(packageManager))
         }
 
         packages.removeAll(getHomeLauncherPackages(packageManager))
@@ -145,40 +143,6 @@ object IconPackManager {
         } catch (e: Exception) {
             Log.w(TAG, "Failed to query icon packs for intent $intent", e)
             emptySet()
-        }
-
-    /**
-     * Finds installed applications that contain appfilter.xml files,
-     * which typically indicate icon pack applications.
-     */
-    private fun findAppFilterCandidates(packageManager: PackageManager): Set<String> =
-        runCatching {
-            packageManager
-                .getInstalledApplications(PackageManager.GET_META_DATA)
-                .mapNotNull { appInfo ->
-                    val hasAppFilter =
-                        runCatching {
-                            val res = packageManager.getResourcesForApplication(appInfo.packageName)
-                            hasAppFilter(res, appInfo.packageName)
-                        }.getOrDefault(false)
-                    if (hasAppFilter) appInfo.packageName else null
-                }.toSet()
-        }.getOrDefault(emptySet())
-
-    /**
-     * Checks if the given package contains an appfilter.xml file,
-     * either in assets or as a resource.
-     */
-    private fun hasAppFilter(
-        resources: Resources,
-        packageName: String,
-    ): Boolean =
-        try {
-            resources.assets.open("appfilter.xml").close()
-            true
-        } catch (_: Exception) {
-            val resId = resources.getIdentifier("appfilter", "xml", packageName)
-            resId != 0
         }
 
     /**

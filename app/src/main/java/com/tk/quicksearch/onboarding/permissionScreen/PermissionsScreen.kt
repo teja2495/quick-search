@@ -203,9 +203,7 @@ fun PermissionsScreen(
                         isMandatory = false,
                         onToggleChange = { enabled ->
                             if (enabled && !usagePermissionState.isGranted) {
-                                context.startActivity(
-                                    PermissionRequestHandler.createUsageAccessIntent(context),
-                                )
+                                PermissionRequestHandler.launchUsageAccessRequest(context)
                             }
                         },
                     )
@@ -464,9 +462,7 @@ private fun handleFilesPermissionRequest(
                 permissionState.wasDenied,
             )
         ) {
-            context.startActivity(
-                PermissionRequestHandler.createAppSettingsIntent(context),
-            )
+            PermissionRequestHandler.launchAppSettingsRequest(context)
         } else {
             // First time or can show rationale - request permission
             runtimeLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))

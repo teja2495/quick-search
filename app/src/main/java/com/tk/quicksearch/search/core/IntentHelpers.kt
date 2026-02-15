@@ -25,6 +25,7 @@ import com.tk.quicksearch.util.PackageConstants
 /** Helper functions for creating and launching intents. */
 object IntentHelpers {
     private const val EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY = "com.android.externalstorage.documents"
+    private const val TAG = "IntentHelpers"
 
     private fun canResolveIntent(
         context: Application,
@@ -88,25 +89,8 @@ object IntentHelpers {
         appInfo: AppInfo,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        val userHandleId = appInfo.userHandleId
-        val componentNameStr = appInfo.componentName
-
-        if (userHandleId != null && componentNameStr != null) {
-            val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
-            val userManager = context.getSystemService(Context.USER_SERVICE) as? UserManager
-            val userHandle =
-                UserHandleUtils.of(userHandleId)
-                    ?: userManager?.userProfiles?.find { UserHandleUtils.getIdentifier(it) == userHandleId }
-            if (launcherApps != null && userHandle != null) {
-                runCatching {
-                    val component = ComponentName.unflattenFromString(componentNameStr)
-                        ?: return@runCatching
-                    launcherApps.startMainActivity(component, userHandle, null, null)
-                }.onFailure {
-                    onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
-                }
-                return
-            }
+        if (tryLaunchWithLauncherApps(context, appInfo)) {
+            return
         }
 
         val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
@@ -117,7 +101,59 @@ object IntentHelpers {
         launchIntent.addFlags(
             Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
         )
-        context.startActivity(launchIntent)
+        runCatching { context.startActivity(launchIntent) }
+            .onFailure { throwable ->
+                Log.w(TAG, "Failed to launch ${appInfo.packageName}", throwable)
+                onShowToast?.invoke(R.string.error_launch_app, appInfo.appName)
+            }
+    }
+
+    private fun tryLaunchWithLauncherApps(
+        context: Application,
+        appInfo: AppInfo,
+    ): Boolean {
+        val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps ?: return false
+        val userManager = context.getSystemService(Context.USER_SERVICE) as? UserManager ?: return false
+        val profiles = runCatching { userManager.userProfiles }.getOrNull().orEmpty()
+        if (profiles.isEmpty()) return false
+
+        val requestedUserHandleId = appInfo.userHandleId
+        val requestedComponent = appInfo.componentName?.let(ComponentName::unflattenFromString)
+        val targetProfiles =
+            if (requestedUserHandleId != null) {
+                profiles.filter { UserHandleUtils.getIdentifier(it) == requestedUserHandleId }
+            } else {
+                profiles
+            }
+
+        for (userHandle in targetProfiles) {
+            val activityList =
+                runCatching { launcherApps.getActivityList(appInfo.packageName, userHandle) }
+                    .getOrNull()
+                    .orEmpty()
+            if (activityList.isEmpty()) continue
+
+            val targetComponent =
+                when {
+                    requestedComponent != null -> {
+                        activityList.firstOrNull { it.componentName == requestedComponent }?.componentName
+                    }
+                    else -> {
+                        activityList.firstOrNull()?.componentName
+                    }
+                }
+
+            if (targetComponent != null) {
+                val started =
+                    runCatching {
+                        launcherApps.startMainActivity(targetComponent, userHandle, null, null)
+                        true
+                    }.getOrElse { false }
+                if (started) return true
+            }
+        }
+
+        return false
     }
 
     /** Requests uninstall for an app. */
