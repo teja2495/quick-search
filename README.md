@@ -2,7 +2,7 @@
 
 A fast & powerful Android app that lets you search across **apps, contacts, device files, device settings, web, and basic calculations** from a single screen. Built with Kotlin and Jetpack Compose using Material 3 design.
 
-[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tk.quicksearch)
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80">](https://play.google.com/store/apps/details?id=com.tk.quicksearch) [<img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on Google Play" height="80" />](https://github.com/teja2495/quick-search/releases/latest)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -69,7 +69,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 ### Build from Source
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/quick-search.git
+git clone https://github.com/teja2495/quick-search.git
 cd quick-search
 
 # Build with Gradle
@@ -78,7 +78,7 @@ cd quick-search
 
 ### Download
 - **Google Play Store**: Get the app from [Google Play Store](https://play.google.com/store/apps/details?id=com.tk.quicksearch) for automatic updates
-- **APK Release**: Download the latest APK from the [Releases](https://github.com/your-username/quick-search/releases) page
+- **APK Release**: Download the latest APK from the [Releases](https://github.com/teja2495/quick-search/releases) page
 
 ## 📖 Usage
 
@@ -243,7 +243,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Email**: tejakarlapudi.apps@gmail.com
-- **Issues**: [GitHub Issues](https://github.com/your-username/quick-search/issues)
+- **Issues**: [GitHub Issues](https://github.com/teja2495/quick-search/issues)
 
 ---
 
