@@ -214,7 +214,7 @@ fun OverlayRoot(
                                                                                         rememberedHeight
                                                                         ).value
                                                         ) > OVERLAY_HEIGHT_CHANGE_THRESHOLD_DP
-                                        if (rememberedHeight == null && hasMeaningfulChange) {
+                                        if (hasMeaningfulChange) {
                                                 rememberedKeyboardOpenOverlayHeight =
                                                         computedKeyboardOpenOverlayHeight
                                                 userPreferences.setLastOverlayKeyboardOpenHeightDp(
@@ -239,33 +239,42 @@ fun OverlayRoot(
                                 }
                         }
 
+                        val clampedRememberedKeyboardOpenOverlayHeight =
+                                rememberedKeyboardOpenOverlayHeight
+                                        ?.coerceAtLeast(0.dp)
+                                        ?.coerceAtMost(availableHeight)
+                        val clampedRememberedKeyboardClosedOverlayHeight =
+                                rememberedKeyboardClosedOverlayHeight
+                                        ?.coerceAtLeast(0.dp)
+                                        ?.coerceAtMost(availableHeight)
+
                         val targetOverlayHeight =
                                 if (!useKeyboardAwareHeight) {
                                         if (assumeKeyboardOpenHeightOnResume) {
-                                                rememberedKeyboardOpenOverlayHeight
+                                                clampedRememberedKeyboardOpenOverlayHeight
                                                         ?: computedKeyboardOpenOverlayHeight
                                         } else {
-                                                rememberedKeyboardOpenOverlayHeight
+                                                clampedRememberedKeyboardOpenOverlayHeight
                                                         ?: computedDefaultOverlayHeight
                                         }
                                 } else if (isKeyboardVisible) {
-                                        rememberedKeyboardOpenOverlayHeight
+                                        clampedRememberedKeyboardOpenOverlayHeight
                                                 ?: computedKeyboardOpenOverlayHeight
                                 } else if (allowKeyboardLessHeight) {
                                         if (keepPersistedHeightUntilKeyboardVisible &&
-                                                        rememberedKeyboardOpenOverlayHeight != null
+                                                        clampedRememberedKeyboardOpenOverlayHeight != null
                                         ) {
-                                                rememberedKeyboardOpenOverlayHeight!!
+                                                clampedRememberedKeyboardOpenOverlayHeight
                                         } else {
-                                                rememberedKeyboardClosedOverlayHeight
+                                                clampedRememberedKeyboardClosedOverlayHeight
                                                         ?: computedKeyboardClosedOverlayHeight
                                         }
                                 } else {
                                         if (assumeKeyboardOpenHeightOnResume) {
-                                                rememberedKeyboardOpenOverlayHeight
+                                                clampedRememberedKeyboardOpenOverlayHeight
                                                         ?: computedKeyboardOpenOverlayHeight
                                         } else {
-                                                rememberedKeyboardOpenOverlayHeight
+                                                clampedRememberedKeyboardOpenOverlayHeight
                                                         ?: computedDefaultOverlayHeight
                                         }
                                 }
