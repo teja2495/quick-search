@@ -242,6 +242,9 @@ fun RecentSearchesSection(
                 }
 
                 if (canExpand) {
+                    val moreHistoryColor =
+                        if (isOverlayPresentation) Color.White
+                        else MaterialTheme.colorScheme.primary
                     TextButton(
                         onClick = {
                             isExpanded = true
@@ -252,12 +255,12 @@ fun RecentSearchesSection(
                     ) {
                         Text(
                             text = stringResource(R.string.action_more_search_history),
-                            color = Color.White,
+                            color = moreHistoryColor,
                         )
                         Icon(
                             imageVector = Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(R.string.desc_expand),
-                            tint = Color.White,
+                            tint = moreHistoryColor,
                         )
                     }
                 }
