@@ -49,7 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.directSearch.GeminiLoadingAnimation
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 /**
@@ -70,6 +72,14 @@ fun DirectSearchResult(
             !DirectSearchState.answer.isNullOrBlank()
 
     val clipboardManager = LocalClipboardManager.current
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val cardColors =
+        if (overlayCardColor != null) {
+            CardDefaults.cardColors(containerColor = overlayCardColor)
+        } else {
+            AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+        }
+    val cardElevation = AppColors.getCardElevation(showWallpaperBackground = showWallpaperBackground)
 
     val content: @Composable () -> Unit = {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -136,12 +146,9 @@ fun DirectSearchResult(
                     Modifier
                         .fillMaxWidth()
                         .heightIn(min = 175.dp),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = Color.Black.copy(alpha = 0.4f),
-                    ),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                elevation = cardElevation,
             ) {
                 content()
             }
@@ -151,7 +158,9 @@ fun DirectSearchResult(
                     Modifier
                         .fillMaxWidth()
                         .heightIn(min = 175.dp),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
+                elevation = cardElevation,
             ) {
                 content()
             }
@@ -179,6 +188,14 @@ fun CalculatorResult(
     if (result == null) return
 
     val clipboardManager = LocalClipboardManager.current
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val cardColors =
+        if (overlayCardColor != null) {
+            CardDefaults.cardColors(containerColor = overlayCardColor)
+        } else {
+            AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+        }
+    val cardElevation = AppColors.getCardElevation(showWallpaperBackground = showWallpaperBackground)
 
     // Track if the animation has already played (only animate first time)
     var hasAnimated by remember { mutableStateOf(false) }
@@ -226,12 +243,9 @@ fun CalculatorResult(
                             onClick = {},
                             onLongClick = onLongClick,
                         ),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = Color.Black.copy(alpha = 0.4f),
-                    ),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                elevation = cardElevation,
             ) {
                 content()
             }
@@ -246,7 +260,9 @@ fun CalculatorResult(
                             onClick = {},
                             onLongClick = onLongClick,
                         ),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
+                elevation = cardElevation,
             ) {
                 content()
             }

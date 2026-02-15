@@ -440,7 +440,7 @@ private fun OverlayThemeCard(
                     text = stringResource(R.string.settings_overlay_theme_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 4.dp),
             )
 
             Row(
