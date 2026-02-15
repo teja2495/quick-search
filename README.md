@@ -26,9 +26,10 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 
 ### 🎯 Smart Features
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
+- **Overlay Themes**: Multiple themes for overlay mode (access via search results settings)
 - **App Nicknames**: Assign custom names to apps for easier searching
 - **App Suggestions**: Shows recommended apps when search bar is empty
-- **Direct Search**: AI-powered answers using Gemini API (optional)
+- **Direct Search**: AI-powered answers using Gemini API (optional); choose among several Gemini and Gemma models
 - **Web Suggestions**: Google-powered search suggestions as you type
 - **Multi-App Search**: Tap search engine icons to search within specific apps
 - **Wallpaper Integration**: Automatic device wallpaper background with adjustable transparency and blur
@@ -117,7 +118,7 @@ Enable AI-powered answers by:
 - **Supported** (22 total): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode
 - **Browsers**: Add installed browsers as search engines
 - **Customizable**: Reorder, enable/disable, and set shortcuts
-- **Direct Search**: AI answers with Gemini API integration and optional personal context
+- **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
 - **Style**: Choose between inline (scrolls with content) or compact (fixed at bottom)
 
 ### Sections
@@ -137,6 +138,8 @@ Filter which file types to include in search:
 ### Result Management
 - **Exclude Items**: Long press any result to hide it from future searches
 - **File Type Filtering**: Exclude specific file types from search results
+- **App Management**: View app details or bulk uninstall apps (access via search results settings)
+- **Shortcut Management**: Enable, disable, or add custom app shortcuts (access via search results settings)
 
 ### Appearance
 - **Wallpaper background**: Adjust transparency and blur of the device wallpaper background

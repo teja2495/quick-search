@@ -208,7 +208,8 @@ app/src/main/java/com/tk/quicksearch/
 │   │   ├── DirectSearchClient.kt
 │   │   ├── DirectSearchHandler.kt
 │   │   ├── GeminiLoadingAnimation.kt
-│   │   └── SearchScreenDirectResults.kt
+│   │   ├── GeminiModelPickerDialog.kt  # Model selection (Gemini/Gemma)
+│   │   └── SearchScreenDirectResults.kt  # Results UI; "Powered by" tap = model picker, long press = configure
 │   │
 │   ├── searchEngines/            # Search engine integration
 │   │   ├── SearchEngineManager.kt
@@ -226,7 +227,8 @@ app/src/main/java/com/tk/quicksearch/
 │   │
 │   ├── searchScreen/             # Main search UI
 │   │   ├── SearchScreen.kt      # Main screen composable
-│   │   ├── SearchScreenLayout.kt # Layout orchestration
+│   │   ├── SearchScreenLayout.kt # Layout orchestration (overlay theme applied here)
+│   │   ├── OverlayGradientThemeUtils.kt  # Overlay theme gradients (Forest, Aurora, Sunset, Mono)
 │   │   ├── SearchScreenContent.kt
 │   │   ├── SearchScreenComponents.kt
 │   │   ├── SearchScreenSectionRendering.kt
@@ -240,7 +242,7 @@ app/src/main/java/com/tk/quicksearch/
 │   │   └── dialogs/
 │   │
 │   ├── overlay/                  # Overlay mode (search over other apps)
-│   │   ├── OverlayRoot.kt       # Overlay UI root composable
+│   │   ├── OverlayRoot.kt       # Overlay UI root composable (uses overlay theme)
 │   │   ├── OverlayActivity.kt   # Activity for overlay window
 │   │   └── OverlayModeController.kt
 │   │
@@ -270,7 +272,12 @@ app/src/main/java/com/tk/quicksearch/
 ├── settings/                     # Settings screens
 │   ├── SettingsScreen.kt
 │   ├── searchEnginesScreen/
-│   ├── settingsDetailScreen/     # Detail screens (SearchEngines, ExcludedItems, etc.)
+│   ├── settingsDetailScreen/     # Detail screens (SearchEngines, ExcludedItems, SearchResults, Appearance, etc.)
+│   │   ├── AppearanceSettings.kt   # Overlay theme card (OverlayThemeCard)
+│   │   ├── SearchResultsSettings.kt # Entry to App Management, Shortcut Management
+│   │   ├── AppManagementSettings.kt # App details, bulk uninstall
+│   │   ├── AppShortcutsSettings.kt  # Enable/disable/add app shortcuts
+│   │   └── SettingsDetailLevel2Screen.kt  # Hosts APP_MANAGEMENT, shortcut settings
 │   └── shared/                  # SettingsRoute, shared components
 │
 ├── onboarding/                   # First-launch setup
@@ -534,10 +541,10 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - **Reordering**: User-customizable order
 - **Enable/Disable**: Toggle individual engines
 - **Custom Search Engines**: Users can add their own search engines from settings
-- **Direct Search**: Gemini API integration with optional personal context
+- **Direct Search**: Gemini API integration; model selection (several Gemini and Gemma models via `GeminiModelPickerDialog.kt`); optional personal context. "Powered by" attribution row: tap opens model picker, long press opens Direct Search configuration.
 - **Display Modes**: Inline (scrolls) vs Compact (fixed at bottom)
 
-**Implementation**: `search/searchEngines/SearchEngineManager.kt`. Display modes: `search/searchEngines/inline/` (SearchEngineSection) and `search/searchEngines/compact/`. Direct Search (Gemini) in `search/directSearch/`.
+**Implementation**: `search/searchEngines/SearchEngineManager.kt`. Display modes: `search/searchEngines/inline/` (SearchEngineSection) and `search/searchEngines/compact/`. Direct Search in `search/directSearch/` (DirectSearchClient, DirectSearchHandler, SearchScreenDirectResults, GeminiModelPickerDialog). Model preference: `GeminiPreferences.kt`.
 
 ### 2. Contact Integration
 
@@ -598,20 +605,33 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 
 **Behavior**: Search bar appears over other apps so users can search from any screen without leaving the current app.
 
+**Overlay Themes**: Multiple gradient themes (Forest, Aurora, Sunset, Mono) with adjustable intensity (lighter/darker). Configured in Settings → Appearance (Search Results → Appearance). State: `overlayGradientTheme`, `overlayThemeIntensity` in `SearchUiState`; persisted in `UiPreferences`.
+
 **Key Files**:
-- `search/overlay/OverlayRoot.kt` - Overlay UI root composable (entry animation, close tip, SearchRoute)
+- `search/overlay/OverlayRoot.kt` - Overlay UI root composable (entry animation, close tip, SearchRoute; uses overlay theme)
 - `search/overlay/OverlayActivity.kt` - Activity that hosts the overlay window
 - `search/overlay/OverlayModeController.kt` - Overlay mode state/control
+- `search/searchScreen/OverlayGradientThemeUtils.kt` - Theme gradient colors and tone adjustment
+- `search/core/SearchModels.kt` - `OverlayGradientTheme` enum
+- `settings/settingsDetailScreen/AppearanceSettings.kt` - OverlayThemeCard UI
 
-**State**: `SearchUiState.overlayModeEnabled`, `showOverlayCloseTip`. Preferences in `UiPreferences`.
+**State**: `SearchUiState.overlayModeEnabled`, `overlayGradientTheme`, `overlayThemeIntensity`, `showOverlayCloseTip`. Preferences in `UiPreferences`.
 
 ### 7. App Shortcuts
 
 **Behavior**: Long-press any app to access its shortcuts; enable shortcuts in search results. Pinnable and excludable like apps.
 
-**Key Files**: `search/appShortcuts/AppShortcutSearchHandler.kt`, `AppShortcutResultsSection.kt`, `AppShortcutManagementHandler.kt`. Data: `StaticShortcut`, `AppShortcutRepository`, `AppShortcutPreferences`.
+**Shortcut Management**: Enable, disable, or add custom app shortcuts via Settings → Search Results → App Shortcuts. UI: `settings/settingsDetailScreen/AppShortcutsSettings.kt` (AppShortcutsSettingsSection).
 
-### 8. Pinning System
+**Key Files**: `search/appShortcuts/AppShortcutSearchHandler.kt`, `AppShortcutResultsSection.kt`, `AppShortcutManagementHandler.kt`. Settings: `AppShortcutsSettings.kt`. Data: `StaticShortcut`, `AppShortcutRepository`, `AppShortcutPreferences`.
+
+### 8. App Management
+
+**Behavior**: View app details or bulk uninstall apps. Access via Settings → Search Results → App Management. Long-press on app results still opens app info/uninstall from context menu.
+
+**Key Files**: `settings/settingsDetailScreen/AppManagementSettings.kt` (AppManagementSettingsSection), `settings/settingsDetailScreen/SearchResultsSettings.kt` (navigates to APP_MANAGEMENT), `settings/settingsDetailScreen/SettingsDetailLevel2Screen.kt` (hosts AppManagementSettingsSection). Logic: `search/apps/AppManagementService.kt`. Detail type: `SettingsDetailType.APP_MANAGEMENT`.
+
+### 9. Pinning System
 
 **Pinnable Items**:
 - Apps
@@ -624,7 +644,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 
 **UI Pattern**: Long-press → Context menu → Pin/Unpin option
 
-### 9. File Search
+### 10. File Search
 
 **Supported Types**:
 - Photos & Videos
@@ -681,6 +701,8 @@ launchDeferredInitialization()
 
 **Settings Detail Types** (`SettingsDetailType` in `settings/settingsDetailScreen/`):
 - `SEARCH_ENGINES`, `EXCLUDED_ITEMS`, `SEARCH_RESULTS`, `APPEARANCE`, `CALLS_TEXTS`, `FILES`, `LAUNCH_OPTIONS`, `PERMISSIONS`, `FEEDBACK_DEVELOPMENT`
+- From Search Results: `APP_MANAGEMENT` (view app details, bulk uninstall), App Shortcuts (enable/disable/add shortcuts)
+- Appearance: Overlay theme selection (OverlayThemeCard in `AppearanceSettings.kt`)
 
 **Transitions**: Animated transitions using Compose AnimatedContent. Settings use `SettingsRoute` and `SettingsDetailRoute`.
 
@@ -838,6 +860,9 @@ libphonenumber = "8.13.36"
 4. **UserAppPreferences.kt** - All preference management
 5. **SearchRankingUtils.kt** - Search algorithm (in `search/common/`)
 6. **OverlayRoot.kt** - Overlay mode UI root (`search/overlay/`)
+7. **GeminiModelPickerDialog.kt** - Direct Search model selection (Gemini/Gemma)
+8. **OverlayGradientThemeUtils.kt** - Overlay theme gradients
+9. **AppearanceSettings.kt** - Overlay theme UI (OverlayThemeCard); **AppManagementSettings.kt** - App management (details, bulk uninstall); **AppShortcutsSettings.kt** - Shortcut management UI
 
 ### Entry Points
 

@@ -5,6 +5,7 @@
 ## Overlay Mode
 
 - **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This dictates the main experience: search from any screen without leaving what you're doing.
+- **Overlay Themes** - Choose from multiple themes for the overlay search bar and results (access via search results settings).
 
 ## Core Search Capabilities
 
@@ -67,11 +68,13 @@
 
 ### Direct Search (Gemini API)
 - **AI-Powered Answers** - Configure your Gemini API key to see answers directly within Quick Search
+- **Model Selection** - Choose among several Gemini and Gemma models for Direct Search
 - **Personal Context** - Optionally add personal information to customize AI responses (e.g., location, preferences)
 - **Easy Setup** - Tap "Get Free API Key" in settings for setup instructions
 - **Interactive Results** - Tap phone numbers to call or email addresses to send emails directly from search results
 - **Copy to Clipboard** - Long press any Gemini answer to copy it to clipboard
 - **Secure Storage** - API keys are encrypted using Android's EncryptedSharedPreferences
+- **Powered By Attribution** - The "Powered by" (Gemini/Gemma) text below Direct Search results is interactive: tap to open the model picker and choose a different model; long press to open Direct Search configuration in settings
 
 ## Customization & Settings
 
@@ -114,8 +117,8 @@
 - **Manage Exclusions** - View and manage all excluded items in settings
 - **Pin Results** - Long press any result (app, contact, file, or setting) to pin it to the search home screen for quick access
 - **Nicknames** - Long press any app to add a nickname, then search using that nickname in the future
-- **App Management** - Long press apps to view app info or uninstall
-- **App Shortcuts** - Long press any app to access its shortcuts (if available) and enable them in search results
+- **App Management** - View app details or bulk uninstall apps (access via search results settings). Long press apps to view app info or uninstall from results.
+- **Shortcut Management** - Enable, disable, or add custom app shortcuts (access via search results settings). Long press any app to access its shortcuts (if available) and enable them in search results.
 
 ### Behavior Settings
 - **Clear Query Toggle** - Automatically clear search query after performing an action
