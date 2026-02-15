@@ -5,18 +5,22 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -283,37 +287,63 @@ fun EditCustomSearchEngineDialog(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                 ) {
-                    androidx.compose.material3.Surface(
+                    Box(
                         modifier =
                             Modifier
-                                .size(40.dp)
-                                .offset(y = (-4).dp)
-                                .clip(MaterialTheme.shapes.medium)
-                                .clickable {
-                                    pickIconLauncher.launch(arrayOf("image/*"))
-                                },
-                        tonalElevation = 1.dp,
-                        shape = MaterialTheme.shapes.medium,
+                                .size(44.dp)
+                                .offset(y = (-4).dp),
                     ) {
-                        if (iconBitmap != null) {
-                            Image(
-                                bitmap = iconBitmap,
-                                contentDescription = customEngine.name,
-                                modifier = Modifier.size(40.dp),
-                                contentScale = ContentScale.Fit,
-                            )
-                        } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Public,
-                                    contentDescription = customEngine.name,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                        androidx.compose.material3.Surface(
+                            modifier =
+                                Modifier
+                                    .size(40.dp)
+                                    .align(androidx.compose.ui.Alignment.Center)
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .clickable {
+                                        pickIconLauncher.launch(arrayOf("image/*"))
+                                    },
+                            tonalElevation = 1.dp,
+                            shape = MaterialTheme.shapes.medium,
+                        ) {
+                            Box(modifier = Modifier.size(40.dp)) {
+                                if (iconBitmap != null) {
+                                    Image(
+                                        bitmap = iconBitmap,
+                                        contentDescription = customEngine.name,
+                                        modifier = Modifier.size(40.dp),
+                                        contentScale = ContentScale.Fit,
+                                    )
+                                } else {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Public,
+                                            contentDescription = customEngine.name,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
                             }
+                        }
+                        Box(
+                            modifier =
+                                Modifier
+                                    .align(androidx.compose.ui.Alignment.BottomEnd)
+                                    .offset(x = 2.dp, y = 2.dp)
+                                    .size(15.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surface),
+                            contentAlignment = androidx.compose.ui.Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.size(10.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
 
