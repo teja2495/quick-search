@@ -589,7 +589,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Ability to search work profile &amp; dual messenger apps\nAbility to add custom search engines\nAdded support for Signal messenger for contact results\nImproved search history UI\nAbility to hide all search engines\nThumbnails for photo/video results\nAdded option to manually Refresh data\nUI refinements &amp; bug fixes</string>
+    <string name="release_notes_points">New Themes for Overlay Mode (Appearance settings) \nApp Management: View details or bulk uninstall apps (search results settings)\nShortcut Management: Enable, disable, or add custom shortcuts (search results settings)\nModel Selection: Choose among several Gemini and Gemma models for Direct Search\nBrowser searches now use your default search engine when supported\nEnhancements &amp; bug fixes</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
