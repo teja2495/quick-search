@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +35,7 @@ import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.util.hapticConfirm
 
@@ -110,6 +112,13 @@ fun SearchEngineCard(
 ) {
     val view = LocalView.current
     val targetName = target.getDisplayName()
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val cardColors =
+        if (overlayCardColor != null) {
+            CardDefaults.cardColors(containerColor = overlayCardColor)
+        } else {
+            AppColors.getCardColors(showWallpaperBackground)
+        }
 
     ElevatedCard(
         modifier =
@@ -123,7 +132,7 @@ fun SearchEngineCard(
                     },
                     onLongClick = onLongClick,
                 ),
-        colors = AppColors.getCardColors(showWallpaperBackground),
+        colors = cardColors,
         shape = MaterialTheme.shapes.extraLarge,
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
@@ -183,6 +192,13 @@ private fun SearchTargetCard(
     showWallpaperBackground: Boolean = false,
 ) {
     val view = LocalView.current
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val cardColors =
+        if (overlayCardColor != null) {
+            CardDefaults.cardColors(containerColor = overlayCardColor)
+        } else {
+            AppColors.getCardColors(showWallpaperBackground)
+        }
 
     ElevatedCard(
         modifier =
@@ -196,7 +212,7 @@ private fun SearchTargetCard(
                     },
                     onLongClick = onLongClick,
                 ),
-        colors = AppColors.getCardColors(showWallpaperBackground),
+        colors = cardColors,
         shape = MaterialTheme.shapes.extraLarge,
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
@@ -245,6 +261,13 @@ private fun CustomizeSearchEnginesCard(
     showWallpaperBackground: Boolean = false,
 ) {
     val view = LocalView.current
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val cardColors =
+        if (overlayCardColor != null) {
+            CardDefaults.cardColors(containerColor = overlayCardColor)
+        } else {
+            AppColors.getCardColors(showWallpaperBackground)
+        }
 
     ElevatedCard(
         modifier =
@@ -257,7 +280,7 @@ private fun CustomizeSearchEnginesCard(
                     // Navigation is handled by the onClick callback which should navigate to search engine settings
                     // This is passed down from MainActivity -> SearchRoute -> SearchScreenContent -> SearchContentArea -> NoResultsSearchEngineCards -> CustomizeSearchEnginesCard
                 },
-        colors = AppColors.getCardColors(showWallpaperBackground),
+        colors = cardColors,
         shape = MaterialTheme.shapes.extraLarge,
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {

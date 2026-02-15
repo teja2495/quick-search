@@ -224,7 +224,14 @@ fun SearchContentArea(
 
         val heightModifier =
             if (isOverlayPresentation) {
-                Modifier.heightIn(min = 0.dp, max = maxHeight)
+                if (alignResultsToBottom) {
+                    // Ensure overlay content occupies full available height so one-handed
+                    // bottom arrangement can position short content (e.g., app suggestions only)
+                    // correctly after IME visibility changes.
+                    Modifier.heightIn(min = maxHeight, max = maxHeight)
+                } else {
+                    Modifier.heightIn(min = 0.dp, max = maxHeight)
+                }
             } else {
                 Modifier.heightIn(min = maxHeight)
             }
