@@ -69,11 +69,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 private enum class AppSortOption(
     @StringRes val labelResId: Int,
+    val requiresUsagePermission: Boolean = false,
 ) {
     NAME(R.string.settings_app_sort_name),
     APK_SIZE(R.string.settings_app_sort_apk_size),
-    MOST_USED(R.string.settings_app_sort_most_used),
-    LEAST_USED(R.string.settings_app_sort_least_used),
+    MOST_USED(R.string.settings_app_sort_most_used, requiresUsagePermission = true),
+    LEAST_USED(R.string.settings_app_sort_least_used, requiresUsagePermission = true),
     INSTALLATION_DATE(R.string.settings_app_sort_installation_date),
     LAST_UPDATE(R.string.settings_app_sort_last_update),
     API_LEVEL(R.string.settings_app_sort_api_level),
@@ -82,6 +83,7 @@ private enum class AppSortOption(
 @Composable
 fun AppManagementSettingsSection(
     apps: List<AppInfo>,
+    hasUsagePermission: Boolean,
     iconPackPackage: String?,
     onRequestAppUninstall: (AppInfo) -> Unit,
     onOpenAppInfo: (AppInfo) -> Unit,
@@ -113,6 +115,16 @@ fun AppManagementSettingsSection(
     var selectedAppForDetails by remember { mutableStateOf<AppInfo?>(null) }
     val listState = rememberLazyListState()
     val appByKey = remember(apps) { apps.associateBy { it.launchCountKey() } }
+    val availableSortOptions =
+        remember(hasUsagePermission) {
+            AppSortOption.entries.filter { !it.requiresUsagePermission || hasUsagePermission }
+        }
+
+    LaunchedEffect(availableSortOptions, selectedSortOption) {
+        if (selectedSortOption !in availableSortOptions) {
+            selectedSortOption = AppSortOption.NAME
+        }
+    }
     val appSortMetadataByKey =
         remember(apps, context) {
             apps.associate { app ->
@@ -272,7 +284,7 @@ fun AppManagementSettingsSection(
                     properties = PopupProperties(focusable = false),
                     containerColor = AppColors.DialogBackground,
                 ) {
-                    AppSortOption.entries.forEachIndexed { index, option ->
+                    availableSortOptions.forEachIndexed { index, option ->
                         if (index > 0) {
                             HorizontalDivider()
                         }

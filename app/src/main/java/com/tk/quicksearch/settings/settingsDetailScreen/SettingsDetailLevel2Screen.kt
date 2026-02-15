@@ -45,6 +45,7 @@ internal fun SettingsDetailLevel2Screen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
+    hasUsagePermission: Boolean,
     appShortcutFocusShortcut: StaticShortcut? = null,
     appShortcutFocusPackageName: String? = null,
     onAppShortcutFocusHandled: () -> Unit = {},
@@ -107,6 +108,7 @@ internal fun SettingsDetailLevel2Screen(
             if (detailType == SettingsDetailType.APP_MANAGEMENT) {
                 AppManagementSettingsSection(
                     apps = state.allApps,
+                    hasUsagePermission = hasUsagePermission,
                     iconPackPackage = state.selectedIconPackPackage,
                     onRequestAppUninstall = callbacks.onRequestAppUninstall,
                     onOpenAppInfo = callbacks.onOpenAppInfo,

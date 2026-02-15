@@ -439,6 +439,7 @@ fun SettingsDetailRoute(
                 state = state,
                 callbacks = callbacks,
                 detailType = detailType,
+                hasUsagePermission = uiState.hasUsagePermission,
                 appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
                 onAppShortcutFocusHandled = {
