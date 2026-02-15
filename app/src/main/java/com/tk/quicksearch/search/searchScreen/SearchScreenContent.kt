@@ -177,6 +177,7 @@ internal fun SearchScreenContent(
             onQueryChange = onQueryChanged,
             onClearQuery = onClearQuery,
             onSettingsClick = onSettingsClick,
+            dismissKeyboardBeforeSettingsClick = isOverlayPresentation,
             enabledTargets = enabledTargets,
             shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
             detectedShortcutTarget = state.detectedShortcutTarget,

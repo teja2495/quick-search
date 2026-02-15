@@ -126,6 +126,7 @@ internal fun PersistentSearchField(
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
     onSettingsClick: () -> Unit,
+    dismissKeyboardBeforeSettingsClick: Boolean = false,
     enabledTargets: List<SearchTarget>,
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
@@ -473,6 +474,10 @@ internal fun PersistentSearchField(
                         IconButton(
                             onClick = {
                                 hapticStrong(view)()
+                                if (dismissKeyboardBeforeSettingsClick) {
+                                    view.clearFocus()
+                                    keyboardController?.hide()
+                                }
                                 onSettingsClick()
                             },
                         ) {
