@@ -19,7 +19,10 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -72,6 +75,21 @@ internal fun SearchScreenContent(
     isOverlayPresentation: Boolean = false,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    var canShowOpenKeyboardPill by remember(isOverlayPresentation) {
+        mutableStateOf(!isOverlayPresentation)
+    }
+
+    LaunchedEffect(isOverlayPresentation) {
+        if (!isOverlayPresentation) {
+            canShowOpenKeyboardPill = true
+            return@LaunchedEffect
+        }
+
+        // Overlay auto-focus opens IME shortly after composition; avoid a startup flicker.
+        canShowOpenKeyboardPill = false
+        delay(600)
+        canShowOpenKeyboardPill = true
+    }
 
     // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
@@ -264,7 +282,7 @@ internal fun SearchScreenContent(
             val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
             val pillText =
-                if (!isKeyboardVisible) {
+                if (!isKeyboardVisible && canShowOpenKeyboardPill) {
                     stringResource(R.string.action_open_keyboard)
                 } else if (manuallySwitchedToNumberKeyboard) {
                     stringResource(R.string.keyboard_switch_back)

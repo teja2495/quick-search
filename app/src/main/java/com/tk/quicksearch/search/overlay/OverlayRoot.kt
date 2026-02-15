@@ -31,8 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -49,7 +47,6 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
-import com.tk.quicksearch.util.WallpaperUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
@@ -140,19 +137,6 @@ fun OverlayRoot(
         val tipAlpha = if (isVisible) 1f else 0f
 
         val overlaySnackbarHostState = remember { SnackbarHostState() }
-
-        var wallpaperBitmap by remember {
-                mutableStateOf<ImageBitmap?>(
-                        WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
-                )
-        }
-
-        LaunchedEffect(Unit) {
-                if (wallpaperBitmap == null) {
-                        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
-                        wallpaperBitmap = bitmap?.asImageBitmap()
-                }
-        }
 
         QuickSearchTheme {
                 BoxWithConstraints(
@@ -344,13 +328,10 @@ fun OverlayRoot(
                                                                 ) {},
                                         ) {
                                                 SearchScreenBackground(
-                                                        showWallpaperBackground =
-                                                                uiState.showWallpaperBackground,
-                                                        wallpaperBitmap = wallpaperBitmap,
-                                                        wallpaperBackgroundAlpha =
-                                                                uiState.wallpaperBackgroundAlpha,
-                                                        wallpaperBlurRadius =
-                                                                uiState.wallpaperBlurRadius,
+                                                        showWallpaperBackground = false,
+                                                        wallpaperBitmap = null,
+                                                        wallpaperBackgroundAlpha = 0f,
+                                                        wallpaperBlurRadius = 0f,
                                                         fallbackBackgroundAlpha =
                                                                 OVERLAY_FALLBACK_GRADIENT_ALPHA,
                                                         useGradientFallback = true,
