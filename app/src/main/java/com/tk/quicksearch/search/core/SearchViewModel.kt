@@ -321,15 +321,10 @@ class SearchViewModel(
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
     private var showWallpaperBackground: Boolean = true
-    private var showOverlayWallpaperBackground: Boolean = false
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME
     private var overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY
-    private var overlayWallpaperBackgroundAlpha: Float =
-            UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA
-    private var overlayWallpaperBlurRadius: Float =
-            UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BLUR_RADIUS
     private var lockedShortcutTarget: SearchTarget? = null
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
@@ -548,21 +543,13 @@ class SearchViewModel(
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
         showWallpaperBackground = prefs.showWallpaperBackground
-        showOverlayWallpaperBackground = prefs.showOverlayWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayGradientTheme = prefs.overlayGradientTheme
         overlayThemeIntensity = sanitizeOverlayThemeIntensity(prefs.overlayThemeIntensity)
-        overlayWallpaperBackgroundAlpha = userPreferences.getOverlayWallpaperBackgroundAlpha()
-        overlayWallpaperBlurRadius = userPreferences.getOverlayWallpaperBlurRadius()
         amazonDomain = prefs.amazonDomain
 
-        val activeShowWallpaper =
-                if (overlayModeEnabled) showOverlayWallpaperBackground else showWallpaperBackground
-        val activeAlpha =
-                if (overlayModeEnabled) overlayWallpaperBackgroundAlpha
-                else wallpaperBackgroundAlpha
-        val activeBlur = if (overlayModeEnabled) overlayWallpaperBlurRadius else wallpaperBlurRadius
+        val activeShowWallpaper = if (overlayModeEnabled) false else showWallpaperBackground
 
         _uiState.update {
             it.copy(
@@ -577,8 +564,8 @@ class SearchViewModel(
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                     showWallpaperBackground = activeShowWallpaper,
-                    wallpaperBackgroundAlpha = activeAlpha,
-                    wallpaperBlurRadius = activeBlur,
+                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = wallpaperBlurRadius,
                     overlayGradientTheme = overlayGradientTheme,
                     overlayThemeIntensity = overlayThemeIntensity,
                     amazonDomain = amazonDomain,
@@ -1729,27 +1716,21 @@ class SearchViewModel(
                 return@launch
             }
 
-            if (overlayModeEnabled) {
-                userPreferences.setShowOverlayWallpaperBackground(showWallpaper)
-                showOverlayWallpaperBackground = showWallpaper
-            } else {
-                userPreferences.setShowWallpaperBackground(showWallpaper)
-                showWallpaperBackground = showWallpaper
+            userPreferences.setShowWallpaperBackground(showWallpaper)
+            showWallpaperBackground = showWallpaper
+            _uiState.update {
+                it.copy(
+                        showWallpaperBackground = if (overlayModeEnabled) false else showWallpaper
+                )
             }
-            _uiState.update { it.copy(showWallpaperBackground = showWallpaper) }
         }
     }
 
     fun setWallpaperBackgroundAlpha(alpha: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             val sanitizedAlpha = alpha.coerceIn(0f, 1f)
-            if (overlayModeEnabled) {
-                userPreferences.setOverlayWallpaperBackgroundAlpha(sanitizedAlpha)
-                overlayWallpaperBackgroundAlpha = sanitizedAlpha
-            } else {
-                userPreferences.setWallpaperBackgroundAlpha(sanitizedAlpha)
-                wallpaperBackgroundAlpha = sanitizedAlpha
-            }
+            userPreferences.setWallpaperBackgroundAlpha(sanitizedAlpha)
+            wallpaperBackgroundAlpha = sanitizedAlpha
             _uiState.update { it.copy(wallpaperBackgroundAlpha = sanitizedAlpha) }
         }
     }
@@ -1757,13 +1738,8 @@ class SearchViewModel(
     fun setWallpaperBlurRadius(radius: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             val sanitizedRadius = radius.coerceIn(0f, UiPreferences.MAX_WALLPAPER_BLUR_RADIUS)
-            if (overlayModeEnabled) {
-                userPreferences.setOverlayWallpaperBlurRadius(sanitizedRadius)
-                overlayWallpaperBlurRadius = sanitizedRadius
-            } else {
-                userPreferences.setWallpaperBlurRadius(sanitizedRadius)
-                wallpaperBlurRadius = sanitizedRadius
-            }
+            userPreferences.setWallpaperBlurRadius(sanitizedRadius)
+            wallpaperBlurRadius = sanitizedRadius
             _uiState.update { it.copy(wallpaperBlurRadius = sanitizedRadius) }
         }
     }
@@ -2006,14 +1982,11 @@ class SearchViewModel(
                             )
                         }
                     } else {
-                        val overlayShowWallpaper = showOverlayWallpaperBackground
-                        val overlayAlpha = overlayWallpaperBackgroundAlpha
-                        val overlayBlur = overlayWallpaperBlurRadius
                         _uiState.update { state ->
                             state.copy(
-                                    showWallpaperBackground = overlayShowWallpaper,
-                                    wallpaperBackgroundAlpha = overlayAlpha,
-                                    wallpaperBlurRadius = overlayBlur
+                                    showWallpaperBackground = false,
+                                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                                    wallpaperBlurRadius = wallpaperBlurRadius
                             )
                         }
                     }
@@ -2502,12 +2475,7 @@ class SearchViewModel(
 
         if (changed) {
             // Handle wallpaper background based on files permission
-            val userPrefValue =
-                    if (overlayModeEnabled) {
-                        userPreferences.shouldShowOverlayWallpaperBackground()
-                    } else {
-                        userPreferences.shouldShowWallpaperBackground()
-                    }
+            val userPrefValue = userPreferences.shouldShowWallpaperBackground()
             var activeShowWallpaper = previousState.showWallpaperBackground
             val filesPermissionGranted = !previousState.hasFilePermission && hasFiles
             val shouldUpdateWallpaper =
@@ -2523,7 +2491,12 @@ class SearchViewModel(
                         }
                     }
 
-            if (filesPermissionGranted && userPrefValue && !activeShowWallpaper) {
+            if (
+                    filesPermissionGranted &&
+                            userPrefValue &&
+                            !overlayModeEnabled &&
+                            !activeShowWallpaper
+            ) {
                 attemptAutoEnableWallpaperBackground()
             }
 

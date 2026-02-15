@@ -158,6 +158,7 @@ internal fun SettingsDetailLevel1Screen(
                         AppearanceSettingsSection(
                             oneHandedMode = state.oneHandedMode,
                             onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
+                            overlayModeEnabled = state.overlayModeEnabled,
                             showWallpaperBackground = state.showWallpaperBackground,
                             wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                             wallpaperBlurRadius = state.wallpaperBlurRadius,

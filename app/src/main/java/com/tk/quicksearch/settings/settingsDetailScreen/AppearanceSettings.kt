@@ -22,6 +22,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
@@ -275,6 +277,7 @@ fun CombinedAppearanceCard(
 fun AppearanceSettingsSection(
         oneHandedMode: Boolean,
         onToggleOneHandedMode: (Boolean) -> Unit,
+        overlayModeEnabled: Boolean,
         showWallpaperBackground: Boolean,
         wallpaperBackgroundAlpha: Float,
         wallpaperBlurRadius: Float,
@@ -308,29 +311,31 @@ fun AppearanceSettingsSection(
             }
 
     Column(modifier = modifier) {
-        // Wallpaper Background Card
-        CombinedAppearanceCard(
-                showWallpaperBackground = showWallpaperBackground,
-                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = wallpaperBlurRadius,
-                onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
-                onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
-                onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-                hasFilePermission = hasFilePermission,
-                hasWallpaperPermission = hasWallpaperPermission,
-                wallpaperAvailable = wallpaperAvailable,
-        )
+        if (!overlayModeEnabled) {
+            // Wallpaper Background Card is only shown in normal mode.
+            CombinedAppearanceCard(
+                    showWallpaperBackground = showWallpaperBackground,
+                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = wallpaperBlurRadius,
+                    onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
+                    onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+                    onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+                    hasFilePermission = hasFilePermission,
+                    hasWallpaperPermission = hasWallpaperPermission,
+                    wallpaperAvailable = wallpaperAvailable,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OverlayThemeCard(
-                selectedTheme = overlayGradientTheme,
-                overlayThemeIntensity = overlayThemeIntensity,
-                onThemeSelected = onSetOverlayGradientTheme,
-                onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        if (overlayModeEnabled) {
+            OverlayThemeCard(
+                    selectedTheme = overlayGradientTheme,
+                    overlayThemeIntensity = overlayThemeIntensity,
+                    onThemeSelected = onSetOverlayGradientTheme,
+                    onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Search Engine Style Card
         SearchEngineAppearanceCard(
@@ -517,6 +522,12 @@ private fun OverlayThemeCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                Icon(
+                        imageVector = Icons.Rounded.LightMode,
+                        contentDescription =
+                                stringResource(R.string.settings_overlay_theme_tone_lighter),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Slider(
                         value = overlayThemeIntensity,
                         onValueChange = { value ->
@@ -535,7 +546,13 @@ private fun OverlayThemeCard(
                         },
                         valueRange = minIntensity..maxIntensity,
                         steps = intensitySteps,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
+                )
+                Icon(
+                        imageVector = Icons.Rounded.DarkMode,
+                        contentDescription =
+                                stringResource(R.string.settings_overlay_theme_tone_darker),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

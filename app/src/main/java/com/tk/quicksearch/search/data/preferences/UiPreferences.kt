@@ -71,13 +71,6 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
     }
 
-    fun shouldShowOverlayWallpaperBackground(): Boolean =
-            getBooleanPref(UiPreferences.KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND, false)
-
-    fun setShowOverlayWallpaperBackground(showWallpaper: Boolean) {
-        setBooleanPref(UiPreferences.KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND, showWallpaper)
-    }
-
     fun getWallpaperBackgroundAlpha(): Float =
             prefs.getFloat(
                     UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
@@ -100,36 +93,6 @@ class UiPreferences(
         prefs.edit()
                 .putFloat(
                         UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
-                        radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS),
-                )
-                .apply()
-    }
-
-    fun getOverlayWallpaperBackgroundAlpha(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA,
-                    UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA,
-            )
-
-    fun setOverlayWallpaperBackgroundAlpha(alpha: Float) {
-        prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA,
-                        alpha.coerceIn(0f, 1f)
-                )
-                .apply()
-    }
-
-    fun getOverlayWallpaperBlurRadius(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_OVERLAY_WALLPAPER_BLUR_RADIUS,
-                    UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BLUR_RADIUS,
-            )
-
-    fun setOverlayWallpaperBlurRadius(radius: Float) {
-        prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_OVERLAY_WALLPAPER_BLUR_RADIUS,
                         radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS),
                 )
                 .apply()
@@ -545,11 +508,8 @@ class UiPreferences(
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
-        const val KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND = "show_overlay_wallpaper_background"
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
-        const val KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = "overlay_wallpaper_background_alpha"
-        const val KEY_OVERLAY_WALLPAPER_BLUR_RADIUS = "overlay_wallpaper_blur_radius"
         const val KEY_OVERLAY_GRADIENT_THEME = "overlay_gradient_theme"
         const val KEY_OVERLAY_THEME_INTENSITY = "overlay_theme_intensity"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
@@ -599,8 +559,6 @@ class UiPreferences(
 
         const val DEFAULT_WALLPAPER_BACKGROUND_ALPHA = 0.5f
         const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
-        const val DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = 0.75f
-        const val DEFAULT_OVERLAY_WALLPAPER_BLUR_RADIUS = 30f
         const val DEFAULT_OVERLAY_GRADIENT_THEME = "MONOCHROME"
         const val DEFAULT_OVERLAY_THEME_INTENSITY = 0.5f
         const val OVERLAY_THEME_INTENSITY_STEP = 0.1f

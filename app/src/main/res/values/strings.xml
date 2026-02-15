@@ -289,7 +289,7 @@
     <string name="settings_overlay_theme_forest">Forest</string>
     <string name="settings_overlay_theme_aurora">Aurora</string>
     <string name="settings_overlay_theme_sunset">Sunset</string>
-    <string name="settings_overlay_theme_monochrome">Monochrome</string>
+    <string name="settings_overlay_theme_monochrome">Mono</string>
     <string name="settings_overlay_theme_tone_label">Tone</string>
     <string name="settings_overlay_theme_tone_lighter">Lighter</string>
     <string name="settings_overlay_theme_tone_darker">Darker</string>

@@ -78,7 +78,6 @@ class UserAppPreferences(
             val hasSeenDirectDialChoice: Boolean,
             val hasSeenSearchEngineOnboarding: Boolean,
             val showWallpaperBackground: Boolean,
-            val showOverlayWallpaperBackground: Boolean,
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
             val overlayGradientTheme: OverlayGradientTheme,
@@ -212,13 +211,6 @@ class UserAppPreferences(
                         ] as?
                                 Boolean
                                 ?: true,
-                showOverlayWallpaperBackground =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND,
-                        ] as?
-                                Boolean
-                                ?: false,
                 wallpaperBackgroundAlpha =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -415,13 +407,6 @@ class UserAppPreferences(
                                 ] as?
                                         Boolean
                                         ?: true,
-                        showOverlayWallpaperBackground =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.UiPreferences
-                                                .KEY_SHOW_OVERLAY_WALLPAPER_BACKGROUND,
-                                ] as?
-                                        Boolean
-                                        ?: false,
                         wallpaperBackgroundAlpha =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -890,12 +875,6 @@ class UserAppPreferences(
     fun setShowWallpaperBackground(showWallpaper: Boolean) =
             uiPreferences.setShowWallpaperBackground(showWallpaper)
 
-    fun shouldShowOverlayWallpaperBackground(): Boolean =
-            uiPreferences.shouldShowOverlayWallpaperBackground()
-
-    fun setShowOverlayWallpaperBackground(showWallpaper: Boolean) =
-            uiPreferences.setShowOverlayWallpaperBackground(showWallpaper)
-
     fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
 
     fun setWallpaperBackgroundAlpha(alpha: Float) = uiPreferences.setWallpaperBackgroundAlpha(alpha)
@@ -903,17 +882,6 @@ class UserAppPreferences(
     fun getWallpaperBlurRadius(): Float = uiPreferences.getWallpaperBlurRadius()
 
     fun setWallpaperBlurRadius(radius: Float) = uiPreferences.setWallpaperBlurRadius(radius)
-
-    fun getOverlayWallpaperBackgroundAlpha(): Float =
-            uiPreferences.getOverlayWallpaperBackgroundAlpha()
-
-    fun setOverlayWallpaperBackgroundAlpha(alpha: Float) =
-            uiPreferences.setOverlayWallpaperBackgroundAlpha(alpha)
-
-    fun getOverlayWallpaperBlurRadius(): Float = uiPreferences.getOverlayWallpaperBlurRadius()
-
-    fun setOverlayWallpaperBlurRadius(radius: Float) =
-            uiPreferences.setOverlayWallpaperBlurRadius(radius)
 
     fun getOverlayGradientTheme(): OverlayGradientTheme = uiPreferences.getOverlayGradientTheme()
 
