@@ -39,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
 
@@ -88,6 +91,8 @@ fun DeviceSettingsResultsSection(
     onExpandClick: () -> Unit,
     showWallpaperBackground: Boolean = false,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     if (settings.isEmpty()) return
 
     val displaySettings =
@@ -109,22 +114,14 @@ fun DeviceSettingsResultsSection(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         val cardColors =
-            CardDefaults.cardColors(
-                containerColor =
-                    if (showWallpaperBackground) {
-                        Color.Black.copy(alpha = 0.4f)
-                    } else {
-                        MaterialTheme.colorScheme.surfaceContainer
-                    },
-            )
+            if (overlayCardColor != null) {
+                CardDefaults.cardColors(containerColor = overlayCardColor)
+            } else {
+                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            }
 
         val cardShape = MaterialTheme.shapes.extraLarge
-        val cardElevation =
-            if (showWallpaperBackground) {
-                CardDefaults.cardElevation(defaultElevation = 0.dp)
-            } else {
-                CardDefaults.cardElevation()
-            }
+        val cardElevation = AppColors.getCardElevation(showWallpaperBackground)
 
         DeviceSettingsCard(
             showWallpaperBackground = showWallpaperBackground,
@@ -178,8 +175,7 @@ fun DeviceSettingsResultsSection(
                             HorizontalDivider(
                                 modifier = Modifier.fillMaxWidth(),
                                 color =
-                                    MaterialTheme.colorScheme
-                                        .outlineVariant,
+                                    overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                             )
                         }
                     }
@@ -215,7 +211,7 @@ internal fun SettingResultRow(
     enableLongPress: Boolean = true,
     onLongPressOverride: (() -> Unit)? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconTint: Color = MaterialTheme.colorScheme.secondary,
+    iconTint: Color = Color.White,
 ) {
     var showOptions by remember { mutableStateOf(false) }
     val view = LocalView.current
@@ -307,12 +303,12 @@ private fun ExpandButton(
         Text(
             text = stringResource(R.string.action_expand_more),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.White,
         )
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = Color.White,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }

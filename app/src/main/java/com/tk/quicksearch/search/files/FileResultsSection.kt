@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -68,6 +70,8 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -235,6 +239,8 @@ private fun FilesResultCard(
     onExpandClick: () -> Unit,
     showWallpaperBackground: Boolean = false,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     val displayAsExpanded = isExpanded || showAllResults
     val canShowExpand =
         showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
@@ -270,6 +276,7 @@ private fun FilesResultCard(
             {
                 FileCardContent(
                     displayFiles = displayFiles,
+                    overlayDividerColor = overlayDividerColor,
                     shouldShowExpandButton = shouldShowExpandButton,
                     onFileClick = onFileClick,
                     onOpenFolder = onOpenFolder,
@@ -285,10 +292,17 @@ private fun FilesResultCard(
                 )
             }
 
+        val cardColors =
+            if (overlayCardColor != null) {
+                CardDefaults.cardColors(containerColor = overlayCardColor)
+            } else {
+                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            }
+
         if (showWallpaperBackground) {
             Card(
                 modifier = cardModifier,
-                colors = AppColors.getCardColors(showWallpaperBackground = true),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation =
                     AppColors.getCardElevation(showWallpaperBackground = true),
@@ -296,7 +310,7 @@ private fun FilesResultCard(
         } else {
             ElevatedCard(
                 modifier = cardModifier,
-                colors = AppColors.getCardColors(showWallpaperBackground = false),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation =
                     AppColors.getCardElevation(showWallpaperBackground = false),
@@ -313,6 +327,7 @@ private fun FilesResultCard(
 private fun FileCardContent(
     modifier: Modifier = Modifier,
     displayFiles: List<DeviceFile>,
+    overlayDividerColor: Color?,
     shouldShowExpandButton: Boolean,
     onFileClick: (DeviceFile) -> Unit,
     onOpenFolder: (DeviceFile) -> Unit,
@@ -350,14 +365,14 @@ private fun FileCardContent(
                 if (index != displayFiles.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
 
             if (shouldShowExpandButton) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         ExpandButton(
                             onClick = onExpandClick,
                             modifier =
@@ -396,7 +411,7 @@ private fun FileCardContent(
                 if (index != displayFiles.lastIndex) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
@@ -413,6 +428,7 @@ private fun FileCardContent(
                                     .dp,
                             ).padding(top = EXPAND_BUTTON_TOP_PADDING.dp),
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
@@ -623,12 +639,12 @@ private fun ExpandButton(
         Text(
             text = stringResource(R.string.action_expand_more),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.White,
         )
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = Color.White,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }

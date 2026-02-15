@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +39,8 @@ import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -163,6 +168,8 @@ private fun ContactsResultCard(
     onContactActionHintDismissed: () -> Unit,
     showWallpaperBackground: Boolean = false,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     val displayAsExpanded = isExpanded || showAllResults
     val canShowExpand =
         showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
@@ -208,6 +215,7 @@ private fun ContactsResultCard(
                 ) {
                     ContactList(
                         displayContacts = displayContacts,
+                        overlayDividerColor = overlayDividerColor,
                         messagingApp = messagingApp,
                         onContactClick = onContactClick,
                         onShowContactMethods = onShowContactMethods,
@@ -236,10 +244,17 @@ private fun ContactsResultCard(
                 }
             }
 
+        val cardColors =
+            if (overlayCardColor != null) {
+                CardDefaults.cardColors(containerColor = overlayCardColor)
+            } else {
+                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            }
+
         if (showWallpaperBackground) {
             Card(
                 modifier = cardModifier,
-                colors = AppColors.getCardColors(showWallpaperBackground = true),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation =
                     AppColors.getCardElevation(showWallpaperBackground = true),
@@ -247,7 +262,7 @@ private fun ContactsResultCard(
         } else {
             ElevatedCard(
                 modifier = cardModifier,
-                colors = AppColors.getCardColors(showWallpaperBackground = false),
+                colors = cardColors,
                 shape = MaterialTheme.shapes.extraLarge,
                 elevation =
                     AppColors.getCardElevation(showWallpaperBackground = false),
@@ -263,6 +278,7 @@ private fun ContactsResultCard(
 @Composable
 private fun ContactList(
     displayContacts: List<ContactInfo>,
+    overlayDividerColor: Color?,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit,
@@ -335,7 +351,7 @@ private fun ContactList(
             if (index != displayContacts.lastIndex) {
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.outlineVariant,
+                    color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                 )
             }
         }
@@ -349,6 +365,7 @@ private fun ContactList(
                         .height(ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp)
                         .padding(top = DesignTokens.SpacingXXSmall),
             )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

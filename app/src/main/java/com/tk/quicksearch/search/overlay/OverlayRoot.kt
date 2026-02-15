@@ -61,7 +61,7 @@ private const val OVERLAY_HEIGHT_PERCENT_WITHOUT_KEYBOARD = 0.8f
 private const val KEYBOARD_HEIGHT_CALCULATION_DELAY_MS = 250L
 private const val KEYBOARD_APPEARANCE_GRACE_PERIOD_MS = 250L
 private const val OVERLAY_HEIGHT_CHANGE_THRESHOLD_DP = 1f
-private const val OVERLAY_FALLBACK_GRADIENT_ALPHA = 0.96f
+private const val OVERLAY_FALLBACK_GRADIENT_ALPHA = 0.98f
 private val OVERLAY_TOP_OFFSET = 16.dp
 
 @Composable
@@ -356,6 +356,8 @@ fun OverlayRoot(
                                                         useGradientFallback = true,
                                                         overlayGradientTheme =
                                                                 uiState.overlayGradientTheme,
+                                                        overlayThemeIntensity =
+                                                                uiState.overlayThemeIntensity,
                                                         modifier = Modifier.fillMaxSize(),
                                                 )
 

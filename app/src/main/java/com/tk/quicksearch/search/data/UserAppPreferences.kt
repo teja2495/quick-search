@@ -82,6 +82,7 @@ class UserAppPreferences(
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
             val overlayGradientTheme: OverlayGradientTheme,
+            val overlayThemeIntensity: Float,
             val amazonDomain: String?,
             val pinnedPackages: Set<String>,
             val suggestionHiddenPackages: Set<String>,
@@ -245,7 +246,15 @@ class UserAppPreferences(
                                 ?.let { value ->
                                     runCatching { OverlayGradientTheme.valueOf(value) }.getOrNull()
                                 }
-                                ?: OverlayGradientTheme.DUSK,
+                                ?: OverlayGradientTheme.MONOCHROME,
+                overlayThemeIntensity =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_OVERLAY_THEME_INTENSITY,
+                        ] as?
+                                Float
+                                ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .DEFAULT_OVERLAY_THEME_INTENSITY,
                 amazonDomain =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -441,7 +450,15 @@ class UserAppPreferences(
                                             runCatching { OverlayGradientTheme.valueOf(value) }
                                                     .getOrNull()
                                         }
-                                        ?: OverlayGradientTheme.DUSK,
+                                        ?: OverlayGradientTheme.MONOCHROME,
+                        overlayThemeIntensity =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_OVERLAY_THEME_INTENSITY,
+                                ] as?
+                                        Float
+                                        ?: com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .DEFAULT_OVERLAY_THEME_INTENSITY,
                         amazonDomain =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -902,6 +919,10 @@ class UserAppPreferences(
 
     fun setOverlayGradientTheme(theme: OverlayGradientTheme) =
             uiPreferences.setOverlayGradientTheme(theme)
+
+    fun getOverlayThemeIntensity(): Float = uiPreferences.getOverlayThemeIntensity()
+
+    fun setOverlayThemeIntensity(intensity: Float) = uiPreferences.setOverlayThemeIntensity(intensity)
 
     fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 

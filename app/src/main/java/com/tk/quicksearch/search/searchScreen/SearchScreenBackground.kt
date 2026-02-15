@@ -33,7 +33,8 @@ internal fun SearchScreenBackground(
     wallpaperBlurRadius: Float,
     fallbackBackgroundAlpha: Float = 1f,
     useGradientFallback: Boolean = false,
-    overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.DUSK,
+    overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME,
+    overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
     modifier: Modifier = Modifier,
 ) {
     // Check if we're in dark mode by checking the background color luminance
@@ -119,6 +120,7 @@ internal fun SearchScreenBackground(
                                     theme = overlayGradientTheme,
                                     isDarkMode = isDarkMode,
                                     alpha = fallbackAlpha,
+                                    intensity = overlayThemeIntensity,
                                 ),
                             start = Offset.Zero,
                             end = Offset(1800f, 2200f),

@@ -1,23 +1,21 @@
 package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
+
+private const val NEUTRAL_OVERLAY_THEME_INTENSITY = 0.5f
+private const val MAX_OVERLAY_THEME_TONE_SHIFT = 0.38f
 
 internal fun overlayGradientColors(
     theme: OverlayGradientTheme,
     isDarkMode: Boolean,
     alpha: Float = 1f,
+    intensity: Float = NEUTRAL_OVERLAY_THEME_INTENSITY,
 ): List<Color> {
     val baseColors =
         if (isDarkMode) {
             when (theme) {
-                OverlayGradientTheme.DUSK ->
-                    listOf(
-                        Color(0xFF24334B),
-                        Color(0xFF3A2F45),
-                        Color(0xFF2D3D4E),
-                        Color(0xFF4A4135),
-                    )
                 OverlayGradientTheme.FOREST ->
                     listOf(
                         Color(0xFF27382F),
@@ -25,37 +23,30 @@ internal fun overlayGradientColors(
                         Color(0xFF435034),
                         Color(0xFF1F3340),
                     )
-                OverlayGradientTheme.OCEAN ->
+                OverlayGradientTheme.AURORA ->
                     listOf(
-                        Color(0xFF1F3444),
-                        Color(0xFF24465A),
-                        Color(0xFF2E4D63),
-                        Color(0xFF31455B),
+                        Color(0xFF1F2E4A),
+                        Color(0xFF1F4A5A),
+                        Color(0xFF3A3E6B),
+                        Color(0xFF2A3150),
                     )
-                OverlayGradientTheme.SLATE ->
+                OverlayGradientTheme.SUNSET ->
                     listOf(
-                        Color(0xFF2A2E39),
-                        Color(0xFF313A45),
-                        Color(0xFF3A414D),
-                        Color(0xFF262A31),
+                        Color(0xFF4A2C34),
+                        Color(0xFF5A3A2A),
+                        Color(0xFF5C3046),
+                        Color(0xFF3E2A3B),
                     )
-                OverlayGradientTheme.SAND ->
+                OverlayGradientTheme.MONOCHROME ->
                     listOf(
-                        Color(0xFF3A332B),
-                        Color(0xFF4A4035),
-                        Color(0xFF52453B),
-                        Color(0xFF353029),
+                        Color(0xFF121212),
+                        Color(0xFF2A2A2A),
+                        Color(0xFF3E3E3E),
+                        Color(0xFFE8E8E8),
                     )
             }
         } else {
             when (theme) {
-                OverlayGradientTheme.DUSK ->
-                    listOf(
-                        Color(0xFFE6ECF5),
-                        Color(0xFFEAE4F0),
-                        Color(0xFFE1EAF0),
-                        Color(0xFFEEE8DF),
-                    )
                 OverlayGradientTheme.FOREST ->
                     listOf(
                         Color(0xFFE4ECE7),
@@ -63,30 +54,91 @@ internal fun overlayGradientColors(
                         Color(0xFFEBEEE2),
                         Color(0xFFE0E9EC),
                     )
-                OverlayGradientTheme.OCEAN ->
+                OverlayGradientTheme.AURORA ->
                     listOf(
-                        Color(0xFFE1EAF2),
-                        Color(0xFFDDEAF0),
-                        Color(0xFFE2EBF2),
-                        Color(0xFFE6EDF2),
+                        Color(0xFFDCE8F8),
+                        Color(0xFFD8F1F0),
+                        Color(0xFFE2E2FA),
+                        Color(0xFFDCE6F4),
                     )
-                OverlayGradientTheme.SLATE ->
+                OverlayGradientTheme.SUNSET ->
                     listOf(
-                        Color(0xFFE6E8ED),
-                        Color(0xFFE2E7EC),
-                        Color(0xFFE8EAEE),
-                        Color(0xFFDEE1E5),
+                        Color(0xFFF8E1D8),
+                        Color(0xFFF8E8D8),
+                        Color(0xFFF4DCE8),
+                        Color(0xFFF6E1DF),
                     )
-                OverlayGradientTheme.SAND ->
+                OverlayGradientTheme.MONOCHROME ->
                     listOf(
-                        Color(0xFFEFE9E1),
-                        Color(0xFFF1EBE4),
-                        Color(0xFFEEE7DE),
-                        Color(0xFFE7E2DA),
+                        Color(0xFFF0F0F0),
+                        Color(0xFFE2E2E2),
+                        Color(0xFFD5D5D5),
+                        Color(0xFFBFBFBF),
                     )
             }
         }
 
     val clampedAlpha = alpha.coerceIn(0f, 1f)
-    return baseColors.map { color -> color.copy(alpha = clampedAlpha) }
+    return baseColors.map { color ->
+        adjustOverlayThemeTone(color = color, intensity = intensity).copy(alpha = clampedAlpha)
+    }
+}
+
+internal fun overlayResultCardColor(
+    theme: OverlayGradientTheme,
+    isDarkMode: Boolean,
+    intensity: Float = NEUTRAL_OVERLAY_THEME_INTENSITY,
+): Color {
+    val palette = overlayGradientColors(theme = theme, isDarkMode = isDarkMode, intensity = intensity)
+    return if (isDarkMode) palette[1] else palette[0]
+}
+
+internal fun overlayDividerColor(
+    theme: OverlayGradientTheme,
+    isDarkMode: Boolean,
+    intensity: Float = NEUTRAL_OVERLAY_THEME_INTENSITY,
+): Color {
+    val palette = overlayGradientColors(theme = theme, isDarkMode = isDarkMode, intensity = intensity)
+    val base = if (isDarkMode) palette[2] else palette[3]
+    return if (isDarkMode) {
+        lerp(start = base, stop = Color.White, fraction = 0.18f).copy(alpha = 0.38f)
+    } else {
+        lerp(start = base, stop = Color.Black, fraction = 0.15f).copy(alpha = 0.24f)
+    }
+}
+
+internal fun overlayActionColor(
+    theme: OverlayGradientTheme,
+    isDarkMode: Boolean,
+    intensity: Float = NEUTRAL_OVERLAY_THEME_INTENSITY,
+): Color {
+    val palette = overlayGradientColors(theme = theme, isDarkMode = isDarkMode, intensity = intensity)
+    return if (isDarkMode) {
+        lerp(start = palette[2], stop = Color.Black, fraction = 0.28f)
+    } else {
+        lerp(start = palette[1], stop = Color.Black, fraction = 0.38f)
+    }
+}
+
+private fun adjustOverlayThemeTone(
+    color: Color,
+    intensity: Float,
+): Color {
+    val normalizedIntensity =
+        ((intensity.coerceIn(0f, 1f) - NEUTRAL_OVERLAY_THEME_INTENSITY) * 2f)
+    return when {
+        normalizedIntensity > 0f ->
+            lerp(
+                start = color,
+                stop = Color.Black,
+                fraction = normalizedIntensity * MAX_OVERLAY_THEME_TONE_SHIFT,
+            )
+        normalizedIntensity < 0f ->
+            lerp(
+                start = color,
+                stop = Color.White,
+                fraction = -normalizedIntensity * MAX_OVERLAY_THEME_TONE_SHIFT,
+            )
+        else -> color
+    }
 }

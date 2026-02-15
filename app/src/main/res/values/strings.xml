@@ -286,11 +286,13 @@
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>
     <string name="settings_icon_pack_search_query">Free icon packs</string>
     <string name="settings_overlay_theme_title">Overlay Theme</string>
-    <string name="settings_overlay_theme_dusk">Dusk</string>
     <string name="settings_overlay_theme_forest">Forest</string>
-    <string name="settings_overlay_theme_ocean">Ocean</string>
-    <string name="settings_overlay_theme_slate">Slate</string>
-    <string name="settings_overlay_theme_sand">Sand</string>
+    <string name="settings_overlay_theme_aurora">Aurora</string>
+    <string name="settings_overlay_theme_sunset">Sunset</string>
+    <string name="settings_overlay_theme_monochrome">Monochrome</string>
+    <string name="settings_overlay_theme_tone_label">Tone</string>
+    <string name="settings_overlay_theme_tone_lighter">Lighter</string>
+    <string name="settings_overlay_theme_tone_darker">Darker</string>
 
     <!-- ============================================================================
          Settings - Search Engines

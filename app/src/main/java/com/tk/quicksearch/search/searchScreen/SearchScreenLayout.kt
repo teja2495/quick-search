@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -164,8 +166,44 @@ fun SearchContentArea(
             directSearchState?.status == DirectSearchStatus.Error &&
             !directSearchState.activeQuery.isNullOrBlank() &&
             renderingState.expandedSection == ExpandedSection.NONE
+    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val overlayCardColor =
+        if (isOverlayPresentation) {
+            overlayResultCardColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
+    val overlayDividerTint =
+        if (isOverlayPresentation) {
+            overlayDividerColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
+    val overlayActionTint =
+        if (isOverlayPresentation) {
+            overlayActionColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
 
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+    CompositionLocalProvider(
+        LocalOverlayResultCardColor provides overlayCardColor,
+        LocalOverlayDividerColor provides overlayDividerTint,
+        LocalOverlayActionColor provides overlayActionTint,
+    ) {
+        BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         // Use bottom alignment when one-handed mode is enabled and no special states are
         // showing
         val verticalArrangement =
@@ -526,6 +564,7 @@ fun SearchContentArea(
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 28.dp),
             )
+        }
         }
     }
 }

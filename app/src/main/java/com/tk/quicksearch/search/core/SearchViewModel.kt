@@ -324,7 +324,8 @@ class SearchViewModel(
     private var showOverlayWallpaperBackground: Boolean = false
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
-    private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.DUSK
+    private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME
+    private var overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY
     private var overlayWallpaperBackgroundAlpha: Float =
             UiPreferences.DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA
     private var overlayWallpaperBlurRadius: Float =
@@ -551,6 +552,7 @@ class SearchViewModel(
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayGradientTheme = prefs.overlayGradientTheme
+        overlayThemeIntensity = sanitizeOverlayThemeIntensity(prefs.overlayThemeIntensity)
         overlayWallpaperBackgroundAlpha = userPreferences.getOverlayWallpaperBackgroundAlpha()
         overlayWallpaperBlurRadius = userPreferences.getOverlayWallpaperBlurRadius()
         amazonDomain = prefs.amazonDomain
@@ -578,6 +580,7 @@ class SearchViewModel(
                     wallpaperBackgroundAlpha = activeAlpha,
                     wallpaperBlurRadius = activeBlur,
                     overlayGradientTheme = overlayGradientTheme,
+                    overlayThemeIntensity = overlayThemeIntensity,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
@@ -1773,6 +1776,22 @@ class SearchViewModel(
             _uiState.update { it.copy(overlayGradientTheme = theme) }
         }
     }
+
+    fun setOverlayThemeIntensity(intensity: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val sanitizedIntensity = sanitizeOverlayThemeIntensity(intensity)
+            if (overlayThemeIntensity == sanitizedIntensity) return@launch
+            userPreferences.setOverlayThemeIntensity(sanitizedIntensity)
+            overlayThemeIntensity = sanitizedIntensity
+            _uiState.update { it.copy(overlayThemeIntensity = sanitizedIntensity) }
+        }
+    }
+
+    private fun sanitizeOverlayThemeIntensity(intensity: Float): Float =
+            intensity.coerceIn(
+                    UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
+                    UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
+            )
 
     fun refreshIconPacks() = iconPackHandler.refreshIconPacks()
 

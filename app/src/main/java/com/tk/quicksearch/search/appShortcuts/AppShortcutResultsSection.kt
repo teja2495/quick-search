@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -48,6 +49,8 @@ import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -75,6 +78,8 @@ fun AppShortcutResultsSection(
     iconPackPackage: String?,
     showWallpaperBackground: Boolean,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     if (shortcuts.isEmpty()) return
 
     val displayShortcuts =
@@ -97,7 +102,11 @@ fun AppShortcutResultsSection(
     ) {
         val cardModifier = Modifier.fillMaxWidth()
         val cardColors =
-            AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            if (overlayCardColor != null) {
+                CardDefaults.cardColors(containerColor = overlayCardColor)
+            } else {
+                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            }
         val cardElevation =
             AppColors.getCardElevation(
                 showWallpaperBackground = showWallpaperBackground,
@@ -127,6 +136,7 @@ fun AppShortcutResultsSection(
                 ) {
                     AppShortcutsCardContent(
                         displayShortcuts = displayShortcuts,
+                        overlayDividerColor = overlayDividerColor,
                         pinnedShortcutIds = pinnedShortcutIds,
                         excludedShortcutIds = excludedShortcutIds,
                         onShortcutClick = onShortcutClick,
@@ -164,6 +174,7 @@ fun AppShortcutResultsSection(
 @Composable
 private fun AppShortcutsCardContent(
     displayShortcuts: List<StaticShortcut>,
+    overlayDividerColor: Color?,
     pinnedShortcutIds: Set<String>,
     excludedShortcutIds: Set<String>,
     onShortcutClick: (StaticShortcut) -> Unit,
@@ -199,7 +210,7 @@ private fun AppShortcutsCardContent(
             if (index < displayShortcuts.lastIndex) {
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.outlineVariant,
+                    color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                 )
             }
         }

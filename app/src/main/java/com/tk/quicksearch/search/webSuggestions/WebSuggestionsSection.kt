@@ -28,6 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -94,6 +96,8 @@ private fun WebSuggestionsCard(
     isRecentQuery: Boolean = false,
     onDeleteRecentQuery: ((String) -> Unit)? = null,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     val textColor =
         if (showWallpaperBackground) {
             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
@@ -111,7 +115,12 @@ private fun WebSuggestionsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = AppColors.getCardColors(showWallpaperBackground),
+        colors =
+            if (overlayCardColor != null) {
+                CardDefaults.cardColors(containerColor = overlayCardColor)
+            } else {
+                AppColors.getCardColors(showWallpaperBackground)
+            },
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         Column {
@@ -137,7 +146,9 @@ private fun WebSuggestionsCard(
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                         color =
-                            if (showWallpaperBackground) {
+                            if (overlayDividerColor != null) {
+                                overlayDividerColor
+                            } else if (showWallpaperBackground) {
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                             } else {
                                 MaterialTheme.colorScheme.outlineVariant

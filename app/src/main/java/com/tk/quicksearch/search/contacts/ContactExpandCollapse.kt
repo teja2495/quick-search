@@ -11,12 +11,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 
 // ============================================================================
 // Expand/Collapse Buttons
@@ -35,12 +38,12 @@ internal fun ExpandButton(
         Text(
             text = stringResource(R.string.action_expand_more),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
+            color = Color.White,
         )
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
-            tint = MaterialTheme.colorScheme.primary,
+            tint = Color.White,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }
@@ -51,18 +54,32 @@ internal fun CollapseButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    androidx.compose.material3.FilledTonalButton(onClick = onClick, modifier = modifier) {
+    val overlayActionColor = LocalOverlayActionColor.current
+    val collapseContainerColor =
+        overlayActionColor ?: MaterialTheme.colorScheme.secondaryContainer
+    val collapseContentColor =
+        overlayActionColor
+            ?: MaterialTheme.colorScheme.onSecondaryContainer
+    androidx.compose.material3.FilledTonalButton(
+        onClick = onClick,
+        modifier = modifier,
+        colors =
+            ButtonDefaults.filledTonalButtonColors(
+                containerColor = collapseContainerColor,
+                contentColor = collapseContentColor,
+            ),
+    ) {
         Icon(
             imageVector = Icons.Rounded.ExpandLess,
             contentDescription = stringResource(R.string.desc_collapse),
-            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            tint = Color.White,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = stringResource(R.string.action_collapse),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            color = Color.White,
         )
     }
 }

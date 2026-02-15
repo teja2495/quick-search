@@ -139,11 +139,32 @@ class UiPreferences(
         val saved = prefs.getString(KEY_OVERLAY_GRADIENT_THEME, DEFAULT_OVERLAY_GRADIENT_THEME)
         return saved?.let {
             runCatching { OverlayGradientTheme.valueOf(it) }.getOrNull()
-        } ?: OverlayGradientTheme.DUSK
+        } ?: OverlayGradientTheme.MONOCHROME
     }
 
     fun setOverlayGradientTheme(theme: OverlayGradientTheme) {
         prefs.edit().putString(KEY_OVERLAY_GRADIENT_THEME, theme.name).apply()
+    }
+
+    fun getOverlayThemeIntensity(): Float =
+            prefs.getFloat(
+                    UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
+                    UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
+            ).coerceIn(
+                    UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
+                    UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
+            )
+
+    fun setOverlayThemeIntensity(intensity: Float) {
+        prefs.edit()
+                .putFloat(
+                        UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
+                        intensity.coerceIn(
+                                UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
+                                UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
+                        ),
+                )
+                .apply()
     }
 
     fun getSelectedIconPackPackage(): String? =
@@ -530,6 +551,7 @@ class UiPreferences(
         const val KEY_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = "overlay_wallpaper_background_alpha"
         const val KEY_OVERLAY_WALLPAPER_BLUR_RADIUS = "overlay_wallpaper_blur_radius"
         const val KEY_OVERLAY_GRADIENT_THEME = "overlay_gradient_theme"
+        const val KEY_OVERLAY_THEME_INTENSITY = "overlay_theme_intensity"
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
@@ -579,7 +601,16 @@ class UiPreferences(
         const val DEFAULT_WALLPAPER_BLUR_RADIUS = 20f
         const val DEFAULT_OVERLAY_WALLPAPER_BACKGROUND_ALPHA = 0.75f
         const val DEFAULT_OVERLAY_WALLPAPER_BLUR_RADIUS = 30f
-        const val DEFAULT_OVERLAY_GRADIENT_THEME = "DUSK"
+        const val DEFAULT_OVERLAY_GRADIENT_THEME = "MONOCHROME"
+        const val DEFAULT_OVERLAY_THEME_INTENSITY = 0.5f
+        const val OVERLAY_THEME_INTENSITY_STEP = 0.1f
+        const val OVERLAY_THEME_INTENSITY_DELTA_STEPS = 2
+        const val MIN_OVERLAY_THEME_INTENSITY =
+                DEFAULT_OVERLAY_THEME_INTENSITY -
+                        (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
+        const val MAX_OVERLAY_THEME_INTENSITY =
+                DEFAULT_OVERLAY_THEME_INTENSITY +
+                        (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
         const val MAX_WALLPAPER_BLUR_RADIUS = 40f
 
         // Calculator preferences keys

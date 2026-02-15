@@ -795,6 +795,7 @@ fun SearchScreen(
                 wallpaperBitmap = wallpaperBitmap,
                 wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = state.wallpaperBlurRadius,
+                overlayThemeIntensity = state.overlayThemeIntensity,
             )
         }
 

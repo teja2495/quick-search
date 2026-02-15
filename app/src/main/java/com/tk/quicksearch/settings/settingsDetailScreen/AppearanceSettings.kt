@@ -282,7 +282,9 @@ fun AppearanceSettingsSection(
         onWallpaperBackgroundAlphaChange: (Float) -> Unit,
         onWallpaperBlurRadiusChange: (Float) -> Unit,
         overlayGradientTheme: OverlayGradientTheme,
+        overlayThemeIntensity: Float,
         onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
+        onOverlayThemeIntensityChange: (Float) -> Unit,
         isSearchEngineCompactMode: Boolean,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         selectedIconPackPackage: String?,
@@ -323,7 +325,9 @@ fun AppearanceSettingsSection(
 
         OverlayThemeCard(
                 selectedTheme = overlayGradientTheme,
+                overlayThemeIntensity = overlayThemeIntensity,
                 onThemeSelected = onSetOverlayGradientTheme,
+                onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -381,34 +385,43 @@ fun AppearanceSettingsSection(
 @Composable
 private fun OverlayThemeCard(
         selectedTheme: OverlayGradientTheme,
+        overlayThemeIntensity: Float,
         onThemeSelected: (OverlayGradientTheme) -> Unit,
+        onOverlayThemeIntensityChange: (Float) -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val minIntensity = UiPreferences.MIN_OVERLAY_THEME_INTENSITY
+    val maxIntensity = UiPreferences.MAX_OVERLAY_THEME_INTENSITY
+    val intensityStep = UiPreferences.OVERLAY_THEME_INTENSITY_STEP
+    val intensitySteps = (UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS * 2) - 1
+    var lastToneStep by remember {
+        mutableStateOf(
+                ((overlayThemeIntensity - minIntensity) / intensityStep)
+                        .roundToInt()
+                        .coerceIn(0, UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS * 2),
+        )
+    }
 
     val themeOptions =
             remember {
                 listOf(
                         OverlayThemeOption(
-                                theme = OverlayGradientTheme.DUSK,
-                                labelRes = R.string.settings_overlay_theme_dusk,
+                                theme = OverlayGradientTheme.MONOCHROME,
+                                labelRes = R.string.settings_overlay_theme_monochrome,
                         ),
                         OverlayThemeOption(
                                 theme = OverlayGradientTheme.FOREST,
                                 labelRes = R.string.settings_overlay_theme_forest,
                         ),
                         OverlayThemeOption(
-                                theme = OverlayGradientTheme.OCEAN,
-                                labelRes = R.string.settings_overlay_theme_ocean,
+                                theme = OverlayGradientTheme.AURORA,
+                                labelRes = R.string.settings_overlay_theme_aurora,
                         ),
                         OverlayThemeOption(
-                                theme = OverlayGradientTheme.SLATE,
-                                labelRes = R.string.settings_overlay_theme_slate,
-                        ),
-                        OverlayThemeOption(
-                                theme = OverlayGradientTheme.SAND,
-                                labelRes = R.string.settings_overlay_theme_sand,
+                                theme = OverlayGradientTheme.SUNSET,
+                                labelRes = R.string.settings_overlay_theme_sunset,
                         ),
                 )
             }
@@ -431,10 +444,14 @@ private fun OverlayThemeCard(
             ) {
                 themeOptions.forEach { option ->
                     val isSelected = selectedTheme == option.theme
+                    val interactionSource = remember { MutableInteractionSource() }
                     Column(
                             modifier =
                                     Modifier.weight(1f)
-                                            .clickable {
+                                            .clickable(
+                                                    interactionSource = interactionSource,
+                                                    indication = null,
+                                            ) {
                                                 if (!isSelected) {
                                                     hapticToggle(view)()
                                                     onThemeSelected(option.theme)
@@ -452,13 +469,22 @@ private fun OverlayThemeCard(
                                                         Brush.linearGradient(
                                                                 colors =
                                                                         overlayGradientColors(
-                                                                                theme = option.theme,
-                                                                                isDarkMode = isDarkMode,
+                                                                                theme =
+                                                                                        option.theme,
+                                                                                isDarkMode =
+                                                                                        isDarkMode,
+                                                                                intensity =
+                                                                                        overlayThemeIntensity,
                                                                         ),
                                                         ),
                                                 )
                                                 .border(
-                                                        width = if (isSelected) 2.dp else 1.dp,
+                                                        width =
+                                                                if (isSelected) {
+                                                                    2.dp
+                                                                } else {
+                                                                    1.dp
+                                                                },
                                                         color =
                                                                 if (isSelected) {
                                                                     MaterialTheme.colorScheme
@@ -484,6 +510,33 @@ private fun OverlayThemeCard(
                         )
                     }
                 }
+            }
+
+            Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Slider(
+                        value = overlayThemeIntensity,
+                        onValueChange = { value ->
+                            val step =
+                                    ((value - minIntensity) / intensityStep)
+                                            .roundToInt()
+                                            .coerceIn(
+                                                    0,
+                                                    UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS * 2,
+                                            )
+                            if (step != lastToneStep) {
+                                hapticToggle(view)()
+                                lastToneStep = step
+                            }
+                            onOverlayThemeIntensityChange(value)
+                        },
+                        valueRange = minIntensity..maxIntensity,
+                        steps = intensitySteps,
+                        modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }

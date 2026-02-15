@@ -56,6 +56,8 @@ import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -97,6 +99,8 @@ fun RecentSearchesSection(
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
 ) {
+    val overlayCardColor = LocalOverlayResultCardColor.current
+    val overlayDividerColor = LocalOverlayDividerColor.current
     if (items.isEmpty()) return
     var isExpanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -132,7 +136,14 @@ fun RecentSearchesSection(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = AppColors.getCardColors(showWallpaperBackground),
+        colors =
+            if (overlayCardColor != null) {
+                androidx.compose.material3.CardDefaults.cardColors(
+                    containerColor = overlayCardColor,
+                )
+            } else {
+                AppColors.getCardColors(showWallpaperBackground)
+            },
         elevation = AppColors.getCardElevation(showWallpaperBackground),
     ) {
         if (isExpanded) {
@@ -168,10 +179,13 @@ fun RecentSearchesSection(
                             onDisableSearchHistory = onDisableSearchHistory,
                             showDivider = true,
                             showWallpaperBackground = showWallpaperBackground,
+                            overlayDividerColor = overlayDividerColor,
                         )
                     }
                     val disableDividerColor =
-                        if (showWallpaperBackground) {
+                        if (overlayDividerColor != null) {
+                            overlayDividerColor
+                        } else if (showWallpaperBackground) {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                         } else {
                             MaterialTheme.colorScheme.outlineVariant
@@ -223,6 +237,7 @@ fun RecentSearchesSection(
                         onDisableSearchHistory = onDisableSearchHistory,
                         showDivider = index < displayItems.lastIndex,
                         showWallpaperBackground = showWallpaperBackground,
+                        overlayDividerColor = overlayDividerColor,
                     )
                 }
 
@@ -235,10 +250,14 @@ fun RecentSearchesSection(
                         },
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     ) {
-                        Text(text = stringResource(R.string.action_more_search_history))
+                        Text(
+                            text = stringResource(R.string.action_more_search_history),
+                            color = Color.White,
+                        )
                         Icon(
                             imageVector = Icons.Rounded.ExpandMore,
                             contentDescription = stringResource(R.string.desc_expand),
+                            tint = Color.White,
                         )
                     }
                 }
@@ -272,10 +291,13 @@ private fun RecentSearchItemRow(
     onDisableSearchHistory: () -> Unit = {},
     showDivider: Boolean,
     showWallpaperBackground: Boolean,
+    overlayDividerColor: Color?,
 ) {
     var showRemoveMenu by remember { mutableStateOf(false) }
     val dividerColor =
-        if (showWallpaperBackground) {
+        if (overlayDividerColor != null) {
+            overlayDividerColor
+        } else if (showWallpaperBackground) {
             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
         } else {
             MaterialTheme.colorScheme.outlineVariant
@@ -347,7 +369,7 @@ private fun RecentSearchItemRow(
                         showDescription = false,
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        iconTint = iconColor,
+                        iconTint = Color.White,
                     )
                 }
             }
