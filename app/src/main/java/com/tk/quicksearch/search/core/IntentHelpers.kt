@@ -20,6 +20,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchEngines.buildCustomSearchUrl
 import com.tk.quicksearch.search.searchEngines.buildSearchUrl
 import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.util.PackageConstants
 
 /** Helper functions for creating and launching intents. */
@@ -225,10 +226,12 @@ object IntentHelpers {
         }
 
         val searchUrl = buildSearchUrl(query, searchEngine, amazonDomain)
+
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+
         if (!canResolveIntent(context, intent)) {
             onShowToast?.invoke(
                 R.string.error_open_search_engine,
@@ -236,6 +239,7 @@ object IntentHelpers {
             )
             return
         }
+
         try {
             context.startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
@@ -279,24 +283,69 @@ object IntentHelpers {
                 putExtra(SearchManager.QUERY, trimmedQuery)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+
         try {
             if (canResolveIntent(context, intent)) {
                 context.startActivity(intent)
                 return
             }
 
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(browserPackageName)
-            if (launchIntent != null) {
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(launchIntent)
-                return
+            // Build Google search URL and open it in the selected browser
+            val googleSearchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+            val googleIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleSearchUrl)).apply {
+                setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
 
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            if (canResolveIntent(context, googleIntent)) {
+                try {
+                    context.startActivity(googleIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
+            }
+
+            // Final fallback: open Google search in default browser
+            openSearchUrl(context, trimmedQuery, SearchEngine.GOOGLE, onShowToast = onShowToast)
         } catch (exception: ActivityNotFoundException) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            // Build Google search URL and open it in the selected browser
+            val googleSearchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+            val googleIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleSearchUrl)).apply {
+                setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            if (canResolveIntent(context, googleIntent)) {
+                try {
+                    context.startActivity(googleIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
+            }
+
+            // Final fallback: open Google search in default browser
+            openSearchUrl(context, trimmedQuery, SearchEngine.GOOGLE, onShowToast = onShowToast)
         } catch (exception: SecurityException) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            // Build Google search URL and open it in the selected browser
+            val googleSearchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+            val googleIntent = Intent(Intent.ACTION_VIEW, Uri.parse(googleSearchUrl)).apply {
+                setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            if (canResolveIntent(context, googleIntent)) {
+                try {
+                    context.startActivity(googleIntent)
+                    return
+                } catch (_: ActivityNotFoundException) {
+                } catch (_: SecurityException) {
+                }
+            }
+
+            // Final fallback: open Google search in default browser
+            openSearchUrl(context, trimmedQuery, SearchEngine.GOOGLE, onShowToast = onShowToast)
         }
     }
 
@@ -609,10 +658,12 @@ object IntentHelpers {
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+
         if (!canResolveIntent(context, intent)) {
             Log.w("OpenWebUrl", "No activity found to handle URL: $url")
             return
         }
+
         try {
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
