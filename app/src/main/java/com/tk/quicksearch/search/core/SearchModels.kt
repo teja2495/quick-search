@@ -92,6 +92,12 @@ enum class OverlayGradientTheme {
     MONOCHROME,
 }
 
+enum class BackgroundSource {
+    THEME,
+    SYSTEM_WALLPAPER,
+    CUSTOM_IMAGE,
+}
+
 enum class DirectSearchStatus {
     Idle,
     Loading,
@@ -302,6 +308,8 @@ data class SearchUiState(
         val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
         val overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME,
         val overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
+        val backgroundSource: BackgroundSource = BackgroundSource.THEME,
+        val customImageUri: String? = null,
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
         val disabledSections: Set<SearchSection> = emptySet(),

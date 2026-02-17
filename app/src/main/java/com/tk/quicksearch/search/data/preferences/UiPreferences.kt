@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data.preferences
 import android.content.Context
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
+import com.tk.quicksearch.search.core.BackgroundSource
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -64,13 +65,6 @@ class UiPreferences(
         recordCurrentInstallTime()
     }
 
-    fun shouldShowWallpaperBackground(): Boolean =
-            getBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, true)
-
-    fun setShowWallpaperBackground(showWallpaper: Boolean) {
-        setBooleanPref(UiPreferences.KEY_SHOW_WALLPAPER_BACKGROUND, showWallpaper)
-    }
-
     fun getWallpaperBackgroundAlpha(): Float =
             prefs.getFloat(
                     UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
@@ -128,6 +122,40 @@ class UiPreferences(
                         ),
                 )
                 .apply()
+    }
+
+    fun getBackgroundSource(): BackgroundSource {
+        val saved = prefs.getString(KEY_BACKGROUND_SOURCE, null)
+        if (saved != null) {
+            return runCatching { BackgroundSource.valueOf(saved) }.getOrDefault(BackgroundSource.THEME)
+        }
+
+        val defaultSource =
+                if (isOverlayModeEnabled()) {
+                    BackgroundSource.THEME
+                } else {
+                    BackgroundSource.SYSTEM_WALLPAPER
+                }
+        prefs.edit().putString(KEY_BACKGROUND_SOURCE, defaultSource.name).apply()
+        return defaultSource
+    }
+
+    fun setBackgroundSource(source: BackgroundSource) {
+        prefs.edit().putString(KEY_BACKGROUND_SOURCE, source.name).apply()
+    }
+
+    fun getCustomImageUri(): String? =
+            prefs.getString(KEY_CUSTOM_IMAGE_URI, null)?.takeIf { it.isNotBlank() }
+
+    fun setCustomImageUri(uri: String?) {
+        val normalized = uri?.trim()
+        val editor = prefs.edit()
+        if (normalized.isNullOrEmpty()) {
+            editor.remove(KEY_CUSTOM_IMAGE_URI)
+        } else {
+            editor.putString(KEY_CUSTOM_IMAGE_URI, normalized)
+        }
+        editor.apply()
     }
 
     fun getSelectedIconPackPackage(): String? =
@@ -507,11 +535,15 @@ class UiPreferences(
         const val KEY_MESSAGING_APP = "messaging_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
-        const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_OVERLAY_GRADIENT_THEME = "overlay_gradient_theme"
         const val KEY_OVERLAY_THEME_INTENSITY = "overlay_theme_intensity"
+        const val KEY_BACKGROUND_SOURCE = "background_source"
+        const val KEY_CUSTOM_IMAGE_URI = "custom_image_uri"
+        const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background" // Legacy only.
+        const val KEY_OVERLAY_BACKGROUND_SOURCE = "overlay_background_source" // Legacy only.
+        const val KEY_OVERLAY_CUSTOM_IMAGE_URI = "overlay_custom_image_uri" // Legacy only.
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"

@@ -168,9 +168,11 @@ fun SearchContentArea(
             directSearchState?.status == DirectSearchStatus.Error &&
             !directSearchState.activeQuery.isNullOrBlank() &&
             renderingState.expandedSection == ExpandedSection.NONE
+    val effectiveShowWallpaperBackground = state.showWallpaperBackground
+    val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val overlayCardColor =
-        if (isOverlayPresentation) {
+        if (useOverlayThemeTints) {
             overlayResultCardColor(
                 theme = state.overlayGradientTheme,
                 isDarkMode = isDarkMode,
@@ -180,7 +182,7 @@ fun SearchContentArea(
             null
         }
     val overlayDividerTint =
-        if (isOverlayPresentation) {
+        if (useOverlayThemeTints) {
             overlayDividerColor(
                 theme = state.overlayGradientTheme,
                 isDarkMode = isDarkMode,
@@ -190,7 +192,7 @@ fun SearchContentArea(
             null
         }
     val overlayActionTint =
-        if (isOverlayPresentation) {
+        if (useOverlayThemeTints) {
             overlayActionColor(
                 theme = state.overlayGradientTheme,
                 isDarkMode = isDarkMode,
@@ -669,6 +671,8 @@ fun ContentLayout(
             isReversed = isReversed,
         )
 
+    val effectiveShowWallpaperBackground = state.showWallpaperBackground
+
     // Pre-calculate common states
     val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
     val hasAnySearchResults = hasAnySearchResults(state)
@@ -733,7 +737,7 @@ fun ContentLayout(
                         CalculatorResult(
                             calculatorState = state.calculatorState,
                             showWallpaperBackground =
-                                state.showWallpaperBackground,
+                                effectiveShowWallpaperBackground,
                             oneHandedMode = state.oneHandedMode,
                         )
                     }
@@ -795,7 +799,7 @@ fun ContentLayout(
                                 DirectSearchState =
                                 directSearchState,
                                 showWallpaperBackground =
-                                    state.showWallpaperBackground,
+                                    effectiveShowWallpaperBackground,
                                 oneHandedMode = state.oneHandedMode,
                                 onGeminiModelInfoClick = onGeminiModelInfoClick,
                                 onOpenDirectSearchConfigure =
@@ -879,7 +883,7 @@ fun ContentLayout(
                                 onSuggestionClick =
                                 onWebSuggestionClick,
                                 showWallpaperBackground =
-                                    state.showWallpaperBackground,
+                                    effectiveShowWallpaperBackground,
                                 reverseOrder = isReversed,
                                 isShortcutDetected =
                                     state.detectedShortcutTarget !=
@@ -956,7 +960,7 @@ fun ContentLayout(
                                 onDisableSearchHistory,
                                 onExpandedChange = { recentSearchesExpanded = it },
                                 showWallpaperBackground =
-                                    state.showWallpaperBackground,
+                                    effectiveShowWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -986,7 +990,7 @@ fun ContentLayout(
                             showCustomizeCard = false,
                             isReversed = isReversed,
                             showWallpaperBackground =
-                                state.showWallpaperBackground,
+                                effectiveShowWallpaperBackground,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }

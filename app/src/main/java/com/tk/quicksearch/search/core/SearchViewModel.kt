@@ -57,7 +57,6 @@ import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import com.tk.quicksearch.search.webSuggestions.WebSuggestionHandler
 import com.tk.quicksearch.util.PackageConstants
-import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.util.getAppGridColumns
 import java.util.Calendar
 import java.util.Locale
@@ -94,7 +93,41 @@ class SearchViewModel(
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
 
-    private val _uiState = MutableStateFlow(SearchUiState())
+    private val initialOverlayModeEnabled: Boolean =
+            runCatching { userPreferences.isOverlayModeEnabled() }.getOrDefault(false)
+    private val initialWallpaperBackgroundAlpha: Float =
+            runCatching { userPreferences.getWallpaperBackgroundAlpha() }
+                    .getOrDefault(UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA)
+    private val initialWallpaperBlurRadius: Float =
+            runCatching { userPreferences.getWallpaperBlurRadius() }
+                    .getOrDefault(UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS)
+    private val initialOverlayGradientTheme: OverlayGradientTheme =
+            runCatching { userPreferences.getOverlayGradientTheme() }
+                    .getOrDefault(OverlayGradientTheme.MONOCHROME)
+    private val initialOverlayThemeIntensity: Float =
+            sanitizeOverlayThemeIntensity(
+                    runCatching { userPreferences.getOverlayThemeIntensity() }
+                            .getOrDefault(UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY)
+            )
+    private val initialBackgroundSource: BackgroundSource =
+            runCatching { userPreferences.getBackgroundSource() }
+                    .getOrDefault(BackgroundSource.THEME)
+    private val initialOverlayCustomImageUri: String? =
+            runCatching { userPreferences.getCustomImageUri() }.getOrNull()
+
+    private val _uiState =
+            MutableStateFlow(
+                    SearchUiState(
+                            overlayModeEnabled = initialOverlayModeEnabled,
+                            showWallpaperBackground = false,
+                            wallpaperBackgroundAlpha = initialWallpaperBackgroundAlpha,
+                            wallpaperBlurRadius = initialWallpaperBlurRadius,
+                            overlayGradientTheme = initialOverlayGradientTheme,
+                            overlayThemeIntensity = initialOverlayThemeIntensity,
+                            backgroundSource = initialBackgroundSource,
+                            customImageUri = initialOverlayCustomImageUri,
+                    )
+            )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     // Cache searchable apps to avoid re-computing on every query change
@@ -317,15 +350,16 @@ class SearchViewModel(
     private var showHiddenFiles: Boolean = false
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
-    private var overlayModeEnabled: Boolean = false
+    private var overlayModeEnabled: Boolean = initialOverlayModeEnabled
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
-    private var showWallpaperBackground: Boolean = true
-    private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
-    private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
-    private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME
-    private var overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY
+    private var wallpaperBackgroundAlpha: Float = initialWallpaperBackgroundAlpha
+    private var wallpaperBlurRadius: Float = initialWallpaperBlurRadius
+    private var overlayGradientTheme: OverlayGradientTheme = initialOverlayGradientTheme
+    private var overlayThemeIntensity: Float = initialOverlayThemeIntensity
+    private var backgroundSource: BackgroundSource = initialBackgroundSource
+    private var customImageUri: String? = initialOverlayCustomImageUri
     private var lockedShortcutTarget: SearchTarget? = null
     private var amazonDomain: String? = null
     private var searchJob: Job? = null
@@ -361,18 +395,6 @@ class SearchViewModel(
         if (wallpaperAvailable != available) {
             wallpaperAvailable = available
             updateUiState { it.copy(wallpaperAvailable = available) }
-        }
-    }
-
-    private fun attemptAutoEnableWallpaperBackground() {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (WallpaperUtils.getWallpaperBitmapResult(getApplication())) {
-                is WallpaperUtils.WallpaperLoadResult.Success -> {
-                    setWallpaperAvailable(true)
-                    setShowWallpaperBackground(true)
-                }
-                else -> {}
-            }
         }
     }
 
@@ -543,14 +565,13 @@ class SearchViewModel(
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
-        showWallpaperBackground = prefs.showWallpaperBackground
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayGradientTheme = prefs.overlayGradientTheme
         overlayThemeIntensity = sanitizeOverlayThemeIntensity(prefs.overlayThemeIntensity)
+        backgroundSource = prefs.backgroundSource
+        customImageUri = prefs.customImageUri
         amazonDomain = prefs.amazonDomain
-
-        val activeShowWallpaper = if (overlayModeEnabled) false else showWallpaperBackground
 
         _uiState.update {
             it.copy(
@@ -564,11 +585,13 @@ class SearchViewModel(
                     directDialEnabled = directDialEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
-                    showWallpaperBackground = activeShowWallpaper,
+                    showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = wallpaperBlurRadius,
                     overlayGradientTheme = overlayGradientTheme,
                     overlayThemeIntensity = overlayThemeIntensity,
+                    backgroundSource = backgroundSource,
+                    customImageUri = customImageUri,
                     amazonDomain = amazonDomain,
                     recentQueriesEnabled = prefs.recentSearchesEnabled,
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
@@ -1721,22 +1744,6 @@ class SearchViewModel(
         refreshAppShortcutsState(updateResults = false)
     }
 
-    fun setShowWallpaperBackground(showWallpaper: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (showWallpaper && !hasFilePermission()) {
-                return@launch
-            }
-
-            userPreferences.setShowWallpaperBackground(showWallpaper)
-            showWallpaperBackground = showWallpaper
-            _uiState.update {
-                it.copy(
-                        showWallpaperBackground = if (overlayModeEnabled) false else showWallpaper
-                )
-            }
-        }
-    }
-
     fun setWallpaperBackgroundAlpha(alpha: Float) {
         viewModelScope.launch(Dispatchers.IO) {
             val sanitizedAlpha = alpha.coerceIn(0f, 1f)
@@ -1771,6 +1778,30 @@ class SearchViewModel(
             userPreferences.setOverlayThemeIntensity(sanitizedIntensity)
             overlayThemeIntensity = sanitizedIntensity
             _uiState.update { it.copy(overlayThemeIntensity = sanitizedIntensity) }
+        }
+    }
+
+    fun setBackgroundSource(source: BackgroundSource) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (backgroundSource == source) return@launch
+            userPreferences.setBackgroundSource(source)
+            backgroundSource = source
+            _uiState.update {
+                it.copy(
+                        backgroundSource = source,
+                        showWallpaperBackground = source != BackgroundSource.THEME,
+                )
+            }
+        }
+    }
+
+    fun setCustomImageUri(uri: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val normalized = uri?.trim()?.takeIf { it.isNotEmpty() }
+            if (customImageUri == normalized) return@launch
+            userPreferences.setCustomImageUri(normalized)
+            customImageUri = normalized
+            _uiState.update { it.copy(customImageUri = normalized) }
         }
     }
 
@@ -1979,27 +2010,15 @@ class SearchViewModel(
                 preferenceSetter = userPreferences::setOverlayModeEnabled,
                 stateUpdater = {
                     overlayModeEnabled = it
-                    updateUiState { state -> state.copy(overlayModeEnabled = it) }
+                    updateUiState { state ->
+                        state.copy(
+                                overlayModeEnabled = it,
+                                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                                wallpaperBlurRadius = wallpaperBlurRadius,
+                        )
+                    }
                     if (!it) {
                         OverlayModeController.stopOverlay(getApplication())
-                        val normalShowWallpaper = showWallpaperBackground
-                        val normalAlpha = wallpaperBackgroundAlpha
-                        val normalBlur = wallpaperBlurRadius
-                        _uiState.update { state ->
-                            state.copy(
-                                    showWallpaperBackground = normalShowWallpaper,
-                                    wallpaperBackgroundAlpha = normalAlpha,
-                                    wallpaperBlurRadius = normalBlur
-                            )
-                        }
-                    } else {
-                        _uiState.update { state ->
-                            state.copy(
-                                    showWallpaperBackground = false,
-                                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                                    wallpaperBlurRadius = wallpaperBlurRadius
-                            )
-                        }
                     }
                 },
         )
@@ -2520,32 +2539,6 @@ class SearchViewModel(
                         previousState.wallpaperAvailable != wallpaperAvailable
 
         if (changed) {
-            // Handle wallpaper background based on files permission
-            val userPrefValue = userPreferences.shouldShowWallpaperBackground()
-            var activeShowWallpaper = previousState.showWallpaperBackground
-            val filesPermissionGranted = !previousState.hasFilePermission && hasFiles
-            val shouldUpdateWallpaper =
-                    when {
-                        // If files permission is revoked, disable wallpaper (but keep user
-                        // preference unchanged)
-                        !hasFiles && activeShowWallpaper -> {
-                            activeShowWallpaper = false
-                            true
-                        }
-                        else -> {
-                            false
-                        }
-                    }
-
-            if (
-                    filesPermissionGranted &&
-                            userPrefValue &&
-                            !overlayModeEnabled &&
-                            !activeShowWallpaper
-            ) {
-                attemptAutoEnableWallpaperBackground()
-            }
-
             // Auto-enable direct dial when call permission is granted, unless user manually
             // disabled it
             if (hasCall && !directDialEnabled && !userPreferences.isDirectDialManuallyDisabled()) {
@@ -2566,12 +2559,6 @@ class SearchViewModel(
                         directDialEnabled = this@SearchViewModel.directDialEnabled,
                         contactResults = if (hasContacts) state.contactResults else emptyList(),
                         fileResults = if (hasFiles) state.fileResults else emptyList(),
-                        showWallpaperBackground =
-                                if (shouldUpdateWallpaper) {
-                                    activeShowWallpaper
-                                } else {
-                                    state.showWallpaperBackground
-                                },
                 )
             }
 

@@ -28,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -539,28 +540,56 @@ fun SearchScreen(
     val context = LocalContext.current
     val directAnswerContactName = stringResource(R.string.direct_answer_contact_name)
 
-    var wallpaperBitmap by remember(isOverlayPresentation) {
-        mutableStateOf<ImageBitmap?>(
-            if (isOverlayPresentation) {
-                null
-            } else {
-                WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
-            },
-        )
-    }
+    val sourceWallpaperBitmap by
+        produceState<ImageBitmap?>(
+            initialValue = null,
+            key1 = state.backgroundSource,
+            key2 = state.hasWallpaperPermission,
+        ) {
+            value =
+                if (state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER) {
+                    WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+                        ?: when (val result = WallpaperUtils.getWallpaperBitmapResult(context)) {
+                            is WallpaperUtils.WallpaperLoadResult.Success -> {
+                                if (!isOverlayPresentation) {
+                                    onWallpaperLoaded?.invoke()
+                                }
+                                result.bitmap.asImageBitmap()
+                            }
 
-    LaunchedEffect(isOverlayPresentation, wallpaperBitmap) {
-        // Overlay background is provided by OverlayRoot; skip duplicate wallpaper loads here.
-        if (isOverlayPresentation || wallpaperBitmap != null) {
-            return@LaunchedEffect
+                            else -> {
+                                null
+                            }
+                        }
+                } else {
+                    null
+                }
         }
-        val bitmap = WallpaperUtils.getWallpaperBitmap(context)
-        wallpaperBitmap = bitmap?.asImageBitmap()
-        // If wallpaper loaded successfully, notify that it should be enabled
-        if (bitmap != null) {
-            onWallpaperLoaded?.invoke()
+    val sourceCustomBitmap by
+        produceState<ImageBitmap?>(
+            initialValue = null,
+            key1 = state.backgroundSource,
+            key2 = state.customImageUri,
+        ) {
+            value =
+                if (state.backgroundSource == BackgroundSource.CUSTOM_IMAGE) {
+                    WallpaperUtils.getOverlayCustomImageBitmap(context, state.customImageUri)
+                } else {
+                    null
+                }
         }
-    }
+    val imageBitmap =
+        when (state.backgroundSource) {
+            BackgroundSource.SYSTEM_WALLPAPER -> sourceWallpaperBitmap
+            BackgroundSource.CUSTOM_IMAGE -> sourceCustomBitmap
+            BackgroundSource.THEME -> null
+        }
+    val useImageBackground =
+        state.backgroundSource != BackgroundSource.THEME && imageBitmap != null
+    val useMonoThemeFallback =
+        !isOverlayPresentation &&
+            state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+            imageBitmap == null
 
     val derivedState = rememberDerivedState(state)
 
@@ -689,9 +718,11 @@ fun SearchScreen(
         reverseScrolling = alignResultsToBottom,
     )
 
+    val effectiveStateForCards = state.copy(showWallpaperBackground = useImageBackground)
+
     val sectionParams =
         buildSectionParams(
-            state = state,
+            state = effectiveStateForCards,
             derivedState = derivedState,
             onFileClick = onFileClick,
             onOpenFolder = onOpenFolder,
@@ -804,10 +835,24 @@ fun SearchScreen(
     Box(modifier = screenModifier) {
         if (!isOverlayPresentation) {
             SearchScreenBackground(
-                showWallpaperBackground = state.showWallpaperBackground,
-                wallpaperBitmap = wallpaperBitmap,
+                showWallpaperBackground = useImageBackground,
+                wallpaperBitmap = imageBitmap,
                 wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = state.wallpaperBlurRadius,
+                fallbackBackgroundAlpha =
+                    if (state.backgroundSource == BackgroundSource.THEME || useMonoThemeFallback) {
+                        0.6f
+                    } else {
+                        1f
+                    },
+                useGradientFallback =
+                    state.backgroundSource == BackgroundSource.THEME || useMonoThemeFallback,
+                overlayGradientTheme =
+                    if (useMonoThemeFallback) {
+                        OverlayGradientTheme.MONOCHROME
+                    } else {
+                        state.overlayGradientTheme
+                    },
                 overlayThemeIntensity = state.overlayThemeIntensity,
             )
         }
@@ -820,7 +865,7 @@ fun SearchScreen(
                 } else {
                     Modifier.fillMaxSize()
                 },
-            state = state,
+            state = effectiveStateForCards,
             renderingState = renderingState,
             contactsParams = sectionParams.contactsParams,
             filesParams = sectionParams.filesParams,

@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -56,6 +57,7 @@ import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.ui.theme.AppColors
@@ -242,9 +244,13 @@ fun RecentSearchesSection(
                 }
 
                 if (canExpand) {
+                    val overlayActionColor = LocalOverlayActionColor.current
                     val moreHistoryColor =
-                        if (isOverlayPresentation) Color.White
-                        else MaterialTheme.colorScheme.primary
+                        if (overlayActionColor != null) {
+                            Color.White
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
                     TextButton(
                         onClick = {
                             isExpanded = true
@@ -461,12 +467,17 @@ private fun DisableSearchHistoryRow(
     iconColor: Color,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clip(DesignTokens.CardShape)
-                .clickable(onClick = onClick)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                )
                 .padding(
                     start = QUERY_ICON_START_PADDING.dp,
                     end = QUERY_TEXT_END_PADDING.dp,
@@ -505,12 +516,15 @@ private fun RecentQueryRow(
     onClick: () -> Unit,
     onLongPress: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clip(DesignTokens.CardShape)
                 .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = null,
                     onClick = onClick,
                     onLongClick = onLongPress,
                 ).padding(

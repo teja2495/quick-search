@@ -84,7 +84,7 @@ internal fun SearchScreenBackground(
                             .fillMaxSize()
                             .blur(radius = blurRadius.dp)
                             .graphicsLayer(alpha = wallpaperAlpha.value),
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Crop,
                 )
 
                 // Dark overlay in dark mode

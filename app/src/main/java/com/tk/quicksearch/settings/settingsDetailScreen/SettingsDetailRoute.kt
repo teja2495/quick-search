@@ -26,10 +26,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
@@ -82,11 +82,12 @@ fun SettingsDetailRoute(
                     isSignalInstalled = uiState.isSignalInstalled,
                     hasWallpaperPermission = uiState.hasWallpaperPermission,
                     wallpaperAvailable = uiState.wallpaperAvailable,
-                    showWallpaperBackground = uiState.showWallpaperBackground,
                     wallpaperBackgroundAlpha = uiState.wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = uiState.wallpaperBlurRadius,
                     overlayGradientTheme = uiState.overlayGradientTheme,
                     overlayThemeIntensity = uiState.overlayThemeIntensity,
+                    backgroundSource = uiState.backgroundSource,
+                    customImageUri = uiState.customImageUri,
                     selectedIconPackPackage = uiState.selectedIconPackPackage,
                     availableIconPacks = uiState.availableIconPacks,
                     directDialEnabled = uiState.directDialEnabled,
@@ -108,9 +109,6 @@ fun SettingsDetailRoute(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var pendingWallpaperEnableAfterFilesPermission by remember { mutableStateOf(false) }
-    var pendingWallpaperEnableShowDialog by remember { mutableStateOf(false) }
-    var pendingWallpaperEnableAfterWallpaperPermission by remember { mutableStateOf(false) }
     var showWallpaperPermissionFallbackDialog by remember { mutableStateOf(false) }
 
     val wallpaperPermissionLauncher =
@@ -123,7 +121,6 @@ fun SettingsDetailRoute(
                         permission = Manifest.permission.READ_MEDIA_IMAGES,
                         onPermanentlyDenied = viewModel::openAppSettings,
                         onPermissionChanged = viewModel::handleOptionalPermissionChange,
-                        onGranted = { pendingWallpaperEnableAfterWallpaperPermission = true },
                 )
             }
 
@@ -131,52 +128,39 @@ fun SettingsDetailRoute(
         wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
     }
 
-    val attemptEnableWallpaperBackground: (Boolean) -> Unit = { showDialogOnPermissionRequired ->
+    val overlayCustomImagePickerLauncher =
+            rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocument(),
+            ) { uri ->
+                if (uri == null) return@rememberLauncherForActivityResult
+                runCatching {
+                            context.contentResolver.takePersistableUriPermission(
+                                    uri,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                            )
+                        }
+                        .onFailure {
+                            // Some providers do not support persistable permissions.
+                        }
+                viewModel.setCustomImageUri(uri.toString())
+                viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+            }
+
+    val onSelectWallpaperSource: () -> Unit = {
         scope.launch {
             when (WallpaperUtils.getWallpaperBitmapResult(context)) {
                 is WallpaperUtils.WallpaperLoadResult.Success -> {
                     viewModel.setWallpaperAvailable(true)
-                    viewModel.setShowWallpaperBackground(true)
+                    viewModel.setBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
                 }
                 WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
-                    if (showDialogOnPermissionRequired) {
-                        showWallpaperPermissionFallbackDialog = true
-                    } else {
-                        requestWallpaperPermission()
-                    }
+                    showWallpaperPermissionFallbackDialog = true
+                }
+                WallpaperUtils.WallpaperLoadResult.SecurityError -> {
+                    showWallpaperPermissionFallbackDialog = true
                 }
                 else -> {}
             }
-        }
-    }
-
-    val onToggleWallpaperBackground: (Boolean) -> Unit = { enabled ->
-        if (!enabled) {
-            viewModel.setShowWallpaperBackground(false)
-        } else if (!PermissionUtils.hasFileAccessPermission(context)) {
-            pendingWallpaperEnableAfterFilesPermission = true
-            pendingWallpaperEnableShowDialog = true
-            viewModel.openFilesPermissionSettings()
-        } else {
-            attemptEnableWallpaperBackground(false)
-        }
-    }
-
-    LaunchedEffect(pendingWallpaperEnableAfterWallpaperPermission) {
-        if (pendingWallpaperEnableAfterWallpaperPermission) {
-            pendingWallpaperEnableAfterWallpaperPermission = false
-            attemptEnableWallpaperBackground(false)
-        }
-    }
-
-    LaunchedEffect(uiState.hasFilePermission, pendingWallpaperEnableAfterFilesPermission) {
-        if (pendingWallpaperEnableAfterFilesPermission &&
-                        PermissionUtils.hasFileAccessPermission(context)
-        ) {
-            pendingWallpaperEnableAfterFilesPermission = false
-            val showDialog = pendingWallpaperEnableShowDialog
-            pendingWallpaperEnableShowDialog = false
-            attemptEnableWallpaperBackground(showDialog)
         }
     }
 
@@ -242,17 +226,6 @@ fun SettingsDetailRoute(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    LaunchedEffect(detailType) {
-        if (detailType == SettingsDetailType.APPEARANCE && uiState.showWallpaperBackground) {
-            when (WallpaperUtils.getWallpaperBitmapResult(context)) {
-                is WallpaperUtils.WallpaperLoadResult.Success -> {
-                    viewModel.setWallpaperAvailable(true)
-                }
-                else -> {}
-            }
-        }
     }
 
     val onDismissShortcutHint = {
@@ -352,11 +325,14 @@ fun SettingsDetailRoute(
                     setShortcutCode = viewModel::setShortcutCode,
                     setShortcutEnabled = viewModel::setShortcutEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,
-                    onToggleShowWallpaperBackground = onToggleWallpaperBackground,
                     onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
                     onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
                     onSetOverlayGradientTheme = viewModel::setOverlayGradientTheme,
                     onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
+                    onSetBackgroundSource = viewModel::setBackgroundSource,
+                    onPickCustomImage = {
+                        overlayCustomImagePickerLauncher.launch(arrayOf("image/*"))
+                    },
                     onSelectIconPack = viewModel::setIconPackPackage,
                     onSearchIconPacks = viewModel::searchIconPacks,
                     onRefreshIconPacks = viewModel::refreshIconPacks,
@@ -415,7 +391,7 @@ fun SettingsDetailRoute(
                     onRequestContactPermission = onRequestContactPermission,
                     onRequestFilePermission = onRequestFilePermission,
                     onRequestCallPermission = onRequestCallPermission,
-                    onRequestWallpaperPermission = requestWallpaperPermission,
+                    onRequestWallpaperPermission = onSelectWallpaperSource,
             )
 
     val onToggleDirectSearchSetupExpanded = {

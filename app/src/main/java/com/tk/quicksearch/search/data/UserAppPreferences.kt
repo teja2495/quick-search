@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.data
 import android.content.Context
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.MessagingApp
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
@@ -77,11 +78,12 @@ class UserAppPreferences(
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
             val hasSeenSearchEngineOnboarding: Boolean,
-            val showWallpaperBackground: Boolean,
             val wallpaperBackgroundAlpha: Float,
             val wallpaperBlurRadius: Float,
             val overlayGradientTheme: OverlayGradientTheme,
             val overlayThemeIntensity: Float,
+            val backgroundSource: BackgroundSource,
+            val customImageUri: String?,
             val amazonDomain: String?,
             val pinnedPackages: Set<String>,
             val suggestionHiddenPackages: Set<String>,
@@ -204,13 +206,6 @@ class UserAppPreferences(
                         ] as?
                                 Boolean
                                 ?: false,
-                showWallpaperBackground =
-                        allPrefs[
-                                com.tk.quicksearch.search.data.preferences.UiPreferences
-                                        .KEY_SHOW_WALLPAPER_BACKGROUND,
-                        ] as?
-                                Boolean
-                                ?: true,
                 wallpaperBackgroundAlpha =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -247,6 +242,36 @@ class UserAppPreferences(
                                 Float
                                 ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .DEFAULT_OVERLAY_THEME_INTENSITY,
+                backgroundSource =
+                        (
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_BACKGROUND_SOURCE,
+                                ] as?
+                                        String
+                                )
+                                ?.let { value ->
+                                    runCatching { BackgroundSource.valueOf(value) }
+                                            .getOrNull()
+                                }
+                                ?: if (
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                        .KEY_OVERLAY_MODE_ENABLED,
+                                        ] as?
+                                                Boolean
+                                                ?: false
+                                ) {
+                                    BackgroundSource.THEME
+                                } else {
+                                    BackgroundSource.SYSTEM_WALLPAPER
+                                },
+                customImageUri =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_CUSTOM_IMAGE_URI,
+                        ] as?
+                                String,
                 amazonDomain =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -400,13 +425,6 @@ class UserAppPreferences(
                                 ] as?
                                         Boolean
                                         ?: false,
-                        showWallpaperBackground =
-                                allPrefs[
-                                        com.tk.quicksearch.search.data.preferences.UiPreferences
-                                                .KEY_SHOW_WALLPAPER_BACKGROUND,
-                                ] as?
-                                        Boolean
-                                        ?: true,
                         wallpaperBackgroundAlpha =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -444,6 +462,38 @@ class UserAppPreferences(
                                         Float
                                         ?: com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .DEFAULT_OVERLAY_THEME_INTENSITY,
+                        backgroundSource =
+                                (
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                        .KEY_BACKGROUND_SOURCE,
+                                        ] as?
+                                                String
+                                        )
+                                        ?.let { value ->
+                                            runCatching {
+                                                        BackgroundSource.valueOf(value)
+                                                    }
+                                                    .getOrNull()
+                                        }
+                                        ?: if (
+                                                allPrefs[
+                                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                                .KEY_OVERLAY_MODE_ENABLED,
+                                                ] as?
+                                                        Boolean
+                                                        ?: false
+                                        ) {
+                                            BackgroundSource.THEME
+                                        } else {
+                                            BackgroundSource.SYSTEM_WALLPAPER
+                                        },
+                        customImageUri =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_CUSTOM_IMAGE_URI,
+                                ] as?
+                                        String,
                         amazonDomain =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -879,11 +929,6 @@ class UserAppPreferences(
 
     fun setFirstLaunchCompleted() = uiPreferences.setFirstLaunchCompleted()
 
-    fun shouldShowWallpaperBackground(): Boolean = uiPreferences.shouldShowWallpaperBackground()
-
-    fun setShowWallpaperBackground(showWallpaper: Boolean) =
-            uiPreferences.setShowWallpaperBackground(showWallpaper)
-
     fun getWallpaperBackgroundAlpha(): Float = uiPreferences.getWallpaperBackgroundAlpha()
 
     fun setWallpaperBackgroundAlpha(alpha: Float) = uiPreferences.setWallpaperBackgroundAlpha(alpha)
@@ -900,6 +945,15 @@ class UserAppPreferences(
     fun getOverlayThemeIntensity(): Float = uiPreferences.getOverlayThemeIntensity()
 
     fun setOverlayThemeIntensity(intensity: Float) = uiPreferences.setOverlayThemeIntensity(intensity)
+
+    fun getBackgroundSource(): BackgroundSource = uiPreferences.getBackgroundSource()
+
+    fun setBackgroundSource(source: BackgroundSource) =
+            uiPreferences.setBackgroundSource(source)
+
+    fun getCustomImageUri(): String? = uiPreferences.getCustomImageUri()
+
+    fun setCustomImageUri(uri: String?) = uiPreferences.setCustomImageUri(uri)
 
     fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 

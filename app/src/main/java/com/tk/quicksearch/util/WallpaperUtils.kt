@@ -5,9 +5,15 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.drawable.Drawable
+import android.media.ExifInterface
+import android.net.Uri
 import android.os.Build
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +27,10 @@ object WallpaperUtils {
     // In-memory cache for the wallpaper bitmap
     @Volatile
     private var cachedBitmap: Bitmap? = null
+    @Volatile
+    private var cachedOverlayCustomUri: String? = null
+    @Volatile
+    private var cachedOverlayCustomBitmap: Bitmap? = null
 
     sealed class WallpaperLoadResult {
         data class Success(
@@ -81,27 +91,11 @@ object WallpaperUtils {
                 if (bitmap != null) {
                     cachedBitmap = bitmap
                     WallpaperLoadResult.Success(bitmap)
-                } else if (wallpaperRequiresPermission(context)) {
-                    WallpaperLoadResult.PermissionRequired
                 } else {
                     WallpaperLoadResult.Unavailable
                 }
             } catch (e: SecurityException) {
-                if (!hasWallpaperPermission(context)) {
-                    WallpaperLoadResult.PermissionRequired
-                } else {
-                    try {
-                        val bitmap = loadWallpaperBitmap(context)
-                        if (bitmap != null) {
-                            cachedBitmap = bitmap
-                            WallpaperLoadResult.Success(bitmap)
-                        } else {
-                            WallpaperLoadResult.Unavailable
-                        }
-                    } catch (e2: SecurityException) {
-                        WallpaperLoadResult.SecurityError
-                    }
-                }
+                WallpaperLoadResult.PermissionRequired
             } catch (e: Exception) {
                 WallpaperLoadResult.Unavailable
             }
@@ -122,10 +116,84 @@ object WallpaperUtils {
         }
     }
 
+    suspend fun getOverlayCustomImageBitmap(
+        context: Context,
+        uriString: String?,
+    ): ImageBitmap? {
+        val normalized = uriString?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        if (cachedOverlayCustomUri == normalized && cachedOverlayCustomBitmap != null) {
+            return cachedOverlayCustomBitmap?.asImageBitmap()
+        }
+
+        val bitmap =
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val uri = Uri.parse(normalized)
+                    decodeBitmapWithOrientation(context, uri)
+                }.getOrNull()
+            } ?: return null
+
+        cachedOverlayCustomUri = normalized
+        cachedOverlayCustomBitmap = bitmap
+        return bitmap.asImageBitmap()
+    }
+
     private fun loadWallpaperBitmap(context: Context): Bitmap? {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val wallpaperDrawable = wallpaperManager.drawable
         return wallpaperDrawable?.toBitmap()
+    }
+
+    private fun decodeBitmapWithOrientation(
+        context: Context,
+        uri: Uri,
+    ): Bitmap? {
+        val bytes =
+            context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return null
+        val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val exifOrientation =
+            runCatching {
+                ExifInterface(bytes.inputStream()).getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL,
+                )
+            }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
+
+        val matrix = Matrix()
+        when (exifOrientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+            ExifInterface.ORIENTATION_TRANSPOSE -> {
+                matrix.preScale(-1f, 1f)
+                matrix.postRotate(270f)
+            }
+            ExifInterface.ORIENTATION_TRANSVERSE -> {
+                matrix.preScale(-1f, 1f)
+                matrix.postRotate(90f)
+            }
+            else -> return original
+        }
+
+        val transformed =
+            runCatching {
+                Bitmap.createBitmap(
+                    original,
+                    0,
+                    0,
+                    original.width,
+                    original.height,
+                    matrix,
+                    true,
+                )
+            }.getOrNull() ?: return original
+
+        if (transformed != original) {
+            original.recycle()
+        }
+        return transformed
     }
 }
 

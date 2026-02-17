@@ -165,17 +165,19 @@ internal fun SettingsDetailLevel1Screen(
                         AppearanceSettingsSection(
                             oneHandedMode = state.oneHandedMode,
                             onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
-                            overlayModeEnabled = state.overlayModeEnabled,
-                            showWallpaperBackground = state.showWallpaperBackground,
                             wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                             wallpaperBlurRadius = state.wallpaperBlurRadius,
-                            onToggleShowWallpaperBackground = callbacks.onToggleShowWallpaperBackground,
                             onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,
                             onWallpaperBlurRadiusChange = callbacks.onWallpaperBlurRadiusChange,
                             overlayGradientTheme = state.overlayGradientTheme,
                             overlayThemeIntensity = state.overlayThemeIntensity,
                             onSetOverlayGradientTheme = callbacks.onSetOverlayGradientTheme,
                             onOverlayThemeIntensityChange = callbacks.onOverlayThemeIntensityChange,
+                            backgroundSource = state.backgroundSource,
+                            customImageUri = state.customImageUri,
+                            onSetBackgroundSource = callbacks.onSetBackgroundSource,
+                            onPickCustomImage = callbacks.onPickCustomImage,
+                            onRequestWallpaperPermission = callbacks.onRequestWallpaperPermission,
                             isSearchEngineCompactMode = state.isSearchEngineCompactMode,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
                             selectedIconPackPackage = state.selectedIconPackPackage,
@@ -191,9 +193,7 @@ internal fun SettingsDetailLevel1Screen(
                                     ).show()
                             },
                             onSearchIconPacks = callbacks.onSearchIconPacks,
-                            hasFilePermission = PermissionUtils.hasFileAccessPermission(context),
                             hasWallpaperPermission = state.hasWallpaperPermission,
-                            wallpaperAvailable = state.wallpaperAvailable,
                         )
                     }
 

@@ -70,6 +70,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.ui.theme.AppColors
@@ -627,6 +628,14 @@ private fun ExpandButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val overlayActionColor = LocalOverlayActionColor.current
+    val moreActionColor =
+        if (overlayActionColor != null) {
+            Color.White
+        } else {
+            MaterialTheme.colorScheme.primary
+        }
+
     TextButton(
         onClick = onClick,
         modifier = modifier,
@@ -639,12 +648,12 @@ private fun ExpandButton(
         Text(
             text = stringResource(R.string.action_expand_more),
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = moreActionColor,
         )
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = stringResource(R.string.desc_expand),
-            tint = Color.White,
+            tint = moreActionColor,
             modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }

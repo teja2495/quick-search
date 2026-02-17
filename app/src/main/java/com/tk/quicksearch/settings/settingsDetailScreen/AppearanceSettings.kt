@@ -7,12 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,9 +22,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.AlertDialog
@@ -37,12 +42,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -52,11 +64,13 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.IconPackInfo
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.searchScreen.overlayGradientColors
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.util.hapticToggle
 import kotlin.math.roundToInt
 
@@ -150,144 +164,24 @@ fun CombinedLayoutIconCard(
     }
 }
 
-/** Combined appearance card with wallpaper background settings. */
-@Composable
-fun CombinedAppearanceCard(
-        showWallpaperBackground: Boolean,
-        wallpaperBackgroundAlpha: Float,
-        wallpaperBlurRadius: Float,
-        onToggleShowWallpaperBackground: (Boolean) -> Unit,
-        onWallpaperBackgroundAlphaChange: (Float) -> Unit,
-        onWallpaperBlurRadiusChange: (Float) -> Unit,
-        hasFilePermission: Boolean = true,
-        hasWallpaperPermission: Boolean = true,
-        wallpaperAvailable: Boolean = false,
-        modifier: Modifier = Modifier,
-) {
-    val view = LocalView.current
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
-        Column {
-            // Wallpaper background toggle
-            SettingsToggleRow(
-                    title = stringResource(R.string.settings_wallpaper_background_toggle),
-                    checked = showWallpaperBackground,
-                    onCheckedChange = onToggleShowWallpaperBackground,
-                    isFirstItem = true,
-                    isLastItem = true,
-            )
-
-            if (showWallpaperBackground && wallpaperAvailable) {
-                var lastAlphaStep by remember {
-                    mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9))
-                }
-                var lastBlurStep by remember {
-                    mutableStateOf(
-                            (wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
-                                    .roundToInt()
-                                    .coerceIn(0, 7),
-                    )
-                }
-                Column(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                start = 24.dp,
-                                                end = 24.dp,
-                                                top = 0.dp,
-                                                bottom = 16.dp,
-                                        ),
-                ) {
-                    Text(
-                            text = stringResource(R.string.settings_wallpaper_transparency_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        Slider(
-                                value = wallpaperBackgroundAlpha,
-                                onValueChange = { v ->
-                                    val step = (v * 9).roundToInt().coerceIn(0, 9)
-                                    if (step != lastAlphaStep) {
-                                        hapticToggle(view)()
-                                        lastAlphaStep = step
-                                    }
-                                    onWallpaperBackgroundAlphaChange(v)
-                                },
-                                valueRange = 0f..1f,
-                                steps = 9,
-                                modifier = Modifier.weight(1f),
-                        )
-                        Text(
-                                text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.widthIn(min = 48.dp),
-                                textAlign = TextAlign.End,
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                            text = stringResource(R.string.settings_wallpaper_blur_label),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        Slider(
-                                value = wallpaperBlurRadius,
-                                onValueChange = { v ->
-                                    val step =
-                                            (v / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
-                                                    .roundToInt()
-                                                    .coerceIn(0, 7)
-                                    if (step != lastBlurStep) {
-                                        hapticToggle(view)()
-                                        lastBlurStep = step
-                                    }
-                                    onWallpaperBlurRadiusChange(v)
-                                },
-                                valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
-                                steps = 7,
-                                modifier = Modifier.weight(1f),
-                        )
-                        Text(
-                                text =
-                                        "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.widthIn(min = 48.dp),
-                                textAlign = TextAlign.End,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 /** Complete appearance settings section with all appearance-related components and dialogs. */
 @Composable
 fun AppearanceSettingsSection(
         oneHandedMode: Boolean,
         onToggleOneHandedMode: (Boolean) -> Unit,
-        overlayModeEnabled: Boolean,
-        showWallpaperBackground: Boolean,
         wallpaperBackgroundAlpha: Float,
         wallpaperBlurRadius: Float,
-        onToggleShowWallpaperBackground: (Boolean) -> Unit,
         onWallpaperBackgroundAlphaChange: (Float) -> Unit,
         onWallpaperBlurRadiusChange: (Float) -> Unit,
         overlayGradientTheme: OverlayGradientTheme,
         overlayThemeIntensity: Float,
         onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
         onOverlayThemeIntensityChange: (Float) -> Unit,
+        backgroundSource: BackgroundSource,
+        customImageUri: String?,
+        onSetBackgroundSource: (BackgroundSource) -> Unit,
+        onPickCustomImage: () -> Unit,
+        onRequestWallpaperPermission: () -> Unit,
         isSearchEngineCompactMode: Boolean,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         selectedIconPackPackage: String?,
@@ -295,9 +189,7 @@ fun AppearanceSettingsSection(
         onSelectIconPack: (String?) -> Unit,
         onRefreshIconPacks: () -> Unit,
         onSearchIconPacks: () -> Unit,
-        hasFilePermission: Boolean = true,
         hasWallpaperPermission: Boolean = true,
-        wallpaperAvailable: Boolean = false,
         modifier: Modifier = Modifier,
 ) {
     val appearanceContext = androidx.compose.ui.platform.LocalContext.current
@@ -311,31 +203,24 @@ fun AppearanceSettingsSection(
             }
 
     Column(modifier = modifier) {
-        if (!overlayModeEnabled) {
-            // Wallpaper Background Card is only shown in normal mode.
-            CombinedAppearanceCard(
-                    showWallpaperBackground = showWallpaperBackground,
-                    wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                    wallpaperBlurRadius = wallpaperBlurRadius,
-                    onToggleShowWallpaperBackground = onToggleShowWallpaperBackground,
-                    onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
-                    onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-                    hasFilePermission = hasFilePermission,
-                    hasWallpaperPermission = hasWallpaperPermission,
-                    wallpaperAvailable = wallpaperAvailable,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+        OverlayThemeCard(
+                selectedTheme = overlayGradientTheme,
+                overlayThemeIntensity = overlayThemeIntensity,
+                onThemeSelected = onSetOverlayGradientTheme,
+                onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
+                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+                wallpaperBlurRadius = wallpaperBlurRadius,
+                onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+                onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+                backgroundSource = backgroundSource,
+                customImageUri = customImageUri,
+                onSetBackgroundSource = onSetBackgroundSource,
+                onPickCustomImage = onPickCustomImage,
+                hasWallpaperPermission = hasWallpaperPermission,
+                onRequestWallpaperPermission = onRequestWallpaperPermission,
+        )
 
-        if (overlayModeEnabled) {
-            OverlayThemeCard(
-                    selectedTheme = overlayGradientTheme,
-                    overlayThemeIntensity = overlayThemeIntensity,
-                    onThemeSelected = onSetOverlayGradientTheme,
-                    onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Search Engine Style Card
         SearchEngineAppearanceCard(
@@ -393,14 +278,58 @@ private fun OverlayThemeCard(
         overlayThemeIntensity: Float,
         onThemeSelected: (OverlayGradientTheme) -> Unit,
         onOverlayThemeIntensityChange: (Float) -> Unit,
+        wallpaperBackgroundAlpha: Float,
+        wallpaperBlurRadius: Float,
+        onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+        onWallpaperBlurRadiusChange: (Float) -> Unit,
+        backgroundSource: BackgroundSource,
+        customImageUri: String?,
+        onSetBackgroundSource: (BackgroundSource) -> Unit,
+        onPickCustomImage: () -> Unit,
+        hasWallpaperPermission: Boolean,
+        onRequestWallpaperPermission: () -> Unit,
         modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
+    val context = LocalContext.current
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isThemeSourceSelected = backgroundSource == BackgroundSource.THEME
+    val isWallpaperSourceSelected =
+            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
+    val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
+
+    val wallpaperPreviewBitmap by
+            produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+                    initialValue = null,
+                    key1 = hasWallpaperPermission,
+                    key2 = backgroundSource,
+            ) {
+                value =
+                        WallpaperUtils.getCachedWallpaperBitmap()?.asImageBitmap()
+                                ?: WallpaperUtils.getWallpaperBitmap(context)?.asImageBitmap()
+            }
+    val customPreviewBitmap by
+            produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+                    initialValue = null,
+                    key1 = customImageUri,
+            ) {
+                value = WallpaperUtils.getOverlayCustomImageBitmap(context, customImageUri)
+            }
+
     val minIntensity = UiPreferences.MIN_OVERLAY_THEME_INTENSITY
     val maxIntensity = UiPreferences.MAX_OVERLAY_THEME_INTENSITY
     val intensityStep = UiPreferences.OVERLAY_THEME_INTENSITY_STEP
     val intensitySteps = (UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS * 2) - 1
+    var lastAlphaStep by remember {
+        mutableStateOf((wallpaperBackgroundAlpha * 9).roundToInt().coerceIn(0, 9))
+    }
+    var lastBlurStep by remember {
+        mutableStateOf(
+                (wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
+                        .roundToInt()
+                        .coerceIn(0, 7),
+        )
+    }
     var lastToneStep by remember {
         mutableStateOf(
                 ((overlayThemeIntensity - minIntensity) / intensityStep)
@@ -448,7 +377,9 @@ private fun OverlayThemeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 themeOptions.forEach { option ->
-                    val isSelected = selectedTheme == option.theme
+                    val isSelected =
+                            selectedTheme == option.theme &&
+                                    backgroundSource == BackgroundSource.THEME
                     val interactionSource = remember { MutableInteractionSource() }
                     Column(
                             modifier =
@@ -459,8 +390,11 @@ private fun OverlayThemeCard(
                                             ) {
                                                 if (!isSelected) {
                                                     hapticToggle(view)()
-                                                    onThemeSelected(option.theme)
                                                 }
+                                                onThemeSelected(option.theme)
+                                                onSetBackgroundSource(
+                                                        BackgroundSource.THEME
+                                                )
                                             },
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -519,43 +453,316 @@ private fun OverlayThemeCard(
 
             Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                        imageVector = Icons.Rounded.LightMode,
-                        contentDescription =
-                                stringResource(R.string.settings_overlay_theme_tone_lighter),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Slider(
-                        value = overlayThemeIntensity,
-                        onValueChange = { value ->
-                            val step =
-                                    ((value - minIntensity) / intensityStep)
-                                            .roundToInt()
-                                            .coerceIn(
-                                                    0,
-                                                    UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS * 2,
-                                            )
-                            if (step != lastToneStep) {
-                                hapticToggle(view)()
-                                lastToneStep = step
-                            }
-                            onOverlayThemeIntensityChange(value)
-                        },
-                        valueRange = minIntensity..maxIntensity,
-                        steps = intensitySteps,
+                OverlaySourceBox(
                         modifier = Modifier.weight(1f),
+                        selected = isWallpaperSourceSelected,
+                        onClick = {
+                            hapticToggle(view)()
+                            onRequestWallpaperPermission()
+                        },
+                        label = stringResource(R.string.settings_overlay_source_wallpaper),
+                ) {
+                    if (wallpaperPreviewBitmap != null) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Image(
+                                    bitmap = wallpaperPreviewBitmap!!,
+                                    contentDescription = null,
+                                    modifier =
+                                            Modifier.fillMaxSize()
+                                                    .then(
+                                                            if (isWallpaperSourceSelected) {
+                                                                Modifier.blur(wallpaperBlurRadius.dp)
+                                                            } else {
+                                                                Modifier
+                                                            },
+                                                    ),
+                                    contentScale = ContentScale.Crop,
+                            )
+                            if (isWallpaperSourceSelected) {
+                                Box(
+                                        modifier =
+                                                Modifier.fillMaxSize()
+                                                        .background(
+                                                                if (isDarkMode) {
+                                                                    Color.Black.copy(
+                                                                            alpha =
+                                                                                    wallpaperBackgroundAlpha
+                                                                            )
+                                                                } else {
+                                                                    Color.White.copy(
+                                                                            alpha =
+                                                                                    wallpaperBackgroundAlpha
+                                                                            )
+                                                                },
+                                                        ),
+                                )
+                            }
+                        }
+                    } else if (!hasWallpaperPermission) {
+                        Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(
+                                    imageVector = Icons.Rounded.Info,
+                                    contentDescription =
+                                            stringResource(
+                                                    R.string.settings_overlay_source_permission_required,
+                                            ),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(14.dp),
+                            )
+                            Text(
+                                    text =
+                                            stringResource(
+                                                    R.string.settings_overlay_source_needs_permission,
+                                            ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+
+                OverlaySourceBox(
+                        modifier = Modifier.weight(1f),
+                        selected = isCustomSourceSelected,
+                        onClick = {
+                            hapticToggle(view)()
+                            if (customPreviewBitmap != null) {
+                                onSetBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+                            } else {
+                                onPickCustomImage()
+                            }
+                        },
+                        label = stringResource(R.string.settings_overlay_source_custom),
+                ) {
+                    if (customPreviewBitmap != null) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Image(
+                                    bitmap = customPreviewBitmap!!,
+                                    contentDescription = null,
+                                    modifier =
+                                            Modifier.fillMaxSize()
+                                                    .then(
+                                                            if (isCustomSourceSelected) {
+                                                                Modifier.blur(wallpaperBlurRadius.dp)
+                                                            } else {
+                                                                Modifier
+                                                            },
+                                                    ),
+                                    contentScale = ContentScale.Crop,
+                            )
+                            if (isCustomSourceSelected) {
+                                Box(
+                                        modifier =
+                                                Modifier.fillMaxSize()
+                                                        .background(
+                                                                if (isDarkMode) {
+                                                                    Color.Black.copy(
+                                                                            alpha =
+                                                                                    wallpaperBackgroundAlpha
+                                                                            )
+                                                                } else {
+                                                                    Color.White.copy(
+                                                                            alpha =
+                                                                                    wallpaperBackgroundAlpha
+                                                                            )
+                                                                },
+                                                        ),
+                                )
+                            }
+                        }
+                        Box(
+                                modifier =
+                                        Modifier.align(Alignment.BottomEnd)
+                                                .padding(6.dp)
+                                                .size(20.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.Black)
+                                                .clickable {
+                                                    hapticToggle(view)()
+                                                    onPickCustomImage()
+                                                },
+                                contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                    imageVector = Icons.Rounded.Edit,
+                                    contentDescription =
+                                            stringResource(
+                                                    R.string.settings_overlay_source_edit_custom
+                                            ),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(12.dp),
+                            )
+                        }
+                    } else {
+                        Icon(
+                                imageVector = Icons.Rounded.Add,
+                                contentDescription =
+                                        stringResource(R.string.settings_overlay_source_add_custom),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            if (isThemeSourceSelected) {
+                Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Icon(
+                            imageVector = Icons.Rounded.LightMode,
+                            contentDescription =
+                                    stringResource(R.string.settings_overlay_theme_tone_lighter),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Slider(
+                            value = overlayThemeIntensity,
+                            onValueChange = { value ->
+                                val step =
+                                        ((value - minIntensity) / intensityStep)
+                                                .roundToInt()
+                                                .coerceIn(
+                                                        0,
+                                                        UiPreferences.OVERLAY_THEME_INTENSITY_DELTA_STEPS *
+                                                                2,
+                                                )
+                                if (step != lastToneStep) {
+                                    hapticToggle(view)()
+                                    lastToneStep = step
+                                }
+                                onOverlayThemeIntensityChange(value)
+                            },
+                            valueRange = minIntensity..maxIntensity,
+                            steps = intensitySteps,
+                            modifier = Modifier.weight(1f),
+                    )
+                    Icon(
+                            imageVector = Icons.Rounded.DarkMode,
+                            contentDescription =
+                                    stringResource(R.string.settings_overlay_theme_tone_darker),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                        text = stringResource(R.string.settings_wallpaper_transparency_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Icon(
-                        imageVector = Icons.Rounded.DarkMode,
-                        contentDescription =
-                                stringResource(R.string.settings_overlay_theme_tone_darker),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Slider(
+                            value = wallpaperBackgroundAlpha,
+                            onValueChange = { value ->
+                                val step = (value * 9).roundToInt().coerceIn(0, 9)
+                                if (step != lastAlphaStep) {
+                                    hapticToggle(view)()
+                                    lastAlphaStep = step
+                                }
+                                onWallpaperBackgroundAlphaChange(value)
+                            },
+                            valueRange = 0f..1f,
+                            steps = 9,
+                            modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                            text = "${(wallpaperBackgroundAlpha * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                    )
+                }
+
+                Text(
+                        text = stringResource(R.string.settings_wallpaper_blur_label),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Slider(
+                            value = wallpaperBlurRadius,
+                            onValueChange = { value ->
+                                val step =
+                                        (value / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS * 7)
+                                                .roundToInt()
+                                                .coerceIn(0, 7)
+                                if (step != lastBlurStep) {
+                                    hapticToggle(view)()
+                                    lastBlurStep = step
+                                }
+                                onWallpaperBlurRadiusChange(value)
+                            },
+                            valueRange = 0f..UiPreferences.MAX_WALLPAPER_BLUR_RADIUS,
+                            steps = 7,
+                            modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                            text =
+                                    "${((wallpaperBlurRadius / UiPreferences.MAX_WALLPAPER_BLUR_RADIUS) * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.widthIn(min = 48.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun OverlaySourceBox(
+        modifier: Modifier = Modifier,
+        selected: Boolean,
+        label: String,
+        onClick: () -> Unit,
+        content: @Composable BoxScope.() -> Unit,
+) {
+    Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Box(
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .height(52.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                                .clickable(onClick = onClick)
+                                .border(
+                                        width = if (selected) 2.dp else 1.dp,
+                                        color =
+                                                if (selected) {
+                                                    MaterialTheme.colorScheme.primary
+                                                } else {
+                                                    MaterialTheme.colorScheme.outlineVariant
+                                                },
+                                        shape = MaterialTheme.shapes.medium,
+                                ),
+                contentAlignment = Alignment.Center,
+                content = content,
+        )
+        Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

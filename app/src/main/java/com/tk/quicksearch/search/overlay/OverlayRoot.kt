@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateDpAsState
@@ -35,9 +36,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
@@ -47,6 +51,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.util.WallpaperUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
@@ -293,6 +298,55 @@ fun OverlayRoot(
                         )
 
                         val uiState by viewModel.uiState.collectAsState()
+                        val overlayWallpaperBitmap by
+                                produceState<ImageBitmap?>(
+                                        initialValue = null,
+                                        key1 = uiState.backgroundSource,
+                                ) {
+                                        value =
+                                                if (
+                                                        uiState.backgroundSource ==
+                                                                        BackgroundSource
+                                                                                .SYSTEM_WALLPAPER
+                                                ) {
+                                                        WallpaperUtils.getCachedWallpaperBitmap()
+                                                                ?.asImageBitmap()
+                                                                ?: WallpaperUtils
+                                                                        .getWallpaperBitmap(context)
+                                                                        ?.asImageBitmap()
+                                                } else {
+                                                        null
+                                                }
+                                }
+                        val overlayCustomBitmap by
+                                produceState<ImageBitmap?>(
+                                        initialValue = null,
+                                        key1 = uiState.backgroundSource,
+                                        key2 = uiState.customImageUri,
+                                ) {
+                                        value =
+                                                if (
+                                                        uiState.backgroundSource ==
+                                                                BackgroundSource.CUSTOM_IMAGE
+                                                ) {
+                                                        WallpaperUtils.getOverlayCustomImageBitmap(
+                                                                context,
+                                                                uiState.customImageUri,
+                                                        )
+                                                } else {
+                                                        null
+                                                }
+                                }
+                        val overlayImageBitmap =
+                                when (uiState.backgroundSource) {
+                                        BackgroundSource.SYSTEM_WALLPAPER ->
+                                                overlayWallpaperBitmap
+                                        BackgroundSource.CUSTOM_IMAGE -> overlayCustomBitmap
+                                        BackgroundSource.THEME -> null
+                                }
+                        val useImageBackground =
+                                uiState.backgroundSource != BackgroundSource.THEME &&
+                                        overlayImageBitmap != null
 
                         androidx.compose.animation.AnimatedVisibility(
                                 visible = isVisible,
@@ -337,13 +391,18 @@ fun OverlayRoot(
                                                                 ) {},
                                         ) {
                                                 SearchScreenBackground(
-                                                        showWallpaperBackground = false,
-                                                        wallpaperBitmap = null,
-                                                        wallpaperBackgroundAlpha = 0f,
-                                                        wallpaperBlurRadius = 0f,
+                                                        showWallpaperBackground = useImageBackground,
+                                                        wallpaperBitmap = overlayImageBitmap,
+                                                        wallpaperBackgroundAlpha =
+                                                                uiState.wallpaperBackgroundAlpha,
+                                                        wallpaperBlurRadius =
+                                                                uiState.wallpaperBlurRadius,
                                                         fallbackBackgroundAlpha =
                                                                 OVERLAY_FALLBACK_GRADIENT_ALPHA,
-                                                        useGradientFallback = true,
+                                                        useGradientFallback =
+                                                                uiState.backgroundSource ==
+                                                                        BackgroundSource
+                                                                                .THEME,
                                                         overlayGradientTheme =
                                                                 uiState.overlayGradientTheme,
                                                         overlayThemeIntensity =

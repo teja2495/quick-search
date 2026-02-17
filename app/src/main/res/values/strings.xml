@@ -270,7 +270,6 @@
          Settings - Appearance
          ============================================================================ -->
     <string name="settings_app_labels_title">Appearance</string>
-    <string name="settings_wallpaper_background_toggle">Wallpaper Background</string>
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
@@ -289,7 +288,7 @@
     <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>
     <string name="settings_icon_pack_search_query">Free icon packs</string>
-    <string name="settings_overlay_theme_title">Overlay Theme</string>
+    <string name="settings_overlay_theme_title">Background Theme</string>
     <string name="settings_overlay_theme_forest">Forest</string>
     <string name="settings_overlay_theme_aurora">Aurora</string>
     <string name="settings_overlay_theme_sunset">Sunset</string>
@@ -297,6 +296,12 @@
     <string name="settings_overlay_theme_tone_label">Tone</string>
     <string name="settings_overlay_theme_tone_lighter">Lighter</string>
     <string name="settings_overlay_theme_tone_darker">Darker</string>
+    <string name="settings_overlay_source_wallpaper">Wallpaper</string>
+    <string name="settings_overlay_source_custom">Custom</string>
+    <string name="settings_overlay_source_add_custom">Add custom image</string>
+    <string name="settings_overlay_source_edit_custom">Edit custom image</string>
+    <string name="settings_overlay_source_permission_required">Permission required</string>
+    <string name="settings_overlay_source_needs_permission">Needs Permission</string>
 
     <!-- ============================================================================
          Settings - Search Engines
