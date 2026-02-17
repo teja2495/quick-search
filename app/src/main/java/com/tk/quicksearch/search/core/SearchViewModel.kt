@@ -2306,12 +2306,7 @@ class SearchViewModel(
             userPreferences.setRecentAppLaunches(initialRecents)
         }
 
-        val pinnedAppsForSuggestions =
-                if (suggestionsEnabled) {
-                    appSearchManager.computePinnedApps(suggestionHiddenPackages)
-                } else {
-                    emptyList()
-                }
+        val pinnedAppsForSuggestions = appSearchManager.computePinnedApps(emptySet())
         val pinnedAppsForResults = appSearchManager.computePinnedApps(resultHiddenPackages)
         val recents =
                 if (suggestionsEnabled) {
