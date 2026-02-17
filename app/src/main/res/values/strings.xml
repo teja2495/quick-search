@@ -594,7 +594,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">New Themes for Overlay Mode (Appearance settings) \nApp Management: View details or bulk uninstall apps (search results settings)\nShortcut Management: Enable, disable, or add custom shortcuts (search results settings)\nModel Selection: Choose among several Gemini and Gemma models for Direct Search\nBrowser searches now use your default search engine when supported\nEnhancements &amp; bug fixes</string>
+    <string name="release_notes_points">New App Themes (Appearance settings) \nApp Management: View details or bulk uninstall apps (search results settings)\nShortcut Management: Enable, disable, or add custom shortcuts (search results settings)\nSelect any picture for background.\nModel Selection: Choose among several Gemini and Gemma models for Direct Search\nBrowser searches now use your default search engine when supported\nEnhancements &amp; bug fixes</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
