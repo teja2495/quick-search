@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -238,179 +239,101 @@ fun SearchContentArea(
                 Modifier.heightIn(min = maxHeight)
             }
 
+        val needsEdgeFade =
+            !shouldHideScrollView && scrollState.maxValue > 0
+        val edgeFadeModifier =
+            if (needsEdgeFade) {
+                Modifier
+                    .graphicsLayer {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                    }
+                    .drawWithContent {
+                        drawContent()
+                        val fadePx =
+                            min(
+                                edgeFadeHeight.toPx(),
+                                size.height / 2f,
+                            )
+                        val scrollValue = scrollState.value.toFloat()
+                        val maxScroll = scrollState.maxValue.toFloat()
+
+                        fun getFadeProgress(value: Float): Float {
+                            val progress =
+                                (value / fadePx).coerceIn(0f, 1f)
+                            return progress * progress * (3 - 2 * progress)
+                        }
+
+                        val topFadeProgress =
+                            if (maxScroll > 0) {
+                                if (alignResultsToBottom) {
+                                    getFadeProgress(maxScroll - scrollValue)
+                                } else {
+                                    getFadeProgress(scrollValue)
+                                }
+                            } else {
+                                0f
+                            }
+                        val bottomFadeProgress =
+                            if (maxScroll > 0) {
+                                if (alignResultsToBottom) {
+                                    getFadeProgress(scrollValue)
+                                } else {
+                                    getFadeProgress(maxScroll - scrollValue)
+                                }
+                            } else {
+                                0f
+                            }
+                        val topEdgeAlpha = 1f - topFadeProgress
+                        val bottomEdgeAlpha = 1f - bottomFadeProgress
+
+                        if (fadePx > 0f) {
+                            if (topEdgeAlpha < 1f) {
+                                drawRect(
+                                    brush =
+                                        Brush.verticalGradient(
+                                            colors =
+                                                listOf(
+                                                    Color.Black.copy(alpha = topEdgeAlpha),
+                                                    Color.Black,
+                                                ),
+                                            startY = 0f,
+                                            endY = fadePx,
+                                        ),
+                                    size = Size(size.width, fadePx),
+                                    blendMode = BlendMode.DstIn,
+                                )
+                            }
+                            if (bottomEdgeAlpha < 1f) {
+                                drawRect(
+                                    brush =
+                                        Brush.verticalGradient(
+                                            colors =
+                                                listOf(
+                                                    Color.Black,
+                                                    Color.Black.copy(alpha = bottomEdgeAlpha),
+                                                ),
+                                            startY = size.height - fadePx,
+                                            endY = size.height,
+                                        ),
+                                    topLeft = Offset(0f, size.height - fadePx),
+                                    size = Size(size.width, fadePx),
+                                    blendMode = BlendMode.DstIn,
+                                )
+                            }
+                        }
+                    }
+            } else {
+                Modifier
+            }
+
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .then(heightModifier)
                     .clip(TopRoundedShape)
+                    .then(edgeFadeModifier)
                     .then(
-                        if (shouldHideScrollView) {
-                            Modifier
-                        } else {
-                            Modifier
-                                .graphicsLayer {
-                                    compositingStrategy =
-                                        CompositingStrategy
-                                            .Offscreen
-                                }.drawWithContent {
-                                    drawContent()
-                                    val fadePx =
-                                        min(
-                                            edgeFadeHeight
-                                                .toPx(),
-                                            size.height /
-                                                2f,
-                                        )
-
-                                    // Calculate scroll progress
-                                    // for fade (0f = at edge,
-                                    // 1f = fully scrolled away)
-                                    val scrollValue =
-                                        scrollState.value
-                                            .toFloat()
-                                    val maxScroll =
-                                        scrollState.maxValue
-                                            .toFloat()
-
-                                    fun getFadeProgress(value: Float): Float {
-                                        val progress =
-                                            (
-                                                value /
-                                                    fadePx
-                                            ).coerceIn(
-                                                0f,
-                                                1f,
-                                            )
-                                        // Cubic easing for
-                                        // smoother
-                                        // transition
-                                        return progress *
-                                            progress *
-                                            (
-                                                3 -
-                                                    2 *
-                                                    progress
-                                            )
-                                    }
-
-                                    val topFadeProgress =
-                                        if (maxScroll > 0) {
-                                            if (alignResultsToBottom) {
-                                                getFadeProgress(
-                                                    maxScroll -
-                                                        scrollValue,
-                                                )
-                                            } else {
-                                                getFadeProgress(
-                                                    scrollValue,
-                                                )
-                                            }
-                                        } else {
-                                            0f
-                                        }
-
-                                    val bottomFadeProgress =
-                                        if (maxScroll > 0) {
-                                            if (alignResultsToBottom) {
-                                                getFadeProgress(
-                                                    scrollValue,
-                                                )
-                                            } else {
-                                                getFadeProgress(
-                                                    maxScroll -
-                                                        scrollValue,
-                                                )
-                                            }
-                                        } else {
-                                            0f
-                                        }
-
-                                    // Edge alpha: 1.0f = No
-                                    // Fade (fully visible),
-                                    // 0.0f = Full Fade
-                                    // (transparent)
-                                    val topEdgeAlpha =
-                                        1f - topFadeProgress
-                                    val bottomEdgeAlpha =
-                                        1f -
-                                            bottomFadeProgress
-
-                                    if (fadePx > 0f) {
-                                        // Top Fade
-                                        if (topEdgeAlpha <
-                                            1f
-                                        ) {
-                                            drawRect(
-                                                brush =
-                                                    Brush.verticalGradient(
-                                                        colors =
-                                                            listOf(
-                                                                Color.Black
-                                                                    .copy(
-                                                                        alpha =
-                                                                        topEdgeAlpha,
-                                                                    ),
-                                                                Color.Black,
-                                                            ),
-                                                        startY =
-                                                        0f,
-                                                        endY =
-                                                        fadePx,
-                                                    ),
-                                                size =
-                                                    Size(
-                                                        size.width,
-                                                        fadePx,
-                                                    ),
-                                                blendMode =
-                                                    BlendMode
-                                                        .DstIn,
-                                            )
-                                        }
-
-                                        // Bottom Fade
-                                        if (bottomEdgeAlpha <
-                                            1f
-                                        ) {
-                                            drawRect(
-                                                brush =
-                                                    Brush.verticalGradient(
-                                                        colors =
-                                                            listOf(
-                                                                Color.Black,
-                                                                Color.Black
-                                                                    .copy(
-                                                                        alpha =
-                                                                        bottomEdgeAlpha,
-                                                                    ),
-                                                            ),
-                                                        startY =
-                                                            size.height -
-                                                                fadePx,
-                                                        endY =
-                                                            size.height,
-                                                    ),
-                                                topLeft =
-                                                    Offset(
-                                                        0f,
-                                                        size.height -
-                                                            fadePx,
-                                                    ),
-                                                size =
-                                                    Size(
-                                                        size.width,
-                                                        fadePx,
-                                                    ),
-                                                blendMode =
-                                                    BlendMode
-                                                        .DstIn,
-                                            )
-                                        }
-                                    }
-                                }
-                        },
-                    ).then(
                         if (shouldHideScrollView) {
                             Modifier.padding(
                                 bottom = DesignTokens.SpacingMedium,
@@ -487,44 +410,45 @@ fun SearchContentArea(
                     )
                 }
             } else {
-                ContentLayout(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = state,
-                    renderingState = renderingState,
-                    contactsParams = contactsParams,
-                    filesParams = filesParams,
-                    appShortcutsParams = appShortcutsParams,
-                    settingsParams = settingsParams,
-                    appsParams = appsParams,
-                    onRequestUsagePermission = onRequestUsagePermission,
-                    // Pass calculator and direct search state to ContentLayout
-                    minContentHeight =
-                        if (isOverlayPresentation) {
-                            0.dp
-                        } else {
-                            this@BoxWithConstraints.maxHeight
-                        },
-                    isReversed = useOneHandedMode && !showDirectSearch,
-                    hideResults = hideOtherResults,
-                    showCalculator = showCalculator,
-                    showDirectSearch = showDirectSearch,
-                    directSearchState = directSearchState,
-                    isOverlayPresentation = isOverlayPresentation,
-                    onPhoneNumberClick = onPhoneNumberClick,
-                    onEmailClick = onEmailClick,
-                    onOpenPersonalContextDialog = onOpenPersonalContextDialog,
-                    onPersonalContextHintDismissed =
-                    onPersonalContextHintDismissed,
-                    onWebSuggestionClick = onWebSuggestionClick,
-                    onSearchEngineLongPress = onSearchEngineLongPress,
-                    onCustomizeSearchEnginesClick =
-                    onCustomizeSearchEnginesClick,
-                    onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
-                    onSearchTargetClick = onSearchTargetClick,
-                    onDeleteRecentItem = onDeleteRecentItem,
-                    onDisableSearchHistory = onDisableSearchHistory,
-                    onGeminiModelInfoClick = onGeminiModelInfoClick,
-                )
+                key(state.backgroundSource, state.showWallpaperBackground) {
+                    ContentLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = state,
+                        renderingState = renderingState,
+                        contactsParams = contactsParams,
+                        filesParams = filesParams,
+                        appShortcutsParams = appShortcutsParams,
+                        settingsParams = settingsParams,
+                        appsParams = appsParams,
+                        onRequestUsagePermission = onRequestUsagePermission,
+                        minContentHeight =
+                            if (isOverlayPresentation) {
+                                0.dp
+                            } else {
+                                this@BoxWithConstraints.maxHeight
+                            },
+                        isReversed = useOneHandedMode && !showDirectSearch,
+                        hideResults = hideOtherResults,
+                        showCalculator = showCalculator,
+                        showDirectSearch = showDirectSearch,
+                        directSearchState = directSearchState,
+                        isOverlayPresentation = isOverlayPresentation,
+                        onPhoneNumberClick = onPhoneNumberClick,
+                        onEmailClick = onEmailClick,
+                        onOpenPersonalContextDialog = onOpenPersonalContextDialog,
+                        onPersonalContextHintDismissed =
+                        onPersonalContextHintDismissed,
+                        onWebSuggestionClick = onWebSuggestionClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        onCustomizeSearchEnginesClick =
+                        onCustomizeSearchEnginesClick,
+                        onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+                        onSearchTargetClick = onSearchTargetClick,
+                        onDeleteRecentItem = onDeleteRecentItem,
+                        onDisableSearchHistory = onDisableSearchHistory,
+                        onGeminiModelInfoClick = onGeminiModelInfoClick,
+                    )
+                }
             }
         }
 
@@ -897,12 +821,7 @@ fun ContentLayout(
 
                 ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
                     if (!hideResults && showRecentItems) {
-                        val orderedRecentItems =
-                            if (state.oneHandedMode) {
-                                state.recentItems.reversed()
-                            } else {
-                                state.recentItems
-                            }
+                        val orderedRecentItems = state.recentItems
                         AnimatedVisibility(
                             visible = true, // showRecentItems is
                             // already checked

@@ -87,7 +87,7 @@ internal fun SearchScreenContent(
 
         // Overlay auto-focus opens IME shortly after composition; avoid a startup flicker.
         canShowOpenKeyboardPill = false
-        delay(600)
+        delay(850)
         canShowOpenKeyboardPill = true
     }
 

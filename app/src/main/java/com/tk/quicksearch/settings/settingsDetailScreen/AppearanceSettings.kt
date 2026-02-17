@@ -297,7 +297,6 @@ private fun OverlayThemeCard(
     val isWallpaperSourceSelected =
             backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
     val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
-    val isThemeFallbackSelected = isWallpaperSourceSelected && !hasWallpaperPermission
 
     val wallpaperPreviewBitmap by
             produceState<androidx.compose.ui.graphics.ImageBitmap?>(
@@ -378,9 +377,7 @@ private fun OverlayThemeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 themeOptions.forEach { option ->
-                    val isSelected =
-                            selectedTheme == option.theme &&
-                                    (isThemeSourceSelected || isThemeFallbackSelected)
+                    val isSelected = selectedTheme == option.theme && isThemeSourceSelected
                     val interactionSource = remember { MutableInteractionSource() }
                     Column(
                             modifier =
