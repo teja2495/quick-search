@@ -898,7 +898,7 @@ fun ContentLayout(
                 ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
                     if (!hideResults && showRecentItems) {
                         val orderedRecentItems =
-                            if (isReversed) {
+                            if (state.oneHandedMode) {
                                 state.recentItems.reversed()
                             } else {
                                 state.recentItems

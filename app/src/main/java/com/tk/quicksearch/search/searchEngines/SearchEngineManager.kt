@@ -3,7 +3,9 @@ package com.tk.quicksearch.search.searchEngines
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import androidx.browser.customtabs.CustomTabsService
 import com.tk.quicksearch.search.core.BrowserApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.SearchEngine
@@ -374,6 +376,7 @@ class SearchEngineManager(
             availableBrowsers.map { buildBrowserId(it.packageName) }.toSet()
         val customIds = customEngines.map { "$CUSTOM_ID_PREFIX${it.id}" }.toSet()
         val hasBrowserTargetsInOrder = savedOrder.any { it.startsWith(BROWSER_ID_PREFIX) }
+        val browserIdsInSavedOrder = savedOrder.filter { it.startsWith(BROWSER_ID_PREFIX) }.toSet()
 
         val savedDisabled =
             disabledNames
@@ -435,7 +438,12 @@ class SearchEngineManager(
             return updated
         }
 
-        return savedDisabled.toSet()
+        val newBrowserIds = browserIds - browserIdsInSavedOrder
+        val updatedDisabled = savedDisabled + newBrowserIds
+        if (updatedDisabled != savedDisabled) {
+            userPreferences.setDisabledSearchEngines(updatedDisabled)
+        }
+        return updatedDisabled
     }
 
     private fun parseSearchTargetId(
@@ -557,9 +565,16 @@ class SearchEngineManager(
         val packageManager = context.packageManager
         val browserCategoryIntent =
             Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_APP_BROWSER) }
+        val webViewIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
+        val customTabsServiceIntent = Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION)
 
         val browserPackages =
-            queryBrowserPackages(packageManager, browserCategoryIntent)
+            buildSet {
+                addAll(queryActivityPackages(packageManager, browserCategoryIntent))
+                addAll(queryActivityPackages(packageManager, webViewIntent))
+                addAll(queryCustomTabsServicePackages(packageManager, customTabsServiceIntent))
+                queryDefaultBrowserPackage(packageManager)?.let { add(it) }
+            }
 
         return browserPackages
             .mapNotNull { packageName ->
@@ -586,7 +601,7 @@ class SearchEngineManager(
             }.sortedBy { it.label.lowercase() }
     }
 
-    private fun queryBrowserPackages(
+    private fun queryActivityPackages(
         packageManager: PackageManager,
         intent: Intent,
     ): Set<String> =
@@ -603,6 +618,40 @@ class SearchEngineManager(
         }.getOrDefault(emptyList())
             .mapNotNull { it.activityInfo?.packageName }
             .toSet()
+
+    private fun queryCustomTabsServicePackages(
+        packageManager: PackageManager,
+        intent: Intent,
+    ): Set<String> =
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryIntentServices(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.queryIntentServices(intent, PackageManager.MATCH_ALL)
+            }
+        }.getOrDefault(emptyList())
+            .mapNotNull { it.serviceInfo?.packageName }
+            .toSet()
+
+    private fun queryDefaultBrowserPackage(packageManager: PackageManager): String? {
+        val webViewIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com"))
+        return runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.resolveActivity(
+                    webViewIntent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
+                )?.activityInfo?.packageName
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.resolveActivity(webViewIntent, PackageManager.MATCH_DEFAULT_ONLY)
+                    ?.activityInfo?.packageName
+            }
+        }.getOrNull()
+    }
 
     private fun isPackageInstalled(
         packageManager: PackageManager,

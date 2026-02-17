@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 data class FileSearchResults(
@@ -94,12 +95,12 @@ class FileSearchHandler(
     ): List<DeviceFile> {
         if (query.isBlank() || !fileRepository.hasPermission()) return emptyList()
 
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.length < 2) return emptyList()
+        val normalizedQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
+        if (normalizedQuery.length < 2) return emptyList()
 
         // Get files from repository
         val allFiles =
-            fileRepository.searchFiles(trimmedQuery, FILE_SEARCH_RESULT_LIMIT)
+            fileRepository.searchFiles(normalizedQuery, FILE_SEARCH_RESULT_LIMIT)
 
         // Apply filters
         val filteredFiles =
@@ -137,7 +138,7 @@ class FileSearchHandler(
             }
 
         // Rank and return results
-        return rankFiles(filteredFiles, trimmedQuery).take(FILE_SEARCH_RESULT_LIMIT)
+        return rankFiles(filteredFiles, normalizedQuery).take(FILE_SEARCH_RESULT_LIMIT)
     }
 
     private fun rankFiles(
@@ -146,7 +147,7 @@ class FileSearchHandler(
     ): List<DeviceFile> {
         if (files.isEmpty()) return emptyList()
 
-        val normalizedQuery = query.lowercase(Locale.getDefault())
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query)
         val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
 
         // Pre-fetch all file nicknames in a single call to reduce SharedPreferences reads

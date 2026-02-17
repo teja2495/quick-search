@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.search.utils.SearchRankingUtils
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 class FileSearchRepository(
@@ -106,8 +107,11 @@ class FileSearchRepository(
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedQuery = normalizeQuery(query)
-        val selection = "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? AND (format = ${MtpConstants.FORMAT_ASSOCIATION} OR LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%')"
-        val selectionArgs = arrayOf("%$normalizedQuery%")
+        val escapedQuery = escapeLikeQuery(normalizedQuery)
+        val selection =
+            "LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE ? ESCAPE '\\' AND " +
+                "(format = ${MtpConstants.FORMAT_ASSOCIATION} OR LOWER(${MediaStore.Files.FileColumns.DISPLAY_NAME}) LIKE '%.%')"
+        val selectionArgs = arrayOf("%$escapedQuery%")
         val uri = getFilesContentUri()
 
         val results = mutableListOf<DeviceFile>()
@@ -142,11 +146,22 @@ class FileSearchRepository(
     }
 
     private fun normalizeQuery(query: String): String =
-        query
-            .trim()
-            .lowercase(Locale.getDefault())
-            .replace("%", "")
-            .replace("_", "")
+        SearchTextNormalizer.normalizeForSearch(
+            SearchTextNormalizer.normalizeQueryWhitespace(query),
+        )
+
+    private fun escapeLikeQuery(query: String): String =
+        buildString(query.length) {
+            query.forEach { char ->
+                when (char) {
+                    '\\', '%', '_' -> {
+                        append('\\')
+                        append(char)
+                    }
+                    else -> append(char)
+                }
+            }
+        }
 
     private fun getFilesContentUri(): Uri =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

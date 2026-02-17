@@ -10,7 +10,7 @@ import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
 private const val MIN_QUERY_LENGTH = 2
-private const val RESULT_LIMIT = 6
+private const val RESULT_LIMIT = 25
 private const val CHROME_PACKAGE = "com.android.chrome"
 private const val BRAVE_PACKAGE = "com.brave.browser"
 

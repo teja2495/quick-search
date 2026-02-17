@@ -7,9 +7,6 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -109,7 +105,6 @@ fun SettingsDetailRoute(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var showWallpaperPermissionFallbackDialog by remember { mutableStateOf(false) }
 
     val wallpaperPermissionLauncher =
             rememberLauncherForActivityResult(
@@ -154,10 +149,10 @@ fun SettingsDetailRoute(
                     viewModel.setBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
                 }
                 WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
-                    showWallpaperPermissionFallbackDialog = true
+                    requestWallpaperPermission()
                 }
                 WallpaperUtils.WallpaperLoadResult.SecurityError -> {
-                    showWallpaperPermissionFallbackDialog = true
+                    requestWallpaperPermission()
                 }
                 else -> {}
             }
@@ -439,27 +434,6 @@ fun SettingsDetailRoute(
                 disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                 onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
                 onNavigateToDetail = onNavigateToDetail,
-        )
-    }
-
-    if (showWallpaperPermissionFallbackDialog) {
-        AlertDialog(
-                onDismissRequest = { showWallpaperPermissionFallbackDialog = false },
-                title = { Text(stringResource(R.string.wallpaper_permission_fallback_title)) },
-                text = { Text(stringResource(R.string.wallpaper_permission_fallback_message)) },
-                confirmButton = {
-                    TextButton(
-                            onClick = {
-                                showWallpaperPermissionFallbackDialog = false
-                                requestWallpaperPermission()
-                            },
-                    ) { Text(stringResource(R.string.dialog_yes)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showWallpaperPermissionFallbackDialog = false }) {
-                        Text(stringResource(R.string.dialog_no))
-                    }
-                },
         )
     }
 

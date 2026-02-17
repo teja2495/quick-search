@@ -191,19 +191,16 @@ class ContactRepository(
         normalizedQuery: String,
         limit: Int,
     ): LinkedHashMap<Long, MutableContact> {
-        val selection = "LOWER(${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY}) LIKE ?"
-        val selectionArgs = arrayOf("%$normalizedQuery%")
-
         val cursor =
             contentResolver.query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 PHONE_PROJECTION,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 SORT_ORDER,
             ) ?: return LinkedHashMap()
 
-        return cursor.use { processPhoneCursor(it, limit) }
+        return cursor.use { processPhoneCursorForSearch(it, normalizedQuery, limit) }
     }
 
     private fun processPhoneCursor(
@@ -227,6 +224,46 @@ class ContactRepository(
             if (existing == null) {
                 // Check limit before adding new contact
                 if (limit != null && contacts.size >= limit) {
+                    break
+                }
+                contacts[contactId] =
+                    MutableContact(
+                        contactId = contactId,
+                        lookupKey = lookupKey,
+                        displayName = displayName,
+                        numbers = mutableListOf(phoneNumber),
+                    )
+            } else {
+                addOrUpdatePhoneNumber(existing.numbers, phoneNumber)
+            }
+        }
+
+        return contacts
+    }
+
+    private fun processPhoneCursorForSearch(
+        cursor: Cursor,
+        normalizedQuery: String,
+        limit: Int,
+    ): LinkedHashMap<Long, MutableContact> {
+        val contacts = LinkedHashMap<Long, MutableContact>()
+        val columnIndices = PhoneColumnIndices.fromCursor(cursor)
+
+        while (cursor.moveToNext()) {
+            val contactId = cursor.getLong(columnIndices.idIndex)
+            val lookupKey = cursor.getString(columnIndices.lookupIndex) ?: continue
+            val displayName = cursor.getString(columnIndices.nameIndex) ?: continue
+            val phoneNumber =
+                cursor
+                    .getString(columnIndices.numberIndex)
+                    ?.takeIf { it.isNotBlank() } ?: continue
+
+            val existing = contacts[contactId]
+            if (existing == null) {
+                if (!SearchTextNormalizer.normalizeForSearch(displayName).contains(normalizedQuery)) {
+                    continue
+                }
+                if (contacts.size >= limit) {
                     break
                 }
                 contacts[contactId] =
@@ -457,9 +494,8 @@ class ContactRepository(
     }
 
     private fun normalizeSearchQuery(query: String): String =
-        query
-            .trim()
-            .lowercase(Locale.getDefault())
+        SearchTextNormalizer
+            .normalizeForSearch(query.trim())
             .replace("%", "")
             .replace("_", "")
 

@@ -9,6 +9,8 @@ import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import kotlinx.coroutines.CoroutineScope
 import java.util.Locale
 
+private const val RESULT_LIMIT = 25
+
 data class DeviceSettingsSearchResults(
     val pinned: List<DeviceSetting>,
     val excluded: List<DeviceSetting>,
@@ -129,7 +131,7 @@ class DeviceSettingsSearchHandler(
                 shortcut to priority
             }.sortedWith(
                 compareBy({ it.second }, { it.first.title.lowercase(Locale.getDefault()) }),
-            ).take(6)
+            ).take(RESULT_LIMIT)
             .map { it.first }
             .toList()
     }
