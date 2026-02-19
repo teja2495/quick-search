@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -53,6 +54,23 @@ class UiPreferences(
 
     fun setMessagingApp(app: MessagingApp) {
         prefs.edit().putString(UiPreferences.KEY_MESSAGING_APP, app.name).apply()
+    }
+
+    fun getCallingApp(): CallingApp {
+        val appName = prefs.getString(UiPreferences.KEY_CALLING_APP, null)
+        return if (appName != null) {
+            try {
+                CallingApp.valueOf(appName)
+            } catch (e: IllegalArgumentException) {
+                CallingApp.CALL
+            }
+        } else {
+            CallingApp.CALL
+        }
+    }
+
+    fun setCallingApp(app: CallingApp) {
+        prefs.edit().putString(UiPreferences.KEY_CALLING_APP, app.name).apply()
     }
 
     fun isFirstLaunch(): Boolean {
@@ -533,6 +551,7 @@ class UiPreferences(
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
                 "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"
+        const val KEY_CALLING_APP = "calling_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"

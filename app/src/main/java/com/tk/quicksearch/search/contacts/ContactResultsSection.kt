@@ -34,7 +34,9 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
@@ -54,6 +56,7 @@ fun ContactResultsSection(
     hasPermission: Boolean,
     contacts: List<ContactInfo>,
     isExpanded: Boolean,
+    callingApp: CallingApp,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit = {},
@@ -101,6 +104,7 @@ fun ContactResultsSection(
                     isExpanded = isExpanded,
                     showAllResults = showAllResults,
                     showExpandControls = showExpandControls,
+                    callingApp = callingApp,
                     messagingApp = messagingApp,
                     onContactClick = onContactClick,
                     onShowContactMethods = onShowContactMethods,
@@ -147,6 +151,7 @@ private fun ContactsResultCard(
     isExpanded: Boolean,
     showAllResults: Boolean,
     showExpandControls: Boolean,
+    callingApp: CallingApp,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit,
@@ -216,6 +221,7 @@ private fun ContactsResultCard(
                     ContactList(
                         displayContacts = displayContacts,
                         overlayDividerColor = overlayDividerColor,
+                        callingApp = callingApp,
                         messagingApp = messagingApp,
                         onContactClick = onContactClick,
                         onShowContactMethods = onShowContactMethods,
@@ -279,6 +285,7 @@ private fun ContactsResultCard(
 private fun ContactList(
     displayContacts: List<ContactInfo>,
     overlayDividerColor: Color?,
+    callingApp: CallingApp,
     messagingApp: MessagingApp,
     onContactClick: (ContactInfo) -> Unit,
     onShowContactMethods: (ContactInfo) -> Unit,
@@ -311,6 +318,12 @@ private fun ContactList(
             key(contactInfo.contactId) {
                 ContactResultRow(
                     contactInfo = contactInfo,
+                    callingApp =
+                        ContactCallingAppResolver
+                            .resolveCallingAppForContact(
+                                contactInfo,
+                                callingApp,
+                            ),
                     messagingApp =
                         ContactMessagingAppResolver
                             .resolveMessagingAppForContact(

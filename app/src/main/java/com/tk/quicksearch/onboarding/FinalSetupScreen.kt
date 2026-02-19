@@ -113,6 +113,7 @@ fun FinalSetupScreen(
                         isWhatsAppInstalled = uiState.isWhatsAppInstalled,
                         isTelegramInstalled = uiState.isTelegramInstalled,
                         isSignalInstalled = uiState.isSignalInstalled,
+                        showCallingApp = false,
                         showDirectDial = false,
                         showTitle = false,
                         onMessagingAppSelected = { app ->

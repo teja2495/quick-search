@@ -200,7 +200,9 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.CALLS_TEXTS -> {
                         CallsTextsSettingsSection(
                             messagingApp = state.messagingApp,
+                            callingApp = state.callingApp,
                             onSetMessagingApp = callbacks.onSetMessagingApp,
+                            onSetCallingApp = callbacks.onSetCallingApp,
                             directDialEnabled = state.directDialEnabled,
                             onToggleDirectDial = callbacks.onToggleDirectDial,
                             hasCallPermission = PermissionRequestHandler.checkCallPermission(context),
@@ -210,6 +212,7 @@ internal fun SettingsDetailLevel1Screen(
                             isWhatsAppInstalled = state.isWhatsAppInstalled,
                             isTelegramInstalled = state.isTelegramInstalled,
                             isSignalInstalled = state.isSignalInstalled,
+                            isGoogleMeetInstalled = state.isGoogleMeetInstalled,
                             modifier = Modifier,
                         )
                     }

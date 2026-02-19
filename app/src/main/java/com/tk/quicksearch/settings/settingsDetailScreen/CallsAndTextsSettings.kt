@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Sms
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -65,6 +66,11 @@ private data class MessagingOption(
     val labelRes: Int,
 )
 
+private data class CallingOption(
+    val app: CallingApp,
+    val labelRes: Int,
+)
+
 /**
  * Calls & Texts section.
  * Lets users choose direct dial behavior and default messaging app.
@@ -86,6 +92,8 @@ private data class MessagingOption(
 fun MessagingSection(
     messagingApp: MessagingApp,
     onSetMessagingApp: (MessagingApp) -> Unit,
+    callingApp: CallingApp = CallingApp.CALL,
+    onSetCallingApp: (CallingApp) -> Unit = {},
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
     hasCallPermission: Boolean,
@@ -93,8 +101,11 @@ fun MessagingSection(
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
     isSignalInstalled: Boolean = false,
+    isGoogleMeetInstalled: Boolean = false,
+    onCallingAppSelected: ((CallingApp) -> Unit)? = null,
     onMessagingAppSelected: ((MessagingApp) -> Unit)? = null,
     showTitle: Boolean = true,
+    showCallingApp: Boolean = true,
     showDirectDial: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
@@ -105,9 +116,31 @@ fun MessagingSection(
     val messagingOptions =
         buildList {
             add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
-            add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
-            add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
-            add(MessagingOption(MessagingApp.SIGNAL, R.string.settings_messaging_option_signal))
+            if (isWhatsAppInstalled) {
+                add(MessagingOption(MessagingApp.WHATSAPP, R.string.settings_messaging_option_whatsapp))
+            }
+            if (isTelegramInstalled) {
+                add(MessagingOption(MessagingApp.TELEGRAM, R.string.settings_messaging_option_telegram))
+            }
+            if (isSignalInstalled) {
+                add(MessagingOption(MessagingApp.SIGNAL, R.string.settings_messaging_option_signal))
+            }
+        }
+    val callingOptions =
+        buildList {
+            add(CallingOption(CallingApp.CALL, R.string.settings_calling_option_call))
+            if (isGoogleMeetInstalled) {
+                add(CallingOption(CallingApp.GOOGLE_MEET, R.string.settings_calling_option_google_meet))
+            }
+            if (isWhatsAppInstalled) {
+                add(CallingOption(CallingApp.WHATSAPP, R.string.settings_calling_option_whatsapp))
+            }
+            if (isTelegramInstalled) {
+                add(CallingOption(CallingApp.TELEGRAM, R.string.settings_calling_option_telegram))
+            }
+            if (isSignalInstalled) {
+                add(CallingOption(CallingApp.SIGNAL, R.string.settings_calling_option_signal))
+            }
         }
 
     Column(modifier = modifier) {
@@ -130,20 +163,32 @@ fun MessagingSection(
             )
         }
 
-        if (isWhatsAppInstalled || isTelegramInstalled || isSignalInstalled) {
-            val topSpacingModifier =
+        if (showCallingApp) {
+            val callingCardModifier =
                 if (showDirectDial) {
                     Modifier.padding(top = DesignTokens.SpacingMedium)
                 } else {
                     Modifier
                 }
-            DefaultMessagingAppCard(
-                messagingOptions = messagingOptions,
-                selectedApp = messagingApp,
-                onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
-                modifier = topSpacingModifier,
+            DefaultCallingAppCard(
+                callingOptions = callingOptions,
+                selectedApp = callingApp,
+                onCallingAppSelected = onCallingAppSelected ?: onSetCallingApp,
+                modifier = callingCardModifier,
             )
         }
+
+        DefaultMessagingAppCard(
+            messagingOptions = messagingOptions,
+            selectedApp = messagingApp,
+            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
+            modifier =
+                if (showCallingApp) {
+                    Modifier.padding(top = DesignTokens.SpacingMedium)
+                } else {
+                    Modifier
+                },
+        )
     }
 }
 
@@ -253,6 +298,161 @@ private fun DefaultMessagingAppCard(
 }
 
 @Composable
+private fun DefaultCallingAppCard(
+    callingOptions: List<CallingOption>,
+    selectedApp: CallingApp,
+    onCallingAppSelected: (CallingApp) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (callingOptions.isEmpty()) return
+
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = MessagingSpacing.cardHorizontalPadding,
+                        end = MessagingSpacing.cardHorizontalPadding,
+                        top = MessagingSpacing.cardTopPadding,
+                        bottom = MessagingSpacing.cardBottomPadding,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_calling_card_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = MessagingSpacing.messagingTitleBottomPadding),
+            )
+
+            val rowSize = 2
+            Column(
+                modifier = Modifier.fillMaxWidth().selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+            ) {
+                callingOptions.chunked(rowSize).forEach { rowOptions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MessagingSpacing.optionSpacing),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        rowOptions.forEach { option ->
+                            CallingOptionChip(
+                                option = option,
+                                selected = selectedApp == option.app,
+                                onClick = { onCallingAppSelected(option.app) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        repeat(rowSize - rowOptions.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CallingOptionChip(
+    option: CallingOption,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val view = LocalView.current
+    val borderColor =
+        if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        }
+    val backgroundColor =
+        if (selected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        }
+
+    Column(
+        modifier =
+            modifier
+                .clip(MaterialTheme.shapes.large)
+                .background(backgroundColor)
+                .border(
+                    width = MessagingSpacing.borderWidth,
+                    color = borderColor,
+                    shape = MaterialTheme.shapes.large,
+                ).selectable(
+                    selected = selected,
+                    onClick = {
+                        hapticConfirm(view)()
+                        onClick()
+                    },
+                    role = Role.RadioButton,
+                ).padding(vertical = MessagingSpacing.chipVerticalPadding, horizontal = MessagingSpacing.chipHorizontalPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(MessagingSpacing.chipIconSpacing),
+    ) {
+        CallingOptionIcon(app = option.app)
+        Text(
+            text = stringResource(option.labelRes),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+private fun CallingOptionIcon(app: CallingApp) {
+    when (app) {
+        CallingApp.CALL -> {
+            Icon(
+                imageVector = Icons.Rounded.Call,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(MessagingSpacing.iconSize),
+            )
+        }
+        CallingApp.GOOGLE_MEET -> {
+            Image(
+                painter = painterResource(id = R.drawable.google_meet),
+                contentDescription = null,
+                modifier = Modifier.size(MessagingSpacing.iconSize),
+            )
+        }
+        CallingApp.WHATSAPP -> {
+            Image(
+                painter = painterResource(id = R.drawable.whatsapp_call),
+                contentDescription = null,
+                modifier = Modifier.size(MessagingSpacing.iconSize),
+            )
+        }
+        CallingApp.TELEGRAM -> {
+            Image(
+                painter = painterResource(id = R.drawable.telegram_call),
+                contentDescription = null,
+                modifier = Modifier.size(MessagingSpacing.iconSize),
+            )
+        }
+        CallingApp.SIGNAL -> {
+            Image(
+                painter = painterResource(id = R.drawable.signal_call),
+                contentDescription = null,
+                modifier = Modifier.size(MessagingSpacing.iconSize),
+            )
+        }
+    }
+}
+
+@Composable
 private fun MessagingOptionChip(
     option: MessagingOption,
     selected: Boolean,
@@ -349,7 +549,9 @@ private fun MessagingOptionIcon(app: MessagingApp) {
 @Composable
 fun CallsTextsSettingsSection(
     messagingApp: MessagingApp,
+    callingApp: CallingApp,
     onSetMessagingApp: (MessagingApp) -> Unit,
+    onSetCallingApp: (CallingApp) -> Unit,
     directDialEnabled: Boolean,
     onToggleDirectDial: (Boolean) -> Unit,
     hasCallPermission: Boolean,
@@ -359,6 +561,7 @@ fun CallsTextsSettingsSection(
     isWhatsAppInstalled: Boolean = false,
     isTelegramInstalled: Boolean = false,
     isSignalInstalled: Boolean = false,
+    isGoogleMeetInstalled: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     if (!contactsSectionEnabled) {
@@ -412,6 +615,40 @@ fun CallsTextsSettingsSection(
     }
 
     // Callback for messaging app selection with installation check
+    val onCallingAppSelected: (CallingApp) -> Unit = { app ->
+        val isInstalled =
+            when (app) {
+                CallingApp.CALL -> true
+                CallingApp.GOOGLE_MEET -> isGoogleMeetInstalled
+                CallingApp.WHATSAPP -> isWhatsAppInstalled
+                CallingApp.TELEGRAM -> isTelegramInstalled
+                CallingApp.SIGNAL -> isSignalInstalled
+            }
+
+        if (isInstalled) {
+            onSetCallingApp(app)
+        } else {
+            val appName =
+                when (app) {
+                    CallingApp.CALL -> context.getString(R.string.settings_calling_option_call)
+                    CallingApp.GOOGLE_MEET -> context.getString(R.string.settings_calling_option_google_meet)
+                    CallingApp.WHATSAPP -> context.getString(R.string.settings_calling_option_whatsapp)
+                    CallingApp.TELEGRAM -> context.getString(R.string.settings_calling_option_telegram)
+                    CallingApp.SIGNAL -> context.getString(R.string.settings_calling_option_signal)
+                }
+            Toast
+                .makeText(
+                    context,
+                    context.getString(
+                        R.string.settings_messaging_app_not_installed,
+                        appName,
+                    ),
+                    Toast.LENGTH_SHORT,
+                ).show()
+        }
+    }
+
+    // Callback for messaging app selection with installation check
     val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
         val isInstalled =
             when (app) {
@@ -460,7 +697,9 @@ fun CallsTextsSettingsSection(
 
     MessagingSection(
         messagingApp = messagingApp,
+        callingApp = callingApp,
         onSetMessagingApp = onSetMessagingApp,
+        onSetCallingApp = onSetCallingApp,
         directDialEnabled = directDialEnabled,
         onToggleDirectDial = onToggleDirectDial,
         hasCallPermission = hasCallPermission,
@@ -468,6 +707,8 @@ fun CallsTextsSettingsSection(
         isWhatsAppInstalled = isWhatsAppInstalled,
         isTelegramInstalled = isTelegramInstalled,
         isSignalInstalled = isSignalInstalled,
+        isGoogleMeetInstalled = isGoogleMeetInstalled,
+        onCallingAppSelected = onCallingAppSelected,
         onMessagingAppSelected = onMessagingAppSelected,
         showTitle = false,
         modifier = modifier,

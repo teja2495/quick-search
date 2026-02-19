@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Context
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
@@ -924,6 +925,10 @@ class UserAppPreferences(
     fun getMessagingApp(): MessagingApp = uiPreferences.getMessagingApp()
 
     fun setMessagingApp(app: MessagingApp) = uiPreferences.setMessagingApp(app)
+
+    fun getCallingApp(): CallingApp = uiPreferences.getCallingApp()
+
+    fun setCallingApp(app: CallingApp) = uiPreferences.setCallingApp(app)
 
     fun isFirstLaunch(): Boolean = uiPreferences.isFirstLaunch()
 

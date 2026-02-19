@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
@@ -60,6 +61,7 @@ import kotlinx.coroutines.withContext
 @Composable
 internal fun ContactResultRow(
         contactInfo: ContactInfo,
+        callingApp: CallingApp,
         messagingApp: MessagingApp,
         primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
         secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
@@ -168,6 +170,7 @@ internal fun ContactResultRow(
                                 // Always show call and message action buttons
                                 ContactActionButtons(
                                         hasNumber = hasNumber,
+                                        callingApp = callingApp,
                                         messagingApp = messagingApp,
                                         primaryAction = primaryAction,
                                         secondaryAction = secondaryAction,
@@ -287,6 +290,7 @@ internal fun ContactAvatar(
 @Composable
 private fun ContactActionButtons(
         hasNumber: Boolean,
+        callingApp: CallingApp,
         messagingApp: MessagingApp,
         primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
         secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
@@ -339,21 +343,70 @@ private fun ContactActionButtons(
                                         enabled = hasNumber,
                                 )
                         } else {
-                                Icon(
-                                        imageVector = Icons.Rounded.Call, // Default phone icon
-                                        contentDescription =
-                                                stringResource(R.string.contacts_action_call),
-                                        tint =
-                                                if (hasNumber) {
-                                                        Color.White
-                                                } else {
-                                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                                },
-                                        modifier =
-                                                Modifier.size(
-                                                        ContactUiConstants.ACTION_ICON_SIZE.dp,
-                                                ),
-                                )
+                                when (callingApp) {
+                                        CallingApp.CALL -> {
+                                                Icon(
+                                                        imageVector = Icons.Rounded.Call,
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string.contacts_action_call,
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) {
+                                                                        Color.White
+                                                                } else {
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                                },
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        ContactUiConstants
+                                                                                .ACTION_ICON_SIZE
+                                                                                .dp,
+                                                                ),
+                                                )
+                                        }
+                                        CallingApp.GOOGLE_MEET -> {
+                                                Icon(
+                                                        painter = painterResource(id = R.drawable.google_meet),
+                                                        contentDescription = null,
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                )
+                                        }
+                                        CallingApp.WHATSAPP -> {
+                                                Icon(
+                                                        painter = painterResource(id = R.drawable.whatsapp_call),
+                                                        contentDescription = null,
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                )
+                                        }
+                                        CallingApp.TELEGRAM -> {
+                                                Icon(
+                                                        painter = painterResource(id = R.drawable.telegram_call),
+                                                        contentDescription = null,
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                )
+                                        }
+                                        CallingApp.SIGNAL -> {
+                                                Icon(
+                                                        painter = painterResource(id = R.drawable.signal_call),
+                                                        contentDescription = null,
+                                                        tint =
+                                                                if (hasNumber) Color.Unspecified
+                                                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp),
+                                                )
+                                        }
+                                }
                         }
                 },
                 contentDescription = stringResource(R.string.contacts_action_call),

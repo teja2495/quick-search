@@ -19,7 +19,9 @@ import com.tk.quicksearch.search.apps.prefetchAppIcons
 import com.tk.quicksearch.search.calculator.CalculatorHandler
 import com.tk.quicksearch.search.common.PinningHandler
 import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
+import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
 import com.tk.quicksearch.search.contacts.utils.ContactManagementHandler
+import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
 import com.tk.quicksearch.search.data.AppShortcutRepository
@@ -429,6 +431,7 @@ class SearchViewModel(
                 ContactActionHandler(
                         context = app,
                         userPreferences = userPreferences,
+                        getCallingApp = { _uiState.value.callingApp },
                         getMessagingApp = { messagingHandler.messagingApp },
                         getDirectDialEnabled = { directDialEnabled },
                         getHasSeenDirectDialChoice = { hasSeenDirectDialChoice },
@@ -686,9 +689,11 @@ class SearchViewModel(
                                         directSearchHandler.getPersonalContext().isBlank(),
                         // Messaging info
                         messagingApp = messagingInfo.messagingApp,
+                        callingApp = messagingInfo.callingApp,
                         isWhatsAppInstalled = messagingInfo.isWhatsAppInstalled,
                         isTelegramInstalled = messagingInfo.isTelegramInstalled,
                         isSignalInstalled = messagingInfo.isSignalInstalled,
+                        isGoogleMeetInstalled = messagingInfo.isGoogleMeetInstalled,
                 )
             }
 
@@ -799,6 +804,12 @@ class SearchViewModel(
                 } else {
                     messagingHandler.isPackageInstalled(PackageConstants.SIGNAL_PACKAGE)
                 }
+        val isGoogleMeetInstalled =
+                if (packageNames.isNotEmpty()) {
+                    packageNames.contains(PackageConstants.GOOGLE_MEET_PACKAGE)
+                } else {
+                    messagingHandler.isPackageInstalled(PackageConstants.GOOGLE_MEET_PACKAGE)
+                }
         val resolvedMessagingApp =
                 messagingHandler.updateMessagingAvailability(
                         whatsappInstalled = isWhatsAppInstalled,
@@ -806,12 +817,26 @@ class SearchViewModel(
                         signalInstalled = isSignalInstalled,
                         updateState = false,
                 )
+        val selectedCallingApp = userPreferences.getCallingApp()
+        val resolvedCallingApp =
+                resolveCallingApp(
+                        app = selectedCallingApp,
+                        isWhatsAppInstalled = isWhatsAppInstalled,
+                        isTelegramInstalled = isTelegramInstalled,
+                        isSignalInstalled = isSignalInstalled,
+                        isGoogleMeetInstalled = isGoogleMeetInstalled,
+                )
+        if (resolvedCallingApp != selectedCallingApp) {
+            userPreferences.setCallingApp(resolvedCallingApp)
+        }
 
         return MessagingAppInfo(
                 isWhatsAppInstalled,
                 isTelegramInstalled,
                 isSignalInstalled,
                 resolvedMessagingApp,
+                isGoogleMeetInstalled,
+                resolvedCallingApp,
         )
     }
 
@@ -820,7 +845,28 @@ class SearchViewModel(
             val isTelegramInstalled: Boolean,
             val isSignalInstalled: Boolean,
             val messagingApp: MessagingApp,
+            val isGoogleMeetInstalled: Boolean,
+            val callingApp: CallingApp,
     )
+
+    private fun resolveCallingApp(
+            app: CallingApp,
+            isWhatsAppInstalled: Boolean,
+            isTelegramInstalled: Boolean,
+            isSignalInstalled: Boolean,
+            isGoogleMeetInstalled: Boolean,
+    ): CallingApp =
+            when (app) {
+                CallingApp.WHATSAPP ->
+                        if (isWhatsAppInstalled) CallingApp.WHATSAPP else CallingApp.CALL
+                CallingApp.TELEGRAM ->
+                        if (isTelegramInstalled) CallingApp.TELEGRAM else CallingApp.CALL
+                CallingApp.SIGNAL ->
+                        if (isSignalInstalled) CallingApp.SIGNAL else CallingApp.CALL
+                CallingApp.GOOGLE_MEET ->
+                        if (isGoogleMeetInstalled) CallingApp.GOOGLE_MEET else CallingApp.CALL
+                CallingApp.CALL -> CallingApp.CALL
+            }
 
     fun setCalculatorEnabled(enabled: Boolean) {
         // Delegate to new CalculatorHandler once implemented
@@ -1030,9 +1076,25 @@ class SearchViewModel(
     ): com.tk.quicksearch.search.contacts.models.ContactCardAction? {
         val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
         return if (isPrimary) {
-            com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(phoneNumber)
+            when (
+                ContactCallingAppResolver.resolveCallingAppForContact(
+                    contactInfo = contact,
+                    defaultApp = _uiState.value.callingApp,
+                )
+            ) {
+                CallingApp.CALL -> com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone(phoneNumber)
+                CallingApp.WHATSAPP -> com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall(phoneNumber)
+                CallingApp.TELEGRAM -> com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall(phoneNumber)
+                CallingApp.SIGNAL -> com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall(phoneNumber)
+                CallingApp.GOOGLE_MEET -> com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet(phoneNumber)
+            }
         } else {
-            when (_uiState.value.messagingApp) {
+            when (
+                ContactMessagingAppResolver.resolveMessagingAppForContact(
+                    contactInfo = contact,
+                    defaultApp = _uiState.value.messagingApp,
+                )
+            ) {
                 MessagingApp.MESSAGES -> {
                     com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms(phoneNumber)
                 }
@@ -1845,6 +1907,23 @@ class SearchViewModel(
     // Messaging & Feature delegates
     fun setMessagingApp(app: MessagingApp) = messagingHandler.setMessagingApp(app)
 
+    fun setCallingApp(app: CallingApp) {
+        userPreferences.setCallingApp(app)
+        val state = _uiState.value
+        val resolvedCallingApp =
+                resolveCallingApp(
+                        app = app,
+                        isWhatsAppInstalled = state.isWhatsAppInstalled,
+                        isTelegramInstalled = state.isTelegramInstalled,
+                        isSignalInstalled = state.isSignalInstalled,
+                        isGoogleMeetInstalled = state.isGoogleMeetInstalled,
+                )
+        if (resolvedCallingApp != app) {
+            userPreferences.setCallingApp(resolvedCallingApp)
+        }
+        _uiState.update { it.copy(callingApp = resolvedCallingApp) }
+    }
+
     fun acknowledgeReleaseNotes() =
             releaseNotesHandler.acknowledgeReleaseNotes(_uiState.value.releaseNotesVersionName)
 
@@ -2327,6 +2406,7 @@ class SearchViewModel(
         val isWhatsAppInstalled = packageNames.contains(PackageConstants.WHATSAPP_PACKAGE)
         val isTelegramInstalled = packageNames.contains(PackageConstants.TELEGRAM_PACKAGE)
         val isSignalInstalled = packageNames.contains(PackageConstants.SIGNAL_PACKAGE)
+        val isGoogleMeetInstalled = packageNames.contains(PackageConstants.GOOGLE_MEET_PACKAGE)
         val resolvedMessagingApp =
                 messagingHandler.updateMessagingAvailability(
                         whatsappInstalled = isWhatsAppInstalled,
@@ -2334,6 +2414,18 @@ class SearchViewModel(
                         signalInstalled = isSignalInstalled,
                         updateState = false,
                 )
+        val selectedCallingApp = userPreferences.getCallingApp()
+        val resolvedCallingApp =
+                resolveCallingApp(
+                        app = selectedCallingApp,
+                        isWhatsAppInstalled = isWhatsAppInstalled,
+                        isTelegramInstalled = isTelegramInstalled,
+                        isSignalInstalled = isSignalInstalled,
+                        isGoogleMeetInstalled = isGoogleMeetInstalled,
+                )
+        if (resolvedCallingApp != selectedCallingApp) {
+            userPreferences.setCallingApp(resolvedCallingApp)
+        }
 
         // Always update the searchable apps cache regardless of query state
         // Include both pinned and non-pinned apps in search, let ranking determine order
@@ -2372,9 +2464,11 @@ class SearchViewModel(
                     cacheLastUpdatedMillis = lastUpdated ?: state.cacheLastUpdatedMillis,
                     isLoading = isLoading ?: state.isLoading,
                     messagingApp = resolvedMessagingApp,
+                    callingApp = resolvedCallingApp,
                     isWhatsAppInstalled = isWhatsAppInstalled,
                     isTelegramInstalled = isTelegramInstalled,
                     isSignalInstalled = isSignalInstalled,
+                    isGoogleMeetInstalled = isGoogleMeetInstalled,
                     nicknameUpdateVersion = state.nicknameUpdateVersion + 1,
             )
         }

@@ -9,7 +9,7 @@
       android:pathData="M0,27 C0,12.088 12.088,0 27,0 L81,0 C95.912,0 108,12.088 108,27 L108,81 C108,95.912 95.912,108 81,108 L27,108 C12.088,108 0,95.912 0,81 Z"/>
   <!-- Person icon: 24x24 path scaled to ~60% of canvas, centered -->
   <group
-      android:translateX="21"
+      android:translateX="25"
       android:translateY="21"
       android:scaleX="2.5"
       android:scaleY="2.5">

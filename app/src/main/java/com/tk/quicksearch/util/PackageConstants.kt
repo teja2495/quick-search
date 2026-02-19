@@ -8,6 +8,7 @@ object PackageConstants {
     const val WHATSAPP_PACKAGE = "com.whatsapp"
     const val TELEGRAM_PACKAGE = "org.telegram.messenger"
     const val SIGNAL_PACKAGE = "org.thoughtcrime.securesms"
+    const val GOOGLE_MEET_PACKAGE = "com.google.android.apps.tachyon"
 
     // Search engines and browsers
     const val GOOGLE_APP_PACKAGE = "com.google.android.googlequicksearchbox"

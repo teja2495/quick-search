@@ -5,7 +5,9 @@ import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
+import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.DirectDialChoice
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.MessagingApp
@@ -23,6 +25,7 @@ import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 class ContactActionHandler(
     private val context: Application,
     private val userPreferences: UserAppPreferences,
+    private val getCallingApp: () -> CallingApp,
     private val getMessagingApp: () -> MessagingApp,
     private val getDirectDialEnabled: () -> Boolean,
     private val getHasSeenDirectDialChoice: () -> Boolean,
@@ -42,7 +45,7 @@ class ContactActionHandler(
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
         if (preferredNumber != null && contactInfo.phoneNumbers.contains(preferredNumber)) {
             // Use preferred number directly
-            beginCallFlow(contactInfo.displayName, preferredNumber)
+            performCalling(contactInfo, preferredNumber)
             return
         }
 
@@ -53,7 +56,7 @@ class ContactActionHandler(
         }
 
         // Single number, use it directly
-        beginCallFlow(contactInfo.displayName, contactInfo.phoneNumbers.first())
+        performCalling(contactInfo, contactInfo.phoneNumbers.first())
     }
 
     fun smsContact(contactInfo: ContactInfo) {
@@ -95,7 +98,7 @@ class ContactActionHandler(
 
         // Perform the action
         if (selection.isCall) {
-            beginCallFlow(contactInfo.displayName, phoneNumber)
+            performCalling(contactInfo, phoneNumber)
         } else {
             performMessaging(contactInfo, phoneNumber)
         }
@@ -108,7 +111,7 @@ class ContactActionHandler(
         uiStateUpdater { it.copy(phoneNumberSelection = null) }
     }
 
-    private fun beginCallFlow(
+    private fun beginRegularCallFlow(
         contactName: String,
         phoneNumber: String,
     ) {
@@ -353,6 +356,68 @@ class ContactActionHandler(
             MessagingApp.WHATSAPP -> ContactIntentHelpers.openWhatsAppChat(context, number) { resId -> showToastCallback(resId) }
             MessagingApp.TELEGRAM -> ContactIntentHelpers.openTelegramChat(context, number) { resId -> showToastCallback(resId) }
             MessagingApp.SIGNAL -> ContactIntentHelpers.openSignalChat(context, number) { resId -> showToastCallback(resId) }
+        }
+    }
+
+    private fun performCalling(
+        contactInfo: ContactInfo,
+        number: String,
+    ) {
+        when (
+            ContactCallingAppResolver.resolveCallingAppForContact(
+                contactInfo = contactInfo,
+                defaultApp = getCallingApp(),
+                phoneNumber = number,
+            )
+        ) {
+            CallingApp.CALL -> beginRegularCallFlow(contactInfo.displayName, number)
+            CallingApp.WHATSAPP -> {
+                val method =
+                    contactInfo.contactMethods.firstOrNull { it is ContactMethod.WhatsAppCall && it.dataId != null && (it.data.isBlank() || com.tk.quicksearch.search.utils.PhoneNumberUtils.isSameNumber(it.data, number)) } as? ContactMethod.WhatsAppCall
+                if (method?.dataId != null) {
+                    handleWhatsAppCallWithPermission(method.dataId)
+                } else {
+                    beginRegularCallFlow(contactInfo.displayName, number)
+                }
+            }
+            CallingApp.TELEGRAM -> {
+                val preferredMethod =
+                    contactInfo.contactMethods
+                        .firstOrNull { it is ContactMethod.TelegramCall && it.dataId != null } as? ContactMethod.TelegramCall
+                if (preferredMethod?.dataId != null) {
+                    val success = ContactIntentHelpers.openTelegramCall(context, preferredMethod.dataId) { resId -> showToastCallback(resId) }
+                    if (success) {
+                        clearQueryIfEnabled()
+                    }
+                } else {
+                    ContactIntentHelpers.openTelegramCall(context, number) { resId -> showToastCallback(resId) }
+                    clearQueryIfEnabled()
+                }
+            }
+            CallingApp.SIGNAL -> {
+                val method =
+                    contactInfo.contactMethods.firstOrNull { it is ContactMethod.SignalCall && it.dataId != null && (it.data.isBlank() || com.tk.quicksearch.search.utils.PhoneNumberUtils.isSameNumber(it.data, number)) } as? ContactMethod.SignalCall
+                if (method?.dataId != null) {
+                    val success = ContactIntentHelpers.openSignalCall(context, method.dataId) { resId -> showToastCallback(resId) }
+                    if (success) {
+                        clearQueryIfEnabled()
+                    }
+                } else {
+                    beginRegularCallFlow(contactInfo.displayName, number)
+                }
+            }
+            CallingApp.GOOGLE_MEET -> {
+                val method =
+                    contactInfo.contactMethods.firstOrNull { it is ContactMethod.GoogleMeet && it.dataId != null && (it.data.isBlank() || com.tk.quicksearch.search.utils.PhoneNumberUtils.isSameNumber(it.data, number)) } as? ContactMethod.GoogleMeet
+                if (method?.dataId != null) {
+                    val success = ContactIntentHelpers.openGoogleMeet(context, method.dataId) { resId -> showToastCallback(resId) }
+                    if (success) {
+                        clearQueryIfEnabled()
+                    }
+                } else {
+                    beginRegularCallFlow(contactInfo.displayName, number)
+                }
+            }
         }
     }
 

@@ -830,6 +830,9 @@ fun ContentLayout(
                         ) {
                             RecentSearchesSection(
                                 items = orderedRecentItems,
+                                callingApp =
+                                    contactsParams.callingApp
+                                        ?: CallingApp.CALL,
                                 messagingApp =
                                     contactsParams.messagingApp
                                         ?: MessagingApp

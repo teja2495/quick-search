@@ -57,6 +57,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.dialogs.ContactActionPickerDialog
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
+import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
+import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.DirectSearchState
@@ -607,9 +609,25 @@ fun SearchScreen(
 
         val phoneNumber = contact.phoneNumbers.firstOrNull() ?: return null
         return if (isPrimary) {
-            ContactCardAction.Phone(phoneNumber)
+            when (
+                ContactCallingAppResolver.resolveCallingAppForContact(
+                    contactInfo = contact,
+                    defaultApp = state.callingApp,
+                )
+            ) {
+                CallingApp.CALL -> ContactCardAction.Phone(phoneNumber)
+                CallingApp.WHATSAPP -> ContactCardAction.WhatsAppCall(phoneNumber)
+                CallingApp.TELEGRAM -> ContactCardAction.TelegramCall(phoneNumber)
+                CallingApp.SIGNAL -> ContactCardAction.SignalCall(phoneNumber)
+                CallingApp.GOOGLE_MEET -> ContactCardAction.GoogleMeet(phoneNumber)
+            }
         } else {
-            when (state.messagingApp) {
+            when (
+                ContactMessagingAppResolver.resolveMessagingAppForContact(
+                    contactInfo = contact,
+                    defaultApp = state.messagingApp,
+                )
+            ) {
                 MessagingApp.MESSAGES -> ContactCardAction.Sms(phoneNumber)
                 MessagingApp.WHATSAPP -> ContactCardAction.WhatsAppMessage(phoneNumber)
                 MessagingApp.TELEGRAM -> ContactCardAction.TelegramMessage(phoneNumber)

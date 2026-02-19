@@ -48,7 +48,9 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
 import com.tk.quicksearch.search.contacts.CollapseButton
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
+import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
+import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
@@ -80,6 +82,7 @@ private const val SHORTCUT_VERTICAL_PADDING = 4
 fun RecentSearchesSection(
     modifier: Modifier = Modifier,
     items: List<RecentSearchItem>,
+    callingApp: CallingApp,
     messagingApp: MessagingApp,
     onRecentQueryClick: (String) -> Unit,
     onContactClick: (ContactInfo) -> Unit,
@@ -162,6 +165,7 @@ fun RecentSearchesSection(
                             item = item,
                             textColor = textColor,
                             iconColor = iconColor,
+                            callingApp = callingApp,
                             messagingApp = messagingApp,
                             onRecentQueryClick = onRecentQueryClick,
                             onContactClick = onContactClick,
@@ -220,6 +224,7 @@ fun RecentSearchesSection(
                         item = item,
                         textColor = textColor,
                         iconColor = iconColor,
+                        callingApp = callingApp,
                         messagingApp = messagingApp,
                         onRecentQueryClick = onRecentQueryClick,
                         onContactClick = onContactClick,
@@ -281,6 +286,7 @@ private fun RecentSearchItemRow(
     item: RecentSearchItem,
     textColor: Color,
     iconColor: Color,
+    callingApp: CallingApp,
     messagingApp: MessagingApp,
     onRecentQueryClick: (String) -> Unit,
     onContactClick: (ContactInfo) -> Unit,
@@ -328,6 +334,11 @@ private fun RecentSearchItemRow(
                 Box(modifier = Modifier.padding(contactRowPadding())) {
                     ContactResultRow(
                         contactInfo = item.contact,
+                        callingApp =
+                            ContactCallingAppResolver.resolveCallingAppForContact(
+                                item.contact,
+                                callingApp,
+                            ),
                         messagingApp =
                             ContactMessagingAppResolver.resolveMessagingAppForContact(
                                 item.contact,

@@ -85,6 +85,14 @@ enum class MessagingApp {
     SIGNAL,
 }
 
+enum class CallingApp {
+    CALL,
+    GOOGLE_MEET,
+    WHATSAPP,
+    TELEGRAM,
+    SIGNAL,
+}
+
 enum class OverlayGradientTheme {
     FOREST,
     AURORA,
@@ -300,9 +308,11 @@ data class SearchUiState(
         val shortcutEnabled: Map<String, Boolean> = emptyMap(),
         val disabledAppShortcutIds: Set<String> = emptySet(),
         val messagingApp: MessagingApp = MessagingApp.MESSAGES,
+        val callingApp: CallingApp = CallingApp.CALL,
         val isWhatsAppInstalled: Boolean = false,
         val isTelegramInstalled: Boolean = false,
         val isSignalInstalled: Boolean = false,
+        val isGoogleMeetInstalled: Boolean = false,
         val showWallpaperBackground: Boolean = true,
         val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
         val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,

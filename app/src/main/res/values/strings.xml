@@ -316,7 +316,7 @@
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, and icon packs</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
-    <string name="settings_calls_texts_desc">Configure direct dial and default messaging app</string>
+    <string name="settings_calls_texts_desc">Configure direct dial and default calling/messaging apps</string>
     <string name="settings_files_title">Files</string>
     <string name="settings_files_desc">Control which file types appear in results</string>
     <string name="settings_launch_options_title">Launch Options</string>
@@ -413,6 +413,12 @@
          Settings - Messaging
          ============================================================================ -->
     <string name="settings_messaging_title">Calls &amp; Texts</string>
+    <string name="settings_calling_card_title">Default Calling App</string>
+    <string name="settings_calling_option_call">Call</string>
+    <string name="settings_calling_option_google_meet">Google Meet</string>
+    <string name="settings_calling_option_whatsapp">WhatsApp</string>
+    <string name="settings_calling_option_telegram">Telegram</string>
+    <string name="settings_calling_option_signal">Signal</string>
     <string name="settings_messaging_card_title">Default Messaging App</string>
     <string name="settings_messaging_option_messages">Messages</string>
     <string name="settings_messaging_option_whatsapp">WhatsApp</string>

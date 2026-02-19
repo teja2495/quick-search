@@ -513,6 +513,7 @@ abstract class BasePreferences(
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
             "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"
+        const val KEY_CALLING_APP = "calling_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
         const val KEY_INSTALL_TIME = "install_time"
         const val KEY_SHOW_WALLPAPER_BACKGROUND = "show_wallpaper_background"
