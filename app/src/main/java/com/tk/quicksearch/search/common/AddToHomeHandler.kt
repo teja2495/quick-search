@@ -79,7 +79,7 @@ class AddToHomeHandler(private val context: Context) {
                             .setLongLabel(shortcut.longLabel ?: shortcut.appLabel)
                             .setIntents(shortcut.intents.toTypedArray())
 
-            val icon = loadShortcutIcon(shortcut) ?: loadAppIcon(shortcut.packageName)
+            val icon = loadAppShortcutFallbackIcon(shortcut)
             icon?.let { builder.setIcon(it) }
 
             shortcutManager?.requestPinShortcut(builder.build(), null)
@@ -177,9 +177,7 @@ class AddToHomeHandler(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val intent = Intent(setting.action)
 
-            val icon =
-                    loadAppIcon("com.android.settings")
-                            ?: Icon.createWithResource(context, R.drawable.ic_settings_shortcut)
+            val icon = loadDeviceSettingsFallbackIcon()
 
             val shortcutInfo =
                     ShortcutInfo.Builder(context, "setting_${setting.id}")
@@ -223,6 +221,17 @@ class AddToHomeHandler(private val context: Context) {
                     Icon.createWithBitmap(drawable.toBitmap())
                 }
                 .getOrNull()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun loadAppShortcutFallbackIcon(shortcut: StaticShortcut): Icon? {
+        return loadShortcutIcon(shortcut) ?: loadAppIcon(shortcut.packageName)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun loadDeviceSettingsFallbackIcon(): Icon {
+        return loadAppIcon("com.android.settings")
+                ?: Icon.createWithResource(context, R.drawable.ic_settings_shortcut)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
