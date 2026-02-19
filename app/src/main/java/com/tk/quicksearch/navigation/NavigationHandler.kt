@@ -7,6 +7,8 @@ import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.core.normalizeToBrowsableUrl
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
@@ -136,11 +138,19 @@ class NavigationHandler(
                     userPreferences.addRecentItem(RecentSearchEntry.Query(trimmedQuery))
                 }
 
-                IntentHelpers.openBrowserSearch(
-                    application,
-                    trimmedQuery,
-                    target.app.packageName,
-                ) { stringResId, _ -> showToastCallback(stringResId) }
+                if (isLikelyWebUrl(trimmedQuery)) {
+                    IntentHelpers.openBrowserUrl(
+                        application,
+                        normalizeToBrowsableUrl(trimmedQuery) ?: trimmedQuery,
+                        target.app.packageName,
+                    ) { stringResId, _ -> showToastCallback(stringResId) }
+                } else {
+                    IntentHelpers.openBrowserSearch(
+                        application,
+                        trimmedQuery,
+                        target.app.packageName,
+                    ) { stringResId, _ -> showToastCallback(stringResId) }
+                }
 
                 onClearQuery()
             }

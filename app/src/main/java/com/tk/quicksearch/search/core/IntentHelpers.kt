@@ -349,6 +349,45 @@ object IntentHelpers {
         }
     }
 
+    fun openBrowserUrl(
+        context: Application,
+        url: String,
+        browserPackageName: String,
+        onShowToast: ((Int, String?) -> Unit)? = null,
+    ) {
+        val normalizedUrl = normalizeToBrowsableUrl(url)
+        if (normalizedUrl == null) {
+            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            return
+        }
+
+        val browserIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
+                setPackage(browserPackageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+        try {
+            if (canResolveIntent(context, browserIntent)) {
+                context.startActivity(browserIntent)
+                return
+            }
+
+            val fallbackIntent =
+                Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            if (canResolveIntent(context, fallbackIntent)) {
+                context.startActivity(fallbackIntent)
+                return
+            }
+        } catch (_: ActivityNotFoundException) {
+        } catch (_: SecurityException) {
+        }
+
+        onShowToast?.invoke(R.string.error_open_search_engine, null)
+    }
+
     fun openCustomSearchUrl(
         context: Application,
         query: String,

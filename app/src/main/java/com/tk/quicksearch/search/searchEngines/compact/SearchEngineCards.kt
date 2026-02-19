@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.searchEngines.getDisplayName
 import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
@@ -81,6 +82,7 @@ fun NoResultsSearchEngineCards(
         orderedEngines.forEach { engine ->
             SearchTargetCard(
                 target = engine,
+                query = query,
                 onClick = { onSearchEngineClick(query, engine) },
                 onLongClick = onSearchEngineLongPress,
                 showWallpaperBackground = showWallpaperBackground,
@@ -112,6 +114,12 @@ fun SearchEngineCard(
 ) {
     val view = LocalView.current
     val targetName = target.getDisplayName()
+    val actionLabelResId =
+        if (isLikelyWebUrl(query)) {
+            R.string.open_with_engine
+        } else {
+            R.string.search_on_engine
+        }
     val overlayCardColor = LocalOverlayResultCardColor.current
     val cardColors =
         if (overlayCardColor != null) {
@@ -159,7 +167,7 @@ fun SearchEngineCard(
 
             // Search engine name
             Text(
-                text = stringResource(R.string.search_on_engine, targetName),
+                text = stringResource(actionLabelResId, targetName),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
@@ -186,6 +194,7 @@ fun SearchEngineCard(
 @Composable
 private fun SearchTargetCard(
     target: SearchTarget,
+    query: String,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -193,6 +202,12 @@ private fun SearchTargetCard(
 ) {
     val view = LocalView.current
     val overlayCardColor = LocalOverlayResultCardColor.current
+    val actionLabelResId =
+        if (isLikelyWebUrl(query)) {
+            R.string.open_with_engine
+        } else {
+            R.string.search_on_engine
+        }
     val cardColors =
         if (overlayCardColor != null) {
             CardDefaults.cardColors(containerColor = overlayCardColor)
@@ -239,7 +254,7 @@ private fun SearchTargetCard(
             Text(
                 text =
                     stringResource(
-                        R.string.search_on_engine,
+                        actionLabelResId,
                         target.getDisplayName(),
                     ),
                 style = MaterialTheme.typography.bodyMedium,

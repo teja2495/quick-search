@@ -642,6 +642,7 @@
     <string name="search_engine_onboarding_title">Search Engines</string>
     <string name="search_engine_onboarding_description">When you type your search query and tap on any of these search engines, it will trigger search within these apps. You can modify them by long pressing.</string>
     <string name="search_on_engine">Search on %1$s</string>
+    <string name="open_with_engine">Open with %1$s</string>
 
     <!-- ============================================================================
          Settings - Feedback

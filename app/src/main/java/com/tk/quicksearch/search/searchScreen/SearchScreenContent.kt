@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -33,8 +34,11 @@ import com.tk.quicksearch.search.calculator.CalculatorUtils
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
+import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
+import com.tk.quicksearch.search.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.search.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
@@ -74,6 +78,7 @@ internal fun SearchScreenContent(
         modifier: Modifier = Modifier,
         isOverlayPresentation: Boolean = false,
 ) {
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
@@ -192,10 +197,21 @@ internal fun SearchScreenContent(
                         ),
                 onSearchAction = {
                     val trimmedQuery = state.query.trim()
+                    val isUrlQuery = isLikelyWebUrl(trimmedQuery)
+                    val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
 
                     // If query has trailing/leading spaces, trim it first
                     if (state.query != trimmedQuery) {
                         onQueryChanged(trimmedQuery)
+                    }
+
+                    if (isUrlQuery && trimmedQuery.isNotBlank()) {
+                        val browserTarget =
+                                defaultBrowserTarget(state.searchTargetsOrder, defaultBrowserPackage)
+                        if (browserTarget != null) {
+                            onSearchTargetClick(trimmedQuery, browserTarget)
+                            return@PersistentSearchField
+                        }
                     }
 
                     val firstApp = renderingState.displayApps.firstOrNull()

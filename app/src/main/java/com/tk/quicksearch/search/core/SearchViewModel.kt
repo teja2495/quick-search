@@ -2317,6 +2317,9 @@ class SearchViewModel(
                 state.detectedShortcutTarget != null -> {
                     SearchEnginesVisibility.ShortcutDetected(state.detectedShortcutTarget)
                 }
+                isLikelyWebUrl(state.query) -> {
+                    SearchEnginesVisibility.Hidden
+                }
                 state.isSearchEngineCompactMode -> {
                     SearchEnginesVisibility.Compact
                 }

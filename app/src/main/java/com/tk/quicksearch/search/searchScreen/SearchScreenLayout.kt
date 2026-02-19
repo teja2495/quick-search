@@ -41,12 +41,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.directSearch.CalculatorResult
 import com.tk.quicksearch.search.directSearch.DirectSearchResult
@@ -133,6 +135,7 @@ fun SearchContentArea(
     val hideOtherResults =
         showDirectSearch || showCalculator || (state.detectedShortcutTarget != null)
     val hasQuery = state.query.isNotBlank()
+    val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val hasAnySearchContent =
         shouldShowAppsSection(renderingState) ||
             shouldShowAppShortcutsSection(renderingState) ||
@@ -162,7 +165,7 @@ fun SearchContentArea(
                 )
         }
 
-    val hasInlineSearchEngines = hasQuery && !state.isSearchEngineCompactMode
+    val hasInlineSearchEngines = hasQuery && (!state.isSearchEngineCompactMode || isUrlQuery)
 
     val showRetryButton =
         showDirectSearch &&
@@ -559,8 +562,11 @@ fun ContentLayout(
     onDisableSearchHistory: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     // 1. Determine Layout Order based on ItemPriorityConfig
     val hasQuery = state.query.isNotBlank()
+    val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val baseLayoutOrder = ItemPriorityConfig.getLayoutOrder(hasQuery)
 
     // 2. Apply One-Handed Mode Reversal if needed
@@ -596,6 +602,22 @@ fun ContentLayout(
         )
 
     val effectiveShowWallpaperBackground = state.showWallpaperBackground
+    val inlineTargets =
+        remember(
+            state.searchTargetsOrder,
+            state.disabledSearchTargetIds,
+            isUrlQuery,
+            context,
+        ) {
+            if (isUrlQuery) {
+                orderedBrowserTargets(
+                    targets = state.searchTargetsOrder,
+                    defaultBrowserPackage = resolveDefaultBrowserPackage(context),
+                )
+            } else {
+                state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
+            }
+        }
 
     // Pre-calculate common states
     val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
@@ -607,6 +629,7 @@ fun ContentLayout(
 
     val showWebSuggestions =
         hasQuery &&
+            !isUrlQuery &&
             !showDirectSearch &&
             !showCalculator &&
             suggestionsNotEmpty &&
@@ -742,7 +765,11 @@ fun ContentLayout(
                 // using the pre-calculated context.
                 // When search history is expanded, hide app suggestions and pinned items.
                 ItemPriorityConfig.ItemType.APPS_SECTION -> {
-                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                    if (
+                        !hideResults &&
+                            !isUrlQuery &&
+                            !hidePinnedAndAppsWhenSearchHistoryExpanded
+                    ) {
                         renderSection(
                             SearchSection.APPS,
                             sectionParams,
@@ -895,15 +922,11 @@ fun ContentLayout(
                     // Condition: Not compact mode.
                     if (!hideResults &&
                         hasQuery &&
-                        !state.isSearchEngineCompactMode
+                        (!state.isSearchEngineCompactMode || isUrlQuery)
                     ) {
                         NoResultsSearchEngineCards(
                             query = state.query,
-                            enabledEngines =
-                                state.searchTargetsOrder.filter {
-                                    it.getId() !in
-                                        state.disabledSearchTargetIds
-                                },
+                            enabledEngines = inlineTargets,
                             onSearchEngineClick = onSearchTargetClick,
                             onCustomizeClick =
                             onCustomizeSearchEnginesClick,
