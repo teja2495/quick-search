@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <!-- Rounded background (blue) -->
+  <path
+      android:fillColor="#FF2196F3"
+      android:pathData="M0,27 C0,12.088 12.088,0 27,0 L81,0 C95.912,0 108,12.088 108,27 L108,81 C108,95.912 95.912,108 81,108 L27,108 C12.088,108 0,95.912 0,81 Z"/>
+  <!-- File icon: 24x24 path scaled to ~60% of canvas, centered -->
+  <!-- scale=2.5, offset=21 so icon spans 21..81 (60px wide) -->
+  <group
+      android:translateX="24"
+      android:translateY="21"
+      android:scaleX="2.5"
+      android:scaleY="2.5">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,2H6C4.9,2 4,2.9 4,4v16c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2V8L14,2zM14,3.5L18.5,8H15c-0.55,0 -1,-0.45 -1,-1V3.5z"/>
+  </group>
+</vector>

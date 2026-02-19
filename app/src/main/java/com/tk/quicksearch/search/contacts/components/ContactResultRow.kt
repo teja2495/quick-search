@@ -59,140 +59,146 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ContactResultRow(
-    contactInfo: ContactInfo,
-    messagingApp: MessagingApp,
-    primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
-    secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
-    onContactClick: (ContactInfo) -> Unit,
-    onShowContactMethods: (ContactInfo) -> Unit = {},
-    onCallContact: (ContactInfo) -> Unit,
-    onSmsContact: (ContactInfo) -> Unit,
-    onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
-    onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
-    onCustomAction: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
-        { _, _ ->
-        },
-    onContactMethodClick: (ContactMethod) -> Unit,
-    isPinned: Boolean = false,
-    onTogglePin: (ContactInfo) -> Unit = {},
-    onExclude: (ContactInfo) -> Unit = {},
-    onNicknameClick: (ContactInfo) -> Unit = {},
-    hasNickname: Boolean = false,
-    enableLongPress: Boolean = true,
-    onLongPressOverride: (() -> Unit)? = null,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconTint: Color = MaterialTheme.colorScheme.secondary,
+        contactInfo: ContactInfo,
+        messagingApp: MessagingApp,
+        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
+        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction? = null,
+        onContactClick: (ContactInfo) -> Unit,
+        onShowContactMethods: (ContactInfo) -> Unit = {},
+        onCallContact: (ContactInfo) -> Unit,
+        onSmsContact: (ContactInfo) -> Unit,
+        onPrimaryActionLongPress: (ContactInfo) -> Unit = {},
+        onSecondaryActionLongPress: (ContactInfo) -> Unit = {},
+        onCustomAction:
+                (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit =
+                { _, _ ->
+                },
+        onContactMethodClick: (ContactMethod) -> Unit,
+        isPinned: Boolean = false,
+        onTogglePin: (ContactInfo) -> Unit = {},
+        onExclude: (ContactInfo) -> Unit = {},
+        onNicknameClick: (ContactInfo) -> Unit = {},
+        hasNickname: Boolean = false,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
-    var showOptions by remember { mutableStateOf(false) }
-    val view = LocalView.current
-    val hasNumber = contactInfo.primaryNumber != null
+        val context = LocalContext.current
+        val addToHomeHandler =
+                remember(context) { com.tk.quicksearch.search.common.AddToHomeHandler(context) }
+        var showOptions by remember { mutableStateOf(false) }
+        val view = LocalView.current
+        val hasNumber = contactInfo.primaryNumber != null
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(
-                            min =
-                                ContactUiConstants
-                                    .CONTACT_ROW_MIN_HEIGHT
-                                    .dp,
-                        ).clip(DesignTokens.CardShape)
-                        .combinedClickable(
-                            onClick = {
-                                if (contactInfo.hasContactMethods) {
-                                    onShowContactMethods(
-                                        contactInfo,
-                                    )
-                                } else {
-                                    onContactClick(contactInfo)
-                                }
-                            },
-                            onLongClick =
-                                onLongPressOverride
-                                    ?: if (enableLongPress) {
-                                        {
-                                            showOptions =
-                                                true
+        Box(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .heightIn(
+                                                        min =
+                                                                ContactUiConstants
+                                                                        .CONTACT_ROW_MIN_HEIGHT
+                                                                        .dp,
+                                                )
+                                                .clip(DesignTokens.CardShape)
+                                                .combinedClickable(
+                                                        onClick = {
+                                                                if (contactInfo.hasContactMethods) {
+                                                                        onShowContactMethods(
+                                                                                contactInfo,
+                                                                        )
+                                                                } else {
+                                                                        onContactClick(contactInfo)
+                                                                }
+                                                        },
+                                                        onLongClick = onLongPressOverride
+                                                                        ?: if (enableLongPress) {
+                                                                                {
+                                                                                        showOptions =
+                                                                                                true
+                                                                                }
+                                                                        } else {
+                                                                                null
+                                                                        },
+                                                )
+                                                .padding(vertical = DesignTokens.SpacingSmall),
+                                horizontalArrangement =
+                                        Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                                verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                                Box(
+                                        modifier =
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingXSmall
+                                                ),
+                                ) {
+                                        if (icon != null) {
+                                                Icon(
+                                                        imageVector = icon,
+                                                        contentDescription = null,
+                                                        tint = iconTint,
+                                                        modifier =
+                                                                Modifier.size(30.dp)
+                                                                        .padding(
+                                                                                start =
+                                                                                        DesignTokens
+                                                                                                .SpacingXSmall,
+                                                                        ),
+                                                )
+                                        } else {
+                                                ContactAvatar(
+                                                        photoUri = contactInfo.photoUri,
+                                                        displayName = contactInfo.displayName,
+                                                        onClick = { onContactClick(contactInfo) },
+                                                )
                                         }
-                                    } else {
-                                        null
-                                    },
-                        ).padding(vertical = DesignTokens.SpacingSmall),
-                horizontalArrangement =
-                    Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier =
-                        Modifier.padding(start = DesignTokens.SpacingXSmall),
-                ) {
-                    if (icon != null) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = iconTint,
-                            modifier =
-                                Modifier
-                                    .size(30.dp)
-                                    .padding(
-                                        start =
-                                            DesignTokens
-                                                .SpacingXSmall,
-                                    ),
-                        )
-                    } else {
-                        ContactAvatar(
-                            photoUri = contactInfo.photoUri,
-                            displayName = contactInfo.displayName,
-                            onClick = { onContactClick(contactInfo) },
-                        )
-                    }
+                                }
+
+                                Text(
+                                        text = contactInfo.displayName,
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                )
+
+                                // Always show call and message action buttons
+                                ContactActionButtons(
+                                        hasNumber = hasNumber,
+                                        messagingApp = messagingApp,
+                                        primaryAction = primaryAction,
+                                        secondaryAction = secondaryAction,
+                                        onCallClick = { onCallContact(contactInfo) },
+                                        onSmsClick = { onSmsContact(contactInfo) },
+                                        onPrimaryLongPress = {
+                                                onPrimaryActionLongPress(contactInfo)
+                                        },
+                                        onSecondaryLongPress = {
+                                                onSecondaryActionLongPress(contactInfo)
+                                        },
+                                        onCustomAction = { action ->
+                                                onCustomAction(contactInfo, action)
+                                        },
+                                )
+                        }
                 }
 
-                Text(
-                    text = contactInfo.displayName,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-
-                // Always show call and message action buttons
-                ContactActionButtons(
-                    hasNumber = hasNumber,
-                    messagingApp = messagingApp,
-                    primaryAction = primaryAction,
-                    secondaryAction = secondaryAction,
-                    onCallClick = { onCallContact(contactInfo) },
-                    onSmsClick = { onSmsContact(contactInfo) },
-                    onPrimaryLongPress = {
-                        onPrimaryActionLongPress(contactInfo)
-                    },
-                    onSecondaryLongPress = {
-                        onSecondaryActionLongPress(contactInfo)
-                    },
-                    onCustomAction = { action ->
-                        onCustomAction(contactInfo, action)
-                    },
-                )
-            }
+                if (enableLongPress && onLongPressOverride == null) {
+                        ContactDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                isPinned = isPinned,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(contactInfo) },
+                                onExclude = { onExclude(contactInfo) },
+                                onNicknameClick = { onNicknameClick(contactInfo) },
+                                onAddToHome = { addToHomeHandler.addContactToHome(contactInfo) },
+                        )
+                }
         }
-
-        if (enableLongPress && onLongPressOverride == null) {
-            ContactDropdownMenu(
-                expanded = showOptions,
-                onDismissRequest = { showOptions = false },
-                isPinned = isPinned,
-                hasNickname = hasNickname,
-                onTogglePin = { onTogglePin(contactInfo) },
-                onExclude = { onExclude(contactInfo) },
-                onNicknameClick = { onNicknameClick(contactInfo) },
-            )
-        }
-    }
 }
 
 // ============================================================================
@@ -201,75 +207,77 @@ internal fun ContactResultRow(
 
 @Composable
 internal fun ContactAvatar(
-    photoUri: String?,
-    displayName: String,
-    onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp),
-    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
+        photoUri: String?,
+        displayName: String,
+        onClick: (() -> Unit)? = null,
+        modifier: Modifier = Modifier.size(ContactUiConstants.CONTACT_AVATAR_SIZE.dp),
+        textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
-    val context = LocalContext.current
-    val contactPhoto by
-        produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
-            value =
-                photoUri?.let { uri ->
-                    withContext(Dispatchers.IO) {
-                        runCatching {
-                            val parsedUri = Uri.parse(uri)
-                            context.contentResolver
-                                .openInputStream(parsedUri)
-                                ?.use { stream ->
-                                    BitmapFactory
-                                        .decodeStream(
-                                            stream,
-                                        )?.asImageBitmap()
+        val context = LocalContext.current
+        val contactPhoto by
+                produceState<ImageBitmap?>(initialValue = null, key1 = photoUri) {
+                        value =
+                                photoUri?.let { uri ->
+                                        withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                                val parsedUri = Uri.parse(uri)
+                                                                context.contentResolver
+                                                                        .openInputStream(parsedUri)
+                                                                        ?.use { stream ->
+                                                                                BitmapFactory
+                                                                                        .decodeStream(
+                                                                                                stream,
+                                                                                        )
+                                                                                        ?.asImageBitmap()
+                                                                        }
+                                                        }
+                                                        .getOrNull()
+                                        }
                                 }
-                        }.getOrNull()
-                    }
+                }
+
+        val placeholderInitials =
+                remember(displayName) {
+                        displayName
+                                .split(" ")
+                                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                .take(2)
+                                .joinToString("")
+                }
+
+        Surface(
+                modifier =
+                        modifier.then(
+                                if (onClick != null) {
+                                        Modifier.clickable(onClick = onClick)
+                                } else {
+                                        Modifier
+                                },
+                        ),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+        ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        contactPhoto?.let { photo ->
+                                Image(
+                                        bitmap = photo,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop,
+                                )
+                        }
+                                ?: run {
+                                        Text(
+                                                text = placeholderInitials,
+                                                style = textStyle,
+                                                color =
+                                                        MaterialTheme.colorScheme
+                                                                .onPrimaryContainer,
+                                                fontWeight = FontWeight.SemiBold,
+                                        )
+                                }
                 }
         }
-
-    val placeholderInitials =
-        remember(displayName) {
-            displayName
-                .split(" ")
-                .mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                .take(2)
-                .joinToString("")
-        }
-
-    Surface(
-        modifier =
-            modifier.then(
-                if (onClick != null) {
-                    Modifier.clickable(onClick = onClick)
-                } else {
-                    Modifier
-                },
-            ),
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.primaryContainer,
-    ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            contactPhoto?.let { photo ->
-                Image(
-                    bitmap = photo,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-                ?: run {
-                    Text(
-                        text = placeholderInitials,
-                        style = textStyle,
-                        color =
-                            MaterialTheme.colorScheme
-                                .onPrimaryContainer,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-        }
-    }
 }
 
 // ============================================================================
@@ -278,345 +286,332 @@ internal fun ContactAvatar(
 
 @Composable
 private fun ContactActionButtons(
-    hasNumber: Boolean,
-    messagingApp: MessagingApp,
-    primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-    secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
-    onCallClick: () -> Unit,
-    onSmsClick: () -> Unit,
-    onPrimaryLongPress: () -> Unit,
-    onSecondaryLongPress: () -> Unit,
-    onCustomAction: (com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
+        hasNumber: Boolean,
+        messagingApp: MessagingApp,
+        primaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+        secondaryAction: com.tk.quicksearch.search.contacts.models.ContactCardAction?,
+        onCallClick: () -> Unit,
+        onSmsClick: () -> Unit,
+        onPrimaryLongPress: () -> Unit,
+        onSecondaryLongPress: () -> Unit,
+        onCustomAction: (com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
 ) {
-    val view = LocalView.current
+        val view = LocalView.current
 
-    // Helper to render action button with consistent styling and long press support
-    @Composable
-    fun ActionButton(
-        icon: @Composable () -> Unit, // Icon content
-        contentDescription: String,
-        onClick: () -> Unit,
-        onLongClick: () -> Unit,
-        enabled: Boolean = true,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
-                    .then(
-                        if (enabled) {
-                            Modifier.combinedClickable(
-                                onClick = {
-                                    hapticConfirm(view)()
-                                    onClick()
-                                },
-                                onLongClick = {
-                                    hapticConfirm(view)()
-                                    onLongClick()
-                                },
-                            )
+        // Helper to render action button with consistent styling and long press support
+        @Composable
+        fun ActionButton(
+                icon: @Composable () -> Unit, // Icon content
+                contentDescription: String,
+                onClick: () -> Unit,
+                onLongClick: () -> Unit,
+                enabled: Boolean = true,
+        ) {
+                Box(
+                        modifier =
+                                Modifier.size(ContactUiConstants.ACTION_BUTTON_SIZE.dp)
+                                        .then(
+                                                if (enabled) {
+                                                        Modifier.combinedClickable(
+                                                                onClick = {
+                                                                        hapticConfirm(view)()
+                                                                        onClick()
+                                                                },
+                                                                onLongClick = {
+                                                                        hapticConfirm(view)()
+                                                                        onLongClick()
+                                                                },
+                                                        )
+                                                } else {
+                                                        Modifier
+                                                },
+                                        ),
+                        contentAlignment = Alignment.Center,
+                ) { icon() }
+        }
+
+        // --- Primary Action (Left) ---
+        ActionButton(
+                icon = {
+                        if (primaryAction != null) {
+                                ContactActionIconForButton(
+                                        action = primaryAction,
+                                        enabled = hasNumber,
+                                )
                         } else {
-                            Modifier
-                        },
-                    ),
-            contentAlignment = Alignment.Center,
-        ) { icon() }
-    }
-
-    // --- Primary Action (Left) ---
-    ActionButton(
-        icon = {
-            if (primaryAction != null) {
-                ContactActionIconForButton(
-                    action = primaryAction,
-                    enabled = hasNumber,
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.Call, // Default phone icon
-                    contentDescription =
-                        stringResource(R.string.contacts_action_call),
-                    tint =
-                        if (hasNumber) {
-                            Color.White
+                                Icon(
+                                        imageVector = Icons.Rounded.Call, // Default phone icon
+                                        contentDescription =
+                                                stringResource(R.string.contacts_action_call),
+                                        tint =
+                                                if (hasNumber) {
+                                                        Color.White
+                                                } else {
+                                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                                },
+                                        modifier =
+                                                Modifier.size(
+                                                        ContactUiConstants.ACTION_ICON_SIZE.dp,
+                                                ),
+                                )
+                        }
+                },
+                contentDescription = stringResource(R.string.contacts_action_call),
+                onClick = {
+                        if (primaryAction != null) {
+                                onCustomAction(primaryAction)
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    modifier =
-                        Modifier.size(
-                            ContactUiConstants.ACTION_ICON_SIZE.dp,
-                        ),
-                )
-            }
-        },
-        contentDescription = stringResource(R.string.contacts_action_call),
-        onClick = {
-            if (primaryAction != null) {
-                onCustomAction(primaryAction)
-            } else {
-                onCallClick()
-            }
-        },
-        onLongClick = onPrimaryLongPress,
-        enabled = hasNumber,
-    )
+                                onCallClick()
+                        }
+                },
+                onLongClick = onPrimaryLongPress,
+                enabled = hasNumber,
+        )
 
-    // --- Secondary Action (Right) ---
-    ActionButton(
-        icon = {
-            if (secondaryAction != null) {
-                // Use custom icon logic
-                ContactActionIconForButton(
-                    action = secondaryAction,
-                    enabled = hasNumber,
-                )
-            } else {
-                // Default messaging logic
-                when (messagingApp) {
-                    MessagingApp.MESSAGES -> {
-                        Icon(
-                            imageVector = Icons.Rounded.Sms,
-                            contentDescription =
-                                stringResource(
-                                    R.string.contacts_action_sms,
-                                ),
-                            tint =
-                                if (hasNumber) {
-                                    Color.White
-                                } else {
-                                    MaterialTheme.colorScheme
-                                        .onSurfaceVariant
-                                },
-                            modifier =
-                                Modifier.size(
-                                    (
-                                        ContactUiConstants
-                                            .ACTION_ICON_SIZE *
-                                            0.9f
-                                    ).dp,
-                                ),
-                        )
-                    }
-
-                    MessagingApp.WHATSAPP -> {
-                        Icon(
-                            painter =
-                                painterResource(
-                                    id = R.drawable.whatsapp,
-                                ),
-                            contentDescription =
-                                stringResource(
-                                    R.string
-                                        .contacts_action_whatsapp,
-                                ),
-                            tint =
-                                if (hasNumber) {
-                                    Color.Unspecified
-                                } else {
-                                    MaterialTheme.colorScheme
-                                        .onSurfaceVariant
-                                },
-                            modifier =
-                                Modifier.size(
-                                    ContactUiConstants
-                                        .ACTION_ICON_SIZE
-                                        .dp,
-                                ),
-                        )
-                    }
-
-                    MessagingApp.TELEGRAM -> {
-                        Icon(
-                            painter =
-                                painterResource(
-                                    id = R.drawable.telegram,
-                                ),
-                            contentDescription =
-                                stringResource(
-                                    R.string
-                                        .contacts_action_telegram,
-                                ),
-                            tint =
-                                if (hasNumber) {
-                                    Color.Unspecified
-                                } else {
-                                    MaterialTheme.colorScheme
-                                        .onSurfaceVariant
-                                },
-                            modifier =
-                                Modifier.size(
-                                    ContactUiConstants
-                                        .ACTION_ICON_SIZE
-                                        .dp,
-                                ),
-                        )
-                    }
-
-                    MessagingApp.SIGNAL -> {
-                        Icon(
-                            painter =
-                                painterResource(
-                                    id = R.drawable.signal,
-                                ),
-                            contentDescription =
-                                stringResource(
-                                    R.string
-                                        .contacts_action_signal,
-                                ),
-                            tint =
-                                if (hasNumber) {
-                                    DesignTokens.ColorSignal
-                                } else {
-                                    MaterialTheme.colorScheme
-                                        .onSurfaceVariant
-                                },
-                            modifier =
-                                Modifier.size(
-                                    DesignTokens.SignalMessageIconSize,
-                                ),
-                        )
-                    }
-                }
-            }
-        },
-        contentDescription = stringResource(R.string.contacts_action_sms),
-        onClick = {
-            if (secondaryAction != null) {
-                onCustomAction(secondaryAction)
-            } else {
-                onSmsClick()
-            }
-        },
-        onLongClick = onSecondaryLongPress,
-        enabled = hasNumber,
-    )
+        // --- Secondary Action (Right) ---
+        ActionButton(
+                icon = {
+                        if (secondaryAction != null) {
+                                // Use custom icon logic
+                                ContactActionIconForButton(
+                                        action = secondaryAction,
+                                        enabled = hasNumber,
+                                )
+                        } else {
+                                // Default messaging logic
+                                when (messagingApp) {
+                                        MessagingApp.MESSAGES -> {
+                                                Icon(
+                                                        imageVector = Icons.Rounded.Sms,
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_sms,
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) {
+                                                                        Color.White
+                                                                } else {
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                                },
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        (ContactUiConstants
+                                                                                        .ACTION_ICON_SIZE *
+                                                                                        0.9f)
+                                                                                .dp,
+                                                                ),
+                                                )
+                                        }
+                                        MessagingApp.WHATSAPP -> {
+                                                Icon(
+                                                        painter =
+                                                                painterResource(
+                                                                        id = R.drawable.whatsapp,
+                                                                ),
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_whatsapp,
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) {
+                                                                        Color.Unspecified
+                                                                } else {
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                                },
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        ContactUiConstants
+                                                                                .ACTION_ICON_SIZE
+                                                                                .dp,
+                                                                ),
+                                                )
+                                        }
+                                        MessagingApp.TELEGRAM -> {
+                                                Icon(
+                                                        painter =
+                                                                painterResource(
+                                                                        id = R.drawable.telegram,
+                                                                ),
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_telegram,
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) {
+                                                                        Color.Unspecified
+                                                                } else {
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                                },
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        ContactUiConstants
+                                                                                .ACTION_ICON_SIZE
+                                                                                .dp,
+                                                                ),
+                                                )
+                                        }
+                                        MessagingApp.SIGNAL -> {
+                                                Icon(
+                                                        painter =
+                                                                painterResource(
+                                                                        id = R.drawable.signal,
+                                                                ),
+                                                        contentDescription =
+                                                                stringResource(
+                                                                        R.string
+                                                                                .contacts_action_signal,
+                                                                ),
+                                                        tint =
+                                                                if (hasNumber) {
+                                                                        DesignTokens.ColorSignal
+                                                                } else {
+                                                                        MaterialTheme.colorScheme
+                                                                                .onSurfaceVariant
+                                                                },
+                                                        modifier =
+                                                                Modifier.size(
+                                                                        DesignTokens
+                                                                                .SignalMessageIconSize,
+                                                                ),
+                                                )
+                                        }
+                                }
+                        }
+                },
+                contentDescription = stringResource(R.string.contacts_action_sms),
+                onClick = {
+                        if (secondaryAction != null) {
+                                onCustomAction(secondaryAction)
+                        } else {
+                                onSmsClick()
+                        }
+                },
+                onLongClick = onSecondaryLongPress,
+                enabled = hasNumber,
+        )
 }
 
 @Composable
 private fun ContactActionIconForButton(
-    action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
-    enabled: Boolean,
+        action: com.tk.quicksearch.search.contacts.models.ContactCardAction,
+        enabled: Boolean,
 ) {
-    val tint = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
-    val whiteTint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-    val modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
-    val smsModifier = Modifier.size((ContactUiConstants.ACTION_ICON_SIZE * 0.9f).dp)
+        val tint = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant
+        val whiteTint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+        val modifier = Modifier.size(ContactUiConstants.ACTION_ICON_SIZE.dp)
+        val smsModifier = Modifier.size((ContactUiConstants.ACTION_ICON_SIZE * 0.9f).dp)
 
-    when (action) {
-        // Calls -> Phone Icon
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
-            Icon(
-                imageVector = Icons.Rounded.Call, // Explicit request for phone icon
-                contentDescription = null,
-                tint = whiteTint,
-                modifier = modifier,
-            )
-        }
+        when (action) {
+                // Calls -> Phone Icon
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Phone -> {
+                        Icon(
+                                imageVector = Icons.Rounded.Call, // Explicit request for phone icon
+                                contentDescription = null,
+                                tint = whiteTint,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall,
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall, -> {
+                        Icon(
+                                painter =
+                                        painterResource(
+                                                id =
+                                                        if (action is
+                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall
+                                                        ) {
+                                                                R.drawable.whatsapp_video_call
+                                                        } else {
+                                                                R.drawable.whatsapp_call
+                                                        },
+                                        ),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall,
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall, -> {
+                        Icon(
+                                painter =
+                                        painterResource(
+                                                id =
+                                                        if (action is
+                                                                        com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall
+                                                        ) {
+                                                                R.drawable.telegram_video_call
+                                                        } else {
+                                                                R.drawable.telegram_call
+                                                        },
+                                        ),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
 
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppCall,
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall,
-        -> {
-            Icon(
-                painter =
-                    painterResource(
-                        id =
-                            if (action is
-                                    com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppVideoCall
-                            ) {
-                                R.drawable.whatsapp_video_call
-                            } else {
-                                R.drawable.whatsapp_call
-                            },
-                    ),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
+                // Messaging / Meet -> App Icon
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
+                        Icon(
+                                imageVector = Icons.Rounded.Sms,
+                                contentDescription = null,
+                                tint = whiteTint, // SMS icon usually white based on existing code
+                                modifier = smsModifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.whatsapp),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.telegram),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalVideoCall -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.signal_video_call),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.signal_call),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = modifier,
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.signal),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
+                        )
+                }
+                is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
+                        Icon(
+                                painter = painterResource(id = R.drawable.google_meet),
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = modifier,
+                        )
+                }
         }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramCall,
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall,
-        -> {
-            Icon(
-                painter =
-                    painterResource(
-                        id =
-                            if (action is
-                                    com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramVideoCall
-                            ) {
-                                R.drawable.telegram_video_call
-                            } else {
-                                R.drawable.telegram_call
-                            },
-                    ),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
-        }
-
-        // Messaging / Meet -> App Icon
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
-            Icon(
-                imageVector = Icons.Rounded.Sms,
-                contentDescription = null,
-                tint = whiteTint, // SMS icon usually white based on existing code
-                modifier = smsModifier,
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.WhatsAppMessage -> {
-            Icon(
-                painter = painterResource(id = R.drawable.whatsapp),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.TelegramMessage -> {
-            Icon(
-                painter = painterResource(id = R.drawable.telegram),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalVideoCall -> {
-            Icon(
-                painter = painterResource(id = R.drawable.signal_video_call),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalCall -> {
-            Icon(
-                painter = painterResource(id = R.drawable.signal_call),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = modifier,
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.SignalMessage -> {
-            Icon(
-                painter = painterResource(id = R.drawable.signal),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(DesignTokens.SignalMessageIconSize),
-            )
-        }
-
-        is com.tk.quicksearch.search.contacts.models.ContactCardAction.GoogleMeet -> {
-            Icon(
-                painter = painterResource(id = R.drawable.google_meet),
-                contentDescription = null,
-                tint = tint,
-                modifier = modifier,
-            )
-        }
-    }
 }

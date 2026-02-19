@@ -164,6 +164,7 @@
     <string name="action_unpin_generic">Unpin</string>
     <string name="action_exclude_generic">Exclude</string>
     <string name="action_include_generic">Include</string>
+    <string name="action_add_to_home">Add to Home</string>
     <string name="action_undo">Undo</string>
     <string name="action_exclude_extension">Exclude .%s files</string>
     <string name="toast_excluded_from_results">%1$s excluded from results</string>

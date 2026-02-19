@@ -3,6 +3,8 @@ package com.tk.quicksearch.search.files
 import android.os.Build
 import android.os.SystemClock
 import android.util.Size
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -11,12 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -35,8 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,8 +45,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -57,6 +57,18 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.R
+import com.tk.quicksearch.search.contacts.components.ContactUiConstants
+import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.FileTypeUtils
+import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.ui.theme.AppColors
+import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.hapticConfirm
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -64,18 +76,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import com.tk.quicksearch.R
-import com.tk.quicksearch.search.contacts.components.ContactUiConstants
-import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.search.models.FileTypeUtils
-import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
-import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
-import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
-import com.tk.quicksearch.ui.theme.AppColors
-import com.tk.quicksearch.ui.theme.DesignTokens
-import com.tk.quicksearch.util.hapticConfirm
 
 // ============================================================================
 // Constants
@@ -93,14 +93,16 @@ private const val DROPDOWN_CORNER_RADIUS = 24
 
 private object FileThumbnailCache {
     private val loadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val cache = object : LinkedHashMap<String, ImageBitmap>(THUMBNAIL_CACHE_MAX_SIZE, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, ImageBitmap>) = size > THUMBNAIL_CACHE_MAX_SIZE
-    }
+    private val cache =
+            object : LinkedHashMap<String, ImageBitmap>(THUMBNAIL_CACHE_MAX_SIZE, 0.75f, true) {
+                override fun removeEldestEntry(
+                        eldest: MutableMap.MutableEntry<String, ImageBitmap>
+                ) = size > THUMBNAIL_CACHE_MAX_SIZE
+            }
     private val inFlightLoads = mutableMapOf<String, Deferred<ImageBitmap?>>()
     private val failureTimestamps = mutableMapOf<String, Long>()
 
-    @Synchronized
-    fun get(uri: String): ImageBitmap? = cache[uri]
+    @Synchronized fun get(uri: String): ImageBitmap? = cache[uri]
 
     @Synchronized
     fun put(uri: String, bitmap: ImageBitmap) {
@@ -109,40 +111,50 @@ private object FileThumbnailCache {
     }
 
     suspend fun getOrLoad(uri: String, loader: suspend () -> ImageBitmap?): ImageBitmap? {
-        get(uri)?.let { return it }
+        get(uri)?.let {
+            return it
+        }
 
         val deferred =
-            synchronized(this) {
-                cache[uri]?.let { return it }
-
-                inFlightLoads[uri]?.let { return@synchronized it }
-
-                val now = SystemClock.elapsedRealtime()
-                val lastFailure = failureTimestamps[uri]
-                if (lastFailure != null && now - lastFailure < THUMBNAIL_FAILURE_RETRY_DELAY_MS) {
-                    return@synchronized null
-                }
-
-                loadScope.async(start = CoroutineStart.LAZY) {
-                    var loadedBitmap: ImageBitmap? = null
-                    try {
-                        loadedBitmap = loader()
-                    } catch (_: Exception) {
-                        loadedBitmap = null
-                    } finally {
-                        synchronized(this@FileThumbnailCache) {
-                            inFlightLoads.remove(uri)
-                            if (loadedBitmap != null) {
-                                cache[uri] = loadedBitmap!!
-                                failureTimestamps.remove(uri)
-                            } else {
-                                failureTimestamps[uri] = SystemClock.elapsedRealtime()
-                            }
-                        }
+                synchronized(this) {
+                    cache[uri]?.let {
+                        return it
                     }
-                    loadedBitmap
-                }.also { inFlightLoads[uri] = it }
-            } ?: return null
+
+                    inFlightLoads[uri]?.let {
+                        return@synchronized it
+                    }
+
+                    val now = SystemClock.elapsedRealtime()
+                    val lastFailure = failureTimestamps[uri]
+                    if (lastFailure != null && now - lastFailure < THUMBNAIL_FAILURE_RETRY_DELAY_MS
+                    ) {
+                        return@synchronized null
+                    }
+
+                    loadScope
+                            .async(start = CoroutineStart.LAZY) {
+                                var loadedBitmap: ImageBitmap? = null
+                                try {
+                                    loadedBitmap = loader()
+                                } catch (_: Exception) {
+                                    loadedBitmap = null
+                                } finally {
+                                    synchronized(this@FileThumbnailCache) {
+                                        inFlightLoads.remove(uri)
+                                        if (loadedBitmap != null) {
+                                            cache[uri] = loadedBitmap!!
+                                            failureTimestamps.remove(uri)
+                                        } else {
+                                            failureTimestamps[uri] = SystemClock.elapsedRealtime()
+                                        }
+                                    }
+                                }
+                                loadedBitmap
+                            }
+                            .also { inFlightLoads[uri] = it }
+                }
+                        ?: return null
 
         if (!deferred.isActive && !deferred.isCompleted) deferred.start()
         return try {
@@ -161,58 +173,57 @@ private object FileThumbnailCache {
 
 @Composable
 fun FileResultsSection(
-    modifier: Modifier = Modifier,
-    hasPermission: Boolean,
-    files: List<DeviceFile>,
-    isExpanded: Boolean,
-    onFileClick: (DeviceFile) -> Unit,
-    onOpenFolder: (DeviceFile) -> Unit = {},
-    onRequestPermission: () -> Unit,
-    pinnedFileUris: Set<String> = emptySet(),
-    onTogglePin: (DeviceFile) -> Unit = {},
-    onExclude: (DeviceFile) -> Unit = {},
-    onExcludeExtension: (DeviceFile) -> Unit = {},
-    onNicknameClick: (DeviceFile) -> Unit = {},
-    getFileNickname: (String) -> String? = { null },
-    showAllResults: Boolean = false,
-    showExpandControls: Boolean = false,
-    onExpandClick: () -> Unit,
-    permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
-    showWallpaperBackground: Boolean = false,
+        modifier: Modifier = Modifier,
+        hasPermission: Boolean,
+        files: List<DeviceFile>,
+        isExpanded: Boolean,
+        onFileClick: (DeviceFile) -> Unit,
+        onOpenFolder: (DeviceFile) -> Unit = {},
+        onRequestPermission: () -> Unit,
+        pinnedFileUris: Set<String> = emptySet(),
+        onTogglePin: (DeviceFile) -> Unit = {},
+        onExclude: (DeviceFile) -> Unit = {},
+        onExcludeExtension: (DeviceFile) -> Unit = {},
+        onNicknameClick: (DeviceFile) -> Unit = {},
+        getFileNickname: (String) -> String? = { null },
+        showAllResults: Boolean = false,
+        showExpandControls: Boolean = false,
+        onExpandClick: () -> Unit,
+        permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
+        showWallpaperBackground: Boolean = false,
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
 
     Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         when {
             hasPermission && files.isNotEmpty() -> {
                 FilesResultCard(
-                    files = files,
-                    isExpanded = isExpanded,
-                    showAllResults = showAllResults,
-                    showExpandControls = showExpandControls,
-                    onFileClick = onFileClick,
-                    onOpenFolder = onOpenFolder,
-                    pinnedFileUris = pinnedFileUris,
-                    onTogglePin = onTogglePin,
-                    onExclude = onExclude,
-                    onExcludeExtension = onExcludeExtension,
-                    onNicknameClick = onNicknameClick,
-                    getFileNickname = getFileNickname,
-                    onExpandClick = onExpandClick,
-                    showWallpaperBackground = showWallpaperBackground,
+                        files = files,
+                        isExpanded = isExpanded,
+                        showAllResults = showAllResults,
+                        showExpandControls = showExpandControls,
+                        onFileClick = onFileClick,
+                        onOpenFolder = onOpenFolder,
+                        pinnedFileUris = pinnedFileUris,
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude,
+                        onExcludeExtension = onExcludeExtension,
+                        onNicknameClick = onNicknameClick,
+                        getFileNickname = getFileNickname,
+                        onExpandClick = onExpandClick,
+                        showWallpaperBackground = showWallpaperBackground,
                 )
             }
-
             !hasPermission -> {
                 permissionDisabledCard(
-                    stringResource(R.string.files_permission_title),
-                    stringResource(R.string.files_permission_subtitle),
-                    stringResource(R.string.permission_action_manage_android),
-                    onRequestPermission,
+                        stringResource(R.string.files_permission_title),
+                        stringResource(R.string.files_permission_subtitle),
+                        stringResource(R.string.permission_action_manage_android),
+                        onRequestPermission,
                 )
             }
         }
@@ -225,96 +236,92 @@ fun FileResultsSection(
 
 @Composable
 private fun FilesResultCard(
-    files: List<DeviceFile>,
-    isExpanded: Boolean,
-    showAllResults: Boolean,
-    showExpandControls: Boolean,
-    onFileClick: (DeviceFile) -> Unit,
-    onOpenFolder: (DeviceFile) -> Unit,
-    pinnedFileUris: Set<String>,
-    onTogglePin: (DeviceFile) -> Unit,
-    onExclude: (DeviceFile) -> Unit,
-    onExcludeExtension: (DeviceFile) -> Unit,
-    onNicknameClick: (DeviceFile) -> Unit,
-    getFileNickname: (String) -> String?,
-    onExpandClick: () -> Unit,
-    showWallpaperBackground: Boolean = false,
+        files: List<DeviceFile>,
+        isExpanded: Boolean,
+        showAllResults: Boolean,
+        showExpandControls: Boolean,
+        onFileClick: (DeviceFile) -> Unit,
+        onOpenFolder: (DeviceFile) -> Unit,
+        pinnedFileUris: Set<String>,
+        onTogglePin: (DeviceFile) -> Unit,
+        onExclude: (DeviceFile) -> Unit,
+        onExcludeExtension: (DeviceFile) -> Unit,
+        onNicknameClick: (DeviceFile) -> Unit,
+        getFileNickname: (String) -> String?,
+        onExpandClick: () -> Unit,
+        showWallpaperBackground: Boolean = false,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
     val displayAsExpanded = isExpanded || showAllResults
     val canShowExpand =
-        showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+            showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-    val shouldUseLazyList =
-        isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val shouldUseLazyList = isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
 
     val displayFiles =
-        if (displayAsExpanded) {
-            files
-        } else {
-            files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-        }
+            if (displayAsExpanded) {
+                files
+            } else {
+                files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+            }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         val cardModifier = Modifier.fillMaxWidth()
         val contentModifier =
-            if (isExpanded) {
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(
-                        max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
-                    )
-            } else {
-                Modifier.fillMaxWidth()
-            }
+                if (isExpanded) {
+                    Modifier.fillMaxWidth()
+                            .heightIn(
+                                    max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
+                            )
+                } else {
+                    Modifier.fillMaxWidth()
+                }
 
         val cardContent =
-            @Composable
-            {
-                FileCardContent(
-                    displayFiles = displayFiles,
-                    overlayDividerColor = overlayDividerColor,
-                    shouldShowExpandButton = shouldShowExpandButton,
-                    onFileClick = onFileClick,
-                    onOpenFolder = onOpenFolder,
-                    pinnedFileUris = pinnedFileUris,
-                    onTogglePin = onTogglePin,
-                    onExclude = onExclude,
-                    onExcludeExtension = onExcludeExtension,
-                    onNicknameClick = onNicknameClick,
-                    getFileNickname = getFileNickname,
-                    onExpandClick = onExpandClick,
-                    modifier = contentModifier,
-                    useLazyList = shouldUseLazyList,
-                )
-            }
+                @Composable
+                {
+                    FileCardContent(
+                            displayFiles = displayFiles,
+                            overlayDividerColor = overlayDividerColor,
+                            shouldShowExpandButton = shouldShowExpandButton,
+                            onFileClick = onFileClick,
+                            onOpenFolder = onOpenFolder,
+                            pinnedFileUris = pinnedFileUris,
+                            onTogglePin = onTogglePin,
+                            onExclude = onExclude,
+                            onExcludeExtension = onExcludeExtension,
+                            onNicknameClick = onNicknameClick,
+                            getFileNickname = getFileNickname,
+                            onExpandClick = onExpandClick,
+                            modifier = contentModifier,
+                            useLazyList = shouldUseLazyList,
+                    )
+                }
 
         val cardColors =
-            if (overlayCardColor != null) {
-                CardDefaults.cardColors(containerColor = overlayCardColor)
-            } else {
-                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
-            }
+                if (overlayCardColor != null) {
+                    CardDefaults.cardColors(containerColor = overlayCardColor)
+                } else {
+                    AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+                }
 
         if (showWallpaperBackground) {
             Card(
-                modifier = cardModifier,
-                colors = cardColors,
-                shape = MaterialTheme.shapes.extraLarge,
-                elevation =
-                    AppColors.getCardElevation(showWallpaperBackground = true),
+                    modifier = cardModifier,
+                    colors = cardColors,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    elevation = AppColors.getCardElevation(showWallpaperBackground = true),
             ) { cardContent() }
         } else {
             ElevatedCard(
-                modifier = cardModifier,
-                colors = cardColors,
-                shape = MaterialTheme.shapes.extraLarge,
-                elevation =
-                    AppColors.getCardElevation(showWallpaperBackground = false),
+                    modifier = cardModifier,
+                    colors = cardColors,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    elevation = AppColors.getCardElevation(showWallpaperBackground = false),
             ) { cardContent() }
         }
     }
@@ -326,47 +333,45 @@ private fun FilesResultCard(
 
 @Composable
 private fun FileCardContent(
-    modifier: Modifier = Modifier,
-    displayFiles: List<DeviceFile>,
-    overlayDividerColor: Color?,
-    shouldShowExpandButton: Boolean,
-    onFileClick: (DeviceFile) -> Unit,
-    onOpenFolder: (DeviceFile) -> Unit,
-    pinnedFileUris: Set<String>,
-    onTogglePin: (DeviceFile) -> Unit,
-    onExclude: (DeviceFile) -> Unit,
-    onExcludeExtension: (DeviceFile) -> Unit,
-    onNicknameClick: (DeviceFile) -> Unit,
-    getFileNickname: (String) -> String?,
-    onExpandClick: () -> Unit,
-    useLazyList: Boolean = false,
+        modifier: Modifier = Modifier,
+        displayFiles: List<DeviceFile>,
+        overlayDividerColor: Color?,
+        shouldShowExpandButton: Boolean,
+        onFileClick: (DeviceFile) -> Unit,
+        onOpenFolder: (DeviceFile) -> Unit,
+        pinnedFileUris: Set<String>,
+        onTogglePin: (DeviceFile) -> Unit,
+        onExclude: (DeviceFile) -> Unit,
+        onExcludeExtension: (DeviceFile) -> Unit,
+        onNicknameClick: (DeviceFile) -> Unit,
+        getFileNickname: (String) -> String?,
+        onExpandClick: () -> Unit,
+        useLazyList: Boolean = false,
 ) {
     if (useLazyList) {
         LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
+                modifier = modifier,
+                contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
         ) {
             itemsIndexed(
-                items = displayFiles,
-                key = { _, file -> file.uri.toString() },
+                    items = displayFiles,
+                    key = { _, file -> file.uri.toString() },
             ) { index, file ->
                 FileResultRow(
-                    deviceFile = file,
-                    onClick = onFileClick,
-                    onOpenFolder = onOpenFolder,
-                    isPinned = pinnedFileUris.contains(file.uri.toString()),
-                    onTogglePin = onTogglePin,
-                    onExclude = onExclude,
-                    onExcludeExtension = onExcludeExtension,
-                    onNicknameClick = onNicknameClick,
-                    hasNickname =
-                        !getFileNickname(file.uri.toString())
-                            .isNullOrBlank(),
+                        deviceFile = file,
+                        onClick = onFileClick,
+                        onOpenFolder = onOpenFolder,
+                        isPinned = pinnedFileUris.contains(file.uri.toString()),
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude,
+                        onExcludeExtension = onExcludeExtension,
+                        onNicknameClick = onNicknameClick,
+                        hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank(),
                 )
                 if (index != displayFiles.lastIndex) {
                     HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
@@ -375,19 +380,15 @@ private fun FileCardContent(
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         ExpandButton(
-                            onClick = onExpandClick,
-                            modifier =
-                                Modifier
-                                    .align(Alignment.Center)
-                                    .height(
-                                        ContactUiConstants
-                                            .EXPAND_BUTTON_HEIGHT
-                                            .dp,
-                                    ).padding(
-                                        top =
-                                            EXPAND_BUTTON_TOP_PADDING
-                                                .dp,
-                                    ),
+                                onClick = onExpandClick,
+                                modifier =
+                                        Modifier.align(Alignment.Center)
+                                                .height(
+                                                        ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp,
+                                                )
+                                                .padding(
+                                                        top = EXPAND_BUTTON_TOP_PADDING.dp,
+                                                ),
                         )
                     }
                 }
@@ -397,37 +398,33 @@ private fun FileCardContent(
         Column(modifier = modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
             displayFiles.forEachIndexed { index, file ->
                 FileResultRow(
-                    deviceFile = file,
-                    onClick = onFileClick,
-                    onOpenFolder = onOpenFolder,
-                    isPinned = pinnedFileUris.contains(file.uri.toString()),
-                    onTogglePin = onTogglePin,
-                    onExclude = onExclude,
-                    onExcludeExtension = onExcludeExtension,
-                    onNicknameClick = onNicknameClick,
-                    hasNickname =
-                        !getFileNickname(file.uri.toString())
-                            .isNullOrBlank(),
+                        deviceFile = file,
+                        onClick = onFileClick,
+                        onOpenFolder = onOpenFolder,
+                        isPinned = pinnedFileUris.contains(file.uri.toString()),
+                        onTogglePin = onTogglePin,
+                        onExclude = onExclude,
+                        onExcludeExtension = onExcludeExtension,
+                        onNicknameClick = onNicknameClick,
+                        hasNickname = !getFileNickname(file.uri.toString()).isNullOrBlank(),
                 )
                 if (index != displayFiles.lastIndex) {
                     HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
 
             if (shouldShowExpandButton) {
                 ExpandButton(
-                    onClick = onExpandClick,
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .height(
-                                ContactUiConstants
-                                    .EXPAND_BUTTON_HEIGHT
-                                    .dp,
-                            ).padding(top = EXPAND_BUTTON_TOP_PADDING.dp),
+                        onClick = onExpandClick,
+                        modifier =
+                                Modifier.align(Alignment.CenterHorizontally)
+                                        .height(
+                                                ContactUiConstants.EXPAND_BUTTON_HEIGHT.dp,
+                                        )
+                                        .padding(top = EXPAND_BUTTON_TOP_PADDING.dp),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -441,48 +438,52 @@ private fun FileCardContent(
 
 @Composable
 private fun fileResultIcon(deviceFile: DeviceFile): ImageVector =
-    when {
-        deviceFile.isDirectory -> Icons.Rounded.Folder
-        FileTypeUtils.isPdf(deviceFile) -> ImageVector.vectorResource(R.drawable.ic_pdf)
-        else -> when (FileTypeUtils.getFileType(deviceFile)) {
-            FileType.AUDIO -> Icons.Rounded.AudioFile
-            FileType.PICTURES -> Icons.Rounded.Image
-            FileType.VIDEOS -> Icons.Rounded.VideoLibrary
-            FileType.APKS -> Icons.Rounded.Android
-            else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+        when {
+            deviceFile.isDirectory -> Icons.Rounded.Folder
+            FileTypeUtils.isPdf(deviceFile) -> ImageVector.vectorResource(R.drawable.ic_pdf)
+            else ->
+                    when (FileTypeUtils.getFileType(deviceFile)) {
+                        FileType.AUDIO -> Icons.Rounded.AudioFile
+                        FileType.PICTURES -> Icons.Rounded.Image
+                        FileType.VIDEOS -> Icons.Rounded.VideoLibrary
+                        FileType.APKS -> Icons.Rounded.Android
+                        else -> Icons.AutoMirrored.Rounded.InsertDriveFile
+                    }
         }
-    }
 
 @Composable
 private fun FileResultThumbnailOrIcon(
-    deviceFile: DeviceFile,
-    iconOverride: ImageVector?,
-    iconTint: Color,
-    modifier: Modifier = Modifier,
+        deviceFile: DeviceFile,
+        iconOverride: ImageVector?,
+        iconTint: Color,
+        modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val fileType = FileTypeUtils.getFileType(deviceFile)
-    val showThumbnail = !deviceFile.isDirectory && (fileType == FileType.PICTURES || fileType == FileType.VIDEOS)
+    val showThumbnail =
+            !deviceFile.isDirectory &&
+                    (fileType == FileType.PICTURES || fileType == FileType.VIDEOS)
     val uriString = deviceFile.uri.toString()
-    var thumbnailBitmap by remember(uriString) {
-        mutableStateOf<ImageBitmap?>(FileThumbnailCache.get(uriString))
-    }
+    var thumbnailBitmap by
+            remember(uriString) { mutableStateOf<ImageBitmap?>(FileThumbnailCache.get(uriString)) }
 
     if (showThumbnail && iconOverride == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         LaunchedEffect(uriString) {
             if (thumbnailBitmap != null) return@LaunchedEffect
             val imageBitmap =
-                FileThumbnailCache.getOrLoad(uriString) {
-                    try {
-                        context.contentResolver.loadThumbnail(
-                            deviceFile.uri,
-                            Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
-                            null,
-                        )?.asImageBitmap()
-                    } catch (_: Exception) {
-                        null
+                    FileThumbnailCache.getOrLoad(uriString) {
+                        try {
+                            context.contentResolver
+                                    .loadThumbnail(
+                                            deviceFile.uri,
+                                            Size(THUMBNAIL_LOAD_SIZE_PX, THUMBNAIL_LOAD_SIZE_PX),
+                                            null,
+                                    )
+                                    ?.asImageBitmap()
+                        } catch (_: Exception) {
+                            null
+                        }
                     }
-                }
             if (imageBitmap != null) {
                 thumbnailBitmap = imageBitmap
             }
@@ -490,45 +491,44 @@ private fun FileResultThumbnailOrIcon(
     }
 
     val isPdf = iconOverride == null && FileTypeUtils.isPdf(deviceFile)
-    val iconSize = when {
-        iconOverride != null -> 34.dp
-        isPdf -> PDF_ICON_SIZE.dp
-        else -> FILE_ICON_SIZE.dp
-    }
+    val iconSize =
+            when {
+                iconOverride != null -> 34.dp
+                isPdf -> PDF_ICON_SIZE.dp
+                else -> FILE_ICON_SIZE.dp
+            }
 
     if (thumbnailBitmap != null && iconOverride == null) {
         val thumbnailAlpha = remember(uriString) { Animatable(0f) }
         LaunchedEffect(uriString) {
             thumbnailAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 200),
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 200),
             )
         }
         Box(modifier = modifier.size(THUMBNAIL_SIZE_DP.dp)) {
             Icon(
-                imageVector = fileResultIcon(deviceFile),
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier
-                    .size(THUMBNAIL_SIZE_DP.dp)
-                    .alpha(1f - thumbnailAlpha.value),
+                    imageVector = fileResultIcon(deviceFile),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(THUMBNAIL_SIZE_DP.dp).alpha(1f - thumbnailAlpha.value),
             )
             Image(
-                bitmap = thumbnailBitmap!!,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(THUMBNAIL_SIZE_DP.dp)
-                    .clip(DesignTokens.CardShape)
-                    .alpha(thumbnailAlpha.value),
-                contentScale = ContentScale.Crop,
+                    bitmap = thumbnailBitmap!!,
+                    contentDescription = null,
+                    modifier =
+                            Modifier.size(THUMBNAIL_SIZE_DP.dp)
+                                    .clip(DesignTokens.CardShape)
+                                    .alpha(thumbnailAlpha.value),
+                    contentScale = ContentScale.Crop,
             )
         }
     } else {
         Icon(
-            imageVector = iconOverride ?: fileResultIcon(deviceFile),
-            contentDescription = null,
-            tint = if (isPdf) Color.Unspecified else iconTint,
-            modifier = modifier.size(iconSize),
+                imageVector = iconOverride ?: fileResultIcon(deviceFile),
+                contentDescription = null,
+                tint = if (isPdf) Color.Unspecified else iconTint,
+                modifier = modifier.size(iconSize),
         )
     }
 }
@@ -536,84 +536,86 @@ private fun FileResultThumbnailOrIcon(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun FileResultRow(
-    deviceFile: DeviceFile,
-    onClick: (DeviceFile) -> Unit,
-    onOpenFolder: (DeviceFile) -> Unit = {},
-    isPinned: Boolean = false,
-    onTogglePin: (DeviceFile) -> Unit = {},
-    onExclude: (DeviceFile) -> Unit = {},
-    onExcludeExtension: (DeviceFile) -> Unit = {},
-    onNicknameClick: (DeviceFile) -> Unit = {},
-    hasNickname: Boolean = false,
-    enableLongPress: Boolean = true,
-    onLongPressOverride: (() -> Unit)? = null,
-    icon: ImageVector? = null,
-    iconTint: Color = MaterialTheme.colorScheme.secondary,
+        deviceFile: DeviceFile,
+        onClick: (DeviceFile) -> Unit,
+        onOpenFolder: (DeviceFile) -> Unit = {},
+        isPinned: Boolean = false,
+        onTogglePin: (DeviceFile) -> Unit = {},
+        onExclude: (DeviceFile) -> Unit = {},
+        onExcludeExtension: (DeviceFile) -> Unit = {},
+        onNicknameClick: (DeviceFile) -> Unit = {},
+        hasNickname: Boolean = false,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: ImageVector? = null,
+        iconTint: Color = MaterialTheme.colorScheme.secondary,
 ) {
+    val context = LocalContext.current
+    val addToHomeHandler =
+            remember(context) { com.tk.quicksearch.search.common.AddToHomeHandler(context) }
     var showOptions by remember { mutableStateOf(false) }
     var showFileInfoDialog by remember { mutableStateOf(false) }
     val view = LocalView.current
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clip(DesignTokens.CardShape)
-                    .combinedClickable(
-                        onClick = {
-                            hapticConfirm(view)()
-                            onClick(deviceFile)
-                        },
-                        onLongClick =
-                            onLongPressOverride
-                                ?: if (enableLongPress) {
-                                    { showOptions = true }
-                                } else {
-                                    null
-                                },
-                    ).padding(vertical = DesignTokens.SpacingLarge),
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .clip(DesignTokens.CardShape)
+                                .combinedClickable(
+                                        onClick = {
+                                            hapticConfirm(view)()
+                                            onClick(deviceFile)
+                                        },
+                                        onLongClick = onLongPressOverride
+                                                        ?: if (enableLongPress) {
+                                                            { showOptions = true }
+                                                        } else {
+                                                            null
+                                                        },
+                                )
+                                .padding(vertical = DesignTokens.SpacingLarge),
         ) {
             Row(
-                horizontalArrangement =
-                    Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+                    verticalAlignment = Alignment.CenterVertically,
             ) {
                 FileResultThumbnailOrIcon(
-                    deviceFile = deviceFile,
-                    iconOverride = icon,
-                    iconTint = iconTint,
-                    modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+                        deviceFile = deviceFile,
+                        iconOverride = icon,
+                        iconTint = iconTint,
+                        modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
                 )
 
                 Text(
-                    text = deviceFile.displayName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
+                        text = deviceFile.displayName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
                 )
             }
         }
 
         if (enableLongPress && onLongPressOverride == null) {
             FileDropdownMenu(
-                expanded = showOptions,
-                onDismissRequest = { showOptions = false },
-                deviceFile = deviceFile,
-                isPinned = isPinned,
-                hasNickname = hasNickname,
-                onTogglePin = { onTogglePin(deviceFile) },
-                onExclude = { onExclude(deviceFile) },
-                onExcludeExtension = { onExcludeExtension(deviceFile) },
-                onNicknameClick = { onNicknameClick(deviceFile) },
-                onOpenFolderClick = { onOpenFolder(deviceFile) },
-                onFileInfoClick = { showFileInfoDialog = true },
+                    expanded = showOptions,
+                    onDismissRequest = { showOptions = false },
+                    deviceFile = deviceFile,
+                    isPinned = isPinned,
+                    hasNickname = hasNickname,
+                    onTogglePin = { onTogglePin(deviceFile) },
+                    onExclude = { onExclude(deviceFile) },
+                    onExcludeExtension = { onExcludeExtension(deviceFile) },
+                    onNicknameClick = { onNicknameClick(deviceFile) },
+                    onOpenFolderClick = { onOpenFolder(deviceFile) },
+                    onFileInfoClick = { showFileInfoDialog = true },
+                    onAddToHome = { addToHomeHandler.addFileToHome(deviceFile) },
             )
         }
         if (showFileInfoDialog) {
             FileInfoDialog(
-                deviceFile = deviceFile,
-                onDismiss = { showFileInfoDialog = false },
+                    deviceFile = deviceFile,
+                    onDismiss = { showFileInfoDialog = false },
             )
         }
     }
@@ -625,36 +627,36 @@ internal fun FileResultRow(
 
 @Composable
 private fun ExpandButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
     val moreActionColor =
-        if (overlayActionColor != null) {
-            Color.White
-        } else {
-            MaterialTheme.colorScheme.primary
-        }
+            if (overlayActionColor != null) {
+                Color.White
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
 
     TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        contentPadding =
-            PaddingValues(
-                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
-                vertical = 0.dp,
-            ),
+            onClick = onClick,
+            modifier = modifier,
+            contentPadding =
+                    PaddingValues(
+                            horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
+                            vertical = 0.dp,
+                    ),
     ) {
         Text(
-            text = stringResource(R.string.action_expand_more),
-            style = MaterialTheme.typography.bodySmall,
-            color = moreActionColor,
+                text = stringResource(R.string.action_expand_more),
+                style = MaterialTheme.typography.bodySmall,
+                color = moreActionColor,
         )
         Icon(
-            imageVector = Icons.Rounded.ExpandMore,
-            contentDescription = stringResource(R.string.desc_expand),
-            tint = moreActionColor,
-            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
+                imageVector = Icons.Rounded.ExpandMore,
+                contentDescription = stringResource(R.string.desc_expand),
+                tint = moreActionColor,
+                modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
         )
     }
 }

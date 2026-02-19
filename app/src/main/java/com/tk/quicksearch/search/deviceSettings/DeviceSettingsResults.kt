@@ -32,16 +32,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
-import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
-import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -52,273 +53,279 @@ private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
 
 @Composable
 private fun DeviceSettingsCard(
-    showWallpaperBackground: Boolean,
-    cardColors: androidx.compose.material3.CardColors,
-    cardShape: androidx.compose.ui.graphics.Shape,
-    cardElevation: androidx.compose.material3.CardElevation,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+        showWallpaperBackground: Boolean,
+        cardColors: androidx.compose.material3.CardColors,
+        cardShape: androidx.compose.ui.graphics.Shape,
+        cardElevation: androidx.compose.material3.CardElevation,
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit,
 ) {
-    if (showWallpaperBackground) {
-        Card(
-            modifier = modifier,
-            colors = cardColors,
-            shape = cardShape,
-            elevation = cardElevation,
-        ) { content() }
-    } else {
-        ElevatedCard(
-            modifier = modifier,
-            colors = cardColors,
-            shape = cardShape,
-            elevation = cardElevation,
-        ) { content() }
-    }
+        if (showWallpaperBackground) {
+                Card(
+                        modifier = modifier,
+                        colors = cardColors,
+                        shape = cardShape,
+                        elevation = cardElevation,
+                ) { content() }
+        } else {
+                ElevatedCard(
+                        modifier = modifier,
+                        colors = cardColors,
+                        shape = cardShape,
+                        elevation = cardElevation,
+                ) { content() }
+        }
 }
 
 @Composable
 fun DeviceSettingsResultsSection(
-    modifier: Modifier = Modifier,
-    settings: List<DeviceSetting>,
-    isExpanded: Boolean,
-    pinnedSettingIds: Set<String>,
-    onSettingClick: (DeviceSetting) -> Unit,
-    onTogglePin: (DeviceSetting) -> Unit,
-    onExclude: (DeviceSetting) -> Unit,
-    onNicknameClick: (DeviceSetting) -> Unit,
-    getSettingNickname: (String) -> String?,
-    showAllResults: Boolean,
-    showExpandControls: Boolean,
-    onExpandClick: () -> Unit,
-    showWallpaperBackground: Boolean = false,
+        modifier: Modifier = Modifier,
+        settings: List<DeviceSetting>,
+        isExpanded: Boolean,
+        pinnedSettingIds: Set<String>,
+        onSettingClick: (DeviceSetting) -> Unit,
+        onTogglePin: (DeviceSetting) -> Unit,
+        onExclude: (DeviceSetting) -> Unit,
+        onNicknameClick: (DeviceSetting) -> Unit,
+        getSettingNickname: (String) -> String?,
+        showAllResults: Boolean,
+        showExpandControls: Boolean,
+        onExpandClick: () -> Unit,
+        showWallpaperBackground: Boolean = false,
 ) {
-    val overlayCardColor = LocalOverlayResultCardColor.current
-    val overlayDividerColor = LocalOverlayDividerColor.current
-    if (settings.isEmpty()) return
+        val overlayCardColor = LocalOverlayResultCardColor.current
+        val overlayDividerColor = LocalOverlayDividerColor.current
+        if (settings.isEmpty()) return
 
-    val displaySettings =
-        if (isExpanded || showAllResults) {
-            settings
-        } else {
-            settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-        }
-
-    val canShowExpandControls =
-        showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-    val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
-    val shouldShowCollapseButton = isExpanded && showExpandControls
-
-    val scrollState = rememberScrollState()
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        val cardColors =
-            if (overlayCardColor != null) {
-                CardDefaults.cardColors(containerColor = overlayCardColor)
-            } else {
-                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
-            }
-
-        val cardShape = MaterialTheme.shapes.extraLarge
-        val cardElevation = AppColors.getCardElevation(showWallpaperBackground)
-
-        DeviceSettingsCard(
-            showWallpaperBackground = showWallpaperBackground,
-            cardColors = cardColors,
-            cardShape = cardShape,
-            cardElevation = cardElevation,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (isExpanded) {
-                                Modifier
-                                    .heightIn(
-                                        max =
-                                            SearchScreenConstants
-                                                .EXPANDED_CARD_MAX_HEIGHT,
-                                    ).verticalScroll(scrollState)
-                            } else {
-                                Modifier
-                            },
-                        ),
-            ) {
-                Column(
-                    modifier =
-                        Modifier.padding(
-                            start = DesignTokens.SpacingLarge,
-                            top = 4.dp,
-                            end = DesignTokens.SpacingMedium,
-                            bottom = 4.dp,
-                        ),
-                ) {
-                    displaySettings.forEachIndexed { index, shortcut ->
-                        SettingResultRow(
-                            shortcut = shortcut,
-                            isPinned =
-                                pinnedSettingIds.contains(
-                                    shortcut.id,
-                                ),
-                            onClick = onSettingClick,
-                            onTogglePin = onTogglePin,
-                            onExclude = onExclude,
-                            onNicknameClick = onNicknameClick,
-                            hasNickname =
-                                !getSettingNickname(shortcut.id)
-                                    .isNullOrBlank(),
-                        )
-                        if (index != displaySettings.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.fillMaxWidth(),
-                                color =
-                                    overlayDividerColor ?: MaterialTheme.colorScheme.outlineVariant,
-                            )
-                        }
-                    }
-
-                    if (shouldShowExpandButton) {
-                        ExpandButton(
-                            onClick = onExpandClick,
-                            modifier =
-                                Modifier
-                                    .align(
-                                        Alignment
-                                            .CenterHorizontally,
-                                    ).padding(top = 4.dp),
-                        )
-                    }
+        val displaySettings =
+                if (isExpanded || showAllResults) {
+                        settings
+                } else {
+                        settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
                 }
-            }
+
+        val canShowExpandControls =
+                showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+        val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
+        val shouldShowCollapseButton = isExpanded && showExpandControls
+
+        val scrollState = rememberScrollState()
+
+        Column(
+                modifier = modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+                val cardColors =
+                        if (overlayCardColor != null) {
+                                CardDefaults.cardColors(containerColor = overlayCardColor)
+                        } else {
+                                AppColors.getCardColors(
+                                        showWallpaperBackground = showWallpaperBackground
+                                )
+                        }
+
+                val cardShape = MaterialTheme.shapes.extraLarge
+                val cardElevation = AppColors.getCardElevation(showWallpaperBackground)
+
+                DeviceSettingsCard(
+                        showWallpaperBackground = showWallpaperBackground,
+                        cardColors = cardColors,
+                        cardShape = cardShape,
+                        cardElevation = cardElevation,
+                        modifier = Modifier.fillMaxWidth(),
+                ) {
+                        Column(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .then(
+                                                        if (isExpanded) {
+                                                                Modifier.heightIn(
+                                                                                max =
+                                                                                        SearchScreenConstants
+                                                                                                .EXPANDED_CARD_MAX_HEIGHT,
+                                                                        )
+                                                                        .verticalScroll(scrollState)
+                                                        } else {
+                                                                Modifier
+                                                        },
+                                                ),
+                        ) {
+                                Column(
+                                        modifier =
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingLarge,
+                                                        top = 4.dp,
+                                                        end = DesignTokens.SpacingMedium,
+                                                        bottom = 4.dp,
+                                                ),
+                                ) {
+                                        displaySettings.forEachIndexed { index, shortcut ->
+                                                SettingResultRow(
+                                                        shortcut = shortcut,
+                                                        isPinned =
+                                                                pinnedSettingIds.contains(
+                                                                        shortcut.id,
+                                                                ),
+                                                        onClick = onSettingClick,
+                                                        onTogglePin = onTogglePin,
+                                                        onExclude = onExclude,
+                                                        onNicknameClick = onNicknameClick,
+                                                        hasNickname =
+                                                                !getSettingNickname(shortcut.id)
+                                                                        .isNullOrBlank(),
+                                                )
+                                                if (index != displaySettings.lastIndex) {
+                                                        HorizontalDivider(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                color = overlayDividerColor
+                                                                                ?: MaterialTheme
+                                                                                        .colorScheme
+                                                                                        .outlineVariant,
+                                                        )
+                                                }
+                                        }
+
+                                        if (shouldShowExpandButton) {
+                                                ExpandButton(
+                                                        onClick = onExpandClick,
+                                                        modifier =
+                                                                Modifier.align(
+                                                                                Alignment
+                                                                                        .CenterHorizontally,
+                                                                        )
+                                                                        .padding(top = 4.dp),
+                                                )
+                                        }
+                                }
+                        }
+                }
         }
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SettingResultRow(
-    shortcut: DeviceSetting,
-    isPinned: Boolean,
-    onClick: (DeviceSetting) -> Unit,
-    onTogglePin: (DeviceSetting) -> Unit,
-    onExclude: (DeviceSetting) -> Unit,
-    onNicknameClick: (DeviceSetting) -> Unit,
-    hasNickname: Boolean,
-    showDescription: Boolean = true,
-    enableLongPress: Boolean = true,
-    onLongPressOverride: (() -> Unit)? = null,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconTint: Color = Color.White,
+        shortcut: DeviceSetting,
+        isPinned: Boolean,
+        onClick: (DeviceSetting) -> Unit,
+        onTogglePin: (DeviceSetting) -> Unit,
+        onExclude: (DeviceSetting) -> Unit,
+        onNicknameClick: (DeviceSetting) -> Unit,
+        hasNickname: Boolean,
+        showDescription: Boolean = true,
+        enableLongPress: Boolean = true,
+        onLongPressOverride: (() -> Unit)? = null,
+        icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+        iconTint: Color = Color.White,
 ) {
-    var showOptions by remember { mutableStateOf(false) }
-    val view = LocalView.current
+        val context = LocalContext.current
+        val addToHomeHandler =
+                remember(context) { com.tk.quicksearch.search.common.AddToHomeHandler(context) }
+        var showOptions by remember { mutableStateOf(false) }
+        val view = LocalView.current
 
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = ROW_MIN_HEIGHT.dp)
-                .clip(DesignTokens.CardShape)
-                .combinedClickable(
-                    onClick = {
-                        hapticConfirm(view)()
-                        onClick(shortcut)
-                    },
-                    onLongClick =
-                        onLongPressOverride
-                            ?: if (enableLongPress) {
-                                { showOptions = true }
-                            } else {
-                                null
-                            },
-                ).padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon ?: Icons.Rounded.Settings,
-            contentDescription = null,
-            tint = iconTint,
-            modifier =
-                Modifier
-                    .size(if (icon != null) 30.dp else ICON_SIZE.dp)
-                    .padding(start = DesignTokens.SpacingXSmall),
-        )
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+        Row(
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .heightIn(min = ROW_MIN_HEIGHT.dp)
+                                .clip(DesignTokens.CardShape)
+                                .combinedClickable(
+                                        onClick = {
+                                                hapticConfirm(view)()
+                                                onClick(shortcut)
+                                        },
+                                        onLongClick = onLongPressOverride
+                                                        ?: if (enableLongPress) {
+                                                                { showOptions = true }
+                                                        } else {
+                                                                null
+                                                        },
+                                )
+                                .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = shortcut.title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (showDescription) {
-                shortcut.description?.takeIf { it.isNotBlank() }?.let { description ->
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
+                Icon(
+                        imageVector = icon ?: Icons.Rounded.Settings,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier =
+                                Modifier.size(if (icon != null) 30.dp else ICON_SIZE.dp)
+                                        .padding(start = DesignTokens.SpacingXSmall),
+                )
 
-        if (enableLongPress && onLongPressOverride == null) {
-            DeviceSettingsDropdownMenu(
-                expanded = showOptions,
-                onDismissRequest = { showOptions = false },
-                isPinned = isPinned,
-                hasNickname = hasNickname,
-                onTogglePin = { onTogglePin(shortcut) },
-                onExclude = { onExclude(shortcut) },
-                onNicknameClick = { onNicknameClick(shortcut) },
-            )
+                Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                        Text(
+                                text = shortcut.title,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                        )
+                        if (showDescription) {
+                                shortcut.description?.takeIf { it.isNotBlank() }?.let { description
+                                        ->
+                                        Text(
+                                                text = description,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                        )
+                                }
+                        }
+                }
+
+                if (enableLongPress && onLongPressOverride == null) {
+                        DeviceSettingsDropdownMenu(
+                                expanded = showOptions,
+                                onDismissRequest = { showOptions = false },
+                                isPinned = isPinned,
+                                hasNickname = hasNickname,
+                                onTogglePin = { onTogglePin(shortcut) },
+                                onExclude = { onExclude(shortcut) },
+                                onNicknameClick = { onNicknameClick(shortcut) },
+                                onAddToHome = { addToHomeHandler.addDeviceSettingToHome(shortcut) },
+                        )
+                }
         }
-    }
 }
 
 @Composable
 private fun ExpandButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
 ) {
-    val overlayActionColor = LocalOverlayActionColor.current
-    val moreActionColor =
-        if (overlayActionColor != null) {
-            Color.White
-        } else {
-            MaterialTheme.colorScheme.primary
-        }
+        val overlayActionColor = LocalOverlayActionColor.current
+        val moreActionColor =
+                if (overlayActionColor != null) {
+                        Color.White
+                } else {
+                        MaterialTheme.colorScheme.primary
+                }
 
-    TextButton(
-        onClick = onClick,
-        modifier = modifier,
-        contentPadding =
-            PaddingValues(
-                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
-                vertical = 0.dp,
-            ),
-    ) {
-        Text(
-            text = stringResource(R.string.action_expand_more),
-            style = MaterialTheme.typography.bodySmall,
-            color = moreActionColor,
-        )
-        Icon(
-            imageVector = Icons.Rounded.ExpandMore,
-            contentDescription = stringResource(R.string.desc_expand),
-            tint = moreActionColor,
-            modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
-        )
-    }
+        TextButton(
+                onClick = onClick,
+                modifier = modifier,
+                contentPadding =
+                        PaddingValues(
+                                horizontal = EXPAND_BUTTON_HORIZONTAL_PADDING.dp,
+                                vertical = 0.dp,
+                        ),
+        ) {
+                Text(
+                        text = stringResource(R.string.action_expand_more),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = moreActionColor,
+                )
+                Icon(
+                        imageVector = Icons.Rounded.ExpandMore,
+                        contentDescription = stringResource(R.string.desc_expand),
+                        tint = moreActionColor,
+                        modifier = Modifier.size(ContactUiConstants.EXPAND_ICON_SIZE.dp),
+                )
+        }
 }
