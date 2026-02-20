@@ -10,7 +10,77 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.searchEngines.defaultBrowserTarget
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
+
+sealed interface PredictedSubmitTarget {
+    data class App(val packageName: String, val userHandleId: Int?) : PredictedSubmitTarget
+
+    data class AppShortcut(val id: String) : PredictedSubmitTarget
+
+    data class Contact(val contactId: Long) : PredictedSubmitTarget
+
+    data class File(val uri: String) : PredictedSubmitTarget
+
+    data class Setting(val id: String) : PredictedSubmitTarget
+
+    data class SearchTarget(val targetId: String) : PredictedSubmitTarget
+}
+
+internal fun resolvePredictedSubmitTarget(
+    query: String,
+    renderingState: SectionRenderingState,
+    enabledTargets: List<SearchTarget>,
+    detectedShortcutTarget: SearchTarget?,
+    searchTargetsOrder: List<SearchTarget>,
+    defaultBrowserPackage: String?,
+): PredictedSubmitTarget? {
+    val trimmedQuery = query.trim()
+    if (trimmedQuery.isNotBlank() && isLikelyWebUrl(trimmedQuery)) {
+        val browserTarget = defaultBrowserTarget(searchTargetsOrder, defaultBrowserPackage)
+        if (browserTarget != null) {
+            return PredictedSubmitTarget.SearchTarget(browserTarget.getId())
+        }
+    }
+
+    val firstApp = renderingState.displayApps.firstOrNull()
+    if (firstApp != null) {
+        return PredictedSubmitTarget.App(
+            packageName = firstApp.packageName,
+            userHandleId = firstApp.userHandleId,
+        )
+    }
+
+    val firstShortcut = renderingState.appShortcutResults.firstOrNull()
+    if (firstShortcut != null) {
+        return PredictedSubmitTarget.AppShortcut(shortcutKey(firstShortcut))
+    }
+
+    val firstContact = renderingState.contactResults.firstOrNull()
+    if (firstContact != null) {
+        return PredictedSubmitTarget.Contact(firstContact.contactId)
+    }
+
+    val firstFile = renderingState.fileResults.firstOrNull()
+    if (firstFile != null) {
+        return PredictedSubmitTarget.File(firstFile.uri.toString())
+    }
+
+    val firstSetting = renderingState.settingResults.firstOrNull()
+    if (firstSetting != null) {
+        return PredictedSubmitTarget.Setting(firstSetting.id)
+    }
+
+    if (detectedShortcutTarget != null) {
+        return PredictedSubmitTarget.SearchTarget(detectedShortcutTarget.getId())
+    }
+
+    if (trimmedQuery.isBlank()) return null
+
+    val firstEnabledTarget = enabledTargets.firstOrNull() ?: return null
+    return PredictedSubmitTarget.SearchTarget(firstEnabledTarget.getId())
+}
 
 /** Data class for Files section parameters */
 data class FilesSectionParams(
@@ -39,6 +109,7 @@ data class FilesSectionParams(
         ) -> Unit
         ),
     val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
 )
 
 /** Data class for Settings section parameters */
@@ -55,6 +126,7 @@ data class SettingsSectionParams(
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
     val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
 )
 
 /** Data class for App Shortcuts section parameters */
@@ -75,6 +147,7 @@ data class AppShortcutsSectionParams(
     val onExpandClick: () -> Unit,
     val iconPackPackage: String?,
     val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
 )
 
 /** Data class for Contacts section parameters */
@@ -115,6 +188,7 @@ data class ContactsSectionParams(
         ) -> Unit
         ),
     val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
 )
 
 /** Data class for Apps section parameters */
@@ -136,6 +210,7 @@ data class AppsSectionParams(
     val iconPackPackage: String?,
     val oneHandedMode: Boolean,
     val isInitializing: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
 )
 
 /** Helper function to build all the section parameters needed by SearchScreenContent */

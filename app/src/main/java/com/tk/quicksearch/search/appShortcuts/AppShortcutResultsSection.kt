@@ -51,7 +51,9 @@ import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.predictedSubmitCardBorder
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -78,6 +80,7 @@ fun AppShortcutResultsSection(
         onExpandClick: () -> Unit,
         iconPackPackage: String?,
         showWallpaperBackground: Boolean,
+        predictedTarget: PredictedSubmitTarget? = null,
 ) {
         val overlayCardColor = LocalOverlayResultCardColor.current
         val overlayDividerColor = LocalOverlayDividerColor.current
@@ -94,6 +97,10 @@ fun AppShortcutResultsSection(
                 showExpandControls && shortcuts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
         val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
         val shouldShowCollapseButton = isExpanded && showExpandControls
+        val predictedShortcutId = (predictedTarget as? PredictedSubmitTarget.AppShortcut)?.id
+        val isSectionPredicted =
+                predictedShortcutId != null &&
+                        shortcuts.any { shortcut -> shortcutKey(shortcut) == predictedShortcutId }
 
         val scrollState = rememberScrollState()
 
@@ -101,7 +108,12 @@ fun AppShortcutResultsSection(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
-                val cardModifier = Modifier.fillMaxWidth()
+                val cardModifier =
+                        Modifier.fillMaxWidth()
+                                .predictedSubmitCardBorder(
+                                        isPredicted = isSectionPredicted,
+                                        shape = MaterialTheme.shapes.extraLarge,
+                                )
                 val cardColors =
                         if (overlayCardColor != null) {
                                 CardDefaults.cardColors(containerColor = overlayCardColor)

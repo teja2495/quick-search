@@ -42,7 +42,9 @@ import com.tk.quicksearch.search.contacts.components.ContactUiConstants
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.predictedSubmitCardBorder
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -92,6 +94,7 @@ fun DeviceSettingsResultsSection(
         showExpandControls: Boolean,
         onExpandClick: () -> Unit,
         showWallpaperBackground: Boolean = false,
+        predictedTarget: PredictedSubmitTarget? = null,
 ) {
         val overlayCardColor = LocalOverlayResultCardColor.current
         val overlayDividerColor = LocalOverlayDividerColor.current
@@ -108,6 +111,10 @@ fun DeviceSettingsResultsSection(
                 showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
         val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
         val shouldShowCollapseButton = isExpanded && showExpandControls
+        val predictedSettingId = (predictedTarget as? PredictedSubmitTarget.Setting)?.id
+        val isSectionPredicted =
+                predictedSettingId != null &&
+                        settings.any { setting -> setting.id == predictedSettingId }
 
         val scrollState = rememberScrollState()
 
@@ -132,7 +139,12 @@ fun DeviceSettingsResultsSection(
                         cardColors = cardColors,
                         cardShape = cardShape,
                         cardElevation = cardElevation,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier =
+                                Modifier.fillMaxWidth()
+                                        .predictedSubmitCardBorder(
+                                                isPredicted = isSectionPredicted,
+                                                shape = MaterialTheme.shapes.extraLarge,
+                                        ),
                 ) {
                         Column(
                                 modifier =

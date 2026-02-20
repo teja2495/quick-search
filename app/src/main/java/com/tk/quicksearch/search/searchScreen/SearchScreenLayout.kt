@@ -111,6 +111,7 @@ fun SearchContentArea(
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
+    predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
     scrollState: androidx.compose.foundation.ScrollState,
     onPhoneNumberClick: (String) -> Unit = {},
@@ -423,6 +424,7 @@ fun SearchContentArea(
                         appShortcutsParams = appShortcutsParams,
                         settingsParams = settingsParams,
                         appsParams = appsParams,
+                        predictedTarget = predictedTarget,
                         onRequestUsagePermission = onRequestUsagePermission,
                         minContentHeight =
                             if (isOverlayPresentation) {
@@ -541,6 +543,7 @@ fun ContentLayout(
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
     appsParams: AppsSectionParams,
+    predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
     minContentHeight: Dp,
     isReversed: Boolean,
@@ -563,6 +566,11 @@ fun ContentLayout(
     onGeminiModelInfoClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val effectiveContactsParams = contactsParams.copy(predictedTarget = predictedTarget)
+    val effectiveFilesParams = filesParams.copy(predictedTarget = predictedTarget)
+    val effectiveAppShortcutsParams = appShortcutsParams.copy(predictedTarget = predictedTarget)
+    val effectiveSettingsParams = settingsParams.copy(predictedTarget = predictedTarget)
+    val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
 
     // 1. Determine Layout Order based on ItemPriorityConfig
     val hasQuery = state.query.isNotBlank()
@@ -580,11 +588,11 @@ fun ContentLayout(
         rememberSectionRenderContext(
             state = state,
             renderingState = renderingState,
-            filesParams = filesParams,
-            contactsParams = contactsParams,
-            settingsParams = settingsParams,
-            appShortcutsParams = appShortcutsParams,
-            appsParams = appsParams,
+            filesParams = effectiveFilesParams,
+            contactsParams = effectiveContactsParams,
+            settingsParams = effectiveSettingsParams,
+            appShortcutsParams = effectiveAppShortcutsParams,
+            appsParams = effectiveAppsParams,
             isSearching = hasQuery,
             oneHandedMode =
                 state.oneHandedMode, // This affects list reversal inside helpers
@@ -593,11 +601,11 @@ fun ContentLayout(
     val sectionParams =
         SectionRenderParams(
             renderingState = renderingState,
-            contactsParams = contactsParams,
-            filesParams = filesParams,
-            appShortcutsParams = appShortcutsParams,
-            settingsParams = settingsParams,
-            appsParams = appsParams,
+            contactsParams = effectiveContactsParams,
+            filesParams = effectiveFilesParams,
+            appShortcutsParams = effectiveAppShortcutsParams,
+            settingsParams = effectiveSettingsParams,
+            appsParams = effectiveAppsParams,
             isReversed = isReversed,
         )
 
@@ -858,50 +866,50 @@ fun ContentLayout(
                             RecentSearchesSection(
                                 items = orderedRecentItems,
                                 callingApp =
-                                    contactsParams.callingApp
+                                    effectiveContactsParams.callingApp
                                         ?: CallingApp.CALL,
                                 messagingApp =
-                                    contactsParams.messagingApp
+                                    effectiveContactsParams.messagingApp
                                         ?: MessagingApp
                                             .MESSAGES,
                                 onRecentQueryClick =
                                 onWebSuggestionClick,
                                 onContactClick =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onContactClick,
                                 onShowContactMethods =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onShowContactMethods,
                                 onCallContact =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onCallContact,
                                 onSmsContact =
-                                    contactsParams.onSmsContact,
+                                    effectiveContactsParams.onSmsContact,
                                 onContactMethodClick =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onContactMethodClick,
                                 getPrimaryContactCardAction =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .getPrimaryContactCardAction,
                                 getSecondaryContactCardAction =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .getSecondaryContactCardAction,
                                 onPrimaryActionLongPress =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onPrimaryActionLongPress,
                                 onSecondaryActionLongPress =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onSecondaryActionLongPress,
                                 onCustomAction =
-                                    contactsParams
+                                    effectiveContactsParams
                                         .onCustomAction,
                                 onFileClick =
-                                    filesParams.onFileClick,
+                                    effectiveFilesParams.onFileClick,
                                 onSettingClick =
-                                    settingsParams
+                                    effectiveSettingsParams
                                         .onSettingClick,
                                 onAppShortcutClick =
-                                    appShortcutsParams
+                                    effectiveAppShortcutsParams
                                         .onShortcutClick,
                                 onDeleteRecentItem =
                                 onDeleteRecentItem,
@@ -936,6 +944,7 @@ fun ContentLayout(
                             isReversed = isReversed,
                             showWallpaperBackground =
                                 effectiveShowWallpaperBackground,
+                            predictedTarget = predictedTarget,
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }

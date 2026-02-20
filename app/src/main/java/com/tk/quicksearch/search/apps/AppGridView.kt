@@ -44,6 +44,8 @@ import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.getAppGridColumns
 import com.tk.quicksearch.util.hapticConfirm
@@ -90,6 +92,7 @@ fun AppGridView(
         iconPackPackage: String? = null,
         oneHandedMode: Boolean = false,
         isInitializing: Boolean = false,
+        predictedTarget: PredictedSubmitTarget? = null,
 ) {
     val context = LocalContext.current
     val shortcutRepository = remember(context) { AppShortcutRepository(context) }
@@ -154,6 +157,7 @@ fun AppGridView(
                     rowCount = rowCount,
                     iconPackPackage = iconPackPackage,
                     oneHandedMode = oneHandedMode,
+                    predictedTarget = predictedTarget,
             )
         }
     }
@@ -175,6 +179,7 @@ private fun AppGrid(
         rowCount: Int = ROW_COUNT,
         iconPackPackage: String?,
         oneHandedMode: Boolean,
+        predictedTarget: PredictedSubmitTarget?,
 ) {
     val columns = getAppGridColumns()
     val rows =
@@ -236,6 +241,7 @@ private fun AppGrid(
                     iconPackPackage = iconPackPackage,
                     createAppActions = createAppActions,
                     createAppState = createAppState,
+                    predictedTarget = predictedTarget,
             )
         }
     }
@@ -250,6 +256,7 @@ private fun AppGridRow(
         iconPackPackage: String?,
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
+        predictedTarget: PredictedSubmitTarget?,
 ) {
     val columns = getAppGridColumns()
     Row(
@@ -267,6 +274,11 @@ private fun AppGridRow(
                         appActions = createAppActions(app),
                         appState = createAppState(app),
                         iconPackPackage = iconPackPackage,
+                        isPredicted =
+                                (predictedTarget as? PredictedSubmitTarget.App)?.let {
+                                    it.packageName == app.packageName &&
+                                            it.userHandleId == app.userHandleId
+                                } == true,
                 )
             } else {
                 Spacer(modifier = Modifier.weight(1f))
@@ -284,6 +296,7 @@ private fun AppGridItem(
         appActions: AppActions,
         appState: AppState,
         iconPackPackage: String?,
+        isPredicted: Boolean = false,
 ) {
     val context = LocalContext.current
     val iconResult =
@@ -313,6 +326,7 @@ private fun AppGridItem(
                     appName = appInfo.appName,
                     onClick = appActions.onClick,
                     onLongClick = { showOptions = true },
+                    isPredicted = isPredicted,
             )
             if (appState.showAppLabel) {
                 AppLabelText(appInfo.appName)
@@ -347,10 +361,16 @@ private fun AppIconSurface(
         appName: String,
         onClick: () -> Unit,
         onLongClick: () -> Unit,
+        isPredicted: Boolean = false,
 ) {
     val view = LocalView.current
     Surface(
-            modifier = Modifier.size(DesignTokens.AppIconSize),
+            modifier =
+                    Modifier.size(DesignTokens.AppIconSize)
+                            .predictedSubmitHighlight(
+                                    isPredicted = isPredicted,
+                                    shape = DesignTokens.ShapeLarge,
+                            ),
             color = Color.Transparent,
             tonalElevation = 0.dp,
             shape = DesignTokens.ShapeLarge,

@@ -3,14 +3,17 @@ package com.tk.quicksearch.search.searchEngines.inline
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
+import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.util.hapticConfirm
 
 /**
@@ -30,6 +33,7 @@ fun SearchEngineIconItem(
     itemWidth: Dp,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: (() -> Unit)? = null,
+    isPredicted: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -37,6 +41,10 @@ fun SearchEngineIconItem(
         modifier =
             modifier
                 .width(itemWidth)
+                .predictedSubmitHighlight(
+                    isPredicted = isPredicted,
+                    shape = RoundedCornerShape(18.dp),
+                )
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(view)()

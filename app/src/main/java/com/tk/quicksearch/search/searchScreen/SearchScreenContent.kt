@@ -80,6 +80,7 @@ internal fun SearchScreenContent(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val density = LocalDensity.current
     var canShowOpenKeyboardPill by
             remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
 
@@ -99,6 +100,34 @@ internal fun SearchScreenContent(
     val enabledTargets: List<SearchTarget> =
             remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
                 state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
+            }
+    val isImeVisible = WindowInsets.ime.getBottom(density) > 0
+    val shouldShowPredictedHighlight = isImeVisible
+    val predictedTarget =
+            remember(
+                    shouldShowPredictedHighlight,
+                    state.query,
+                    renderingState.displayApps,
+                    renderingState.appShortcutResults,
+                    renderingState.contactResults,
+                    renderingState.fileResults,
+                    renderingState.settingResults,
+                    state.detectedShortcutTarget,
+                    state.searchTargetsOrder,
+                    enabledTargets,
+            ) {
+                if (!shouldShowPredictedHighlight) {
+                    null
+                } else {
+                    resolvePredictedSubmitTarget(
+                            query = state.query,
+                            renderingState = renderingState,
+                            enabledTargets = enabledTargets,
+                            detectedShortcutTarget = state.detectedShortcutTarget,
+                            searchTargetsOrder = state.searchTargetsOrder,
+                            defaultBrowserPackage = resolveDefaultBrowserPackage(context),
+                    )
+                }
             }
 
     // Search engine scroll state for auto-scroll during onboarding
@@ -281,6 +310,7 @@ internal fun SearchScreenContent(
                 appShortcutsParams = appShortcutsParams,
                 settingsParams = settingsParams,
                 appsParams = appsParams,
+                predictedTarget = predictedTarget,
                 onRequestUsagePermission = onRequestUsagePermission,
                 scrollState = scrollState,
                 onPhoneNumberClick = onPhoneNumberClick,
@@ -303,10 +333,8 @@ internal fun SearchScreenContent(
 
         // Keyboard switch pill - appears above search engines
         if (expandedSection == ExpandedSection.NONE) {
-            val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
-
             val pillText =
-                    if (!isKeyboardVisible && canShowOpenKeyboardPill) {
+                    if (!isImeVisible && canShowOpenKeyboardPill) {
                         stringResource(R.string.action_open_keyboard)
                     } else if (manuallySwitchedToNumberKeyboard) {
                         stringResource(R.string.keyboard_switch_back)
@@ -328,7 +356,7 @@ internal fun SearchScreenContent(
                     KeyboardSwitchPill(
                             text = pillText.orEmpty(),
                             onClick = {
-                                if (!isKeyboardVisible) {
+                                if (!isImeVisible) {
                                     keyboardController?.show()
                                 } else {
                                     onKeyboardSwitchToggle()
@@ -365,6 +393,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                predictedTarget = predictedTarget,
                         )
                     },
                     fullContent = {
@@ -379,6 +408,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                predictedTarget = predictedTarget,
                         )
                     },
                     shortcutContent = { target ->
@@ -393,6 +423,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                predictedTarget = predictedTarget,
                         )
                     },
                     hiddenContent = {

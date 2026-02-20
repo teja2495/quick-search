@@ -33,10 +33,13 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.searchEngines.getDisplayName
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.util.hapticConfirm
 
@@ -55,6 +58,7 @@ fun NoResultsSearchEngineCards(
     modifier: Modifier = Modifier,
     isReversed: Boolean = false,
     showWallpaperBackground: Boolean = false,
+    predictedTarget: PredictedSubmitTarget? = null,
 ) {
     // Reverse the engine list when results are at the bottom
     val orderedEngines =
@@ -86,6 +90,9 @@ fun NoResultsSearchEngineCards(
                 onClick = { onSearchEngineClick(query, engine) },
                 onLongClick = onSearchEngineLongPress,
                 showWallpaperBackground = showWallpaperBackground,
+                isPredicted =
+                    (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                        engine.getId(),
             )
         }
 
@@ -111,6 +118,7 @@ fun SearchEngineCard(
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
     onClear: (() -> Unit)? = null,
+    isPredicted: Boolean = false,
 ) {
     val view = LocalView.current
     val targetName = target.getDisplayName()
@@ -133,6 +141,10 @@ fun SearchEngineCard(
             modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraLarge)
+                .predictedSubmitHighlight(
+                    isPredicted = isPredicted,
+                    shape = MaterialTheme.shapes.extraLarge,
+                )
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(view)()
@@ -199,6 +211,7 @@ private fun SearchTargetCard(
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
+    isPredicted: Boolean = false,
 ) {
     val view = LocalView.current
     val overlayCardColor = LocalOverlayResultCardColor.current
@@ -220,6 +233,10 @@ private fun SearchTargetCard(
             modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.extraLarge)
+                .predictedSubmitHighlight(
+                    isPredicted = isPredicted,
+                    shape = MaterialTheme.shapes.extraLarge,
+                )
                 .combinedClickable(
                     onClick = {
                         hapticConfirm(view)()

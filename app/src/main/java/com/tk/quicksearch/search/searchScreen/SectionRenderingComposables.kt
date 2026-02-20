@@ -65,6 +65,7 @@ private fun renderFilesSection(
             onExpandClick = filesParams.onExpandClick,
             permissionDisabledCard = filesParams.permissionDisabledCard,
             showWallpaperBackground = filesParams.showWallpaperBackground,
+            predictedTarget = filesParams.predictedTarget,
         )
     }
 }
@@ -113,6 +114,7 @@ private fun renderContactsSection(
             onContactActionHintDismissed = contactsParams.onContactActionHintDismissed,
             permissionDisabledCard = contactsParams.permissionDisabledCard,
             showWallpaperBackground = contactsParams.showWallpaperBackground,
+            predictedTarget = contactsParams.predictedTarget,
         )
     }
 }
@@ -142,6 +144,7 @@ private fun renderAppsSection(
             iconPackPackage = params.appsParams.iconPackPackage,
             oneHandedMode = params.appsParams.oneHandedMode,
             isInitializing = params.appsParams.isInitializing,
+            predictedTarget = params.appsParams.predictedTarget,
         )
     }
 }
@@ -171,6 +174,7 @@ private fun renderAppShortcutsSection(
             onExpandClick = context.appShortcutsExpandClick,
             iconPackPackage = appShortcutsParams.iconPackPackage,
             showWallpaperBackground = appShortcutsParams.showWallpaperBackground,
+            predictedTarget = appShortcutsParams.predictedTarget,
         )
     }
 }
@@ -195,6 +199,7 @@ private fun renderSettingsSection(
             showExpandControls = context.showSettingsExpandControls,
             onExpandClick = context.settingsExpandClick,
             showWallpaperBackground = params.settingsParams.showWallpaperBackground,
+            predictedTarget = params.settingsParams.predictedTarget,
         )
     }
 }

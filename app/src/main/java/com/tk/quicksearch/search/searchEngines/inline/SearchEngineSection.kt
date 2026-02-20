@@ -25,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchEngines.compact.SearchEngineCard
 import com.tk.quicksearch.search.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.search.searchEngines.shared.SearchTargetConstants
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.util.isLandscape
 import com.tk.quicksearch.util.isTablet
 
@@ -67,6 +69,7 @@ fun SearchEngineIconsSection(
     onClearDetectedShortcut: () -> Unit = {},
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
+    predictedTarget: PredictedSubmitTarget? = null,
 ) {
     if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
 
@@ -101,6 +104,9 @@ fun SearchEngineIconsSection(
                 onLongClick = onSearchEngineLongPress,
                 onClear = onClearDetectedShortcut,
                 showWallpaperBackground = showWallpaperBackground,
+                isPredicted =
+                    (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                        detectedShortcutTarget.getId(),
             )
         }
     } else {
@@ -125,6 +131,7 @@ fun SearchEngineIconsSection(
                 scrollState = scrollState,
                 onSearchEngineClick = onSearchEngineClick,
                 onSearchEngineLongPress = onSearchEngineLongPress,
+                predictedTarget = predictedTarget,
             )
         }
     }
@@ -138,6 +145,7 @@ private fun SearchEngineContent(
     scrollState: androidx.compose.foundation.lazy.LazyListState,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
+    predictedTarget: PredictedSubmitTarget?,
 ) {
     Row(
         modifier =
@@ -160,6 +168,7 @@ private fun SearchEngineContent(
             scrollState = scrollState,
             onSearchEngineClick = onSearchEngineClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
+            predictedTarget = predictedTarget,
         )
     }
 }
@@ -183,6 +192,7 @@ private fun ScrollableEngineIcons(
     scrollState: androidx.compose.foundation.lazy.LazyListState,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
+    predictedTarget: PredictedSubmitTarget?,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val itemWidthDp = calculateItemWidth(maxWidth)
@@ -200,6 +210,9 @@ private fun ScrollableEngineIcons(
                     itemWidth = itemWidthDp,
                     onSearchEngineClick = onSearchEngineClick,
                     onSearchEngineLongPress = onSearchEngineLongPress,
+                    isPredicted =
+                        (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                            engine.getId(),
                 )
             }
         }

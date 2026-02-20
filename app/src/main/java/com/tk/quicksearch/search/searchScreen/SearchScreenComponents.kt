@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -53,6 +54,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -78,6 +80,43 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticStrong
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+internal fun Modifier.predictedSubmitHighlight(
+    isPredicted: Boolean,
+    shape: Shape = DesignTokens.CardShape,
+): Modifier =
+    composed {
+        if (!isPredicted) {
+            this
+        } else {
+            this
+                .background(
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                    shape = shape,
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                    shape = shape,
+                )
+        }
+    }
+
+internal fun Modifier.predictedSubmitCardBorder(
+    isPredicted: Boolean,
+    shape: Shape = DesignTokens.CardShape,
+): Modifier =
+    composed {
+        if (!isPredicted) {
+            this
+        } else {
+            this.border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f),
+                shape = shape,
+            )
+        }
+    }
 
 @Composable
 internal fun PermissionDisabledCard(

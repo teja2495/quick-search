@@ -65,7 +65,9 @@ import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.predictedSubmitCardBorder
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticConfirm
@@ -191,6 +193,7 @@ fun FileResultsSection(
         onExpandClick: () -> Unit,
         permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
         showWallpaperBackground: Boolean = false,
+        predictedTarget: PredictedSubmitTarget? = null,
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -216,6 +219,7 @@ fun FileResultsSection(
                         getFileNickname = getFileNickname,
                         onExpandClick = onExpandClick,
                         showWallpaperBackground = showWallpaperBackground,
+                        predictedTarget = predictedTarget,
                 )
             }
             !hasPermission -> {
@@ -250,6 +254,7 @@ private fun FilesResultCard(
         getFileNickname: (String) -> String?,
         onExpandClick: () -> Unit,
         showWallpaperBackground: Boolean = false,
+        predictedTarget: PredictedSubmitTarget?,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
@@ -258,6 +263,9 @@ private fun FilesResultCard(
             showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
     val shouldUseLazyList = isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val predictedFileUri = (predictedTarget as? PredictedSubmitTarget.File)?.uri
+    val isSectionPredicted =
+            predictedFileUri != null && files.any { file -> file.uri.toString() == predictedFileUri }
 
     val displayFiles =
             if (displayAsExpanded) {
@@ -270,7 +278,12 @@ private fun FilesResultCard(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val cardModifier = Modifier.fillMaxWidth()
+        val cardModifier =
+                Modifier.fillMaxWidth()
+                        .predictedSubmitCardBorder(
+                                isPredicted = isSectionPredicted,
+                                shape = MaterialTheme.shapes.extraLarge,
+                        )
         val contentModifier =
                 if (isExpanded) {
                     Modifier.fillMaxWidth()

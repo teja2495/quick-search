@@ -40,9 +40,11 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
-import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.predictedSubmitCardBorder
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
@@ -89,6 +91,7 @@ fun ContactResultsSection(
     onContactActionHintDismissed: () -> Unit = {},
     permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     showWallpaperBackground: Boolean = false,
+    predictedTarget: PredictedSubmitTarget? = null,
 ) {
     val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -126,6 +129,7 @@ fun ContactResultsSection(
                     showContactActionHint = showContactActionHint,
                     onContactActionHintDismissed = onContactActionHintDismissed,
                     showWallpaperBackground = showWallpaperBackground,
+                    predictedTarget = predictedTarget,
                 )
             }
 
@@ -172,6 +176,7 @@ private fun ContactsResultCard(
     showContactActionHint: Boolean,
     onContactActionHintDismissed: () -> Unit,
     showWallpaperBackground: Boolean = false,
+    predictedTarget: PredictedSubmitTarget?,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
@@ -180,6 +185,9 @@ private fun ContactsResultCard(
         showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
     val shouldShowCollapseButton = isExpanded && showExpandControls
+    val predictedContactId = (predictedTarget as? PredictedSubmitTarget.Contact)?.contactId
+    val isSectionPredicted =
+        predictedContactId != null && contacts.any { it.contactId == predictedContactId }
 
     val displayContacts =
         if (displayAsExpanded) {
@@ -194,7 +202,11 @@ private fun ContactsResultCard(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val cardModifier = Modifier.fillMaxWidth()
+        val cardModifier =
+            Modifier.fillMaxWidth().predictedSubmitCardBorder(
+                isPredicted = isSectionPredicted,
+                shape = MaterialTheme.shapes.extraLarge,
+            )
 
         val cardContent =
             @Composable
