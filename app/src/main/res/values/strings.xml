@@ -291,6 +291,12 @@
     <string name="settings_icon_pack_selected_label">Current: %1$s</string>
     <string name="settings_icon_pack_empty">No icon packs found.</string>
     <string name="settings_icon_pack_option_system">System icons</string>
+    <string name="settings_show_app_labels_title">App Labels</string>
+    <string name="settings_show_app_labels_desc">Show app names in suggestions and results</string>
+    <string name="settings_app_icon_size_title">App Icon Size</string>
+    <string name="settings_app_icon_size_small">Small</string>
+    <string name="settings_app_icon_size_medium">Medium</string>
+    <string name="settings_app_icon_size_big">Big</string>
     <string name="settings_refresh_icon_packs">Refresh icon packs</string>
     <string name="settings_refreshing_icon_packs">Refreshing icon packs list</string>
     <string name="settings_icon_pack_picker_title">Choose Icon Pack</string>

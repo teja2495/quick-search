@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.BackgroundSource
+import com.tk.quicksearch.search.core.AppIconSizeOption
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -187,6 +188,23 @@ class UiPreferences(
             editor.putString(UiPreferences.KEY_SELECTED_ICON_PACK, packageName)
         }
         editor.apply()
+    }
+
+    fun shouldShowAppLabels(): Boolean = getBooleanPref(KEY_SHOW_APP_LABELS, true)
+
+    fun setShowAppLabels(show: Boolean) {
+        setBooleanPref(KEY_SHOW_APP_LABELS, show)
+    }
+
+    fun getAppIconSizeOption(): AppIconSizeOption {
+        val stored = prefs.getString(KEY_APP_ICON_SIZE_OPTION, null)
+        return stored?.let {
+            runCatching { AppIconSizeOption.valueOf(it) }.getOrNull()
+        } ?: AppIconSizeOption.MEDIUM
+    }
+
+    fun setAppIconSizeOption(option: AppIconSizeOption) {
+        prefs.edit().putString(KEY_APP_ICON_SIZE_OPTION, option.name).apply()
     }
 
     fun isDirectSearchSetupExpanded(): Boolean =
@@ -564,6 +582,8 @@ class UiPreferences(
         const val KEY_OVERLAY_BACKGROUND_SOURCE = "overlay_background_source" // Legacy only.
         const val KEY_OVERLAY_CUSTOM_IMAGE_URI = "overlay_custom_image_uri" // Legacy only.
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
+        const val KEY_SHOW_APP_LABELS = "show_app_labels"
+        const val KEY_APP_ICON_SIZE_OPTION = "app_icon_size_option"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"

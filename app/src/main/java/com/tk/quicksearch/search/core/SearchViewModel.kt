@@ -358,6 +358,8 @@ class SearchViewModel(
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
+    private var showAppLabels: Boolean = true
+    private var appIconSizeOption: AppIconSizeOption = AppIconSizeOption.MEDIUM
     private var wallpaperBackgroundAlpha: Float = initialWallpaperBackgroundAlpha
     private var wallpaperBlurRadius: Float = initialWallpaperBlurRadius
     private var overlayGradientTheme: OverlayGradientTheme = initialOverlayGradientTheme
@@ -572,6 +574,8 @@ class SearchViewModel(
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
+        showAppLabels = prefs.showAppLabels
+        appIconSizeOption = prefs.appIconSizeOption
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayGradientTheme = prefs.overlayGradientTheme
@@ -593,6 +597,8 @@ class SearchViewModel(
                     overlayModeEnabled = overlayModeEnabled,
                     directDialEnabled = directDialEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
+                    showAppLabels = showAppLabels,
+                    appIconSizeOption = appIconSizeOption,
                     disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                     showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
@@ -622,6 +628,10 @@ class SearchViewModel(
         appSearchManager.initCache(cachedAppsList)
         val lastUpdated = repository.cacheLastUpdatedMillis()
         val suggestionsEnabled = userPreferences.areAppSuggestionsEnabled()
+        val startupPrefs = startupConfig?.startupPreferences
+        val labelsEnabled = startupPrefs?.showAppLabels ?: userPreferences.shouldShowAppLabels()
+        val iconSizeOption =
+                startupPrefs?.appIconSizeOption ?: userPreferences.getAppIconSizeOption()
 
         // Just show the raw list of apps first!
         // Don't filter, don't sort, don't check pinned apps yet
@@ -644,6 +654,8 @@ class SearchViewModel(
                     // Critical: update these to prevent flashing
                     oneHandedMode = oneHandedMode,
                     appSuggestionsEnabled = suggestionsEnabled,
+                    showAppLabels = labelsEnabled,
+                    appIconSizeOption = iconSizeOption,
             )
         }
     }
@@ -681,6 +693,8 @@ class SearchViewModel(
                                         !userPreferences.hasSeenSearchEngineOnboarding(),
                         showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                         appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
+                        showAppLabels = userPreferences.shouldShowAppLabels(),
+                        appIconSizeOption = userPreferences.getAppIconSizeOption(),
                         disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
@@ -908,6 +922,26 @@ class SearchViewModel(
                     refreshDerivedState()
                 },
         )
+    }
+
+    fun setShowAppLabels(show: Boolean) {
+        updateBooleanPreference(
+                value = show,
+                preferenceSetter = userPreferences::setShowAppLabels,
+                stateUpdater = {
+                    showAppLabels = it
+                    updateUiState { state -> state.copy(showAppLabels = it) }
+                },
+        )
+    }
+
+    fun setAppIconSizeOption(option: AppIconSizeOption) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (appIconSizeOption == option) return@launch
+            userPreferences.setAppIconSizeOption(option)
+            appIconSizeOption = option
+            updateUiState { state -> state.copy(appIconSizeOption = option) }
+        }
     }
 
     fun setWebSuggestionsEnabled(enabled: Boolean) = webSuggestionHandler.setEnabled(enabled)

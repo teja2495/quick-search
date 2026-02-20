@@ -208,6 +208,8 @@ data class AppsSectionParams(
     val getAppNickname: (String) -> String?,
     val rowCount: Int,
     val iconPackPackage: String?,
+    val showAppLabels: Boolean,
+    val appIconSizeOption: AppIconSizeOption,
     val oneHandedMode: Boolean,
     val isInitializing: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
@@ -561,6 +563,8 @@ internal fun buildSectionParams(
             getAppNickname = getAppNickname,
             rowCount = derivedState.visibleRowCount,
             iconPackPackage = state.selectedIconPackPackage,
+            showAppLabels = state.showAppLabels,
+            appIconSizeOption = state.appIconSizeOption,
             oneHandedMode = state.oneHandedMode,
             isInitializing = state.isInitializing,
         )

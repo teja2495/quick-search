@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.BackgroundSource
+import com.tk.quicksearch.search.core.AppIconSizeOption
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.data.preferences.*
@@ -93,6 +94,8 @@ class UserAppPreferences(
             val resultHiddenPackages: Set<String>,
             val recentSearchesEnabled: Boolean,
             val appSuggestionsEnabled: Boolean,
+            val showAppLabels: Boolean,
+            val appIconSizeOption: AppIconSizeOption,
     )
 
     /**
@@ -330,6 +333,25 @@ class UserAppPreferences(
                         ] as?
                                 Boolean
                                 ?: true,
+                showAppLabels =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_SHOW_APP_LABELS,
+                        ] as?
+                                Boolean
+                                ?: true,
+                appIconSizeOption =
+                        (
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_APP_ICON_SIZE_OPTION,
+                                ] as?
+                                        String
+                                )
+                                ?.let { value ->
+                                    runCatching { AppIconSizeOption.valueOf(value) }.getOrNull()
+                                }
+                                ?: AppIconSizeOption.MEDIUM,
         )
     }
 
@@ -566,6 +588,26 @@ class UserAppPreferences(
                                 ] as?
                                         Boolean
                                         ?: true,
+                        showAppLabels =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_SHOW_APP_LABELS,
+                                ] as?
+                                        Boolean
+                                        ?: true,
+                        appIconSizeOption =
+                                (
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                        .KEY_APP_ICON_SIZE_OPTION,
+                                        ] as?
+                                                String
+                                        )
+                                        ?.let { value ->
+                                            runCatching { AppIconSizeOption.valueOf(value) }
+                                                    .getOrNull()
+                                        }
+                                        ?: AppIconSizeOption.MEDIUM,
                 )
 
         return StartupConfig(
@@ -1086,6 +1128,14 @@ class UserAppPreferences(
     fun areAppSuggestionsEnabled(): Boolean = uiPreferences.areAppSuggestionsEnabled()
 
     fun setAppSuggestionsEnabled(enabled: Boolean) = uiPreferences.setAppSuggestionsEnabled(enabled)
+
+    fun shouldShowAppLabels(): Boolean = uiPreferences.shouldShowAppLabels()
+
+    fun setShowAppLabels(show: Boolean) = uiPreferences.setShowAppLabels(show)
+
+    fun getAppIconSizeOption(): AppIconSizeOption = uiPreferences.getAppIconSizeOption()
+
+    fun setAppIconSizeOption(option: AppIconSizeOption) = uiPreferences.setAppIconSizeOption(option)
 
     fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 

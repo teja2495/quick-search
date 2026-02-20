@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.AppIconSizeOption
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
@@ -79,6 +80,10 @@ import kotlin.math.roundToInt
 fun CombinedLayoutIconCard(
         oneHandedMode: Boolean,
         onToggleOneHandedMode: (Boolean) -> Unit,
+        showAppLabels: Boolean,
+        onToggleAppLabels: (Boolean) -> Unit,
+        appIconSizeOption: AppIconSizeOption,
+        onSetAppIconSizeOption: (AppIconSizeOption) -> Unit,
         iconPackTitle: String,
         iconPackDescription: String,
         onIconPackClick: () -> Unit,
@@ -96,6 +101,21 @@ fun CombinedLayoutIconCard(
                     isFirstItem = true,
                     extraVerticalPadding = 8.dp,
             )
+
+            SettingsToggleRow(
+                    title = stringResource(R.string.settings_show_app_labels_title),
+                    subtitle = stringResource(R.string.settings_show_app_labels_desc),
+                    checked = showAppLabels,
+                    onCheckedChange = onToggleAppLabels,
+                    extraVerticalPadding = 8.dp,
+            )
+
+            AppIconSizeRow(
+                    selectedOption = appIconSizeOption,
+                    onOptionSelected = onSetAppIconSizeOption,
+            )
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             // Icon Pack Section (with navigation)
             val hasIconPacks =
@@ -186,6 +206,10 @@ fun AppearanceSettingsSection(
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
         selectedIconPackPackage: String?,
         availableIconPacks: List<IconPackInfo>,
+        showAppLabels: Boolean,
+        onToggleAppLabels: (Boolean) -> Unit,
+        appIconSizeOption: AppIconSizeOption,
+        onSetAppIconSizeOption: (AppIconSizeOption) -> Unit,
         onSelectIconPack: (String?) -> Unit,
         onRefreshIconPacks: () -> Unit,
         onSearchIconPacks: () -> Unit,
@@ -234,6 +258,10 @@ fun AppearanceSettingsSection(
         CombinedLayoutIconCard(
                 oneHandedMode = oneHandedMode,
                 onToggleOneHandedMode = onToggleOneHandedMode,
+                showAppLabels = showAppLabels,
+                onToggleAppLabels = onToggleAppLabels,
+                appIconSizeOption = appIconSizeOption,
+                onSetAppIconSizeOption = onSetAppIconSizeOption,
                 iconPackTitle =
                         androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
                 iconPackDescription =
@@ -269,6 +297,76 @@ fun AppearanceSettingsSection(
                 },
                 onDismiss = { showIconPackDialog = false },
         )
+    }
+}
+
+@Composable
+private fun AppIconSizeRow(
+        selectedOption: AppIconSizeOption,
+        onOptionSelected: (AppIconSizeOption) -> Unit,
+) {
+    val view = LocalView.current
+    val options =
+            remember {
+                listOf(
+                        AppIconSizeOption.SMALL to R.string.settings_app_icon_size_small,
+                        AppIconSizeOption.MEDIUM to R.string.settings_app_icon_size_medium,
+                        AppIconSizeOption.BIG to R.string.settings_app_icon_size_big,
+                )
+            }
+    Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(
+                text = stringResource(R.string.settings_app_icon_size_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+        )
+        Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            options.forEach { (option, labelRes) ->
+                val isSelected = selectedOption == option
+                val borderColor =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        }
+                val backgroundColor =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        }
+                Row(
+                        modifier =
+                                Modifier.weight(1f)
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(backgroundColor)
+                                        .border(1.dp, borderColor, MaterialTheme.shapes.large)
+                                        .clickable {
+                                            if (!isSelected) {
+                                                hapticToggle(view)()
+                                                onOptionSelected(option)
+                                            }
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                            text = stringResource(labelRes),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
     }
 }
 

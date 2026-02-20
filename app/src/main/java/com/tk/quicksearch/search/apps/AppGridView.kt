@@ -36,9 +36,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
+import com.tk.quicksearch.search.core.AppIconSizeOption
 import com.tk.quicksearch.search.data.AppShortcutRepository
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.launchStaticShortcut
@@ -90,6 +92,8 @@ fun AppGridView(
         modifier: Modifier = Modifier,
         rowCount: Int = ROW_COUNT,
         iconPackPackage: String? = null,
+        showAppLabels: Boolean = true,
+        appIconSizeOption: AppIconSizeOption = AppIconSizeOption.MEDIUM,
         oneHandedMode: Boolean = false,
         isInitializing: Boolean = false,
         predictedTarget: PredictedSubmitTarget? = null,
@@ -156,6 +160,8 @@ fun AppGridView(
                     shortcutsByPackage = shortcutsByPackage,
                     rowCount = rowCount,
                     iconPackPackage = iconPackPackage,
+                    showAppLabels = showAppLabels,
+                    appIconSizeOption = appIconSizeOption,
                     oneHandedMode = oneHandedMode,
                     predictedTarget = predictedTarget,
             )
@@ -178,6 +184,8 @@ private fun AppGrid(
         shortcutsByPackage: Map<String, List<StaticShortcut>>,
         rowCount: Int = ROW_COUNT,
         iconPackPackage: String?,
+        showAppLabels: Boolean,
+        appIconSizeOption: AppIconSizeOption,
         oneHandedMode: Boolean,
         predictedTarget: PredictedSubmitTarget?,
 ) {
@@ -227,7 +235,7 @@ private fun AppGrid(
                                 hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
                                 isPinned = pinnedPackageNames.contains(app.launchCountKey()),
                                 showUninstall = !app.isSystemApp && app.userHandleId == null,
-                                showAppLabel = true,
+                                showAppLabel = showAppLabels,
                         )
                     }
                 }
@@ -239,6 +247,7 @@ private fun AppGrid(
                     pinnedPackageNames = pinnedPackageNames,
                     shortcutsByPackage = shortcutsByPackage,
                     iconPackPackage = iconPackPackage,
+                    appIconSizeOption = appIconSizeOption,
                     createAppActions = createAppActions,
                     createAppState = createAppState,
                     predictedTarget = predictedTarget,
@@ -254,6 +263,7 @@ private fun AppGridRow(
         pinnedPackageNames: Set<String>,
         shortcutsByPackage: Map<String, List<StaticShortcut>>,
         iconPackPackage: String?,
+        appIconSizeOption: AppIconSizeOption,
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
         predictedTarget: PredictedSubmitTarget?,
@@ -274,6 +284,7 @@ private fun AppGridRow(
                         appActions = createAppActions(app),
                         appState = createAppState(app),
                         iconPackPackage = iconPackPackage,
+                        appIconSizeOption = appIconSizeOption,
                         isPredicted =
                                 (predictedTarget as? PredictedSubmitTarget.App)?.let {
                                     it.packageName == app.packageName &&
@@ -296,6 +307,7 @@ private fun AppGridItem(
         appActions: AppActions,
         appState: AppState,
         iconPackPackage: String?,
+        appIconSizeOption: AppIconSizeOption,
         isPredicted: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -309,6 +321,14 @@ private fun AppGridItem(
     val placeholderLabel =
             remember(appInfo.appName) {
                 appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
+            }
+    val appIconSize =
+            remember(appIconSizeOption) {
+                when (appIconSizeOption) {
+                    AppIconSizeOption.SMALL -> 44.dp
+                    AppIconSizeOption.MEDIUM -> DesignTokens.IconSizeXLarge
+                    AppIconSizeOption.BIG -> 60.dp
+                }
             }
 
     Box(
@@ -327,6 +347,7 @@ private fun AppGridItem(
                     onClick = appActions.onClick,
                     onLongClick = { showOptions = true },
                     isPredicted = isPredicted,
+                    appIconSize = appIconSize,
             )
             if (appState.showAppLabel) {
                 AppLabelText(appInfo.appName)
@@ -361,9 +382,16 @@ private fun AppIconSurface(
         appName: String,
         onClick: () -> Unit,
         onLongClick: () -> Unit,
+        appIconSize: Dp,
         isPredicted: Boolean = false,
 ) {
     val view = LocalView.current
+    val predictedIconHorizontalInset =
+            if (isPredicted && appIconSize >= 60.dp) {
+                DesignTokens.SpacingXSmall
+            } else {
+                0.dp
+            }
     Surface(
             modifier =
                     Modifier.size(DesignTokens.AppIconSize)
@@ -378,6 +406,7 @@ private fun AppIconSurface(
         Box(
                 modifier =
                         Modifier.fillMaxSize()
+                                .padding(horizontal = predictedIconHorizontalInset)
                                 .combinedClickable(
                                         onClick = {
                                             hapticConfirm(view)()
@@ -396,7 +425,7 @@ private fun AppIconSurface(
                                         appName,
                                 ),
                         modifier =
-                                Modifier.size(DesignTokens.IconSizeXLarge)
+                                Modifier.size(appIconSize)
                                         .then(
                                                 if (iconIsLegacy) {
                                                     Modifier.clip(DesignTokens.ShapeLarge)
