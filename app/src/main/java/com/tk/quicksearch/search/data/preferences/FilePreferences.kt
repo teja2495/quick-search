@@ -51,6 +51,26 @@ class FilePreferences(
 
     fun setShowHiddenFiles(show: Boolean) = prefs.edit().putBoolean(BasePreferences.KEY_SHOW_HIDDEN_FILES, show).apply()
 
+    fun getFolderWhitelistPatterns(): Set<String> = getStringSet(BasePreferences.KEY_FOLDER_WHITELIST_PATTERNS)
+
+    fun setFolderWhitelistPatterns(patterns: Set<String>) =
+        prefs
+            .edit()
+            .putStringSet(
+                BasePreferences.KEY_FOLDER_WHITELIST_PATTERNS,
+                patterns,
+            ).apply()
+
+    fun getFolderBlacklistPatterns(): Set<String> = getStringSet(BasePreferences.KEY_FOLDER_BLACKLIST_PATTERNS)
+
+    fun setFolderBlacklistPatterns(patterns: Set<String>) =
+        prefs
+            .edit()
+            .putStringSet(
+                BasePreferences.KEY_FOLDER_BLACKLIST_PATTERNS,
+                patterns,
+            ).apply()
+
     fun getEnabledFileTypes(): Set<FileType> {
         val key = BasePreferences.KEY_ENABLED_FILE_TYPES
         return if (!prefs.contains(key)) {

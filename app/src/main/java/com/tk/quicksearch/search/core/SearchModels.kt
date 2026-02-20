@@ -300,6 +300,8 @@ data class SearchUiState(
         val showFolders: Boolean = false,
         val showSystemFiles: Boolean = false,
         val showHiddenFiles: Boolean = false,
+        val folderWhitelistPatterns: Set<String> = emptySet(),
+        val folderBlacklistPatterns: Set<String> = emptySet(),
         val excludedFileExtensions: Set<String> = emptySet(),
         val oneHandedMode: Boolean = false,
         val overlayModeEnabled: Boolean = false,

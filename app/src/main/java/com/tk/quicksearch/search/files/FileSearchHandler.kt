@@ -34,6 +34,13 @@ class FileSearchHandler(
         val pinnedUris = userPreferences.getPinnedFileUris()
         val excludedUris = userPreferences.getExcludedFileUris()
         val excludedExtensions = userPreferences.getExcludedFileExtensions()
+        val folderWhitelistPatterns = userPreferences.getFolderWhitelistPatterns()
+        val folderBlacklistPatterns = userPreferences.getFolderBlacklistPatterns()
+        val pathMatcher =
+            FolderPathPatternMatcher.createPathMatcher(
+                whitelistPatterns = folderWhitelistPatterns,
+                blacklistPatterns = folderBlacklistPatterns,
+            )
 
         val pinned =
             fileRepository
@@ -41,6 +48,7 @@ class FileSearchHandler(
                 .filter { file ->
                     val fileType = FileTypeUtils.getFileType(file)
                     fileType in enabledFileTypes &&
+                        pathMatcher(file) &&
                         !excludedUris.contains(file.uri.toString())
                 }.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
 
@@ -56,6 +64,8 @@ class FileSearchHandler(
                     enabledFileTypes,
                     excludedUris,
                     excludedExtensions,
+                    folderWhitelistPatterns,
+                    folderBlacklistPatterns,
                     userPreferences.getShowFoldersInResults(),
                     userPreferences.getShowSystemFiles(),
                     userPreferences.getShowHiddenFiles(),
@@ -79,6 +89,8 @@ class FileSearchHandler(
             enabledFileTypes,
             userPreferences.getExcludedFileUris(),
             userPreferences.getExcludedFileExtensions(),
+            userPreferences.getFolderWhitelistPatterns(),
+            userPreferences.getFolderBlacklistPatterns(),
             showFolders,
             showSystemFiles,
             showHiddenFiles,
@@ -89,6 +101,8 @@ class FileSearchHandler(
         enabledFileTypes: Set<FileType>,
         excludedFileUris: Set<String>,
         excludedFileExtensions: Set<String>,
+        folderWhitelistPatterns: Set<String>,
+        folderBlacklistPatterns: Set<String>,
         showFolders: Boolean,
         showSystemFiles: Boolean,
         showHiddenFiles: Boolean,
@@ -103,6 +117,11 @@ class FileSearchHandler(
             fileRepository.searchFiles(normalizedQuery, FILE_SEARCH_RESULT_LIMIT)
 
         // Apply filters
+        val pathMatcher =
+            FolderPathPatternMatcher.createPathMatcher(
+                whitelistPatterns = folderWhitelistPatterns,
+                blacklistPatterns = folderBlacklistPatterns,
+            )
         val filteredFiles =
             allFiles.filter { file ->
                 val fileType = FileTypeUtils.getFileType(file)
@@ -131,6 +150,7 @@ class FileSearchHandler(
                 // Apply other filters
                 fileTypeMatches &&
                     !excludedFileUris.contains(file.uri.toString()) &&
+                    pathMatcher(file) &&
                     !FileUtils.isFileExtensionExcluded(
                         file.displayName,
                         excludedFileExtensions,

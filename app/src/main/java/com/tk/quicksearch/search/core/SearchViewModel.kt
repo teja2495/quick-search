@@ -350,6 +350,8 @@ class SearchViewModel(
     private var showFolders: Boolean = false
     private var showSystemFiles: Boolean = false
     private var showHiddenFiles: Boolean = false
+    private var folderWhitelistPatterns: Set<String> = emptySet()
+    private var folderBlacklistPatterns: Set<String> = emptySet()
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
     private var overlayModeEnabled: Boolean = initialOverlayModeEnabled
@@ -562,6 +564,8 @@ class SearchViewModel(
         showFolders = prefs.showFolders
         showSystemFiles = prefs.showSystemFiles
         showHiddenFiles = prefs.showHiddenFiles
+        folderWhitelistPatterns = prefs.folderWhitelistPatterns
+        folderBlacklistPatterns = prefs.folderBlacklistPatterns
         excludedFileExtensions = prefs.excludedFileExtensions
         oneHandedMode = prefs.oneHandedMode
         overlayModeEnabled = prefs.overlayModeEnabled
@@ -582,6 +586,8 @@ class SearchViewModel(
                     showFolders = showFolders,
                     showSystemFiles = showSystemFiles,
                     showHiddenFiles = showHiddenFiles,
+                    folderWhitelistPatterns = folderWhitelistPatterns,
+                    folderBlacklistPatterns = folderBlacklistPatterns,
                     excludedFileExtensions = excludedFileExtensions,
                     oneHandedMode = oneHandedMode,
                     overlayModeEnabled = overlayModeEnabled,
@@ -2065,6 +2071,32 @@ class SearchViewModel(
             updateUiState { it.copy(showHiddenFiles = show) }
 
             // Re-run file search if there's an active query
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setFolderWhitelistPatterns(patterns: Set<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setFolderWhitelistPatterns(patterns)
+            folderWhitelistPatterns = userPreferences.getFolderWhitelistPatterns()
+            updateUiState { it.copy(folderWhitelistPatterns = folderWhitelistPatterns) }
+
+            val query = _uiState.value.query
+            if (query.isNotBlank()) {
+                secondarySearchOrchestrator.performSecondarySearches(query)
+            }
+        }
+    }
+
+    fun setFolderBlacklistPatterns(patterns: Set<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setFolderBlacklistPatterns(patterns)
+            folderBlacklistPatterns = userPreferences.getFolderBlacklistPatterns()
+            updateUiState { it.copy(folderBlacklistPatterns = folderBlacklistPatterns) }
+
             val query = _uiState.value.query
             if (query.isNotBlank()) {
                 secondarySearchOrchestrator.performSecondarySearches(query)

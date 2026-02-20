@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
+import com.tk.quicksearch.search.files.FolderPathPatternMatcher
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
@@ -173,6 +174,11 @@ class UnifiedSearchHandler(
         val displayNameMatchedUris = displayNameFiles.map { it.uri.toString() }.toSet()
         val nicknameOnlyUris =
             nicknameMatchingUris.filterNot { displayNameMatchedUris.contains(it) }
+        val pathMatcher =
+            FolderPathPatternMatcher.createPathMatcher(
+                whitelistPatterns = userPreferences.getFolderWhitelistPatterns(),
+                blacklistPatterns = userPreferences.getFolderBlacklistPatterns(),
+            )
 
         return if (nicknameOnlyUris.isNotEmpty()) {
             fileRepository.getFilesByUris(nicknameOnlyUris.toSet()).filter { file ->
@@ -184,6 +190,7 @@ class UnifiedSearchHandler(
                     !userPreferences
                         .getExcludedFileUris()
                         .contains(file.uri.toString()) &&
+                    pathMatcher(file) &&
                     !FileUtils.isFileExtensionExcluded(
                         file.displayName,
                         userPreferences.getExcludedFileExtensions(),

@@ -170,6 +170,12 @@
     <string name="toast_excluded_from_results">%1$s excluded from results</string>
     <string name="toast_excluded_from_suggestions">%1$s excluded from suggestions</string>
     <string name="settings_excluded_extensions_title">Excluded File Extensions</string>
+    <string name="settings_folder_whitelist_title">Whitelist</string>
+    <string name="settings_folder_whitelist_helper">Only these paths will be searched for file &amp; folder searches</string>
+    <string name="settings_folder_blacklist_title">Blacklist</string>
+    <string name="settings_folder_blacklist_helper">These paths will be ignored when searching</string>
+    <string name="settings_folder_filters_title">Folder Path Filters</string>
+    <string name="settings_folder_filter_helper">Enter one or more folder paths separated by commas. They will be converted to the internal pattern format.\n\nExample: /Downloads/Pictures</string>
     <string name="action_remove">Remove</string>
     <string name="action_add_nickname">Add Nickname</string>
     <string name="action_edit_nickname">Edit Nickname</string>

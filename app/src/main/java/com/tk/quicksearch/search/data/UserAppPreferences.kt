@@ -73,6 +73,8 @@ class UserAppPreferences(
             val showFolders: Boolean,
             val showSystemFiles: Boolean,
             val showHiddenFiles: Boolean,
+            val folderWhitelistPatterns: Set<String>,
+            val folderBlacklistPatterns: Set<String>,
             val excludedFileExtensions: Set<String>,
             val oneHandedMode: Boolean,
             val overlayModeEnabled: Boolean,
@@ -165,6 +167,20 @@ class UserAppPreferences(
                         ] as?
                                 Boolean
                                 ?: false,
+                folderWhitelistPatterns =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_FOLDER_WHITELIST_PATTERNS,
+                        ] as?
+                                Set<String>
+                                ?: emptySet(),
+                folderBlacklistPatterns =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.BasePreferences
+                                        .KEY_FOLDER_BLACKLIST_PATTERNS,
+                        ] as?
+                                Set<String>
+                                ?: emptySet(),
                 excludedFileExtensions =
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -390,6 +406,20 @@ class UserAppPreferences(
                                 ] as?
                                         Boolean
                                         ?: false,
+                        folderWhitelistPatterns =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_FOLDER_WHITELIST_PATTERNS,
+                                ] as?
+                                        Set<String>
+                                        ?: emptySet(),
+                        folderBlacklistPatterns =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.BasePreferences
+                                                .KEY_FOLDER_BLACKLIST_PATTERNS,
+                                ] as?
+                                        Set<String>
+                                        ?: emptySet(),
                         excludedFileExtensions =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.BasePreferences
@@ -707,6 +737,16 @@ class UserAppPreferences(
     fun getShowHiddenFiles(): Boolean = filePreferences.getShowHiddenFiles()
 
     fun setShowHiddenFiles(show: Boolean) = filePreferences.setShowHiddenFiles(show)
+
+    fun getFolderWhitelistPatterns(): Set<String> = filePreferences.getFolderWhitelistPatterns()
+
+    fun setFolderWhitelistPatterns(patterns: Set<String>) =
+            filePreferences.setFolderWhitelistPatterns(patterns)
+
+    fun getFolderBlacklistPatterns(): Set<String> = filePreferences.getFolderBlacklistPatterns()
+
+    fun setFolderBlacklistPatterns(patterns: Set<String>) =
+            filePreferences.setFolderBlacklistPatterns(patterns)
 
     // ============================================================================
     // Settings Preferences
