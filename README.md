@@ -9,7 +9,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
       <a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
     </td>
     <td align="right" valign="middle">
-      <a href="https://paypal.me/teja2495"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" height="58"></a>
+      <a href="https://hihello.com/p/d1354167-c90c-4731-ad2a-a9c8e5fae557"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Support the development" height="58"></a>
     </td>
   </tr>
 </table>
@@ -243,8 +243,10 @@ app/src/main/java/com/tk/quicksearch/
 
 If you find Quick Search helpful, consider supporting the development:
 
+- **PayPal**: [@teja2495](https://paypal.me/teja2495)
 - **Cash App**: [$teja2495](https://cash.app/$teja2495)
 - **Venmo**: [@teja2495](https://account.venmo.com/u/teja2495)
+- **UPI**: teja2495@dbs
 
 ## 📄 License
 
