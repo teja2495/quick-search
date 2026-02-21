@@ -1,6 +1,7 @@
 package com.tk.quicksearch.widget
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 /**
  * Utility functions for widget color calculations.
@@ -75,6 +76,7 @@ object WidgetColorUtils {
         theme: WidgetTheme,
         backgroundAlpha: Float,
         textIconColorOverride: TextIconColorOverride,
+        customBackgroundColor: Color? = null,
         isSystemInDarkTheme: Boolean = false,
     ): Color {
         val isWhite =
@@ -90,12 +92,16 @@ object WidgetColorUtils {
 
                 // black text/icons
                 TextIconColorOverride.THEME -> { // follow theme
-                    val effectiveTheme =
-                        when (theme) {
-                            WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
-                            else -> theme
-                        }
-                    effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
+                    if (customBackgroundColor != null) {
+                        customBackgroundColor.luminance() < 0.5f
+                    } else {
+                        val effectiveTheme =
+                            when (theme) {
+                                WidgetTheme.SYSTEM -> if (isSystemInDarkTheme) WidgetTheme.DARK else WidgetTheme.LIGHT
+                                else -> theme
+                            }
+                        effectiveTheme == WidgetTheme.DARK // dark theme uses white text, light theme uses black
+                    }
                 }
             }
         return getTextIconColor(isWhite, backgroundAlpha)

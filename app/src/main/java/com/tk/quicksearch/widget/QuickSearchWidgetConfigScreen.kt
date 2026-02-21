@@ -2,6 +2,9 @@ package com.tk.quicksearch.widget
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +15,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -31,13 +40,19 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -46,9 +61,13 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.OverlayGradientTheme
+import com.tk.quicksearch.search.searchScreen.overlayGradientColors
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.util.hapticToggle
@@ -364,6 +383,27 @@ private fun WidgetThemeSection(
     state: QuickSearchWidgetPreferences,
     onStateChange: (QuickSearchWidgetPreferences) -> Unit,
 ) {
+    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val themeOptions =
+        remember {
+            listOf(
+                WidgetBackgroundThemeOption(
+                    overlayTheme = OverlayGradientTheme.FOREST,
+                    labelRes = R.string.settings_overlay_theme_forest,
+                ),
+                WidgetBackgroundThemeOption(
+                    overlayTheme = OverlayGradientTheme.AURORA,
+                    labelRes = R.string.settings_overlay_theme_aurora,
+                ),
+                WidgetBackgroundThemeOption(
+                    overlayTheme = OverlayGradientTheme.SUNSET,
+                    labelRes = R.string.settings_overlay_theme_sunset,
+                ),
+            )
+        }
+    var customHexValue by rememberSaveable { mutableStateOf("") }
+    var showCustomColorDialog by rememberSaveable { mutableStateOf(false) }
+
     Column(
         verticalArrangement =
             Arrangement.spacedBy(WidgetConfigConstants.COLOR_SECTION_SPACING),
@@ -373,11 +413,189 @@ private fun WidgetThemeSection(
             style = MaterialTheme.typography.titleSmall,
         )
         ThemeChoiceSegmentedButtonRow(
-            selectedTheme = state.theme,
-            onSelectionChange = { onStateChange(state.copy(theme = it)) },
+            selectedTheme = if (state.backgroundColor == null) state.theme else null,
+            onSelectionChange = {
+                customHexValue = ""
+                onStateChange(state.copy(theme = it, backgroundColor = null))
+            },
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            themeOptions.forEach { option ->
+                val previewColors =
+                    overlayGradientColors(
+                        theme = option.overlayTheme,
+                        isDarkMode = isDarkMode,
+                    )
+                val selectedArgb = previewColors.first().toArgb()
+                ThemeColorOptionChip(
+                    modifier = Modifier.weight(1f),
+                    brush = Brush.linearGradient(previewColors),
+                    selected = state.backgroundColor == selectedArgb,
+                    label = stringResource(option.labelRes),
+                    onClick = {
+                        customHexValue = ""
+                        onStateChange(state.copy(backgroundColor = selectedArgb))
+                    },
+                )
+            }
+            val isCustomSelected =
+                state.backgroundColor != null &&
+                    themeOptions.none { option ->
+                        overlayGradientColors(
+                            theme = option.overlayTheme,
+                            isDarkMode = isDarkMode,
+                        ).first().toArgb() == state.backgroundColor
+                    }
+            ThemeColorOptionChip(
+                modifier = Modifier.weight(1f),
+                color =
+                    if (isCustomSelected) {
+                        state.backgroundColor?.let(::Color) ?: Color.Transparent
+                    } else {
+                        Color.Transparent
+                    },
+                selected = isCustomSelected,
+                onClick = { showCustomColorDialog = true },
+                label = stringResource(R.string.widget_background_color_custom),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+            )
+        }
+    }
+
+    if (showCustomColorDialog) {
+        CustomBackgroundColorDialog(
+            initialHex = customHexValue,
+            onDismiss = { showCustomColorDialog = false },
+            onConfirm = { hex, color ->
+                customHexValue = hex
+                onStateChange(state.copy(backgroundColor = color.toArgb()))
+                showCustomColorDialog = false
+            },
         )
     }
 }
+
+@Composable
+private fun ThemeColorOptionChip(
+    modifier: Modifier = Modifier,
+    color: Color? = null,
+    brush: Brush? = null,
+    selected: Boolean,
+    onClick: () -> Unit,
+    label: String,
+    icon: @Composable (() -> Unit)? = null,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(42.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .then(
+                        if (brush != null) {
+                            Modifier.background(brush = brush)
+                        } else {
+                            Modifier.background(color ?: Color.Transparent)
+                        },
+                    )
+                    .border(
+                        width = if (selected) 2.dp else 1.dp,
+                        color =
+                            if (selected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outlineVariant
+                            },
+                        shape = MaterialTheme.shapes.medium,
+                    ).clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            icon?.invoke()
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun CustomBackgroundColorDialog(
+    initialHex: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String, Color) -> Unit,
+) {
+    var hexValue by rememberSaveable { mutableStateOf(initialHex) }
+    val isValidHex = hexValue.matches(Regex("^[0-9A-Fa-f]{6}$"))
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.widget_background_color_custom_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = hexValue,
+                    onValueChange = { updated ->
+                        hexValue = updated.take(6).uppercase(Locale.US).filter { it.isDigit() || it in 'A'..'F' }
+                    },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.widget_background_color_custom_dialog_hint)) },
+                    leadingIcon = { Text("#") },
+                    keyboardOptions =
+                        KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Characters,
+                        ),
+                )
+                if (!isValidHex) {
+                    Text(
+                        text = stringResource(R.string.widget_background_color_custom_invalid),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (isValidHex) {
+                        onConfirm(hexValue, Color(android.graphics.Color.parseColor("#$hexValue")))
+                    }
+                },
+                enabled = isValidHex,
+            ) {
+                Text(stringResource(R.string.dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+private data class WidgetBackgroundThemeOption(
+    val overlayTheme: OverlayGradientTheme,
+    val labelRes: Int,
+)
 
 @Composable
 private fun WidgetSearchIconSection(
@@ -580,24 +798,24 @@ private fun createClickableText(
 
 @Composable
 private fun ThemeChoiceSegmentedButtonRow(
-    selectedTheme: WidgetTheme,
+    selectedTheme: WidgetTheme?,
     onSelectionChange: (WidgetTheme) -> Unit,
 ) {
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         SegmentedButton(
-            selected = selectedTheme == WidgetTheme.LIGHT,
+            selected = selectedTheme === WidgetTheme.LIGHT,
             onClick = { onSelectionChange(WidgetTheme.LIGHT) },
             shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
             icon = {},
         ) { Text(stringResource(R.string.widget_theme_light)) }
         SegmentedButton(
-            selected = selectedTheme == WidgetTheme.DARK,
+            selected = selectedTheme === WidgetTheme.DARK,
             onClick = { onSelectionChange(WidgetTheme.DARK) },
             shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
             icon = {},
         ) { Text(stringResource(R.string.widget_theme_dark)) }
         SegmentedButton(
-            selected = selectedTheme == WidgetTheme.SYSTEM,
+            selected = selectedTheme === WidgetTheme.SYSTEM,
             onClick = { onSelectionChange(WidgetTheme.SYSTEM) },
             shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
             icon = {},

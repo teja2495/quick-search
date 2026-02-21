@@ -96,7 +96,8 @@ class QuickSearchWidget : GlanceAppWidget() {
                 config.borderWidthDp == WidgetDefaults.BORDER_WIDTH_DP &&
                 config.backgroundAlpha == WidgetDefaults.BACKGROUND_ALPHA &&
                 config.borderAlpha == WidgetDefaults.BORDER_ALPHA &&
-                config.theme == WidgetDefaults.THEME
+                config.theme == WidgetDefaults.THEME &&
+                config.backgroundColor == WidgetDefaults.BACKGROUND_COLOR
 
         val backgroundBitmap =
             if (!hasDefaultBackground) {
@@ -161,11 +162,13 @@ class QuickSearchWidget : GlanceAppWidget() {
                 else -> config.theme
             }
 
+        val customBackgroundColor = config.backgroundColor?.let(::Color)
         val backgroundColor =
-            WidgetColorUtils.getBackgroundColor(
-                effectiveTheme,
-                config.backgroundAlpha,
-            )
+            customBackgroundColor?.copy(alpha = config.backgroundAlpha)
+                ?: WidgetColorUtils.getBackgroundColor(
+                    effectiveTheme,
+                    config.backgroundAlpha,
+                )
         val borderColor =
             if (borderWidthPx > 0) {
                 WidgetColorUtils.getBorderColor(config.borderColor, config.borderAlpha)
@@ -177,6 +180,7 @@ class QuickSearchWidget : GlanceAppWidget() {
                 config.theme,
                 config.backgroundAlpha,
                 config.textIconColorOverride,
+                customBackgroundColor = customBackgroundColor,
                 isSystemInDarkTheme,
             )
 

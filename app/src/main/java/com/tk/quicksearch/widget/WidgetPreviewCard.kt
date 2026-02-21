@@ -193,17 +193,20 @@ private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): Preview
             else -> state.theme
         }
 
+    val customBackgroundColor = state.backgroundColor?.let(::Color)
     val background =
-        WidgetColorUtils.getBackgroundColor(
-            effectiveTheme,
-            state.backgroundAlpha,
-        )
+        customBackgroundColor?.copy(alpha = state.backgroundAlpha)
+            ?: WidgetColorUtils.getBackgroundColor(
+                effectiveTheme,
+                state.backgroundAlpha,
+            )
     val border = WidgetColorUtils.getBorderColor(state.borderColor, state.borderAlpha)
     val textIcon =
         WidgetColorUtils.getTextIconColor(
             state.theme,
             state.backgroundAlpha,
             state.textIconColorOverride,
+            customBackgroundColor = customBackgroundColor,
             isSystemInDarkTheme,
         )
 

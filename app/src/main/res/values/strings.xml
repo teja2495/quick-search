@@ -559,10 +559,15 @@
     <string name="widget_icon_left">Left</string>
     <string name="widget_icon_center">Center</string>
     <string name="widget_icon_off">Off</string>
-    <string name="widget_theme">Theme</string>
+    <string name="widget_theme">Background Theme</string>
     <string name="widget_theme_light">Light</string>
     <string name="widget_theme_dark">Dark</string>
     <string name="widget_theme_system">System</string>
+    <string name="widget_background_color">Background Color</string>
+    <string name="widget_background_color_custom">Custom</string>
+    <string name="widget_background_color_custom_dialog_title">Custom Color</string>
+    <string name="widget_background_color_custom_dialog_hint">Hex Color (RRGGBB)</string>
+    <string name="widget_background_color_custom_invalid">Enter a valid 6-digit hex color.</string>
     <string name="widget_text_icon_color">Text &amp; Icon Color</string>
     <string name="widget_custom_buttons_title">Custom Buttons</string>
     <string name="widget_custom_buttons_dialog_title">Select Action</string>

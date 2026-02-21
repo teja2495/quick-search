@@ -55,6 +55,7 @@ internal object WidgetDefaults {
 
     // Default to dark theme for higher contrast out of the box.
     val THEME = WidgetTheme.DARK
+    val BACKGROUND_COLOR: Int? = null
     const val BACKGROUND_ALPHA = 0.35f
     const val BORDER_ALPHA = BACKGROUND_ALPHA
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
@@ -81,6 +82,7 @@ private object WidgetKeys {
     val SEARCH_ICON_DISPLAY = stringPreferencesKey("quick_search_widget_search_icon_display")
     val SHOW_MIC_ICON = booleanPreferencesKey("quick_search_widget_show_mic_icon")
     val THEME = stringPreferencesKey("quick_search_widget_theme")
+    val BACKGROUND_COLOR = intPreferencesKey("quick_search_widget_background_color")
     val BACKGROUND_ALPHA = floatPreferencesKey("quick_search_widget_background_alpha")
     val BORDER_ALPHA = floatPreferencesKey("quick_search_widget_border_alpha")
     val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
@@ -108,6 +110,7 @@ data class QuickSearchWidgetPreferences(
     val searchIconDisplay: SearchIconDisplay = WidgetDefaults.SEARCH_ICON_DISPLAY,
     val showMicIcon: Boolean = WidgetDefaults.SHOW_MIC_ICON,
     val theme: WidgetTheme = WidgetDefaults.THEME,
+    val backgroundColor: Int? = WidgetDefaults.BACKGROUND_COLOR,
     val backgroundAlpha: Float = WidgetDefaults.BACKGROUND_ALPHA,
     val borderAlpha: Float = WidgetDefaults.BORDER_ALPHA,
     val micAction: MicAction = WidgetDefaults.MIC_ACTION,
@@ -231,6 +234,7 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
                 },
         showMicIcon = true, // Always true now, mic visibility controlled by micAction
         theme = theme,
+        backgroundColor = this[WidgetKeys.BACKGROUND_COLOR],
         backgroundAlpha =
             this[WidgetKeys.BACKGROUND_ALPHA]
                 ?: WidgetDefaults.BACKGROUND_ALPHA,
@@ -272,6 +276,8 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
     this[WidgetKeys.SEARCH_ICON_DISPLAY] = validated.searchIconDisplay.value
     this[WidgetKeys.SHOW_MIC_ICON] = validated.showMicIcon
     this[WidgetKeys.THEME] = validated.theme.value
+    validated.backgroundColor?.let { this[WidgetKeys.BACKGROUND_COLOR] = it }
+        ?: remove(WidgetKeys.BACKGROUND_COLOR)
     this[WidgetKeys.BACKGROUND_ALPHA] = validated.backgroundAlpha
     this[WidgetKeys.BORDER_ALPHA] = validated.borderAlpha
     this[WidgetKeys.MIC_ACTION] = validated.micAction.value
