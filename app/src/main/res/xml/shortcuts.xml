@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="voice_search"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_voice_search"
+        android:shortcutShortLabel="@string/shortcut_voice_search_short_label"
+        android:shortcutLongLabel="@string/shortcut_voice_search_long_label"
+        android:shortcutDisabledMessage="@string/shortcut_voice_search_disabled_message">
+        <intent
+            android:action="com.tk.quicksearch.action.VOICE_SEARCH_SHORTCUT"
+            android:targetClass="com.tk.quicksearch.app.MainActivity"
+            android:targetPackage="com.tk.quicksearch" />
+    </shortcut>
+</shortcuts>

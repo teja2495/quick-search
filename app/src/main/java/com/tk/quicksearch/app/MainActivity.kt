@@ -32,6 +32,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val ACTION_VOICE_SEARCH_SHORTCUT = "com.tk.quicksearch.action.VOICE_SEARCH_SHORTCUT"
+    }
+
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
     private lateinit var voiceSearchHandler: VoiceSearchHandler
@@ -125,6 +129,9 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
+        if (intent?.action == ACTION_VOICE_SEARCH_SHORTCUT) {
+            return false
+        }
         val forceNormalLaunch =
             intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
                 ?: false
@@ -205,6 +212,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (intent?.action == ACTION_VOICE_SEARCH_SHORTCUT) {
+            voiceSearchHandler.handleMicAction(MicAction.DEFAULT_VOICE_SEARCH)
+        }
+
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
             val requestedDetail =
                 intent.getStringExtra(OverlayModeController.EXTRA_OPEN_SETTINGS_DETAIL)

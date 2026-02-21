@@ -573,6 +573,9 @@
     <string name="widget_action_cancel">Cancel</string>
     <string name="widget_config_scroll_tip">Tip: Scroll to the bottom to add custom buttons to the widget to open apps, app shortcuts, contacts, files &amp; device settings.</string>
     <string name="desc_voice_search_icon">Start voice search</string>
+    <string name="shortcut_voice_search_short_label">Voice Search</string>
+    <string name="shortcut_voice_search_long_label">Open Voice Search</string>
+    <string name="shortcut_voice_search_disabled_message">Voice Search shortcut is unavailable.</string>
     <string name="desc_selected">Selected</string>
     <string name="voice_input_not_available">Voice typing isn’t available right now.</string>
 
