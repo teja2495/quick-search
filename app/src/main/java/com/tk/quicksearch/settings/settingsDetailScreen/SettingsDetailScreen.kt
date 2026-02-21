@@ -42,6 +42,7 @@ internal fun SettingsDetailLevel1Screen(
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
     isDefaultAssistant: Boolean,
+    assistantLaunchVoiceModeEnabled: Boolean,
     showShortcutHintBanner: Boolean = false,
     onDismissShortcutHintBanner: () -> Unit = {},
     showDefaultEngineHintBanner: Boolean = false,
@@ -246,7 +247,10 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.LAUNCH_OPTIONS -> {
                         LaunchOptionsSettings(
                             isDefaultAssistant = isDefaultAssistant,
+                            assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
                             onSetDefaultAssistant = callbacks.onSetDefaultAssistant,
+                            onToggleAssistantLaunchVoiceMode =
+                                callbacks.onToggleAssistantLaunchVoiceMode,
                             onAddHomeScreenWidget = callbacks.onAddHomeScreenWidget,
                             onAddQuickSettingsTile = callbacks.onAddQuickSettingsTile,
                             modifier = Modifier,

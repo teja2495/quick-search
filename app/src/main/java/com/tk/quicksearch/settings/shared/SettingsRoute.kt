@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.directSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.ui.theme.DesignTokens
@@ -190,6 +191,7 @@ data class SettingsScreenCallbacks(
     val onAddHomeScreenWidget: () -> Unit,
     val onAddQuickSettingsTile: () -> Unit,
     val onSetDefaultAssistant: () -> Unit,
+    val onToggleAssistantLaunchVoiceMode: (Boolean) -> Unit,
     val onRefreshApps: (Boolean) -> Unit,
     val onRefreshContacts: (Boolean) -> Unit,
     val onRefreshFiles: (Boolean) -> Unit,
@@ -649,6 +651,7 @@ fun SettingsRoute(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val userPreferences = remember { UserAppPreferences(context) }
 
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
 
@@ -917,6 +920,9 @@ fun SettingsRoute(
                             ).show()
                     }
                 }
+            },
+            onToggleAssistantLaunchVoiceMode = { enabled ->
+                userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
             },
             onRefreshApps = { showToast ->
                 if (SearchSection.APPS in uiState.disabledSections) {

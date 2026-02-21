@@ -9,6 +9,10 @@ import com.tk.quicksearch.search.data.preferences.BasePreferences
 class SettingsPreferences(
     context: Context,
 ) : BasePreferences(context) {
+    companion object {
+        private const val DEFAULT_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED = true
+    }
+
     // ============================================================================
     // Settings Preferences
     // ============================================================================
@@ -26,4 +30,13 @@ class SettingsPreferences(
     fun removeExcludedSetting(id: String): Set<String> = removeExcludedStringItem(BasePreferences.KEY_EXCLUDED_SETTINGS, id)
 
     fun clearAllExcludedSettings(): Set<String> = clearAllExcludedStringItems(BasePreferences.KEY_EXCLUDED_SETTINGS)
+
+    fun isAssistantLaunchVoiceModeEnabled(): Boolean =
+        getBooleanPref(
+            BasePreferences.KEY_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED,
+            DEFAULT_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED,
+        )
+
+    fun setAssistantLaunchVoiceModeEnabled(enabled: Boolean) =
+        setBooleanPref(BasePreferences.KEY_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED, enabled)
 }

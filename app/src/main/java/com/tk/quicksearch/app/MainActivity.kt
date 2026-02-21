@@ -129,7 +129,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
-        if (intent?.action == ACTION_VOICE_SEARCH_SHORTCUT) {
+        if (
+            intent?.action == ACTION_VOICE_SEARCH_SHORTCUT ||
+                intent?.action == Intent.ACTION_ASSIST
+        ) {
             return false
         }
         val forceNormalLaunch =
@@ -215,6 +218,12 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == ACTION_VOICE_SEARCH_SHORTCUT) {
             voiceSearchHandler.handleMicAction(MicAction.DEFAULT_VOICE_SEARCH)
         }
+        if (
+            intent?.action == Intent.ACTION_ASSIST &&
+                userPreferences.isAssistantLaunchVoiceModeEnabled()
+        ) {
+            voiceSearchHandler.handleMicAction(MicAction.DEFAULT_VOICE_SEARCH)
+        }
 
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_OPEN_SETTINGS, false) == true) {
             val requestedDetail =
@@ -280,6 +289,6 @@ class MainActivity : ComponentActivity() {
                     ?: MicAction.DEFAULT_VOICE_SEARCH
             voiceSearchHandler.handleMicAction(micAction)
         }
-        // ACTION_ASSIST is handled implicitly - search interface is always ready
+        // ACTION_ASSIST can optionally start voice typing based on user preference.
     }
 }

@@ -492,6 +492,7 @@ abstract class BasePreferences(
         // Settings preferences keys
         const val KEY_PINNED_SETTINGS = "pinned_settings"
         const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
+        const val KEY_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED = "assistant_launch_voice_mode_enabled"
 
         // App shortcut preferences keys
         const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"

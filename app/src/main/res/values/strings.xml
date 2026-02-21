@@ -510,6 +510,8 @@
     <string name="settings_default_assistant_title">Default Assistant</string>
     <string name="settings_default_assistant_desc">Set this app as your default digital assistant app.</string>
     <string name="settings_default_assistant_desc_change">Change your default digital assistant app.</string>
+    <string name="settings_assistant_voice_mode_title">Assistant Voice Mode</string>
+    <string name="settings_assistant_voice_mode_desc">Enable voice typing when launched as digital assistant</string>
     <string name="settings_home_screen_widget_title">Home Screen Widget</string>
     <string name="settings_home_screen_widget_desc">Add Quick Search widget to your home screen.</string>
     <string name="settings_home_screen_widget_confirm_message">You are about to add Quick Search widget to your home screen. Long press on the widget to access widget settings page that has many customization options.</string>

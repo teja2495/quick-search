@@ -809,6 +809,12 @@ class UserAppPreferences(
 
     fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
 
+    fun isAssistantLaunchVoiceModeEnabled(): Boolean =
+            settingsPreferences.isAssistantLaunchVoiceModeEnabled()
+
+    fun setAssistantLaunchVoiceModeEnabled(enabled: Boolean) =
+            settingsPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
+
     // ============================================================================
     // App Shortcut Preferences
     // ============================================================================

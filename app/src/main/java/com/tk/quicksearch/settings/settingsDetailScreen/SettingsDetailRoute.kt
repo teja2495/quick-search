@@ -182,6 +182,10 @@ fun SettingsDetailRoute(
                 )
             }
     var isDefaultAssistant by remember { mutableStateOf(context.isDefaultDigitalAssistant()) }
+    var assistantLaunchVoiceModeEnabled by
+            remember {
+                mutableStateOf(userPreferences.isAssistantLaunchVoiceModeEnabled())
+            }
     var directSearchSetupExpanded by
             remember(detailType) {
                 mutableStateOf(
@@ -209,18 +213,33 @@ fun SettingsDetailRoute(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.handleOptionalPermissionChange()
             }
-            if (detailType != SettingsDetailType.SEARCH_ENGINES) return@LifecycleEventObserver
+            if (
+                    detailType != SettingsDetailType.SEARCH_ENGINES &&
+                            detailType != SettingsDetailType.LAUNCH_OPTIONS
+            ) {
+                return@LifecycleEventObserver
+            }
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    userPreferences.resetShortcutHintBannerSessionDismissed()
-                    shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
-                    shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
+                    if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                        userPreferences.resetShortcutHintBannerSessionDismissed()
+                        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                        shouldShowDefaultEngineHint =
+                                userPreferences.shouldShowDefaultEngineHintBanner()
+                    }
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
+                    assistantLaunchVoiceModeEnabled =
+                            userPreferences.isAssistantLaunchVoiceModeEnabled()
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
-                    shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
+                    if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
+                        shouldShowDefaultEngineHint =
+                                userPreferences.shouldShowDefaultEngineHintBanner()
+                    }
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
+                    assistantLaunchVoiceModeEnabled =
+                            userPreferences.isAssistantLaunchVoiceModeEnabled()
                 }
                 else -> {}
             }
@@ -390,6 +409,10 @@ fun SettingsDetailRoute(
                             }
                         }
                     },
+                    onToggleAssistantLaunchVoiceMode = { enabled ->
+                        userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
+                        assistantLaunchVoiceModeEnabled = enabled
+                    },
                     onRefreshApps = viewModel::refreshApps,
                     onRefreshContacts = viewModel::refreshContacts,
                     onRefreshFiles = viewModel::refreshFiles,
@@ -440,6 +463,7 @@ fun SettingsDetailRoute(
                 showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
                 onDismissDefaultEngineHintBanner = onDismissDefaultEngineHint,
                 isDefaultAssistant = isDefaultAssistant,
+                assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
                 directSearchSetupExpanded = directSearchSetupExpanded,
                 onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
                 disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
