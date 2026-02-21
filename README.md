@@ -29,46 +29,35 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Apps**: Search and launch installed applications with smart ranking. App search ignores typos and allows abbreviations. Long press apps to access their shortcuts (if available); shortcuts appear in search results too.
 - **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration. Long press contact actions to customize them.
 - **Files**: Search device files and folders (images, videos, documents, etc.)
-- **Settings**: Search Android system settings
-- **Web**: Integrated search engines with customizable shortcuts and Google-powered suggestions (choose how many to display). Browsers can be added as search engines.
+- **Device Settings**: Search Android system settings
+- **Web**: Search the web using 20+ search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
 - **Gemini API**: Direct search can be enabled by configuring your own Gemini API key
-
-### 🎯 Smart Features
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
-- **Overlay Themes**: Multiple themes for overlay mode (access via search results settings)
-- **App Nicknames**: Assign custom names to apps for easier searching
-- **App Suggestions**: Shows recommended apps when search bar is empty
-- **Direct Search**: AI-powered answers using Gemini API (optional); choose among several Gemini and Gemma models
-- **Web Suggestions**: Google-powered search suggestions as you type
-- **Multi-App Search**: Tap search engine icons to search within specific apps
-- **Wallpaper Integration**: Automatic device wallpaper background with adjustable transparency and blur
-- **Quick Settings Tile**: Instant access from Android Quick Settings
-- **Assistant Integration**: Detects when app is set as default digital assistant
-- **Icon Pack Support**: Integration with icon pack launchers
-- **Optional Single-hand friendly Layout**: Results appear at the bottom of the screen for easier access.
-- **Section Ordering**: Customize which content appears first
-- **Pinned Results**: Keep favorite results always visible
-- **Recent Apps**: Smart ranking based on usage patterns
-- **Recent Searches**: Show recent searches across all types (files, contacts, settings, apps, web, etc.) when the search bar is empty (choose how many to display, default is 3)
-- **Haptic Feedback**: Context-aware vibration feedback for different interactions (tap, toggle, etc.)
-- **In-App Updates**: Automatic prompts for app updates from Play Store
-- **In-App Reviews**: Smart prompts to rate the app based on usage patterns
-- **Release Notes**: View what's new in each version directly in the app
-- **Feedback System**: In-app feedback options via email
+- **Home Screen Widget**: Home screen widget with customizable appearance. Add custom buttons which trigger - apps, shortcuts, files, contacts, and settings.
+- **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
 
-### 📱 Widget Support
-- Home screen widget with customizable appearance
-- **Custom widget buttons**: Add apps, shortcuts, files, contacts, and settings directly to your widget
-- Configurable colors, borders, and labels
-- Instant access to search functionality
-- Voice search with microphone button for hands-free searching
+### Search Shortcuts
+Configure custom keyboard shortcuts for search engines and add them at the start of a query to quickly trigger the respective search engine:
+- `ggl` → Google
+- `ytb` → YouTube
+- `mps` → Google Maps
+- And more...
 
-### 🔐 Privacy-Focused
-- Local processing by default
-- Encrypted storage for sensitive data
-- Granular permission controls
-- No ads or analytics
+### Direct Search
+Enable AI-powered answers by:
+1. Getting a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Adding the key in Settings → Search Engines → Direct Search
+3. Optionally add personal context for personalized answers
+4. Choose any Gemini/Gemma models of your choice
+
+### Search Engines
+- **Supported** (20+): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode, Claude.
+- **Browsers**: Add installed browsers as search engines
+- **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
+- **Style**: Choose between inline or compact styles
+
+[View all features](features.md)
 
 ## 🚀 Installation
 
@@ -90,94 +79,9 @@ cd quick-search
 - **Google Play Store**: Get the app from [Google Play Store](https://play.google.com/store/apps/details?id=com.tk.quicksearch) for automatic updates
 - **APK Release**: Download the latest APK from the [Releases](https://github.com/teja2495/quick-search/releases) page
 
-## 📖 Usage
+## 🛡️ Permissions & Privacy
 
-### Getting Started
-1. **Permissions**: On first launch, you'll be prompted for several optional permissions:
-   - **Usage Access**: Shows recently used apps and usage statistics
-   - **Contacts**: Access contact names and phone numbers for contact search
-   - **Storage/Media**: Access device files for file search
-   - **Phone**: Direct dial functionality (call without opening dialer)
-   - **Query All Packages**: List installed applications
-   All permissions are optional and can be granted later in Settings → Permissions
-2. **Configure Search Engines**: Visit Settings → Search Engines to customize available search engines, set shortcuts, and optionally enable AI-powered answers with Gemini API
-3. **Start Searching**: Type in the search field to find apps, contacts, files, web results, or calculate math expressions
-
-### Quick Access
-- **Quick Settings Tile**: Add Quick Search to Android Quick Settings for instant access
-- **Home Screen Widget**: Add a customizable widget with custom buttons (apps, shortcuts, files, contacts, settings)
-- **Overlay Mode**: Enable in settings to show the search bar over other apps, anywhere
-- **Digital Assistant**: Set Quick Search as your device's default digital assistant for enhanced search integration
-
-### Search Shortcuts
-Configure custom keyboard shortcuts for search engines and add them at the start of a query to quickly trigger the respective search engine:
-- `ggl` → Google
-- `ytb` → YouTube
-- `mps` → Google Maps
-- And more...
-
-### Direct Search
-Enable AI-powered answers by:
-1. Getting a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Adding the key in Settings → Search Engines → Direct Search
-3. Optionally add personal context for better answers
-
-## ⚙️ Configuration
-
-### Search Engines
-- **Supported** (22 total): Google, ChatGPT, Perplexity, Grok, Gemini, Google Maps, Google Play, Reddit, YouTube, Amazon, Bing, Brave, DuckDuckGo, Facebook Marketplace, Google Drive, Google Meet, Google Photos, Spotify, Startpage, X/Twitter, You.com, YouTube Music, Google AI Mode
-- **Browsers**: Add installed browsers as search engines
-- **Customizable**: Reorder, enable/disable, and set shortcuts
-- **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
-- **Style**: Choose between inline (scrolls with content) or compact (fixed at bottom)
-
-### Sections
-Toggle and reorder search result sections:
-- Apps (always visible)
-- Contacts (requires permission)
-- Files (requires permission)
-- Settings (device shortcuts)
-- Calculator (built-in math expressions)
-
-### File Types
-Filter which file types to include in search:
-- Photos & Videos
-- Documents
-- Other files
-
-### Result Management
-- **Exclude Items**: Long press any result to hide it from future searches
-- **File Type Filtering**: Exclude specific file types from search results
-- **App Management**: View app details or bulk uninstall apps (access via search results settings)
-- **Shortcut Management**: Enable, disable, or add custom app shortcuts (access via search results settings)
-
-### Appearance
-- **Wallpaper background**: Adjust transparency and blur of the device wallpaper background
-
-### Contact Preferences
-- Choose default messaging app (Messages, WhatsApp, Telegram)
-- **Customize contact actions**: Long press any contact action to change it
-- Google Meet integration for video calls
-- Enable direct dial (call without opening dialer)
-- Set preferred numbers per contact ("Remember my choice")
-- Support for multiple phone numbers per contact
-
-## 🔑 Permissions
-
-Quick Search follows a privacy-first approach with minimal required permissions.
-
-### Required
-- **Usage Access** (`PACKAGE_USAGE_STATS`): Required to show recently used apps and usage statistics
-
-### Optional
-- **Contacts**: Access contact names and phone numbers for contact search
-- **Storage/Media**: Access device files for file search
-- **Phone**: Direct dial functionality (call without opening dialer)
-- **Query All Packages**: List installed applications
-
-## 🛡️ Privacy
-
-Quick Search prioritizes your privacy. All search processing happens locally on your device. For detailed information, see our [Privacy Policy](PRIVACY_POLICY.md).
+Quick Search prioritizes your privacy. All permissions are optional, only used to unlock additional features. All search processing happens locally on your device. For detailed information, see our [Privacy Policy](PRIVACY_POLICY.md).
 
 **Key Points:**
 - No ads or analytics
@@ -201,34 +105,44 @@ Built with modern Android development practices:
 ### Project Structure
 ```
 app/src/main/java/com/tk/quicksearch/
-├── app/            # Application entry point (MainActivity)
-├── navigation/     # Navigation management with animated transitions
-├── onboarding/     # First-launch setup flow
-├── permissions/    # Permission handling
-├── search/         # Main search functionality
-│   ├── models/     # Data models (AppInfo, ContactInfo, etc.)
-│   ├── data/       # Repositories and preferences
-│   │   └── preferences/ # Modular preference classes
-│   ├── core/       # Core search logic and ViewModel
-│   ├── apps/       # App search components
-│   ├── contacts/   # Contact search and messaging integration
-│   ├── files/      # File search components
-│   ├── deviceSettings/ # Device settings search
-│   ├── searchEngines/  # Search engine integration
-│   ├── calculator/ # Calculator functionality
-│   ├── searchScreen/   # Main search UI components
-│   ├── handlers/   # Specialized handlers (pinning, shortcuts)
-│   └── common/     # Shared utilities
-├── settings/       # Settings screens
-│   ├── main/       # Main settings UI
-│   ├── appearance/ # Visual customization settings
-│   ├── searchEngines/ # Search engine configuration
-│   ├── components/ # Reusable settings components
-│   └── permissions/# Permission settings
-├── tile/           # Quick Settings tile service
-├── ui/theme/       # Material 3 theming and design tokens
-├── util/           # Utility functions (ranking, phone numbers, etc.)
-└── widget/         # Home screen widget (Glance)
+├── app/                    # Application entry (MainActivity, release notes, review, updates)
+├── navigation/             # Navigation with animated transitions
+├── onboarding/             # First-launch setup flow
+│   └── permissionScreen/   # Permission request UI and state
+├── search/                 # Main search functionality
+│   ├── models/             # Data models (AppInfo, ContactInfo, DeviceFile, etc.)
+│   ├── data/               # Repositories and preferences
+│   │   └── preferences/    # Modular preference classes
+│   ├── core/               # SearchViewModel, SearchModels, unified search, section management
+│   ├── apps/               # App search, icons, management, fuzzy strategy
+│   ├── appShortcuts/       # App shortcut search and actions
+│   ├── contacts/           # Contact search (actions, components, dialogs, utils)
+│   ├── files/              # File search and management
+│   ├── deviceSettings/     # Device settings search
+│   ├── directSearch/       # Direct Search (Gemini API, model picker)
+│   ├── searchEngines/      # Search engine integration
+│   │   ├── compact/        # Compact mode UI
+│   │   ├── inline/         # Inline mode UI
+│   │   └── shared/         # Shared search engine components
+│   ├── calculator/         # Calculator functionality
+│   ├── webSuggestions/     # Web search suggestions
+│   ├── recentSearches/     # Recent items tracking and display
+│   ├── fuzzy/              # Fuzzy search engine
+│   ├── overlay/            # Overlay mode (search over other apps)
+│   ├── searchScreen/       # Main search UI (layout, scroll, sections, dialogs)
+│   └── common/             # Pinning, ranking, shared utilities
+├── settings/               # Settings screens
+│   ├── searchEnginesScreen/# Search engine configuration
+│   ├── settingsDetailScreen/ # Detail screens (appearance, files, permissions, etc.)
+│   └── shared/             # Settings route and shared components
+├── tile/                   # Quick Settings tile service
+├── ui/
+│   ├── theme/              # Material 3 theming and design tokens
+│   └── components/         # Reusable UI components
+├── util/                   # Device, wallpaper, haptic, feedback utilities
+└── widget/                 # Home screen widget (Glance)
+    ├── customButtons/      # Widget button actions and config
+    └── voiceSearch/        # Voice search for widget
 ```
 
 ### Key Architectural Patterns
