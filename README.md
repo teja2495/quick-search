@@ -9,7 +9,7 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
       <a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
     </td>
     <td align="right" valign="middle">
-      <a href="https://paypal.me/teja2495"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" height="64"></a>
+      <a href="https://paypal.me/teja2495"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" height="58"></a>
     </td>
   </tr>
 </table>
