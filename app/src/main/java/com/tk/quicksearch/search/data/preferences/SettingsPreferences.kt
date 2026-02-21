@@ -10,7 +10,7 @@ class SettingsPreferences(
     context: Context,
 ) : BasePreferences(context) {
     companion object {
-        private const val DEFAULT_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED = true
+        private const val DEFAULT_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED = false
     }
 
     // ============================================================================

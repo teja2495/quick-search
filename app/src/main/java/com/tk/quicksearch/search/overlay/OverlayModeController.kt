@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
+import com.tk.quicksearch.widget.voiceSearch.MicAction
 
 object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"
@@ -15,6 +16,8 @@ object OverlayModeController {
     const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
     const val EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION =
         "overlay_contact_action_picker_serialized_action"
+    const val EXTRA_START_VOICE_SEARCH = "overlay_start_voice_search"
+    const val EXTRA_MIC_ACTION = "overlay_mic_action"
 
     data class ContactActionRequest(
         val contactId: Long,
@@ -22,10 +25,16 @@ object OverlayModeController {
         val serializedAction: String?,
     )
 
-    fun startOverlay(context: Context) {
+    fun startOverlay(
+        context: Context,
+        startVoiceSearch: Boolean = false,
+        micAction: MicAction = MicAction.DEFAULT_VOICE_SEARCH,
+    ) {
         val intent =
             Intent(context, OverlayActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
+                putExtra(EXTRA_MIC_ACTION, micAction.value)
             }
         context.startActivity(intent)
     }

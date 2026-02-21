@@ -129,17 +129,30 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchOverlayIfNeeded(intent: Intent?): Boolean {
-        if (
-            intent?.action == ACTION_VOICE_SEARCH_SHORTCUT ||
-                intent?.action == Intent.ACTION_ASSIST
-        ) {
-            return false
-        }
         val forceNormalLaunch =
             intent?.getBooleanExtra(OverlayModeController.EXTRA_FORCE_NORMAL_LAUNCH, false)
                 ?: false
         if (!forceNormalLaunch && userPreferences.isOverlayModeEnabled()) {
-            OverlayModeController.startOverlay(this)
+            val isVoiceShortcutLaunch = intent?.action == ACTION_VOICE_SEARCH_SHORTCUT
+            val isAssistantLaunch = intent?.action == Intent.ACTION_ASSIST
+            val startVoiceForAssistant =
+                isAssistantLaunch && userPreferences.isAssistantLaunchVoiceModeEnabled()
+            val startVoiceFromShortcut = isVoiceShortcutLaunch
+            val startVoiceFromWidget =
+                intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
+            val micAction =
+                intent
+                    ?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
+                    ?.let { actionString ->
+                        MicAction.entries.find { it.value == actionString }
+                    }
+                    ?: MicAction.DEFAULT_VOICE_SEARCH
+            OverlayModeController.startOverlay(
+                context = this,
+                startVoiceSearch =
+                    startVoiceForAssistant || startVoiceFromShortcut || startVoiceFromWidget,
+                micAction = micAction,
+            )
             finish()
             return true
         }
