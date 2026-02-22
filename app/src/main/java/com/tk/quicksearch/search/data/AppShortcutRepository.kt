@@ -410,13 +410,16 @@ class AppShortcutRepository(
             resolveInfos.asSequence().distinctBy { it.activityInfo.packageName }.associate { info ->
                 val packageName = info.activityInfo.packageName
                 val label =
-                    info.activityInfo.nonLocalizedLabel
-                        ?.toString()
+                    runCatching { info.loadLabel(packageManager)?.toString() }
+                        .getOrNull()
                         ?.takeIf { it.isNotBlank() }
-                        ?: info.activityInfo.applicationInfo.nonLocalizedLabel
+                        ?: info.activityInfo.nonLocalizedLabel
                             ?.toString()
                             ?.takeIf { it.isNotBlank() }
-                        ?: formatPackageNameAsLabel(packageName)
+                            ?: info.activityInfo.applicationInfo.nonLocalizedLabel
+                                ?.toString()
+                                ?.takeIf { it.isNotBlank() }
+                                ?: formatPackageNameAsLabel(packageName)
                 packageName to label
             }
 
@@ -559,8 +562,13 @@ class AppShortcutRepository(
 
     private fun resolveAppLabel(packageName: String): String {
         val appInfo = runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
-        val label = appInfo?.nonLocalizedLabel?.toString()?.takeIf { it.isNotBlank() }
-        return label ?: formatPackageNameAsLabel(packageName)
+        val localizedLabel =
+            appInfo?.let {
+                runCatching { packageManager.getApplicationLabel(it)?.toString() }.getOrNull()
+            }
+        return localizedLabel?.takeIf { it.isNotBlank() }
+            ?: appInfo?.nonLocalizedLabel?.toString()?.takeIf { it.isNotBlank() }
+            ?: formatPackageNameAsLabel(packageName)
     }
 
     private fun formatPackageNameAsLabel(packageName: String): String =
