@@ -113,6 +113,17 @@ fun MessagingSection(
         return
     }
 
+    val hasAnyThirdPartyMessagingApp = isWhatsAppInstalled || isTelegramInstalled || isSignalInstalled
+    val hasAnyThirdPartyCallingApp =
+        isGoogleMeetInstalled || isWhatsAppInstalled || isTelegramInstalled || isSignalInstalled
+    val shouldShowCallingCard = showCallingApp && hasAnyThirdPartyCallingApp
+    val shouldShowMessagingCard = hasAnyThirdPartyMessagingApp
+    val shouldShowDirectDialCard = showDirectDial
+
+    if (!showTitle && !shouldShowDirectDialCard && !shouldShowCallingCard && !shouldShowMessagingCard) {
+        return
+    }
+
     val messagingOptions =
         buildList {
             add(MessagingOption(MessagingApp.MESSAGES, R.string.settings_messaging_option_messages))
@@ -155,7 +166,7 @@ fun MessagingSection(
             }
         }
 
-        if (showDirectDial) {
+        if (shouldShowDirectDialCard) {
             DirectDialCard(
                 directDialEnabled = directDialEnabled,
                 onToggleDirectDial = onToggleDirectDial,
@@ -163,9 +174,9 @@ fun MessagingSection(
             )
         }
 
-        if (showCallingApp) {
+        if (shouldShowCallingCard) {
             val callingCardModifier =
-                if (showDirectDial) {
+                if (shouldShowDirectDialCard) {
                     Modifier.padding(top = DesignTokens.SpacingMedium)
                 } else {
                     Modifier
@@ -178,17 +189,19 @@ fun MessagingSection(
             )
         }
 
-        DefaultMessagingAppCard(
-            messagingOptions = messagingOptions,
-            selectedApp = messagingApp,
-            onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
-            modifier =
-                if (showCallingApp) {
-                    Modifier.padding(top = DesignTokens.SpacingMedium)
-                } else {
-                    Modifier
-                },
-        )
+        if (shouldShowMessagingCard) {
+            DefaultMessagingAppCard(
+                messagingOptions = messagingOptions,
+                selectedApp = messagingApp,
+                onMessagingAppSelected = onMessagingAppSelected ?: onSetMessagingApp,
+                modifier =
+                    if (shouldShowCallingCard) {
+                        Modifier.padding(top = DesignTokens.SpacingMedium)
+                    } else {
+                        Modifier
+                    },
+            )
+        }
     }
 }
 
