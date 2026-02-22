@@ -2,6 +2,8 @@ package com.tk.quicksearch.navigation
 
 import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.core.IntentHelpers
@@ -25,6 +27,8 @@ class NavigationHandler(
     private val onClearQuery: () -> Unit,
     private val showToastCallback: (Int) -> Unit,
 ) {
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     private val context: Context
         get() = application.applicationContext
 
@@ -177,18 +181,22 @@ class NavigationHandler(
     }
 
     fun openFile(deviceFile: DeviceFile) {
-        IntentHelpers.openFile(application, deviceFile) { stringResId, _ ->
-            showToastCallback(stringResId)
-        }
         userPreferences.addRecentItem(RecentSearchEntry.File(deviceFile.uri.toString()))
         onClearQuery()
+        mainHandler.post {
+            IntentHelpers.openFile(application, deviceFile) { stringResId, _ ->
+                showToastCallback(stringResId)
+            }
+        }
     }
 
     fun openContainingFolder(deviceFile: DeviceFile) {
-        IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, _ ->
-            showToastCallback(stringResId)
-        }
         onClearQuery()
+        mainHandler.post {
+            IntentHelpers.openContainingFolder(application, deviceFile) { stringResId, _ ->
+                showToastCallback(stringResId)
+            }
+        }
     }
 
     fun openSetting(setting: DeviceSetting) {

@@ -1915,7 +1915,20 @@ class SearchViewModel(
 
     fun refreshIconPacks() = iconPackHandler.refreshIconPacks()
 
-    fun setIconPackPackage(packageName: String?) = iconPackHandler.setIconPackPackage(packageName)
+    fun setIconPackPackage(packageName: String?) {
+        val state = _uiState.value
+        val visiblePackageNames =
+                buildList {
+                    addAll(state.pinnedApps.map { it.packageName })
+                    addAll(state.recentApps.map { it.packageName })
+                    addAll(state.searchResults.map { it.packageName })
+                }
+
+        iconPackHandler.setIconPackPackage(
+                packageName = packageName,
+                visiblePackageNames = visiblePackageNames,
+        )
+    }
 
     // Shortcuts
     fun setShortcutsEnabled(enabled: Boolean) = shortcutHandler.setShortcutsEnabled(enabled)

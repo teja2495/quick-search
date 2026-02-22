@@ -110,6 +110,15 @@ fun AppGridView(
                         }
                         .groupBy { it.packageName }
             }
+    val areSuggestionIconsReady =
+            if (isSearching) {
+                true
+            } else {
+                rememberSuggestionIconsReady(
+                        apps = apps,
+                        iconPackPackage = iconPackPackage,
+                )
+            }
 
     LaunchedEffect(shortcutRepository) {
         val cached = shortcutRepository.loadCachedShortcuts()
@@ -143,7 +152,7 @@ fun AppGridView(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        if (apps.isEmpty()) {
+        if (apps.isEmpty() || !areSuggestionIconsReady) {
             Box {}
         } else {
             AppGrid(
@@ -167,6 +176,25 @@ fun AppGridView(
             )
         }
     }
+}
+
+@Composable
+private fun rememberSuggestionIconsReady(
+        apps: List<AppInfo>,
+        iconPackPackage: String?,
+): Boolean {
+    if (apps.isEmpty()) return true
+
+    for (app in apps) {
+        val iconResult =
+                rememberAppIcon(
+                        packageName = app.packageName,
+                        iconPackPackage = iconPackPackage,
+                        userHandleId = app.userHandleId,
+                )
+        if (iconResult.bitmap == null) return false
+    }
+    return true
 }
 
 @Composable

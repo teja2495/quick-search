@@ -61,10 +61,13 @@ fun AppShortcutSourcePickerDialog(
                 val intent =
                     Intent(Intent.ACTION_CREATE_SHORTCUT).setClassName(packageName, className)
                 val label =
-                    runCatching { resolveInfo.loadLabel(packageManager)?.toString() }
-                        .getOrNull()
+                    resolveInfo.activityInfo.nonLocalizedLabel
+                        ?.toString()
                         ?.takeIf { it.isNotBlank() }
-                        ?: packageName
+                        ?: resolveInfo.activityInfo.applicationInfo.nonLocalizedLabel
+                            ?.toString()
+                            ?.takeIf { it.isNotBlank() }
+                        ?: formatPackageNameAsLabel(packageName)
                 val icon =
                     runCatching { resolveInfo.loadIcon(packageManager) }
                         .getOrNull()
@@ -186,9 +189,20 @@ private fun queryShortcutSources(packageManager: PackageManager): List<ResolveIn
     return results
         .filter { it.activityInfo?.exported == true }
         .sortedBy { info ->
-            runCatching { info.loadLabel(packageManager)?.toString() }
-                .getOrNull()
-                .orEmpty()
-                .lowercase()
+            val packageName = info.activityInfo.packageName
+            (
+                info.activityInfo.nonLocalizedLabel
+                ?.toString()
+                ?.takeIf { it.isNotBlank() }
+                ?: info.activityInfo.applicationInfo.nonLocalizedLabel
+                    ?.toString()
+                    ?.takeIf { it.isNotBlank() }
+                ?: formatPackageNameAsLabel(packageName)
+            ).lowercase()
         }
 }
+
+private fun formatPackageNameAsLabel(packageName: String): String =
+    packageName
+        .substringAfterLast(".")
+        .replaceFirstChar { it.titlecase() }

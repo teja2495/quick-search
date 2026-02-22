@@ -50,12 +50,34 @@ class IconPackService(
         }
     }
 
-    fun setIconPackPackage(packageName: String?) {
+    fun setIconPackPackage(
+        packageName: String?,
+        visiblePackageNames: Collection<String> = emptyList(),
+    ) {
         scope.launch(Dispatchers.IO) {
             val normalizedSelection =
                 packageName?.takeIf { pkg ->
                     availableIconPacks.any { it.packageName == pkg }
                 }
+
+            if (selectedIconPackPackage == normalizedSelection) return@launch
+
+            val packagesToPrefetch =
+                visiblePackageNames
+                    .asSequence()
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .distinct()
+                    .toList()
+
+            if (packagesToPrefetch.isNotEmpty()) {
+                prefetchAppIcons(
+                    context = application,
+                    packageNames = packagesToPrefetch,
+                    iconPackPackage = normalizedSelection,
+                    maxCount = packagesToPrefetch.size.coerceAtMost(30),
+                )
+            }
 
             selectedIconPackPackage = normalizedSelection
             userPreferences.setSelectedIconPackPackage(normalizedSelection)

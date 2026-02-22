@@ -410,10 +410,13 @@ class AppShortcutRepository(
             resolveInfos.asSequence().distinctBy { it.activityInfo.packageName }.associate { info ->
                 val packageName = info.activityInfo.packageName
                 val label =
-                    runCatching { info.loadLabel(packageManager)?.toString() }
-                        .getOrNull()
+                    info.activityInfo.nonLocalizedLabel
+                        ?.toString()
                         ?.takeIf { it.isNotBlank() }
-                        ?: packageName
+                        ?: info.activityInfo.applicationInfo.nonLocalizedLabel
+                            ?.toString()
+                            ?.takeIf { it.isNotBlank() }
+                        ?: formatPackageNameAsLabel(packageName)
                 packageName to label
             }
 
@@ -556,9 +559,14 @@ class AppShortcutRepository(
 
     private fun resolveAppLabel(packageName: String): String {
         val appInfo = runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
-        val label = appInfo?.let { runCatching { packageManager.getApplicationLabel(it)?.toString() }.getOrNull() }
-        return label?.takeIf { it.isNotBlank() } ?: packageName
+        val label = appInfo?.nonLocalizedLabel?.toString()?.takeIf { it.isNotBlank() }
+        return label ?: formatPackageNameAsLabel(packageName)
     }
+
+    private fun formatPackageNameAsLabel(packageName: String): String =
+        packageName
+            .substringAfterLast(".")
+            .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 
     private fun queryLaunchableApps() =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

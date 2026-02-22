@@ -197,7 +197,9 @@ class AppsRepository(
             }.getOrNull()
         val launchCountKey = if (userHandleId == null) packageName else "$packageName:$userHandleId"
         val label =
-            info.label?.toString()?.takeIf { it.isNotBlank() }
+            info.applicationInfo.nonLocalizedLabel
+                ?.toString()
+                ?.takeIf { it.isNotBlank() }
                 ?: formatPackageNameAsLabel(packageName)
         val stats = usageMap[packageName]
         val lastUsedTime = stats?.lastTimeUsed ?: 0L
@@ -255,10 +257,12 @@ class AppsRepository(
         resolveInfo: ResolveInfo,
         packageName: String,
     ): String =
-        resolveInfo
-            .loadLabel(packageManager)
+        resolveInfo.activityInfo.nonLocalizedLabel
             ?.toString()
             ?.takeIf { it.isNotBlank() }
+            ?: resolveInfo.activityInfo.applicationInfo.nonLocalizedLabel
+                ?.toString()
+                ?.takeIf { it.isNotBlank() }
             ?: formatPackageNameAsLabel(packageName)
 
     private fun formatPackageNameAsLabel(packageName: String): String =
