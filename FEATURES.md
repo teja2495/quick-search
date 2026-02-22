@@ -16,6 +16,7 @@
 - **Settings Search** - Find specific device settings
 - **App Suggestions** - Displays suggested apps when no search query is entered (can be turned off in settings)
 - **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard)
+- **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it directly in your browser
 - **Advanced Fuzzy Search** - Intelligent search with typo tolerance, acronym matching, and smart ranking
 
 ### Internet Search
@@ -91,6 +92,7 @@
 - **Icon Pack Support** - Apply 3rd party icon packs to app suggestions and results
 - **One-Hand Mode** - Position search results at the bottom of the screen for easier reach (bottom-aligned layout)
 - **Section Titles** - Show/hide section headers (Apps, Contacts, Files, Settings)
+- **App Labels** - Hide app labels in results or adjust their size to your preference
 ### Contact Features
 - **Comprehensive Contact Actions** - Tap any contact result to access all available options:
   - Call, SMS, Google Meet
@@ -98,6 +100,7 @@
   - Telegram: chat, audio call, video call
   - Signal: chat, audio call, video call
 - **Default Messaging App** - Set your preferred messaging app (Messages/WhatsApp/Telegram). The default messaging app will appear for contact results.
+- **Default Calling App** - Set your preferred dialer or calling app for contact calls
 - **Direct Calling Toggle** - Enable to call immediately, or disable to open dialer first
 - **Multiple Numbers** - When you open a contact result which has multiple phone numbers, tap the arrow beside the phone number to access other numbers. The app will remember the last opened number and opens it first when you reopen the contact.
 - **Preferred Number Memory** - The app remembers your preferred number for each contact
@@ -116,6 +119,7 @@
   - App suggestions and app results are treated as separate exclusion categories
 - **Manage Exclusions** - View and manage all excluded items in settings
 - **Pin Results** - Long press any result (app, contact, file, or setting) to pin it to the search home screen for quick access
+- **Add to Home Screen** - Long press any result to add it as a shortcut on your device home screen
 - **Nicknames** - Long press any app to add a nickname, then search using that nickname in the future
 - **App Management** - View app details or bulk uninstall apps (access via search results settings). Long press apps to view app info or uninstall from results.
 - **Shortcut Management** - Enable, disable, or add custom app shortcuts (access via search results settings). Long press any app to access its shortcuts (if available) and enable them in search results.
@@ -155,10 +159,12 @@
 - **Transparency** - Control widget opacity
 - **Element Visibility** - Show/hide text, search icon, and mic icon
 - **Color Options** - Set text, search icon, and mic icon to white or black
+- **Additional Widget Colors** - More color choices for widget text and icons beyond white and black
 - **Icon Alignment** - Position search icon left or center
 - **Mic Icon Action** - Choose what happens when tapping the mic:
   - Default: Opens Quick Search with voice typing enabled
   - Digital Assistant: Triggers device's digital assistant (Note: Your default assistant will be triggered)
+- **Voice Mode on Assistant Launch** - When Quick Search is launched using the digital assistant trigger (e.g. from the widget), voice mode is enabled automatically so you can speak your query right away
 
 ## App Updates & Feedback
 
