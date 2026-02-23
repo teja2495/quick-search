@@ -1,9 +1,11 @@
 package com.tk.quicksearch.search.apps
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -137,26 +139,26 @@ fun AppGridView(
     Column(
             modifier =
                     modifier.fillMaxWidth()
-                            .padding(top = 2.dp)
-                            .animateContentSize(
-                                    animationSpec =
-                                            if (isInitializing) {
-                                                // Instant update during initialization to prevent
-                                                // "growing" animation on startup
-                                                snap()
-                                            } else {
-                                                spring(
-                                                        dampingRatio = Spring.DampingRatioNoBouncy,
-                                                        stiffness = Spring.StiffnessMediumLow,
-                                                )
-                                            },
-                            ),
+                            .padding(top = 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        if (apps.isEmpty() || !areSuggestionIconsReady) {
-            Box {}
-        } else {
+        val showAppGrid = apps.isNotEmpty() && areSuggestionIconsReady
+        AnimatedVisibility(
+                visible = showAppGrid,
+                enter =
+                        fadeIn(animationSpec = tween(durationMillis = if (isInitializing) 0 else 200)) +
+                                slideInVertically(
+                                        animationSpec =
+                                                tween(durationMillis = if (isInitializing) 0 else 260),
+                                        initialOffsetY = { it / 10 },
+                                ) +
+                                scaleIn(
+                                        animationSpec = tween(durationMillis = if (isInitializing) 0 else 220),
+                                        initialScale = 0.98f,
+                                ),
+                exit = fadeOut(animationSpec = tween(durationMillis = 120)),
+        ) {
             AppGrid(
                     apps = apps,
                     onAppClick = onAppClick,
