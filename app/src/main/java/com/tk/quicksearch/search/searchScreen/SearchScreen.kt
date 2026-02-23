@@ -742,6 +742,7 @@ fun SearchScreen(
         buildSectionParams(
             state = effectiveStateForCards,
             derivedState = derivedState,
+            isOverlayPresentation = isOverlayPresentation,
             onFileClick = onFileClick,
             onOpenFolder = onOpenFolder,
             onPinFile = onPinFile,

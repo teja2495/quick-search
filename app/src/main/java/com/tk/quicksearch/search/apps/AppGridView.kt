@@ -72,6 +72,7 @@ private data class AppState(
         val isPinned: Boolean,
         val showUninstall: Boolean,
         val showAppLabel: Boolean,
+        val isOverlayPresentation: Boolean,
 )
 
 @Composable
@@ -96,6 +97,7 @@ fun AppGridView(
         appIconSizeOption: AppIconSizeOption = AppIconSizeOption.MEDIUM,
         oneHandedMode: Boolean = false,
         isInitializing: Boolean = false,
+        isOverlayPresentation: Boolean = false,
         predictedTarget: PredictedSubmitTarget? = null,
 ) {
     val context = LocalContext.current
@@ -172,6 +174,7 @@ fun AppGridView(
                     showAppLabels = showAppLabels,
                     appIconSizeOption = appIconSizeOption,
                     oneHandedMode = oneHandedMode,
+                    isOverlayPresentation = isOverlayPresentation,
                     predictedTarget = predictedTarget,
             )
         }
@@ -215,6 +218,7 @@ private fun AppGrid(
         showAppLabels: Boolean,
         appIconSizeOption: AppIconSizeOption,
         oneHandedMode: Boolean,
+        isOverlayPresentation: Boolean,
         predictedTarget: PredictedSubmitTarget?,
 ) {
     val columns = getAppGridColumns()
@@ -264,6 +268,7 @@ private fun AppGrid(
                                 isPinned = pinnedPackageNames.contains(app.launchCountKey()),
                                 showUninstall = !app.isSystemApp && app.userHandleId == null,
                                 showAppLabel = showAppLabels,
+                                isOverlayPresentation = isOverlayPresentation,
                         )
                     }
                 }
@@ -378,7 +383,10 @@ private fun AppGridItem(
                     appIconSize = appIconSize,
             )
             if (appState.showAppLabel) {
-                AppLabelText(appInfo.appName)
+                AppLabelText(
+                        appName = appInfo.appName,
+                        isOverlayPresentation = appState.isOverlayPresentation,
+                )
             }
         }
 
@@ -494,8 +502,20 @@ private fun AppIconSurface(
 }
 
 @Composable
-private fun AppLabelText(appName: String) {
-    Spacer(modifier = Modifier.height(DesignTokens.SpacingSmall))
+private fun AppLabelText(
+        appName: String,
+        isOverlayPresentation: Boolean,
+) {
+    Spacer(
+            modifier =
+                    Modifier.height(
+                            if (isOverlayPresentation) {
+                                4.dp
+                            } else {
+                                DesignTokens.SpacingSmall
+                            },
+                    ),
+    )
     Text(
             text = appName,
             style = MaterialTheme.typography.bodySmall,

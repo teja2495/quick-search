@@ -93,6 +93,11 @@ fun OverlayRoot(
                                                 indication = null,
                                         ) { handleClose() },
                 ) {
+                        val persistedKeyboardOpenHeightDp =
+                                remember { viewModel.getLastOverlayKeyboardOpenHeightDp() }
+                        var learnedKeyboardOpenHeightDp by
+                                remember { mutableStateOf<Float?>(persistedKeyboardOpenHeightDp) }
+                        val hasPersistedHeightAtLaunch = persistedKeyboardOpenHeightDp != null
                         val layoutDirection = LocalLayoutDirection.current
                         val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
                         val imeBottomPadding =
@@ -120,12 +125,39 @@ fun OverlayRoot(
                         val targetOverlayWidth =
                                 (availableWidth * OVERLAY_WIDTH_PERCENT).coerceAtLeast(0.dp)
 
-                        val overlayHeight = targetOverlayHeight
+                        val overlayHeight =
+                                if (hasPersistedHeightAtLaunch) {
+                                        minOf(
+                                                persistedKeyboardOpenHeightDp!!.dp,
+                                                availableHeight,
+                                        )
+                                } else {
+                                        targetOverlayHeight
+                                }
                         val overlayWidth by animateDpAsState(
                                 targetValue = targetOverlayWidth,
                                 animationSpec = tween(durationMillis = 300),
                                 label = "overlayWidth",
                         )
+
+                        LaunchedEffect(imeBottomPadding, targetOverlayHeight) {
+                                if (hasPersistedHeightAtLaunch) return@LaunchedEffect
+                                if (imeBottomPadding <= 0.dp || targetOverlayHeight <= 0.dp) {
+                                        return@LaunchedEffect
+                                }
+
+                                val currentHeightDp = targetOverlayHeight.value
+                                val previousHeightDp = learnedKeyboardOpenHeightDp
+                                val shouldPersist =
+                                        previousHeightDp == null ||
+                                                currentHeightDp < previousHeightDp - 0.5f
+                                if (shouldPersist) {
+                                        learnedKeyboardOpenHeightDp = currentHeightDp
+                                        viewModel.setLastOverlayKeyboardOpenHeightDp(
+                                                currentHeightDp
+                                        )
+                                }
+                        }
 
                         val uiState by viewModel.uiState.collectAsState()
                         val overlayWallpaperBitmap by

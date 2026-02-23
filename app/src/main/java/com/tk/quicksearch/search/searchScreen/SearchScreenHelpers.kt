@@ -212,6 +212,7 @@ data class AppsSectionParams(
     val appIconSizeOption: AppIconSizeOption,
     val oneHandedMode: Boolean,
     val isInitializing: Boolean,
+    val isOverlayPresentation: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
@@ -220,6 +221,7 @@ data class AppsSectionParams(
 internal fun buildSectionParams(
     state: SearchUiState,
     derivedState: DerivedState,
+    isOverlayPresentation: Boolean,
     onFileClick: (DeviceFile) -> Unit,
     onOpenFolder: (DeviceFile) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
@@ -572,6 +574,7 @@ internal fun buildSectionParams(
                 },
             oneHandedMode = state.oneHandedMode,
             isInitializing = state.isInitializing,
+            isOverlayPresentation = isOverlayPresentation,
         )
 
     SectionParams(

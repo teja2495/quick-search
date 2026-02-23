@@ -912,6 +912,15 @@ class SearchViewModel(
         }
     }
 
+    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
+            userPreferences.getLastOverlayKeyboardOpenHeightDp()
+
+    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setLastOverlayKeyboardOpenHeightDp(heightDp)
+        }
+    }
+
     fun setAppSuggestionsEnabled(enabled: Boolean) {
         updateBooleanPreference(
                 value = enabled,

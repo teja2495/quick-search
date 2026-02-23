@@ -146,6 +146,7 @@ private fun renderAppsSection(
             appIconSizeOption = params.appsParams.appIconSizeOption,
             oneHandedMode = params.appsParams.oneHandedMode,
             isInitializing = params.appsParams.isInitializing,
+            isOverlayPresentation = params.appsParams.isOverlayPresentation,
             predictedTarget = params.appsParams.predictedTarget,
         )
     }
