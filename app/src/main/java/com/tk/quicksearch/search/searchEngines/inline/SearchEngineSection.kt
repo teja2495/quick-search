@@ -10,8 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.items as rowItems
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,6 +47,8 @@ import com.tk.quicksearch.util.isTablet
 private object SearchEngineSectionConstants {
     val ICON_SIZE = SearchTargetConstants.DEFAULT_ICON_SIZE
     val SPACING = 20.dp
+    val ROW_SPACING = 10.dp
+    val PREDICTION_HIGHLIGHT_HEIGHT_EXTRA = 12.dp
     val SEARCH_ICON_SIZE = SearchTargetConstants.SEARCH_ICON_SIZE
     val HORIZONTAL_PADDING = SearchTargetConstants.HORIZONTAL_PADDING
     val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
@@ -77,6 +84,7 @@ fun SearchEngineIconsSection(
     showOverlayExpandChevron: Boolean = false,
     onOverlayExpandClick: (() -> Unit)? = null,
     isOverlayExpanded: Boolean = false,
+    compactRowCount: Int = 1,
     predictedTarget: PredictedSubmitTarget? = null,
 ) {
     if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
@@ -142,6 +150,7 @@ fun SearchEngineIconsSection(
                 showOverlayExpandChevron = showOverlayExpandChevron,
                 onOverlayExpandClick = onOverlayExpandClick,
                 isOverlayExpanded = isOverlayExpanded,
+                compactRowCount = compactRowCount,
                 predictedTarget = predictedTarget,
             )
         }
@@ -159,6 +168,7 @@ private fun SearchEngineContent(
     showOverlayExpandChevron: Boolean,
     onOverlayExpandClick: (() -> Unit)?,
     isOverlayExpanded: Boolean,
+    compactRowCount: Int,
     predictedTarget: PredictedSubmitTarget?,
 ) {
     Row(
@@ -186,6 +196,7 @@ private fun SearchEngineContent(
             scrollState = scrollState,
             onSearchEngineClick = onSearchEngineClick,
             onSearchEngineLongPress = onSearchEngineLongPress,
+            compactRowCount = compactRowCount,
             predictedTarget = predictedTarget,
         )
     }
@@ -242,28 +253,62 @@ private fun ScrollableEngineIcons(
     scrollState: androidx.compose.foundation.lazy.LazyListState,
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: () -> Unit,
+    compactRowCount: Int,
     predictedTarget: PredictedSubmitTarget?,
 ) {
+    val resolvedRowCount = compactRowCount.coerceIn(1, 2)
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val itemWidthDp = calculateItemWidth(maxWidth)
+        val itemWidthDp = calculateItemWidth(maxWidth, resolvedRowCount)
 
-        LazyRow(
-            state = scrollState,
-            horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            items(enabledEngines) { engine ->
-                SearchEngineIconItem(
-                    engine = engine,
-                    query = query,
-                    iconSize = SearchEngineSectionConstants.ICON_SIZE,
-                    itemWidth = itemWidthDp,
-                    onSearchEngineClick = onSearchEngineClick,
-                    onSearchEngineLongPress = onSearchEngineLongPress,
-                    isPredicted =
-                        (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
-                            engine.getId(),
-                )
+        if (resolvedRowCount == 2) {
+            val gridState = rememberLazyGridState()
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
+                state = gridState,
+                horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+                verticalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.ROW_SPACING),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(
+                            (SearchEngineSectionConstants.ICON_SIZE * 2) +
+                                SearchEngineSectionConstants.ROW_SPACING +
+                                SearchEngineSectionConstants.PREDICTION_HIGHLIGHT_HEIGHT_EXTRA,
+                        ),
+            ) {
+                gridItems(enabledEngines) { engine ->
+                    SearchEngineIconItem(
+                        engine = engine,
+                        query = query,
+                        iconSize = SearchEngineSectionConstants.ICON_SIZE,
+                        itemWidth = itemWidthDp,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        isPredicted =
+                            (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                                engine.getId(),
+                    )
+                }
+            }
+        } else {
+            LazyRow(
+                state = scrollState,
+                horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                rowItems(enabledEngines) { engine ->
+                    SearchEngineIconItem(
+                        engine = engine,
+                        query = query,
+                        iconSize = SearchEngineSectionConstants.ICON_SIZE,
+                        itemWidth = itemWidthDp,
+                        onSearchEngineClick = onSearchEngineClick,
+                        onSearchEngineLongPress = onSearchEngineLongPress,
+                        isPredicted =
+                            (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
+                                engine.getId(),
+                    )
+                }
             }
         }
     }
@@ -274,7 +319,10 @@ private fun ScrollableEngineIcons(
  * / number of items
  */
 @Composable
-private fun calculateItemWidth(maxWidth: androidx.compose.ui.unit.Dp): androidx.compose.ui.unit.Dp {
+private fun calculateItemWidth(
+    maxWidth: androidx.compose.ui.unit.Dp,
+    _compactRowCount: Int,
+): androidx.compose.ui.unit.Dp {
     val itemsPerRow =
         when {
             isTablet() && isLandscape() -> 10

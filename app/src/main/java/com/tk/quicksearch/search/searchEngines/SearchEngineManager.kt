@@ -37,6 +37,9 @@ class SearchEngineManager(
     var isSearchEngineCompactMode: Boolean = false
         private set
 
+    var searchEngineCompactRowCount: Int = 1
+        private set
+
     private var customSearchEngines: List<CustomSearchEngine> = emptyList()
 
     private var isInitialized = false
@@ -65,6 +68,7 @@ class SearchEngineManager(
                     hasGemini,
                 )
             isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
+            searchEngineCompactRowCount = userPreferences.getSearchEngineCompactRowCount()
             isInitialized = true
         }
     }
@@ -106,6 +110,7 @@ class SearchEngineManager(
                 state.copy(
                     disabledSearchTargetIds = disabledSearchTargetIds,
                     isSearchEngineCompactMode = isSearchEngineCompactMode,
+                    searchEngineCompactRowCount = searchEngineCompactRowCount,
                 )
             }
         }
@@ -247,6 +252,17 @@ class SearchEngineManager(
                     showSearchEngineOnboarding =
                         enabled && !userPreferences.hasSeenSearchEngineOnboarding(),
                 )
+            }
+        }
+    }
+
+    fun setSearchEngineCompactRowCount(rowCount: Int) {
+        scope.launch(Dispatchers.IO) {
+            val resolvedRowCount = rowCount.coerceIn(1, 2)
+            searchEngineCompactRowCount = resolvedRowCount
+            userPreferences.setSearchEngineCompactRowCount(resolvedRowCount)
+            onStateUpdate { state ->
+                state.copy(searchEngineCompactRowCount = searchEngineCompactRowCount)
             }
         }
     }

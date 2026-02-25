@@ -430,6 +430,7 @@ internal fun SearchScreenContent(
                                     }
                                 },
                                 isOverlayExpanded = isOverlayExpanded,
+                                compactRowCount = state.searchEngineCompactRowCount,
                                 predictedTarget = predictedTarget,
                         )
                     },
@@ -445,6 +446,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                compactRowCount = 1,
                                 predictedTarget = predictedTarget,
                         )
                     },
@@ -460,6 +462,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                compactRowCount = 1,
                                 predictedTarget = predictedTarget,
                         )
                     },

@@ -195,7 +195,9 @@ fun AppearanceSettingsSection(
         onPickCustomImage: () -> Unit,
         onRequestWallpaperPermission: () -> Unit,
         isSearchEngineCompactMode: Boolean,
+        searchEngineCompactRowCount: Int,
         onToggleSearchEngineCompactMode: (Boolean) -> Unit,
+        onSetSearchEngineCompactRowCount: (Int) -> Unit,
         selectedIconPackPackage: String?,
         availableIconPacks: List<IconPackInfo>,
         showAppLabels: Boolean,
@@ -240,6 +242,8 @@ fun AppearanceSettingsSection(
         SearchEngineAppearanceCard(
                 isSearchEngineCompactMode = isSearchEngineCompactMode,
                 onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
+                compactRowCount = searchEngineCompactRowCount,
+                onSetCompactRowCount = onSetSearchEngineCompactRowCount,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

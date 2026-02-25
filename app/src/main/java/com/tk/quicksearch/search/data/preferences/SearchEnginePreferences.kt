@@ -11,6 +11,11 @@ import org.json.JSONObject
 class SearchEnginePreferences(
     context: Context,
 ) : BasePreferences(context) {
+    companion object {
+        const val ONE_ROW = 1
+        const val TWO_ROWS = 2
+    }
+
     // ============================================================================
     // Search Engine Preferences
     // ============================================================================
@@ -38,6 +43,20 @@ class SearchEnginePreferences(
 
     fun setSearchEngineCompactMode(enabled: Boolean) {
         setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_COMPACT_MODE, enabled)
+    }
+
+    fun getSearchEngineCompactRowCount(): Int =
+        prefs
+            .getInt(BasePreferences.KEY_SEARCH_ENGINE_COMPACT_ROW_COUNT, ONE_ROW)
+            .coerceIn(ONE_ROW, TWO_ROWS)
+
+    fun setSearchEngineCompactRowCount(rowCount: Int) {
+        prefs.edit()
+            .putInt(
+                BasePreferences.KEY_SEARCH_ENGINE_COMPACT_ROW_COUNT,
+                rowCount.coerceIn(ONE_ROW, TWO_ROWS),
+            )
+            .apply()
     }
 
     fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)

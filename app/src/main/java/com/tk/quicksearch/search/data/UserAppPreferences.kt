@@ -898,6 +898,11 @@ class UserAppPreferences(
     fun setSearchEngineCompactMode(enabled: Boolean) =
             searchEnginePreferences.setSearchEngineCompactMode(enabled)
 
+    fun getSearchEngineCompactRowCount(): Int = searchEnginePreferences.getSearchEngineCompactRowCount()
+
+    fun setSearchEngineCompactRowCount(rowCount: Int) =
+            searchEnginePreferences.setSearchEngineCompactRowCount(rowCount)
+
     fun hasSeenSearchEngineOnboarding(): Boolean =
             searchEnginePreferences.hasSeenSearchEngineOnboarding()
 

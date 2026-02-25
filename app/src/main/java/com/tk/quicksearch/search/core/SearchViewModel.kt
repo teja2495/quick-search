@@ -682,6 +682,7 @@ class SearchViewModel(
                         shortcutEnabled = shortcutsState.shortcutEnabled,
                         disabledSections = sectionManager.disabledSections,
                         isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
+                        searchEngineCompactRowCount = searchEngineManager.searchEngineCompactRowCount,
                         showSearchEngineOnboarding =
                                 searchEngineManager.isSearchEngineCompactMode &&
                                         !userPreferences.hasSeenSearchEngineOnboarding(),
@@ -2054,6 +2055,9 @@ class SearchViewModel(
 
     fun setSearchEngineCompactMode(enabled: Boolean) =
             searchEngineManager.setSearchEngineCompactMode(enabled)
+
+    fun setSearchEngineCompactRowCount(rowCount: Int) =
+            searchEngineManager.setSearchEngineCompactRowCount(rowCount)
 
     fun setFileTypeEnabled(
             fileType: FileType,
