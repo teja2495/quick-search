@@ -350,6 +350,7 @@ data class SearchUiState(
         val showSearchBarWelcomeAnimation: Boolean = false,
         val showContactActionHint: Boolean = false,
         val showPersonalContextHint: Boolean = false,
+        val hasDismissedSearchHistoryTip: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
         val webSuggestionWasSelected: Boolean = false,
         val recentItems: List<RecentSearchItem> = emptyList(),

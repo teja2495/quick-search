@@ -609,9 +609,14 @@ class SearchViewModel(
                     webSuggestionsCount = userPreferences.getWebSuggestionsCount(),
                     shouldShowUsagePermissionBanner =
                             userPreferences.shouldShowUsagePermissionBanner(),
+                    hasDismissedSearchHistoryTip = userPreferences.hasDismissedSearchHistoryTip(),
                     showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip(),
                     hasSeenOverlayAssistantTip = userPreferences.hasSeenOverlayAssistantTip(),
             )
+        }
+
+        if (!prefs.recentSearchesEnabled) {
+            userPreferences.clearRecentQueries()
         }
 
         // Load recent queries on startup if enabled
@@ -950,12 +955,27 @@ class SearchViewModel(
     fun setRecentQueriesEnabled(enabled: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setRecentQueriesEnabled(enabled)
-            _uiState.update { it.copy(recentQueriesEnabled = enabled) }
+            if (!enabled) {
+                userPreferences.clearRecentQueries()
+            }
+            _uiState.update {
+                it.copy(
+                    recentQueriesEnabled = enabled,
+                    recentItems = if (enabled) it.recentItems else emptyList(),
+                )
+            }
 
             // Refresh recent queries display if query is empty
-            if (_uiState.value.query.isEmpty()) {
+            if (enabled && _uiState.value.query.isEmpty()) {
                 refreshRecentItems()
             }
+        }
+    }
+
+    fun dismissSearchHistoryTip() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setSearchHistoryTipDismissed(true)
+            _uiState.update { it.copy(hasDismissedSearchHistoryTip = true) }
         }
     }
 

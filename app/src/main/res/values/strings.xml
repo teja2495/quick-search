@@ -184,6 +184,8 @@
     <string name="action_more_search_history">More History</string>
     <string name="action_disable_search_history">Disable Search History</string>
     <string name="action_remove_from_history">Remove From History</string>
+    <string name="search_history_tip_message">Your search history is saved so you can access it easily.</string>
+    <string name="search_history_tip_link">Disable</string>
     <string name="action_collapse">Collapse</string>
     <string name="action_retry">Retry</string>
     <string name="permission_action_manage_android">Manage in Android settings</string>

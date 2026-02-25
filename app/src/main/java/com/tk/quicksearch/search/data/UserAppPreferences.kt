@@ -1068,6 +1068,11 @@ class UserAppPreferences(
     fun setHasSeenPersonalContextHint(seen: Boolean) =
             uiPreferences.setHasSeenPersonalContextHint(seen)
 
+    fun hasDismissedSearchHistoryTip(): Boolean = uiPreferences.hasDismissedSearchHistoryTip()
+
+    fun setSearchHistoryTipDismissed(dismissed: Boolean) =
+            uiPreferences.setSearchHistoryTipDismissed(dismissed)
+
     fun hasSeenOverlayCloseTip(): Boolean = uiPreferences.hasSeenOverlayCloseTip()
 
     fun setHasSeenOverlayCloseTip(seen: Boolean) = uiPreferences.setHasSeenOverlayCloseTip(seen)

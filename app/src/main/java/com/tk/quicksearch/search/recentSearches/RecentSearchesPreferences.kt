@@ -36,6 +36,7 @@ class RecentSearchesPreferences(
      * Duplicates are moved to the front rather than being added again.
      */
     fun addRecentItem(entry: RecentSearchEntry) {
+        if (!areRecentQueriesEnabled()) return
         if (entry is RecentSearchEntry.Query && entry.trimmedQuery.isBlank()) return
 
         val currentItems = getRecentItems().toMutableList()

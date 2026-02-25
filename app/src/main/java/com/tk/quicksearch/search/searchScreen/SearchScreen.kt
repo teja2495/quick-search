@@ -137,6 +137,7 @@ internal fun ExcludeUndoSnackbarHost(
 fun SearchRoute(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
     onSearchEngineLongPress: () -> Unit = {},
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenDirectSearchConfigure: () -> Unit = {},
@@ -420,6 +421,8 @@ fun SearchRoute(
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             onDeleteRecentItem = viewModel::deleteRecentItem,
             onDisableSearchHistory = { viewModel.setRecentQueriesEnabled(false) },
+            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+            onDismissSearchHistoryTip = viewModel::dismissSearchHistoryTip,
             onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
             onCustomAction = viewModel::onCustomAction,
             getPrimaryContactCardAction = viewModel::getPrimaryContactCardAction,
@@ -536,6 +539,8 @@ fun SearchScreen(
     onConsumeContactActionRequest: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
     onCustomAction: (ContactInfo, ContactCardAction) -> Unit,
     getPrimaryContactCardAction: (Long) -> ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
@@ -924,6 +929,8 @@ fun SearchScreen(
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             onDeleteRecentItem = onDeleteRecentItem,
             onDisableSearchHistory = onDisableSearchHistory,
+            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+            onDismissSearchHistoryTip = onDismissSearchHistoryTip,
             onGeminiModelInfoClick = { showGeminiModelDialog = true },
             onKeyboardSwitchToggle = {
                 manuallySwitchedToNumberKeyboard = !manuallySwitchedToNumberKeyboard

@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
@@ -41,6 +40,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
@@ -62,13 +64,13 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.ui.components.TipBanner
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 
 private val EXPANDED_HISTORY_MAX_HEIGHT = 420.dp
 private val EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY = 300.dp
 
-private const val QUERY_ICON_SIZE = 42
 private const val QUERY_ROW_ICON_SIZE = 40
 private const val QUERY_ICON_START_PADDING = 16
 private const val QUERY_TEXT_START_PADDING = 12
@@ -100,6 +102,9 @@ fun RecentSearchesSection(
     onAppShortcutClick: (StaticShortcut) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
     onDisableSearchHistory: () -> Unit = {},
+    showSearchHistoryTip: Boolean = false,
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
     onExpandedChange: (Boolean) -> Unit = {},
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
@@ -161,6 +166,7 @@ fun RecentSearchesSection(
                         .verticalScroll(scrollState),
                 ) {
                     displayItems.forEachIndexed { index, item ->
+                        val showTipBelowFirstItem = showSearchHistoryTip && index == 0
                         RecentSearchItemRow(
                             item = item,
                             textColor = textColor,
@@ -182,29 +188,21 @@ fun RecentSearchesSection(
                             onSettingClick = onSettingClick,
                             onAppShortcutClick = onAppShortcutClick,
                             onDeleteRecentItem = onDeleteRecentItem,
-                            onDisableSearchHistory = onDisableSearchHistory,
-                            showDivider = true,
+                            showDivider = !showTipBelowFirstItem,
                             showWallpaperBackground = showWallpaperBackground,
                             overlayDividerColor = overlayDividerColor,
                         )
-                    }
-                    val disableDividerColor =
-                        if (overlayDividerColor != null) {
-                            overlayDividerColor
-                        } else if (showWallpaperBackground) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant
+                        if (showTipBelowFirstItem) {
+                            InlineSearchHistoryTip(
+                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                onDismiss = onDismissSearchHistoryTip,
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = dividerPadding(item)),
+                                color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                            )
                         }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = DesignTokens.SpacingMedium),
-                        color = disableDividerColor,
-                    )
-                    DisableSearchHistoryRow(
-                        textColor = textColor,
-                        iconColor = iconColor,
-                        onClick = onDisableSearchHistory,
-                    )
+                    }
                 }
                 CollapseButton(
                     onClick = {
@@ -220,6 +218,8 @@ fun RecentSearchesSection(
         } else {
             Column {
                 displayItems.forEachIndexed { index, item ->
+                    val showTipBelowFirstItem = showSearchHistoryTip && index == 0
+                    val baseShowDivider = index < displayItems.lastIndex
                     RecentSearchItemRow(
                         item = item,
                         textColor = textColor,
@@ -241,11 +241,22 @@ fun RecentSearchesSection(
                         onSettingClick = onSettingClick,
                         onAppShortcutClick = onAppShortcutClick,
                         onDeleteRecentItem = onDeleteRecentItem,
-                        onDisableSearchHistory = onDisableSearchHistory,
-                        showDivider = index < displayItems.lastIndex,
+                        showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
                         showWallpaperBackground = showWallpaperBackground,
                         overlayDividerColor = overlayDividerColor,
                     )
+                    if (showTipBelowFirstItem) {
+                        InlineSearchHistoryTip(
+                            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                            onDismiss = onDismissSearchHistoryTip,
+                        )
+                        if (baseShowDivider) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = dividerPadding(item)),
+                                color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                            )
+                        }
+                    }
                 }
 
                 if (canExpand) {
@@ -303,7 +314,6 @@ private fun RecentSearchItemRow(
     onSettingClick: (DeviceSetting) -> Unit,
     onAppShortcutClick: (StaticShortcut) -> Unit,
     onDeleteRecentItem: (RecentSearchEntry) -> Unit,
-    onDisableSearchHistory: () -> Unit = {},
     showDivider: Boolean,
     showWallpaperBackground: Boolean,
     overlayDividerColor: Color?,
@@ -473,50 +483,73 @@ private fun dividerPadding(item: RecentSearchItem) =
     }
 
 @Composable
-private fun DisableSearchHistoryRow(
-    textColor: Color,
-    iconColor: Color,
-    onClick: () -> Unit,
+private fun InlineSearchHistoryTip(
+    onOpenSearchHistorySettings: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clip(DesignTokens.CardShape)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = onClick,
+    val linkTag = "search_history_settings"
+    val tipMessage = stringResource(R.string.search_history_tip_message)
+    val linkText = stringResource(R.string.search_history_tip_link)
+    val fullText = "$tipMessage\n$linkText"
+    val annotatedText =
+        buildAnnotatedString {
+            append(fullText)
+            val startIndex = fullText.indexOf(linkText)
+            if (startIndex >= 0) {
+                val endIndex = startIndex + linkText.length
+                addStyle(
+                    style =
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                    start = startIndex,
+                    end = endIndex,
                 )
-                .padding(
-                    start = QUERY_ICON_START_PADDING.dp,
-                    end = QUERY_TEXT_END_PADDING.dp,
-                    top = DesignTokens.SpacingSmall,
-                    bottom = DesignTokens.SpacingSmall,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.VisibilityOff,
-            contentDescription = null,
-            tint = iconColor,
-            modifier =
-                Modifier
-                    .size(QUERY_ICON_SIZE.dp)
-                    .padding(
-                        start = DesignTokens.SpacingXSmall,
-                        end = QUERY_TEXT_START_PADDING.dp,
-                    ),
-        )
-        Text(
-            text = stringResource(R.string.action_disable_search_history),
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor,
-            modifier = Modifier.weight(1f),
-        )
-    }
+                addStringAnnotation(
+                    tag = linkTag,
+                    annotation = linkText,
+                    start = startIndex,
+                    end = endIndex,
+                )
+            }
+        }
+
+    TipBanner(
+        annotatedText = annotatedText,
+        onTextClick = { offset ->
+            val annotations =
+                annotatedText.getStringAnnotations(
+                    tag = linkTag,
+                    start = offset,
+                    end = offset,
+                )
+            if (annotations.isNotEmpty()) {
+                onOpenSearchHistorySettings()
+            }
+        },
+        onDismiss = onDismiss,
+        modifier =
+            Modifier.padding(
+                start = QUERY_ICON_START_PADDING.dp,
+                end = QUERY_TEXT_END_PADDING.dp,
+                bottom = DesignTokens.SpacingSmall,
+            ),
+    )
 }
+
+@Composable
+private fun dividerColor(
+    showWallpaperBackground: Boolean,
+    overlayDividerColor: Color?,
+): Color =
+    if (overlayDividerColor != null) {
+        overlayDividerColor
+    } else if (showWallpaperBackground) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

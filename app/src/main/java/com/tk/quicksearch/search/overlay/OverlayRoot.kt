@@ -327,6 +327,17 @@ fun OverlayRoot(
                                                                         )
                                                                 handleClose()
                                                         },
+                                                        onOpenSearchHistorySettings = {
+                                                                OverlayModeController
+                                                                        .openMainActivity(
+                                                                                context,
+                                                                                openSettings = true,
+                                                                                settingsDetailType =
+                                                                                        SettingsDetailType
+                                                                                                .SEARCH_RESULTS,
+                                                                        )
+                                                                handleClose()
+                                                        },
                                                         onSearchEngineLongPress = {
                                                                 OverlayModeController
                                                                         .openMainActivity(

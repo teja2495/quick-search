@@ -396,6 +396,11 @@ private fun NavigationContent(
                         keyboardController?.hide()
                         onDestinationChange(RootDestination.Settings)
                     },
+                    onOpenSearchHistorySettings = {
+                        keyboardController?.hide()
+                        onDestinationChange(RootDestination.Settings)
+                        onSettingsDetailTypeChange(SettingsDetailType.SEARCH_RESULTS)
+                    },
                     onSearchEngineLongPress = {
                         keyboardController?.hide()
                         onDestinationChange(RootDestination.Settings)

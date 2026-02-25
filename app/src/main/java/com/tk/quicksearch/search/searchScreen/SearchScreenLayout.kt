@@ -125,6 +125,8 @@ fun SearchContentArea(
     onOpenDirectSearchConfigure: () -> Unit = {},
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
     showCalculator: Boolean = false,
     showDirectSearch: Boolean = false,
@@ -451,6 +453,8 @@ fun SearchContentArea(
                         onSearchTargetClick = onSearchTargetClick,
                         onDeleteRecentItem = onDeleteRecentItem,
                         onDisableSearchHistory = onDisableSearchHistory,
+                        onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                        onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                         onGeminiModelInfoClick = onGeminiModelInfoClick,
                     )
                 }
@@ -563,6 +567,8 @@ fun ContentLayout(
     onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
     onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
     onDisableSearchHistory: () -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
     onGeminiModelInfoClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -863,64 +869,72 @@ fun ContentLayout(
                             enter = fadeIn(),
                             exit = shrinkVertically(),
                         ) {
-                            RecentSearchesSection(
-                                items = orderedRecentItems,
-                                callingApp =
-                                    effectiveContactsParams.callingApp
-                                        ?: CallingApp.CALL,
-                                messagingApp =
-                                    effectiveContactsParams.messagingApp
-                                        ?: MessagingApp
-                                            .MESSAGES,
-                                onRecentQueryClick =
-                                onWebSuggestionClick,
-                                onContactClick =
-                                    effectiveContactsParams
-                                        .onContactClick,
-                                onShowContactMethods =
-                                    effectiveContactsParams
-                                        .onShowContactMethods,
-                                onCallContact =
-                                    effectiveContactsParams
-                                        .onCallContact,
-                                onSmsContact =
-                                    effectiveContactsParams.onSmsContact,
-                                onContactMethodClick =
-                                    effectiveContactsParams
-                                        .onContactMethodClick,
-                                getPrimaryContactCardAction =
-                                    effectiveContactsParams
-                                        .getPrimaryContactCardAction,
-                                getSecondaryContactCardAction =
-                                    effectiveContactsParams
-                                        .getSecondaryContactCardAction,
-                                onPrimaryActionLongPress =
-                                    effectiveContactsParams
-                                        .onPrimaryActionLongPress,
-                                onSecondaryActionLongPress =
-                                    effectiveContactsParams
-                                        .onSecondaryActionLongPress,
-                                onCustomAction =
-                                    effectiveContactsParams
-                                        .onCustomAction,
-                                onFileClick =
-                                    effectiveFilesParams.onFileClick,
-                                onSettingClick =
-                                    effectiveSettingsParams
-                                        .onSettingClick,
-                                onAppShortcutClick =
-                                    effectiveAppShortcutsParams
-                                        .onShortcutClick,
-                                onDeleteRecentItem =
-                                onDeleteRecentItem,
-                                onDisableSearchHistory =
-                                onDisableSearchHistory,
-                                onExpandedChange = { recentSearchesExpanded = it },
-                                showWallpaperBackground =
-                                    effectiveShowWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                            )
+                                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                            ) {
+                                RecentSearchesSection(
+                                    items = orderedRecentItems,
+                                    callingApp =
+                                        effectiveContactsParams.callingApp
+                                            ?: CallingApp.CALL,
+                                    messagingApp =
+                                        effectiveContactsParams.messagingApp
+                                            ?: MessagingApp
+                                                .MESSAGES,
+                                    onRecentQueryClick =
+                                    onWebSuggestionClick,
+                                    onContactClick =
+                                        effectiveContactsParams
+                                            .onContactClick,
+                                    onShowContactMethods =
+                                        effectiveContactsParams
+                                            .onShowContactMethods,
+                                    onCallContact =
+                                        effectiveContactsParams
+                                            .onCallContact,
+                                    onSmsContact =
+                                        effectiveContactsParams.onSmsContact,
+                                    onContactMethodClick =
+                                        effectiveContactsParams
+                                            .onContactMethodClick,
+                                    getPrimaryContactCardAction =
+                                        effectiveContactsParams
+                                            .getPrimaryContactCardAction,
+                                    getSecondaryContactCardAction =
+                                        effectiveContactsParams
+                                            .getSecondaryContactCardAction,
+                                    onPrimaryActionLongPress =
+                                        effectiveContactsParams
+                                            .onPrimaryActionLongPress,
+                                    onSecondaryActionLongPress =
+                                        effectiveContactsParams
+                                            .onSecondaryActionLongPress,
+                                    onCustomAction =
+                                        effectiveContactsParams
+                                            .onCustomAction,
+                                    onFileClick =
+                                        effectiveFilesParams.onFileClick,
+                                    onSettingClick =
+                                        effectiveSettingsParams
+                                            .onSettingClick,
+                                    onAppShortcutClick =
+                                        effectiveAppShortcutsParams
+                                            .onShortcutClick,
+                                    onDeleteRecentItem =
+                                    onDeleteRecentItem,
+                                    onDisableSearchHistory =
+                                    onDisableSearchHistory,
+                                    showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
+                                    onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                    onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+                                    onExpandedChange = { recentSearchesExpanded = it },
+                                    showWallpaperBackground =
+                                        effectiveShowWallpaperBackground,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
                         }
                     }
                 }
