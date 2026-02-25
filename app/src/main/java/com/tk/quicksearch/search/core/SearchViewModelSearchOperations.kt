@@ -11,7 +11,11 @@ class SearchOperations(
         private const val CONTACT_RESULT_LIMIT = 25
 
         // Prefetch more than we display so ranking isn't biased by provider sort order.
-        private const val CONTACT_PREFETCH_MULTIPLIER = 2
+        // Short queries like "mum" can match many contacts; fetch a wider candidate set so
+        // strong matches like "Mummy" are not dropped before ranking.
+        private const val SHORT_QUERY_PREFETCH_MULTIPLIER = 10
+        private const val DEFAULT_CONTACT_PREFETCH_MULTIPLIER = 4
+        private const val SHORT_QUERY_LENGTH_THRESHOLD = 3
         private const val MIN_QUERY_LENGTH = 2
     }
 
@@ -38,11 +42,18 @@ class SearchOperations(
         excludedContactIds: Set<Long>,
         limit: Int = CONTACT_RESULT_LIMIT,
     ): List<ContactInfo> {
+        val prefetchMultiplier =
+            if (query.trim().length <= SHORT_QUERY_LENGTH_THRESHOLD) {
+                SHORT_QUERY_PREFETCH_MULTIPLIER
+            } else {
+                DEFAULT_CONTACT_PREFETCH_MULTIPLIER
+            }
+
         val prefetchLimit =
             if (limit == Int.MAX_VALUE) {
                 Int.MAX_VALUE
             } else {
-                limit * CONTACT_PREFETCH_MULTIPLIER
+                limit * prefetchMultiplier
             }
 
         val results =

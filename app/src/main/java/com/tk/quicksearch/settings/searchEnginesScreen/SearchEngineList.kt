@@ -77,7 +77,7 @@ fun SearchEngineListCard(
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
-    onAddCustomSearchEngine: ((String, String) -> Unit)? = null,
+    onAddCustomSearchEngine: ((String, String, String) -> Unit)? = null,
     onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
     onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
 ) {
@@ -93,8 +93,8 @@ fun SearchEngineListCard(
 
     if (showAddSearchEngineDialog && onAddCustomSearchEngine != null) {
         AddSearchEngineDialog(
-            onSave = { normalizedTemplate, faviconBase64 ->
-                onAddCustomSearchEngine(normalizedTemplate, faviconBase64)
+            onSave = { name, normalizedTemplate, faviconBase64 ->
+                onAddCustomSearchEngine(name, normalizedTemplate, faviconBase64)
                 showAddSearchEngineDialog = false
             },
             onDismiss = { showAddSearchEngineDialog = false },

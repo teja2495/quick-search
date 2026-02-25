@@ -64,7 +64,7 @@ fun SearchEngines(
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
-    onAddCustomSearchEngine: ((String, String) -> Unit)? = null,
+    onAddCustomSearchEngine: ((String, String, String) -> Unit)? = null,
     onUpdateCustomSearchEngine: ((String, String, String, String?) -> Unit)? = null,
     onDeleteCustomSearchEngine: ((String) -> Unit)? = null,
     showDirectSearchAtTop: Boolean = false,

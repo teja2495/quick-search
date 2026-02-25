@@ -125,11 +125,14 @@ class SearchEngineManager(
     }
 
     fun addCustomSearchEngine(
+        name: String,
         normalizedTemplate: String,
         faviconBase64: String,
     ) {
         scope.launch(Dispatchers.IO) {
             ensureInitialized()
+            val trimmedName = name.trim()
+            if (trimmedName.isBlank()) return@launch
             val resolvedFavicon =
                 faviconBase64.ifBlank {
                     fetchFaviconAsBase64(normalizedTemplate).orEmpty()
@@ -137,6 +140,7 @@ class SearchEngineManager(
 
             val customEngine =
                 createCustomSearchEngine(
+                    name = trimmedName,
                     normalizedTemplate = normalizedTemplate,
                     faviconBase64 = resolvedFavicon.ifBlank { null },
                 ) ?: return@launch

@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Patterns
 import android.util.Base64
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import java.io.ByteArrayOutputStream
@@ -28,8 +27,6 @@ sealed class CustomSearchTemplateValidation {
 
     enum class Reason {
         EMPTY,
-        INVALID_URL,
-        UNSUPPORTED_SCHEME,
         MISSING_QUERY_PLACEHOLDER,
         MULTIPLE_QUERY_PLACEHOLDERS,
     }
@@ -59,28 +56,7 @@ fun validateCustomSearchTemplate(input: String): CustomSearchTemplateValidation 
             "(\\{\\{query\\}\\})".toRegex(RegexOption.IGNORE_CASE),
             CUSTOM_QUERY_PLACEHOLDER,
         )
-
-    val templateWithScheme =
-        if (normalizedTemplate.startsWith("http://", ignoreCase = true) ||
-            normalizedTemplate.startsWith("https://", ignoreCase = true)
-        ) {
-            normalizedTemplate
-        } else {
-            "https://$normalizedTemplate"
-        }
-
-    val testUrl = templateWithScheme.replace(CUSTOM_QUERY_PLACEHOLDER, "test")
-    val uri = runCatching { Uri.parse(testUrl) }.getOrNull()
-        ?: return CustomSearchTemplateValidation.Invalid(CustomSearchTemplateValidation.Reason.INVALID_URL)
-    val scheme = uri.scheme?.lowercase(Locale.getDefault())
-    if (scheme != "https" && scheme != "http") {
-        return CustomSearchTemplateValidation.Invalid(CustomSearchTemplateValidation.Reason.UNSUPPORTED_SCHEME)
-    }
-    if (uri.host.isNullOrBlank() || !Patterns.WEB_URL.matcher(testUrl).matches()) {
-        return CustomSearchTemplateValidation.Invalid(CustomSearchTemplateValidation.Reason.INVALID_URL)
-    }
-
-    return CustomSearchTemplateValidation.Valid(templateWithScheme)
+    return CustomSearchTemplateValidation.Valid(normalizedTemplate)
 }
 
 fun buildCustomSearchUrl(
@@ -112,6 +88,7 @@ fun buildCustomSearchUrl(
 }
 
 fun createCustomSearchEngine(
+    name: String?,
     normalizedTemplate: String,
     faviconBase64: String?,
 ): CustomSearchEngine? {
@@ -120,16 +97,26 @@ fun createCustomSearchEngine(
         return null
     }
 
-    val host = Uri.parse(validated.normalizedTemplate).host?.removePrefix("www.")
-    val name = host?.let(::formatHostNameForDisplay) ?: "Custom Search"
+    val inferredName = inferCustomSearchEngineName(validated.normalizedTemplate) ?: "Custom Search"
+    val resolvedName = name?.trim().takeUnless { it.isNullOrBlank() } ?: inferredName
     val id = "custom_${sha256Hex(validated.normalizedTemplate).take(12)}"
 
     return CustomSearchEngine(
         id = id,
-        name = name,
+        name = resolvedName,
         urlTemplate = validated.normalizedTemplate,
         faviconBase64 = faviconBase64,
     )
+}
+
+fun inferCustomSearchEngineName(normalizedTemplate: String): String? {
+    val validated = validateCustomSearchTemplate(normalizedTemplate)
+    if (validated !is CustomSearchTemplateValidation.Valid) {
+        return null
+    }
+
+    val host = extractHostForTemplate(validated.normalizedTemplate) ?: return null
+    return formatHostNameForDisplay(host)
 }
 
 fun fetchFaviconAsBase64(normalizedTemplate: String): String? {
@@ -138,10 +125,7 @@ fun fetchFaviconAsBase64(normalizedTemplate: String): String? {
         return null
     }
 
-    val uri = Uri.parse(validated.normalizedTemplate)
-    val host = uri.host ?: return null
-
-    val updatedHost = host.removePrefix("www.")
+    val updatedHost = extractHostForTemplate(validated.normalizedTemplate) ?: return null
     val googleFaviconUrl = "https://www.google.com/s2/favicons?sz=128&domain=$updatedHost"
     val googleBytes = downloadImageBytes(googleFaviconUrl)
     if (googleBytes != null) {
@@ -243,6 +227,19 @@ private fun InputStream.readBytesUpTo(maxBytes: Int): ByteArray {
 private fun sha256Hex(value: String): String {
     val bytes = MessageDigest.getInstance("SHA-256").digest(value.toByteArray())
     return bytes.joinToString(separator = "") { byte -> "%02x".format(byte) }
+}
+
+private fun extractHostForTemplate(template: String): String? {
+    val candidate = template.replace(CUSTOM_QUERY_PLACEHOLDER, "test")
+    val uri =
+        if (candidate.startsWith("http://", ignoreCase = true) ||
+            candidate.startsWith("https://", ignoreCase = true)
+        ) {
+            Uri.parse(candidate)
+        } else {
+            Uri.parse("https://$candidate")
+        }
+    return uri.host?.removePrefix("www.")
 }
 
 private fun formatHostNameForDisplay(host: String): String {

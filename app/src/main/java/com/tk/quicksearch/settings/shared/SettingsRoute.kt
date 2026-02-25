@@ -144,7 +144,7 @@ data class SettingsScreenCallbacks(
     val onClearAllExclusions: () -> Unit,
     val onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
     val onReorderSearchEngines: (List<SearchTarget>) -> Unit,
-    val onAddCustomSearchEngine: (String, String) -> Unit,
+    val onAddCustomSearchEngine: (String, String, String) -> Unit,
     val onUpdateCustomSearchEngine: (String, String, String, String?) -> Unit,
     val onDeleteCustomSearchEngine: (String) -> Unit,
     val onToggleFileType: (com.tk.quicksearch.search.models.FileType, Boolean) -> Unit,

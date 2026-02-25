@@ -1444,6 +1444,7 @@ class SearchViewModel(
         if (trimmedQuery.isBlank()) {
             appSearchManager.setNoMatchPrefix(null)
             searchJob?.cancel()
+            secondarySearchOrchestrator.resetNoResultTracking()
             webSuggestionHandler.cancelSuggestions()
             updateUiState {
                 it.copy(
@@ -2059,9 +2060,10 @@ class SearchViewModel(
             searchEngineManager.reorderSearchTargets(newOrder)
 
     fun addCustomSearchEngine(
+            name: String,
             normalizedTemplate: String,
             faviconBase64: String,
-    ) = searchEngineManager.addCustomSearchEngine(normalizedTemplate, faviconBase64)
+    ) = searchEngineManager.addCustomSearchEngine(name, normalizedTemplate, faviconBase64)
 
     fun updateCustomSearchEngine(
             customId: String,

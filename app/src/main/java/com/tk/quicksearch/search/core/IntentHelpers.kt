@@ -401,7 +401,8 @@ object IntentHelpers {
         urlTemplate: String,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
-        val url = buildCustomSearchUrl(query, urlTemplate)
+        val rawUrl = buildCustomSearchUrl(query, urlTemplate)
+        val url = normalizeToBrowsableUrl(rawUrl) ?: rawUrl
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

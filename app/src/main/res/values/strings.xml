@@ -338,7 +338,8 @@
     <string name="settings_feedback_development_desc">Send feedback, see app\'s source code</string>
     <string name="settings_add_search_engine_button">Add Search Engine</string>
     <string name="settings_add_search_engine_dialog_title">Add Search Engine</string>
-    <string name="settings_add_search_engine_dialog_message">Enter URL with query placeholder.\n\nExample:\nhttps://www.google.com/search?q={{query}}</string>
+    <string name="settings_add_search_engine_dialog_message">Enter URL template with query placeholder.\n\nExample:\nwww.google.com/search?q={{query}}</string>
+    <string name="settings_add_search_engine_loading_metadata">Fetching search engine details…</string>
     <string name="settings_add_search_engine_error_required">Please enter a URL template.</string>
     <string name="settings_add_search_engine_error_invalid_url">Enter a valid URL.</string>
     <string name="settings_add_search_engine_error_scheme">URL must start with http:// or https://</string>
