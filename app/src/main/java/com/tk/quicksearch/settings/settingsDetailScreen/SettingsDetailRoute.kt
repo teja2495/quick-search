@@ -265,8 +265,10 @@ fun SettingsDetailRoute(
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
     var showShortcutSourcePicker by remember { mutableStateOf(false) }
+    var appShortcutSources by remember { mutableStateOf<List<AppShortcutSource>>(emptyList()) }
     var appShortcutFocusShortcut by remember { mutableStateOf<StaticShortcut?>(null) }
     var appShortcutFocusPackageName by remember { mutableStateOf<String?>(null) }
+    var pendingShortcutSourcePackage by remember { mutableStateOf<String?>(null) }
     val addAppShortcutLauncher =
             rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.StartActivityForResult(),
@@ -274,6 +276,7 @@ fun SettingsDetailRoute(
                 if (result.resultCode == Activity.RESULT_OK) {
                     viewModel.addCustomAppShortcutFromPickerResult(
                             resultData = result.data,
+                            sourcePackageName = pendingShortcutSourcePackage,
                             showDefaultToast = false,
                             onShortcutAdded = { addedShortcut ->
                                 appShortcutFocusShortcut = addedShortcut
@@ -298,10 +301,25 @@ fun SettingsDetailRoute(
                             },
                     )
                 }
+                pendingShortcutSourcePackage = null
             }
     val onOpenAddAppShortcutDialog: () -> Unit = {
         showShortcutSourcePicker = true
     }
+
+    LaunchedEffect(detailType) {
+        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+            appShortcutSources = queryAppShortcutSources(context.packageManager)
+        }
+    }
+    val filteredAppShortcutSources =
+            remember(appShortcutSources, state.allAppShortcuts, context.packageName) {
+                filterAppShortcutSources(
+                        sources = appShortcutSources,
+                        existingShortcuts = state.allAppShortcuts,
+                        currentPackageName = context.packageName,
+                )
+            }
 
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
@@ -381,6 +399,21 @@ fun SettingsDetailRoute(
                     onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
                     onLaunchAppShortcut = viewModel::launchAppShortcut,
                     onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,
+                    onAddAppShortcutFromSource = { source ->
+                        pendingShortcutSourcePackage = source.packageName
+                        runCatching { addAppShortcutLauncher.launch(source.launchIntent) }
+                                .onFailure {
+                                    pendingShortcutSourcePackage = null
+                                    Toast.makeText(
+                                                    context,
+                                                    context.getString(
+                                                            R.string.settings_app_shortcuts_create_not_supported,
+                                                    ),
+                                                    Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
+                                }
+                    },
                     onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
                     onLaunchDeviceSetting = viewModel::openSetting,
                     onRequestAppUninstall = viewModel::requestUninstall,
@@ -447,6 +480,7 @@ fun SettingsDetailRoute(
                 hasUsagePermission = uiState.hasUsagePermission,
                 appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
+                appShortcutSources = filteredAppShortcutSources,
                 onAppShortcutFocusHandled = {
                     appShortcutFocusShortcut = null
                     appShortcutFocusPackageName = null
@@ -474,11 +508,14 @@ fun SettingsDetailRoute(
 
     if (showShortcutSourcePicker) {
         AppShortcutSourcePickerDialog(
+                sources = filteredAppShortcutSources,
                 onDismiss = { showShortcutSourcePicker = false },
-                onSourceSelected = { sourceIntent ->
+                onSourceSelected = { source ->
                     showShortcutSourcePicker = false
-                    runCatching { addAppShortcutLauncher.launch(sourceIntent) }
+                    pendingShortcutSourcePackage = source.packageName
+                    runCatching { addAppShortcutLauncher.launch(source.launchIntent) }
                             .onFailure {
+                                pendingShortcutSourcePackage = null
                                 Toast
                                         .makeText(
                                                 context,

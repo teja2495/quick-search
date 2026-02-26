@@ -28,6 +28,7 @@ object IntentHelpers {
     private const val EXTERNAL_STORAGE_DOCUMENTS_AUTHORITY = "com.android.externalstorage.documents"
     private const val TAG = "IntentHelpers"
     private const val GMS_SEARCH_ACTION = "com.google.android.gms.actions.SEARCH_ACTION"
+    private const val GOOGLE_SEARCH_ACTION = "com.google.android.googlequicksearchbox.GOOGLE_SEARCH"
     private const val GMS_SEARCH_EXTRA_QUERY = "query"
 
     private fun canResolveIntent(
@@ -482,7 +483,8 @@ object IntentHelpers {
         context: Application,
         query: String,
     ) {
-        if (query.isBlank()) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) {
             val launchIntent =
                 context.packageManager.getLaunchIntentForPackage(
                     PackageConstants.GOOGLE_APP_PACKAGE,
@@ -497,22 +499,57 @@ object IntentHelpers {
                 }
             }
         } else {
-            val searchIntent =
-                Intent(Intent.ACTION_WEB_SEARCH).apply {
+            val searchUrl = buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE)
+            val queryIntentFlags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+            val intentCandidates =
+                listOf(
+                    Intent(Intent.ACTION_SEARCH).apply {
+                        setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
+                        putExtra(SearchManager.QUERY, trimmedQuery)
+                        putExtra(GMS_SEARCH_EXTRA_QUERY, trimmedQuery)
+                        addFlags(queryIntentFlags)
+                    },
+                    Intent(Intent.ACTION_WEB_SEARCH).apply {
+                        setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
+                        putExtra(SearchManager.QUERY, trimmedQuery)
+                        putExtra(GMS_SEARCH_EXTRA_QUERY, trimmedQuery)
+                        addFlags(queryIntentFlags)
+                    },
+                    Intent(GOOGLE_SEARCH_ACTION).apply {
+                        setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
+                        putExtra(SearchManager.QUERY, trimmedQuery)
+                        putExtra(GMS_SEARCH_EXTRA_QUERY, trimmedQuery)
+                        addFlags(queryIntentFlags)
+                    },
+                    Intent(GMS_SEARCH_ACTION).apply {
+                        setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
+                        putExtra(SearchManager.QUERY, trimmedQuery)
+                        putExtra(GMS_SEARCH_EXTRA_QUERY, trimmedQuery)
+                        addFlags(queryIntentFlags)
+                    },
+                    Intent(Intent.ACTION_VIEW, Uri.parse(searchUrl)).apply {
                     setPackage(PackageConstants.GOOGLE_APP_PACKAGE)
-                    putExtra(SearchManager.QUERY, query)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            if (canResolveIntent(context, searchIntent)) {
+                    putExtra(SearchManager.QUERY, trimmedQuery)
+                    putExtra(GMS_SEARCH_EXTRA_QUERY, trimmedQuery)
+                        addFlags(queryIntentFlags)
+                    },
+                )
+
+            for (candidate in intentCandidates) {
+                if (!canResolveIntent(context, candidate)) continue
                 try {
-                    context.startActivity(searchIntent)
+                    context.startActivity(candidate)
                     return
                 } catch (_: ActivityNotFoundException) {
                 } catch (_: SecurityException) {
                 }
             }
         }
-        openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE))
+        openWebUrl(context, buildSearchUrl(trimmedQuery, SearchEngine.GOOGLE))
     }
 
     /** Opens Google Photos app if installed, otherwise opens web URL. */

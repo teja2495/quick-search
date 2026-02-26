@@ -1804,12 +1804,17 @@ class SearchViewModel(
 
     fun addCustomAppShortcutFromPickerResult(
         resultData: Intent?,
+        sourcePackageName: String? = null,
         showDefaultToast: Boolean = true,
         onShortcutAdded: ((StaticShortcut) -> Unit)? = null,
         onAddFailed: (() -> Unit)? = null,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val addedShortcut = appShortcutRepository.addCustomShortcutFromPickerResult(resultData)
+            val addedShortcut =
+                appShortcutRepository.addCustomShortcutFromPickerResult(
+                    resultData = resultData,
+                    sourcePackageName = sourcePackageName,
+                )
             if (addedShortcut != null) {
                 appShortcutSearchHandler.loadShortcuts()
                 withContext(Dispatchers.Main) {

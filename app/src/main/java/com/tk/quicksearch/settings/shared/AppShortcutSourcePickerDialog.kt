@@ -1,9 +1,4 @@
 package com.tk.quicksearch.settings.shared
-
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
-import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,60 +18,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.ui.theme.DesignTokens
-
-private data class ShortcutSource(
-    val label: String,
-    val launchIntent: Intent,
-    val icon: androidx.compose.ui.graphics.ImageBitmap?,
-)
 
 private val ShortcutSourceIconSize = 44.dp
 
 @Composable
 fun AppShortcutSourcePickerDialog(
+    sources: List<AppShortcutSource>,
     onDismiss: () -> Unit,
-    onSourceSelected: (Intent) -> Unit,
+    onSourceSelected: (AppShortcutSource) -> Unit,
 ) {
-    val context = LocalContext.current
-    val packageManager = context.packageManager
-    val sources =
-        remember {
-            queryShortcutSources(packageManager).map { resolveInfo ->
-                val packageName = resolveInfo.activityInfo.packageName
-                val className = resolveInfo.activityInfo.name
-                val intent =
-                    Intent(Intent.ACTION_CREATE_SHORTCUT).setClassName(packageName, className)
-                val label =
-                    resolveInfo.activityInfo.nonLocalizedLabel
-                        ?.toString()
-                        ?.takeIf { it.isNotBlank() }
-                        ?: resolveInfo.activityInfo.applicationInfo.nonLocalizedLabel
-                            ?.toString()
-                            ?.takeIf { it.isNotBlank() }
-                        ?: formatPackageNameAsLabel(packageName)
-                val icon =
-                    runCatching { resolveInfo.loadIcon(packageManager) }
-                        .getOrNull()
-                        ?.toBitmap(width = 96, height = 96)
-                        ?.asImageBitmap()
-                ShortcutSource(label = label, launchIntent = intent, icon = icon)
-            }
-        }
-
     AlertDialog(
         modifier = Modifier.fillMaxWidth(0.94f),
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -106,7 +66,7 @@ fun AppShortcutSourcePickerDialog(
                             rowItems.forEach { source ->
                                 ShortcutSourceGridItem(
                                     source = source,
-                                    onClick = { onSourceSelected(source.launchIntent) },
+                                    onClick = { onSourceSelected(source) },
                                     modifier = Modifier.weight(1f),
                                 )
                             }
@@ -129,7 +89,7 @@ fun AppShortcutSourcePickerDialog(
 
 @Composable
 private fun ShortcutSourceGridItem(
-    source: ShortcutSource,
+    source: AppShortcutSource,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -172,37 +132,3 @@ private fun ShortcutSourceGridItem(
         )
     }
 }
-
-private fun queryShortcutSources(packageManager: PackageManager): List<ResolveInfo> {
-    val intent = Intent(Intent.ACTION_CREATE_SHORTCUT)
-    val results =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.queryIntentActivities(
-                intent,
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
-
-    return results
-        .filter { it.activityInfo?.exported == true }
-        .sortedBy { info ->
-            val packageName = info.activityInfo.packageName
-            (
-                info.activityInfo.nonLocalizedLabel
-                ?.toString()
-                ?.takeIf { it.isNotBlank() }
-                ?: info.activityInfo.applicationInfo.nonLocalizedLabel
-                    ?.toString()
-                    ?.takeIf { it.isNotBlank() }
-                ?: formatPackageNameAsLabel(packageName)
-            ).lowercase()
-        }
-}
-
-private fun formatPackageNameAsLabel(packageName: String): String =
-    packageName
-        .substringAfterLast(".")
-        .replaceFirstChar { it.titlecase() }

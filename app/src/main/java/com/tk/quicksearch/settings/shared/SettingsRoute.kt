@@ -190,6 +190,7 @@ data class SettingsScreenCallbacks(
     val onToggleAppShortcutEnabled: (com.tk.quicksearch.search.data.StaticShortcut, Boolean) -> Unit,
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onOpenAddAppShortcutDialog: () -> Unit,
+    val onAddAppShortcutFromSource: (AppShortcutSource) -> Unit,
     val onDeleteCustomAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (com.tk.quicksearch.search.deviceSettings.DeviceSetting) -> Unit,
     val onRequestAppUninstall: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
@@ -916,14 +917,28 @@ fun SettingsRoute(
         viewModel.setOverlayModeEnabled(enabled)
     }
     var showShortcutSourcePicker by remember { mutableStateOf(false) }
+    var pendingShortcutSourcePackage by remember { mutableStateOf<String?>(null) }
+    val appShortcutSources = remember { queryAppShortcutSources(context.packageManager) }
+    val filteredAppShortcutSources =
+        remember(appShortcutSources, state.allAppShortcuts, context.packageName) {
+            filterAppShortcutSources(
+                sources = appShortcutSources,
+                existingShortcuts = state.allAppShortcuts,
+                currentPackageName = context.packageName,
+            )
+        }
 
     val addAppShortcutLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
         ) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                viewModel.addCustomAppShortcutFromPickerResult(result.data)
+                viewModel.addCustomAppShortcutFromPickerResult(
+                    resultData = result.data,
+                    sourcePackageName = pendingShortcutSourcePackage,
+                )
             }
+            pendingShortcutSourcePackage = null
         }
 
     val onOpenAddAppShortcutDialog: () -> Unit = {
@@ -994,6 +1009,21 @@ fun SettingsRoute(
             onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
             onLaunchAppShortcut = viewModel::launchAppShortcut,
             onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,
+            onAddAppShortcutFromSource = { source ->
+                pendingShortcutSourcePackage = source.packageName
+                runCatching { addAppShortcutLauncher.launch(source.launchIntent) }
+                    .onFailure {
+                        pendingShortcutSourcePackage = null
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(
+                                    R.string.settings_app_shortcuts_create_not_supported,
+                                ),
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                    }
+            },
             onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
             onLaunchDeviceSetting = viewModel::openSetting,
             onRequestAppUninstall = viewModel::requestUninstall,
@@ -1122,11 +1152,14 @@ fun SettingsRoute(
 
     if (showShortcutSourcePicker) {
         AppShortcutSourcePickerDialog(
+            sources = filteredAppShortcutSources,
             onDismiss = { showShortcutSourcePicker = false },
-            onSourceSelected = { sourceIntent ->
+            onSourceSelected = { source ->
                 showShortcutSourcePicker = false
-                runCatching { addAppShortcutLauncher.launch(sourceIntent) }
+                pendingShortcutSourcePackage = source.packageName
+                runCatching { addAppShortcutLauncher.launch(source.launchIntent) }
                     .onFailure {
+                        pendingShortcutSourcePackage = null
                         Toast
                             .makeText(
                                 context,

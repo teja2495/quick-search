@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -40,6 +41,50 @@ import java.util.Locale
 import java.io.ByteArrayOutputStream
 
 private const val CUSTOM_SHORTCUT_ID_PREFIX = "custom_"
+
+private data class HardcodedShortcutDefinition(
+    val id: String,
+    val packageName: String,
+    val shortLabel: String,
+    val longLabel: String = shortLabel,
+    val targetClassName: String,
+    val shortcutSourceClassName: String = targetClassName,
+    val intentAction: String? = null,
+) {
+    fun toStaticShortcut(
+        appLabel: String,
+        iconBase64: String?,
+    ): StaticShortcut {
+        val intent =
+            Intent().apply {
+                intentAction?.let { action = it }
+                component = ComponentName(packageName, targetClassName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+        return StaticShortcut(
+            packageName = packageName,
+            appLabel = appLabel,
+            id = id,
+            shortLabel = shortLabel,
+            longLabel = longLabel,
+            iconResId = null,
+            iconBase64 = iconBase64,
+            enabled = true,
+            intents = listOf(intent),
+        )
+    }
+}
+
+private val HARDCODED_SHORTCUT_DEFINITIONS =
+    listOf(
+        HardcodedShortcutDefinition(
+            id = "song_search",
+            packageName = "com.google.android.googlequicksearchbox",
+            shortLabel = "Song Search",
+            targetClassName = "com.google.android.apps.search.soundsearch.shortcut.AliasAddShortcutActivity",
+        ),
+    )
 
 data class StaticShortcut(
     val packageName: String,
@@ -371,9 +416,16 @@ class AppShortcutRepository(
             merged
         }
 
-    suspend fun addCustomShortcutFromPickerResult(resultData: Intent?): StaticShortcut? =
+    suspend fun addCustomShortcutFromPickerResult(
+        resultData: Intent?,
+        sourcePackageName: String? = null,
+    ): StaticShortcut? =
         withContext(Dispatchers.IO) {
-            val shortcut = parseCustomShortcutFromPickerResult(resultData) ?: return@withContext null
+            val shortcut =
+                parseCustomShortcutFromPickerResult(
+                    resultData = resultData,
+                    sourcePackageName = sourcePackageName,
+                ) ?: return@withContext null
             val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty().toMutableList()
             customShortcuts.add(shortcut)
             if (!shortcutCache.saveCustomShortcuts(customShortcuts)) {
@@ -469,7 +521,8 @@ class AppShortcutRepository(
         customShortcuts: List<StaticShortcut> = shortcutCache.loadCustomShortcuts().orEmpty(),
     ): List<StaticShortcut> {
         val locale = Locale.getDefault()
-        return filterShortcuts(staticShortcuts + customShortcuts)
+        val hardcodedShortcuts = loadHardcodedShortcuts(existingStaticShortcuts = staticShortcuts)
+        return filterShortcuts(staticShortcuts + hardcodedShortcuts + customShortcuts)
             .distinctBy { shortcutKey(it) }
             .sortedWith(
                 compareBy<StaticShortcut> { it.appLabel.lowercase(locale) }
@@ -478,7 +531,93 @@ class AppShortcutRepository(
             )
     }
 
-    private fun parseCustomShortcutFromPickerResult(resultData: Intent?): StaticShortcut? {
+    private fun loadHardcodedShortcuts(existingStaticShortcuts: List<StaticShortcut>): List<StaticShortcut> {
+        val locale = Locale.getDefault()
+        val existingByPackageAndLabel =
+            existingStaticShortcuts
+                .asSequence()
+                .map { shortcut ->
+                    shortcut.packageName to shortcutDisplayName(shortcut).trim().lowercase(locale)
+                }.toSet()
+        val sourceIconByComponent = loadShortcutSourceIconBase64ByComponent()
+
+        return HARDCODED_SHORTCUT_DEFINITIONS
+            .asSequence()
+            .map { definition ->
+                definition.copy(
+                    targetClassName =
+                        resolveClassName(
+                            definition.packageName,
+                            definition.targetClassName,
+                        ),
+                    shortcutSourceClassName =
+                        resolveClassName(
+                            definition.packageName,
+                            definition.shortcutSourceClassName,
+                        ),
+                )
+            }.filter { definition ->
+                runCatching { packageManager.getApplicationInfo(definition.packageName, 0) }.isSuccess
+            }.map { definition ->
+                val sourceComponentKey = "${definition.packageName}/${definition.shortcutSourceClassName}"
+                val iconBase64 =
+                    sourceIconByComponent[sourceComponentKey]
+                        ?: loadAppIconBase64(definition.packageName)
+                definition.toStaticShortcut(
+                    appLabel = resolveAppLabel(definition.packageName),
+                    iconBase64 = iconBase64,
+                )
+            }.filterNot { shortcut ->
+                (shortcut.packageName to shortcutDisplayName(shortcut).trim().lowercase(locale)) in
+                    existingByPackageAndLabel
+            }.toList()
+    }
+
+    private fun loadShortcutSourceIconBase64ByComponent(): Map<String, String> {
+        val resolveInfos =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.queryIntentActivities(
+                    Intent(Intent.ACTION_CREATE_SHORTCUT),
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.queryIntentActivities(
+                    Intent(Intent.ACTION_CREATE_SHORTCUT),
+                    PackageManager.MATCH_DEFAULT_ONLY,
+                )
+            }
+
+        return resolveInfos
+            .asSequence()
+            .mapNotNull { resolveInfo ->
+                val activityInfo = resolveInfo.activityInfo ?: return@mapNotNull null
+                if (!activityInfo.exported) return@mapNotNull null
+                val packageName = activityInfo.packageName
+                val className = resolveClassName(packageName, activityInfo.name)
+                val iconBase64 =
+                    resolveShortcutSourceIconDrawable(resolveInfo)
+                        ?.toBitmap(width = 96, height = 96)
+                        ?.let(::bitmapToBase64Png)
+                        ?.takeIf { it.isNotBlank() }
+                        ?: return@mapNotNull null
+                "${packageName}/${className}" to iconBase64
+            }.toMap()
+    }
+
+    private fun resolveShortcutSourceIconDrawable(resolveInfo: android.content.pm.ResolveInfo): Drawable? =
+        runCatching { resolveInfo.loadIcon(packageManager) }.getOrNull()
+
+    private fun loadAppIconBase64(packageName: String): String? =
+        runCatching { packageManager.getApplicationIcon(packageName) }
+            .getOrNull()
+            ?.toBitmap(width = 96, height = 96)
+            ?.let(::bitmapToBase64Png)
+
+    private fun parseCustomShortcutFromPickerResult(
+        resultData: Intent?,
+        sourcePackageName: String? = null,
+    ): StaticShortcut? {
         val data = resultData ?: return null
         val shortcutIntent =
             data.getParcelableExtraCompat(Intent.EXTRA_SHORTCUT_INTENT, Intent::class.java)
@@ -487,7 +626,17 @@ class AppShortcutRepository(
             Intent(shortcutIntent).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        val packageName = resolveShortcutPackage(launchIntent) ?: return null
+        val resolvedLaunchPackage = resolveShortcutPackage(launchIntent)
+        if (launchIntent.component == null &&
+            launchIntent.`package`.isNullOrBlank() &&
+            !resolvedLaunchPackage.isNullOrBlank()
+        ) {
+            launchIntent.`package` = resolvedLaunchPackage
+        }
+        val packageName =
+            sourcePackageName?.trim()?.takeIf { it.isNotBlank() }
+                ?: resolvedLaunchPackage
+                ?: return null
         val appLabel = resolveAppLabel(packageName)
         val customLabel =
             data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)?.trim().takeIf { !it.isNullOrBlank() }
