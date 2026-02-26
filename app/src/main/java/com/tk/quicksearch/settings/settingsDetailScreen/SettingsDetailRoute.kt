@@ -414,6 +414,35 @@ fun SettingsDetailRoute(
                                             .show()
                                 }
                     },
+                    onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery ->
+                        viewModel.addSearchTargetQueryShortcut(
+                                target = target,
+                                shortcutName = shortcutName,
+                                shortcutQuery = shortcutQuery,
+                                showDefaultToast = false,
+                                onShortcutAdded = { addedShortcut ->
+                                    appShortcutFocusShortcut = addedShortcut
+                                    appShortcutFocusPackageName = addedShortcut.packageName
+                                    Toast.makeText(
+                                                    context,
+                                                    context.getString(
+                                                            R.string.settings_app_shortcuts_add_success_with_app_name,
+                                                            addedShortcut.appLabel,
+                                                    ),
+                                                    Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
+                                },
+                                onAddFailed = {
+                                    Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.settings_app_shortcuts_add_failed),
+                                                    Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
+                                },
+                        )
+                    },
                     onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
                     onLaunchDeviceSetting = viewModel::openSetting,
                     onRequestAppUninstall = viewModel::requestUninstall,
@@ -481,6 +510,7 @@ fun SettingsDetailRoute(
                 appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
                 appShortcutSources = filteredAppShortcutSources,
+                searchTargets = state.searchEngineOrder,
                 onAppShortcutFocusHandled = {
                     appShortcutFocusShortcut = null
                     appShortcutFocusPackageName = null

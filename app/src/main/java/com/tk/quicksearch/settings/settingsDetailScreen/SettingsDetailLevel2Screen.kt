@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.settings.shared.AppShortcutSource
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
@@ -60,6 +61,7 @@ internal fun SettingsDetailLevel2Screen(
     appShortcutFocusShortcut: StaticShortcut? = null,
     appShortcutFocusPackageName: String? = null,
     appShortcutSources: List<AppShortcutSource> = emptyList(),
+    searchTargets: List<SearchTarget> = emptyList(),
     onAppShortcutFocusHandled: () -> Unit = {},
 ) {
     if (!detailType.isLevel2()) return
@@ -195,6 +197,8 @@ internal fun SettingsDetailLevel2Screen(
                                 onShortcutNameClick = callbacks.onLaunchAppShortcut,
                                 shortcutSources = appShortcutSources,
                                 onAddShortcutFromSource = callbacks.onAddAppShortcutFromSource,
+                                searchTargets = searchTargets,
+                                onAddQueryShortcut = callbacks.onAddSearchTargetQueryShortcut,
                                 onDeleteCustomShortcut = callbacks.onDeleteCustomAppShortcut,
                                 focusShortcut = appShortcutFocusShortcut,
                                 focusPackageName = appShortcutFocusPackageName,

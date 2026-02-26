@@ -191,6 +191,7 @@ data class SettingsScreenCallbacks(
     val onLaunchAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onOpenAddAppShortcutDialog: () -> Unit,
     val onAddAppShortcutFromSource: (AppShortcutSource) -> Unit,
+    val onAddSearchTargetQueryShortcut: (SearchTarget, String, String) -> Unit,
     val onDeleteCustomAppShortcut: (com.tk.quicksearch.search.data.StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (com.tk.quicksearch.search.deviceSettings.DeviceSetting) -> Unit,
     val onRequestAppUninstall: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
@@ -1023,6 +1024,13 @@ fun SettingsRoute(
                                 Toast.LENGTH_SHORT,
                             ).show()
                     }
+            },
+            onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery ->
+                viewModel.addSearchTargetQueryShortcut(
+                    target = target,
+                    shortcutName = shortcutName,
+                    shortcutQuery = shortcutQuery,
+                )
             },
             onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
             onLaunchDeviceSetting = viewModel::openSetting,

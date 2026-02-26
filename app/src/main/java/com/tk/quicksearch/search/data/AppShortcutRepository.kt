@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.TypedValue
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.searchEngines.SearchTargetQueryShortcutActivity
+import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.search.searchEngines.getDrawableResId
+import com.tk.quicksearch.search.searchEngines.getSearchTargetShortcutPackageName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -453,6 +461,107 @@ class AppShortcutRepository(
                     customShortcuts = updated,
                 )
             true
+        }
+
+    suspend fun addSearchTargetQueryShortcut(
+        target: SearchTarget,
+        shortcutName: String,
+        shortcutQuery: String,
+    ): StaticShortcut? =
+        withContext(Dispatchers.IO) {
+            val name = shortcutName.trim()
+            val query = shortcutQuery.trim()
+            if (name.isBlank() || query.isBlank()) return@withContext null
+
+            val targetPackageName = getSearchTargetShortcutPackageName(target)
+            val launchIntent = createSearchTargetShortcutIntent(target, query) ?: return@withContext null
+            val iconBase64 = resolveSearchTargetIconBase64(target)
+            val shortcutId =
+                "${CUSTOM_SHORTCUT_ID_PREFIX}query_${System.currentTimeMillis()}_${(Math.random() * 100000).toInt()}"
+
+            val shortcut =
+                StaticShortcut(
+                    packageName = targetPackageName,
+                    appLabel = resolveSearchTargetLabel(target),
+                    id = shortcutId,
+                    shortLabel = name,
+                    longLabel = name,
+                    iconResId = null,
+                    iconBase64 = iconBase64,
+                    enabled = true,
+                    intents = listOf(launchIntent),
+                )
+
+            val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty().toMutableList()
+            customShortcuts.add(shortcut)
+            if (!shortcutCache.saveCustomShortcuts(customShortcuts)) {
+                return@withContext null
+            }
+
+            inMemoryShortcuts =
+                mergeAndSortShortcuts(
+                    staticShortcuts = inMemoryShortcuts.orEmpty().filterNot(::isUserCreatedShortcut),
+                    customShortcuts = customShortcuts,
+                )
+            shortcut
+        }
+
+    private fun createSearchTargetShortcutIntent(
+        target: SearchTarget,
+        query: String,
+    ): Intent? =
+        when (target) {
+            is SearchTarget.Engine -> {
+                SearchTargetQueryShortcutActivity.createIntent(
+                    context = context,
+                    targetType = SearchTargetQueryShortcutActivity.TARGET_TYPE_ENGINE,
+                    query = query,
+                    engineName = target.engine.name,
+                )
+            }
+
+            is SearchTarget.Browser -> {
+                SearchTargetQueryShortcutActivity.createIntent(
+                    context = context,
+                    targetType = SearchTargetQueryShortcutActivity.TARGET_TYPE_BROWSER,
+                    query = query,
+                    browserPackage = target.app.packageName,
+                )
+            }
+
+            is SearchTarget.Custom -> {
+                SearchTargetQueryShortcutActivity.createIntent(
+                    context = context,
+                    targetType = SearchTargetQueryShortcutActivity.TARGET_TYPE_CUSTOM,
+                    query = query,
+                    customUrlTemplate = target.custom.urlTemplate,
+                )
+            }
+        }
+
+    private fun resolveSearchTargetLabel(target: SearchTarget): String =
+        when (target) {
+            is SearchTarget.Engine -> context.getString(target.engine.getDisplayNameResId())
+            is SearchTarget.Browser -> target.app.label
+            is SearchTarget.Custom -> target.custom.name
+        }
+
+    private fun resolveSearchTargetIconBase64(target: SearchTarget): String? =
+        when (target) {
+            is SearchTarget.Engine -> {
+                val drawable =
+                    AppCompatResources.getDrawable(context, target.engine.getDrawableResId())
+                        ?: return null
+                bitmapToBase64Png(drawable.toBitmap(width = 96, height = 96))
+            }
+
+            is SearchTarget.Browser -> {
+                loadAppIconBase64(target.app.packageName)
+            }
+
+            is SearchTarget.Custom -> {
+                target.custom.faviconBase64
+            }
         }
 
     private fun loadShortcutsFromSystem(): List<StaticShortcut> {

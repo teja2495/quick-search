@@ -116,6 +116,13 @@
             android:theme="@style/Theme.QuickSearch" />
 
         <activity
+            android:name=".search.searchEngines.SearchTargetQueryShortcutActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.QuickSearch" />
+
+        <activity
             android:name=".search.overlay.OverlayActivity"
             android:exported="false"
             android:excludeFromRecents="true"

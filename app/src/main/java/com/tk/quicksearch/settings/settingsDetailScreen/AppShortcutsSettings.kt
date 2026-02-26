@@ -32,6 +32,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,10 +53,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.rememberShortcutIcon
@@ -62,6 +67,10 @@ import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
 import com.tk.quicksearch.settings.shared.AppShortcutSource
 import com.tk.quicksearch.settings.shared.filterAppShortcutSources
+import com.tk.quicksearch.search.searchEngines.getContentDescription
+import com.tk.quicksearch.search.searchEngines.getSearchTargetShortcutPackageName
+import com.tk.quicksearch.search.searchEngines.shared.IconRenderStyle
+import com.tk.quicksearch.search.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.ui.theme.AppColors
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.hapticToggle
@@ -74,6 +83,13 @@ private data class AppShortcutGroup(
     val appLabel: String,
     val shortcuts: List<StaticShortcut>,
     val sources: List<AppShortcutSource>,
+    val querySource: SearchTargetQuerySource? = null,
+)
+
+private data class SearchTargetQuerySource(
+    val target: SearchTarget,
+    val packageName: String,
+    val label: String,
 )
 
 private enum class ShortcutSearchMatchPriority {
@@ -86,6 +102,7 @@ private enum class ShortcutSearchMatchPriority {
 private enum class ShortcutFilterOption(val labelResId: Int) {
     ALL(R.string.settings_app_shortcuts_filter_all_apps_with_shortcuts),
     CUSTOM_SHORTCUTS(R.string.settings_app_shortcuts_filter_apps_with_custom_shortcuts),
+    SEARCH_ENGINES(R.string.settings_app_shortcuts_filter_search_engines),
 }
 
 private fun shortcutMatchPriority(name: String, query: String, locale: Locale): ShortcutSearchMatchPriority? {
@@ -112,6 +129,7 @@ private fun bestShortcutMatchPriority(
             add(group.appLabel)
             addAll(group.shortcuts.map(::shortcutDisplayName))
             addAll(group.sources.map { it.label })
+            group.querySource?.let { add(it.label) }
         }
     return allCandidates.mapNotNull { shortcutMatchPriority(it, query, locale) }.minOrNull()
 }
@@ -145,6 +163,8 @@ fun AppShortcutsSettingsSection(
     onShortcutNameClick: (StaticShortcut) -> Unit,
     shortcutSources: List<AppShortcutSource>,
     onAddShortcutFromSource: (AppShortcutSource) -> Unit,
+    searchTargets: List<SearchTarget>,
+    onAddQueryShortcut: (SearchTarget, String, String) -> Unit,
     onDeleteCustomShortcut: (StaticShortcut) -> Unit,
     focusShortcut: StaticShortcut? = null,
     focusPackageName: String? = null,
@@ -169,19 +189,34 @@ fun AppShortcutsSettingsSection(
                 currentPackageName = context.packageName,
             )
         }
+    val queryShortcutSources =
+        remember(searchTargets) {
+            searchTargets
+                .filterNot { target -> target is SearchTarget.Browser }
+                .map { target ->
+                    SearchTargetQuerySource(
+                        target = target,
+                        packageName = getSearchTargetShortcutPackageName(target),
+                        label = target.getContentDescription(),
+                    )
+                }
+        }
     val allShortcutGroups =
-        remember(displayShortcuts, filteredShortcutSources, context, locale) {
+        remember(displayShortcuts, filteredShortcutSources, queryShortcutSources, context, locale) {
             val shortcutsByPackage = displayShortcuts.groupBy { it.packageName }
             val sourcesByPackage = filteredShortcutSources.groupBy { it.packageName }
-            (shortcutsByPackage.keys + sourcesByPackage.keys)
+            val querySourcesByPackage = queryShortcutSources.associateBy { it.packageName }
+            (shortcutsByPackage.keys + sourcesByPackage.keys + querySourcesByPackage.keys)
                 .mapNotNull { packageName ->
                     val appShortcuts = shortcutsByPackage[packageName].orEmpty()
                     val appSources = sourcesByPackage[packageName].orEmpty()
-                    if (appShortcuts.isEmpty() && appSources.isEmpty()) {
+                    val querySource = querySourcesByPackage[packageName]
+                    if (appShortcuts.isEmpty() && appSources.isEmpty() && querySource == null) {
                         null
                     } else {
                         val appLabel =
                             appShortcuts.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
+                                ?: querySource?.label?.takeIf { it.isNotBlank() }
                                 ?: resolveAppLabel(context, packageName, locale)
                         AppShortcutGroup(
                             packageName = packageName,
@@ -194,6 +229,7 @@ fun AppShortcutsSettingsSection(
                                     ),
                                 ),
                             sources = appSources,
+                            querySource = querySource,
                         )
                     }
                 }.sortedBy { it.appLabel.lowercase(locale) }
@@ -219,11 +255,19 @@ fun AppShortcutsSettingsSection(
                             group.sources.filter { source ->
                                 shortcutMatchPriority(source.label, normalizedSearchQuery, locale) != null
                             }
+                        val matchesQuerySource =
+                            group.querySource?.let {
+                                shortcutMatchPriority(it.label, normalizedSearchQuery, locale) != null
+                            } == true
                         val filteredGroup =
                             when {
                                 appMatchPriority != null -> group
-                                matchingShortcuts.isNotEmpty() || matchingSources.isNotEmpty() ->
-                                    group.copy(shortcuts = matchingShortcuts, sources = matchingSources)
+                                matchingShortcuts.isNotEmpty() || matchingSources.isNotEmpty() || matchesQuerySource ->
+                                    group.copy(
+                                        shortcuts = matchingShortcuts,
+                                        sources = matchingSources,
+                                        querySource = if (matchesQuerySource) group.querySource else null,
+                                    )
                                 else -> null
                             } ?: return@mapNotNull null
 
@@ -242,10 +286,14 @@ fun AppShortcutsSettingsSection(
         remember(shortcutGroups, selectedFilterOption) {
             when (selectedFilterOption) {
                 ShortcutFilterOption.ALL -> shortcutGroups
-                ShortcutFilterOption.CUSTOM_SHORTCUTS -> shortcutGroups.filter { it.sources.isNotEmpty() }
+                ShortcutFilterOption.CUSTOM_SHORTCUTS ->
+                    shortcutGroups.filter { it.sources.isNotEmpty() || it.querySource != null }
+                ShortcutFilterOption.SEARCH_ENGINES ->
+                    shortcutGroups.filter { it.querySource != null }
             }
         }
     val expandedCards = remember { mutableStateMapOf<String, Boolean>() }
+    var queryShortcutDialogSource by remember { mutableStateOf<SearchTargetQuerySource?>(null) }
 
     LaunchedEffect(visibleShortcutGroups) {
         val currentPackages = visibleShortcutGroups.map { it.packageName }.toSet()
@@ -286,6 +334,17 @@ fun AppShortcutsSettingsSection(
         return
     }
 
+    queryShortcutDialogSource?.let { source ->
+        AddSearchTargetQueryShortcutDialog(
+            targetLabel = source.label,
+            onDismiss = { queryShortcutDialogSource = null },
+            onSave = { shortcutName, shortcutQuery ->
+                onAddQueryShortcut(source.target, shortcutName, shortcutQuery)
+                queryShortcutDialogSource = null
+            },
+        )
+    }
+
     val allExpanded =
         visibleShortcutGroups.isNotEmpty() &&
             visibleShortcutGroups.all { expandedCards[it.packageName] == true }
@@ -294,93 +353,97 @@ fun AppShortcutsSettingsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
-        val shortcutCount = shortcuts.size.toString()
-        val descriptionText =
-            stringResource(R.string.settings_app_shortcuts_description_with_count, shortcutCount)
-        Text(
-            text =
-                buildAnnotatedString {
-                    append(descriptionText)
-                    val countStart = descriptionText.indexOf(shortcutCount)
-                    if (countStart >= 0) {
-                        addStyle(
-                            style = SpanStyle(fontWeight = FontWeight.Bold),
-                            start = countStart,
-                            end = countStart + shortcutCount.length,
+        if (normalizedSearchQuery.isBlank()) {
+            val shortcutCount = shortcuts.size.toString()
+            val descriptionText =
+                stringResource(R.string.settings_app_shortcuts_description_with_count, shortcutCount)
+            Text(
+                text =
+                    buildAnnotatedString {
+                        append(descriptionText)
+                        val countStart = descriptionText.indexOf(shortcutCount)
+                        if (countStart >= 0) {
+                            addStyle(
+                                style = SpanStyle(fontWeight = FontWeight.Bold),
+                                start = countStart,
+                                end = countStart + shortcutCount.length,
+                            )
+                        }
+                    },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
+            )
+        }
+
+        if (normalizedSearchQuery.isBlank()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box {
+                    Row(
+                        modifier =
+                            Modifier
+                                .clickable { isFilterMenuExpanded = true }
+                                .padding(
+                                    start = DesignTokens.SpacingXSmall,
+                                    end = DesignTokens.SpacingXSmall,
+                                ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = stringResource(selectedFilterOption.labelResId),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Icon(
+                            imageVector = Icons.Rounded.ExpandMore,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box {
-                Row(
-                    modifier =
-                        Modifier
-                            .clickable { isFilterMenuExpanded = true }
-                            .padding(
-                                start = DesignTokens.SpacingXSmall,
-                                end = DesignTokens.SpacingXSmall,
-                            ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    DropdownMenu(
+                        expanded = isFilterMenuExpanded,
+                        onDismissRequest = { isFilterMenuExpanded = false },
+                        shape = RoundedCornerShape(24.dp),
+                        properties = PopupProperties(focusable = false),
+                        containerColor = AppColors.DialogBackground,
+                    ) {
+                        ShortcutFilterOption.entries.forEachIndexed { index, option ->
+                            if (index > 0) {
+                                HorizontalDivider()
+                            }
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(option.labelResId)) },
+                                onClick = {
+                                    selectedFilterOption = option
+                                    isFilterMenuExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
+                IconButton(
+                    onClick = {
+                        visibleShortcutGroups.forEach { group ->
+                            expandedCards[group.packageName] = !allExpanded
+                        }
+                    },
                 ) {
-                    Text(
-                        text = stringResource(selectedFilterOption.labelResId),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
                     Icon(
-                        imageVector = Icons.Rounded.ExpandMore,
-                        contentDescription = null,
+                        imageVector = if (allExpanded) Icons.Rounded.UnfoldLess else Icons.Rounded.UnfoldMore,
+                        contentDescription =
+                            if (allExpanded) {
+                                stringResource(R.string.settings_app_shortcuts_collapse_all)
+                            } else {
+                                stringResource(R.string.settings_app_shortcuts_expand_all)
+                            },
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
-                DropdownMenu(
-                    expanded = isFilterMenuExpanded,
-                    onDismissRequest = { isFilterMenuExpanded = false },
-                    shape = RoundedCornerShape(24.dp),
-                    properties = PopupProperties(focusable = false),
-                    containerColor = AppColors.DialogBackground,
-                ) {
-                    ShortcutFilterOption.entries.forEachIndexed { index, option ->
-                        if (index > 0) {
-                            HorizontalDivider()
-                        }
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(option.labelResId)) },
-                            onClick = {
-                                selectedFilterOption = option
-                                isFilterMenuExpanded = false
-                            },
-                        )
-                    }
-                }
-            }
-            IconButton(
-                onClick = {
-                    visibleShortcutGroups.forEach { group ->
-                        expandedCards[group.packageName] = !allExpanded
-                    }
-                },
-            ) {
-                Icon(
-                    imageVector = if (allExpanded) Icons.Rounded.UnfoldLess else Icons.Rounded.UnfoldMore,
-                    contentDescription =
-                        if (allExpanded) {
-                            stringResource(R.string.settings_app_shortcuts_collapse_all)
-                        } else {
-                            stringResource(R.string.settings_app_shortcuts_expand_all)
-                        },
-                    tint = MaterialTheme.colorScheme.primary,
-                )
             }
         }
 
@@ -402,6 +465,7 @@ fun AppShortcutsSettingsSection(
                     packageName = group.packageName,
                     appLabel = group.appLabel,
                     shortcutCount = group.shortcuts.size,
+                    searchTarget = group.querySource?.target,
                     isExpanded = isExpanded,
                     onToggleExpanded = {
                         expandedCards[group.packageName] = !isExpanded
@@ -457,6 +521,15 @@ fun AppShortcutsSettingsSection(
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                 }
                             }
+                        }
+
+                        val querySource = group.querySource
+                        if (querySource != null) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            SearchTargetQuerySourceRow(
+                                source = querySource,
+                                onClick = { queryShortcutDialogSource = querySource },
+                            )
                         }
                     }
                 }
@@ -522,10 +595,117 @@ private fun ShortcutSourceRow(
 }
 
 @Composable
+private fun SearchTargetQuerySourceRow(
+    source: SearchTargetQuerySource,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(
+                    horizontal = DesignTokens.CardHorizontalPadding,
+                    vertical = DesignTokens.CardVerticalPadding,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
+    ) {
+        SearchTargetIcon(
+            target = source.target,
+            iconSize = DesignTokens.IconSize,
+            style = IconRenderStyle.ADVANCED,
+        )
+
+        Text(
+            text = stringResource(R.string.settings_app_shortcuts_add_query_shortcut),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+
+        IconButton(onClick = onClick) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = stringResource(R.string.settings_app_shortcuts_add_query_shortcut),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddSearchTargetQueryShortcutDialog(
+    targetLabel: String,
+    onDismiss: () -> Unit,
+    onSave: (String, String) -> Unit,
+) {
+    var shortcutName by remember(targetLabel) {
+        mutableStateOf(
+            TextFieldValue(
+                text = "",
+                selection = TextRange(0),
+            ),
+        )
+    }
+    var shortcutQuery by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = "",
+                selection = TextRange(0),
+            ),
+        )
+    }
+
+    val trimmedName = shortcutName.text.trim()
+    val trimmedQuery = shortcutQuery.text.trim()
+    val canSave = trimmedName.isNotBlank() && trimmedQuery.isNotBlank()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.settings_app_shortcuts_add_query_dialog_title, targetLabel)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = shortcutName,
+                    onValueChange = { shortcutName = it },
+                    singleLine = true,
+                    maxLines = 1,
+                    label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
+                )
+                OutlinedTextField(
+                    value = shortcutQuery,
+                    onValueChange = { shortcutQuery = it },
+                    singleLine = false,
+                    maxLines = 3,
+                    label = { Text(stringResource(R.string.settings_app_shortcuts_query_label)) },
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onSave(trimmedName, trimmedQuery) },
+                enabled = canSave,
+            ) {
+                Text(text = stringResource(R.string.dialog_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+@Composable
 private fun AppShortcutCardHeader(
     packageName: String,
     appLabel: String,
     shortcutCount: Int,
+    searchTarget: SearchTarget?,
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
     iconPackPackage: String?,
@@ -544,7 +724,13 @@ private fun AppShortcutCardHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
     ) {
-        if (iconResult.bitmap != null) {
+        if (searchTarget != null) {
+            SearchTargetIcon(
+                target = searchTarget,
+                iconSize = DesignTokens.IconSize,
+                style = IconRenderStyle.ADVANCED,
+            )
+        } else if (iconResult.bitmap != null) {
             Image(
                 bitmap = iconResult.bitmap,
                 contentDescription = appLabel,

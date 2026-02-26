@@ -1835,6 +1835,41 @@ class SearchViewModel(
         }
     }
 
+    fun addSearchTargetQueryShortcut(
+        target: SearchTarget,
+        shortcutName: String,
+        shortcutQuery: String,
+        showDefaultToast: Boolean = true,
+        onShortcutAdded: ((StaticShortcut) -> Unit)? = null,
+        onAddFailed: (() -> Unit)? = null,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val addedShortcut =
+                appShortcutRepository.addSearchTargetQueryShortcut(
+                    target = target,
+                    shortcutName = shortcutName,
+                    shortcutQuery = shortcutQuery,
+                )
+            if (addedShortcut != null) {
+                appShortcutSearchHandler.loadShortcuts()
+                withContext(Dispatchers.Main) {
+                    refreshAppShortcutsState()
+                    onShortcutAdded?.invoke(addedShortcut)
+                    if (showDefaultToast) {
+                        showToast(R.string.settings_app_shortcuts_add_success)
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    if (showDefaultToast) {
+                        showToast(R.string.settings_app_shortcuts_add_failed)
+                    }
+                    onAddFailed?.invoke()
+                }
+            }
+        }
+    }
+
     fun deleteCustomAppShortcut(shortcut: StaticShortcut) {
         if (!isUserCreatedShortcut(shortcut)) return
         viewModelScope.launch(Dispatchers.IO) {

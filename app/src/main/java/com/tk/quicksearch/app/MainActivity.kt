@@ -18,6 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import com.tk.quicksearch.navigation.MainContent
 import com.tk.quicksearch.navigation.NavigationRequest
 import com.tk.quicksearch.navigation.RootDestination
+import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.overlay.OverlayModeController
@@ -28,12 +30,16 @@ import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.widget.QuickSearchWidget
 import com.tk.quicksearch.widget.voiceSearch.MicAction
 import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_VOICE_SEARCH_SHORTCUT = "com.tk.quicksearch.action.VOICE_SEARCH_SHORTCUT"
+        const val ACTION_SEARCH_TARGET_SHORTCUT = "com.tk.quicksearch.action.SEARCH_TARGET_SHORTCUT"
+        const val EXTRA_SHORTCUT_QUERY = "com.tk.quicksearch.extra.SHORTCUT_QUERY"
+        const val EXTRA_SHORTCUT_TARGET_ENGINE = "com.tk.quicksearch.extra.SHORTCUT_TARGET_ENGINE"
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
@@ -46,6 +52,7 @@ class MainActivity : ComponentActivity() {
     private val showReviewPromptDialog = mutableStateOf(false)
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
+    private var pendingSearchTargetShortcut: Pair<String, SearchTarget>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -82,6 +89,7 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
 
         setupContent()
+        maybeExecutePendingSearchTargetShortcut()
         refreshPermissionStateIfNeeded()
 
         // Track first app open time and app open count
@@ -117,6 +125,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         handleIntent(intent)
+        maybeExecutePendingSearchTargetShortcut()
     }
 
     override fun onStop() {
@@ -228,6 +237,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (intent?.action == ACTION_SEARCH_TARGET_SHORTCUT) {
+            val query = intent.getStringExtra(EXTRA_SHORTCUT_QUERY)?.trim().orEmpty()
+            val engineName = intent.getStringExtra(EXTRA_SHORTCUT_TARGET_ENGINE)
+            val engine = engineName?.let { runCatching { SearchEngine.valueOf(it) }.getOrNull() }
+            if (query.isNotBlank() && engine != null) {
+                pendingSearchTargetShortcut = query to SearchTarget.Engine(engine)
+            }
+        }
         if (intent?.action == ACTION_VOICE_SEARCH_SHORTCUT) {
             voiceSearchHandler.handleMicAction(MicAction.DEFAULT_VOICE_SEARCH)
         }
@@ -303,5 +320,23 @@ class MainActivity : ComponentActivity() {
             voiceSearchHandler.handleMicAction(micAction)
         }
         // ACTION_ASSIST can optionally start voice typing based on user preference.
+    }
+
+    private fun maybeExecutePendingSearchTargetShortcut() {
+        val pending = pendingSearchTargetShortcut ?: return
+        lifecycleScope.launch {
+            repeat(30) {
+                val dispatched =
+                    runCatching {
+                        searchViewModel.openSearchTarget(pending.first, pending.second)
+                    }.isSuccess
+                if (dispatched) {
+                    pendingSearchTargetShortcut = null
+                    return@launch
+                }
+                delay(50)
+            }
+            pendingSearchTargetShortcut = null
+        }
     }
 }
