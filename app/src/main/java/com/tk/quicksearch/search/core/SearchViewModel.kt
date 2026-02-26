@@ -1299,8 +1299,15 @@ class SearchViewModel(
 
     private fun loadAppShortcuts() {
         viewModelScope.launch(Dispatchers.IO) {
-            appShortcutSearchHandler.loadShortcuts()
-            withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+            val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
+            if (loadedCached) {
+                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+            }
+
+            val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
+            if (loadedFresh || !loadedCached) {
+                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+            }
         }
     }
 
@@ -1816,7 +1823,7 @@ class SearchViewModel(
                     sourcePackageName = sourcePackageName,
                 )
             if (addedShortcut != null) {
-                appShortcutSearchHandler.loadShortcuts()
+                appShortcutSearchHandler.loadCachedShortcutsOnly()
                 withContext(Dispatchers.Main) {
                     refreshAppShortcutsState()
                     onShortcutAdded?.invoke(addedShortcut)
@@ -1851,7 +1858,7 @@ class SearchViewModel(
                     shortcutQuery = shortcutQuery,
                 )
             if (addedShortcut != null) {
-                appShortcutSearchHandler.loadShortcuts()
+                appShortcutSearchHandler.loadCachedShortcutsOnly()
                 withContext(Dispatchers.Main) {
                     refreshAppShortcutsState()
                     onShortcutAdded?.invoke(addedShortcut)
@@ -1880,7 +1887,7 @@ class SearchViewModel(
             userPreferences.removeExcludedAppShortcut(id)
             userPreferences.setAppShortcutEnabled(id, true)
             userPreferences.setAppShortcutNickname(id, null)
-            appShortcutSearchHandler.loadShortcuts()
+            appShortcutSearchHandler.loadCachedShortcutsOnly()
             withContext(Dispatchers.Main) {
                 refreshAppShortcutsState()
                 refreshRecentItems()

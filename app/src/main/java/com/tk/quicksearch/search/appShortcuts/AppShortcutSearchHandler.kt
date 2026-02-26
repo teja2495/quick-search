@@ -28,16 +28,21 @@ class AppShortcutSearchHandler(
 
     fun getAvailableShortcuts(): List<StaticShortcut> = availableShortcuts
 
-    suspend fun loadShortcuts() {
-        val cached = repository.loadCachedShortcuts()
-        if (cached != null) {
-            availableShortcuts = normalizeShortcuts(cached)
-        }
+    suspend fun loadCachedShortcutsOnly(): Boolean {
+        val cached = repository.loadCachedShortcuts() ?: return false
+        availableShortcuts = normalizeShortcuts(cached)
+        return true
+    }
 
-        val loaded = runCatching { repository.loadStaticShortcuts() }.getOrNull()
-        if (loaded != null) {
-            availableShortcuts = normalizeShortcuts(loaded)
-        }
+    suspend fun refreshShortcutsFromSystem(): Boolean {
+        val loaded = runCatching { repository.loadStaticShortcuts() }.getOrNull() ?: return false
+        availableShortcuts = normalizeShortcuts(loaded)
+        return true
+    }
+
+    suspend fun loadShortcuts() {
+        loadCachedShortcutsOnly()
+        refreshShortcutsFromSystem()
     }
 
     suspend fun getShortcutsByKeys(keys: Set<String>): Map<String, StaticShortcut> {

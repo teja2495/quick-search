@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
@@ -394,105 +396,109 @@ fun AppShortcutsSettingsSection(
         visibleShortcutGroups.isNotEmpty() &&
             visibleShortcutGroups.all { expandedCards[it.packageName] == true }
 
-    Column(
+    LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
     ) {
         if (normalizedSearchQuery.isBlank()) {
-            val shortcutCount = shortcuts.size.toString()
-            val descriptionText =
-                stringResource(R.string.settings_app_shortcuts_description_with_count, shortcutCount)
-            Text(
-                text =
-                    buildAnnotatedString {
-                        append(descriptionText)
-                        val countStart = descriptionText.indexOf(shortcutCount)
-                        if (countStart >= 0) {
-                            addStyle(
-                                style = SpanStyle(fontWeight = FontWeight.Bold),
-                                start = countStart,
-                                end = countStart + shortcutCount.length,
-                            )
-                        }
-                    },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
-            )
+            item {
+                val shortcutCount = shortcuts.size.toString()
+                val descriptionText =
+                    stringResource(R.string.settings_app_shortcuts_description_with_count, shortcutCount)
+                Text(
+                    text =
+                        buildAnnotatedString {
+                            append(descriptionText)
+                            val countStart = descriptionText.indexOf(shortcutCount)
+                            if (countStart >= 0) {
+                                addStyle(
+                                    style = SpanStyle(fontWeight = FontWeight.Bold),
+                                    start = countStart,
+                                    end = countStart + shortcutCount.length,
+                                )
+                            }
+                        },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = DesignTokens.SpacingXSmall),
+                )
+            }
         }
 
         if (normalizedSearchQuery.isBlank()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box {
-                    Row(
-                        modifier =
-                            Modifier
-                                .clickable { isFilterMenuExpanded = true }
-                                .padding(
-                                    start = DesignTokens.SpacingXSmall,
-                                    end = DesignTokens.SpacingXSmall,
-                                ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .clickable { isFilterMenuExpanded = true }
+                                    .padding(
+                                        start = DesignTokens.SpacingXSmall,
+                                        end = DesignTokens.SpacingXSmall,
+                                    ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                text = stringResource(selectedFilterOption.labelResId),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Icon(
+                                imageVector = Icons.Rounded.ExpandMore,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isFilterMenuExpanded,
+                            onDismissRequest = { isFilterMenuExpanded = false },
+                            shape = RoundedCornerShape(24.dp),
+                            properties = PopupProperties(focusable = false),
+                            containerColor = AppColors.DialogBackground,
+                        ) {
+                            ShortcutFilterOption.entries.forEachIndexed { index, option ->
+                                if (index > 0) {
+                                    HorizontalDivider()
+                                }
+                                DropdownMenuItem(
+                                    text = { Text(text = stringResource(option.labelResId)) },
+                                    onClick = {
+                                        selectedFilterOption = option
+                                        isFilterMenuExpanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    IconButton(
+                        onClick = {
+                            visibleShortcutGroups.forEach { group ->
+                                expandedCards[group.packageName] = !allExpanded
+                            }
+                        },
                     ) {
-                        Text(
-                            text = stringResource(selectedFilterOption.labelResId),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
                         Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = null,
+                            imageVector = if (allExpanded) Icons.Rounded.UnfoldLess else Icons.Rounded.UnfoldMore,
+                            contentDescription =
+                                if (allExpanded) {
+                                    stringResource(R.string.settings_app_shortcuts_collapse_all)
+                                } else {
+                                    stringResource(R.string.settings_app_shortcuts_expand_all)
+                                },
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    DropdownMenu(
-                        expanded = isFilterMenuExpanded,
-                        onDismissRequest = { isFilterMenuExpanded = false },
-                        shape = RoundedCornerShape(24.dp),
-                        properties = PopupProperties(focusable = false),
-                        containerColor = AppColors.DialogBackground,
-                    ) {
-                        ShortcutFilterOption.entries.forEachIndexed { index, option ->
-                            if (index > 0) {
-                                HorizontalDivider()
-                            }
-                            DropdownMenuItem(
-                                text = { Text(text = stringResource(option.labelResId)) },
-                                onClick = {
-                                    selectedFilterOption = option
-                                    isFilterMenuExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-                IconButton(
-                    onClick = {
-                        visibleShortcutGroups.forEach { group ->
-                            expandedCards[group.packageName] = !allExpanded
-                        }
-                    },
-                ) {
-                    Icon(
-                        imageVector = if (allExpanded) Icons.Rounded.UnfoldLess else Icons.Rounded.UnfoldMore,
-                        contentDescription =
-                            if (allExpanded) {
-                                stringResource(R.string.settings_app_shortcuts_collapse_all)
-                            } else {
-                                stringResource(R.string.settings_app_shortcuts_expand_all)
-                            },
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
                 }
             }
         }
 
-        visibleShortcutGroups.forEach { group ->
+        items(items = visibleShortcutGroups, key = { it.packageName }) { group ->
             val isExpanded = expandedCards[group.packageName] == true
 
             LaunchedEffect(focusPackageName, group.packageName) {
@@ -589,6 +595,12 @@ fun AppShortcutsSettingsSection(
                     }
                 }
             }
+        }
+
+        item {
+            Box(
+                modifier = Modifier.padding(bottom = DesignTokens.SpacingLarge),
+            )
         }
     }
 }

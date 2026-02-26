@@ -147,6 +147,32 @@ internal fun SettingsDetailLevel2Screen(
                                 bottom = DesignTokens.SectionTopPadding,
                             ),
                 )
+            } else if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+                AppShortcutsSettingsSection(
+                    shortcuts = state.allAppShortcuts,
+                    disabledShortcutIds = state.disabledAppShortcutIds,
+                    iconPackPackage = state.selectedIconPackPackage,
+                    searchQuery = appShortcutsSearchQuery,
+                    collapseAllTrigger = appShortcutsCollapseAllTrigger,
+                    onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
+                    onShortcutNameClick = callbacks.onLaunchAppShortcut,
+                    shortcutSources = appShortcutSources,
+                    onAddShortcutFromSource = callbacks.onAddAppShortcutFromSource,
+                    searchTargets = searchTargets,
+                    onAddQueryShortcut = callbacks.onAddSearchTargetQueryShortcut,
+                    onDeleteCustomShortcut = callbacks.onDeleteCustomAppShortcut,
+                    focusShortcut = appShortcutFocusShortcut,
+                    focusPackageName = appShortcutFocusPackageName,
+                    onFocusHandled = onAppShortcutFocusHandled,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = 96.dp,
+                            ),
+                )
             } else {
                 Column(
                     modifier =
@@ -186,26 +212,7 @@ internal fun SettingsDetailLevel2Screen(
                             )
                         }
 
-                        SettingsDetailType.APP_SHORTCUTS -> {
-                            AppShortcutsSettingsSection(
-                                shortcuts = state.allAppShortcuts,
-                                disabledShortcutIds = state.disabledAppShortcutIds,
-                                iconPackPackage = state.selectedIconPackPackage,
-                                searchQuery = appShortcutsSearchQuery,
-                                collapseAllTrigger = appShortcutsCollapseAllTrigger,
-                                onShortcutEnabledChange = callbacks.onToggleAppShortcutEnabled,
-                                onShortcutNameClick = callbacks.onLaunchAppShortcut,
-                                shortcutSources = appShortcutSources,
-                                onAddShortcutFromSource = callbacks.onAddAppShortcutFromSource,
-                                searchTargets = searchTargets,
-                                onAddQueryShortcut = callbacks.onAddSearchTargetQueryShortcut,
-                                onDeleteCustomShortcut = callbacks.onDeleteCustomAppShortcut,
-                                focusShortcut = appShortcutFocusShortcut,
-                                focusPackageName = appShortcutFocusPackageName,
-                                onFocusHandled = onAppShortcutFocusHandled,
-                            )
-                        }
-
+                        SettingsDetailType.APP_SHORTCUTS -> Unit
                         SettingsDetailType.DEVICE_SETTINGS -> {
                             DeviceSettingsSettingsSection(
                                 settings = state.allDeviceSettings,
