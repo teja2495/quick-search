@@ -648,7 +648,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Custom search query and URL shortcuts for browsers and search engines in Shortcut Management screen. You can now search and filter items in that screen.\nSwitching to the number keyboard while using the calculator now displays calculator buttons for easy access.\nLong press any item in a contact options popup to add that action as a home screen shortcut.\nCompact mode now supports an optional second row of search engines.\nEnhancements and bug fixes.</string>
+    <string name="release_notes_points">Add custom search queries, URLs, and app activities as shortcuts in Shortcut Management screen. Also, you can now search &amp; filter apps in that screen.\nSwitching to the number keyboard while using the calculator now displays calculator buttons for easy access.\nLong press any item in a contact options popup to add that action as a home screen shortcut.\nCompact mode now supports an optional second row of search engines.\nEnhancements and bug fixes.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
