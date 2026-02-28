@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 class OverlayActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var voiceSearchHandler: VoiceSearchHandler
+    private var animationToken: Long = 0L
     private val voiceInputLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             voiceSearchHandler.processVoiceInputResult(result, searchViewModel::onQueryChange)
@@ -46,24 +47,14 @@ class OverlayActivity : ComponentActivity() {
             finish()
             return
         }
+        animationToken = intent?.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, 0L) ?: 0L
         initializeVoiceSearchHandler()
         handleVoiceIntentIfNeeded(intent)
 
         // Match MainActivity behavior so cold overlay opens with wallpaper already warming.
         lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@OverlayActivity) }
 
-        setContent {
-            QuickSearchTheme {
-                Box(
-                        modifier = Modifier.fillMaxSize().background(Color.Transparent),
-                ) {
-                    OverlayRoot(
-                            viewModel = searchViewModel,
-                            onCloseRequested = { finish() },
-                    )
-                }
-            }
-        }
+        renderOverlayContent()
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
@@ -72,6 +63,8 @@ class OverlayActivity : ComponentActivity() {
             finish()
             return
         }
+        animationToken = intent.getLongExtra(OverlayModeController.EXTRA_ANIMATION_TOKEN, animationToken)
+        renderOverlayContent()
         handleVoiceIntentIfNeeded(intent)
     }
 
@@ -90,6 +83,22 @@ class OverlayActivity : ComponentActivity() {
 
     private fun initializeVoiceSearchHandler() {
         voiceSearchHandler = VoiceSearchHandler(this, voiceInputLauncher)
+    }
+
+    private fun renderOverlayContent() {
+        setContent {
+            QuickSearchTheme {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Transparent),
+                ) {
+                    OverlayRoot(
+                        viewModel = searchViewModel,
+                        animationToken = animationToken,
+                        onCloseRequested = { finish() },
+                    )
+                }
+            }
+        }
     }
 
     private fun handleVoiceIntentIfNeeded(intent: android.content.Intent?) {

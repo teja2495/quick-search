@@ -168,6 +168,8 @@ internal fun SettingsDetailLevel1Screen(
                         AppearanceSettingsSection(
                             oneHandedMode = state.oneHandedMode,
                             onToggleOneHandedMode = callbacks.onToggleOneHandedMode,
+                            bottomSearchBarEnabled = state.bottomSearchBarEnabled,
+                            onToggleBottomSearchBar = callbacks.onToggleBottomSearchBar,
                             wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                             wallpaperBlurRadius = state.wallpaperBlurRadius,
                             onWallpaperBackgroundAlphaChange = callbacks.onWallpaperBackgroundAlphaChange,

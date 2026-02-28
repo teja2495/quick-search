@@ -20,6 +20,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_ONE_HANDED_MODE, enabled)
     }
 
+    fun isBottomSearchBarEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_BOTTOM_SEARCH_BAR_ENABLED, false)
+
+    fun setBottomSearchBarEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_BOTTOM_SEARCH_BAR_ENABLED, enabled)
+    }
+
     fun isOverlayModeEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
 
@@ -253,13 +260,6 @@ class UiPreferences(
                 .apply()
     }
 
-    fun hasSeenOverlayCloseTip(): Boolean =
-            sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_CLOSE_TIP, false)
-
-    fun setHasSeenOverlayCloseTip(seen: Boolean) {
-        sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_CLOSE_TIP, seen).apply()
-    }
-
     fun hasSeenOverlayAssistantTip(): Boolean =
             sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, false)
 
@@ -267,22 +267,6 @@ class UiPreferences(
         sessionPrefs
                 .edit()
                 .putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, seen)
-                .apply()
-    }
-
-    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
-            if (prefs.contains(UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP)) {
-                prefs.getFloat(UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP, 0f)
-            } else {
-                null
-            }
-
-    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) {
-        prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP,
-                        heightDp.coerceAtLeast(0f),
-                )
                 .apply()
     }
 
@@ -563,6 +547,7 @@ class UiPreferences(
     companion object {
         // UI preferences keys
         const val KEY_ONE_HANDED_MODE = "one_handed_mode"
+        const val KEY_BOTTOM_SEARCH_BAR_ENABLED = "bottom_search_bar_enabled"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
                 "use_whatsapp_for_messages" // Deprecated, kept for migration
@@ -590,11 +575,7 @@ class UiPreferences(
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_SEARCH_HISTORY_TIP_DISMISSED = "search_history_tip_dismissed"
-        const val KEY_HAS_SEEN_OVERLAY_CLOSE_TIP = "has_seen_overlay_close_tip"
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
-        const val KEY_LAST_OVERLAY_KEYBOARD_OPEN_HEIGHT_DP =
-                "last_overlay_keyboard_open_height_dp"
-
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"
         const val KEY_DISABLED_SECTIONS = "disabled_sections"

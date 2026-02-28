@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
@@ -27,10 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.calculator.CalculatorUtils
 import com.tk.quicksearch.search.core.DirectSearchStatus
@@ -39,6 +42,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.recentSearches.RecentSearchEntry
 import com.tk.quicksearch.search.searchEngines.defaultBrowserTarget
+import com.tk.quicksearch.search.searchEngines.extendToScreenEdges
 import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
@@ -220,8 +224,30 @@ internal fun SearchScreenContent(
         }
     }
 
-    Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
-        // Fixed search bar at the top
+    val showBottomSearchBar = state.bottomSearchBarEnabled && !isOverlayPresentation
+    val searchFieldModifier =
+            if (showBottomSearchBar) {
+                Modifier.padding(
+                        top =
+                                if (state.oneHandedMode) {
+                                    DesignTokens.SpacingXSmall
+                                } else {
+                                    0.dp
+                                },
+                        bottom = DesignTokens.SpacingMedium,
+                )
+            } else {
+                Modifier.padding(
+                        bottom =
+                                if (state.oneHandedMode) {
+                                    DesignTokens.SpacingMedium
+                                } else {
+                                    DesignTokens.SpacingXSmall
+                                },
+                )
+            }
+
+    val searchFieldContent: @Composable () -> Unit = {
         PersistentSearchField(
                 query = state.query,
                 onQueryChange = onQueryChanged,
@@ -234,15 +260,7 @@ internal fun SearchScreenContent(
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
-                modifier =
-                        Modifier.padding(
-                                bottom =
-                                        if (state.oneHandedMode) {
-                                            DesignTokens.SpacingMedium
-                                        } else {
-                                            DesignTokens.SpacingXSmall
-                                        },
-                        ),
+                modifier = searchFieldModifier,
                 onSearchAction = {
                     val trimmedQuery = state.query.trim()
                     val isUrlQuery = isLikelyWebUrl(trimmedQuery)
@@ -308,9 +326,16 @@ internal fun SearchScreenContent(
                     }
                 },
         )
+    }
+
+    Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
+        if (!showBottomSearchBar) {
+            // Fixed search bar at the top
+            searchFieldContent()
+        }
 
         // Add spacing between search bar and apps list when bottom aligned setting is off
-        if (!state.oneHandedMode) {
+        if (!showBottomSearchBar && !state.oneHandedMode) {
             Spacer(modifier = Modifier.padding(top = DesignTokens.SpacingSmall))
         }
 
@@ -371,19 +396,8 @@ internal fun SearchScreenContent(
                     } else {
                         null
                     }
-            val shouldShowOverlayExpandControl =
-                    isOverlayPresentation &&
-                            !isOverlayExpanded &&
-                            !state.isSearchEngineCompactMode &&
-                            scrollState.maxValue > 0
-            val shouldShowCompactChevronExpand =
-                    isOverlayPresentation &&
-                            state.isSearchEngineCompactMode &&
-                            (scrollState.maxValue > 0 || isOverlayExpanded)
             AnimatedVisibility(
-                    visible =
-                            pillText != null ||
-                                    shouldShowOverlayExpandControl,
+                    visible = pillText != null,
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                     exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
@@ -409,18 +423,6 @@ internal fun SearchScreenContent(
                                 },
                         )
                     }
-                    if (pillText != null && shouldShowOverlayExpandControl) {
-                        Spacer(modifier = Modifier.width(DesignTokens.SpacingSmall))
-                    }
-                    if (shouldShowOverlayExpandControl) {
-                        OverlayExpandPill(
-                                text = stringResource(R.string.action_expand),
-                                onClick = {
-                                    keyboardController?.hide()
-                                    onOverlayExpandRequest()
-                                },
-                        )
-                    }
                 }
             }
 
@@ -439,16 +441,6 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
-                                showOverlayExpandChevron = shouldShowCompactChevronExpand,
-                                onOverlayExpandClick = {
-                                    if (isOverlayExpanded) {
-                                        keyboardController?.show()
-                                    } else {
-                                        keyboardController?.hide()
-                                        onOverlayExpandRequest()
-                                    }
-                                },
-                                isOverlayExpanded = isOverlayExpanded,
                                 compactRowCount = state.searchEngineCompactRowCount,
                                 predictedTarget = predictedTarget,
                         )
@@ -493,7 +485,47 @@ internal fun SearchScreenContent(
             )
 
             AnimatedVisibility(
-                    visible = shouldRenderInlineNumberKeyboardOperators,
+                    visible =
+                            shouldRenderInlineNumberKeyboardOperators &&
+                                    !showBottomSearchBar,
+                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+            ) {
+                NumberKeyboardOperatorPills(
+                        modifier = Modifier.imePadding(),
+                        onOperatorClick = { operator ->
+                            onQueryChanged(state.query + operator)
+                        },
+                )
+            }
+        }
+
+        if (showBottomSearchBar) {
+            if (state.isSearchEngineCompactMode) {
+                Box(
+                        modifier =
+                                Modifier
+                                        .fillMaxWidth()
+                                        .extendToScreenEdges()
+                                        .background(Color.Black.copy(alpha = 0.5f))
+                ) {
+                    Box(
+                            modifier =
+                                    Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = DesignTokens.SpacingXLarge)
+                    ) {
+                        searchFieldContent()
+                    }
+                }
+            } else {
+                searchFieldContent()
+            }
+
+            AnimatedVisibility(
+                    visible =
+                            expandedSection == ExpandedSection.NONE &&
+                                    shouldRenderInlineNumberKeyboardOperators,
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                     exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {

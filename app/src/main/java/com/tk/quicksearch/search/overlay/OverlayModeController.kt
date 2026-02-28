@@ -18,6 +18,7 @@ object OverlayModeController {
         "overlay_contact_action_picker_serialized_action"
     const val EXTRA_START_VOICE_SEARCH = "overlay_start_voice_search"
     const val EXTRA_MIC_ACTION = "overlay_mic_action"
+    const val EXTRA_ANIMATION_TOKEN = "overlay_animation_token"
 
     data class ContactActionRequest(
         val contactId: Long,
@@ -35,6 +36,7 @@ object OverlayModeController {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 putExtra(EXTRA_START_VOICE_SEARCH, startVoiceSearch)
                 putExtra(EXTRA_MIC_ACTION, micAction.value)
+                putExtra(EXTRA_ANIMATION_TOKEN, System.currentTimeMillis())
             }
         context.startActivity(intent)
     }

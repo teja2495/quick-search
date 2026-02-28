@@ -305,6 +305,7 @@ data class SearchUiState(
         val folderBlacklistPatterns: Set<String> = emptySet(),
         val excludedFileExtensions: Set<String> = emptySet(),
         val oneHandedMode: Boolean = false,
+        val bottomSearchBarEnabled: Boolean = false,
         val overlayModeEnabled: Boolean = false,
         val shortcutsEnabled: Boolean = true,
         val shortcutCodes: Map<String, String> = emptyMap(),
@@ -358,6 +359,5 @@ data class SearchUiState(
         val shouldShowUsagePermissionBanner: Boolean = false,
         val contactActionsVersion: Int = 0,
         val nicknameUpdateVersion: Int = 0,
-        val showOverlayCloseTip: Boolean = false,
         val hasSeenOverlayAssistantTip: Boolean = true,
 )

@@ -81,6 +81,8 @@ fun CombinedLayoutIconCard(
         onToggleOneHandedMode: (Boolean) -> Unit,
         showAppLabels: Boolean,
         onToggleAppLabels: (Boolean) -> Unit,
+        bottomSearchBarEnabled: Boolean,
+        onToggleBottomSearchBar: (Boolean) -> Unit,
         iconPackTitle: String,
         iconPackDescription: String,
         onIconPackClick: () -> Unit,
@@ -105,6 +107,15 @@ fun CombinedLayoutIconCard(
                     checked = showAppLabels,
                     onCheckedChange = onToggleAppLabels,
                     extraVerticalPadding = 8.dp,
+            )
+
+            SettingsToggleRow(
+                    title = stringResource(R.string.settings_bottom_searchbar_title),
+                    subtitle = stringResource(R.string.settings_bottom_searchbar_desc),
+                    checked = bottomSearchBarEnabled,
+                    onCheckedChange = onToggleBottomSearchBar,
+                    extraVerticalPadding = 8.dp,
+                    showDivider = false,
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -181,6 +192,8 @@ fun CombinedLayoutIconCard(
 fun AppearanceSettingsSection(
         oneHandedMode: Boolean,
         onToggleOneHandedMode: (Boolean) -> Unit,
+        bottomSearchBarEnabled: Boolean,
+        onToggleBottomSearchBar: (Boolean) -> Unit,
         wallpaperBackgroundAlpha: Float,
         wallpaperBlurRadius: Float,
         onWallpaperBackgroundAlphaChange: (Float) -> Unit,
@@ -254,6 +267,8 @@ fun AppearanceSettingsSection(
                 onToggleOneHandedMode = onToggleOneHandedMode,
                 showAppLabels = showAppLabels,
                 onToggleAppLabels = onToggleAppLabels,
+                bottomSearchBarEnabled = bottomSearchBarEnabled,
+                onToggleBottomSearchBar = onToggleBottomSearchBar,
                 iconPackTitle =
                         androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
                 iconPackDescription =

@@ -88,20 +88,8 @@ fun SearchEngineIconsSection(
 
     val scrollState = externalScrollState ?: rememberLazyListState()
 
-    // Use black background in dark mode, otherwise use theme surface color
-    // Add transparency only in dark mode to allow wallpaper background to show through
-    val backgroundColor =
-        if (MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
-            MaterialTheme.colorScheme.background.red < 0.1f &&
-            MaterialTheme.colorScheme.background.green < 0.1f &&
-            MaterialTheme.colorScheme.background.blue < 0.1f
-        ) {
-            // Dark mode detected - use transparent black
-            Color.Black.copy(alpha = 0.5f)
-        } else {
-            // Light mode - use opaque theme surface color
-            MaterialTheme.colorScheme.surface
-        }
+    // Match compact section background with the persistent search bar for visual consistency.
+    val backgroundColor = Color.Black.copy(alpha = 0.5f)
 
     if (detectedShortcutTarget != null) {
         // Check if query starts with the shortcut and remove it

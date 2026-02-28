@@ -17,7 +17,6 @@
     <string name="desc_expand">Expand</string>
     <string name="desc_collapse">Collapse</string>
     <string name="desc_close">Close</string>
-    <string name="overlay_close_tip">Tip: Tap anywhere outside of the overlay to close it.</string>
 
     <!-- ============================================================================
          Search Screen
@@ -290,6 +289,8 @@
     <string name="settings_overlay_assistant_setup_now">Setup Now</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
     <string name="settings_layout_option_bottom_desc">Most relevant items appear at bottom for easy access</string>
+    <string name="settings_bottom_searchbar_title">Bottom Searchbar</string>
+    <string name="settings_bottom_searchbar_desc">Place the home search bar below the compact search engines</string>
     <string name="settings_icon_pack_title">Icon Pack</string>
     <string name="settings_icon_pack_selected_label">Current: %1$s</string>
     <string name="settings_icon_pack_empty">No icon packs found.</string>
@@ -325,7 +326,7 @@
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
     <string name="settings_search_engines_at_least_one_required">At least one search engine must remain enabled</string>
     <string name="settings_appearance_title">Appearance</string>
-    <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, and icon packs</string>
+    <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, bottom searchbar, and icon packs</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
     <string name="settings_calls_texts_desc">Configure direct dial and default calling/messaging apps</string>
     <string name="settings_files_title">Files</string>

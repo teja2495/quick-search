@@ -43,6 +43,7 @@ class UserAppPreferences(
     /** Minimal preferences needed for first frame render - only layout-affecting values. */
     data class CriticalPreferences(
             val oneHandedMode: Boolean,
+            val bottomSearchBarEnabled: Boolean,
     )
 
     /**
@@ -62,7 +63,16 @@ class UserAppPreferences(
                                 .KEY_ONE_HANDED_MODE,
                         false,
                 )
-        return CriticalPreferences(oneHandedMode = oneHandedMode)
+        val bottomSearchBarEnabled =
+                prefs.getBoolean(
+                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                .KEY_BOTTOM_SEARCH_BAR_ENABLED,
+                        false,
+                )
+        return CriticalPreferences(
+                oneHandedMode = oneHandedMode,
+                bottomSearchBarEnabled = bottomSearchBarEnabled,
+        )
     }
 
     /**
@@ -77,6 +87,7 @@ class UserAppPreferences(
             val folderBlacklistPatterns: Set<String>,
             val excludedFileExtensions: Set<String>,
             val oneHandedMode: Boolean,
+            val bottomSearchBarEnabled: Boolean,
             val overlayModeEnabled: Boolean,
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
@@ -193,6 +204,13 @@ class UserAppPreferences(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_ONE_HANDED_MODE,
+                        ] as?
+                                Boolean
+                                ?: false,
+                bottomSearchBarEnabled =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_BOTTOM_SEARCH_BAR_ENABLED,
                         ] as?
                                 Boolean
                                 ?: false,
@@ -436,6 +454,13 @@ class UserAppPreferences(
                                         Set<String>
                                         ?: emptySet(),
                         oneHandedMode = oneHandedMode,
+                        bottomSearchBarEnabled =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_BOTTOM_SEARCH_BAR_ENABLED,
+                                ] as?
+                                        Boolean
+                                        ?: false,
                         overlayModeEnabled =
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -984,6 +1009,11 @@ class UserAppPreferences(
 
     fun setOneHandedMode(enabled: Boolean) = uiPreferences.setOneHandedMode(enabled)
 
+    fun isBottomSearchBarEnabled(): Boolean = uiPreferences.isBottomSearchBarEnabled()
+
+    fun setBottomSearchBarEnabled(enabled: Boolean) =
+            uiPreferences.setBottomSearchBarEnabled(enabled)
+
     fun isOverlayModeEnabled(): Boolean = uiPreferences.isOverlayModeEnabled()
 
     fun setOverlayModeEnabled(enabled: Boolean) = uiPreferences.setOverlayModeEnabled(enabled)
@@ -1073,20 +1103,10 @@ class UserAppPreferences(
     fun setSearchHistoryTipDismissed(dismissed: Boolean) =
             uiPreferences.setSearchHistoryTipDismissed(dismissed)
 
-    fun hasSeenOverlayCloseTip(): Boolean = uiPreferences.hasSeenOverlayCloseTip()
-
-    fun setHasSeenOverlayCloseTip(seen: Boolean) = uiPreferences.setHasSeenOverlayCloseTip(seen)
-
     fun hasSeenOverlayAssistantTip(): Boolean = uiPreferences.hasSeenOverlayAssistantTip()
 
     fun setHasSeenOverlayAssistantTip(seen: Boolean) =
             uiPreferences.setHasSeenOverlayAssistantTip(seen)
-
-    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
-            uiPreferences.getLastOverlayKeyboardOpenHeightDp()
-
-    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) =
-            uiPreferences.setLastOverlayKeyboardOpenHeightDp(heightDp)
 
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 

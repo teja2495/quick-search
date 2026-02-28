@@ -354,6 +354,7 @@ class SearchViewModel(
     private var folderBlacklistPatterns: Set<String> = emptySet()
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
+    private var bottomSearchBarEnabled: Boolean = false
     private var overlayModeEnabled: Boolean = initialOverlayModeEnabled
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
@@ -488,6 +489,7 @@ class SearchViewModel(
 
         // Extract critical data for immediate use
         oneHandedMode = startupConfig.oneHandedMode
+        bottomSearchBarEnabled = startupConfig.startupPreferences.bottomSearchBarEnabled
 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
@@ -500,6 +502,7 @@ class SearchViewModel(
             _uiState.update {
                 it.copy(
                         oneHandedMode = oneHandedMode,
+                        bottomSearchBarEnabled = bottomSearchBarEnabled,
                         disabledAppShortcutIds = disabledAppShortcutIds,
                         // We don't have full prefs yet, so keep initializing flag true
                         // but show the apps we found in cache
@@ -569,6 +572,7 @@ class SearchViewModel(
         folderBlacklistPatterns = prefs.folderBlacklistPatterns
         excludedFileExtensions = prefs.excludedFileExtensions
         oneHandedMode = prefs.oneHandedMode
+        bottomSearchBarEnabled = prefs.bottomSearchBarEnabled
         overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
@@ -592,6 +596,7 @@ class SearchViewModel(
                     folderBlacklistPatterns = folderBlacklistPatterns,
                     excludedFileExtensions = excludedFileExtensions,
                     oneHandedMode = oneHandedMode,
+                    bottomSearchBarEnabled = bottomSearchBarEnabled,
                     overlayModeEnabled = overlayModeEnabled,
                     directDialEnabled = directDialEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
@@ -610,7 +615,6 @@ class SearchViewModel(
                     shouldShowUsagePermissionBanner =
                             userPreferences.shouldShowUsagePermissionBanner(),
                     hasDismissedSearchHistoryTip = userPreferences.hasDismissedSearchHistoryTip(),
-                    showOverlayCloseTip = !userPreferences.hasSeenOverlayCloseTip(),
                     hasSeenOverlayAssistantTip = userPreferences.hasSeenOverlayAssistantTip(),
             )
         }
@@ -653,6 +657,7 @@ class SearchViewModel(
                     indexedAppCount = cachedAppsList.size,
                     // Critical: update these to prevent flashing
                     oneHandedMode = oneHandedMode,
+                    bottomSearchBarEnabled = bottomSearchBarEnabled,
                     appSuggestionsEnabled = suggestionsEnabled,
                     showAppLabels = labelsEnabled,
             )
@@ -694,6 +699,7 @@ class SearchViewModel(
                         showSearchBarWelcomeAnimation = shouldShowSearchBarWelcome(),
                         appSuggestionsEnabled = userPreferences.areAppSuggestionsEnabled(),
                         showAppLabels = userPreferences.shouldShowAppLabels(),
+                        bottomSearchBarEnabled = userPreferences.isBottomSearchBarEnabled(),
                         disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
@@ -895,28 +901,10 @@ class SearchViewModel(
         }
     }
 
-    fun hasSeenOverlayCloseTip(): Boolean = userPreferences.hasSeenOverlayCloseTip()
-
-    fun dismissOverlayCloseTip() {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setHasSeenOverlayCloseTip(true)
-            _uiState.update { it.copy(showOverlayCloseTip = false) }
-        }
-    }
-
     fun dismissOverlayAssistantTip() {
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setHasSeenOverlayAssistantTip(true)
             _uiState.update { it.copy(hasSeenOverlayAssistantTip = true) }
-        }
-    }
-
-    fun getLastOverlayKeyboardOpenHeightDp(): Float? =
-            userPreferences.getLastOverlayKeyboardOpenHeightDp()
-
-    fun setLastOverlayKeyboardOpenHeightDp(heightDp: Float) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userPreferences.setLastOverlayKeyboardOpenHeightDp(heightDp)
         }
     }
 
@@ -2283,6 +2271,17 @@ class SearchViewModel(
                 stateUpdater = {
                     oneHandedMode = it
                     updateUiState { state -> state.copy(oneHandedMode = it) }
+                },
+        )
+    }
+
+    fun setBottomSearchBarEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setBottomSearchBarEnabled,
+                stateUpdater = {
+                    bottomSearchBarEnabled = it
+                    updateUiState { state -> state.copy(bottomSearchBarEnabled = it) }
                 },
         )
     }
