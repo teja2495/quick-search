@@ -1435,6 +1435,13 @@ class SearchViewModel(
     }
 
     fun onQueryChange(newQuery: String) {
+        onQueryChangeInternal(newQuery, clearShortcutWhenBlank = true)
+    }
+
+    private fun onQueryChangeInternal(
+            newQuery: String,
+            clearShortcutWhenBlank: Boolean,
+    ) {
         val previousQuery = _uiState.value.query
         // Prevent redundant updates
         if (newQuery == previousQuery) return
@@ -1449,6 +1456,9 @@ class SearchViewModel(
         }
 
         if (trimmedQuery.isBlank()) {
+            if (clearShortcutWhenBlank) {
+                lockedShortcutTarget = null
+            }
             appSearchManager.setNoMatchPrefix(null)
             searchJob?.cancel()
             secondarySearchOrchestrator.resetNoResultTracking()
@@ -1464,30 +1474,13 @@ class SearchViewModel(
                         DirectSearchState = DirectSearchState(),
                         calculatorState = CalculatorState(),
                         webSuggestions = emptyList(),
-                        detectedShortcutTarget = lockedShortcutTarget,
+                        detectedShortcutTarget =
+                                if (clearShortcutWhenBlank) null else lockedShortcutTarget,
                         webSuggestionWasSelected = false,
                 )
             }
             // Load recent queries when query is empty
             refreshRecentItems()
-            // Also reset locked shortcut when query is cleared completely (empty)
-            // But we don't null it out here if we are just transitioning?
-            // Actually, if query is empty, it means we are cleared.
-            // Wait, if we stripped the shortcut, the query might not be empty immediately if there
-            // was trailing text.
-            // If the query becomes empty manually (user backspaced everything), we should probably
-            // clear the lock?
-            // User requirement: "clear the detected state only when user clears the query by
-            // tapping on x icon or when the app automatically clears the query using clearQuery
-            // function."
-            // So if user backspaces to empty, we might want to keep it? The requirement says "x
-            // icon" or "clearQuery".
-            // However, if the query is blank, showing a shortcut icon without query might be weird.
-            // Let's stick to the explicit clearQuery for now.
-            // But wait, onQueryChange handles the empty case at the top.
-            // If I backspace "hello world" to "", detectedTarget will be lockedShortcutTarget
-            // (Google).
-            // So detection stays.
             return
         }
 
@@ -1503,7 +1496,10 @@ class SearchViewModel(
 
                 // Strip the shortcut from the query and update recursively
                 val queryWithoutShortcut = shortcutMatchAtStart.first
-                onQueryChange(queryWithoutShortcut)
+                onQueryChangeInternal(
+                        queryWithoutShortcut,
+                        clearShortcutWhenBlank = false,
+                )
                 return
             }
         }
