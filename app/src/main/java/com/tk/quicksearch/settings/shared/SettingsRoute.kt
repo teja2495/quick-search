@@ -32,8 +32,10 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
@@ -42,6 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,8 +68,10 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.directSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.WallpaperUtils
 import com.tk.quicksearch.util.hapticToggle
 import com.tk.quicksearch.widget.requestAddQuickSearchWidget
+import kotlinx.coroutines.launch
 
 /**
  * Data class to hold all settings screen state and callbacks. Reduces parameter count and improves
@@ -829,6 +834,35 @@ fun SettingsRoute(
     val shouldShowBanner = remember { mutableStateOf(uiState.shouldShowUsagePermissionBanner) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val pendingEnableDirectDial = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var showWallpaperFallbackDialog by remember { mutableStateOf(false) }
+    var requiresImagePermissionAfterWallpaperSecurityError by remember { mutableStateOf(false) }
+    var wallpaperButtonHasPermission by
+        remember { mutableStateOf(PermissionRequestHandler.checkFilesPermission(context)) }
+
+    suspend fun tryFetchWallpaperWithFilesPermission() {
+        when (WallpaperUtils.getWallpaperBitmapResult(context)) {
+            is WallpaperUtils.WallpaperLoadResult.Success -> {
+                requiresImagePermissionAfterWallpaperSecurityError = false
+                wallpaperButtonHasPermission = true
+                viewModel.setWallpaperAvailable(true)
+                viewModel.setBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
+            }
+            WallpaperUtils.WallpaperLoadResult.SecurityError -> {
+                requiresImagePermissionAfterWallpaperSecurityError = true
+                wallpaperButtonHasPermission = false
+                viewModel.setWallpaperAvailable(false)
+                showWallpaperFallbackDialog = true
+            }
+            WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
+                wallpaperButtonHasPermission = false
+                viewModel.setWallpaperAvailable(false)
+            }
+            WallpaperUtils.WallpaperLoadResult.Unavailable -> {
+                viewModel.setWallpaperAvailable(false)
+            }
+        }
+    }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
         viewModel.refreshIconPacks()
@@ -887,22 +921,62 @@ fun SettingsRoute(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted ->
-            handlePermissionResult(
-                isGranted = isGranted,
-                context = context,
-                permission = Manifest.permission.READ_MEDIA_IMAGES,
-                onPermanentlyDenied = viewModel::openAppSettings,
-                onPermissionChanged = viewModel::handleOptionalPermissionChange,
-            )
+            if (isGranted) {
+                scope.launch { tryFetchWallpaperWithFilesPermission() }
+            } else {
+                wallpaperButtonHasPermission = false
+                viewModel.setWallpaperAvailable(false)
+            }
+            viewModel.handleOptionalPermissionChange()
         }
 
-    val onRequestWallpaperPermission =
-        createPermissionRequestHandler(
-            context = context,
-            permissionLauncher = wallpaperPermissionLauncher,
-            permission = Manifest.permission.READ_MEDIA_IMAGES,
-            fallbackAction = viewModel::openAppSettings,
-        )
+    val wallpaperFilesAccessLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+        ) {
+            val filesGranted = PermissionRequestHandler.checkFilesPermission(context)
+            wallpaperButtonHasPermission =
+                filesGranted && !requiresImagePermissionAfterWallpaperSecurityError
+            if (filesGranted) {
+                scope.launch { tryFetchWallpaperWithFilesPermission() }
+            } else {
+                viewModel.setWallpaperAvailable(false)
+            }
+            viewModel.handleOptionalPermissionChange()
+        }
+
+    val legacyFilesPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                wallpaperButtonHasPermission = !requiresImagePermissionAfterWallpaperSecurityError
+                scope.launch { tryFetchWallpaperWithFilesPermission() }
+            } else {
+                wallpaperButtonHasPermission = false
+                viewModel.setWallpaperAvailable(false)
+            }
+            viewModel.handleOptionalPermissionChange()
+        }
+
+    val onRequestWallpaperPermission: () -> Unit = {
+        if (requiresImagePermissionAfterWallpaperSecurityError &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+        } else if (!PermissionRequestHandler.checkFilesPermission(context)) {
+            wallpaperButtonHasPermission = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                PermissionRequestHandler.launchAllFilesAccessRequest(
+                    wallpaperFilesAccessLauncher,
+                    context,
+                )
+            } else {
+                legacyFilesPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        } else {
+            scope.launch { tryFetchWallpaperWithFilesPermission() }
+        }
+    }
 
     val onToggleDirectDial: (Boolean) -> Unit = { enabled ->
         if (enabled) {
@@ -1132,6 +1206,9 @@ fun SettingsRoute(
 
                     Lifecycle.Event.ON_RESUME -> {
                         viewModel.handleOnResume()
+                        wallpaperButtonHasPermission =
+                            PermissionRequestHandler.checkFilesPermission(context) &&
+                                !requiresImagePermissionAfterWallpaperSecurityError
                         shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
                     }
 
@@ -1148,9 +1225,11 @@ fun SettingsRoute(
         shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
     }
 
+    val resolvedState = state.copy(hasWallpaperPermission = wallpaperButtonHasPermission)
+
     com.tk.quicksearch.settings.settingsScreen.SettingsScreen(
         modifier = modifier,
-        state = state,
+        state = resolvedState,
         callbacks = callbacks,
         hasUsagePermission = uiState.hasUsagePermission,
         hasContactPermission = uiState.hasContactPermission,
@@ -1165,6 +1244,47 @@ fun SettingsRoute(
         onNavigateToDetail = onNavigateToDetail,
         scrollState = scrollState,
     )
+
+    if (showWallpaperFallbackDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showWallpaperFallbackDialog = false
+                wallpaperButtonHasPermission = false
+            },
+            title = {
+                Text(text = context.getString(R.string.wallpaper_permission_fallback_title))
+            },
+            text = {
+                Text(text = context.getString(R.string.wallpaper_permission_fallback_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showWallpaperFallbackDialog = false
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                        } else {
+                            scope.launch { tryFetchWallpaperWithFilesPermission() }
+                        }
+                    },
+                ) {
+                    Text(text = context.getString(R.string.dialog_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showWallpaperFallbackDialog = false
+                        wallpaperButtonHasPermission = false
+                        requiresImagePermissionAfterWallpaperSecurityError = true
+                        viewModel.setWallpaperAvailable(false)
+                    },
+                ) {
+                    Text(text = context.getString(R.string.dialog_cancel))
+                }
+            },
+        )
+    }
 
     if (showShortcutSourcePicker) {
         val appShortcutSources =

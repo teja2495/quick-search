@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.BackgroundSource
+import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.isLikelyWebUrl
@@ -250,6 +251,9 @@ fun OverlayRoot(
                         val useImageBackground =
                                 uiState.backgroundSource != BackgroundSource.THEME &&
                                         overlayImageBitmap != null
+                        val useMonoThemeFallback =
+                                uiState.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+                                        overlayImageBitmap == null
 
                         val density = LocalDensity.current
                         val overlayEntryProgress by animateFloatAsState(
@@ -319,8 +323,14 @@ fun OverlayRoot(
                                                         OVERLAY_FALLBACK_GRADIENT_ALPHA,
                                                 useGradientFallback =
                                                         uiState.backgroundSource ==
-                                                                BackgroundSource.THEME,
-                                                overlayGradientTheme = uiState.overlayGradientTheme,
+                                                                        BackgroundSource.THEME ||
+                                                                useMonoThemeFallback,
+                                                overlayGradientTheme =
+                                                        if (useMonoThemeFallback) {
+                                                                OverlayGradientTheme.MONOCHROME
+                                                        } else {
+                                                                uiState.overlayGradientTheme
+                                                        },
                                                 overlayThemeIntensity =
                                                         uiState.overlayThemeIntensity,
                                                 modifier = Modifier.fillMaxSize(),

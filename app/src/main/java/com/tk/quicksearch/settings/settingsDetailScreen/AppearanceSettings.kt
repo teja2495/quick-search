@@ -444,10 +444,6 @@ private fun OverlayThemeCard(
     val view = LocalView.current
     val context = LocalContext.current
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val isThemeSourceSelected = backgroundSource == BackgroundSource.THEME
-    val isWallpaperSourceSelected =
-            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER
-    val isCustomSourceSelected = backgroundSource == BackgroundSource.CUSTOM_IMAGE
 
     val wallpaperPreviewBitmap by
             produceState<androidx.compose.ui.graphics.ImageBitmap?>(
@@ -466,6 +462,24 @@ private fun OverlayThemeCard(
             ) {
                 value = WallpaperUtils.getOverlayCustomImageBitmap(context, customImageUri)
             }
+    val useMonoThemeFallback =
+            backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
+                    wallpaperPreviewBitmap == null
+    val effectiveBackgroundSource =
+            if (useMonoThemeFallback) {
+                BackgroundSource.THEME
+            } else {
+                backgroundSource
+            }
+    val effectiveSelectedTheme =
+            if (useMonoThemeFallback) {
+                OverlayGradientTheme.MONOCHROME
+            } else {
+                selectedTheme
+            }
+    val isThemeSourceSelected = effectiveBackgroundSource == BackgroundSource.THEME
+    val isWallpaperSourceSelected = effectiveBackgroundSource == BackgroundSource.SYSTEM_WALLPAPER
+    val isCustomSourceSelected = effectiveBackgroundSource == BackgroundSource.CUSTOM_IMAGE
 
     val minIntensity = UiPreferences.MIN_OVERLAY_THEME_INTENSITY
     val maxIntensity = UiPreferences.MAX_OVERLAY_THEME_INTENSITY
@@ -528,7 +542,7 @@ private fun OverlayThemeCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 themeOptions.forEach { option ->
-                    val isSelected = selectedTheme == option.theme && isThemeSourceSelected
+                    val isSelected = effectiveSelectedTheme == option.theme && isThemeSourceSelected
                     val interactionSource = remember { MutableInteractionSource() }
                     Column(
                             modifier =

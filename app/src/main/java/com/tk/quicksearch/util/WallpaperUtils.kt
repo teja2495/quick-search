@@ -98,7 +98,7 @@ object WallpaperUtils {
                     WallpaperLoadResult.Unavailable
                 }
             } catch (e: SecurityException) {
-                WallpaperLoadResult.PermissionRequired
+                WallpaperLoadResult.SecurityError
             } catch (e: Exception) {
                 WallpaperLoadResult.Unavailable
             }

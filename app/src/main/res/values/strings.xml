@@ -282,7 +282,7 @@
     <string name="settings_wallpaper_transparency_label">Transparency</string>
     <string name="settings_wallpaper_blur_label">Blur</string>
     <string name="wallpaper_permission_fallback_title">Wallpaper Error</string>
-    <string name="wallpaper_permission_fallback_message">Unable to fetch wallpaper using file permission. Do you want me to try another way?</string>
+    <string name="wallpaper_permission_fallback_message">Couldn\u2019t fetch wallpaper with files permission. Should I try another method to fetch your wallpaper?</string>
     <string name="settings_overlay_mode_title">Overlay Mode</string>
     <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
     <string name="settings_overlay_assistant_tip">Tip: Set this app as your digital assistant to open the overlay from anywhere.</string>
@@ -318,7 +318,7 @@
     <string name="settings_overlay_source_add_custom">Add custom image</string>
     <string name="settings_overlay_source_edit_custom">Edit custom image</string>
     <string name="settings_overlay_source_permission_required">Permission required</string>
-    <string name="settings_overlay_source_needs_permission">Needs Permission</string>
+    <string name="settings_overlay_source_needs_permission">Needs permission</string>
 
     <!-- ============================================================================
          Settings - Search Engines
