@@ -339,6 +339,16 @@
     <string name="settings_launch_options_desc">Different ways to launch this app</string>
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_permissions_desc">Permissions this app needs to enable features</string>
+    <string name="settings_backup_restore_title">Backup &amp; Restore</string>
+    <string name="settings_backup_restore_desc">Export or import your app settings</string>
+    <string name="settings_backup_import_button">Import</string>
+    <string name="settings_backup_export_button">Export</string>
+    <string name="settings_backup_import_warning_title">Import settings?</string>
+    <string name="settings_backup_import_warning_message">This will overwrite your existing settings.</string>
+    <string name="settings_backup_export_success">Settings exported successfully.</string>
+    <string name="settings_backup_export_failed">Unable to export settings.</string>
+    <string name="settings_backup_import_success">Settings imported successfully.</string>
+    <string name="settings_backup_import_failed">Unable to import settings.</string>
     <string name="settings_feedback_development_title">Feedback &amp; Development</string>
     <string name="settings_feedback_development_desc">Send feedback, see app\'s source code</string>
     <string name="settings_add_search_engine_button">Add Search Engine</string>

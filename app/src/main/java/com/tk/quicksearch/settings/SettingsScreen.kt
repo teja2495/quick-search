@@ -3,7 +3,10 @@ package com.tk.quicksearch.settings.settingsScreen
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +34,7 @@ import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Layers
@@ -39,6 +43,9 @@ import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Upload
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -46,9 +53,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,7 +90,12 @@ import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.FeedbackUtils
 import com.tk.quicksearch.util.InAppBrowserUtils
 import com.tk.quicksearch.util.hapticToggle
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Retrieves the app version name from the package manager.
@@ -112,6 +126,7 @@ fun SettingsScreen(
     onRequestCallPermission: () -> Unit,
     onDismissBanner: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit,
+    onSettingsImported: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState =
         androidx.compose.foundation.rememberScrollState(),
 ) {
@@ -283,6 +298,7 @@ fun SettingsScreen(
                 onNavigateToPermissions = {
                     onNavigateToDetail(SettingsDetailType.PERMISSIONS)
                 },
+                onSettingsImported = onSettingsImported,
             )
 
             // App Version
@@ -325,8 +341,41 @@ fun NavigationSectionCard(
 fun SettingsMoreOptions(
     modifier: Modifier = Modifier,
     onNavigateToPermissions: () -> Unit = {},
+    onSettingsImported: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+    var showImportWarningDialog by remember { mutableStateOf(false) }
+
+    val exportLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
+        ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch(Dispatchers.IO) {
+                val isSuccess =
+                    runCatching { SettingsBackupManager.exportToUri(context, uri) }.isSuccess
+                withContext(Dispatchers.Main) {
+                    val messageResId =
+                        if (isSuccess) {
+                            R.string.settings_backup_export_success
+                        } else {
+                            R.string.settings_backup_export_failed
+                        }
+                    Toast.makeText(context, context.getString(messageResId), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+    val importLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            pendingImportUri = uri
+            showImportWarningDialog = true
+        }
 
     val onSendFeedback = {
         FeedbackUtils.launchFeedbackEmail(context, null)
@@ -381,14 +430,16 @@ fun SettingsMoreOptions(
         }
     }
 
+    val permissionsItem =
+        SettingsCardItem(
+            title = stringResource(R.string.settings_permissions_title),
+            description = stringResource(R.string.settings_permissions_desc),
+            icon = Icons.Rounded.AdminPanelSettings,
+            actionOnPress = onNavigateToPermissions,
+        )
+
     val feedbackItems =
         listOf(
-            SettingsCardItem(
-                title = stringResource(R.string.settings_permissions_title),
-                description = stringResource(R.string.settings_permissions_desc),
-                icon = Icons.Rounded.AdminPanelSettings,
-                actionOnPress = onNavigateToPermissions,
-            ),
             SettingsCardItem(
                 title = stringResource(R.string.settings_feedback_rate_title),
                 description = stringResource(R.string.settings_feedback_rate_desc),
@@ -421,6 +472,28 @@ fun SettingsMoreOptions(
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
+            SettingsNavigationRow(
+                item = permissionsItem,
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+            )
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+
+            BackupRestoreRow(
+                onImportClick = { importLauncher.launch(arrayOf("*/*")) },
+                onExportClick = {
+                    val defaultName =
+                        SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+                    exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
+                },
+            )
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+
             feedbackItems.forEachIndexed { index, item ->
                 SettingsNavigationRow(
                     item = item,
@@ -452,6 +525,127 @@ fun SettingsMoreOptions(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
+            }
+        }
+    }
+
+    if (showImportWarningDialog && pendingImportUri != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showImportWarningDialog = false
+                pendingImportUri = null
+            },
+            title = {
+                Text(text = stringResource(R.string.settings_backup_import_warning_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.settings_backup_import_warning_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val importUri = pendingImportUri
+                        showImportWarningDialog = false
+                        pendingImportUri = null
+                        if (importUri == null) return@TextButton
+
+                        scope.launch(Dispatchers.IO) {
+                            val isSuccess =
+                                runCatching {
+                                    SettingsBackupManager.importFromUri(context, importUri)
+                                }.isSuccess
+                            withContext(Dispatchers.Main) {
+                                val messageResId =
+                                    if (isSuccess) {
+                                        R.string.settings_backup_import_success
+                                    } else {
+                                        R.string.settings_backup_import_failed
+                                    }
+                                Toast
+                                    .makeText(
+                                        context,
+                                        context.getString(messageResId),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                if (isSuccess) {
+                                    onSettingsImported()
+                                }
+                            }
+                        }
+                    },
+                ) {
+                    Text(text = stringResource(R.string.dialog_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showImportWarningDialog = false
+                        pendingImportUri = null
+                    },
+                ) {
+                    Text(text = stringResource(R.string.dialog_cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun BackupRestoreRow(
+    onImportClick: () -> Unit,
+    onExportClick: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.settings_backup_restore_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.settings_backup_restore_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            OutlinedButton(
+                onClick = onImportClick,
+                modifier = Modifier.weight(1f),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Download,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.settings_backup_import_button))
+            }
+            OutlinedButton(
+                onClick = onExportClick,
+                modifier = Modifier.weight(1f),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Upload,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.settings_backup_export_button))
             }
         }
     }
