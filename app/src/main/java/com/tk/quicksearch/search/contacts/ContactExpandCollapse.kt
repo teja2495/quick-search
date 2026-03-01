@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,6 +72,7 @@ internal fun CollapseButton(
     androidx.compose.material3.FilledTonalButton(
         onClick = onClick,
         modifier = modifier,
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
         colors =
             ButtonDefaults.filledTonalButtonColors(
                 containerColor = collapseContainerColor,

@@ -50,28 +50,31 @@ fun SearchEngineIconItem(
     Box(
         modifier =
             modifier
-                .width(if (isPredicted) itemWidth + highlightExtraWidth else itemWidth)
+                .width(itemWidth)
                 .then(
                     if (!isPredicted) {
                         Modifier
                     } else {
                         Modifier.drawBehind {
+                            val extraWidthPx = highlightExtraWidth.toPx()
                             val extraHeightPx = highlightExtraHeight.toPx()
+                            val left = -extraWidthPx / 2f
                             val top = -extraHeightPx / 2f
+                            val outlineWidth = size.width + extraWidthPx
                             val outlineHeight = size.height + extraHeightPx
                             val strokeWidth = 1.dp.toPx()
                             val cornerRadius = highlightShape.topStart.toPx(size, this)
 
                             drawRoundRect(
                                 color = highlightBackgroundColor,
-                                topLeft = Offset(0f, top),
-                                size = Size(size.width, outlineHeight),
+                                topLeft = Offset(left, top),
+                                size = Size(outlineWidth, outlineHeight),
                                 cornerRadius = CornerRadius(cornerRadius, cornerRadius),
                             )
                             drawRoundRect(
                                 color = highlightBorderColor,
-                                topLeft = Offset(0f, top),
-                                size = Size(size.width, outlineHeight),
+                                topLeft = Offset(left, top),
+                                size = Size(outlineWidth, outlineHeight),
                                 cornerRadius = CornerRadius(cornerRadius, cornerRadius),
                                 style = Stroke(width = strokeWidth),
                             )

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.clickable
@@ -46,6 +47,7 @@ private object SearchEngineSectionConstants {
     val SPACING = 20.dp
     val ROW_SPACING = 10.dp
     val PREDICTION_HIGHLIGHT_HEIGHT_EXTRA = 12.dp
+    val PREDICTION_HIGHLIGHT_WIDTH_EXTRA = 8.dp
     val SEARCH_ICON_SIZE = SearchTargetConstants.SEARCH_ICON_SIZE
     val HORIZONTAL_PADDING = SearchTargetConstants.HORIZONTAL_PADDING
     val VERTICAL_PADDING = SearchTargetConstants.VERTICAL_PADDING
@@ -261,6 +263,10 @@ private fun ScrollableEngineIcons(
             LazyRow(
                 state = scrollState,
                 horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+                contentPadding =
+                    PaddingValues(
+                        horizontal = SearchEngineSectionConstants.PREDICTION_HIGHLIGHT_WIDTH_EXTRA / 2,
+                    ),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -308,6 +314,10 @@ private fun ScrollableEngineIcons(
             LazyRow(
                 state = scrollState,
                 horizontalArrangement = Arrangement.spacedBy(SearchEngineSectionConstants.SPACING),
+                contentPadding =
+                    PaddingValues(
+                        horizontal = SearchEngineSectionConstants.PREDICTION_HIGHLIGHT_WIDTH_EXTRA / 2,
+                    ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 rowItems(enabledEngines) { engine ->
