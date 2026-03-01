@@ -312,6 +312,7 @@ fun SectionSettingsSection(
     ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.ExtraLargeCardShape) {
         Column(modifier = Modifier.fillMaxWidth()) {
             sectionOrder.forEachIndexed { index, section ->
+                val isSectionEnabled = section !in disabledSections
                 val isAppsRow = section == SearchSection.APPS
                 val isAppShortcutsRow = section == SearchSection.APP_SHORTCUTS
                 val isContactsRow = section == SearchSection.CONTACTS
@@ -319,14 +320,14 @@ fun SectionSettingsSection(
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 SectionRowWithoutDrag(
                     section = section,
-                    isEnabled = section !in disabledSections,
+                    isEnabled = isSectionEnabled,
                     onToggle = { enabled -> onToggleSection(section, enabled) },
                     subtitle =
                         when {
                             isAppsRow -> appsSubtitle
                             isAppShortcutsRow -> appShortcutsSubtitle
-                            isContactsRow -> contactsSubtitle
-                            isFilesRow -> filesSubtitle
+                            isContactsRow -> contactsSubtitle?.takeIf { isSectionEnabled }
+                            isFilesRow -> filesSubtitle?.takeIf { isSectionEnabled }
                             isDeviceSettingsRow -> deviceSettingsSubtitle
                             else -> null
                         },
@@ -334,8 +335,8 @@ fun SectionSettingsSection(
                         when {
                             isAppsRow -> onAppsClick
                             isAppShortcutsRow -> onAppShortcutsClick
-                            isContactsRow -> onContactsClick
-                            isFilesRow -> onFilesClick
+                            isContactsRow -> onContactsClick?.takeIf { isSectionEnabled }
+                            isFilesRow -> onFilesClick?.takeIf { isSectionEnabled }
                             isDeviceSettingsRow -> onDeviceSettingsClick
                             else -> null
                         },
