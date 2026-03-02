@@ -39,7 +39,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +69,6 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
-import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.appShortcuts.*
 import kotlinx.coroutines.launch
 

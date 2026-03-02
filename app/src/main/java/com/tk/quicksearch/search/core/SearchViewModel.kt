@@ -62,7 +62,6 @@ import com.tk.quicksearch.shared.util.getAppGridColumns
 import java.util.Calendar
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -366,8 +365,6 @@ class SearchViewModel(
     private var customImageUri: String? = initialOverlayCustomImageUri
     private var lockedShortcutTarget: SearchTarget? = null
     private var amazonDomain: String? = null
-    private var searchJob: Job? = null
-    private var queryVersion: Long = 0L
     private var pendingNavigationClear: Boolean = false
     private var isStartupComplete: Boolean = false
 
@@ -1397,14 +1394,6 @@ class SearchViewModel(
         }
     }
 
-    // Removed messaging logic (moved to MessagingHandler)
-
-    // Removed isPackageInstalled (moved to MessagingHandler)
-
-    // Removed Release Notes logic (moved to ReleaseNotesHandler)
-
-    // Removed setMessagingApp (delegate in SearchViewModelExtensions if needed, or direct)
-
     fun setDirectDialEnabled(
             enabled: Boolean,
             manual: Boolean = true,
@@ -1445,7 +1434,6 @@ class SearchViewModel(
                 lockedShortcutTarget = null
             }
             appSearchManager.setNoMatchPrefix(null)
-            searchJob?.cancel()
             secondarySearchOrchestrator.resetNoResultTracking()
             webSuggestionHandler.cancelSuggestions()
             updateUiState {
@@ -1566,8 +1554,6 @@ class SearchViewModel(
         }
     }
 
-    // Removed detectShortcut (unused)
-
     fun clearDetectedShortcut() {
         lockedShortcutTarget = null
         updateUiState { it.copy(detectedShortcutTarget = null) }
@@ -1577,8 +1563,6 @@ class SearchViewModel(
         lockedShortcutTarget = null
         onQueryChange("")
     }
-
-    // Moved loadPinnedContactsAndFiles and loadExcludedContactsAndFiles to PinningHandler
 
     fun handleOnResume() {
         val previous = _uiState.value.hasUsagePermission
@@ -2568,7 +2552,6 @@ class SearchViewModel(
     }
 
     companion object {
-        private const val SECONDARY_SEARCH_DEBOUNCE_MS = 150L
         private const val MAX_RECENT_ITEMS = 10
     }
 
@@ -2814,8 +2797,6 @@ class SearchViewModel(
         return startOfYesterday to startOfTomorrow
     }
 
-    // performSecondarySearches moved to SecondarySearchOrchestrator
-
     fun onWebSuggestionTap(suggestion: String) {
         // Check if there's a detected shortcut engine and perform immediate search
         val currentState = _uiState.value
@@ -2949,6 +2930,5 @@ class SearchViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        searchJob?.cancel()
     }
 }

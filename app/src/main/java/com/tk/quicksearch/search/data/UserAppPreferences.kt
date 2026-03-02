@@ -87,11 +87,6 @@ class UserAppPreferences(
     )
 
     /**
-     * Loads all preferences needed during startup in a single batch operation. This reduces the
-     * number of SharedPreferences reads for better startup performance.
-     */
-
-    /**
      * Optimized: Loads all preferences needed during startup in a single batch operation. Uses
      * SharedPreferences.getAll() to minimize disk I/O operations.
      */
