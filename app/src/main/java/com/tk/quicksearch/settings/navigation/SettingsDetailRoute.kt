@@ -38,7 +38,7 @@ import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.isDefaultDigitalAssistant
-import com.tk.quicksearch.widget.requestAddQuickSearchWidget
+import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

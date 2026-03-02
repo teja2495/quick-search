@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.searchWidget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -26,12 +26,19 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
+import com.tk.quicksearch.widgets.WidgetConfigScreen
+import com.tk.quicksearch.widgets.utils.WidgetPreferences
+import com.tk.quicksearch.widgets.utils.WidgetVariant
+import com.tk.quicksearch.widgets.utils.applyWidgetPreferences
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomButtonsWidgetReceiver
+import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
+import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlinx.coroutines.launch
 
 /** Activity for configuring widget preferences when a widget is added or reconfigured. */
-class QuickSearchWidgetConfigureActivity : ComponentActivity() {
+class SearchWidgetConfigureActivity : ComponentActivity() {
     private var appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
-    private var widgetVariant: QuickSearchWidgetVariant = QuickSearchWidgetVariant.STANDARD
+    private var widgetVariant: WidgetVariant = WidgetVariant.STANDARD
     private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +77,8 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         return manager.getGlanceIdBy(appWidgetId)
     }
 
-    private suspend fun loadWidgetPreferences(appWidgetId: Int): QuickSearchWidgetPreferences {
-        val glanceId = getGlanceId(appWidgetId) ?: return QuickSearchWidgetPreferences.Default
+    private suspend fun loadWidgetPreferences(appWidgetId: Int): WidgetPreferences {
+        val glanceId = getGlanceId(appWidgetId) ?: return WidgetPreferences.Default
 
         val prefs =
             getAppWidgetState(
@@ -84,7 +91,7 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
 
     private suspend fun saveWidgetPreferences(
         appWidgetId: Int,
-        prefs: QuickSearchWidgetPreferences,
+        prefs: WidgetPreferences,
     ) {
         val glanceId = getGlanceId(appWidgetId) ?: return
         val constrainedPrefs = prefs.enforceVariantConstraints(widgetVariant)
@@ -92,22 +99,22 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
         updateAppWidgetState(context = this, glanceId = glanceId) { mutablePrefs ->
             mutablePrefs.applyWidgetPreferences(constrainedPrefs)
         }
-        QuickSearchWidget(widgetVariant).update(this, glanceId)
+        SearchWidget(widgetVariant).update(this, glanceId)
     }
 
     private fun createResultIntent(): Intent = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
 
-    private fun resolveWidgetVariant(appWidgetId: Int): QuickSearchWidgetVariant {
+    private fun resolveWidgetVariant(appWidgetId: Int): WidgetVariant {
         val providerClassName =
             AppWidgetManager
                 .getInstance(this)
                 .getAppWidgetInfo(appWidgetId)
                 ?.provider
                 ?.className
-        return if (providerClassName == QuickSearchCustomButtonsWidgetReceiver::class.java.name) {
-            QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY
+        return if (providerClassName == CustomButtonsWidgetReceiver::class.java.name) {
+            WidgetVariant.CUSTOM_BUTTONS_ONLY
         } else {
-            QuickSearchWidgetVariant.STANDARD
+            WidgetVariant.STANDARD
         }
     }
 
@@ -135,12 +142,12 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
     @Composable
     private fun WidgetConfigurationContent(
         appWidgetId: Int,
-        widgetVariant: QuickSearchWidgetVariant,
+        widgetVariant: WidgetVariant,
         onConfigurationComplete: () -> Unit,
     ) {
         val context = LocalContext.current
         var config by rememberSaveable {
-            mutableStateOf(QuickSearchWidgetPreferences.Default.enforceVariantConstraints(widgetVariant))
+            mutableStateOf(WidgetPreferences.Default.enforceVariantConstraints(widgetVariant))
         }
         var isLoaded by rememberSaveable { mutableStateOf(false) }
         var showConfigTip by rememberSaveable { mutableStateOf(!isWidgetConfigTipShown(context)) }
@@ -151,13 +158,13 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
             isLoaded = true
         }
 
-        QuickSearchWidgetConfigScreen(
+        WidgetConfigScreen(
             state = config,
             isLoaded = isLoaded,
             isSaveEnabled =
                 isLoaded &&
                     (
-                        widgetVariant != QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY ||
+                        widgetVariant != WidgetVariant.CUSTOM_BUTTONS_ONLY ||
                             config.hasCustomButtons
                     ),
             onStateChange = { config = it.enforceVariantConstraints(widgetVariant) },
@@ -172,7 +179,7 @@ class QuickSearchWidgetConfigureActivity : ComponentActivity() {
             searchViewModel = searchViewModel,
             widgetVariant = widgetVariant,
             titleResId =
-                if (widgetVariant == QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY) {
+                if (widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY) {
                     R.string.widget_custom_buttons_widget_settings_title
                 } else {
                     R.string.widget_settings_title

@@ -2,19 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Network Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Haptic Feedback -->
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <!-- Usage Statistics Permissions -->
-    <uses-permission
-        android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
-
-    <!-- Package Management Permissions -->
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <!-- Contact Permissions -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -79,6 +71,42 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <!-- Search Activities -->
+        <activity
+            android:name=".search.overlay.OverlayActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.QuickSearch"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+
+        <activity
+            android:name=".search.searchEngines.SearchTargetQueryShortcutActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.QuickSearch" />
+
+        <!-- Widget Activities -->
+        <activity
+            android:name=".widgets.searchWidget.SearchWidgetConfigureActivity"
+            android:exported="false"
+            android:label="@string/widget_settings_title"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widgets.customButtonsWidget.QuickSearchWidgetActionActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.QuickSearch" />
+
+        <!-- Settings Activities -->
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
             android:exported="false"
@@ -93,46 +121,9 @@
             android:theme="@style/Theme.QuickSearch.OssLicenses"
             tools:replace="android:exported,android:label,android:theme" />
 
-
-
-        <!-- Widget Configuration Activity -->
-
-        <activity
-            android:name=".widget.QuickSearchWidgetConfigureActivity"
-            android:exported="false"
-            android:label="@string/widget_settings_title"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true"
-            android:noHistory="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".widget.customButtons.QuickSearchWidgetActionActivity"
-            android:exported="true"
-            android:excludeFromRecents="true"
-            android:theme="@style/Theme.QuickSearch" />
-
-        <activity
-            android:name=".search.searchEngines.SearchTargetQueryShortcutActivity"
-            android:exported="true"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
-            android:theme="@style/Theme.QuickSearch" />
-
-        <activity
-            android:name=".search.overlay.OverlayActivity"
-            android:exported="false"
-            android:excludeFromRecents="true"
-            android:launchMode="singleTask"
-            android:theme="@style/Theme.QuickSearch"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
-
-        <!-- Widget Receiver -->
+        <!-- Widget Receivers -->
         <receiver
-            android:name=".widget.QuickSearchWidgetReceiver"
+            android:name=".widgets.searchWidget.SearchWidgetReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -140,11 +131,11 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/quick_search_widget_info" />
+                android:resource="@xml/widget_info" />
         </receiver>
 
         <receiver
-            android:name=".widget.QuickSearchCustomButtonsWidgetReceiver"
+            android:name=".widgets.customButtonsWidget.CustomButtonsWidgetReceiver"
             android:exported="false"
             android:label="@string/widget_custom_buttons_widget_title">
             <intent-filter>
@@ -153,7 +144,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/quick_search_custom_buttons_widget_info" />
+                android:resource="@xml/custom_buttons_widget_info" />
         </receiver>
 
         <!-- Quick Settings Tile Service -->

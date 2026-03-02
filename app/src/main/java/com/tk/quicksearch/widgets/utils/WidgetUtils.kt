@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.utils
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.widget.Toast
 import com.tk.quicksearch.R
+import com.tk.quicksearch.widgets.searchWidget.SearchWidgetReceiver
 
 fun requestAddQuickSearchWidget(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -22,7 +23,7 @@ private fun requestPinForAndroidOPlus(context: Context) {
         return
     }
 
-    val provider = ComponentName(context, QuickSearchWidgetReceiver::class.java)
+    val provider = ComponentName(context, SearchWidgetReceiver::class.java)
     try {
         val requested = appWidgetManager.requestPinAppWidget(provider, null, null)
         if (!requested) {

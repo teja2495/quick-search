@@ -28,9 +28,9 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import com.tk.quicksearch.shared.util.WallpaperUtils
-import com.tk.quicksearch.widget.QuickSearchWidget
-import com.tk.quicksearch.widget.voiceSearch.MicAction
-import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
+import com.tk.quicksearch.widgets.searchWidget.SearchWidget
+import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -155,10 +155,10 @@ class MainActivity : ComponentActivity() {
                 isAssistantLaunch && userPreferences.isAssistantLaunchVoiceModeEnabled()
             val startVoiceFromShortcut = isVoiceShortcutLaunch
             val startVoiceFromWidget =
-                intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
+                intent?.getBooleanExtra(SearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
             val micAction =
                 intent
-                    ?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
+                    ?.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
                     ?.let { actionString ->
                         MicAction.entries.find { it.value == actionString }
                     }
@@ -316,10 +316,10 @@ class MainActivity : ComponentActivity() {
 
         // Handle voice search from widget
         val shouldStartVoiceSearch =
-            intent?.getBooleanExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
+            intent?.getBooleanExtra(SearchWidget.EXTRA_START_VOICE_SEARCH, false) ?: false
         if (shouldStartVoiceSearch) {
-            intent?.removeExtra(QuickSearchWidget.EXTRA_START_VOICE_SEARCH)
-            val micActionString = intent?.getStringExtra(QuickSearchWidget.EXTRA_MIC_ACTION)
+            intent?.removeExtra(SearchWidget.EXTRA_START_VOICE_SEARCH)
+            val micActionString = intent?.getStringExtra(SearchWidget.EXTRA_MIC_ACTION)
             val micAction =
                 micActionString?.let { actionString ->
                     MicAction.entries.find { it.value == actionString }

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets
 
 import android.content.Intent
 import android.widget.Toast
@@ -70,28 +70,37 @@ import com.tk.quicksearch.search.searchScreen.overlayGradientColors
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonsSection
-import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonsSection
+import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.utils.WidgetPreferences
+import com.tk.quicksearch.widgets.utils.WidgetVariant
+import com.tk.quicksearch.widgets.utils.SearchIconDisplay
+import com.tk.quicksearch.widgets.utils.TextIconColorOverride
+import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
+import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
+import com.tk.quicksearch.widgets.utils.WidgetPreviewCard
+import com.tk.quicksearch.widgets.utils.WidgetTheme
+import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
 import java.util.Locale
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuickSearchWidgetConfigScreen(
-    state: QuickSearchWidgetPreferences,
+fun WidgetConfigScreen(
+    state: WidgetPreferences,
     isLoaded: Boolean,
     isSaveEnabled: Boolean = isLoaded,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    onStateChange: (WidgetPreferences) -> Unit,
     onApply: () -> Unit,
     onCancel: () -> Unit,
     searchViewModel: SearchViewModel,
-    widgetVariant: QuickSearchWidgetVariant = QuickSearchWidgetVariant.STANDARD,
+    widgetVariant: WidgetVariant = WidgetVariant.STANDARD,
     titleResId: Int = R.string.widget_settings_title,
     showConfigTip: Boolean = false,
     onDismissConfigTip: (() -> Unit)? = null,
 ) {
     val constrainedState = state.enforceVariantConstraints(widgetVariant)
-    val onConstrainedStateChange: (QuickSearchWidgetPreferences) -> Unit = { updated ->
+    val onConstrainedStateChange: (WidgetPreferences) -> Unit = { updated ->
         onStateChange(updated.enforceVariantConstraints(widgetVariant))
     }
 
@@ -208,7 +217,7 @@ fun QuickSearchWidgetConfigScreen(
                 verticalArrangement =
                     Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING),
             ) {
-                if (widgetVariant == QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY) {
+                if (widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY) {
                     CustomWidgetButtonsSection(
                         state = constrainedState,
                         searchViewModel = searchViewModel,
@@ -220,7 +229,7 @@ fun QuickSearchWidgetConfigScreen(
                 WidgetThemeSection(state = constrainedState, onStateChange = onConstrainedStateChange)
 
                 // Tip banner (only shown once)
-                if (showConfigTip && widgetVariant == QuickSearchWidgetVariant.STANDARD) {
+                if (showConfigTip && widgetVariant == WidgetVariant.STANDARD) {
                     TipBanner(
                         text =
                             stringResource(
@@ -232,7 +241,7 @@ fun QuickSearchWidgetConfigScreen(
                 }
 
                 WidgetSlidersSection(state = constrainedState, onStateChange = onConstrainedStateChange)
-                if (widgetVariant == QuickSearchWidgetVariant.STANDARD) {
+                if (widgetVariant == WidgetVariant.STANDARD) {
                     WidgetSearchIconSection(
                         state = constrainedState,
                         onStateChange = onConstrainedStateChange,
@@ -281,8 +290,8 @@ private fun WidgetLoadingState(innerPadding: PaddingValues) {
 
 @Composable
 private fun WidgetSlidersSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    state: WidgetPreferences,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SLIDER_ROW_SPACING),
@@ -401,8 +410,8 @@ private fun SliderRow(
 
 @Composable
 private fun WidgetThemeSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    state: WidgetPreferences,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val themeOptions =
@@ -620,8 +629,8 @@ private data class WidgetBackgroundThemeOption(
 
 @Composable
 private fun WidgetSearchIconSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    state: WidgetPreferences,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val context = LocalContext.current
     Column(
@@ -655,9 +664,9 @@ private fun WidgetSearchIconSection(
 
 @Composable
 private fun WidgetToggleSection(
-    state: QuickSearchWidgetPreferences,
+    state: WidgetPreferences,
     hasCustomButtons: Boolean,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val context = LocalContext.current
     Column(verticalArrangement = Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING)) {
@@ -685,8 +694,8 @@ private fun WidgetToggleSection(
 
 @Composable
 private fun WidgetMicIconSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    state: WidgetPreferences,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     Column(
         verticalArrangement =
@@ -900,8 +909,8 @@ private fun MicActionChoiceSegmentedButtonRow(
 
 @Composable
 private fun WidgetTextIconColorSection(
-    state: QuickSearchWidgetPreferences,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    state: WidgetPreferences,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     Column(
         verticalArrangement =

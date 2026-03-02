@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.utils
 
 import android.os.Parcelable
 import androidx.compose.ui.graphics.Color
@@ -9,9 +9,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
-import com.tk.quicksearch.widget.voiceSearch.MicAction
-import com.tk.quicksearch.widget.voiceSearch.MicAction.OFF
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.searchWidget.MicAction.OFF
 import kotlinx.parcelize.Parcelize
 
 /** Theme options for the widget appearance. */
@@ -41,7 +41,7 @@ enum class SearchIconDisplay(
     OFF("off"),
 }
 
-enum class QuickSearchWidgetVariant {
+enum class WidgetVariant {
     STANDARD,
     CUSTOM_BUTTONS_ONLY,
 }
@@ -114,7 +114,7 @@ private object WidgetKeys {
 
 /** Preferences for the Quick Search widget appearance and behavior. */
 @Parcelize
-data class QuickSearchWidgetPreferences(
+data class WidgetPreferences(
     val borderColor: Int = WidgetDefaults.BORDER_COLOR_ARGB,
     val borderRadiusDp: Float = WidgetDefaults.BORDER_RADIUS_DP,
     val borderWidthDp: Float = WidgetDefaults.BORDER_WIDTH_DP,
@@ -131,7 +131,7 @@ data class QuickSearchWidgetPreferences(
 ) : Parcelable {
     companion object {
         /** Default widget preferences instance. */
-        val Default = QuickSearchWidgetPreferences()
+        val Default = WidgetPreferences()
     }
 
     // Backward compatibility properties
@@ -144,7 +144,7 @@ data class QuickSearchWidgetPreferences(
     val hasCustomButtons: Boolean
         get() = customButtons.any { it != null }
 
-    fun coerceToValidRanges(): QuickSearchWidgetPreferences {
+    fun coerceToValidRanges(): WidgetPreferences {
         val normalizedButtons = normalizeCustomButtons(customButtons, WidgetButtonSlotConfig.MAX_COUNT)
         val shouldHideLabel = normalizedButtons.any { it != null }
         return copy(
@@ -191,7 +191,7 @@ private fun normalizeCustomButtons(
     return normalized
 }
 
-fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
+fun Preferences.toWidgetPreferences(): WidgetPreferences {
     // Handle theme migration from legacy separate color preferences
     val theme =
         this[WidgetKeys.THEME]?.let { themeString ->
@@ -222,7 +222,7 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
             CustomWidgetButtonAction.fromJson(this[WidgetKeys.CUSTOM_BUTTON_5]),
         )
 
-    return QuickSearchWidgetPreferences(
+    return WidgetPreferences(
         borderColor = this[WidgetKeys.BORDER_COLOR] ?: WidgetDefaults.BORDER_COLOR_ARGB,
         borderRadiusDp =
             this[WidgetKeys.BORDER_RADIUS]
@@ -286,7 +286,7 @@ fun Preferences.toWidgetPreferences(): QuickSearchWidgetPreferences {
     ).coerceToValidRanges()
 }
 
-fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferences) {
+fun MutablePreferences.applyWidgetPreferences(config: WidgetPreferences) {
     val validated = config.coerceToValidRanges()
     this[WidgetKeys.BORDER_COLOR] = validated.borderColor
     this[WidgetKeys.BORDER_RADIUS] = validated.borderRadiusDp
@@ -316,10 +316,10 @@ fun MutablePreferences.applyWidgetPreferences(config: QuickSearchWidgetPreferenc
         ?: remove(WidgetKeys.CUSTOM_BUTTON_5)
 }
 
-fun QuickSearchWidgetPreferences.enforceVariantConstraints(variant: QuickSearchWidgetVariant): QuickSearchWidgetPreferences {
+fun WidgetPreferences.enforceVariantConstraints(variant: WidgetVariant): WidgetPreferences {
     val normalized = coerceToValidRanges()
     return when (variant) {
-        QuickSearchWidgetVariant.STANDARD ->
+        WidgetVariant.STANDARD ->
             normalized.copy(
                 customButtons =
                     normalizeCustomButtons(
@@ -327,7 +327,7 @@ fun QuickSearchWidgetPreferences.enforceVariantConstraints(variant: QuickSearchW
                         WidgetButtonSlotConfig.STANDARD_COUNT,
                     ),
             )
-        QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY ->
+        WidgetVariant.CUSTOM_BUTTONS_ONLY ->
             normalized.copy(
                 showLabel = false,
                 searchIconDisplay = SearchIconDisplay.OFF,

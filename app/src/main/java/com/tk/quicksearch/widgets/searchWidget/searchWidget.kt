@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.searchWidget
 
 import android.content.Context
 import android.content.Intent
@@ -43,15 +43,25 @@ import androidx.glance.unit.ColorProvider
 import com.tk.quicksearch.R
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
-import com.tk.quicksearch.widget.customButtons.QuickSearchWidgetActionActivity
-import com.tk.quicksearch.widget.customButtons.rememberWidgetButtonIcon
-import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
+import com.tk.quicksearch.widgets.customButtonsWidget.rememberWidgetButtonIcon
+import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.utils.WidgetPreferences
+import com.tk.quicksearch.widgets.utils.WidgetVariant
+import com.tk.quicksearch.widgets.utils.WidgetBitmapUtils
+import com.tk.quicksearch.widgets.utils.WidgetColorUtils
+import com.tk.quicksearch.widgets.utils.WidgetDefaults
+import com.tk.quicksearch.widgets.utils.WidgetLayoutUtils
+import com.tk.quicksearch.widgets.utils.WidgetTheme
+import com.tk.quicksearch.widgets.utils.applyWidgetPreferences
+import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
+import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-class QuickSearchWidget(
-    private val variant: QuickSearchWidgetVariant = QuickSearchWidgetVariant.STANDARD,
+class SearchWidget(
+    private val variant: WidgetVariant = WidgetVariant.STANDARD,
 ) : GlanceAppWidget() {
     companion object {
         const val EXTRA_START_VOICE_SEARCH = "com.tk.quicksearch.extra.START_VOICE_SEARCH"
@@ -123,7 +133,7 @@ class QuickSearchWidget(
         val customButtons = config.customButtons.filterNotNull()
 
         when (variant) {
-            QuickSearchWidgetVariant.STANDARD ->
+            WidgetVariant.STANDARD ->
                 WidgetContent(
                     widthDp = widthDp,
                     heightDp = displayedHeightDp, // Pass displayed height for strict sizing
@@ -140,7 +150,7 @@ class QuickSearchWidget(
                     voiceLaunchIntent = voiceLaunchIntent,
                     customButtons = customButtons,
                 )
-            QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY ->
+            WidgetVariant.CUSTOM_BUTTONS_ONLY ->
                 CustomButtonsOnlyWidgetContent(
                     widthDp = widthDp,
                     heightDp = displayedHeightDp,
@@ -160,7 +170,7 @@ class QuickSearchWidget(
 
     @Composable
     private fun calculateColors(
-        config: QuickSearchWidgetPreferences,
+        config: WidgetPreferences,
         borderWidthPx: Int,
     ): WidgetColors {
         val context = LocalContext.current
@@ -309,7 +319,7 @@ private fun CustomButtonsOnlyWidgetContent(
                                         .clickable(
                                             onClick =
                                                 actionStartActivity(
-                                                    QuickSearchWidgetActionActivity.createIntent(
+                                                    WidgetActionActivity.createIntent(
                                                         context,
                                                         action,
                                                     ),
@@ -494,7 +504,7 @@ private fun WidgetContent(
                                             .clickable(
                                                 onClick =
                                                     actionStartActivity(
-                                                        QuickSearchWidgetActionActivity.createIntent(
+                                                        WidgetActionActivity.createIntent(
                                                             context,
                                                             action,
                                                         ),

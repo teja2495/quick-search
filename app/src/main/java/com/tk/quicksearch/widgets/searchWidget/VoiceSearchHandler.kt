@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.voiceSearch
+package com.tk.quicksearch.widgets.searchWidget
 
 import android.app.Activity
 import android.content.ActivityNotFoundException

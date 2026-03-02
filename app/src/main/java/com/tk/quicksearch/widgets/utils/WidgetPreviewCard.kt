@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,13 +26,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonIcon
-import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonIcon
+import com.tk.quicksearch.widgets.searchWidget.MicAction
 
 @Composable
 fun WidgetPreviewCard(
-    state: QuickSearchWidgetPreferences,
-    widgetVariant: QuickSearchWidgetVariant = QuickSearchWidgetVariant.STANDARD,
+    state: WidgetPreferences,
+    widgetVariant: WidgetVariant = WidgetVariant.STANDARD,
 ) {
     val previewState = state.enforceVariantConstraints(widgetVariant)
     val context = LocalContext.current
@@ -72,7 +72,7 @@ fun WidgetPreviewCard(
                         },
                     ),
         ) {
-            if (widgetVariant == QuickSearchWidgetVariant.STANDARD && previewState.iconAlignLeft) {
+            if (widgetVariant == WidgetVariant.STANDARD && previewState.iconAlignLeft) {
                 Box(
                     modifier =
                         Modifier
@@ -111,7 +111,7 @@ fun WidgetPreviewCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    if (widgetVariant == QuickSearchWidgetVariant.STANDARD && previewState.showSearchIcon) {
+                    if (widgetVariant == WidgetVariant.STANDARD && previewState.showSearchIcon) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_widget_search),
                             contentDescription = stringResource(R.string.desc_search_icon),
@@ -119,7 +119,7 @@ fun WidgetPreviewCard(
                             modifier = Modifier.size(WidgetConfigConstants.PREVIEW_ICON_SIZE),
                         )
                     }
-                    if (widgetVariant == QuickSearchWidgetVariant.STANDARD && previewState.showLabel) {
+                    if (widgetVariant == WidgetVariant.STANDARD && previewState.showLabel) {
                         Text(
                             text = stringResource(R.string.widget_label_text),
                             modifier =
@@ -139,7 +139,7 @@ fun WidgetPreviewCard(
             }
 
             when (widgetVariant) {
-                QuickSearchWidgetVariant.STANDARD -> {
+                WidgetVariant.STANDARD -> {
                     if (customButtons.isNotEmpty() || previewState.micAction != MicAction.OFF) {
                         Box(
                             modifier =
@@ -182,7 +182,7 @@ fun WidgetPreviewCard(
                         }
                     }
                 }
-                QuickSearchWidgetVariant.CUSTOM_BUTTONS_ONLY -> {
+                WidgetVariant.CUSTOM_BUTTONS_ONLY -> {
                     val placeholderIcons =
                         listOf(
                             R.drawable.ic_widget_contact,
@@ -249,7 +249,7 @@ private data class PreviewColors(
 )
 
 @Composable
-private fun calculatePreviewColors(state: QuickSearchWidgetPreferences): PreviewColors {
+private fun calculatePreviewColors(state: WidgetPreferences): PreviewColors {
     val isSystemInDarkTheme = isSystemInDarkTheme()
 
     // Determine effective theme based on user selection

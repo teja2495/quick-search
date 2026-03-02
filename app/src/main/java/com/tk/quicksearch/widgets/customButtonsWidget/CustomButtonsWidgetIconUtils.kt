@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.customButtons
+package com.tk.quicksearch.widgets.customButtonsWidget
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -21,8 +21,8 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.widget.customButtons.CustomWidgetButtonAction
-import com.tk.quicksearch.widget.customButtons.QuickSearchWidgetActionActivity
+import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonAction
+import com.tk.quicksearch.widgets.customButtonsWidget.WidgetActionActivity
 
 class AddToHomeHandler(private val context: Context) {
 
@@ -102,14 +102,14 @@ class AddToHomeHandler(private val context: Context) {
                             photoUri = contact.photoUri,
                     )
 
-            // Open QuickSearchWidgetActionActivity which shows the contact methods dialog,
+            // Open WidgetActionActivity which shows the contact methods dialog,
             // matching the behavior of widget contact buttons.
             val intent =
-                    Intent(context, QuickSearchWidgetActionActivity::class.java).apply {
+                    Intent(context, WidgetActionActivity::class.java).apply {
                         action = Intent.ACTION_VIEW // Required: ShortcutInfo intents cannot have
                         // null action
                         putExtra(
-                                QuickSearchWidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
+                                WidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
                                 contactAction.toJson()
                         )
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -149,10 +149,10 @@ class AddToHomeHandler(private val context: Context) {
                 )
 
             val intent =
-                Intent(context, QuickSearchWidgetActionActivity::class.java).apply {
+                Intent(context, WidgetActionActivity::class.java).apply {
                     action = Intent.ACTION_VIEW
                     putExtra(
-                        QuickSearchWidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
+                        WidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
                         contactShortcutAction.toJson(),
                     )
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -188,10 +188,10 @@ class AddToHomeHandler(private val context: Context) {
                             volumeName = file.volumeName,
                     )
             val intent =
-                    Intent(context, QuickSearchWidgetActionActivity::class.java).apply {
+                    Intent(context, WidgetActionActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
                         putExtra(
-                                QuickSearchWidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
+                                WidgetActionActivity.EXTRA_CUSTOM_BUTTON_ACTION,
                                 fileAction.toJson()
                         )
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

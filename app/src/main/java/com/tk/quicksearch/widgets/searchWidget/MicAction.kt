@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.voiceSearch
+package com.tk.quicksearch.widgets.searchWidget
 
 /**
  * Defines the action to perform when the mic icon is tapped.

@@ -18,8 +18,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.WallpaperUtils
-import com.tk.quicksearch.widget.voiceSearch.MicAction
-import com.tk.quicksearch.widget.voiceSearch.VoiceSearchHandler
+import com.tk.quicksearch.widgets.searchWidget.MicAction
+import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

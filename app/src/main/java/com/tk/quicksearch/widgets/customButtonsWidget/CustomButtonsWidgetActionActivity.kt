@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.customButtons
+package com.tk.quicksearch.widgets.customButtonsWidget
 
 import android.app.Application
 import android.content.Context
@@ -26,7 +26,7 @@ import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import kotlinx.coroutines.launch
 
-class QuickSearchWidgetActionActivity : ComponentActivity() {
+class WidgetActionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val action =
@@ -328,7 +328,7 @@ class QuickSearchWidgetActionActivity : ComponentActivity() {
             context: Context,
             action: CustomWidgetButtonAction,
         ): Intent =
-            Intent(context, QuickSearchWidgetActionActivity::class.java).apply {
+            Intent(context, WidgetActionActivity::class.java).apply {
                 putExtra(EXTRA_CUSTOM_BUTTON_ACTION, action.toJson())
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.widget.voiceSearch.MicAction
+import com.tk.quicksearch.widgets.searchWidget.MicAction
 
 object OverlayModeController {
     const val EXTRA_FORCE_NORMAL_LAUNCH = "overlay_force_normal_launch"

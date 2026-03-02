@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.utils
 
 import androidx.compose.ui.unit.Dp
 

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.customButtons
+package com.tk.quicksearch.widgets.customButtonsWidget
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -74,17 +74,17 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
-import com.tk.quicksearch.widget.QuickSearchWidgetPreferences
-import com.tk.quicksearch.widget.WidgetConfigConstants
-import com.tk.quicksearch.widget.WidgetButtonSlotConfig
+import com.tk.quicksearch.widgets.utils.WidgetPreferences
+import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
+import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
 import kotlinx.coroutines.delay
 
 @Composable
 fun CustomWidgetButtonsSection(
-    state: QuickSearchWidgetPreferences,
+    state: WidgetPreferences,
     searchViewModel: SearchViewModel,
     maxButtons: Int = WidgetButtonSlotConfig.STANDARD_COUNT,
-    onStateChange: (QuickSearchWidgetPreferences) -> Unit,
+    onStateChange: (WidgetPreferences) -> Unit,
 ) {
     val searchState by searchViewModel.uiState.collectAsState()
     val iconPackPackage = searchState.selectedIconPackPackage

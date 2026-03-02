@@ -8,7 +8,7 @@
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_quick_search_custom_buttons_placeholder"
     android:previewLayout="@layout/widget_quick_search_custom_buttons_placeholder"
-    android:configure="com.tk.quicksearch.widget.QuickSearchWidgetConfigureActivity"
+    android:configure="com.tk.quicksearch.widgets.searchWidget.SearchWidgetConfigureActivity"
     android:widgetCategory="home_screen"
     android:resizeMode="horizontal"
     android:widgetFeatures="reconfigurable"

@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget.customButtons
+package com.tk.quicksearch.widgets.customButtonsWidget
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

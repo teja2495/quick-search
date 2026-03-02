@@ -1,4 +1,4 @@
-package com.tk.quicksearch.widget
+package com.tk.quicksearch.widgets.searchWidget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -7,8 +7,8 @@ import android.content.Intent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 
-class QuickSearchWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = QuickSearchWidget()
+class SearchWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = SearchWidget()
 
     override fun onReceive(
         context: Context,
@@ -20,12 +20,12 @@ class QuickSearchWidgetReceiver : GlanceAppWidgetReceiver() {
         if (intent.action == Intent.ACTION_CONFIGURATION_CHANGED) {
             // Update all widget instances to reflect theme changes
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName = ComponentName(context, QuickSearchWidgetReceiver::class.java)
+            val componentName = ComponentName(context, SearchWidgetReceiver::class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
             // Send update broadcast to all widget instances
             val updateIntent =
-                Intent(context, QuickSearchWidgetReceiver::class.java).apply {
+                Intent(context, SearchWidgetReceiver::class.java).apply {
                     action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
                 }
