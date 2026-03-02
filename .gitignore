@@ -97,3 +97,8 @@ Thumbs.db
 
 # Custom metadata
 *.salive
+
+# Tooling and agent folders
+.agent/
+.cursor/
+.kotlin/
