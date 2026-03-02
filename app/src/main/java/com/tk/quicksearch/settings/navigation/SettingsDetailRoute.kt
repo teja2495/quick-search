@@ -7,6 +7,8 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.SettingsScreenState
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text

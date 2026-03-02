@@ -1,6 +1,8 @@
 package com.tk.quicksearch.settings.settingsScreen
 
 import android.content.ActivityNotFoundException
+import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks as SharedSettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.SettingsScreenState as SharedSettingsScreenState
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -66,8 +68,6 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.shared.SettingsScreenState
-import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.FeedbackUtils
@@ -95,8 +95,8 @@ fun getAppVersionName(): String? {
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    state: SettingsScreenState,
-    callbacks: SettingsScreenCallbacks,
+    state: SharedSettingsScreenState,
+    callbacks: SharedSettingsScreenCallbacks,
     hasUsagePermission: Boolean,
     hasContactPermission: Boolean,
     hasFilePermission: Boolean,

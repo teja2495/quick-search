@@ -1,6 +1,9 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
 import androidx.compose.foundation.border
+import com.tk.quicksearch.settings.shared.SectionSettingsSection
+import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
+import com.tk.quicksearch.settings.shared.SettingsScreenState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
