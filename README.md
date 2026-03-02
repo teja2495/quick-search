@@ -2,17 +2,8 @@
 
 A fast & powerful Android app that lets you search across **apps, contacts, device files, device settings, web, and basic calculations** from a single screen. Built with Kotlin and Jetpack Compose using Material 3 design.
 
-<table width="100%">
-  <tr>
-    <td align="left" valign="middle">
-      <a href="https://play.google.com/store/apps/details?id=com.tk.quicksearch"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
-      <a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
-    </td>
-    <td align="right" valign="middle">
-      <a href="https://hihello.com/p/d1354167-c90c-4731-ad2a-a9c8e5fae557"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Support the development" height="58"></a>
-    </td>
-  </tr>
-</table>
+<a href="https://play.google.com/store/apps/details?id=com.tk.quicksearch"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"></a>
+<a href="https://github.com/teja2495/quick-search/releases/latest"><img src="https://github.com/user-attachments/assets/5d36bf7f-3386-4b0e-b7e1-892daba01343" alt="Get it on GitHub" height="80"></a>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -152,15 +143,6 @@ app/src/main/java/com/tk/quicksearch/
 - **Three-phase initialization**: Optimized startup performance
 - **Modular preferences**: Specialized preference management classes
 
-
-## ☕ Support the Development
-
-If you find Quick Search helpful, consider supporting the development:
-
-- **PayPal**: [@teja2495](https://paypal.me/teja2495)
-- **Cash App**: [$teja2495](https://cash.app/$teja2495)
-- **Venmo**: [@teja2495](https://account.venmo.com/u/teja2495)
-- **UPI**: teja2495@dbs
 
 ## 📄 License
 
