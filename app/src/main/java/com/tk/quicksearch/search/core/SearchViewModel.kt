@@ -30,6 +30,7 @@ import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.data.StartupPreferencesFacade
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
@@ -140,7 +141,7 @@ class SearchViewModel(
     @Volatile private var cachedAllSearchableApps: List<AppInfo> = emptyList()
 
     // Consolidated startup configuration loaded in single batch operation
-    @Volatile private var startupConfig: UserAppPreferences.StartupConfig? = null
+    @Volatile private var startupConfig: StartupPreferencesFacade.StartupConfig? = null
 
     // UI feedback is now handled by UiFeedbackService
 
@@ -558,7 +559,7 @@ class SearchViewModel(
         }
     }
 
-    private fun applyStartupPreferences(prefs: UserAppPreferences.StartupPreferences) {
+    private fun applyStartupPreferences(prefs: StartupPreferencesFacade.StartupPreferences) {
         enabledFileTypes = prefs.enabledFileTypes
         showFolders = prefs.showFolders
         showSystemFiles = prefs.showSystemFiles
