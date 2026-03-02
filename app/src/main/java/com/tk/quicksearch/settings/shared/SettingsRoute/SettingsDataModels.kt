@@ -13,7 +13,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
-import com.tk.quicksearch.settings.appShortcuts.AppShortcutSource
+import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 
 /**

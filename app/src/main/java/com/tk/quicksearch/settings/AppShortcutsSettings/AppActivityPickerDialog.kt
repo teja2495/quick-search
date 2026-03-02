@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.appShortcuts
+package com.tk.quicksearch.settings.AppShortcutsSettings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

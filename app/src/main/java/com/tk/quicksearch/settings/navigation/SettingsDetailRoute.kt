@@ -34,7 +34,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.settings.appShortcuts.*
+import com.tk.quicksearch.settings.AppShortcutsSettings.*
 import com.tk.quicksearch.settings.settingsDetailScreen.*
 import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.tile.requestAddQuickSearchTile

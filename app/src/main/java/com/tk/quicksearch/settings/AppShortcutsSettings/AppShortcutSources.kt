@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.appShortcuts
+package com.tk.quicksearch.settings.AppShortcutsSettings
 
 import android.content.Intent
 import android.content.pm.PackageInfo

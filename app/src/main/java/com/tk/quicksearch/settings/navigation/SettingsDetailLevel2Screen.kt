@@ -43,10 +43,11 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
-import com.tk.quicksearch.settings.appShortcuts.AppShortcutSource
+import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSource
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.settings.shared.settingsContentWidth
+import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutsSettingsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
