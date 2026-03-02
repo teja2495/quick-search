@@ -30,9 +30,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.search.directSearch.GeminiModelPickerDialog
-import com.tk.quicksearch.search.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
+import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable

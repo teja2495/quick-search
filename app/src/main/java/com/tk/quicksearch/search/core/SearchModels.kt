@@ -4,8 +4,8 @@ import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
-import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
-import com.tk.quicksearch.search.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile

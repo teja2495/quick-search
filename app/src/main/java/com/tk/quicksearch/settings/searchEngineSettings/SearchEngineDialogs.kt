@@ -53,10 +53,10 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.*
-import com.tk.quicksearch.search.searchEngines.*
-import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutCode
-import com.tk.quicksearch.search.searchEngines.ShortcutValidator.isValidShortcutPrefix
-import com.tk.quicksearch.search.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.*
+import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

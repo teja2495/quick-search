@@ -59,8 +59,8 @@ HSPLcom/tk/quicksearch/search/core/PermissionManager;-><init>(Lcom/tk/quicksearc
 Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
 HSPLcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
 
-Lcom/tk/quicksearch/search/directSearch/DirectSearchHandler;
-HSPLcom/tk/quicksearch/search/directSearch/DirectSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
+Lcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;
+HSPLcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/search/webSuggestions/WebSuggestionHandler;
 HSPLcom/tk/quicksearch/search/webSuggestions/WebSuggestionHandler;-><init>(Landroid/content/Context;)V

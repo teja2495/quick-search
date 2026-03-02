@@ -12,8 +12,8 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.directSearch.GeminiTextModel
-import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 

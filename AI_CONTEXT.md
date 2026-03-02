@@ -204,13 +204,6 @@ app/src/main/java/com/tk/quicksearch/
 │   │   ├── DeviceSetting.kt
 │   │   └── DeviceSettingsResults.kt
 │   │
-│   ├── directSearch/             # Direct Search (Gemini API)
-│   │   ├── DirectSearchClient.kt
-│   │   ├── DirectSearchHandler.kt
-│   │   ├── GeminiLoadingAnimation.kt
-│   │   ├── GeminiModelPickerDialog.kt  # Model selection (Gemini/Gemma)
-│   │   └── SearchScreenDirectResults.kt  # Results UI; "Powered by" tap = model picker, long press = configure
-│   │
 │   ├── searchEngines/            # Search engine integration
 │   │   ├── SearchEngineManager.kt
 │   │   ├── SearchEngineLayout.kt
@@ -221,9 +214,6 @@ app/src/main/java/com/tk/quicksearch/
 │   │   ├── compact/             # Compact mode UI
 │   │   ├── inline/              # Inline mode (SearchEngineSection, etc.)
 │   │   └── shared/
-│   │
-│   ├── calculator/               # Calculator functionality
-│   │   └── CalculatorHandler.kt
 │   │
 │   ├── searchScreen/             # Main search UI
 │   │   ├── SearchScreen.kt      # Main screen composable
@@ -268,6 +258,17 @@ app/src/main/java/com/tk/quicksearch/
 │       ├── PhoneNumberUtils.kt
 │       ├── PermissionUtils.kt
 │       └── FileUtils.kt
+│
+├── tools/                        # Specialized tools and utilities
+│   ├── calculator/               # Calculator functionality
+│   │   └── CalculatorHandler.kt
+│   │
+│   └── directSearch/             # Direct Search (Gemini API)
+│       ├── DirectSearchClient.kt
+│       ├── DirectSearchHandler.kt
+│       ├── GeminiLoadingAnimation.kt
+│       ├── GeminiModelPickerDialog.kt  # Model selection (Gemini/Gemma)
+│       └── SearchScreenDirectResults.kt  # Results UI; "Powered by" tap = model picker, long press = configure
 │
 ├── settings/                     # Settings screens
 │   ├── SettingsScreen.kt
@@ -544,7 +545,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - **Direct Search**: Gemini API integration; model selection (several Gemini and Gemma models via `GeminiModelPickerDialog.kt`); optional personal context. "Powered by" attribution row: tap opens model picker, long press opens Direct Search configuration.
 - **Display Modes**: Inline (scrolls) vs Compact (fixed at bottom)
 
-**Implementation**: `search/searchEngines/SearchEngineManager.kt`. Display modes: `search/searchEngines/inline/` (SearchEngineSection) and `search/searchEngines/compact/`. Direct Search in `search/directSearch/` (DirectSearchClient, DirectSearchHandler, SearchScreenDirectResults, GeminiModelPickerDialog). Model preference: `GeminiPreferences.kt`.
+**Implementation**: `search/searchEngines/SearchEngineManager.kt`. Display modes: `search/searchEngines/inline/` (SearchEngineSection) and `search/searchEngines/compact/`. Direct Search in `tools/directSearch/` (DirectSearchClient, DirectSearchHandler, SearchScreenDirectResults, GeminiModelPickerDialog). Model preference: `GeminiPreferences.kt`.
 
 ### 2. Contact Integration
 

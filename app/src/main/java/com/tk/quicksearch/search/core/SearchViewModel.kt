@@ -16,7 +16,7 @@ import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.apps.invalidateAppIconCache
 import com.tk.quicksearch.search.apps.prefetchAppIcons
-import com.tk.quicksearch.search.tools.calculator.CalculatorHandler
+import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.search.common.PinningHandler
 import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
 import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
@@ -38,8 +38,8 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsManagementHandler
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsRepository
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
-import com.tk.quicksearch.search.directSearch.DirectSearchHandler
-import com.tk.quicksearch.search.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
+import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.search.files.FileManagementHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.models.AppInfo
@@ -47,12 +47,12 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
-import com.tk.quicksearch.search.overlay.OverlayModeController
+import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
-import com.tk.quicksearch.search.searchEngines.SearchEngineManager
-import com.tk.quicksearch.search.searchEngines.SecondarySearchOrchestrator
-import com.tk.quicksearch.search.searchEngines.ShortcutHandler
+import com.tk.quicksearch.searchEngines.SearchEngineManager
+import com.tk.quicksearch.searchEngines.SecondarySearchOrchestrator
+import com.tk.quicksearch.searchEngines.ShortcutHandler
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer

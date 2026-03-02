@@ -36,11 +36,11 @@ import androidx.core.graphics.drawable.toBitmap
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.searchEngines.SearchTargetQueryShortcutActivity
-import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
-import com.tk.quicksearch.search.searchEngines.getDrawableResId
-import com.tk.quicksearch.search.searchEngines.getAppPackageCandidates
-import com.tk.quicksearch.search.searchEngines.resolveSearchTargetShortcutPackageName
+import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
+import com.tk.quicksearch.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.searchEngines.getDrawableResId
+import com.tk.quicksearch.searchEngines.getAppPackageCandidates
+import com.tk.quicksearch.searchEngines.resolveSearchTargetShortcutPackageName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray

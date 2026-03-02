@@ -64,7 +64,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.UserAppPreferences
-import com.tk.quicksearch.search.directSearch.GeminiTextModel
+import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils

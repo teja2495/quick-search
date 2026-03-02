@@ -17,10 +17,10 @@ import android.util.Log
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.searchEngines.buildCustomSearchUrl
-import com.tk.quicksearch.search.searchEngines.buildSearchUrl
-import com.tk.quicksearch.search.searchEngines.getDisplayNameResId
-import com.tk.quicksearch.search.searchEngines.getAppPackageCandidates
+import com.tk.quicksearch.searchEngines.buildCustomSearchUrl
+import com.tk.quicksearch.searchEngines.buildSearchUrl
+import com.tk.quicksearch.searchEngines.getDisplayNameResId
+import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.shared.util.PackageConstants
 

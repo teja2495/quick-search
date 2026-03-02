@@ -10,8 +10,8 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.searchEngines.defaultBrowserTarget
-import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.searchEngines.defaultBrowserTarget
+import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 
 sealed interface PredictedSubmitTarget {

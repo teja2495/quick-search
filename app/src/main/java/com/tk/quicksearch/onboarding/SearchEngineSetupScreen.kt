@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.searchEngines.getId
+import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
 import kotlinx.coroutines.delay
 

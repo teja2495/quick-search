@@ -110,12 +110,19 @@ app/src/main/java/com/tk/quicksearch/
 │   ├── contacts/           # Contact search (actions, components, dialogs, utils)
 │   ├── files/              # File search and management
 │   ├── deviceSettings/     # Device settings search
-│   ├── directSearch/       # Direct Search (Gemini API, model picker)
 │   ├── searchEngines/      # Search engine integration
 │   │   ├── compact/        # Compact mode UI
 │   │   ├── inline/         # Inline mode UI
 │   │   └── shared/         # Shared search engine components
+│   ├── webSuggestions/     # Web search suggestions
+│   ├── searchHistory/     # Recent items tracking and display
+│   ├── fuzzy/              # Fuzzy search engine
+│   ├── overlay/            # Overlay mode (search over other apps)
+│   ├── searchScreen/       # Main search UI (layout, scroll, sections, dialogs)
+│   └── common/             # Pinning, ranking, shared utilities
+├── tools/                  # Specialized tools and utilities
 │   ├── calculator/         # Calculator functionality
+│   └── directSearch/       # Direct Search (Gemini API, model picker)
 │   ├── webSuggestions/     # Web search suggestions
 │   ├── searchHistory/     # Recent items tracking and display
 │   ├── fuzzy/              # Fuzzy search engine

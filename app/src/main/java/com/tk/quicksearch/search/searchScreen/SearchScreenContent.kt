@@ -35,17 +35,17 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.tools.calculator.CalculatorUtils
+import com.tk.quicksearch.tools.calculator.CalculatorUtils
 import com.tk.quicksearch.search.core.DirectSearchStatus
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
-import com.tk.quicksearch.search.searchEngines.defaultBrowserTarget
-import com.tk.quicksearch.search.searchEngines.extendToScreenEdges
-import com.tk.quicksearch.search.searchEngines.getId
-import com.tk.quicksearch.search.searchEngines.resolveDefaultBrowserPackage
-import com.tk.quicksearch.search.searchEngines.inline.SearchEngineIconsSection
+import com.tk.quicksearch.searchEngines.defaultBrowserTarget
+import com.tk.quicksearch.searchEngines.extendToScreenEdges
+import com.tk.quicksearch.searchEngines.getId
+import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
+import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 
