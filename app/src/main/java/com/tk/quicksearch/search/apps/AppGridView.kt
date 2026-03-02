@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -52,6 +54,8 @@ import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.getAppGridColumns
 import com.tk.quicksearch.util.hapticConfirm
+import kotlin.math.ceil
+import kotlin.math.min
 
 private const val ROW_COUNT = 2
 private enum class AppIconDisplayMode {
@@ -163,6 +167,7 @@ fun AppGridView(
         ) {
             AppGrid(
                     apps = apps,
+                    isSearching = isSearching,
                     onAppClick = onAppClick,
                     onAppInfoClick = onAppInfoClick,
                     onUninstallClick = onUninstallClick,
@@ -206,6 +211,7 @@ private fun rememberSuggestionIconsReady(
 @Composable
 private fun AppGrid(
         apps: List<AppInfo>,
+        isSearching: Boolean,
         onAppClick: (AppInfo) -> Unit,
         onAppInfoClick: (AppInfo) -> Unit,
         onUninstallClick: (AppInfo) -> Unit,
@@ -223,7 +229,20 @@ private fun AppGrid(
         isOverlayPresentation: Boolean,
         predictedTarget: PredictedSubmitTarget?,
 ) {
-    val columns = getAppGridColumns()
+    val maxVisibleColumns = getAppGridColumns()
+    val columns =
+            remember(apps, rowCount, maxVisibleColumns, isSearching) {
+                if (apps.isEmpty()) {
+                    1
+                } else if (isSearching) {
+                    maxVisibleColumns.coerceAtLeast(1)
+                } else {
+                    val rowsToFill = rowCount.coerceAtLeast(1)
+                    val columnsNeededToAvoidGaps =
+                            ceil(apps.size.toFloat() / rowsToFill.toFloat()).toInt()
+                    min(maxVisibleColumns, columnsNeededToAvoidGaps.coerceAtLeast(1))
+                }
+            }
     val rows =
             remember(apps, oneHandedMode, columns) {
                 // Show all available apps, chunked into rows of the appropriate column count
@@ -231,61 +250,70 @@ private fun AppGrid(
                 if (oneHandedMode) chunked.reversed() else chunked
             }
 
-    Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        val context = LocalContext.current
-        val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
-        val createAppActions =
-                remember(
-                        onAppClick,
-                        onAppInfoClick,
-                        onUninstallClick,
-                        onHideApp,
-                        onPinApp,
-                        onUnpinApp,
-                        onNicknameClick,
-                        addToHomeHandler
-                ) {
-                    { app: AppInfo ->
-                        AppActions(
-                                onClick = { onAppClick(app) },
-                                onAppInfoClick = { onAppInfoClick(app) },
-                                onUninstallClick = { onUninstallClick(app) },
-                                onHideApp = { onHideApp(app) },
-                                onPinApp = { onPinApp(app) },
-                                onUnpinApp = { onUnpinApp(app) },
-                                onNicknameClick = { onNicknameClick(app) },
-                                onAddToHome = { addToHomeHandler.addAppToHome(app) },
-                        )
-                    }
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val horizontalSpacing = DesignTokens.SpacingMedium
+        val rowItemWidth =
+                if (columns <= 1) {
+                    maxWidth
+                } else {
+                    ((maxWidth - (horizontalSpacing * (columns - 1))) / columns).coerceAtLeast(0.dp)
                 }
 
-        val createAppState =
-                remember(getAppNickname, pinnedPackageNames) {
-                    { app: AppInfo ->
-                        AppState(
-                                hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
-                                isPinned = pinnedPackageNames.contains(app.launchCountKey()),
-                                showUninstall = !app.isSystemApp && app.userHandleId == null,
-                                showAppLabel = showAppLabels,
-                                isOverlayPresentation = isOverlayPresentation,
-                        )
+        Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
+            val context = LocalContext.current
+            val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
+            val createAppActions =
+                    remember(
+                            onAppClick,
+                            onAppInfoClick,
+                            onUninstallClick,
+                            onHideApp,
+                            onPinApp,
+                            onUnpinApp,
+                            onNicknameClick,
+                            addToHomeHandler
+                    ) {
+                        { app: AppInfo ->
+                            AppActions(
+                                    onClick = { onAppClick(app) },
+                                    onAppInfoClick = { onAppInfoClick(app) },
+                                    onUninstallClick = { onUninstallClick(app) },
+                                    onHideApp = { onHideApp(app) },
+                                    onPinApp = { onPinApp(app) },
+                                    onUnpinApp = { onUnpinApp(app) },
+                                    onNicknameClick = { onNicknameClick(app) },
+                                    onAddToHome = { addToHomeHandler.addAppToHome(app) },
+                            )
+                        }
                     }
-                }
 
-        rows.forEach { rowApps ->
-            AppGridRow(
-                    apps = rowApps,
-                    getAppNickname = getAppNickname,
-                    pinnedPackageNames = pinnedPackageNames,
-                    shortcutsByPackage = shortcutsByPackage,
-                    iconPackPackage = iconPackPackage,
-                    createAppActions = createAppActions,
-                    createAppState = createAppState,
-                    predictedTarget = predictedTarget,
-            )
+            val createAppState =
+                    remember(getAppNickname, pinnedPackageNames) {
+                        { app: AppInfo ->
+                            AppState(
+                                    hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
+                                    isPinned = pinnedPackageNames.contains(app.launchCountKey()),
+                                    showUninstall = !app.isSystemApp && app.userHandleId == null,
+                                    showAppLabel = showAppLabels,
+                                    isOverlayPresentation = isOverlayPresentation,
+                            )
+                        }
+                    }
+
+            rows.forEach { rowApps ->
+                AppGridRow(
+                        apps = rowApps,
+                        rowItemWidth = rowItemWidth,
+                        shortcutsByPackage = shortcutsByPackage,
+                        iconPackPackage = iconPackPackage,
+                        createAppActions = createAppActions,
+                        createAppState = createAppState,
+                        predictedTarget = predictedTarget,
+                )
+            }
         }
     }
 }
@@ -293,39 +321,32 @@ private fun AppGrid(
 @Composable
 private fun AppGridRow(
         apps: List<AppInfo>,
-        getAppNickname: (String) -> String?,
-        pinnedPackageNames: Set<String>,
+        rowItemWidth: Dp,
         shortcutsByPackage: Map<String, List<StaticShortcut>>,
         iconPackPackage: String?,
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
         predictedTarget: PredictedSubmitTarget?,
 ) {
-    val columns = getAppGridColumns()
     Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
-        repeat(columns) { columnIndex ->
-            val app = apps.getOrNull(columnIndex)
-            if (app != null) {
-                val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
-                AppGridItem(
-                        modifier = Modifier.weight(1f),
-                        appInfo = app,
-                        shortcuts = appShortcuts,
-                        appActions = createAppActions(app),
-                        appState = createAppState(app),
-                        iconPackPackage = iconPackPackage,
-                        isPredicted =
-                                (predictedTarget as? PredictedSubmitTarget.App)?.let {
-                                    it.packageName == app.packageName &&
-                                            it.userHandleId == app.userHandleId
-                                } == true,
-                )
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
-            }
+        apps.forEach { app ->
+            val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
+            AppGridItem(
+                    modifier = Modifier.width(rowItemWidth),
+                    appInfo = app,
+                    shortcuts = appShortcuts,
+                    appActions = createAppActions(app),
+                    appState = createAppState(app),
+                    iconPackPackage = iconPackPackage,
+                    isPredicted =
+                            (predictedTarget as? PredictedSubmitTarget.App)?.let {
+                                it.packageName == app.packageName &&
+                                        it.userHandleId == app.userHandleId
+                            } == true,
+            )
         }
     }
 }

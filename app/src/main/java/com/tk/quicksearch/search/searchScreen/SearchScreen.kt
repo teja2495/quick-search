@@ -32,6 +32,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -83,6 +84,7 @@ import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.ui.theme.DesignTokens
 import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @Composable
@@ -151,6 +153,7 @@ fun SearchRoute(
     onOverlayExpandRequest: (() -> Unit)? = null,
     isOverlayExpanded: Boolean = false,
     onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
+    onOverlayScrollableContentChanged: ((Boolean) -> Unit)? = null,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -435,6 +438,7 @@ fun SearchRoute(
             onOverlayExpandRequest = onOverlayExpandRequest,
             isOverlayExpanded = isOverlayExpanded,
             onOverlayNumberKeyboardUiChanged = onOverlayNumberKeyboardUiChanged,
+            onOverlayScrollableContentChanged = onOverlayScrollableContentChanged,
         )
 
         if (overlaySnackbarHostState == null) {
@@ -551,6 +555,7 @@ fun SearchScreen(
     onOverlayExpandRequest: (() -> Unit)? = null,
     isOverlayExpanded: Boolean = false,
     onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
+    onOverlayScrollableContentChanged: ((Boolean) -> Unit)? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -706,6 +711,17 @@ fun SearchScreen(
 
     // Reset expansion when query changes
     LaunchedEffect(state.query) { expandedSection = ExpandedSection.NONE }
+
+    LaunchedEffect(isOverlayPresentation, onOverlayScrollableContentChanged, scrollState) {
+        if (!isOverlayPresentation) return@LaunchedEffect
+
+        onOverlayScrollableContentChanged?.invoke(scrollState.maxValue > 0)
+        snapshotFlow { scrollState.maxValue > 0 }
+            .distinctUntilChanged()
+            .collect { isScrollable ->
+                onOverlayScrollableContentChanged?.invoke(isScrollable)
+            }
+    }
 
     val openPersonalContextDialog = {
         personalContextInput =

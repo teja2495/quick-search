@@ -1,5 +1,6 @@
 package com.tk.quicksearch.search.overlay
 
+import androidx.compose.animation.animateContentSize
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,7 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -33,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,14 +61,17 @@ import com.tk.quicksearch.search.searchEngines.getId
 import com.tk.quicksearch.search.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.ui.theme.DesignTokens
+import com.tk.quicksearch.util.isLandscape
+import com.tk.quicksearch.util.isTablet
 import com.tk.quicksearch.util.WallpaperUtils
 import kotlinx.coroutines.delay
 
 private const val OVERLAY_WIDTH_PERCENT = 0.9f
-private const val OVERLAY_HEIGHT_PERCENT = 0.95f
-private const val OVERLAY_EXPANDED_HEIGHT_PERCENT = 0.93f
+private const val OVERLAY_TABLET_PORTRAIT_WIDTH_PERCENT = 0.7f
+private const val OVERLAY_TABLET_WIDTH_PERCENT = 0.5f
+private const val OVERLAY_MAX_HEIGHT_PERCENT = 0.95f
 private const val OVERLAY_FALLBACK_GRADIENT_ALPHA = 0.98f
-private const val OVERLAY_RESIZE_ANIMATION_MS = 140
+private const val OVERLAY_CONTENT_RESIZE_ANIMATION_MS = 140
 private const val OVERLAY_ENTER_ANIMATION_MS = 420
 private const val OVERLAY_EXIT_ANIMATION_MS = 220
 private const val OVERLAY_ENTER_START_DELAY_MS = 32
@@ -123,13 +126,11 @@ fun OverlayRoot(
                                                 indication = null,
                                         ) { handleClose() },
                 ) {
+                        val uiState by viewModel.uiState.collectAsState()
                         var overlayNumberKeyboardSelected by remember { mutableStateOf(false) }
                         var overlayImeVisible by remember { mutableStateOf(false) }
-                        var isOverlayManuallyExpanded by remember { mutableStateOf(false) }
-                        var wasImeVisible by remember { mutableStateOf(false) }
                         val showOverlayOperatorPills =
                                 overlayNumberKeyboardSelected && overlayImeVisible
-                        val uiState by viewModel.uiState.collectAsState()
                         val layoutDirection = LocalLayoutDirection.current
                         val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
                         val imeBottomPadding =
@@ -166,41 +167,21 @@ fun OverlayRoot(
                                 )
                         val availableWidth =
                                 (maxWidth - leftSafePadding - rightSafePadding).coerceAtLeast(0.dp)
-                        // Let the OS handle IME resize (adjustResize); the card just tracks
-                        // current available window height.
-                        val targetOverlayHeight =
-                                (availableHeight * OVERLAY_HEIGHT_PERCENT).coerceAtLeast(0.dp)
-                        val targetOverlayWidth =
-                                (availableWidth * OVERLAY_WIDTH_PERCENT).coerceAtLeast(0.dp)
-
-                        val baseOverlayHeight = targetOverlayHeight
-                        val targetOverlayExpandedHeight =
-                                (availableHeight * OVERLAY_EXPANDED_HEIGHT_PERCENT)
-                                        .coerceAtLeast(0.dp)
-                        val overlayHeightTarget =
-                                if (isOverlayManuallyExpanded) {
-                                        targetOverlayExpandedHeight
+                        val maxOverlayHeight =
+                                (availableHeight * OVERLAY_MAX_HEIGHT_PERCENT).coerceAtLeast(0.dp)
+                        val overlayWidthPercent =
+                                if (isTablet()) {
+                                        if (isLandscape()) {
+                                                OVERLAY_TABLET_WIDTH_PERCENT
+                                        } else {
+                                                OVERLAY_TABLET_PORTRAIT_WIDTH_PERCENT
+                                        }
                                 } else {
-                                        baseOverlayHeight
+                                        OVERLAY_WIDTH_PERCENT
                                 }
-                        val overlayHeight by animateDpAsState(
-                                targetValue = overlayHeightTarget,
-                                animationSpec =
-                                        tween(
-                                                durationMillis = OVERLAY_RESIZE_ANIMATION_MS,
-                                                easing = LinearOutSlowInEasing,
-                                        ),
-                                label = "overlayHeight",
-                        )
+                        val targetOverlayWidth =
+                                (availableWidth * overlayWidthPercent).coerceAtLeast(0.dp)
                         val overlayWidth = targetOverlayWidth
-
-                        LaunchedEffect(imeBottomPadding) {
-                                val isImeVisible = imeBottomPadding > 0.dp
-                                if (isImeVisible && !wasImeVisible && isOverlayManuallyExpanded) {
-                                        isOverlayManuallyExpanded = false
-                                }
-                                wasImeVisible = isImeVisible
-                        }
 
                         val overlayWallpaperBitmap by
                                 produceState<ImageBitmap?>(
@@ -286,7 +267,15 @@ fun OverlayRoot(
                                 Box(
                                         modifier =
                                                 Modifier.width(overlayWidth)
-                                                        .height(overlayHeight)
+                                                        .heightIn(max = maxOverlayHeight)
+                                                        .animateContentSize(
+                                                                animationSpec =
+                                                                        tween(
+                                                                                durationMillis =
+                                                                                        OVERLAY_CONTENT_RESIZE_ANIMATION_MS,
+                                                                                easing = LinearOutSlowInEasing,
+                                                                        ),
+                                                        )
                                                         .graphicsLayer {
                                                                 alpha = overlayEntryProgress
                                                                 val scale =
@@ -344,10 +333,6 @@ fun OverlayRoot(
                                                 onWelcomeAnimationCompleted = {
                                                         viewModel.onSearchBarWelcomeAnimationCompleted()
                                                 },
-                                                onOverlayExpandRequest = {
-                                                        isOverlayManuallyExpanded = true
-                                                },
-                                                isOverlayExpanded = isOverlayManuallyExpanded,
                                                 onOverlayNumberKeyboardUiChanged =
                                                         { isNumberKeyboardSelected, isImeOpen ->
                                                                 overlayNumberKeyboardSelected =
@@ -579,7 +564,7 @@ fun OverlayRoot(
                                                         bottom =
                                                                 DesignTokens.SpacingHuge +
                                                                         overlayBottomFloatingPadding,
-                                                ),
+                                ),
                         )
                 }
 }

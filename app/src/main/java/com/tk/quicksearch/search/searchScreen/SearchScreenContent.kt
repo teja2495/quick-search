@@ -193,7 +193,7 @@ internal fun SearchScreenContent(
 
     val contentModifier =
             if (isOverlayPresentation) {
-                modifier.fillMaxSize()
+                modifier.fillMaxWidth()
                         .padding(
                                 start = DesignTokens.SpacingXLarge,
                                 top = DesignTokens.Spacing28,
@@ -344,7 +344,7 @@ internal fun SearchScreenContent(
         SearchContentArea(
                 modifier =
                         if (isOverlayPresentation) {
-                            Modifier.fillMaxWidth().weight(1f, fill = true)
+                            Modifier.fillMaxWidth().weight(1f, fill = false)
                         } else {
                             Modifier.weight(1f)
                         },

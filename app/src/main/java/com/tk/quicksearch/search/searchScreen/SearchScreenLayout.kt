@@ -146,6 +146,11 @@ fun SearchContentArea(
             shouldShowFilesSection(renderingState, filesParams) ||
             shouldShowSettingsSection(renderingState)
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
+    val pinOverlayFooterToBottom =
+        isOverlayPresentation &&
+            renderingState.expandedSection == ExpandedSection.NONE &&
+            !showDirectSearch &&
+            !showCalculator
     val edgeFadeHeight = 32.dp
 
     // Compute "no results" state once - shared by both places that need it
@@ -233,10 +238,10 @@ fun SearchContentArea(
 
         val heightModifier =
             if (isOverlayPresentation) {
-                if (alignResultsToBottom) {
+                if (alignResultsToBottom || pinOverlayFooterToBottom) {
                     // Ensure overlay content occupies full available height so one-handed
-                    // bottom arrangement can position short content (e.g., app suggestions only)
-                    // correctly after IME visibility changes.
+                    // and overlay footer actions can stay pinned at the bottom even with
+                    // short content (e.g., app suggestions only).
                     Modifier.heightIn(min = maxHeight, max = maxHeight)
                 } else {
                     Modifier.heightIn(min = 0.dp, max = maxHeight)
