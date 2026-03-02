@@ -26,7 +26,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.settings.settingsDetailScreen.level
-import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailRoute
+import com.tk.quicksearch.settings.navigation.SettingsDetailRoute
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.SettingsRoute

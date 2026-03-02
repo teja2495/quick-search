@@ -1,4 +1,4 @@
-package com.tk.quicksearch.settings.settingsDetailScreen
+package com.tk.quicksearch.settings.navigation
 
 import android.Manifest
 import android.app.Activity
@@ -32,6 +32,8 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.settings.appShortcuts.*
+import com.tk.quicksearch.settings.settingsDetailScreen.*
 import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
 import com.tk.quicksearch.shared.util.WallpaperUtils

@@ -70,6 +70,8 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
 import com.tk.quicksearch.widget.requestAddQuickSearchWidget
+import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.settings.appShortcuts.*
 import kotlinx.coroutines.launch
 
 /**

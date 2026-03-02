@@ -78,9 +78,9 @@ import com.tk.quicksearch.search.data.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.rememberShortcutIcon
 import com.tk.quicksearch.search.data.shortcutDisplayName
 import com.tk.quicksearch.search.data.shortcutKey
-import com.tk.quicksearch.settings.shared.AppShortcutSource
-import com.tk.quicksearch.settings.shared.AppShortcutSourceType
-import com.tk.quicksearch.settings.shared.filterAppShortcutSources
+import com.tk.quicksearch.settings.appShortcuts.AppShortcutSource
+import com.tk.quicksearch.settings.appShortcuts.AppShortcutSourceType
+import com.tk.quicksearch.settings.appShortcuts.filterAppShortcutSources
 import com.tk.quicksearch.search.searchEngines.getContentDescription
 import com.tk.quicksearch.search.searchEngines.isSearchTargetShortcutPackageName
 import com.tk.quicksearch.search.searchEngines.loadCustomIconAsBase64
