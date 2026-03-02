@@ -194,7 +194,7 @@ fun SearchRoute(
         }
     }
 
-    val onHideAppWithUndo: (AppInfo) -> Unit = { app ->
+    val onHideAppWithUndo: (AppInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { app ->
         val isSearching = uiState.query.isNotBlank()
         viewModel.hideApp(app)
         val messageRes =
@@ -212,7 +212,7 @@ fun SearchRoute(
         }
     }
 
-    val onExcludeContactWithUndo: (ContactInfo) -> Unit = { contact ->
+    val onExcludeContactWithUndo: (ContactInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { contact ->
         viewModel.excludeContact(contact)
         showUndoSnackbar(
             context.getString(R.string.toast_excluded_from_results, contact.displayName),
@@ -221,7 +221,7 @@ fun SearchRoute(
         }
     }
 
-    val onExcludeFileWithUndo: (DeviceFile) -> Unit = { file ->
+    val onExcludeFileWithUndo: (DeviceFile) -> Unit = @Suppress("LocalContextGetResourceValueCall") { file ->
         viewModel.excludeFile(file)
         showUndoSnackbar(
             context.getString(R.string.toast_excluded_from_results, file.displayName),
@@ -230,7 +230,7 @@ fun SearchRoute(
         }
     }
 
-    val onExcludeFileExtensionWithUndo: (DeviceFile) -> Unit = { file ->
+    val onExcludeFileExtensionWithUndo: (DeviceFile) -> Unit = @Suppress("LocalContextGetResourceValueCall") { file ->
         val extension = FileUtils.getFileExtension(file.displayName)
         if (extension != null) {
             viewModel.excludeFileExtension(file)
@@ -243,7 +243,7 @@ fun SearchRoute(
         }
     }
 
-    val onExcludeSettingWithUndo: (DeviceSetting) -> Unit = { setting ->
+    val onExcludeSettingWithUndo: (DeviceSetting) -> Unit = @Suppress("LocalContextGetResourceValueCall") { setting ->
         viewModel.excludeSetting(setting)
         showUndoSnackbar(
             context.getString(R.string.toast_excluded_from_results, setting.title),
@@ -252,7 +252,7 @@ fun SearchRoute(
         }
     }
 
-    val onExcludeAppShortcutWithUndo: (StaticShortcut) -> Unit = { shortcut ->
+    val onExcludeAppShortcutWithUndo: (StaticShortcut) -> Unit = @Suppress("LocalContextGetResourceValueCall") { shortcut ->
         viewModel.excludeAppShortcut(shortcut)
         showUndoSnackbar(
             context.getString(
@@ -265,7 +265,7 @@ fun SearchRoute(
     }
 
     // Set up toast callback for ViewModel
-    val showToast: (Int) -> Unit = { stringResId ->
+    val showToast: (Int) -> Unit = @Suppress("LocalContextGetResourceValueCall") { stringResId ->
         android.widget.Toast
             .makeText(
                 context,

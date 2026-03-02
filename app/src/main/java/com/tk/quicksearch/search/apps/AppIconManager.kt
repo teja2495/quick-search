@@ -121,7 +121,11 @@ fun rememberAppIcon(
                         } else {
                             runCatching {
                                 val drawable = context.packageManager.getApplicationIcon(packageName)
-                                val isLegacy = drawable !is AdaptiveIconDrawable
+                                val isLegacy = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    drawable !is AdaptiveIconDrawable
+                                } else {
+                                    true // All icons are legacy on API < 26
+                                }
                                 val bitmap = drawable.toBitmap().asImageBitmap()
                                 AppIconEntry(bitmap, isLegacy)
                             }.getOrNull()
@@ -155,7 +159,11 @@ private fun loadWorkProfileBadgedIcon(
     }.getOrNull() ?: return null
     return runCatching {
         val drawable = activityInfo.getBadgedIcon(densityDpi)
-        val isLegacy = drawable !is AdaptiveIconDrawable
+        val isLegacy = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            drawable !is AdaptiveIconDrawable
+        } else {
+            true // All icons are legacy on API < 26
+        }
         val bitmap = drawable.toBitmap().asImageBitmap()
         AppIconEntry(bitmap, isLegacy)
     }.getOrNull()
@@ -203,7 +211,11 @@ suspend fun prefetchAppIcons(
                 } else {
                     runCatching {
                         val drawable = context.packageManager.getApplicationIcon(packageName)
-                        val isLegacy = drawable !is AdaptiveIconDrawable
+                        val isLegacy = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            drawable !is AdaptiveIconDrawable
+                        } else {
+                            true // All icons are legacy on API < 26
+                        }
                         val bitmap = drawable.toBitmap().asImageBitmap()
                         AppIconEntry(bitmap, isLegacy)
                     }.getOrNull()

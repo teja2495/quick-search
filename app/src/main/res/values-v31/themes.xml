@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base theme for the app -->
+    <!-- Override base theme for API 31+ to include splash screen attributes -->
     <style name="Theme.QuickSearch" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Keep window translucent throughout -->
         <item name="android:windowIsTranslucent">true</item>
+
+        <!-- Completely disable splash screen -->
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
 
         <!-- Disable animations and configure window -->
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
     </style>
-
-    <style name="Theme.QuickSearch.OssLicenses" parent="Theme.Material3.Dark">
-        <item name="android:windowIsTranslucent">false</item>
-    </style>
-
 
 </resources>

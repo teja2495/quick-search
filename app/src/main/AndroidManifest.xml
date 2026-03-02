@@ -73,7 +73,7 @@
 
         <!-- Search Activities -->
         <activity
-            android:name=".search.overlay.OverlayActivity"
+            android:name=".overlay.OverlayActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
@@ -81,7 +81,7 @@
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
 
         <activity
-            android:name=".search.searchEngines.SearchTargetQueryShortcutActivity"
+            android:name=".searchEngines.SearchTargetQueryShortcutActivity"
             android:exported="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -99,12 +99,6 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".widgets.customButtonsWidget.QuickSearchWidgetActionActivity"
-            android:exported="true"
-            android:excludeFromRecents="true"
-            android:theme="@style/Theme.QuickSearch" />
 
         <!-- Settings Activities -->
         <activity

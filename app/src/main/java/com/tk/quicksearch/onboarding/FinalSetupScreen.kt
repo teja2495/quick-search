@@ -116,7 +116,7 @@ fun FinalSetupScreen(
                         showCallingApp = false,
                         showDirectDial = false,
                         showTitle = false,
-                        onMessagingAppSelected = { app ->
+                        onMessagingAppSelected = @Suppress("LocalContextGetResourceValueCall") { app ->
                             val isInstalled =
                                 when (app) {
                                     MessagingApp.MESSAGES -> {

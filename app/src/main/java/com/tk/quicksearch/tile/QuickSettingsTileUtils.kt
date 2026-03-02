@@ -24,14 +24,18 @@ fun requestAddQuickSearchTile(context: Context) {
 private fun requestTileForAndroid13Plus(context: Context) {
     val tileComponent = ComponentName(context, QuickSearchTileService::class.java)
     try {
-        val icon = Icon.createWithResource(context, R.drawable.ic_widget_search)
-        val statusBarManager = context.getSystemService(StatusBarManager::class.java)
-        statusBarManager?.requestAddTileService(
-            tileComponent,
-            context.getString(R.string.quick_settings_tile_label),
-            icon,
-            ContextCompat.getMainExecutor(context),
-        ) { result -> handleTileAddResult(context, result) } ?: showErrorToast(context)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            val icon = Icon.createWithResource(context, R.drawable.ic_widget_search)
+            val statusBarManager = context.getSystemService(StatusBarManager::class.java)
+            statusBarManager?.requestAddTileService(
+                tileComponent,
+                context.getString(R.string.quick_settings_tile_label),
+                icon,
+                ContextCompat.getMainExecutor(context),
+            ) { result -> handleTileAddResult(context, result) } ?: showErrorToast(context)
+        } else {
+            showErrorToast(context)
+        }
     } catch (e: Exception) {
         showErrorToast(context)
     }

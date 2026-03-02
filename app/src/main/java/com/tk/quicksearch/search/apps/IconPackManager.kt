@@ -320,7 +320,10 @@ private fun Drawable.toBitmapSafely(): ImageBitmap? =
     runCatching {
         when (this) {
             is BitmapDrawable -> bitmap?.asImageBitmap()
-            is AdaptiveIconDrawable -> toBitmap().asImageBitmap()
-            else -> toBitmap().asImageBitmap()
+            else -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && this is AdaptiveIconDrawable) {
+                toBitmap().asImageBitmap()
+            } else {
+                toBitmap().asImageBitmap()
+            }
         }
     }.getOrNull()

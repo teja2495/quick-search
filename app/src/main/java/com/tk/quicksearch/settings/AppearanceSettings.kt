@@ -230,10 +230,11 @@ fun AppearanceSettingsSection(
     var showIconPackDialog by remember { mutableStateOf(false) }
 
     val hasIconPacks = availableIconPacks.isNotEmpty()
+    val systemIconPackLabel = stringResource(R.string.settings_icon_pack_option_system)
     val selectedIconPackLabel =
-            remember(selectedIconPackPackage, availableIconPacks) {
+            remember(selectedIconPackPackage, availableIconPacks, systemIconPackLabel) {
                 availableIconPacks.firstOrNull { it.packageName == selectedIconPackPackage }?.label
-                        ?: appearanceContext.getString(R.string.settings_icon_pack_option_system)
+                        ?: systemIconPackLabel
             }
 
     Column(modifier = modifier) {

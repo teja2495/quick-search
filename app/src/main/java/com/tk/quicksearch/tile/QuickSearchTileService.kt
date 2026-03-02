@@ -13,6 +13,7 @@ import com.tk.quicksearch.app.MainActivity
  * Quick Settings tile that launches the Quick Search home screen.
  */
 class QuickSearchTileService : TileService() {
+    @Suppress("StartActivityAndCollapseDeprecated")
     override fun onClick() {
         super.onClick()
         val launchIntent =

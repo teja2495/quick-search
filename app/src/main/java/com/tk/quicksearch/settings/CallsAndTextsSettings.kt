@@ -576,7 +576,8 @@ fun CallsTextsSettingsSection(
 
     val context = LocalContext.current
 
-    // Callback for messaging app selection with installation check
+    // Callback for calling app selection with installation check
+    @Suppress("LocalContextGetResourceValueCall")
     val onCallingAppSelected: (CallingApp) -> Unit = { app ->
         val isInstalled =
             when (app) {
@@ -611,6 +612,7 @@ fun CallsTextsSettingsSection(
     }
 
     // Callback for messaging app selection with installation check
+    @Suppress("LocalContextGetResourceValueCall")
     val onMessagingAppSelected: (MessagingApp) -> Unit = { app ->
         val isInstalled =
             when (app) {
