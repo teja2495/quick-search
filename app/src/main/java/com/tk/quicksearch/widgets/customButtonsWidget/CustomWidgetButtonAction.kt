@@ -9,6 +9,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.json.JSONArray
 import org.json.JSONObject
@@ -61,6 +62,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val packageName: String,
         val appName: String,
     ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.APP
 
         override fun displayLabel(): String = appName.ifBlank { packageName }
@@ -92,6 +94,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val photoUri: String?,
         val serializedAction: String? = null,
     ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.CONTACT
 
         override fun displayLabel(): String = displayName.ifBlank { lookupKey }
@@ -129,6 +132,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val relativePath: String?,
         val volumeName: String?,
     ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.FILE
 
         override fun displayLabel(): String = displayName.ifBlank { uri }
@@ -170,6 +174,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val minSdk: Int,
         val maxSdk: Int,
     ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.SETTING
 
         override fun displayLabel(): String = title.ifBlank { id }
@@ -215,6 +220,7 @@ sealed class CustomWidgetButtonAction : Parcelable {
         val enabled: Boolean,
         val intents: List<Intent>,
     ) : CustomWidgetButtonAction() {
+        @IgnoredOnParcel
         override val type: CustomWidgetButtonType = CustomWidgetButtonType.APP_SHORTCUT
 
         override fun displayLabel(): String =

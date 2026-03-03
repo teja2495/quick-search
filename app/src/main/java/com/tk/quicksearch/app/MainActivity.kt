@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Disable activity opening animation for instant appearance
+        @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
 
         initializePreferences()

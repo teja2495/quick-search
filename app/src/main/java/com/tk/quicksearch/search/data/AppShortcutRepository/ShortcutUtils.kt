@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Base64
 import android.util.TypedValue
 import androidx.core.graphics.drawable.toBitmap
@@ -25,7 +26,7 @@ import org.xmlpull.v1.XmlPullParser
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 
-private fun <T> Intent.getParcelableExtraCompat(
+private fun <T : Parcelable> Intent.getParcelableExtraCompat(
     key: String,
     clazz: Class<T>,
 ): T? =

@@ -220,6 +220,7 @@ internal class AppShortcutCache(
         private fun Bundle.toExtrasJsonArray(): JSONArray =
             JSONArray().apply {
                 for (key in keySet()) {
+                    @Suppress("DEPRECATION")
                     val value = get(key) ?: continue
                     val type =
                         when (value) {

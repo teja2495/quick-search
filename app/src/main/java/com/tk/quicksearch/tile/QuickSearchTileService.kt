@@ -41,6 +41,7 @@ class QuickSearchTileService : TileService() {
             } catch (_: Exception) {
                 // Fallback if the platform disallows PendingIntent variant
                 try {
+                    @Suppress("DEPRECATION")
                     startActivityAndCollapse(launchIntent)
                 } catch (_: Exception) {
                     startActivity(launchIntent)
@@ -48,6 +49,7 @@ class QuickSearchTileService : TileService() {
             }
         } else {
             try {
+                @Suppress("DEPRECATION")
                 startActivityAndCollapse(launchIntent)
             } catch (_: Exception) {
                 startActivity(launchIntent)

@@ -13,9 +13,9 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Shortcut
+import androidx.compose.material.icons.automirrored.rounded.Shortcut
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +62,7 @@ internal fun getSectionMetadata(section: SearchSection): SectionMetadata =
         SearchSection.APP_SHORTCUTS -> {
             SectionMetadata(
                 name = stringResource(R.string.section_app_shortcuts),
-                icon = Icons.Rounded.Shortcut,
+                icon = Icons.AutoMirrored.Rounded.Shortcut,
             )
         }
 
@@ -76,7 +76,7 @@ internal fun getSectionMetadata(section: SearchSection): SectionMetadata =
         SearchSection.FILES -> {
             SectionMetadata(
                 name = stringResource(R.string.section_files),
-                icon = Icons.Rounded.InsertDriveFile,
+                icon = Icons.AutoMirrored.Rounded.InsertDriveFile,
             )
         }
 

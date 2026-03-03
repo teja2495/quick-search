@@ -17,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
@@ -87,24 +89,28 @@ internal fun ReleaseNotesDialog(
                 // View all features link
                 val annotatedLink =
                     buildAnnotatedString {
-                        withStyle(
-                            style =
-                                SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    textDecoration = TextDecoration.Underline,
-                                ),
+                        withLink(
+                            LinkAnnotation.Clickable(
+                                tag = "features_link",
+                                linkInteractionListener = {
+                                    val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
+                                    InAppBrowserUtils.openUrl(context, url)
+                                }
+                            )
                         ) {
-                            append(stringResource(R.string.release_notes_view_all_features))
+                            withStyle(
+                                style =
+                                    SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                            ) {
+                                append(stringResource(R.string.release_notes_view_all_features))
+                            }
                         }
                     }
 
-                androidx.compose.foundation.text.ClickableText(
-                    text = annotatedLink,
-                    onClick = {
-                        val url = "https://github.com/teja2495/quick-search/blob/main/FEATURES.md"
-                        InAppBrowserUtils.openUrl(context, url)
-                    },
-                )
+                Text(text = annotatedLink)
             }
         },
         confirmButton = {

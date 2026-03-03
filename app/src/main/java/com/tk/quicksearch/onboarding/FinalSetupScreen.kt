@@ -20,7 +20,7 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -47,12 +47,12 @@ import com.tk.quicksearch.settings.settingsDetailScreen.MessagingSection
 /** Gets the icon for a file type. */
 private fun getFileTypeIcon(fileType: FileType): androidx.compose.ui.graphics.vector.ImageVector =
     when (fileType) {
-        FileType.DOCUMENTS -> Icons.Rounded.InsertDriveFile
+        FileType.DOCUMENTS -> Icons.AutoMirrored.Rounded.InsertDriveFile
         FileType.PICTURES -> Icons.Rounded.Image
         FileType.VIDEOS -> Icons.Rounded.VideoLibrary
         FileType.AUDIO -> Icons.Rounded.AudioFile
         FileType.APKS -> Icons.Rounded.Android
-        FileType.OTHER -> Icons.Rounded.InsertDriveFile
+        FileType.OTHER -> Icons.AutoMirrored.Rounded.InsertDriveFile
     }
 
 /**

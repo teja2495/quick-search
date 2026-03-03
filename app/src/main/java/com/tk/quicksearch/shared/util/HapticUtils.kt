@@ -22,7 +22,7 @@ fun performHapticFeedbackSafely(
  * Returns a lambda that performs haptic feedback for primary actions (buttons, launches, etc.)
  * Uses CONFIRM feedback type for clear action confirmation.
  */
-inline fun hapticConfirm(view: View): () -> Unit =
+fun hapticConfirm(view: View): () -> Unit =
     {
         performHapticFeedbackSafely(
             view,
@@ -34,7 +34,7 @@ inline fun hapticConfirm(view: View): () -> Unit =
  * Returns a lambda that performs haptic feedback for toggle switches and state changes.
  * Uses VIRTUAL_KEY feedback type for subtle state change feedback.
  */
-inline fun hapticToggle(view: View): () -> Unit =
+fun hapticToggle(view: View): () -> Unit =
     {
         performHapticFeedbackSafely(
             view,
@@ -46,7 +46,7 @@ inline fun hapticToggle(view: View): () -> Unit =
  * Returns a lambda that performs stronger haptic feedback for important actions.
  * Uses LONG_PRESS feedback type for stronger feedback.
  */
-inline fun hapticStrong(view: View): () -> Unit =
+fun hapticStrong(view: View): () -> Unit =
     {
         performHapticFeedbackSafely(
             view,

@@ -43,6 +43,7 @@ class OverlayActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Disable activity opening animation for instant appearance
+        @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
 
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_CLOSE_OVERLAY, false) == true) {
@@ -80,6 +81,7 @@ class OverlayActivity : ComponentActivity() {
 
     override fun finish() {
         super.finish()
+        @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
     }
 

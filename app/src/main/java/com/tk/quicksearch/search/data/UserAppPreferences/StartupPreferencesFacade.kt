@@ -78,7 +78,7 @@ class StartupPreferencesFacade(
                 allPrefs[
                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                 .KEY_ENABLED_FILE_TYPES,
-                ] as?
+                ] as? @Suppress("UNCHECKED_CAST")
                         Set<String>
         val enabledFileTypes =
                 if (enabledFileTypesNames == null) {
@@ -346,7 +346,7 @@ class StartupPreferencesFacade(
                 allPrefs[
                         com.tk.quicksearch.search.data.preferences.BasePreferences
                                 .KEY_ENABLED_FILE_TYPES,
-                ] as?
+                ] as? @Suppress("UNCHECKED_CAST")
                         Set<String>
         val enabledFileTypes =
                 if (enabledFileTypesNames == null) {

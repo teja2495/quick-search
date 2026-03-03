@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import android.content.ClipData
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
@@ -64,6 +65,7 @@ fun DirectSearchResult(
             directSearchState.status == DirectSearchStatus.Success &&
                     !directSearchState.answer.isNullOrBlank()
 
+    @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val overlayCardColor = LocalOverlayResultCardColor.current
     val cardColors =
@@ -93,7 +95,7 @@ fun DirectSearchResult(
                                                 detectTapGestures(
                                                         onLongPress = {
                                                             clipboardManager.setText(
-                                                                    AnnotatedString(answer)
+                                                                AnnotatedString(answer)
                                                             )
                                                         },
                                                 )
@@ -166,6 +168,7 @@ fun CalculatorResult(
     val result = calculatorState.result
     if (result == null) return
 
+    @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val overlayCardColor = LocalOverlayResultCardColor.current
     val cardColors =
@@ -377,6 +380,7 @@ private fun ClickableDirectSearchText(
         }
     }
 
+    @Suppress("DEPRECATION")
     ClickableText(
             text = annotatedString,
             style = style.copy(color = color),

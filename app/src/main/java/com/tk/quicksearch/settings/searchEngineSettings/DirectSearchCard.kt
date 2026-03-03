@@ -60,6 +60,7 @@ fun DirectSearchSetupCard(
     var showInput by remember { mutableStateOf(false) }
     var apiKeyInput by remember { mutableStateOf("") }
     val context = LocalContext.current
+    @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
     val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
 

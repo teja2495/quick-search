@@ -117,14 +117,14 @@
             android:exported="false"
             android:label="@string/settings_open_source_licenses_title"
             android:theme="@style/Theme.QuickSearch.OssLicenses"
-            tools:replace="android:exported,android:label,android:theme" />
+            tools:replace="android:label" />
 
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
             android:exported="false"
             android:label="@string/settings_open_source_licenses_title"
             android:theme="@style/Theme.QuickSearch.OssLicenses"
-            tools:replace="android:exported,android:label,android:theme" />
+            tools:replace="android:label" />
 
         <!-- Widget Receivers -->
         <receiver
