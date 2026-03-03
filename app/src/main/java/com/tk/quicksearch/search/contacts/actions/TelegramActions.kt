@@ -30,20 +30,14 @@ object TelegramActions {
         }
 
         try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        ContactMethodMimeTypes.TELEGRAM_MESSAGE,
-                    )
-                    setPackage(TELEGRAM_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            val pm = context.packageManager
-            if (intent.resolveActivity(pm) != null) {
-                context.startActivity(intent)
-            } else {
+            if (
+                !launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = TELEGRAM_PACKAGE,
+                    mimeType = ContactMethodMimeTypes.TELEGRAM_MESSAGE,
+                )
+            ) {
                 Log.w("TelegramActions", "Telegram chat intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_telegram_not_installed)
             }
@@ -120,30 +114,25 @@ object TelegramActions {
             return false
         }
 
-        try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        ContactMethodMimeTypes.TELEGRAM_CALL,
-                    )
-                    setPackage(TELEGRAM_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            val pm = context.packageManager
-            if (intent.resolveActivity(pm) != null) {
-                context.startActivity(intent)
-                return true
+        return try {
+            if (
+                launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = TELEGRAM_PACKAGE,
+                    mimeType = ContactMethodMimeTypes.TELEGRAM_CALL,
+                )
+            ) {
+                true
             } else {
                 Log.w("TelegramActions", "Telegram call intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_telegram_not_installed)
-                return false
+                false
             }
         } catch (e: Exception) {
             Log.e("TelegramActions", "Failed to initiate Telegram call", e)
             onShowToast?.invoke(R.string.error_telegram_call_failed)
-            return false
+            false
         }
     }
 
@@ -193,17 +182,14 @@ object TelegramActions {
             return false
         }
 
-        // Telegram video calls use a different approach - ACTION_VIEW with URI directly
         return try {
-            val contactDataUri = Uri.parse("content://com.android.contacts/data/$dataId")
-            val intent =
-                Intent(Intent.ACTION_VIEW, contactDataUri).apply {
-                    setPackage(TELEGRAM_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            if (intent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(intent)
+            if (
+                launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = TELEGRAM_PACKAGE,
+                )
+            ) {
                 true
             } else {
                 Log.w("TelegramActions", "No activity found to handle Telegram video call intent")

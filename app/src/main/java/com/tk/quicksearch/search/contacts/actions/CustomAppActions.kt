@@ -42,29 +42,16 @@ object CustomAppActions {
         mimeType: String,
         packageName: String?,
     ): Boolean {
-        try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        mimeType,
-                    )
-                    packageName?.let { setPackage(it) }
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            // Check if the intent can be resolved
-            val pm = context.packageManager
-            if (intent.resolveActivity(pm) != null) {
-                context.startActivity(intent)
-                return true
-            } else {
-                Log.w("MessagingService", "Custom app intent cannot be resolved for mimeType: $mimeType")
-                return false
-            }
+        return try {
+            launchContactDataIntent(
+                context = context,
+                dataId = dataId,
+                packageName = packageName,
+                mimeType = mimeType,
+            )
         } catch (e: Exception) {
             Log.e("MessagingService", "Failed to open custom app with dataId", e)
-            return false
+            false
         }
     }
 

@@ -154,33 +154,13 @@ internal object SearchEngineIntents {
         context: Application,
         query: String,
     ) {
-        // Check if app is installed
-        val launchIntent =
-            context.packageManager.getLaunchIntentForPackage(
-                PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME,
-            )
-
-        if (launchIntent != null) {
-            // App is installed
-            if (query.isBlank()) {
-                // Just open the app
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                try {
-                    context.startActivity(launchIntent)
-                    return
-                } catch (e: Exception) {
-                    Log.w("GooglePhotosLaunch", "Failed to launch Google Photos: ${e.message}")
-                }
-            } else {
-                // Try to open with search (using web URL as Photos app doesn't have a direct search
-                // intent)
-                openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE_PHOTOS))
-                return
-            }
-        }
-
-        // Fallback to web URL
-        openWebUrl(context, buildSearchUrl(query, SearchEngine.GOOGLE_PHOTOS))
+        openWebBackedEngine(
+            context = context,
+            query = query,
+            searchEngine = SearchEngine.GOOGLE_PHOTOS,
+            packageName = PackageConstants.GOOGLE_PHOTOS_PACKAGE_NAME,
+            logTag = "GooglePhotosLaunch",
+        )
     }
 
     /** Opens You.com app if installed, otherwise opens web URL. */
@@ -188,32 +168,13 @@ internal object SearchEngineIntents {
         context: Application,
         query: String,
     ) {
-        // Check if app is installed
-        val launchIntent =
-            context.packageManager.getLaunchIntentForPackage(
-                PackageConstants.YOU_COM_PACKAGE_NAME,
-            )
-
-        if (launchIntent != null) {
-            // App is installed
-            if (query.isBlank()) {
-                // Just open the app
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                try {
-                    context.startActivity(launchIntent)
-                    return
-                } catch (e: Exception) {
-                    Log.w("YouComLaunch", "Failed to launch You.com: ${e.message}")
-                }
-            } else {
-                // Try to open with search (using web URL)
-                openWebUrl(context, buildSearchUrl(query, SearchEngine.YOU_COM))
-                return
-            }
-        }
-
-        // Fallback to web URL
-        openWebUrl(context, buildSearchUrl(query, SearchEngine.YOU_COM))
+        openWebBackedEngine(
+            context = context,
+            query = query,
+            searchEngine = SearchEngine.YOU_COM,
+            packageName = PackageConstants.YOU_COM_PACKAGE_NAME,
+            logTag = "YouComLaunch",
+        )
     }
 
     /** Opens Startpage app if installed, otherwise opens web URL. */
@@ -221,32 +182,13 @@ internal object SearchEngineIntents {
         context: Application,
         query: String,
     ) {
-        // Check if app is installed
-        val launchIntent =
-            context.packageManager.getLaunchIntentForPackage(
-                PackageConstants.STARTPAGE_PACKAGE_NAME,
-            )
-
-        if (launchIntent != null) {
-            // App is installed
-            if (query.isBlank()) {
-                // Just open the app
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                try {
-                    context.startActivity(launchIntent)
-                    return
-                } catch (e: Exception) {
-                    Log.w("StartpageLaunch", "Failed to launch Startpage: ${e.message}")
-                }
-            } else {
-                // Try to open with search (using web URL)
-                openWebUrl(context, buildSearchUrl(query, SearchEngine.STARTPAGE))
-                return
-            }
-        }
-
-        // Fallback to web URL
-        openWebUrl(context, buildSearchUrl(query, SearchEngine.STARTPAGE))
+        openWebBackedEngine(
+            context = context,
+            query = query,
+            searchEngine = SearchEngine.STARTPAGE,
+            packageName = PackageConstants.STARTPAGE_PACKAGE_NAME,
+            logTag = "StartpageLaunch",
+        )
     }
 
     /** Opens Spotify app if installed, otherwise opens web URL. */
@@ -254,32 +196,13 @@ internal object SearchEngineIntents {
         context: Application,
         query: String,
     ) {
-        // Check if app is installed
-        val launchIntent =
-            context.packageManager.getLaunchIntentForPackage(
-                PackageConstants.SPOTIFY_PACKAGE,
-            )
-
-        if (launchIntent != null) {
-            // App is installed
-            if (query.isBlank()) {
-                // Just open the app
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                try {
-                    context.startActivity(launchIntent)
-                    return
-                } catch (e: Exception) {
-                    Log.w("SpotifyLaunch", "Failed to launch Spotify: ${e.message}")
-                }
-            } else {
-                // Try to open with search (using web URL)
-                openWebUrl(context, buildSearchUrl(query, SearchEngine.SPOTIFY))
-                return
-            }
-        }
-
-        // Fallback to web URL
-        openWebUrl(context, buildSearchUrl(query, SearchEngine.SPOTIFY))
+        openWebBackedEngine(
+            context = context,
+            query = query,
+            searchEngine = SearchEngine.SPOTIFY,
+            packageName = PackageConstants.SPOTIFY_PACKAGE,
+            logTag = "SpotifyLaunch",
+        )
     }
 
     /** Opens Waze app with query (when possible), otherwise opens web URL. */
@@ -452,5 +375,28 @@ internal object SearchEngineIntents {
         } catch (e: SecurityException) {
             Log.w("OpenWebUrl", "Security exception opening URL: ${e.message}")
         }
+    }
+
+    private fun openWebBackedEngine(
+        context: Application,
+        query: String,
+        searchEngine: SearchEngine,
+        packageName: String,
+        logTag: String,
+    ) {
+        if (query.isBlank()) {
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    context.startActivity(launchIntent)
+                    return
+                } catch (e: Exception) {
+                    Log.w(logTag, "Failed to launch $packageName: ${e.message}")
+                }
+            }
+        }
+
+        openWebUrl(context, buildSearchUrl(query, searchEngine))
     }
 }

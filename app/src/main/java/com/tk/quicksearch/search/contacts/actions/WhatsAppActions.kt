@@ -33,20 +33,14 @@ object WhatsAppActions {
         }
 
         try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        WHATSAPP_MESSAGE_MIME,
-                    )
-                    setPackage(WHATSAPP_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            val pm = context.packageManager
-            if (intent.resolveActivity(pm) != null) {
-                context.startActivity(intent)
-            } else {
+            if (
+                !launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = WHATSAPP_PACKAGE,
+                    mimeType = WHATSAPP_MESSAGE_MIME,
+                )
+            ) {
                 Log.w("WhatsAppActions", "WhatsApp chat intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_whatsapp_not_installed)
             }
@@ -130,30 +124,25 @@ object WhatsAppActions {
             return false
         }
 
-        try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        WHATSAPP_VOICE_CALL_MIME,
-                    )
-                    setPackage(WHATSAPP_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            val pm = context.packageManager
-            if (intent.resolveActivity(pm) != null) {
-                context.startActivity(intent)
-                return true
+        return try {
+            if (
+                launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = WHATSAPP_PACKAGE,
+                    mimeType = WHATSAPP_VOICE_CALL_MIME,
+                )
+            ) {
+                true
             } else {
                 Log.w("WhatsAppActions", "WhatsApp call intent cannot be resolved")
                 onShowToast?.invoke(R.string.error_whatsapp_not_installed)
-                return false
+                false
             }
         } catch (e: Exception) {
             Log.e("WhatsAppActions", "Failed to initiate WhatsApp call", e)
             onShowToast?.invoke(R.string.error_whatsapp_call_failed)
-            return false
+            false
         }
     }
 
@@ -171,18 +160,14 @@ object WhatsAppActions {
         }
 
         return try {
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(
-                        Uri.parse("content://com.android.contacts/data/$dataId"),
-                        WHATSAPP_VIDEO_CALL_MIME,
-                    )
-                    setPackage(WHATSAPP_PACKAGE)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-
-            if (intent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(intent)
+            if (
+                launchContactDataIntent(
+                    context = context,
+                    dataId = dataId,
+                    packageName = WHATSAPP_PACKAGE,
+                    mimeType = WHATSAPP_VIDEO_CALL_MIME,
+                )
+            ) {
                 true
             } else {
                 Log.w("WhatsAppActions", "No activity found to handle WhatsApp video call")
