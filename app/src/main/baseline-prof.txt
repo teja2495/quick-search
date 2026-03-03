@@ -33,34 +33,38 @@ Lcom/tk/quicksearch/search/data/FileSearchRepository;
 HSPLcom/tk/quicksearch/search/data/FileSearchRepository;-><init>(Landroid/content/Context;)V
 HSPLcom/tk/quicksearch/search/data/FileSearchRepository;->hasPermission()Z
 
+Lcom/tk/quicksearch/search/data/appShortcutRepository/AppShortcutRepository;
+HSPLcom/tk/quicksearch/search/data/appShortcutRepository/AppShortcutRepository;-><init>(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/search/data/appShortcutRepository/AppShortcutRepository;->loadCachedShortcuts()Ljava/util/List;
+
 Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsRepository;
 HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsRepository;-><init>(Landroid/content/Context;)V
 
 # Manager and Service Classes
 Lcom/tk/quicksearch/search/apps/AppSearchManager;
-HSPLcom/tk/quicksearch/search/apps/AppSearchManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/AppsRepository;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
+HSPLcom/tk/quicksearch/search/apps/AppSearchManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/AppsRepository;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;)V
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->initCache(Ljava/util/List;)V
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->availableApps()Ljava/util/List;
 HSPLcom/tk/quicksearch/search/apps/AppSearchManager;->setSortAppsByUsageEnabled(Z)V
 
 Lcom/tk/quicksearch/app/navigation/NavigationHandler;
-HSPLcom/tk/quicksearch/app/navigation/NavigationHandler;-><init>(Landroid/app/Application;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;ZLkotlin/jvm/functions/Function1;)V
+HSPLcom/tk/quicksearch/app/navigation/NavigationHandler;-><init>(Landroid/app/Application;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;ZLkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/search/searchEngines/SearchEngineManager;
-HSPLcom/tk/quicksearch/search/searchEngines/SearchEngineManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
+HSPLcom/tk/quicksearch/search/searchEngines/SearchEngineManager;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/search/core/SectionManager;
-HSPLcom/tk/quicksearch/search/core/SectionManager;-><init>(Lcom/tk/quicksearch/search/data/UserAppPreferences;Lcom/tk/quicksearch/search/core/PermissionManager;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
+HSPLcom/tk/quicksearch/search/core/SectionManager;-><init>(Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lcom/tk/quicksearch/search/core/PermissionManager;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/search/core/PermissionManager;
-HSPLcom/tk/quicksearch/search/core/PermissionManager;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;Lcom/tk/quicksearch/search/data/FileSearchRepository;Lcom/tk/quicksearch/search/data/UserAppPreferences;)V
+HSPLcom/tk/quicksearch/search/core/PermissionManager;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;Lcom/tk/quicksearch/search/data/FileSearchRepository;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;)V
 
 # Handler Classes
 Lcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;
-HSPLcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+HSPLcom/tk/quicksearch/search/contacts/actions/ContactActionHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;
-HSPLcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
+HSPLcom/tk/quicksearch/tools/directSearch/DirectSearchHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
 
 Lcom/tk/quicksearch/search/webSuggestions/WebSuggestionHandler;
 HSPLcom/tk/quicksearch/search/webSuggestions/WebSuggestionHandler;-><init>(Landroid/content/Context;)V
@@ -69,21 +73,21 @@ Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;
 HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;-><init>(Landroid/content/Context;)V
 
 Lcom/tk/quicksearch/search/searchEngines/ShortcutHandler;
-HSPLcom/tk/quicksearch/search/searchEngines/ShortcutHandler;-><init>(Lcom/tk/quicksearch/search/data/UserAppPreferences;)V
+HSPLcom/tk/quicksearch/search/searchEngines/ShortcutHandler;-><init>(Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;)V
 
 Lcom/tk/quicksearch/search/core/UnifiedSearchHandler;
-HSPLcom/tk/quicksearch/search/core/UnifiedSearchHandler;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;Lcom/tk/quicksearch/search/data/FileSearchRepository;Lcom/tk/quicksearch/search/data/UserAppPreferences;Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;Lcom/tk/quicksearch/search/core/SearchOperations;)V
+HSPLcom/tk/quicksearch/search/core/UnifiedSearchHandler;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;Lcom/tk/quicksearch/search/data/FileSearchRepository;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsSearchHandler;Lcom/tk/quicksearch/search/core/SearchOperations;)V
 
 # User Preferences and Preference Management
-Lcom/tk/quicksearch/search/data/UserAppPreferences;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;-><init>(Landroid/content/Context;)V
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->isFirstLaunch()Z
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getCriticalPreferences()Lcom/tk/quicksearch/search/data/UserAppPreferences$CriticalPreferences;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getStartupPreferences()Lcom/tk/quicksearch/search/data/UserAppPreferences$StartupPreferences;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->getSelectedIconPackPackage()Ljava/lang/String;
-HSPLcom/tk/quicksearch/search/data/UserAppPreferences;->shouldShowUsagePermissionBanner()Z
+Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;-><init>(Landroid/content/Context;)V
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->isFirstLaunch()Z
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getPinnedPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getSuggestionHiddenPackages()Ljava/util/Set;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getCriticalPreferences()Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences$CriticalPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getStartupPreferences()Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences$StartupPreferences;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->getSelectedIconPackPackage()Ljava/lang/String;
+HSPLcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;->shouldShowUsagePermissionBanner()Z
 
 # Preference Subclasses
 Lcom/tk/quicksearch/search/data/preferences/AppPreferences;
@@ -176,13 +180,20 @@ HSPLkotlin/collections/CollectionsKt;->emptySet()Ljava/util/Set;
 HSPLkotlin/collections/CollectionsKt;->emptyMap()Ljava/util/Map;
 # Additional Core Classes
 Lcom/tk/quicksearch/search/core/SearchOperations;
-HSPLcom/tk/quicksearch/search/core/SearchOperations;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;Lcom/tk/quicksearch/search/data/FileSearchRepository;)V
+HSPLcom/tk/quicksearch/search/core/SearchOperations;-><init>(Lcom/tk/quicksearch/search/data/ContactRepository;)V
 
 Lcom/tk/quicksearch/search/searchEngines/SecondarySearchOrchestrator;
 HSPLcom/tk/quicksearch/search/searchEngines/SecondarySearchOrchestrator;-><init>(Lkotlinx/coroutines/CoroutineScope;Lcom/tk/quicksearch/search/core/UnifiedSearchHandler;Lcom/tk/quicksearch/search/webSuggestions/WebSuggestionHandler;Lcom/tk/quicksearch/search/core/SectionManager;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)V
 
 # Management Services
 Lcom/tk/quicksearch/search/apps/AppManagementService;
+HSPLcom/tk/quicksearch/search/apps/AppManagementService;-><init>(Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+
 Lcom/tk/quicksearch/search/contacts/utils/ContactManagementHandler;
+HSPLcom/tk/quicksearch/search/contacts/utils/ContactManagementHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;)V
+
 Lcom/tk/quicksearch/search/files/FileManagementHandler;
+HSPLcom/tk/quicksearch/search/files/FileManagementHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;)V
+
 Lcom/tk/quicksearch/search/deviceSettings/DeviceSettingsManagementHandler;
+HSPLcom/tk/quicksearch/search/deviceSettings/DeviceSettingsManagementHandler;-><init>(Landroid/content/Context;Lcom/tk/quicksearch/search/data/userAppPreferences/UserAppPreferences;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function0;)V

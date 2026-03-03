@@ -21,12 +21,21 @@ A fast & powerful Android app that lets you search across **apps, contacts, devi
 - **Contacts**: Find and call/text contacts with multi-number support and WhatsApp/Telegram/Google Meet integration. Long press contact actions to customize them.
 - **Files**: Search device files and folders (images, videos, documents, etc.)
 - **Device Settings**: Search Android system settings
-- **Web**: Search the web using 20+ search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
+- **Web**: Search the web using 24+ search engines with customizable shortcuts and web suggestions. Browsers can be added as search engines.
 - **Calculator**: Built-in calculator for math expressions (+, -, *, /, brackets)
-- **Gemini API**: Direct search can be enabled by configuring your own Gemini API key
+- **Gemini API**: Direct search with AI-powered answers using Gemini/Gemma models and optional personal context
 - **Overlay Mode**: Enable to make the search bar appear over other apps, anywhere—changes how you access search from any screen
-- **Home Screen Widget**: Home screen widget with customizable appearance. Add custom buttons which trigger - apps, shortcuts, files, contacts, and settings.
+- **Home Screen Widget**: Search widget and custom buttons widget with extensive customization options
 - **Launch Options**: Widget, Quick Settings Tile & Digital Assistant
+
+### 🎨 Customization & New Features
+- **New App Themes**: Choose from multiple visual themes for the app's appearance
+- **Bottom Search Bar**: Option for bottom-positioned search bar for improved accessibility
+- **Font Size Control**: Customize font size throughout the app for better readability
+- **Custom Backgrounds**: Select any picture from your device for the app background
+- **App Management**: View app details or bulk uninstall apps from search results settings
+- **Shortcut Management**: Enable, disable, or add custom shortcuts including search queries, URLs, and app activities
+- **Import/Export Settings**: Backup and restore your Quick Search configuration and preferences
 
 ### Search Shortcuts
 Configure custom keyboard shortcuts for search engines and add them at the start of a query to quickly trigger the respective search engine:
@@ -96,51 +105,45 @@ Built with modern Android development practices:
 ### Project Structure
 ```
 app/src/main/java/com/tk/quicksearch/
-├── app/                    # Application entry (MainActivity, release notes, review, updates)
-├── navigation/             # Navigation with animated transitions
-├── onboarding/             # First-launch setup flow
-│   └── permissionScreen/   # Permission request UI and state
+├── app/                    # Application entry point and app-level handlers
+├── navigation/             # Navigation management with animated transitions
+├── shared/                 # Shared components and utilities
+│   ├── ui/                 # Shared UI components and Material 3 theming
+│   │   ├── components/     # Reusable UI components
+│   │   └── theme/          # Theming, colors, and design tokens
+│   └── util/               # Shared utility functions
 ├── search/                 # Main search functionality
 │   ├── models/             # Data models (AppInfo, ContactInfo, DeviceFile, etc.)
-│   ├── data/               # Repositories and preferences
-│   │   └── preferences/    # Modular preference classes
-│   ├── core/               # SearchViewModel, SearchModels, unified search, section management
-│   ├── apps/               # App search, icons, management, fuzzy strategy
+│   ├── data/               # Data layer with repositories and preferences
+│   ├── core/               # SearchViewModel, state management, unified search
+│   ├── apps/               # App search, icons, and management
 │   ├── appShortcuts/       # App shortcut search and actions
-│   ├── contacts/           # Contact search (actions, components, dialogs, utils)
+│   ├── contacts/           # Contact search with messaging integrations
 │   ├── files/              # File search and management
 │   ├── deviceSettings/     # Device settings search
-│   ├── searchEngines/      # Search engine integration
-│   │   ├── compact/        # Compact mode UI
-│   │   ├── inline/         # Inline mode UI
-│   │   └── shared/         # Shared search engine components
-│   ├── webSuggestions/     # Web search suggestions
-│   ├── searchHistory/     # Recent items tracking and display
-│   ├── fuzzy/              # Fuzzy search engine
+│   ├── searchScreen/       # Main search UI and layout orchestration
 │   ├── overlay/            # Overlay mode (search over other apps)
-│   ├── searchScreen/       # Main search UI (layout, scroll, sections, dialogs)
-│   └── common/             # Pinning, ranking, shared utilities
+│   ├── webSuggestions/     # Web search suggestions
+│   ├── fuzzy/              # Fuzzy search engine
+│   ├── searchHistory/      # Recent items tracking and display
+│   └── common/             # Shared utilities and handlers
+├── searchEngines/          # Search engine integration and management
+│   ├── compact/            # Compact mode UI
+│   ├── inline/             # Inline mode UI
+│   └── shared/             # Shared search engine components
 ├── tools/                  # Specialized tools and utilities
 │   ├── calculator/         # Calculator functionality
-│   └── directSearch/       # Direct Search (Gemini API, model picker)
-│   ├── webSuggestions/     # Web search suggestions
-│   ├── searchHistory/     # Recent items tracking and display
-│   ├── fuzzy/              # Fuzzy search engine
-│   ├── overlay/            # Overlay mode (search over other apps)
-│   ├── searchScreen/       # Main search UI (layout, scroll, sections, dialogs)
-│   └── common/             # Pinning, ranking, shared utilities
-├── settings/               # Settings screens
-│   ├── searchEnginesScreen/# Search engine configuration
-│   ├── settingsDetailScreen/ # Detail screens (appearance, files, permissions, etc.)
-│   └── shared/             # Settings route and shared components
+│   └── directSearch/       # Direct Search (Gemini API integration)
+├── settings/               # Settings screens (restructured)
+│   ├── appearanceSettings/ # Appearance and theme settings
+│   ├── appShortcutsSettings/# App shortcuts configuration
+│   ├── searchEngineSettings/# Search engine settings
+│   ├── navigation/         # Settings navigation
+│   └── shared/             # Shared settings components
+├── onboarding/             # First-launch setup flow
+├── widgets/                # Home screen widgets (Glance framework)
 ├── tile/                   # Quick Settings tile service
-├── ui/
-│   ├── theme/              # Material 3 theming and design tokens
-│   └── components/         # Reusable UI components
-├── util/                   # Device, wallpaper, haptic, feedback utilities
-└── widget/                 # Home screen widget (Glance)
-    ├── customButtons/      # Widget button actions and config
-    └── voiceSearch/        # Voice search for widget
+└── util/                   # Legacy utility functions (most moved to shared/util/)
 ```
 
 ### Key Architectural Patterns

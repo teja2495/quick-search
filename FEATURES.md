@@ -1,6 +1,6 @@
 # Quick Search - Complete Feature Documentation
 
-**Version**: 2.2 (February 2026)
+**Version**: 2.6 (March 3 2026)
 
 ## Overlay Mode
 
@@ -14,15 +14,16 @@
 - **Contact Search** - Quickly locate contacts in your phone
 - **File Search** - Search through device files
 - **Settings Search** - Find specific device settings
-- **App Suggestions** - Displays suggested apps when no search query is entered (can be turned off in settings)
-- **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard)
-- **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it directly in your browser
+- **App Suggestions** - Displays suggested apps when no search query is entered with option to hide app suggestions completely
+- **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard). Switching to number keyboard while using calculator displays calculator buttons for easy access
+- **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it directly in your browser with improved recognition and handling
 - **Advanced Fuzzy Search** - Intelligent search with typo tolerance, acronym matching, and smart ranking
 
 ### Internet Search
 - **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
 - **Horizontal Scroll** - Swipe horizontally to access additional search engines
 - **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
+- **Hide All Search Engines** - Option to hide all search engines for a cleaner interface when not needed
 - **Custom Search Engines** - Add your own search engines from the Search Engines settings screen
 - **Search Engine Shortcuts** - Add a search engine shortcut at the start of your query to quickly search with that search engine
 - **Browser Integration** - Installed browsers automatically appear as search engine options
@@ -54,7 +55,7 @@
 - **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results (choose how many to display)
 - **Search Engine Style** - Choose between:
   - **Inline Mode**: Search engines scroll with the content
-  - **Compact Mode**: Search engines stay fixed at the bottom of the screen for quick access
+  - **Compact Mode**: Search engines stay fixed at the bottom of the screen for quick access, with optional second row support
 
 ### Advanced Search Algorithms
 - **Typo Tolerance** - Handles common spelling mistakes and typos (e.g., "chrmoe" finds "Chrome")
@@ -87,12 +88,16 @@
 - **Delete Recent Queries** - Remove individual recent queries with a tap
 
 ### Visual Customization
-- **Wallpaper Integration** - Your default phone wallpaper automatically sets as the app's background (it needs files permission and can be disabled in settings)
+- **Wallpaper Integration** - Your default phone wallpaper automatically sets as the app's background (it needs files permission and can be disabled in settings). Select any picture from your device for custom background
 - **Wallpaper Controls** - Adjust wallpaper transparency and blur effects for optimal readability
+- **New App Themes** - Choose from multiple visual themes to customize the app's appearance
 - **Icon Pack Support** - Apply 3rd party icon packs to app suggestions and results
 - **One-Hand Mode** - Position search results at the bottom of the screen for easier reach (bottom-aligned layout)
 - **Section Titles** - Show/hide section headers (Apps, Contacts, Files, Settings)
 - **App Labels** - Hide app labels in results or adjust their size to your preference
+- **Bottom Search Bar** - New bottom-positioned search bar option for improved accessibility
+- **Change App Font Size** - Customize the font size throughout the app for better readability
+- **UI Optimizations for Tablets** - Improved layouts, grid sizing, and touch targets for tablet devices
 ### Contact Features
 - **Comprehensive Contact Actions** - Tap any contact result to access all available options:
   - Call, SMS, Google Meet
@@ -105,6 +110,7 @@
 - **Multiple Numbers** - When you open a contact result which has multiple phone numbers, tap the arrow beside the phone number to access other numbers. The app will remember the last opened number and opens it first when you reopen the contact.
 - **Preferred Number Memory** - The app remembers your preferred number for each contact
 - **Customize Contact Actions** - Long press any contact action to customize it for individual contacts
+- **Contact Action Shortcuts** - Long press any item in contact options popup to add that action as a home screen shortcut
 
 ### File Management
 - **File Type Filtering** - Ignore specific categories in settings:
@@ -119,12 +125,14 @@
   - App suggestions and app results are treated as separate exclusion categories
 - **Manage Exclusions** - View and manage all excluded items in settings
 - **Pin Results** - Long press any result (app, contact, file, or setting) to pin it to the search home screen for quick access
-- **Add to Home Screen** - Long press any result to add it as a shortcut on your device home screen
+- **Add to Home Screen** - Long press any result to add it as a shortcut on your device home screen with more options
 - **Nicknames** - Long press any app to add a nickname, then search using that nickname in the future
 - **App Management** - View app details or bulk uninstall apps (access via search results settings). Long press apps to view app info or uninstall from results.
-- **Shortcut Management** - Enable, disable, or add custom app shortcuts (access via search results settings). Long press any app to access its shortcuts (if available) and enable them in search results.
+- **Shortcut Management** - Enable, disable, or add custom app shortcuts (access via search results settings). Add custom search queries, URLs, and app activities as shortcuts. Search and filter apps in the shortcut management screen. Long press any app to access its shortcuts (if available) and enable them in search results.
+- **Built-in Shortcuts** - Pre-configured shortcuts including "Google Song Search" and "YouTube Watch Later"
 
 ### Behavior Settings
+- **Import/Export App Settings** - Backup and restore your Quick Search configuration and preferences
 - **Clear Query Toggle** - Automatically clear search query after performing an action
   - App and settings results: always cleared
   - Contact results: never cleared
@@ -147,12 +155,11 @@
 
 ## Home Screen Widget
 
-### Widget Functionality
-- Tap the widget to instantly open Quick Search
-- Customize after adding by long pressing and tapping the settings button
+### Widget Types
+- **Search Widget** - Tap the widget to instantly open Quick Search. Highly customizable with mic button support and up to 2 custom buttons alongside the search functionality
+- **Custom Buttons Widget** - A dedicated widget for custom buttons with enhanced customizable layouts and actions
 
 ### Widget Customization Options
-- **Custom Widget Buttons** - Add apps, shortcuts, files, contacts, and settings to your widget
 - **Background Color** - Choose black or white
 - **Corner Radius** - Adjust roundness of corners
 - **Border Thickness** - Modify border width
@@ -183,11 +190,6 @@
 - **In-App Display** - Release notes shown directly within the app
 - **Version Information** - Clear indication of current version and changes
 
-#### Version 1.5.1 (January 2026)
-- **Enhanced Recent Searches**: Recent searches now include file, contact, setting, and app shortcut items instead of just search queries
-- **Tablet UI Optimizations**: Improved layouts and grid sizing for tablet devices
-- **Bug Fixes**: Fixed wallpaper background issues on some devices
-- **UI Refinements**: Various UI tweaks and refinements for better user experience
 
 ## Support & Development
 

@@ -113,6 +113,7 @@ data class SearchUiState(
 
 ```
 app/src/main/java/com/tk/quicksearch/
+
 │
 ├── app/                          # Application entry point and app-level handlers
 │   ├── MainActivity.kt           # Main activity, navigation setup, edge-to-edge
@@ -124,6 +125,24 @@ app/src/main/java/com/tk/quicksearch/
 ├── navigation/                   # Navigation management
 │   ├── NavigationHandler.kt
 │   └── NavigationManager.kt     # Centralized navigation with animated transitions
+│
+├── shared/                       # Shared components and utilities (new centralized package)
+│   ├── ui/                       # Shared UI components and theming
+│   │   ├── components/           # Reusable UI components (SectionHeader, AppCard, etc.)
+│   │   └── theme/                # Material 3 theming (moved from ui/theme/)
+│   │       ├── Theme.kt
+│   │       ├── Color.kt
+│   │       ├── AppColors.kt      # Centralized color definitions
+│   │       ├── DesignTokens.kt   # Design system tokens
+│   │       └── Type.kt
+│   └── util/                     # Shared utility functions (moved from util/)
+│       ├── DeviceUtils.kt        # Device detection and responsive layout utilities
+│       ├── WallpaperUtils.kt
+│       ├── HapticUtils.kt
+│       ├── AssistantUtils.kt
+│       ├── FeedbackUtils.kt
+│       ├── InAppBrowserUtils.kt
+│       └── PackageConstants.kt
 │
 ├── search/                       # Main search functionality
 │   ├── models/                   # Data models
@@ -156,16 +175,25 @@ app/src/main/java/com/tk/quicksearch/
 │   │       └── ... (more preference modules)
 │   │
 │   ├── core/                     # Core search logic
-│   │   ├── SearchViewModel.kt   # Main ViewModel (2325 lines)
+│   │   ├── SearchViewModel.kt   # Main ViewModel (2946 lines)
 │   │   ├── SearchModels.kt      # State and model definitions
 │   │   ├── SearchViewModelPermissionManager.kt
 │   │   ├── SearchViewModelSearchOperations.kt
 │   │   ├── UnifiedSearchHandler.kt
 │   │   ├── SectionManager.kt
 │   │   ├── SectionRenderingHelpers.kt
-│   │   ├── IntentHelpers.kt
 │   │   ├── ItemPriorityConfig.kt
-│   │   └── ManagementHandler.kt
+│   │   ├── ManagementHandler.kt
+│   │   ├── UrlUtils.kt
+│   │   └── intentHelpers/       # Intent handling utilities
+│   │       ├── IntentHelpers.kt
+│   │       ├── IntentUtils.kt
+│   │       ├── SearchIntents.kt
+│   │       ├── AppLaunchingIntents.kt
+│   │       ├── AppManagementIntents.kt
+│   │       ├── AppSettingsIntents.kt
+│   │       ├── SearchEngineIntents.kt
+│   │       └── FileIntents.kt
 │   │
 │   ├── apps/                     # App search features
 │   │   ├── AppSearchManager.kt  # Search logic and filtering
@@ -184,11 +212,35 @@ app/src/main/java/com/tk/quicksearch/
 │   │
 │   ├── contacts/                 # Contact search and actions
 │   │   ├── ContactResultsSection.kt
+│   │   ├── ContactExpandCollapse.kt
 │   │   ├── actions/             # Contact action handlers
+│   │   │   ├── ContactActionHandler.kt
+│   │   │   ├── CallSmsActions.kt
+│   │   │   ├── WhatsAppActions.kt
+│   │   │   ├── TelegramActions.kt
+│   │   │   ├── SignalActions.kt
+│   │   │   ├── GoogleMeetActions.kt
+│   │   │   ├── CustomAppActions.kt
+│   │   │   └── ContactDataIntentLauncher.kt
 │   │   ├── components/          # Contact UI components
-│   │   ├── dialogs/
-│   │   ├── models/
-│   │   └── utils/
+│   │   │   ├── ContactResultRow.kt
+│   │   │   ├── ContactMenuView.kt
+│   │   │   ├── ContactActionComponents.kt
+│   │   │   └── ContactUiConstants.kt
+│   │   ├── dialogs/             # Contact selection dialogs
+│   │   │   ├── ContactActionPickerDialog.kt
+│   │   │   ├── ContactMethodsDialog.kt
+│   │   │   ├── PhoneSelectionDialogs.kt
+│   │   │   └── ContactDialogUtils.kt
+│   │   ├── models/              # Contact data models
+│   │   │   └── ContactCardAction.kt
+│   │   └── utils/               # Contact utilities
+│   │       ├── ContactManagementHandler.kt
+│   │       ├── ContactIntentHelpers.kt
+│   │       ├── ContactCallingAppResolver.kt
+│   │       ├── ContactMessagingAppResolver.kt
+│   │       ├── MessagingHandler.kt
+│   │       └── TelegramContactUtils.kt
 │   │
 │   ├── files/                    # File search
 │   │   ├── FileResultsSection.kt
@@ -204,20 +256,14 @@ app/src/main/java/com/tk/quicksearch/
 │   │   ├── DeviceSetting.kt
 │   │   └── DeviceSettingsResults.kt
 │   │
-│   ├── searchEngines/            # Search engine integration
-│   │   ├── SearchEngineManager.kt
-│   │   ├── SearchEngineLayout.kt
-│   │   ├── SearchEngineUtils.kt
-│   │   ├── SearchTargetUtils.kt
-│   │   ├── ShortcutHandler.kt
-│   │   ├── ShortcutValidator.kt
-│   │   ├── compact/             # Compact mode UI
-│   │   ├── inline/              # Inline mode (SearchEngineSection, etc.)
-│   │   └── shared/
-│   │
 │   ├── searchScreen/             # Main search UI
 │   │   ├── SearchScreen.kt      # Main screen composable
-│   │   ├── SearchScreenLayout.kt # Layout orchestration (overlay theme applied here)
+│   │   ├── searchScreen/        # Search screen routing and state management
+│   │   ├── searchScreenLayout/  # Layout orchestration (overlay theme applied here)
+│   │   │   ├── ContentLayout.kt
+│   │   │   ├── SearchContentArea.kt
+│   │   │   └── ... (layout components)
+│   │   ├── components/          # UI components (Cards, Pills, Banners)
 │   │   ├── OverlayGradientThemeUtils.kt  # Overlay theme gradients (Forest, Aurora, Sunset, Mono)
 │   │   ├── SearchScreenContent.kt
 │   │   ├── SearchScreenComponents.kt
@@ -259,27 +305,62 @@ app/src/main/java/com/tk/quicksearch/
 │       ├── PermissionUtils.kt
 │       └── FileUtils.kt
 │
+├── searchEngines/                # Search engine integration (moved from search/searchEngines/)
+│   ├── SearchEngineManager.kt
+│   ├── SearchEngineLayout.kt
+│   ├── SearchTargetUtils.kt
+│   ├── ShortcutHandler.kt
+│   ├── ShortcutValidator.kt
+│   ├── BrowserTargets.kt
+│   ├── CustomSearchEngineUtils.kt
+│   ├── SecondarySearchOrchestrator.kt
+│   ├── compact/                  # Compact mode UI
+│   ├── inline/                   # Inline mode (SearchEngineSection, etc.)
+│   └── shared/                   # Shared search engine components
+│
 ├── tools/                        # Specialized tools and utilities
 │   ├── calculator/               # Calculator functionality
-│   │   └── CalculatorHandler.kt
+│   │   ├── CalculatorHandler.kt
+│   │   └── CalculatorUtils.kt
 │   │
 │   └── directSearch/             # Direct Search (Gemini API)
 │       ├── DirectSearchClient.kt
 │       ├── DirectSearchHandler.kt
 │       ├── GeminiLoadingAnimation.kt
 │       ├── GeminiModelPickerDialog.kt  # Model selection (Gemini/Gemma)
+│       ├── GeminiModels.kt        # Gemini/Gemma model definitions
 │       └── SearchScreenDirectResults.kt  # Results UI; "Powered by" tap = model picker, long press = configure
 │
-├── settings/                     # Settings screens
+├── settings/                     # Settings screens (restructured)
 │   ├── SettingsScreen.kt
-│   ├── searchEnginesScreen/
-│   ├── settingsDetailScreen/     # Detail screens (SearchEngines, ExcludedItems, SearchResults, Appearance, etc.)
-│   │   ├── AppearanceSettings.kt   # Overlay theme card (OverlayThemeCard)
-│   │   ├── SearchResultsSettings.kt # Entry to App Management, Shortcut Management
-│   │   ├── AppManagementSettings.kt # App details, bulk uninstall
-│   │   ├── AppShortcutsSettings.kt  # Enable/disable/add app shortcuts
-│   │   └── SettingsDetailLevel2Screen.kt  # Hosts APP_MANAGEMENT, shortcut settings
-│   └── shared/                  # SettingsRoute, shared components
+│   ├── SettingsBackupManager.kt
+│   ├── appearanceSettings/       # Appearance settings (new subdirectory)
+│   │   ├── AppearanceSettings.kt     # Overlay theme card (OverlayThemeCard)
+│   │   ├── OverlayThemeSettings.kt
+│   │   ├── IconPackSettings.kt
+│   │   ├── LayoutIconSettings.kt
+│   │   └── FontSizeSettings.kt
+│   ├── appShortcutsSettings/     # App shortcuts settings (new subdirectory)
+│   │   ├── AppShortcutsSettings.kt
+│   │   ├── Components.kt
+│   │   └── Models.kt
+│   ├── searchEngineSettings/     # Search engine settings (new subdirectory)
+│   ├── navigation/               # Settings navigation (new subdirectory)
+│   │   ├── SettingsDetailScreen.kt
+│   │   ├── SettingsDetailRoute.kt
+│   │   └── SettingsDetailLevel2Screen.kt
+│   ├── shared/                   # Shared settings components (expanded)
+│   │   ├── SettingsRoute.kt
+│   │   ├── SettingsNavigationRow.kt
+│   │   ├── SettingsToggleRow.kt
+│   │   ├── SettingsStateMappers.kt
+│   │   ├── SettingsLayoutUtils.kt
+│   │   └── settingsRoute/
+│   ├── AppManagementSettings.kt
+│   ├── CallsAndTextsSettings.kt
+│   ├── ExcludedItemSettings.kt
+│   ├── FileSettings.kt
+│   └── SearchResultsSettings.kt
 │
 ├── onboarding/                   # First-launch setup
 │   ├── SearchEngineSetupScreen.kt
@@ -287,30 +368,17 @@ app/src/main/java/com/tk/quicksearch/
 │   ├── OnboardingHeader.kt
 │   └── permissionScreen/        # PermissionsScreen, PermissionRequestHandler, etc.
 │
-├── widget/                       # Home screen widget (Glance)
-│   ├── QuickSearchWidget.kt
-│   ├── QuickSearchWidgetConfigureActivity.kt
-│   └── ... (18 widget files)
+├── widgets/                      # Home screen widgets (restructured from widget/)
+│   ├── customButtonsWidget/     # Custom buttons widget
+│   ├── searchWidget/            # Search widget
+│   ├── widgetConfigScreen/      # Widget configuration UI
+│   └── utils/                   # Widget utilities
 │
 ├── tile/                         # Quick Settings tile
 │   ├── QuickSearchTileService.kt
 │   └── QuickSettingsTileUtils.kt
 │
-├── ui/theme/                     # Material 3 theming
-│   ├── Theme.kt
-│   ├── Color.kt
-│   ├── AppColors.kt             # Centralized color definitions
-│   ├── DesignTokens.kt          # Design system tokens
-│   └── Type.kt
-│
-└── util/                         # Utility functions
-    ├── DeviceUtils.kt           # Device detection and responsive layout utilities
-    ├── WallpaperUtils.kt
-    ├── HapticUtils.kt
-    ├── AssistantUtils.kt
-    ├── FeedbackUtils.kt
-    ├── InAppBrowserUtils.kt
-    └── PackageConstants.kt
+└── util/                         # Legacy utility functions (most moved to shared/util/)
 ```
 
 ---
@@ -352,7 +420,7 @@ private fun updateUiState(updater: (SearchUiState) -> SearchUiState) {
 
 ## 🎨 UI Design System
 
-### Color System (`ui/theme/AppColors.kt`)
+### Color System (`shared/ui/theme/AppColors.kt`)
 
 **Theme Colors**:
 - Primary: Deep Purple (`#651FFF`)
@@ -378,7 +446,7 @@ fun getCardColors(showWallpaperBackground: Boolean): CardColors {
 }
 ```
 
-### Design Tokens (`ui/theme/DesignTokens.kt`)
+### Design Tokens (`shared/ui/theme/DesignTokens.kt`)
 
 Centralized spacing (4dp grid) and dimensions:
 - Spacing scale: `SpacingXXSmall` (4.dp) through `Spacing48` (48.dp); `ContentHorizontalPadding = SpacingXLarge` (20.dp)
@@ -411,9 +479,46 @@ fun ResultsSection(
 }
 ```
 
+### Shared UI Components (`shared/ui/components/`)
+
+Centralized reusable UI components extracted from feature-specific code:
+
+**Common Components**:
+- `SectionHeader.kt` - Consistent section headers with optional action buttons
+- `EmptyStateMessage.kt` - Empty state displays with icons and messages
+- `IconWithText.kt` - Icon-text combinations with consistent spacing
+- `TipBanner.kt` - Informational banners for user guidance
+- `AppCard.kt` - Standardized app display cards
+- `LoadingIndicator.kt` - Consistent loading states
+- `SectionDivider.kt` - Visual separators between sections
+
+**Usage Pattern**:
+```kotlin
+// Import shared components
+import com.tk.quicksearch.shared.ui.components.SectionHeader
+import com.tk.quicksearch.shared.ui.components.EmptyStateMessage
+
+@Composable
+fun MySection() {
+    SectionHeader(
+        title = "Recent Apps",
+        actionText = "See All",
+        onActionClick = { /* navigate */ }
+    )
+
+    if (apps.isEmpty()) {
+        EmptyStateMessage(
+            icon = Icons.Default.Apps,
+            title = "No recent apps",
+            message = "Start using apps to see them here"
+        )
+    }
+}
+```
+
 ### Responsive Design & Tablet Optimizations
 
-**Device Detection** (`util/DeviceUtils.kt`):
+**Device Detection** (`shared/util/DeviceUtils.kt`):
 - **Tablet Detection**: Devices with `smallestScreenWidthDp >= 600` are considered tablets
 - **Orientation Awareness**: Separate logic for portrait vs landscape modes
 
@@ -442,7 +547,7 @@ fun getAppGridColumns(): Int {
 
 ## 🔍 Search Algorithm & Ranking
 
-### Multi-Source Ranking (`util/SearchRankingUtils.kt`)
+### Multi-Source Ranking (`search/common/SearchRankingUtils.kt`)
 
 **Ranking Priorities** (highest to lowest):
 1. **Exact match** - Query exactly matches name
@@ -534,8 +639,8 @@ fun matches(query: String): Boolean {
 
 ### 1. Search Engines
 
-**Supported Engines** (24 total):
-Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx), Grok (grk), Reddit (rdt), Google Maps (mps), Google Drive (gdr), Google Photos (gph), Google Play (gpl), YouTube (ytb), YouTube Music (ytm), Spotify (sfy), Amazon (amz), X/Twitter (twt), Facebook Marketplace (fbm), Bing (bng), DuckDuckGo (ddg), Brave (brv), Startpage (stp), You.com (yu), AI Mode (gai), Claude (cld)
+**Supported Engines** (25 total):
+Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx), Grok (grk), Reddit (rdt), Google Maps (mps), Waze (wze), Google Drive (gdr), Google Photos (gph), Google Play (gpl), YouTube (ytb), YouTube Music (ytm), Spotify (sfy), Amazon (amz), X/Twitter (twt), Facebook Marketplace (fbm), Bing (bng), DuckDuckGo (ddg), Brave (brv), Startpage (stp), You.com (yu), AI Mode (gai), Claude (cld)
 
 **Features**:
 - **Shortcuts**: Custom keyboard shortcuts (e.g., "ggl" for Google)
@@ -545,7 +650,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - **Direct Search**: Gemini API integration; model selection (several Gemini and Gemma models via `GeminiModelPickerDialog.kt`); optional personal context. "Powered by" attribution row: tap opens model picker, long press opens Direct Search configuration.
 - **Display Modes**: Inline (scrolls) vs Compact (fixed at bottom)
 
-**Implementation**: `search/searchEngines/SearchEngineManager.kt`. Display modes: `search/searchEngines/inline/` (SearchEngineSection) and `search/searchEngines/compact/`. Direct Search in `tools/directSearch/` (DirectSearchClient, DirectSearchHandler, SearchScreenDirectResults, GeminiModelPickerDialog). Model preference: `GeminiPreferences.kt`.
+**Implementation**: `searchEngines/SearchEngineManager.kt`. Display modes: `searchEngines/inline/` (SearchEngineSection) and `searchEngines/compact/`. Direct Search in `tools/directSearch/` (DirectSearchClient, DirectSearchHandler, SearchScreenDirectResults, GeminiModelPickerDialog). Model preference: `GeminiPreferences.kt`.
 
 ### 2. Contact Integration
 
@@ -572,7 +677,7 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 - Real-time evaluation in search bar
 - Long-press calculator results to copy to clipboard
 
-**Implementation**: `search/calculator/CalculatorHandler.kt`
+**Implementation**: `tools/calculator/CalculatorHandler.kt`, `tools/calculator/CalculatorUtils.kt`
 
 ### 4. Web Suggestions
 
@@ -607,6 +712,8 @@ Direct Search (dsh), Google (ggl), ChatGPT (cgpt), Gemini (gmi), Perplexity (ppx
 **Behavior**: Search bar appears over other apps so users can search from any screen without leaving the current app.
 
 **Overlay Themes**: Multiple gradient themes (Forest, Aurora, Sunset, Mono) with adjustable intensity (lighter/darker). Configured in Settings → Appearance (Search Results → Appearance). State: `overlayGradientTheme`, `overlayThemeIntensity` in `SearchUiState`; persisted in `UiPreferences`.
+
+**Font Size Customization**: Adjustable font scaling throughout the app (95%, 100%, 105%). Provides better readability for different users and devices. Configured in Settings → Appearance.
 
 **Key Files**:
 - `search/overlay/OverlayRoot.kt` - Overlay UI root composable (entry animation, close tip, SearchRoute; uses overlay theme)
@@ -688,6 +795,32 @@ launchDeferredInitialization()
 - Prefetch icons for visible apps
 - Icon pack support
 
+### Secondary Search Orchestration (`searchEngines/SecondarySearchOrchestrator.kt`)
+
+**Debounced Secondary Searches**:
+- Prevents redundant searches for queries that previously yielded no results
+- 150ms debounce delay for secondary search operations (contacts, files, settings, app shortcuts)
+- Tracks "no-results" states per query prefix to avoid repeated searches
+
+**Query State Tracking**:
+- Maintains query version control to cancel outdated operations
+- Intelligent result caching to skip searches for known empty result sets
+- Optimized for rapid typing scenarios
+
+### Baseline Profile Optimization (`app/src/main/baseline-prof.txt`)
+
+**Ahead-of-Time (AOT) Compilation**:
+- Defines critical methods compiled ahead-of-time for improved startup performance
+- Reduces app launch time and eliminates jank during initial interactions
+- Covers essential startup paths, data loading, and UI rendering
+
+**Profiled Classes**:
+- **Core Startup**: `MainActivity`, `SearchViewModel`, repositories, and managers
+- **Data Loading**: `AppsRepository`, `ContactRepository`, `FileSearchRepository`, `AppShortcutRepository`
+- **Search Infrastructure**: `SearchEngineManager`, `SectionManager`, `PermissionManager`
+- **UI Framework**: Compose runtime classes and essential collections
+- **Utilities**: `WallpaperUtils`, `PermissionUtils`, `SearchRankingUtils`, JSON parsing
+
 ---
 
 ## 🎯 Navigation & Routing
@@ -730,19 +863,32 @@ launchDeferredInitialization()
 [versions]
 agp = "8.12.3"
 kotlin = "2.0.21"
+coreKtx = "1.17.0"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+lifecycleRuntimeKtx = "2.9.4"
+activityCompose = "1.12.0"
+browser = "1.8.0"
 composeBom = "2025.12.01"
+material = "1.12.0"
 glance = "1.1.1"
 securityCrypto = "1.1.0-alpha06"
-fuzzywuzzy = "1.0.1"
-reorderable = "2.4.3"
+okhttp = "4.12.0"
+playReview = "2.0.1"
+playUpdate = "2.1.0"
+playServicesOssLicenses = "17.3.0"
+ossLicensesPlugin = "0.10.10"
 libphonenumber = "8.13.36"
+reorderable = "2.4.3"
+fuzzywuzzy = "1.0.1"
 ```
 
 **Build Configuration**:
 - Min SDK: 24 (Android 7.0)
 - Target SDK: 36 (Android 15)
 - Compile SDK: 36
-- Version: 1.5.1 (Code 18)
+- Version: 2.5.2 (Code 33)
 
 **Key Dependencies**:
 - Jetpack Compose (BOM 2025.12.01)
@@ -751,9 +897,12 @@ libphonenumber = "8.13.36"
 - Security Crypto (for encrypted preferences)
 - OkHttp (for web requests)
 - Play Review/Update APIs
+- Play Services OSS Licenses
+- libphonenumber (phone number parsing/normalization)
 - FuzzyWuzzy (fuzzywuzzy-kotlin for advanced fuzzy search)
 - Reorderable (drag-and-drop reordering)
-- libphonenumber (phone number parsing/normalization)
+- Browser (AndroidX browser integration)
+- Activity Compose (Compose activity integration)
 
 ---
 
@@ -771,7 +920,7 @@ libphonenumber = "8.13.36"
 
 - **Feature-based**: Organized by feature domain (apps, contacts, files, etc.)
 - **Layer separation**: Clear separation between data, logic, and UI
-- **Shared utilities**: Common utilities in `util/` and `search/common/`
+- **Shared utilities**: Common utilities in `shared/util/` and `search/common/`
 
 ### State Management Conventions
 
@@ -828,7 +977,7 @@ libphonenumber = "8.13.36"
 ### Modifying Search UI
 
 1. Identify relevant composable in `search/searchScreen/`
-2. Check if design tokens should be updated in `ui/theme/DesignTokens.kt`
+2. Check if design tokens should be updated in `shared/ui/theme/DesignTokens.kt`
 3. Update composable logic
 4. Test with different permission states
 5. Verify wallpaper mode compatibility
@@ -855,7 +1004,7 @@ libphonenumber = "8.13.36"
 
 ### Critical Files to Understand
 
-1. **SearchViewModel.kt** (2325 lines) - Central business logic
+1. **SearchViewModel.kt** (2946 lines) - Central business logic
 2. **SearchUiState** in **SearchModels.kt** - Complete state definition
 3. **SearchScreenLayout.kt** - Main UI layout orchestration
 4. **UserAppPreferences.kt** - All preference management
@@ -914,24 +1063,50 @@ Sections are shown/hidden based on:
 - `NoResults` - No results to show
 - `ShowingResults` - Results available
 
+### Enhanced Layout Components
+
+**Modular Search Screen Layout** (`search/searchScreen/searchScreenLayout/`):
+- `ContentLayout.kt` - Main content orchestration with responsive layout logic
+- `SearchContentArea.kt` - Content area management with scrolling and positioning
+- `SectionRenderingState.kt` - Section rendering state management
+- `SearchScreenLayoutConstants.kt` - Layout constants and shape definitions
+
+**Layout Constants**:
+- `TopRoundedShape` - Custom shape for top-rounded corners (16dp radius)
+- Enhanced responsive design with improved tablet optimizations
+
 ---
 
 ## 🔧 Widget System (Glance)
 
 **Technology**: Jetpack Glance App Widget framework
 
+**Widget Types**:
+
+**Search Widget**:
+- Tap to instantly open Quick Search
+- Voice search support with mic button
+- Highly customizable with up to 2 custom buttons alongside search functionality
+- Configurable mic button actions (voice search or digital assistant)
+
+**Custom Buttons Widget**:
+- Dedicated widget for custom button layouts
+- Enhanced customization options with flexible button arrangements
+- Independent from search widget for specialized use cases
+
 **Features**:
 - Custom widget buttons for apps, shortcuts, files, contacts, and settings
-- Customizable colors (background, text, icons)
-- Adjustable border thickness
-- Configurable transparency
-- Show/hide elements (text, icons)
-- Voice search support
+- Customizable colors (background, text, icons) with expanded color options beyond white/black
+- Adjustable border thickness and corner radius
+- Configurable transparency and opacity
+- Show/hide elements (text, icons, mic icon)
+- Icon alignment options (left or center)
+- Enhanced visual customization for better personalization
 
 **Key Files**:
-- `QuickSearchWidget.kt` - Widget composable
-- `QuickSearchWidgetConfigureActivity.kt` - Configuration UI
-- `QuickSearchWidgetPreferences.kt` - Widget state persistence
+- `widgets/searchWidget/` - Search widget implementation
+- `widgets/customButtonsWidget/` - Custom buttons widget with advanced configuration
+- `widgets/widgetConfigScreen/` - Shared widget configuration UI components
 
 ---
 
@@ -1062,5 +1237,5 @@ Sections are shown/hidden based on:
 
 ---
 
-**Last Updated**: February 2026 (v2.2)
+**Last Updated**: March 3, 2026 (v2.5.2)
 **For Questions**: Refer to code comments, README.md, FEATURES.md, or analyze usage patterns in codebase
