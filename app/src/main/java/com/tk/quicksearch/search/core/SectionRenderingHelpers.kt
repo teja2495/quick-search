@@ -10,7 +10,7 @@ import com.tk.quicksearch.search.searchScreen.AppsSectionParams
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
-import com.tk.quicksearch.search.searchScreen.SectionRenderingState
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 
 // ============================================================================

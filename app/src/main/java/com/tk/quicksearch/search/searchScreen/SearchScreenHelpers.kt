@@ -13,6 +13,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 
 sealed interface PredictedSubmitTarget {
     data class App(val packageName: String, val userHandleId: Int?) : PredictedSubmitTarget

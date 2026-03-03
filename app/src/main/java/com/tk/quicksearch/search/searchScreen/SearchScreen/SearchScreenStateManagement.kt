@@ -32,7 +32,7 @@ import com.tk.quicksearch.search.searchScreen.buildSectionParams
 import com.tk.quicksearch.search.searchScreen.rememberDerivedState
 import com.tk.quicksearch.search.searchScreen.DerivedState
 import com.tk.quicksearch.search.searchScreen.SectionParams
-import com.tk.quicksearch.search.searchScreen.SectionRenderingState
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.OneHandedModeScrollBehavior
 import com.tk.quicksearch.search.searchScreen.ScrollBasedKeyboardBehavior

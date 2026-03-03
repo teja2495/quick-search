@@ -47,6 +47,8 @@ import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.resolveDefaultBrowserPackage
 import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
+import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
 import kotlinx.coroutines.delay
 
 @Composable

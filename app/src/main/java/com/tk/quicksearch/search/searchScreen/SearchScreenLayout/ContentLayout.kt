@@ -1,0 +1,488 @@
+package com.tk.quicksearch.search.searchScreen.searchScreenLayout
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.core.*
+import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.search.searchHistory.SearchHistorySection
+import com.tk.quicksearch.searchEngines.*
+import com.tk.quicksearch.searchEngines.compact.NoResultsSearchEngineCards
+import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.tools.directSearch.CalculatorResult
+import com.tk.quicksearch.tools.directSearch.DirectSearchResult
+import com.tk.quicksearch.search.searchScreen.ExpandedSection
+import com.tk.quicksearch.search.searchScreen.InfoBanner
+import com.tk.quicksearch.search.searchScreen.PersonalContextHintBanner
+import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
+import com.tk.quicksearch.search.searchScreen.renderSection
+import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
+import com.tk.quicksearch.search.searchScreen.FilesSectionParams
+import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
+import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
+import com.tk.quicksearch.search.searchScreen.AppsSectionParams
+import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
+import kotlinx.coroutines.delay
+
+/** Unified content layout that handles both one-handed mode and top-aligned layouts. */
+@Composable
+fun ContentLayout(
+    modifier: Modifier = Modifier,
+    state: SearchUiState,
+    renderingState: SectionRenderingState,
+    contactsParams: ContactsSectionParams,
+    filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
+    settingsParams: SettingsSectionParams,
+    appsParams: AppsSectionParams,
+    predictedTarget: PredictedSubmitTarget? = null,
+    onRequestUsagePermission: () -> Unit,
+    minContentHeight: Dp,
+    isReversed: Boolean,
+    hideResults: Boolean,
+    showCalculator: Boolean = false,
+    showDirectSearch: Boolean = false,
+    directSearchState: DirectSearchState? = null,
+    isOverlayPresentation: Boolean = false,
+    onPhoneNumberClick: (String) -> Unit = {},
+    onEmailClick: (String) -> Unit = {},
+    onOpenPersonalContextDialog: () -> Unit = {},
+    onPersonalContextHintDismissed: () -> Unit = {},
+    onWebSuggestionClick: (String) -> Unit = {},
+    onSearchEngineLongPress: () -> Unit = {},
+    onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
+    onSearchTargetClick: (String, SearchTarget) -> Unit = { _, _ -> },
+    onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
+    onGeminiModelInfoClick: () -> Unit = {},
+) {
+    val context = LocalContext.current
+    val effectiveContactsParams = contactsParams.copy(predictedTarget = predictedTarget)
+    val effectiveFilesParams = filesParams.copy(predictedTarget = predictedTarget)
+    val effectiveAppShortcutsParams = appShortcutsParams.copy(predictedTarget = predictedTarget)
+    val effectiveSettingsParams = settingsParams.copy(predictedTarget = predictedTarget)
+    val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
+
+    // 1. Determine Layout Order based on ItemPriorityConfig
+    val hasQuery = state.query.isNotBlank()
+    val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
+    val baseLayoutOrder = ItemPriorityConfig.getLayoutOrder(hasQuery)
+
+    // 2. Apply One-Handed Mode Reversal if needed
+    // User Requirement: "When one handed mode is enabled the same order is reversed."
+    // isReversed flag passed here reflects one-handed mode state.
+    val finalLayoutOrder = if (isReversed) baseLayoutOrder.reversed() else baseLayoutOrder
+
+    // 3. Prepare Shared Rendering Context and Params
+    // We reuse the extracted logic to determine visibility and expansion states
+    val sectionContext =
+        rememberSectionRenderContext(
+            state = state,
+            renderingState = renderingState,
+            filesParams = effectiveFilesParams,
+            contactsParams = effectiveContactsParams,
+            settingsParams = effectiveSettingsParams,
+            appShortcutsParams = effectiveAppShortcutsParams,
+            appsParams = effectiveAppsParams,
+            isSearching = hasQuery,
+            oneHandedMode =
+                state.oneHandedMode, // This affects list reversal inside helpers
+        )
+
+    val sectionParams =
+        SectionRenderParams(
+            renderingState = renderingState,
+            contactsParams = effectiveContactsParams,
+            filesParams = effectiveFilesParams,
+            appShortcutsParams = effectiveAppShortcutsParams,
+            settingsParams = effectiveSettingsParams,
+            appsParams = effectiveAppsParams,
+            isReversed = isReversed,
+        )
+
+    val effectiveShowWallpaperBackground = state.showWallpaperBackground
+    val inlineTargets =
+        remember(
+            state.searchTargetsOrder,
+            state.disabledSearchTargetIds,
+            isUrlQuery,
+            context,
+        ) {
+            if (isUrlQuery) {
+                orderedBrowserTargets(
+                    targets = state.searchTargetsOrder,
+                    defaultBrowserPackage = resolveDefaultBrowserPackage(context),
+                )
+            } else {
+                state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
+            }
+        }
+
+    // Pre-calculate common states
+    val isExpanded = renderingState.expandedSection != ExpandedSection.NONE
+    val hasAnySearchResults = hasAnySearchResults(state)
+    // Web Suggestions Logic
+    val suggestionsNotEmpty = state.webSuggestions.isNotEmpty()
+    val suggestionsEnabled = state.webSuggestionsEnabled
+    val suggestionWasSelected = state.webSuggestionWasSelected
+
+    val showWebSuggestions =
+        hasQuery &&
+                !isUrlQuery &&
+                !showDirectSearch &&
+                !showCalculator &&
+                suggestionsNotEmpty &&
+                suggestionsEnabled &&
+                !suggestionWasSelected
+
+    // Recent Queries Logic (for App Open State mainly, but CONFIG has RECENT_QUERIES item)
+    val showRecentItems =
+        !hasQuery && state.recentQueriesEnabled && state.recentItems.isNotEmpty()
+
+    var searchHistoryExpanded by remember { mutableStateOf(false) }
+    LaunchedEffect(showRecentItems) {
+        if (!showRecentItems) searchHistoryExpanded = false
+    }
+
+    val hidePinnedAndAppsWhenSearchHistoryExpanded =
+        showRecentItems && searchHistoryExpanded
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        finalLayoutOrder.forEach { itemType ->
+            // Check if this is a section item
+            val isSectionItem =
+                when (itemType) {
+                    ItemPriorityConfig.ItemType.APPS_SECTION,
+                    ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION,
+                    ItemPriorityConfig.ItemType.FILES_SECTION,
+                    ItemPriorityConfig.ItemType.CONTACTS_SECTION,
+                    ItemPriorityConfig.ItemType.SETTINGS_SECTION,
+                    -> true
+
+                    else -> false
+                }
+
+            // If a section is expanded, we hide all OTHER non-section items.
+            if (isExpanded && !isSectionItem) return@forEach
+
+            when (itemType) {
+                ItemPriorityConfig.ItemType.ERROR_BANNER -> {
+                    if (state.screenState is ScreenVisibilityState.Error) {
+                        InfoBanner(
+                            message =
+                                (
+                                    state.screenState as
+                                            ScreenVisibilityState.Error
+                                ).message,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.CALCULATOR_RESULT -> {
+                    if (showCalculator) {
+                        CalculatorResult(
+                            calculatorState = state.calculatorState,
+                            showWallpaperBackground =
+                                effectiveShowWallpaperBackground,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.DIRECT_SEARCH_RESULT -> {
+                    if (showDirectSearch && directSearchState != null) {
+                        val shouldAllowPersonalContextHint =
+                            state.showPersonalContextHint &&
+                                    state.personalContext.isBlank() &&
+                                    directSearchState.status ==
+                                    DirectSearchStatus
+                                        .Success &&
+                                    !directSearchState.answer
+                                        .isNullOrBlank()
+                        var isPersonalContextHintVisible by
+                            remember(directSearchState.activeQuery) {
+                                mutableStateOf(false)
+                            }
+
+                        LaunchedEffect(shouldAllowPersonalContextHint) {
+                            if (shouldAllowPersonalContextHint) {
+                                delay(1000L)
+                                isPersonalContextHintVisible = true
+                            } else {
+                                isPersonalContextHintVisible = false
+                            }
+                        }
+
+                        Column {
+                            AnimatedVisibility(
+                                visible =
+                                isPersonalContextHintVisible,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                Column {
+                                    PersonalContextHintBanner(
+                                        onOpenPersonalContext =
+                                        onOpenPersonalContextDialog,
+                                        onOpenDirectSearchConfigure =
+                                        onOpenDirectSearchConfigure,
+                                        onDismiss = {
+                                            isPersonalContextHintVisible =
+                                                false
+                                            onPersonalContextHintDismissed()
+                                        },
+                                    )
+                                    Spacer(
+                                        modifier =
+                                            Modifier.size(
+                                                DesignTokens
+                                                    .SpacingSmall,
+                                            ),
+                                    )
+                                }
+                            }
+                            DirectSearchResult(
+                                directSearchState =
+                                directSearchState,
+                                showWallpaperBackground =
+                                    effectiveShowWallpaperBackground,
+                                onGeminiModelInfoClick = onGeminiModelInfoClick,
+                                onOpenDirectSearchConfigure =
+                                onOpenDirectSearchConfigure,
+                                onPhoneNumberClick =
+                                onPhoneNumberClick,
+                                onEmailClick = onEmailClick,
+                            )
+                        }
+                    }
+                }
+
+                // --- Sections ---
+                // We delegate to renderSection provided by
+                // SectionRenderingComposables
+                // using the pre-calculated context.
+                // When search history is expanded, hide app suggestions and pinned items.
+                ItemPriorityConfig.ItemType.APPS_SECTION -> {
+                    if (
+                        !hideResults &&
+                                !isUrlQuery &&
+                                !hidePinnedAndAppsWhenSearchHistoryExpanded
+                    ) {
+                        renderSection(
+                            SearchSection.APPS,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                        renderSection(
+                            SearchSection.APP_SHORTCUTS,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.FILES_SECTION -> {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                        renderSection(
+                            SearchSection.FILES,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.CONTACTS_SECTION -> {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                        renderSection(
+                            SearchSection.CONTACTS,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.SETTINGS_SECTION -> {
+                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                        renderSection(
+                            SearchSection.SETTINGS,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                // --- Suggestions & Engines ---
+                ItemPriorityConfig.ItemType.WEB_SUGGESTIONS -> {
+                    val allowWebSuggestions =
+                        !hideResults || state.detectedShortcutTarget != null
+                    if (allowWebSuggestions && hasQuery) {
+                        // Only show if logic approves
+                        AnimatedVisibility(
+                            visible = showWebSuggestions,
+                            enter = fadeIn(),
+                            exit = shrinkVertically(),
+                        ) {
+                            WebSuggestionsSection(
+                                suggestions = state.webSuggestions,
+                                onSuggestionClick =
+                                onWebSuggestionClick,
+                                showWallpaperBackground =
+                                    effectiveShowWallpaperBackground,
+                                reverseOrder = isReversed,
+                                isShortcutDetected =
+                                    state.detectedShortcutTarget !=
+                                            null,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.RECENT_QUERIES -> {
+                    if (!hideResults && showRecentItems) {
+                        val orderedRecentItems = state.recentItems
+                        AnimatedVisibility(
+                            visible = true, // showRecentItems is
+                            // already checked
+                            enter = fadeIn(),
+                            exit = shrinkVertically(),
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+                            ) {
+                                SearchHistorySection(
+                                    items = orderedRecentItems,
+                                    callingApp =
+                                        effectiveContactsParams.callingApp
+                                            ?: CallingApp.CALL,
+                                    messagingApp =
+                                        effectiveContactsParams.messagingApp
+                                            ?: MessagingApp
+                                                .MESSAGES,
+                                    onRecentQueryClick =
+                                    onWebSuggestionClick,
+                                    onContactClick =
+                                        effectiveContactsParams
+                                            .onContactClick,
+                                    onShowContactMethods =
+                                        effectiveContactsParams
+                                            .onShowContactMethods,
+                                    onCallContact =
+                                        effectiveContactsParams
+                                            .onCallContact,
+                                    onSmsContact =
+                                        effectiveContactsParams.onSmsContact,
+                                    onContactMethodClick =
+                                        effectiveContactsParams
+                                            .onContactMethodClick,
+                                    getPrimaryContactCardAction =
+                                        effectiveContactsParams
+                                            .getPrimaryContactCardAction,
+                                    getSecondaryContactCardAction =
+                                        effectiveContactsParams
+                                            .getSecondaryContactCardAction,
+                                    onPrimaryActionLongPress =
+                                        effectiveContactsParams
+                                            .onPrimaryActionLongPress,
+                                    onSecondaryActionLongPress =
+                                        effectiveContactsParams
+                                            .onSecondaryActionLongPress,
+                                    onCustomAction =
+                                        effectiveContactsParams
+                                            .onCustomAction,
+                                    onFileClick =
+                                        effectiveFilesParams.onFileClick,
+                                    onSettingClick =
+                                        effectiveSettingsParams
+                                            .onSettingClick,
+                                    onAppShortcutClick =
+                                        effectiveAppShortcutsParams
+                                            .onShortcutClick,
+                                    onDeleteRecentItem =
+                                    onDeleteRecentItem,
+                                    showSearchHistoryTip = !state.hasDismissedSearchHistoryTip,
+                                    onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                    onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+                                    onExpandedChange = { searchHistoryExpanded = it },
+                                    showWallpaperBackground =
+                                        effectiveShowWallpaperBackground,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
+                        }
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.SEARCH_ENGINES_INLINE -> {
+                    // Inline search engines.
+                    // Condition: Not compact mode.
+                    if (!hideResults &&
+                        hasQuery &&
+                        (!state.isSearchEngineCompactMode || isUrlQuery)
+                    ) {
+                        NoResultsSearchEngineCards(
+                            query = state.query,
+                            enabledEngines = inlineTargets,
+                            onSearchEngineClick = onSearchTargetClick,
+                            onCustomizeClick =
+                            onCustomizeSearchEnginesClick,
+                            onSearchEngineLongPress =
+                            onSearchEngineLongPress,
+                            showCustomizeCard = false,
+                            isReversed = isReversed,
+                            showWallpaperBackground =
+                                effectiveShowWallpaperBackground,
+                            predictedTarget = predictedTarget,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.SEARCH_ENGINES_COMPACT -> {
+                    // If we ever need to render compact engines in the list, do
+                    // it here.
+                    // Currently checking isSearchEngineCompactMode to HIDE
+                    // inline ones.
+                    // If compact engines are intended to be in the list, add
+                    // logic here.
+                    // For now, config doesn't use this in
+                    // SEARCHING_STATE_LAYOUT, but
+                    // we handle it for completeness.
+                }
+
+                ItemPriorityConfig.ItemType.NO_RESULTS_MESSAGE -> {
+                    if (!hideResults) {
+                        NoResultsMessage(state)
+                    }
+                }
+            }
+        }
+    }
+}
