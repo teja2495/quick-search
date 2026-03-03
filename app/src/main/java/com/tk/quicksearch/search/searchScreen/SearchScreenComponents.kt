@@ -1,668 +1,56 @@
 package com.tk.quicksearch.search.searchScreen
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import com.tk.quicksearch.R
-import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.searchEngines.extendToScreenEdges
-import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
-import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
-import com.tk.quicksearch.shared.ui.components.TipBanner
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
-import com.tk.quicksearch.shared.util.hapticStrong
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+// Re-export all components from their respective files for backward compatibility
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
+
+// Import the modifier functions
+import com.tk.quicksearch.search.searchScreen.components.predictedSubmitHighlight as componentsPredictedSubmitHighlight
+import com.tk.quicksearch.search.searchScreen.components.predictedSubmitCardBorder as componentsPredictedSubmitCardBorder
+
+// Modifiers
 internal fun Modifier.predictedSubmitHighlight(
     isPredicted: Boolean,
     shape: Shape = DesignTokens.CardShape,
-): Modifier =
-    composed {
-        if (!isPredicted) {
-            this
-        } else {
-            this
-                .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                    shape = shape,
-                )
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
-                    shape = shape,
-                )
-        }
-    }
+): Modifier = componentsPredictedSubmitHighlight(isPredicted, shape)
 
 internal fun Modifier.predictedSubmitCardBorder(
     isPredicted: Boolean,
     shape: Shape = DesignTokens.CardShape,
-): Modifier =
-    composed {
-        if (!isPredicted) {
-            this
-        } else {
-            this.border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.24f),
-                shape = shape,
-            )
-        }
-    }
+): Modifier = componentsPredictedSubmitCardBorder(isPredicted, shape)
 
+// Cards
 @Composable
 internal fun PermissionDisabledCard(
     title: String,
     message: String,
     actionLabel: String,
     onActionClick: () -> Unit,
-) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            ),
-        shape = MaterialTheme.shapes.extraLarge,
-    ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    horizontal = DesignTokens.SpacingXLarge,
-                    vertical = DesignTokens.SpacingLarge,
-                ),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Button(onClick = onActionClick, modifier = Modifier.align(Alignment.End)) {
-                Text(text = actionLabel)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-internal fun PersistentSearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    onSettingsClick: () -> Unit,
-    dismissKeyboardBeforeSettingsClick: Boolean = false,
-    enabledTargets: List<SearchTarget>,
-    onSearchAction: () -> Unit,
-    shouldUseNumberKeyboard: Boolean,
-    detectedShortcutTarget: SearchTarget? = null,
-    showWelcomeAnimation: Boolean = false,
-    opaqueBackground: Boolean = false,
-    onClearDetectedShortcut: () -> Unit = {},
-    onWelcomeAnimationCompleted: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val view = LocalView.current
-
-    val searchBarBackground =
-        if (opaqueBackground) {
-            Color.Black
-        } else {
-            Color.Black.copy(alpha = 0.5f)
-        }
-    // Light color for icons and text on dark grey background
-    val iconAndTextColor = DesignTokens.ColorSearchText
-
-    // Local text field value maintains cursor position even when state query changes from voice
-    // input.
-    var textFieldValue by remember {
-        mutableStateOf(TextFieldValue(query, TextRange(query.length)))
-    }
-
-    LaunchedEffect(query) {
-        if (query != textFieldValue.text) {
-            textFieldValue =
-                textFieldValue.copy(
-                    text = query,
-                    selection = TextRange(query.length),
-                )
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
-                }
-            }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    // Animation constants
-    val animationDuration = 4000
-
-    // Animation state
-    // We use a linear progression 0 -> 1 to scan the gradient exactly once
-    val animationProgress = remember { Animatable(0f) }
-
-    val glowAlpha = remember { Animatable(0f) }
-    // If we aren't showing the welcome animation, start with the standard UI (0.3f alpha)
-    val borderAlpha = remember { Animatable(if (showWelcomeAnimation) 0f else 0.3f) }
-
-    LaunchedEffect(showWelcomeAnimation) {
-        if (showWelcomeAnimation) {
-            // Setup Start State
-            glowAlpha.snapTo(1f)
-            borderAlpha.snapTo(0f)
-            animationProgress.snapTo(0f)
-
-            // Phase 1: Animate the gradient flow (0 -> 1)
-            // This scans the colors and arrives at the end (White)
-            animationProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(animationDuration, easing = LinearEasing),
-            )
-
-            // Phase 2: Arrived at White. Make it permanent.
-            // We DO NOT snap border to 1f. We rely on the White Brush from Phase 1 to
-            // hold the
-            // white state.
-            // This maintains the "Glow" look during the hold.
-
-            // Hold for a tiny beat (imperceptible, just ensures scan completion)
-            delay(50)
-
-            // Phase 3: Dissipate Heat / Cool Down
-            // Quicker fade out (500ms) to prevent lingering
-            launch {
-                glowAlpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(500, easing = LinearOutSlowInEasing),
-                )
-            }
-            launch {
-                borderAlpha.animateTo(
-                    targetValue = 0.3f,
-                    animationSpec = tween(500, easing = LinearOutSlowInEasing),
-                )
-            }
-
-            // Wait for fade out to complete, then reset the animation flag
-            delay(500)
-            onWelcomeAnimationCompleted?.invoke()
-        }
-    }
-
-    // --- Color Palettes ---
-
-    // 1. Northern Lights (Cool & Mystical) - Best for dark calm themes
-    val auroraColors =
-        listOf(
-            Color(0xFF00E5FF), // Cyan Accent
-            Color(0xFF2979FF), // Royal Blue
-            Color(0xFF651FFF), // Deep Purple
-            Color(0xFFD500F9), // Neon Violet
-            Color(0xFF2979FF), // Back to Blue
-            Color(0xFF00E5FF), // Back to Cyan loop
-        )
-
-    // 2. Electric Cyberpunk (Vibrant & High Energy) - Best for "expensive" tech look
-    val electricColors =
-        listOf(
-            Color(0xFFD500F9), // Neon Purple
-            Color(0xFFFF00CC), // Hot Pink
-            Color(0xFFFF3D00), // Electric Orange
-            Color(0xFFFF00CC), // Hot Pink
-            Color(0xFFD500F9), // Neon Purple
-            Color(0xFF2979FF), // Electric Blue
-            Color(0xFFD500F9), // Loop
-        )
-
-    // 3. Golden Luxury (Warm & Premium) - Best for "Gold" status feel
-    val goldenColors =
-        listOf(
-            Color(0xFFFFD700), // Gold
-            Color(0xFFFF9100), // Deep Orange
-            Color(0xFFFFEA00), // Bright Yellow
-            Color(0xFFFFD700), // Gold
-            Color(0xFFFFA000), // Amber
-            Color(0xFFFFD700), // Loop
-        )
-
-    // 4. Google Brand Colors (Familiar & Playful)
-    // "Vibrant Path": High-fidelity spectrum to avoid muddy RGB blends
-    val googleColors =
-        listOf(
-            Color(0xFF4285F4), // 1. Blue
-            Color(0xFF5E35B1), // 1.1 Indigo (Bridge to Purple)
-            Color(0xFF9C27B0), // 1.2 Purple (Bridge to Red)
-            Color(0xFFE91E63), // 1.3 Pink (Bridge to Red)
-            Color(0xFFEA4335), // 2. Red
-            Color(0xFFFF5722), // 2.1 Deep Orange
-            Color(0xFFFF9800), // 2.2 Orange
-            Color(0xFFFFC107), // 2.3 Amber
-            Color(0xFFFBBC05), // 3. Yellow
-            Color(0xFFD4E157), // 3.1 Lime
-            Color(0xFFCDDC39), // 3.2 Light Green
-            Color(0xFF34A853), // 4. Green
-            Color(0xFF00BFA5), // 4.1 Teal Accent
-            Color(0xFF00BCD4), // 4.2 Cyan
-            Color(0xFF03A9F4), // 4.3 Light Blue
-            Color(0xFF4285F4), // 5. Back to Blue
-            // End Block: Solid White
-            // We need a long tail of white (>25% of total list) to ensure the screen is
-            // fully white
-            // when the scan reaches the end.
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-            Color.White,
-        )
-
-    // Select the active palette here (Change this to try others!)
-    val activeColors = googleColors
-
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .graphicsLayer() // GPU acceleration
-                .drawBehind {
-                    val alpha = glowAlpha.value
-                    if (alpha > 0f) {
-                        val strokeWidth = 2.dp.toPx()
-                        val cornerRadiusVal = 28.dp.toPx()
-
-                        // Calculate gradient movement based on animation
-                        // progress
-                        // We want to SCAN the gradient from Start (Colors)
-                        // to End
-                        // (White)
-                        // At t=0, we want offset=0 (Start of colors aligned
-                        // with left
-                        // edge)
-                        // At t=1, we want to look at the End (White).
-                        // So we slide the brush to the LEFT (negative
-                        // offset) until the
-                        // end is visible.
-
-                        val gradientWidth =
-                            size.width * 4 // Ultra wide gradient
-
-                        // xOffset moves from 0 down to -3*width.
-                        // At -3*width, the brush starts 3 screens to the
-                        // left.
-                        // The visible part [0, width] is at offset +3*width
-                        // = [3*width,
-                        // 4*width] of the gradient.
-                        // This is the last 25% of the gradient, which is
-                        // White.
-                        val xOffset =
-                            -(animationProgress.value * size.width * 3)
-
-                        val brush =
-                            Brush.linearGradient(
-                                colors = activeColors,
-                                start = Offset(xOffset, 0f),
-                                end =
-                                    Offset(
-                                        xOffset +
-                                            gradientWidth,
-                                        0f,
-                                    ),
-                                // Tilt slightly for more dynamic
-                                // look? No,
-                                // straight looks cleaner for border
-                            )
-
-                        // 1. Draw "Outer Glow" (Simulated Blur)
-                        // We draw wider, lower alpha strokes behind
-                        drawRoundRect(
-                            brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
-                            style =
-                                Stroke(
-                                    width = strokeWidth * 4f,
-                                ), // Wide spill
-                            alpha = alpha * 0.3f, // Low opacity
-                        )
-                        drawRoundRect(
-                            brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
-                            style =
-                                Stroke(
-                                    width = strokeWidth * 2f,
-                                ), // Medium spill
-                            alpha = alpha * 0.5f,
-                        )
-
-                        // 2. Draw "Core" sharp line
-                        drawRoundRect(
-                            brush = brush,
-                            cornerRadius =
-                                CornerRadius(cornerRadiusVal),
-                            style = Stroke(width = strokeWidth),
-                            alpha = alpha,
-                        )
-                    }
-                }.border(
-                    width = 2.dp,
-                    color = Color.White.copy(alpha = borderAlpha.value),
-                    shape = RoundedCornerShape(28.dp),
-                ).clip(RoundedCornerShape(28.dp))
-                .background(searchBarBackground),
-    ) {
-        TextField(
-            value = textFieldValue,
-            onValueChange = { newValue ->
-                textFieldValue = newValue
-                onQueryChange(newValue.text)
-            },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .animateContentSize(),
-            shape = RoundedCornerShape(28.dp),
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.search_hint),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = iconAndTextColor.copy(alpha = 0.6f),
-                )
-            },
-            textStyle =
-                MaterialTheme.typography.titleMedium.copy(color = iconAndTextColor),
-            singleLine = false,
-            maxLines = 3,
-            leadingIcon = {
-                if (detectedShortcutTarget != null) {
-                    SearchTargetIcon(
-                        target = detectedShortcutTarget,
-                        iconSize = DesignTokens.IconSize,
-                        style = IconRenderStyle.ADVANCED,
-                        modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription =
-                            stringResource(R.string.desc_search_icon),
-                        tint = iconAndTextColor,
-                        modifier =
-                            Modifier.padding(
-                                start = DesignTokens.SpacingXSmall,
-                            ),
-                    )
-                }
-            },
-            trailingIcon = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement =
-                        Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-                    modifier =
-                        Modifier.padding(end = DesignTokens.SpacingXSmall),
-                ) {
-                    // Show X icon when query is not empty, otherwise show
-                    // settings icon
-                    // (whether shortcut is detected or not when query is empty)
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = onClearQuery) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription =
-                                    stringResource(
-                                        R.string
-                                            .desc_clear_search,
-                                    ),
-                                tint = iconAndTextColor,
-                            )
-                        }
-                    } else {
-                        IconButton(
-                            onClick = {
-                                hapticStrong(view)()
-                                if (dismissKeyboardBeforeSettingsClick) {
-                                    view.clearFocus()
-                                    keyboardController?.hide()
-                                }
-                                onSettingsClick()
-                            },
-                        ) {
-                            Icon(
-                                imageVector =
-                                    Icons.Rounded.Settings,
-                                contentDescription =
-                                    stringResource(
-                                        R.string
-                                            .desc_open_settings,
-                                    ),
-                                tint = iconAndTextColor,
-                            )
-                        }
-                    }
-                }
-            },
-            keyboardOptions =
-                KeyboardOptions(
-                    imeAction = ImeAction.Search,
-                    keyboardType =
-                        if (shouldUseNumberKeyboard) {
-                            KeyboardType.Number
-                        } else {
-                            KeyboardType.Text
-                        },
-                ),
-            keyboardActions =
-                KeyboardActions(
-                    onSearch = {
-                        onSearchAction()
-                        if (query.isNotBlank()) {
-                            // Only hide keyboard if the first engine is
-                            // not
-                            // DIRECT_ANSWER
-                            val firstTarget =
-                                enabledTargets.firstOrNull()
-                            val keepKeyboard =
-                                (
-                                    firstTarget as?
-                                        SearchTarget.Engine
-                                )?.engine ==
-                                    SearchEngine.DIRECT_SEARCH
-                            if (!keepKeyboard) {
-                                keyboardController?.hide()
-                            }
-                        }
-                    },
-                ),
-            colors =
-                TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedTextColor = iconAndTextColor,
-                    unfocusedTextColor = iconAndTextColor,
-                ),
-        )
-    }
-}
+) = com.tk.quicksearch.search.searchScreen.components.PermissionDisabledCard(
+    title = title,
+    message = message,
+    actionLabel = actionLabel,
+    onActionClick = onActionClick,
+)
 
 @Composable
 internal fun UsagePermissionCard(
     modifier: Modifier = Modifier,
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
-) {
-    ElevatedCard(
-        modifier = modifier,
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-    ) {
-        Column(
-            modifier = Modifier.padding(DesignTokens.SpacingXLarge),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.usage_permission_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.size(DesignTokens.IconSize),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription =
-                            stringResource(R.string.desc_close),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(DesignTokens.IconSizeSmall),
-                    )
-                }
-            }
-            Text(
-                text = stringResource(R.string.usage_permission_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Button(
-                onClick = onRequestPermission,
-                modifier = Modifier.align(Alignment.End),
-            ) { Text(text = stringResource(R.string.action_open_settings)) }
-        }
-    }
-}
+) = com.tk.quicksearch.search.searchScreen.components.UsagePermissionCard(
+    modifier = modifier,
+    onRequestPermission = onRequestPermission,
+    onDismiss = onDismiss,
+)
 
+// Banners
 @Composable
-internal fun InfoBanner(message: String) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.errorContainer,
-        shape = DesignTokens.ShapeLarge,
-    ) {
-        Text(
-            text = message,
-            modifier =
-                Modifier.padding(
-                    horizontal = DesignTokens.SpacingLarge,
-                    vertical = DesignTokens.SpacingMedium,
-                ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onErrorContainer,
-        )
-    }
-}
+internal fun InfoBanner(message: String) =
+    com.tk.quicksearch.search.searchScreen.components.InfoBanner(message)
 
 @Composable
 internal fun PersonalContextHintBanner(
@@ -670,144 +58,69 @@ internal fun PersonalContextHintBanner(
     onOpenDirectSearchConfigure: () -> Unit = {},
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-) {
-    val linkText = stringResource(R.string.settings_direct_search_personal_context)
-    val fullText = stringResource(R.string.direct_search_personal_context_tip, linkText)
-    val linkTag = "personal_context"
+) = com.tk.quicksearch.search.searchScreen.components.PersonalContextHintBanner(
+    onOpenPersonalContext = onOpenPersonalContext,
+    onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+    onDismiss = onDismiss,
+    modifier = modifier,
+)
 
-    val annotatedText =
-        buildAnnotatedString {
-            append(fullText)
-            val startIndex = fullText.indexOf(linkText)
-            if (startIndex >= 0) {
-                val endIndex = startIndex + linkText.length
-                addStyle(
-                    style =
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline,
-                        ),
-                    start = startIndex,
-                    end = endIndex,
-                )
-                addStringAnnotation(
-                    tag = linkTag,
-                    annotation = linkText,
-                    start = startIndex,
-                    end = endIndex,
-                )
-            }
-        }
-
-    TipBanner(
-        annotatedText = annotatedText,
-        onContentLongClick = onOpenDirectSearchConfigure,
-        onTextClick = { offset ->
-            val annotations =
-                annotatedText.getStringAnnotations(
-                    tag = linkTag,
-                    start = offset,
-                    end = offset,
-                )
-            if (annotations.isNotEmpty()) {
-                onOpenPersonalContext()
-            }
-        },
-        onDismiss = onDismiss,
-        modifier = modifier,
-    )
-}
-
+// Search Field
 @Composable
-internal fun EmptyState() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-    ) {
-        Text(
-            text = stringResource(R.string.empty_state_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-            text = stringResource(R.string.empty_state_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
+internal fun PersistentSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    onSettingsClick: () -> Unit,
+    dismissKeyboardBeforeSettingsClick: Boolean = false,
+    enabledTargets: List<com.tk.quicksearch.search.core.SearchTarget>,
+    onSearchAction: () -> Unit,
+    shouldUseNumberKeyboard: Boolean,
+    detectedShortcutTarget: com.tk.quicksearch.search.core.SearchTarget? = null,
+    showWelcomeAnimation: Boolean = false,
+    opaqueBackground: Boolean = false,
+    onClearDetectedShortcut: () -> Unit = {},
+    onWelcomeAnimationCompleted: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+) = com.tk.quicksearch.search.searchScreen.components.PersistentSearchField(
+    query = query,
+    onQueryChange = onQueryChange,
+    onClearQuery = onClearQuery,
+    onSettingsClick = onSettingsClick,
+    dismissKeyboardBeforeSettingsClick = dismissKeyboardBeforeSettingsClick,
+    enabledTargets = enabledTargets,
+    onSearchAction = onSearchAction,
+    shouldUseNumberKeyboard = shouldUseNumberKeyboard,
+    detectedShortcutTarget = detectedShortcutTarget,
+    showWelcomeAnimation = showWelcomeAnimation,
+    opaqueBackground = opaqueBackground,
+    onClearDetectedShortcut = onClearDetectedShortcut,
+    onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+    modifier = modifier,
+)
 
+// Pills
 @Composable
 internal fun KeyboardSwitchPill(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(999.dp),
-        color = Color.Black.copy(alpha = 0.4f),
-        tonalElevation = 0.dp,
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .padding(
-                        horizontal = DesignTokens.SpacingMedium,
-                        vertical = 4.dp,
-                    ).height(DesignTokens.IconSize),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
+) = com.tk.quicksearch.search.searchScreen.components.KeyboardSwitchPill(
+    text = text,
+    onClick = onClick,
+    modifier = modifier,
+)
 
 @Composable
 internal fun OverlayExpandPill(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(999.dp),
-        color = Color.Black.copy(alpha = 0.4f),
-        tonalElevation = 0.dp,
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .padding(
-                        horizontal = DesignTokens.SpacingMedium,
-                        vertical = 4.dp,
-                    ).height(DesignTokens.IconSize),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Icon(
-                imageVector = Icons.Rounded.ExpandMore,
-                contentDescription = stringResource(R.string.desc_expand),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(14.dp),
-            )
-        }
-    }
-}
+) = com.tk.quicksearch.search.searchScreen.components.OverlayExpandPill(
+    text = text,
+    onClick = onClick,
+    modifier = modifier,
+)
 
 @Composable
 internal fun NumberKeyboardOperatorPills(
@@ -815,69 +128,14 @@ internal fun NumberKeyboardOperatorPills(
     isOverlayPresentation: Boolean = false,
     extendToScreenEdges: Boolean = true,
     modifier: Modifier = Modifier,
-) {
-    val operators = remember { listOf("+", "-", "*", "/", "(", ")") }
-    val containerBackgroundColor =
-        if (isOverlayPresentation) {
-            MaterialTheme.colorScheme.surface
-        } else if (
-            MaterialTheme.colorScheme.surface == MaterialTheme.colorScheme.background &&
-                MaterialTheme.colorScheme.background.red < 0.1f &&
-                MaterialTheme.colorScheme.background.green < 0.1f &&
-                MaterialTheme.colorScheme.background.blue < 0.1f
-        ) {
-            Color.Black.copy(alpha = 0.5f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
-    val operatorChipColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
-    val operatorChipTextColor = MaterialTheme.colorScheme.primary
+) = com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills(
+    onOperatorClick = onOperatorClick,
+    isOverlayPresentation = isOverlayPresentation,
+    extendToScreenEdges = extendToScreenEdges,
+    modifier = modifier,
+)
 
-    Surface(
-        modifier = if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier,
-        color = containerBackgroundColor,
-        shape = RoundedCornerShape(ZeroCornerSize),
-        tonalElevation = 0.dp,
-    ) {
-        Row(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(
-                        start = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingLarge,
-                        top = 9.dp,
-                        bottom = 7.dp,
-                    ),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            operators.forEach { operator ->
-                Surface(
-                    modifier =
-                        Modifier.weight(1f).clickable { onOperatorClick(operator) },
-                    shape = RoundedCornerShape(999.dp),
-                    color = operatorChipColor,
-                    tonalElevation = 0.dp,
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(32.dp)
-                                .padding(
-                                    vertical = 2.dp,
-                                ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = operator,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = operatorChipTextColor,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+// Empty State
+@Composable
+internal fun EmptyState() =
+    com.tk.quicksearch.search.searchScreen.components.EmptyState()
