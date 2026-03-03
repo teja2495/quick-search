@@ -1,25 +1,17 @@
 package com.tk.quicksearch.settings.navigation
 
-import android.Manifest
-import android.app.Activity
 import android.content.Intent
-import android.os.Build
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
-import com.tk.quicksearch.settings.shared.SettingsScreenState
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.R
-import com.tk.quicksearch.onboarding.permissionScreen.PermissionRequestHandler
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
@@ -36,13 +27,10 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.AppShortcutsSettings.*
 import com.tk.quicksearch.settings.settingsDetailScreen.*
-import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.tile.requestAddQuickSearchTile
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.isDefaultDigitalAssistant
 import com.tk.quicksearch.widgets.utils.requestAddQuickSearchWidget
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -62,80 +50,12 @@ fun SettingsDetailRoute(
     val state = uiState.toSettingsScreenState()
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var showWallpaperFallbackDialog by remember { mutableStateOf(false) }
-    var requiresImagePermissionAfterWallpaperSecurityError by remember { mutableStateOf(false) }
-    var wallpaperButtonHasPermission by
-            remember {
-                mutableStateOf(PermissionRequestHandler.checkFilesPermission(context))
-            }
-
-    suspend fun tryFetchWallpaperWithFilesPermission() {
-        when (WallpaperUtils.getWallpaperBitmapResult(context)) {
-            is WallpaperUtils.WallpaperLoadResult.Success -> {
-                requiresImagePermissionAfterWallpaperSecurityError = false
-                wallpaperButtonHasPermission = true
-                viewModel.setWallpaperAvailable(true)
-                viewModel.setBackgroundSource(BackgroundSource.SYSTEM_WALLPAPER)
-            }
-            WallpaperUtils.WallpaperLoadResult.SecurityError -> {
-                requiresImagePermissionAfterWallpaperSecurityError = true
-                wallpaperButtonHasPermission = false
-                viewModel.setWallpaperAvailable(false)
-                showWallpaperFallbackDialog = true
-            }
-            WallpaperUtils.WallpaperLoadResult.PermissionRequired -> {
-                wallpaperButtonHasPermission = false
-                viewModel.setWallpaperAvailable(false)
-            }
-            WallpaperUtils.WallpaperLoadResult.Unavailable -> {
-                viewModel.setWallpaperAvailable(false)
-            }
-        }
-    }
-
-    val wallpaperFilesAccessLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult(),
-            ) {
-                val filesGranted = PermissionRequestHandler.checkFilesPermission(context)
-                wallpaperButtonHasPermission =
-                        filesGranted && !requiresImagePermissionAfterWallpaperSecurityError
-                if (filesGranted) {
-                    scope.launch { tryFetchWallpaperWithFilesPermission() }
-                } else {
-                    viewModel.setWallpaperAvailable(false)
-                }
-                viewModel.handleOptionalPermissionChange()
-            }
-
-    val wallpaperPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission(),
-            ) { isGranted ->
-                if (isGranted) {
-                    scope.launch { tryFetchWallpaperWithFilesPermission() }
-                } else {
-                    wallpaperButtonHasPermission = false
-                    viewModel.setWallpaperAvailable(false)
-                }
-                viewModel.handleOptionalPermissionChange()
-            }
-
-    val legacyFilesPermissionLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission(),
-            ) { isGranted ->
-                if (isGranted) {
-                    wallpaperButtonHasPermission =
-                            !requiresImagePermissionAfterWallpaperSecurityError
-                    scope.launch { tryFetchWallpaperWithFilesPermission() }
-                } else {
-                    wallpaperButtonHasPermission = false
-                    viewModel.setWallpaperAvailable(false)
-                }
-                viewModel.handleOptionalPermissionChange()
-            }
+    val wallpaperPermissionController =
+            rememberWallpaperPermissionController(
+                    onSetWallpaperAvailable = viewModel::setWallpaperAvailable,
+                    onSetBackgroundSource = viewModel::setBackgroundSource,
+                    onOptionalPermissionChanged = viewModel::handleOptionalPermissionChange,
+            )
 
     val overlayCustomImagePickerLauncher =
             rememberLauncherForActivityResult(
@@ -155,24 +75,7 @@ fun SettingsDetailRoute(
                 viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
             }
 
-    val onSelectWallpaperSource: () -> Unit = {
-        if (requiresImagePermissionAfterWallpaperSecurityError &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            wallpaperPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-        } else if (!PermissionRequestHandler.checkFilesPermission(context)) {
-            wallpaperButtonHasPermission = false
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                PermissionRequestHandler.launchAllFilesAccessRequest(
-                        wallpaperFilesAccessLauncher,
-                        context,
-                )
-            } else {
-                legacyFilesPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        } else {
-            scope.launch { tryFetchWallpaperWithFilesPermission() }
-        }
-    }
+    val onSelectWallpaperSource: () -> Unit = wallpaperPermissionController.onRequestPermission
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val userPreferences = remember { UserAppPreferences(context) }
@@ -221,9 +124,7 @@ fun SettingsDetailRoute(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.handleOptionalPermissionChange()
-                wallpaperButtonHasPermission =
-                        PermissionRequestHandler.checkFilesPermission(context) &&
-                                !requiresImagePermissionAfterWallpaperSecurityError
+                wallpaperPermissionController.onRefreshPermissionState()
             }
             if (
                     detailType != SettingsDetailType.SEARCH_ENGINES &&
@@ -276,60 +177,51 @@ fun SettingsDetailRoute(
 
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
-    var showShortcutSourcePicker by remember { mutableStateOf(false) }
     var filteredAppShortcutSources by remember { mutableStateOf<List<AppShortcutSource>>(emptyList()) }
     var appShortcutFocusShortcut by remember { mutableStateOf<StaticShortcut?>(null) }
     var appShortcutFocusPackageName by remember { mutableStateOf<String?>(null) }
-    var pendingShortcutSourcePackage by remember { mutableStateOf<String?>(null) }
-    var appActivityDialogSource by remember { mutableStateOf<AppShortcutSource?>(null) }
-    var appActivityDialogItems by remember { mutableStateOf<List<AppActivitySource>>(emptyList()) }
-    val addAppShortcutLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult(),
-            ) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    viewModel.addCustomAppShortcutFromPickerResult(
-                            resultData = result.data,
-                            sourcePackageName = pendingShortcutSourcePackage,
-                            showDefaultToast = false,
-                            onShortcutAdded = { addedShortcut ->
-                                appShortcutFocusShortcut = addedShortcut
-                                appShortcutFocusPackageName = addedShortcut.packageName
-                                Toast.makeText(
-                                                context,
-                                                context.getString(
-                                                        R.string.settings_app_shortcuts_add_success_with_app_name,
-                                                        addedShortcut.appLabel,
-                                                ),
-                                                Toast.LENGTH_SHORT,
-                                        )
-                                        .show()
-                            },
-                            onAddFailed = {
-                                Toast.makeText(
-                                                context,
-                                                context.getString(R.string.settings_app_shortcuts_add_failed),
-                                                Toast.LENGTH_SHORT,
-                                        )
-                                        .show()
-                            },
-                    )
-                }
-                pendingShortcutSourcePackage = null
-            }
-    val onOpenAddAppShortcutDialog: () -> Unit = {
-        showShortcutSourcePicker = true
+    val onShortcutAdded: (StaticShortcut) -> Unit = { addedShortcut ->
+        appShortcutFocusShortcut = addedShortcut
+        appShortcutFocusPackageName = addedShortcut.packageName
+        Toast.makeText(
+            context,
+            context.getString(
+                R.string.settings_app_shortcuts_add_success_with_app_name,
+                addedShortcut.appLabel,
+            ),
+            Toast.LENGTH_SHORT,
+        ).show()
     }
-    val onAddShortcutFromSource: (AppShortcutSource) -> Unit = { source ->
-        if (isAppActivitySource(source)) {
-            val activities = queryAppActivitiesForPackage(context.packageManager, source.packageName)
-            appActivityDialogSource = source
-            appActivityDialogItems = activities
-        } else {
-            pendingShortcutSourcePackage = source.packageName
-            runCatching { addAppShortcutLauncher.launch(source.launchIntent) }
-                    .onFailure {
-                        pendingShortcutSourcePackage = null
+    val onShortcutAddFailed: () -> Unit = {
+        Toast.makeText(
+            context,
+            context.getString(R.string.settings_app_shortcuts_add_failed),
+            Toast.LENGTH_SHORT,
+        ).show()
+    }
+    val appShortcutSourceFlow =
+            rememberAppShortcutSourceFlow(
+                    context = context,
+                    onAddShortcutFromPickerResult = { resultData, sourcePackageName ->
+                        viewModel.addCustomAppShortcutFromPickerResult(
+                                resultData = resultData,
+                                sourcePackageName = sourcePackageName,
+                                showDefaultToast = false,
+                                onShortcutAdded = onShortcutAdded,
+                                onAddFailed = onShortcutAddFailed,
+                        )
+                    },
+                    onAddCustomAppActivityShortcut = { source, activity ->
+                        viewModel.addCustomAppActivityShortcut(
+                                packageName = source.packageName,
+                                activityClassName = activity.className,
+                                activityLabel = activity.label,
+                                showDefaultToast = false,
+                                onShortcutAdded = onShortcutAdded,
+                                onAddFailed = onShortcutAddFailed,
+                        )
+                    },
+                    onSourceLaunchUnsupported = {
                         Toast.makeText(
                                         context,
                                         context.getString(
@@ -338,9 +230,8 @@ fun SettingsDetailRoute(
                                         Toast.LENGTH_SHORT,
                                 )
                                 .show()
-                    }
-        }
-    }
+                    },
+            )
 
     LaunchedEffect(
             detailType,
@@ -449,35 +340,16 @@ fun SettingsDetailRoute(
                     },
                     onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
                     onLaunchAppShortcut = viewModel::launchAppShortcut,
-                    onOpenAddAppShortcutDialog = onOpenAddAppShortcutDialog,
-                    onAddAppShortcutFromSource = onAddShortcutFromSource,
+                    onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
+                    onAddAppShortcutFromSource = appShortcutSourceFlow.selectSource,
                     onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery ->
                         viewModel.addSearchTargetQueryShortcut(
                                 target = target,
                                 shortcutName = shortcutName,
                                 shortcutQuery = shortcutQuery,
                                 showDefaultToast = false,
-                                onShortcutAdded = { addedShortcut ->
-                                    appShortcutFocusShortcut = addedShortcut
-                                    appShortcutFocusPackageName = addedShortcut.packageName
-                                    Toast.makeText(
-                                                    context,
-                                                    context.getString(
-                                                            R.string.settings_app_shortcuts_add_success_with_app_name,
-                                                            addedShortcut.appLabel,
-                                                    ),
-                                                    Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
-                                },
-                                onAddFailed = {
-                                    Toast.makeText(
-                                                    context,
-                                                    context.getString(R.string.settings_app_shortcuts_add_failed),
-                                                    Toast.LENGTH_SHORT,
-                                            )
-                                            .show()
-                                },
+                                onShortcutAdded = onShortcutAdded,
+                                onAddFailed = onShortcutAddFailed,
                         )
                     },
                     onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,
@@ -539,7 +411,7 @@ fun SettingsDetailRoute(
     }
     val resolvedState =
             if (detailType == SettingsDetailType.APPEARANCE) {
-                state.copy(hasWallpaperPermission = wallpaperButtonHasPermission)
+                state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
             } else {
                 state
             }
@@ -580,98 +452,9 @@ fun SettingsDetailRoute(
         )
     }
 
-    if (showWallpaperFallbackDialog) {
-        AlertDialog(
-                onDismissRequest = {
-                    showWallpaperFallbackDialog = false
-                    wallpaperButtonHasPermission = false
-                },
-                title = {
-                    Text(text = context.getString(R.string.wallpaper_permission_fallback_title))
-                },
-                text = {
-                    Text(text = context.getString(R.string.wallpaper_permission_fallback_message))
-                },
-                confirmButton = {
-                    TextButton(
-                            onClick = {
-                                showWallpaperFallbackDialog = false
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    wallpaperPermissionLauncher.launch(
-                                            Manifest.permission.READ_MEDIA_IMAGES
-                                    )
-                                } else {
-                                    scope.launch { tryFetchWallpaperWithFilesPermission() }
-                                }
-                            },
-                    ) {
-                        Text(text = context.getString(R.string.dialog_ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                            onClick = {
-                                showWallpaperFallbackDialog = false
-                                wallpaperButtonHasPermission = false
-                                requiresImagePermissionAfterWallpaperSecurityError = true
-                                viewModel.setWallpaperAvailable(false)
-                            },
-                    ) {
-                        Text(text = context.getString(R.string.dialog_cancel))
-                    }
-                },
-        )
-    }
-
-    if (showShortcutSourcePicker) {
-        AppShortcutSourcePickerDialog(
-                sources = filteredAppShortcutSources,
-                onDismiss = { showShortcutSourcePicker = false },
-                onSourceSelected = { source ->
-                    showShortcutSourcePicker = false
-                    onAddShortcutFromSource(source)
-                },
-        )
-    }
-
-    appActivityDialogSource?.let { selectedSource ->
-        AppActivityPickerDialog(
-                activities = appActivityDialogItems,
-                onDismiss = {
-                    appActivityDialogSource = null
-                    appActivityDialogItems = emptyList()
-                },
-                onActivitySelected = { activity ->
-                    appActivityDialogSource = null
-                    appActivityDialogItems = emptyList()
-                    viewModel.addCustomAppActivityShortcut(
-                            packageName = selectedSource.packageName,
-                            activityClassName = activity.className,
-                            activityLabel = activity.label,
-                            showDefaultToast = false,
-                            onShortcutAdded = { addedShortcut ->
-                                appShortcutFocusShortcut = addedShortcut
-                                appShortcutFocusPackageName = addedShortcut.packageName
-                                Toast.makeText(
-                                                context,
-                                                context.getString(
-                                                        R.string.settings_app_shortcuts_add_success_with_app_name,
-                                                        addedShortcut.appLabel,
-                                                ),
-                                                Toast.LENGTH_SHORT,
-                                        )
-                                        .show()
-                            },
-                            onAddFailed = {
-                                Toast.makeText(
-                                                context,
-                                                context.getString(R.string.settings_app_shortcuts_add_failed),
-                                                Toast.LENGTH_SHORT,
-                                        )
-                                        .show()
-                            },
-                    )
-                },
-        )
-    }
+    WallpaperPermissionFallbackDialog(controller = wallpaperPermissionController)
+    AppShortcutSourceFlowDialogs(
+            flowState = appShortcutSourceFlow,
+            sources = filteredAppShortcutSources,
+    )
 }
