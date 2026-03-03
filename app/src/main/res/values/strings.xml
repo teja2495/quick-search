@@ -370,6 +370,10 @@
     <string name="settings_backup_import_warning_message">This will overwrite your existing settings.</string>
     <string name="settings_backup_export_success">Settings exported successfully.</string>
     <string name="settings_backup_export_failed">Unable to export settings.</string>
+    <string name="settings_backup_export_api_key_warning_title">Export Gemini API key too?</string>
+    <string name="settings_backup_export_api_key_warning_message">Proceed at your own risk. Exported API key is not encrypted and can be accessed by anyone who has access to your backup file.</string>
+    <string name="settings_backup_export_with_api_key">Yes, backup API key</string>
+    <string name="settings_backup_export_without_api_key">No, don\'t backup API key</string>
     <string name="settings_backup_import_success">Settings imported successfully.</string>
     <string name="settings_backup_import_failed">Unable to import settings.</string>
     <string name="settings_add_search_engine_button">Add Search Engine</string>

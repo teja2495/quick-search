@@ -17,6 +17,7 @@ data class AppShortcutSource(
     val packageName: String,
     val className: String,
     val label: String,
+    val appLabel: String,
     val launchIntent: Intent,
     val icon: ImageBitmap?,
     val sourceType: AppShortcutSourceType = AppShortcutSourceType.SHORTCUT_PROVIDER,
@@ -39,6 +40,14 @@ fun queryAppShortcutSources(
     packageManager: PackageManager,
     repositoryApps: List<AppInfo> = emptyList(),
 ): List<AppShortcutSource> {
+    val repositoryAppLabelsByPackage =
+        repositoryApps
+            .asSequence()
+            .map { it.packageName.trim() to it.appName.trim() }
+            .filter { (packageName, appName) -> packageName.isNotBlank() && appName.isNotBlank() }
+            .distinctBy { it.first }
+            .toMap()
+
     val providerSources =
         queryShortcutSourceActivities(packageManager).map { resolveInfo ->
             val packageName = resolveInfo.activityInfo.packageName
@@ -54,6 +63,7 @@ fun queryAppShortcutSources(
                 packageName = packageName,
                 className = className,
                 label = label,
+                appLabel = repositoryAppLabelsByPackage[packageName] ?: resolveAppLabel(packageManager, packageName),
                 launchIntent = intent,
                 icon = icon,
                 sourceType = AppShortcutSourceType.SHORTCUT_PROVIDER,
@@ -72,7 +82,7 @@ fun queryAppShortcutSources(
             }
         }
     val appActivitySources =
-        appActivityPackages.map { (packageName, _) ->
+        appActivityPackages.map { (packageName, appLabel) ->
             val appIcon =
                 runCatching {
                     packageManager.getApplicationIcon(packageName)
@@ -83,6 +93,7 @@ fun queryAppShortcutSources(
                 packageName = packageName,
                 className = APP_ACTIVITY_SOURCE_CLASS_NAME,
                 label = APP_ACTIVITY_SOURCE_LABEL,
+                appLabel = appLabel,
                 launchIntent =
                     Intent(Intent.ACTION_MAIN).apply {
                         addCategory(Intent.CATEGORY_LAUNCHER)
@@ -262,5 +273,17 @@ private fun formatPackageNameAsLabel(packageName: String): String =
     packageName
         .substringAfterLast(".")
         .replaceFirstChar { it.titlecase() }
+
+private fun resolveAppLabel(
+    packageManager: PackageManager,
+    packageName: String,
+): String {
+    val appInfo = runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
+    return appInfo
+        ?.let { info ->
+            runCatching { packageManager.getApplicationLabel(info)?.toString() }.getOrNull()
+        }?.takeIf { it.isNotBlank() }
+        ?: formatPackageNameAsLabel(packageName)
+}
 
 private fun String.normalizedForCompare(locale: Locale): String = trim().lowercase(locale)

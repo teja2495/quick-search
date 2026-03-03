@@ -80,6 +80,7 @@ fun SearchEngineIconsSection(
     onClearDetectedShortcut: () -> Unit = {},
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
+    hasBottomSearchBar: Boolean = false,
     showOverlayExpandChevron: Boolean = false,
     onOverlayExpandClick: (() -> Unit)? = null,
     isOverlayExpanded: Boolean = false,
@@ -117,7 +118,7 @@ fun SearchEngineIconsSection(
             modifier = modifier.extendToScreenEdges(),
             color = backgroundColor,
             shape =
-                if (isOverlayPresentation) {
+                if (isOverlayPresentation && !hasBottomSearchBar) {
                     RoundedCornerShape(
                         topStart = 20.dp,
                         topEnd = 20.dp,

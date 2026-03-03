@@ -66,6 +66,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.data.preferences.GeminiPreferences
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.ui.components.TipBanner
@@ -117,6 +118,9 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var showImportWarningDialog by remember { mutableStateOf(false) }
+    val geminiPreferences = remember(context) { GeminiPreferences(context) }
+    var includeGeminiApiKeyInNextExport by remember { mutableStateOf(false) }
+    var showApiKeyExportWarningDialog by remember { mutableStateOf(false) }
 
     val exportLauncher =
         rememberLauncherForActivityResult(
@@ -125,7 +129,13 @@ fun SettingsScreen(
             if (uri == null) return@rememberLauncherForActivityResult
             coroutineScope.launch(Dispatchers.IO) {
                 val isSuccess =
-                    runCatching { SettingsBackupManager.exportToUri(context, uri) }.isSuccess
+                    runCatching {
+                        SettingsBackupManager.exportToUri(
+                            context = context,
+                            outputUri = uri,
+                            includeGeminiApiKey = includeGeminiApiKeyInNextExport,
+                        )
+                    }.isSuccess
                 withContext(Dispatchers.Main) {
                     val messageResId =
                         if (isSuccess) {
@@ -334,9 +344,14 @@ fun SettingsScreen(
                             importLauncher.launch(arrayOf("*/*"))
                         },
                         onExportClick = {
-                            val defaultName =
-                                SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-                            exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
+                            if (geminiPreferences.getGeminiApiKey().isNullOrBlank()) {
+                                includeGeminiApiKeyInNextExport = false
+                                val defaultName =
+                                    SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+                                exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
+                            } else {
+                                showApiKeyExportWarningDialog = true
+                            }
                         },
                     )
                 }
@@ -406,6 +421,46 @@ fun SettingsScreen(
                     },
                 ) {
                     Text(text = stringResource(R.string.dialog_cancel))
+                }
+            },
+        )
+    }
+
+    if (showApiKeyExportWarningDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showApiKeyExportWarningDialog = false
+            },
+            title = {
+                Text(text = stringResource(R.string.settings_backup_export_api_key_warning_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.settings_backup_export_api_key_warning_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        includeGeminiApiKeyInNextExport = true
+                        showApiKeyExportWarningDialog = false
+                        val defaultName =
+                            SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+                        exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
+                    },
+                ) {
+                    Text(text = stringResource(R.string.settings_backup_export_with_api_key))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        includeGeminiApiKeyInNextExport = false
+                        showApiKeyExportWarningDialog = false
+                        val defaultName =
+                            SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+                        exportLauncher.launch("quick-search-settings-$defaultName.quicksearch")
+                    },
+                ) {
+                    Text(text = stringResource(R.string.settings_backup_export_without_api_key))
                 }
             },
         )

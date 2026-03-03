@@ -75,6 +75,8 @@ import com.tk.quicksearch.settings.shared.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.createPermissionRequestHandler
 import com.tk.quicksearch.settings.shared.handlePermissionResult
 import com.tk.quicksearch.settings.shared.rememberSectionToggleHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SettingsRoute(
@@ -204,21 +206,32 @@ fun SettingsRoute(
                     ).show()
             },
         )
-    val appShortcutSources =
-        remember(state.allApps) {
-            queryAppShortcutSources(
-                packageManager = context.packageManager,
-                repositoryApps = state.allApps,
-            )
-        }
-    val filteredAppShortcutSources =
-        remember(appShortcutSources, state.allAppShortcuts, context.packageName) {
-            filterAppShortcutSources(
-                sources = appShortcutSources,
-                existingShortcuts = state.allAppShortcuts,
-                currentPackageName = context.packageName,
-            )
-        }
+    var filteredAppShortcutSources by remember { mutableStateOf<List<AppShortcutSource>>(emptyList()) }
+
+    androidx.compose.runtime.LaunchedEffect(
+        appShortcutSourceFlow.showSourcePicker,
+        state.allApps,
+        state.allAppShortcuts,
+        context.packageName,
+    ) {
+        if (!appShortcutSourceFlow.showSourcePicker) return@LaunchedEffect
+
+        val appShortcutSources =
+            withContext(Dispatchers.IO) {
+                queryAppShortcutSources(
+                    packageManager = context.packageManager,
+                    repositoryApps = state.allApps,
+                )
+            }
+        filteredAppShortcutSources =
+            withContext(Dispatchers.Default) {
+                filterAppShortcutSources(
+                    sources = appShortcutSources,
+                    existingShortcuts = state.allAppShortcuts,
+                    currentPackageName = context.packageName,
+                )
+            }
+    }
 
     // Define permission request handlers
     val onRequestUsagePermission = viewModel::openUsageAccessSettings

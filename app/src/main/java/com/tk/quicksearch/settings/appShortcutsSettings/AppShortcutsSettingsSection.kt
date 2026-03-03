@@ -184,6 +184,7 @@ fun AppShortcutsSettingsSection(
                             } else {
                                 val appLabel =
                                     appShortcuts.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
+                                        ?: appSources.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
                                         ?: appSearchTargetSources.firstOrNull()?.label?.takeIf { it.isNotBlank() }
                                         ?: labelCacheSnapshot[packageName]
                                         ?: fallbackAppLabel(packageName, locale)

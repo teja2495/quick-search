@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.settingsScreen
 import android.content.Context
 import android.net.Uri
 import com.tk.quicksearch.search.data.preferences.BasePreferences
+import com.tk.quicksearch.search.data.preferences.GeminiPreferences
 import java.io.File
 import java.io.IOException
 import org.json.JSONArray
@@ -17,6 +18,7 @@ object SettingsBackupManager {
     private const val FIELD_FORMAT_VERSION = "formatVersion"
     private const val FIELD_EXPORTED_AT_EPOCH_MS = "exportedAtEpochMs"
     private const val FIELD_PREFERENCES = "preferences"
+    private const val FIELD_GEMINI_API_KEY = "geminiApiKey"
     private const val FIELD_TYPE = "type"
     private const val FIELD_VALUE = "value"
 
@@ -66,12 +68,22 @@ object SettingsBackupManager {
     fun exportToUri(
         context: Context,
         outputUri: Uri,
+        includeGeminiApiKey: Boolean = false,
     ) {
+        val geminiApiKey =
+            if (includeGeminiApiKey) {
+                GeminiPreferences(context).getGeminiApiKey()?.takeIf { it.isNotBlank() }
+            } else {
+                null
+            }
         val payload =
             JSONObject()
                 .put(FIELD_FORMAT_VERSION, FORMAT_VERSION)
                 .put(FIELD_EXPORTED_AT_EPOCH_MS, System.currentTimeMillis())
                 .put(FIELD_PREFERENCES, buildPreferencesJson(context))
+                .apply {
+                    geminiApiKey?.let { put(FIELD_GEMINI_API_KEY, it) }
+                }
 
         val outputStream =
             context.contentResolver.openOutputStream(outputUri)
@@ -97,6 +109,10 @@ object SettingsBackupManager {
         val root = JSONObject(text)
         val preferencesJson = root.optJSONObject(FIELD_PREFERENCES)
             ?: throw IllegalArgumentException("Invalid backup file format")
+        val geminiApiKey =
+            root
+                .optString(FIELD_GEMINI_API_KEY, "")
+                .takeIf { it.isNotBlank() }
 
         val importedNames = preferencesJson.keys().asSequence().toSet()
         val preferenceNames = collectEligiblePreferenceNames(context, importedNames)
@@ -136,6 +152,10 @@ object SettingsBackupManager {
             if (!editor.commit()) {
                 throw IOException("Failed to import $prefName")
             }
+        }
+
+        if (root.has(FIELD_GEMINI_API_KEY)) {
+            GeminiPreferences(context).setGeminiApiKey(geminiApiKey)
         }
     }
 

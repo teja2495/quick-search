@@ -62,6 +62,7 @@ import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -142,6 +143,7 @@ class SearchViewModel(
 
     // Consolidated startup configuration loaded in single batch operation
     @Volatile private var startupConfig: StartupPreferencesFacade.StartupConfig? = null
+    private val isAppShortcutsLoadInFlight = AtomicBoolean(false)
 
     // UI feedback is now handled by UiFeedbackService
 
@@ -1284,17 +1286,26 @@ class SearchViewModel(
     }
 
     private fun loadAppShortcuts() {
+        if (!isAppShortcutsLoadInFlight.compareAndSet(false, true)) return
         viewModelScope.launch(Dispatchers.IO) {
-            val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
-            if (loadedCached) {
-                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
-            }
+            try {
+                val loadedCached = appShortcutSearchHandler.loadCachedShortcutsOnly()
+                if (loadedCached) {
+                    withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+                }
 
-            val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
-            if (loadedFresh || !loadedCached) {
-                withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+                val loadedFresh = appShortcutSearchHandler.refreshShortcutsFromSystem()
+                if (loadedFresh || !loadedCached) {
+                    withContext(Dispatchers.Main) { refreshAppShortcutsState() }
+                }
+            } finally {
+                isAppShortcutsLoadInFlight.set(false)
             }
         }
+    }
+
+    fun refreshAppShortcutsCacheFirst() {
+        loadAppShortcuts()
     }
 
     private fun refreshSettingsState(updateResults: Boolean = true) {

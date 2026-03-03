@@ -329,7 +329,7 @@ fun AppManagementSettingsSection(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 96.dp),
+                    contentPadding = PaddingValues(bottom = if (selectedCount > 0) 96.dp else 0.dp),
                 ) {
                     itemsIndexed(
                         items = sortedApps,

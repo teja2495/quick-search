@@ -20,5 +20,5 @@ object SearchTargetConstants {
     val HORIZONTAL_PADDING = 16.dp
     val VERTICAL_PADDING = 16.dp
     val SEARCH_ICON_SIZE = 20.dp
-    val SEARCH_ICON_SPACING = 20.dp
+    val SEARCH_ICON_SPACING = 4.dp
 }

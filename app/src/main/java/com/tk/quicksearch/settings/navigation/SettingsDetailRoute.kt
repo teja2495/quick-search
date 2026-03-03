@@ -261,6 +261,12 @@ fun SettingsDetailRoute(
                 }
     }
 
+    LaunchedEffect(detailType) {
+        if (detailType == SettingsDetailType.APP_SHORTCUTS) {
+            viewModel.refreshAppShortcutsCacheFirst()
+        }
+    }
+
     val onBackAction: () -> Unit =
             if (detailType.isLevel2()) {
                 {

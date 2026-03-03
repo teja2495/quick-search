@@ -116,8 +116,10 @@ internal fun SearchScreenContent(
             }
     val isImeVisible = WindowInsets.ime.getBottom(density) > 0
     val shouldShowNumberKeyboardOperators = isImeVisible && manuallySwitchedToNumberKeyboard
+    val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
     val shouldRenderInlineNumberKeyboardOperators =
-            shouldShowNumberKeyboardOperators && !isOverlayPresentation
+            shouldShowNumberKeyboardOperators &&
+                    (!isOverlayPresentation || showBottomSearchBar)
     val shouldShowPredictedHighlight = isImeVisible
     val predictedTarget =
             remember(
@@ -226,7 +228,6 @@ internal fun SearchScreenContent(
         }
     }
 
-    val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled && !isOverlayPresentation
     val searchFieldModifier =
             if (showBottomSearchBar) {
                 Modifier.padding(
@@ -345,7 +346,7 @@ internal fun SearchScreenContent(
         SearchContentArea(
                 modifier =
                         if (isOverlayPresentation) {
-                            Modifier.fillMaxWidth().weight(1f, fill = false)
+                            Modifier.fillMaxWidth().weight(1f)
                         } else {
                             Modifier.weight(1f)
                         },
@@ -442,6 +443,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
                                 compactRowCount = state.searchEngineCompactRowCount,
                                 predictedTarget = predictedTarget,
                         )
@@ -458,6 +460,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
                                 compactRowCount = 1,
                                 predictedTarget = predictedTarget,
                         )
@@ -474,6 +477,7 @@ internal fun SearchScreenContent(
                                 onClearDetectedShortcut = onClearDetectedShortcut,
                                 showWallpaperBackground = state.showWallpaperBackground,
                                 isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
                                 compactRowCount = 1,
                                 predictedTarget = predictedTarget,
                         )
