@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -174,13 +173,13 @@ private fun SearchEngineContent(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SearchIcon(
-            showOverlayExpandChevron = showOverlayExpandChevron,
-            onOverlayExpandClick = onOverlayExpandClick,
-            isOverlayExpanded = isOverlayExpanded,
-        )
-
-        Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
+        if (showOverlayExpandChevron) {
+            OverlayExpandChevron(
+                onOverlayExpandClick = onOverlayExpandClick,
+                isOverlayExpanded = isOverlayExpanded,
+            )
+            Spacer(modifier = Modifier.width(SearchEngineSectionConstants.SEARCH_ICON_SPACING))
+        }
 
         ScrollableEngineIcons(
             query = query,
@@ -194,28 +193,23 @@ private fun SearchEngineContent(
     }
 }
 
-/** Fixed search icon displayed at the start of the section. */
+/** Overlay expand/collapse chevron shown when overlay controls are enabled. */
 @Composable
-private fun SearchIcon(
-    showOverlayExpandChevron: Boolean,
+private fun OverlayExpandChevron(
     onOverlayExpandClick: (() -> Unit)?,
     isOverlayExpanded: Boolean,
 ) {
     val imageVector =
-        if (showOverlayExpandChevron && isOverlayExpanded) {
+        if (isOverlayExpanded) {
             Icons.Rounded.ExpandLess
-        } else if (showOverlayExpandChevron) {
-            Icons.Rounded.ExpandMore
         } else {
-            Icons.Rounded.Search
+            Icons.Rounded.ExpandMore
         }
     val contentDescription =
-        if (showOverlayExpandChevron && isOverlayExpanded) {
+        if (isOverlayExpanded) {
             stringResource(R.string.desc_collapse)
-        } else if (showOverlayExpandChevron) {
-            stringResource(R.string.desc_expand)
         } else {
-            stringResource(R.string.desc_search_icon)
+            stringResource(R.string.desc_expand)
         }
     Icon(
         imageVector = imageVector,
@@ -224,10 +218,7 @@ private fun SearchIcon(
             Modifier
                 .size(SearchEngineSectionConstants.SEARCH_ICON_SIZE)
                 .then(
-                    if (
-                        showOverlayExpandChevron &&
-                            onOverlayExpandClick != null
-                    ) {
+                    if (onOverlayExpandClick != null) {
                         Modifier.clickable(onClick = onOverlayExpandClick)
                     } else {
                         Modifier
@@ -237,7 +228,7 @@ private fun SearchIcon(
     )
 }
 
-/** Scrollable row of search engine icons. Calculates item width to fit 6 items per visible row. */
+/** Scrollable row of search engine icons. Calculates item width to fit 7 items per visible row on phones. */
 @Composable
 private fun ScrollableEngineIcons(
     query: String,
@@ -358,7 +349,7 @@ private fun calculateItemsPerRow(): Int =
     when {
         isTablet() && isLandscape() -> 10
         isTablet() -> 8
-        else -> 6
+        else -> 7
     }
 
 private data class TwoRowColumn(

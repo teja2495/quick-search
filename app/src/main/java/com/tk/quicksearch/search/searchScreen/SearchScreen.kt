@@ -20,7 +20,7 @@ import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
-import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
+// import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.SearchScreenContent
 import com.tk.quicksearch.search.searchScreen.SectionParams
@@ -305,12 +305,13 @@ fun SearchScreen(
         )
 
         // Search engine onboarding overlay
-        SearchEngineOnboardingOverlay(
-            visible = state.showSearchEngineOnboarding,
-            onDismiss = onSearchEngineOnboardingDismissed,
-            isOverlayPresentation = isOverlayPresentation,
-            showStartSearchingButton = state.showStartSearchingOnOnboarding,
-        )
+        // Temporarily disabled per request (keep code for quick re-enable later).
+//        SearchEngineOnboardingOverlay(
+//            visible = state.showSearchEngineOnboarding,
+//            onDismiss = onSearchEngineOnboardingDismissed,
+//            isOverlayPresentation = isOverlayPresentation,
+//            showStartSearchingButton = state.showStartSearchingOnOnboarding,
+//        )
     }
 
     // Dialogs
