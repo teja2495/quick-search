@@ -1,7 +1,10 @@
 package com.tk.quicksearch.search.searchScreen.dialogs
 
 import androidx.compose.runtime.Composable
-import com.tk.quicksearch.search.contacts.dialogs.ContactMethodsDialog
+import androidx.compose.ui.res.stringResource
+import com.tk.quicksearch.R
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
 import com.tk.quicksearch.search.contacts.dialogs.DirectDialChoiceDialog
 import com.tk.quicksearch.search.contacts.dialogs.PhoneNumberSelectionDialog
 import com.tk.quicksearch.search.core.*
@@ -9,6 +12,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
+import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
 
 /**
@@ -55,12 +59,19 @@ internal fun SearchScreenDialogs(
 
     // Contact methods dialog
     state.contactMethodsBottomSheet?.let { contactInfo ->
-        ContactMethodsDialog(
-            contactInfo = contactInfo,
-            onContactMethodClick = onContactMethodClick,
-            onDismiss = onDismissContactMethods,
+        val viewInContactsLabel = stringResource(R.string.contact_method_view_in_contacts_label)
+        ContactActionsPopup(
+            state =
+                ContactActionsPopupState.ContactActions(
+                    contactInfo = contactInfo,
+                    onContactMethodClick = onContactMethodClick,
+                    onAvatarClick = { contact ->
+                        onContactMethodClick(contact, ContactMethod.ViewInContactsApp(viewInContactsLabel))
+                    },
+                ),
             getLastShownPhoneNumber = getLastShownPhoneNumber,
             setLastShownPhoneNumber = setLastShownPhoneNumber,
+            onDismiss = onDismissContactMethods,
         )
     }
 

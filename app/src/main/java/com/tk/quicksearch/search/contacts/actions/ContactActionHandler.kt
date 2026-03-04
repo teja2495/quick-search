@@ -220,8 +220,16 @@ class ContactActionHandler(
         }
         when (method) {
             is ContactMethod.Phone -> {
-                // Use existing phone call flow with dialers/direct dial
-                callContact(contactInfo)
+                val phoneNumber =
+                    method.data.takeIf { it.isNotBlank() }
+                        ?: contactInfo.primaryNumber
+                        ?: contactInfo.phoneNumbers.firstOrNull()
+                if (phoneNumber.isNullOrBlank()) {
+                    showToastCallback(R.string.error_missing_phone_number)
+                    return
+                }
+                trackRecentContactAction(contactInfo)
+                beginRegularCallFlow(contactInfo.displayName, phoneNumber)
             }
 
             is ContactMethod.Sms -> {

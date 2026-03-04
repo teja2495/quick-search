@@ -362,5 +362,6 @@ fun SearchScreen(
         getSecondaryContactCardAction = getSecondaryContactCardAction,
         onSavePrimaryContactCardAction = onSavePrimaryContactCardAction,
         onSaveSecondaryContactCardAction = onSaveSecondaryContactCardAction,
+        onDismissContactActionPicker = { stateResult.setContactActionPickerDialogState(null) },
     )
 }

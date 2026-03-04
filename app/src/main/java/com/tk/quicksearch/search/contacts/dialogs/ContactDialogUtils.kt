@@ -109,7 +109,7 @@ internal inline fun renderMethodRow(
     methods: List<ContactMethod>,
     methodTypes: List<KClass<out ContactMethod>>,
     crossinline onMethodClick: (ContactMethod) -> Unit,
-    crossinline onMethodLongClick: (ContactMethod) -> Unit,
+    noinline onMethodLongClick: ((ContactMethod) -> Unit)? = null,
 ) {
     val filteredMethods =
         methods.filter { method ->
@@ -126,7 +126,7 @@ internal inline fun renderMethodRow(
                 ContactActionButton(
                     method = method,
                     onClick = { onMethodClick(method) },
-                    onLongClick = { onMethodLongClick(method) },
+                    onLongClick = onMethodLongClick?.let { { it(method) } },
                 )
             }
         }

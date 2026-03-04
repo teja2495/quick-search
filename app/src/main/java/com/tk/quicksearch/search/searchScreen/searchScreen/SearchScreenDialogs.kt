@@ -24,7 +24,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.contacts.dialogs.ContactActionPickerDialog
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.SearchUiState
@@ -69,6 +70,7 @@ internal fun SearchScreenDialogLogic(
     getSecondaryContactCardAction: (Long) -> ContactCardAction?,
     onSavePrimaryContactCardAction: (Long, ContactCardAction) -> Unit,
     onSaveSecondaryContactCardAction: (Long, ContactCardAction) -> Unit,
+    onDismissContactActionPicker: () -> Unit,
     showPersonalContextDialog: Boolean,
     setShowPersonalContextDialog: (Boolean) -> Unit,
     showGeminiModelDialog: Boolean,
@@ -188,20 +190,23 @@ internal fun SearchScreenDialogLogic(
 
     // Render Contact Action Picker Dialog
     contactActionPickerDialogState?.let { pickerState ->
-        ContactActionPickerDialog(
-            contactInfo = pickerState.contact,
-            currentAction = pickerState.currentAction,
-            onActionSelected = { action ->
-                if (pickerState.isPrimary) {
-                    onSavePrimaryContactCardAction(pickerState.contact.contactId, action)
-                } else {
-                    onSaveSecondaryContactCardAction(pickerState.contact.contactId, action)
-                }
-                // This will be handled by state management - setting to null
-            },
-            onDismiss = { /* This will be handled by state management */ },
+        ContactActionsPopup(
+            state =
+                ContactActionsPopupState.ReplaceAction(
+                    contactInfo = pickerState.contact,
+                    currentAction = pickerState.currentAction,
+                    onActionSelected = { action ->
+                        if (pickerState.isPrimary) {
+                            onSavePrimaryContactCardAction(pickerState.contact.contactId, action)
+                        } else {
+                            onSaveSecondaryContactCardAction(pickerState.contact.contactId, action)
+                        }
+                        onDismissContactActionPicker()
+                    },
+                ),
             getLastShownPhoneNumber = getLastShownPhoneNumber,
             setLastShownPhoneNumber = setLastShownPhoneNumber,
+            onDismiss = onDismissContactActionPicker,
         )
     }
 }

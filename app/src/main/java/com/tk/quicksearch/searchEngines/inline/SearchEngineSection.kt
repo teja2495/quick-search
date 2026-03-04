@@ -40,6 +40,7 @@ import com.tk.quicksearch.searchEngines.shared.SearchTargetConstants
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.shared.util.isLandscape
 import com.tk.quicksearch.shared.util.isTablet
+import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /** Constants for search engine section layout. */
 private object SearchEngineSectionConstants {
@@ -99,7 +100,10 @@ fun SearchEngineIconsSection(
         // The shortcut corresponds to the detected engine
         Box(
             modifier =
-                modifier.extendToScreenEdges().padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier.extendToScreenEdges().padding(
+                    horizontal = DesignTokens.SpacingXLarge,
+                    vertical = 8.dp,
+                ),
         ) {
             SearchEngineCard(
                 target = detectedShortcutTarget,

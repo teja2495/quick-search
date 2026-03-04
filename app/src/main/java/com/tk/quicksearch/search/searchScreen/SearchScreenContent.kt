@@ -506,7 +506,10 @@ internal fun SearchScreenContent(
         }
 
         if (showSearchField && showBottomSearchBar) {
-            if (state.isSearchEngineCompactMode) {
+            val shouldShowCompactBottomBarBackground =
+                    state.isSearchEngineCompactMode && state.detectedShortcutTarget == null
+
+            if (shouldShowCompactBottomBarBackground) {
                 Box(
                         modifier =
                                 Modifier

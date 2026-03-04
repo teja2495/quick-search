@@ -13,7 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.contacts.dialogs.ContactMethodsDialog
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopup
+import com.tk.quicksearch.search.contacts.dialogs.ContactActionsPopupState
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.contacts.utils.ContactIntentHelpers
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
@@ -150,13 +151,20 @@ class WidgetActionActivity : ComponentActivity() {
             QuickSearchTheme {
                 var showDialog by remember { mutableStateOf(true) }
                 if (showDialog) {
-                    ContactMethodsDialog(
-                        contactInfo = contactInfo,
-                        onContactMethodClick = { _, contactMethod ->
-                            handleContactMethod(contactMethod)
-                            showDialog = false
-                            finish()
-                        },
+                    ContactActionsPopup(
+                        state =
+                            ContactActionsPopupState.ContactActions(
+                                contactInfo = contactInfo,
+                                onContactMethodClick = { _, contactMethod ->
+                                    handleContactMethod(contactMethod)
+                                    showDialog = false
+                                    finish()
+                                },
+                                onAvatarClick = {
+                                    showDialog = false
+                                    finish()
+                                },
+                            ),
                         onDismiss = {
                             showDialog = false
                             finish()
