@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -49,6 +52,9 @@ import com.tk.quicksearch.searchEngines.inline.SearchEngineIconsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentArea
+import com.tk.quicksearch.search.searchScreen.overlayActionColor
+import com.tk.quicksearch.search.searchScreen.overlayDividerColor
+import com.tk.quicksearch.search.searchScreen.overlayResultCardColor
 import kotlinx.coroutines.delay
 
 @Composable
@@ -117,6 +123,38 @@ internal fun SearchScreenContent(
     val isImeVisible = WindowInsets.ime.getBottom(density) > 0
     val shouldShowNumberKeyboardOperators = isImeVisible && manuallySwitchedToNumberKeyboard
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
+    val useOverlayThemeTints = state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
+    val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val overlayCardColor =
+            if (useOverlayThemeTints) {
+                overlayResultCardColor(
+                        theme = state.overlayGradientTheme,
+                        isDarkMode = isDarkMode,
+                        intensity = state.overlayThemeIntensity,
+                )
+            } else {
+                null
+            }
+    val overlayDividerTint =
+            if (useOverlayThemeTints) {
+                overlayDividerColor(
+                        theme = state.overlayGradientTheme,
+                        isDarkMode = isDarkMode,
+                        intensity = state.overlayThemeIntensity,
+                )
+            } else {
+                null
+            }
+    val overlayActionTint =
+            if (useOverlayThemeTints) {
+                overlayActionColor(
+                        theme = state.overlayGradientTheme,
+                        isDarkMode = isDarkMode,
+                        intensity = state.overlayThemeIntensity,
+                )
+            } else {
+                null
+            }
     val shouldRenderInlineNumberKeyboardOperators =
             shouldShowNumberKeyboardOperators &&
                     (!isOverlayPresentation || showBottomSearchBar)
@@ -429,66 +467,72 @@ internal fun SearchScreenContent(
                 }
             }
 
-            SearchEnginesVisibility(
-                    enginesState = state.searchEnginesState,
-                    modifier = searchEnginesModifier,
-                    compactContent = {
-                        SearchEngineIconsSection(
-                                query = state.query,
-                                hasAppResults = renderingState.hasAppResults,
-                                enabledEngines = enabledTargets,
-                                onSearchEngineClick = onSearchTargetClick,
-                                onSearchEngineLongPress = onSearchEngineLongPress,
-                                externalScrollState = searchEngineScrollState,
-                                detectedShortcutTarget = state.detectedShortcutTarget,
-                                onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                                hasBottomSearchBar = showBottomSearchBar,
-                                compactRowCount = state.searchEngineCompactRowCount,
-                                predictedTarget = predictedTarget,
-                        )
-                    },
-                    fullContent = {
-                        SearchEngineIconsSection(
-                                query = state.query,
-                                hasAppResults = renderingState.hasAppResults,
-                                enabledEngines = enabledTargets,
-                                onSearchEngineClick = onSearchTargetClick,
-                                onSearchEngineLongPress = onSearchEngineLongPress,
-                                externalScrollState = searchEngineScrollState,
-                                detectedShortcutTarget = state.detectedShortcutTarget,
-                                onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                                hasBottomSearchBar = showBottomSearchBar,
-                                compactRowCount = 1,
-                                predictedTarget = predictedTarget,
-                        )
-                    },
-                    shortcutContent = { target ->
-                        SearchEngineIconsSection(
-                                query = state.query,
-                                hasAppResults = renderingState.hasAppResults,
-                                enabledEngines = enabledTargets,
-                                onSearchEngineClick = onSearchTargetClick,
-                                onSearchEngineLongPress = onSearchEngineLongPress,
-                                externalScrollState = searchEngineScrollState,
-                                detectedShortcutTarget = target,
-                                onClearDetectedShortcut = onClearDetectedShortcut,
-                                showWallpaperBackground = state.showWallpaperBackground,
-                                isOverlayPresentation = isOverlayPresentation,
-                                hasBottomSearchBar = showBottomSearchBar,
-                                compactRowCount = 1,
-                                predictedTarget = predictedTarget,
-                        )
-                    },
-                    hiddenContent = {
-                        // Add padding when search engines are hidden to prevent keyboard from
-                        // covering content
-                        Spacer(modifier = searchEnginesModifier)
-                    },
-            )
+            CompositionLocalProvider(
+                    LocalOverlayResultCardColor provides overlayCardColor,
+                    LocalOverlayDividerColor provides overlayDividerTint,
+                    LocalOverlayActionColor provides overlayActionTint,
+            ) {
+                SearchEnginesVisibility(
+                        enginesState = state.searchEnginesState,
+                        modifier = searchEnginesModifier,
+                        compactContent = {
+                            SearchEngineIconsSection(
+                                    query = state.query,
+                                    hasAppResults = renderingState.hasAppResults,
+                                    enabledEngines = enabledTargets,
+                                    onSearchEngineClick = onSearchTargetClick,
+                                    onSearchEngineLongPress = onSearchEngineLongPress,
+                                    externalScrollState = searchEngineScrollState,
+                                    detectedShortcutTarget = state.detectedShortcutTarget,
+                                    onClearDetectedShortcut = onClearDetectedShortcut,
+                                    showWallpaperBackground = state.showWallpaperBackground,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    hasBottomSearchBar = showBottomSearchBar,
+                                    compactRowCount = state.searchEngineCompactRowCount,
+                                    predictedTarget = predictedTarget,
+                            )
+                        },
+                        fullContent = {
+                            SearchEngineIconsSection(
+                                    query = state.query,
+                                    hasAppResults = renderingState.hasAppResults,
+                                    enabledEngines = enabledTargets,
+                                    onSearchEngineClick = onSearchTargetClick,
+                                    onSearchEngineLongPress = onSearchEngineLongPress,
+                                    externalScrollState = searchEngineScrollState,
+                                    detectedShortcutTarget = state.detectedShortcutTarget,
+                                    onClearDetectedShortcut = onClearDetectedShortcut,
+                                    showWallpaperBackground = state.showWallpaperBackground,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    hasBottomSearchBar = showBottomSearchBar,
+                                    compactRowCount = 1,
+                                    predictedTarget = predictedTarget,
+                            )
+                        },
+                        shortcutContent = { target ->
+                            SearchEngineIconsSection(
+                                    query = state.query,
+                                    hasAppResults = renderingState.hasAppResults,
+                                    enabledEngines = enabledTargets,
+                                    onSearchEngineClick = onSearchTargetClick,
+                                    onSearchEngineLongPress = onSearchEngineLongPress,
+                                    externalScrollState = searchEngineScrollState,
+                                    detectedShortcutTarget = target,
+                                    onClearDetectedShortcut = onClearDetectedShortcut,
+                                    showWallpaperBackground = state.showWallpaperBackground,
+                                    isOverlayPresentation = isOverlayPresentation,
+                                    hasBottomSearchBar = showBottomSearchBar,
+                                    compactRowCount = 1,
+                                    predictedTarget = predictedTarget,
+                            )
+                        },
+                        hiddenContent = {
+                            // Add padding when search engines are hidden to prevent keyboard from
+                            // covering content
+                            Spacer(modifier = searchEnginesModifier)
+                        },
+                )
+            }
 
             AnimatedVisibility(
                     visible =
