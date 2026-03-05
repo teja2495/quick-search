@@ -20,6 +20,11 @@ class WebSuggestionHandler(
     var isEnabled: Boolean = userPreferences.areWebSuggestionsEnabled()
         private set
 
+    fun reloadFromPreferences(): Boolean {
+        isEnabled = userPreferences.areWebSuggestionsEnabled()
+        return isEnabled
+    }
+
     fun setEnabled(enabled: Boolean) {
         scope.launch(Dispatchers.IO) {
             userPreferences.setWebSuggestionsEnabled(enabled)

@@ -1580,6 +1580,54 @@ class SearchViewModel(
         onQueryChange("")
     }
 
+    fun onSettingsImported() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val startupPrefs = userPreferences.getStartupPreferences()
+
+            searchEngineManager.reloadFromPreferences()
+            val shortcutsState = shortcutHandler.reloadFromPreferences()
+            directSearchHandler.reloadFromPreferences()
+            val webSuggestionsEnabled = webSuggestionHandler.reloadFromPreferences()
+
+            val geminiApiKey = directSearchHandler.getGeminiApiKey()
+            val personalContext = directSearchHandler.getPersonalContext()
+            val geminiModel = directSearchHandler.getGeminiModel()
+            val geminiGroundingEnabled = directSearchHandler.isGeminiGroundingEnabled()
+            val availableGeminiModels = directSearchHandler.getAvailableGeminiModels()
+            val hasGeminiApiKey = !geminiApiKey.isNullOrBlank()
+
+            withContext(Dispatchers.Main) {
+                applyStartupPreferences(startupPrefs)
+                _uiState.update { state ->
+                    state.copy(
+                        searchTargetsOrder = searchEngineManager.searchTargetsOrder,
+                        disabledSearchTargetIds = searchEngineManager.disabledSearchTargetIds,
+                        isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
+                        searchEngineCompactRowCount = searchEngineManager.searchEngineCompactRowCount,
+                        showSearchEngineOnboarding =
+                            searchEngineManager.isSearchEngineCompactMode &&
+                                !userPreferences.hasSeenSearchEngineOnboarding(),
+                        shortcutsEnabled = shortcutsState.shortcutsEnabled,
+                        shortcutCodes = shortcutsState.shortcutCodes,
+                        shortcutEnabled = shortcutsState.shortcutEnabled,
+                        webSuggestionsEnabled = webSuggestionsEnabled,
+                        calculatorEnabled = userPreferences.isCalculatorEnabled(),
+                        hasGeminiApiKey = hasGeminiApiKey,
+                        geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
+                        personalContext = personalContext,
+                        geminiModel = geminiModel,
+                        geminiGroundingEnabled = geminiGroundingEnabled,
+                        availableGeminiModels = availableGeminiModels,
+                        showPersonalContextHint =
+                            !userPreferences.hasSeenPersonalContextHint() &&
+                                personalContext.isBlank(),
+                    )
+                }
+                handleOnResume()
+            }
+        }
+    }
+
     fun handleOnResume() {
         val previous = _uiState.value.hasUsagePermission
         val latest = repository.hasUsageAccess()

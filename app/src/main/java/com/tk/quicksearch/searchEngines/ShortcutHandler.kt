@@ -25,56 +25,70 @@ class ShortcutHandler(
 
     private var isInitialized = false
 
+    private fun loadFromPreferences() {
+        // Ensure aliases are always enabled (legacy compatibility)
+        if (!userPreferences.areAliasesEnabled()) {
+            userPreferences.setAliasesEnabled(true)
+        }
+        val targets =
+            searchTargetsProvider().ifEmpty {
+                SearchEngine.values().map { SearchTarget.Engine(it) }
+            }
+        aliasCodes =
+            targets.associate { target ->
+                val id = target.getId()
+                val code =
+                    when (target) {
+                        is SearchTarget.Engine -> {
+                            userPreferences.getAliasCode(target.engine)
+                        }
+
+                        is SearchTarget.Browser -> {
+                            userPreferences.getAliasCode(id).orEmpty()
+                        }
+
+                        is SearchTarget.Custom -> {
+                            userPreferences.getAliasCode(id).orEmpty()
+                        }
+                    }
+                id to code
+            }
+        aliasEnabled =
+            targets.associate { target ->
+                val id = target.getId()
+                val enabled =
+                    when (target) {
+                        is SearchTarget.Engine -> {
+                            userPreferences.isAliasEnabled(target.engine)
+                        }
+
+                        is SearchTarget.Browser -> {
+                            aliasCodes[id].orEmpty().isNotEmpty()
+                        }
+
+                        is SearchTarget.Custom -> {
+                            aliasCodes[id].orEmpty().isNotEmpty()
+                        }
+                    }
+                id to enabled
+            }
+    }
+
     private fun ensureInitialized() {
         if (!isInitialized) {
-            // Ensure aliases are always enabled (legacy compatibility)
-            if (!userPreferences.areAliasesEnabled()) {
-                userPreferences.setAliasesEnabled(true)
-            }
-            val targets =
-                searchTargetsProvider().ifEmpty {
-                    SearchEngine.values().map { SearchTarget.Engine(it) }
-                }
-            aliasCodes =
-                targets.associate { target ->
-                    val id = target.getId()
-                    val code =
-                        when (target) {
-                            is SearchTarget.Engine -> {
-                                userPreferences.getAliasCode(target.engine)
-                            }
-
-                            is SearchTarget.Browser -> {
-                                userPreferences.getAliasCode(id).orEmpty()
-                            }
-
-                            is SearchTarget.Custom -> {
-                                userPreferences.getAliasCode(id).orEmpty()
-                            }
-                        }
-                    id to code
-                }
-            aliasEnabled =
-                targets.associate { target ->
-                    val id = target.getId()
-                    val enabled =
-                        when (target) {
-                            is SearchTarget.Engine -> {
-                                userPreferences.isAliasEnabled(target.engine)
-                            }
-
-                            is SearchTarget.Browser -> {
-                                aliasCodes[id].orEmpty().isNotEmpty()
-                            }
-
-                            is SearchTarget.Custom -> {
-                                aliasCodes[id].orEmpty().isNotEmpty()
-                            }
-                        }
-                    id to enabled
-                }
+            loadFromPreferences()
             isInitialized = true
         }
+    }
+
+    fun reloadFromPreferences(): ShortcutsState {
+        loadFromPreferences()
+        isInitialized = true
+        return ShortcutsState(
+            shortcutsEnabled = true,
+            shortcutCodes = aliasCodes,
+            shortcutEnabled = aliasEnabled,
+        )
     }
 
     fun getInitialAliasState(): AliasesState {

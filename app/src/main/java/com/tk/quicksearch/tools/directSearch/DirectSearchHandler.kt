@@ -74,6 +74,12 @@ class DirectSearchHandler(
         return availableGeminiModels
     }
 
+    fun reloadFromPreferences() {
+        isInitialized = false
+        ensureInitialized()
+        clearDirectSearchState()
+    }
+
     fun setGeminiApiKey(apiKey: String?) {
         ensureInitialized()
         val normalized = apiKey?.trim().takeUnless { it.isNullOrBlank() }

@@ -473,7 +473,7 @@ fun SettingsRoute(
         onRequestCallPermission = onRequestCallPermission,
         onDismissBanner = onDismissBanner,
         onNavigateToDetail = onNavigateToDetail,
-        onSettingsImported = viewModel::handleOnResume,
+        onSettingsImported = viewModel::onSettingsImported,
         scrollState = scrollState,
     )
 

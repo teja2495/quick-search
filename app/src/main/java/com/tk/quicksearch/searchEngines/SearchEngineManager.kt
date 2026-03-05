@@ -45,33 +45,42 @@ class SearchEngineManager(
 
     private var isInitialized = false
 
+    private fun loadFromPreferences() {
+        val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
+        val availableEngines = getAvailableEngines(hasGemini)
+        val availableBrowsers = loadInstalledBrowsers()
+        customSearchEngines = userPreferences.getCustomSearchEngines()
+        val savedOrder = userPreferences.getSearchEngineOrder()
+        searchTargetsOrder =
+            loadSearchTargetsOrder(
+                savedOrder = savedOrder,
+                availableEngines = availableEngines,
+                availableBrowsers = availableBrowsers,
+                customEngines = customSearchEngines,
+                hasGemini = hasGemini,
+            )
+        disabledSearchTargetIds =
+            loadDisabledSearchTargetIds(
+                savedOrder,
+                availableEngines,
+                availableBrowsers,
+                customSearchEngines,
+                hasGemini,
+            )
+        isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
+        searchEngineCompactRowCount = userPreferences.getSearchEngineCompactRowCount()
+    }
+
     fun ensureInitialized() {
         if (!isInitialized) {
-            val hasGemini = !userPreferences.getGeminiApiKey().isNullOrBlank()
-            val availableEngines = getAvailableEngines(hasGemini)
-            val availableBrowsers = loadInstalledBrowsers()
-            customSearchEngines = userPreferences.getCustomSearchEngines()
-            val savedOrder = userPreferences.getSearchEngineOrder()
-            searchTargetsOrder =
-                loadSearchTargetsOrder(
-                    savedOrder = savedOrder,
-                    availableEngines = availableEngines,
-                    availableBrowsers = availableBrowsers,
-                    customEngines = customSearchEngines,
-                    hasGemini = hasGemini,
-                )
-            disabledSearchTargetIds =
-                loadDisabledSearchTargetIds(
-                    savedOrder,
-                    availableEngines,
-                    availableBrowsers,
-                    customSearchEngines,
-                    hasGemini,
-                )
-            isSearchEngineCompactMode = userPreferences.isSearchEngineCompactMode()
-            searchEngineCompactRowCount = userPreferences.getSearchEngineCompactRowCount()
+            loadFromPreferences()
             isInitialized = true
         }
+    }
+
+    fun reloadFromPreferences() {
+        loadFromPreferences()
+        isInitialized = true
     }
 
     fun getEnabledSearchTargets(): List<SearchTarget> = searchTargetsOrder.filter { it.getId() !in disabledSearchTargetIds }
