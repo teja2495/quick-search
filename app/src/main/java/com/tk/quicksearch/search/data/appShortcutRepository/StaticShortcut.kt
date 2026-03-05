@@ -315,14 +315,16 @@ internal fun resolveSearchTargetShortcutPackageName(
     packageManager: PackageManager,
 ): String {
     return when (target) {
-        is SearchTarget.Engine ->
-            target.engine
-                .getAppPackageCandidates()
-                .filter { packageName ->
-                    packageManager.getLaunchIntentForPackage(packageName) != null
-                }.firstOrNull()
-                ?: target.engine.getAppPackageCandidates().first()
-
-        else -> context.packageName // fallback
+        is SearchTarget.Engine -> {
+            val candidates = target.engine.getAppPackageCandidates()
+            candidates.firstOrNull { packageName ->
+                packageManager.getLaunchIntentForPackage(packageName) != null
+            }
+                ?: candidates.firstOrNull()
+                ?: com.tk.quicksearch.searchEngines.resolveSearchTargetShortcutPackageName(target)
+        }
+        is SearchTarget.Browser -> target.app.packageName
+        is SearchTarget.Custom ->
+            com.tk.quicksearch.searchEngines.resolveSearchTargetShortcutPackageName(target)
     }
 }
