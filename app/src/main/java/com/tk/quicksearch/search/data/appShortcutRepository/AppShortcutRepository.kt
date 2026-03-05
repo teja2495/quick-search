@@ -53,7 +53,14 @@ class AppShortcutRepository(
         withContext(Dispatchers.IO) {
             val systemShortcuts = loadShortcutsFromSystem(context, packageManager)
             shortcutCache.saveShortcuts(systemShortcuts)
-            val merged = mergeAndSortShortcuts(staticShortcuts = systemShortcuts, context = context, packageManager = packageManager)
+            val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty()
+            val merged =
+                mergeAndSortShortcuts(
+                    staticShortcuts = systemShortcuts,
+                    customShortcuts = customShortcuts,
+                    context = context,
+                    packageManager = packageManager,
+                )
             inMemoryShortcuts = merged
             merged
         }
@@ -68,6 +75,7 @@ class AppShortcutRepository(
                     resultData = resultData,
                     context = context,
                     packageManager = packageManager,
+                    sourcePackageName = sourcePackageName,
                 ) ?: return@withContext null
             val customShortcuts = shortcutCache.loadCustomShortcuts().orEmpty().toMutableList()
             customShortcuts.add(shortcut)

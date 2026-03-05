@@ -24,7 +24,9 @@ import com.tk.quicksearch.settings.AppShortcutsSettings.AppShortcutSourcePickerD
 import com.tk.quicksearch.settings.AppShortcutsSettings.isAppActivitySource
 import com.tk.quicksearch.settings.AppShortcutsSettings.queryAppActivitiesForPackage
 import com.tk.quicksearch.shared.util.WallpaperUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal data class WallpaperPermissionController(
     val hasWallpaperPermission: Boolean,
@@ -208,10 +210,12 @@ internal fun rememberAppShortcutSourceFlow(
     onAddCustomAppActivityShortcut: (AppShortcutSource, AppActivitySource) -> Unit,
     onSourceLaunchUnsupported: () -> Unit,
 ): AppShortcutSourceFlowState {
+    val scope = rememberCoroutineScope()
     var showSourcePicker by remember { mutableStateOf(false) }
     var pendingShortcutSourcePackage by remember { mutableStateOf<String?>(null) }
     var appActivityDialogSource by remember { mutableStateOf<AppShortcutSource?>(null) }
     var appActivityDialogItems by remember { mutableStateOf<List<AppActivitySource>>(emptyList()) }
+    var activityCache by remember { mutableStateOf<Map<String, List<AppActivitySource>>>(emptyMap()) }
 
     val addAppShortcutLauncher =
         rememberLauncherForActivityResult(
@@ -231,9 +235,27 @@ internal fun rememberAppShortcutSourceFlow(
         dismissSourcePicker = { showSourcePicker = false },
         selectSource = { source ->
             if (isAppActivitySource(source)) {
-                appActivityDialogSource = source
-                appActivityDialogItems =
-                    queryAppActivitiesForPackage(context.packageManager, source.packageName)
+                val cached = activityCache[source.packageName]
+                if (cached != null) {
+                    appActivityDialogSource = source
+                    appActivityDialogItems = cached
+                } else {
+                    scope.launch {
+                        val activities =
+                            withContext(Dispatchers.IO) {
+                                queryAppActivitiesForPackage(
+                                    context.packageManager,
+                                    source.packageName,
+                                )
+                            }
+                        activityCache =
+                            activityCache.toMutableMap().apply {
+                                put(source.packageName, activities)
+                            }
+                        appActivityDialogSource = source
+                        appActivityDialogItems = activities
+                    }
+                }
             } else {
                 pendingShortcutSourcePackage = source.packageName
                 runCatching { addAppShortcutLauncher.launch(source.launchIntent) }

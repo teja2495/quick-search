@@ -178,6 +178,7 @@ fun SettingsDetailRoute(
     val onRequestAddHomeScreenWidget = { requestAddQuickSearchWidget(context) }
     val onRequestAddQuickSettingsTile = { requestAddQuickSearchTile(context) }
     var filteredAppShortcutSources by remember { mutableStateOf<List<AppShortcutSource>>(emptyList()) }
+    var hasLoadedAppShortcutSources by remember { mutableStateOf(false) }
     var appShortcutFocusShortcut by remember { mutableStateOf<StaticShortcut?>(null) }
     var appShortcutFocusPackageName by remember { mutableStateOf<String?>(null) }
     val onShortcutAdded: (StaticShortcut) -> Unit = { addedShortcut ->
@@ -241,6 +242,7 @@ fun SettingsDetailRoute(
     ) {
         if (detailType != SettingsDetailType.APP_SHORTCUTS) {
             filteredAppShortcutSources = emptyList()
+            hasLoadedAppShortcutSources = false
             return@LaunchedEffect
         }
 
@@ -259,6 +261,7 @@ fun SettingsDetailRoute(
                             currentPackageName = context.packageName,
                     )
                 }
+        hasLoadedAppShortcutSources = true
     }
 
     LaunchedEffect(detailType) {
@@ -423,6 +426,10 @@ fun SettingsDetailRoute(
             }
 
     if (detailType.isLevel2()) {
+        val shouldShowAppShortcutsContent =
+                detailType != SettingsDetailType.APP_SHORTCUTS ||
+                        hasLoadedAppShortcutSources
+
         SettingsDetailLevel2Screen(
                 modifier = modifier,
                 state = resolvedState,
@@ -431,8 +438,18 @@ fun SettingsDetailRoute(
                 hasUsagePermission = uiState.hasUsagePermission,
                 appShortcutFocusShortcut = appShortcutFocusShortcut,
                 appShortcutFocusPackageName = appShortcutFocusPackageName,
-                appShortcutSources = filteredAppShortcutSources,
-                searchTargets = state.searchEngineOrder,
+                appShortcutSources =
+                        if (shouldShowAppShortcutsContent) {
+                            filteredAppShortcutSources
+                        } else {
+                            emptyList()
+                        },
+                searchTargets =
+                        if (shouldShowAppShortcutsContent) {
+                            state.searchEngineOrder
+                        } else {
+                            emptyList()
+                        },
                 onAppShortcutFocusHandled = {
                     appShortcutFocusShortcut = null
                     appShortcutFocusPackageName = null

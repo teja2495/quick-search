@@ -41,6 +41,7 @@ fun parseCustomShortcutFromPickerResult(
     resultData: Intent?,
     context: Context,
     packageManager: PackageManager,
+    sourcePackageName: String? = null,
 ): StaticShortcut? {
     val data = resultData ?: return null
     val shortcutIntent =
@@ -57,11 +58,13 @@ fun parseCustomShortcutFromPickerResult(
     ) {
         launchIntent.`package` = resolvedLaunchPackage
     }
+    val explicitSourcePackageName = sourcePackageName?.trim()?.takeIf { it.isNotBlank() }
     val packageName =
-        data.getStringExtra("sourcePackageName")?.trim()?.takeIf { it.isNotBlank() }
+        explicitSourcePackageName
+            ?: data.getStringExtra("sourcePackageName")?.trim()?.takeIf { it.isNotBlank() }
             ?: resolvedLaunchPackage
             ?: return null
-    val appLabel = resolveAppLabel(packageName, packageManager)
+    val appLabel = resolveAppLabel(context, packageName, packageManager)
     val customLabel =
         data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)?.trim().takeIf { !it.isNullOrBlank() }
             ?: launchIntent.component?.shortClassName
@@ -133,22 +136,6 @@ private fun resolveShortcutPackage(intent: Intent, packageManager: PackageManage
         ?: intent.`package`
         ?: packageManager.resolveActivity(intent, 0)?.activityInfo?.packageName
 
-private fun resolveAppLabel(packageName: String, packageManager: PackageManager): String {
-    val appInfo = kotlin.runCatching { packageManager.getApplicationInfo(packageName, 0) }.getOrNull()
-    val localizedLabel =
-        appInfo?.let {
-            kotlin.runCatching { packageManager.getApplicationLabel(it)?.toString() }.getOrNull()
-        }
-    return localizedLabel?.takeIf { it.isNotBlank() }
-        ?: appInfo?.nonLocalizedLabel?.toString()?.takeIf { it.isNotBlank() }
-        ?: formatPackageNameAsLabel(packageName)
-}
-
-private fun formatPackageNameAsLabel(packageName: String): String =
-    packageName
-        .substringAfterLast(".")
-        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
-
 fun loadShortcutsFromSystem(
     context: Context,
     packageManager: PackageManager,
@@ -168,7 +155,7 @@ fun loadShortcutsFromSystem(
                     ?: info.activityInfo.applicationInfo.nonLocalizedLabel
                         ?.toString()
                         ?.takeIf { it.isNotBlank() }
-                    ?: formatPackageNameAsLabel(packageName)
+                    ?: resolveAppLabel(context, packageName, packageManager)
             packageName to label
         }
 
