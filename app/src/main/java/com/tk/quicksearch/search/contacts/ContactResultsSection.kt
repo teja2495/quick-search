@@ -30,6 +30,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
@@ -44,6 +45,7 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.search.searchScreen.predictedSubmitCardBorder
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -87,6 +89,7 @@ fun ContactResultsSection(
     showAllResults: Boolean = false,
     showExpandControls: Boolean = false,
     onExpandClick: () -> Unit,
+    expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     showContactActionHint: Boolean = false,
     onContactActionHintDismissed: () -> Unit = {},
     permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
@@ -126,6 +129,7 @@ fun ContactResultsSection(
                     onSecondaryActionLongPress = onSecondaryActionLongPress,
                     onCustomAction = onCustomAction,
                     onExpandClick = onExpandClick,
+                    expandedCardMaxHeight = expandedCardMaxHeight,
                     showContactActionHint = showContactActionHint,
                     onContactActionHintDismissed = onContactActionHintDismissed,
                     showWallpaperBackground = showWallpaperBackground,
@@ -173,6 +177,7 @@ private fun ContactsResultCard(
     onSecondaryActionLongPress: (ContactInfo) -> Unit,
     onCustomAction: (ContactInfo, com.tk.quicksearch.search.contacts.models.ContactCardAction) -> Unit,
     onExpandClick: () -> Unit,
+    expandedCardMaxHeight: Dp,
     showContactActionHint: Boolean,
     onContactActionHintDismissed: () -> Unit,
     showWallpaperBackground: Boolean = false,
@@ -219,9 +224,7 @@ private fun ContactsResultCard(
                                 if (isExpanded) {
                                     Modifier
                                         .heightIn(
-                                            max =
-                                                SearchScreenConstants
-                                                    .EXPANDED_CARD_MAX_HEIGHT,
+                                            max = expandedCardMaxHeight,
                                         ).verticalScroll(
                                             scrollState,
                                         )

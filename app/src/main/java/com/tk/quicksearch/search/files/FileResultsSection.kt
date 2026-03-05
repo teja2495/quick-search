@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.contacts.components.ContactUiConstants
@@ -190,6 +191,7 @@ fun FileResultsSection(
         showAllResults: Boolean = false,
         showExpandControls: Boolean = false,
         onExpandClick: () -> Unit,
+        expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
         permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
         showWallpaperBackground: Boolean = false,
         predictedTarget: PredictedSubmitTarget? = null,
@@ -217,6 +219,7 @@ fun FileResultsSection(
                         onNicknameClick = onNicknameClick,
                         getFileNickname = getFileNickname,
                         onExpandClick = onExpandClick,
+                        expandedCardMaxHeight = expandedCardMaxHeight,
                         showWallpaperBackground = showWallpaperBackground,
                         predictedTarget = predictedTarget,
                 )
@@ -252,6 +255,7 @@ private fun FilesResultCard(
         onNicknameClick: (DeviceFile) -> Unit,
         getFileNickname: (String) -> String?,
         onExpandClick: () -> Unit,
+        expandedCardMaxHeight: Dp,
         showWallpaperBackground: Boolean = false,
         predictedTarget: PredictedSubmitTarget?,
 ) {
@@ -287,7 +291,7 @@ private fun FilesResultCard(
                 if (isExpanded) {
                     Modifier.fillMaxWidth()
                             .heightIn(
-                                    max = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
+                                    max = expandedCardMaxHeight,
                             )
                 } else {
                     Modifier.fillMaxWidth()

@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
@@ -100,6 +101,8 @@ data class FilesSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
+    val expandedCardMaxHeight: Dp =
+        SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val permissionDisabledCard:
         (
         @Composable (
@@ -126,6 +129,8 @@ data class SettingsSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
+    val expandedCardMaxHeight: Dp =
+        SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val showWallpaperBackground: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
 )
@@ -146,6 +151,8 @@ data class AppShortcutsSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
+    val expandedCardMaxHeight: Dp =
+        SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val iconPackPackage: String?,
     val showWallpaperBackground: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
@@ -179,6 +186,8 @@ data class ContactsSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
+    val expandedCardMaxHeight: Dp =
+        SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val permissionDisabledCard:
         (
         @Composable (

@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -26,7 +25,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,11 +40,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.appShortcuts.AppShortcutRow
-import com.tk.quicksearch.search.contacts.CollapseButton
 import com.tk.quicksearch.search.contacts.components.ContactResultRow
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
@@ -60,9 +58,10 @@ import com.tk.quicksearch.search.files.FileResultRow
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
-import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.components.CollapseButton
+import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -104,6 +103,7 @@ fun SearchHistorySection(
     onOpenSearchHistorySettings: () -> Unit = {},
     onDismissSearchHistoryTip: () -> Unit = {},
     onExpandedChange: (Boolean) -> Unit = {},
+    expandedCardMaxHeight: Dp = EXPANDED_HISTORY_MAX_HEIGHT,
     showWallpaperBackground: Boolean = false,
     isOverlayPresentation: Boolean = false,
 ) {
@@ -116,9 +116,9 @@ fun SearchHistorySection(
     val canExpand = items.size > 1
     val expandedHistoryMaxHeight =
         if (isOverlayPresentation) {
-            EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY
+            minOf(expandedCardMaxHeight, EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY)
         } else {
-            EXPANDED_HISTORY_MAX_HEIGHT
+            minOf(expandedCardMaxHeight, EXPANDED_HISTORY_MAX_HEIGHT)
         }
 
     BackHandler(enabled = isExpanded) {
@@ -141,21 +141,21 @@ fun SearchHistorySection(
             MaterialTheme.colorScheme.onSurfaceVariant
         }
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors =
-            if (overlayCardColor != null) {
-                androidx.compose.material3.CardDefaults.cardColors(
-                    containerColor = overlayCardColor,
-                )
-            } else {
-                AppColors.getCardColors(showWallpaperBackground)
-            },
-        elevation = AppColors.getCardElevation(showWallpaperBackground),
-    ) {
-        if (isExpanded) {
-            Column {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            colors =
+                if (overlayCardColor != null) {
+                    androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = overlayCardColor,
+                    )
+                } else {
+                    AppColors.getCardColors(showWallpaperBackground)
+                },
+            elevation = AppColors.getCardElevation(showWallpaperBackground),
+        ) {
+            if (isExpanded) {
                 val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
@@ -202,89 +202,76 @@ fun SearchHistorySection(
                         }
                     }
                 }
-                CollapseButton(
-                    onClick = {
-                        isExpanded = false
-                        onExpandedChange(false)
-                        keyboardController?.show()
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = DesignTokens.SpacingXXLarge),
-                )
-            }
-        } else {
-            Column {
-                displayItems.forEachIndexed { index, item ->
-                    val showTipBelowFirstItem = showSearchHistoryTip && index == 0
-                    val baseShowDivider = index < displayItems.lastIndex
-                    RecentSearchItemRow(
-                        item = item,
-                        textColor = textColor,
-                        iconColor = iconColor,
-                        callingApp = callingApp,
-                        messagingApp = messagingApp,
-                        onRecentQueryClick = onRecentQueryClick,
-                        onContactClick = onContactClick,
-                        onShowContactMethods = onShowContactMethods,
-                        onCallContact = onCallContact,
-                        onSmsContact = onSmsContact,
-                        onContactMethodClick = onContactMethodClick,
-                        getPrimaryContactCardAction = getPrimaryContactCardAction,
-                        getSecondaryContactCardAction = getSecondaryContactCardAction,
-                        onPrimaryActionLongPress = onPrimaryActionLongPress,
-                        onSecondaryActionLongPress = onSecondaryActionLongPress,
-                        onCustomAction = onCustomAction,
-                        onFileClick = onFileClick,
-                        onSettingClick = onSettingClick,
-                        onAppShortcutClick = onAppShortcutClick,
-                        onDeleteRecentItem = onDeleteRecentItem,
-                        showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
-                        showWallpaperBackground = showWallpaperBackground,
-                        overlayDividerColor = overlayDividerColor,
-                    )
-                    if (showTipBelowFirstItem) {
-                        InlineSearchHistoryTip(
-                            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                            onDismiss = onDismissSearchHistoryTip,
+            } else {
+                Column {
+                    displayItems.forEachIndexed { index, item ->
+                        val showTipBelowFirstItem = showSearchHistoryTip && index == 0
+                        val baseShowDivider = index < displayItems.lastIndex
+                        RecentSearchItemRow(
+                            item = item,
+                            textColor = textColor,
+                            iconColor = iconColor,
+                            callingApp = callingApp,
+                            messagingApp = messagingApp,
+                            onRecentQueryClick = onRecentQueryClick,
+                            onContactClick = onContactClick,
+                            onShowContactMethods = onShowContactMethods,
+                            onCallContact = onCallContact,
+                            onSmsContact = onSmsContact,
+                            onContactMethodClick = onContactMethodClick,
+                            getPrimaryContactCardAction = getPrimaryContactCardAction,
+                            getSecondaryContactCardAction = getSecondaryContactCardAction,
+                            onPrimaryActionLongPress = onPrimaryActionLongPress,
+                            onSecondaryActionLongPress = onSecondaryActionLongPress,
+                            onCustomAction = onCustomAction,
+                            onFileClick = onFileClick,
+                            onSettingClick = onSettingClick,
+                            onAppShortcutClick = onAppShortcutClick,
+                            onDeleteRecentItem = onDeleteRecentItem,
+                            showDivider = if (showTipBelowFirstItem) false else baseShowDivider,
+                            showWallpaperBackground = showWallpaperBackground,
+                            overlayDividerColor = overlayDividerColor,
                         )
-                        if (baseShowDivider) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = dividerPadding(item)),
-                                color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                        if (showTipBelowFirstItem) {
+                            InlineSearchHistoryTip(
+                                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+                                onDismiss = onDismissSearchHistoryTip,
                             )
+                            if (baseShowDivider) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = dividerPadding(item)),
+                                    color = dividerColor(showWallpaperBackground, overlayDividerColor),
+                                )
+                            }
                         }
                     }
-                }
 
-                if (canExpand) {
-                    val overlayActionColor = LocalOverlayActionColor.current
-                    val moreHistoryColor =
-                        if (overlayActionColor != null) {
-                            Color.White
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        }
-                    TextButton(
-                        onClick = {
-                            isExpanded = true
-                            onExpandedChange(true)
-                            keyboardController?.hide()
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.action_more_search_history),
-                            color = moreHistoryColor,
-                        )
-                        Icon(
-                            imageVector = Icons.Rounded.ExpandMore,
-                            contentDescription = stringResource(R.string.desc_expand),
-                            tint = moreHistoryColor,
+                    if (canExpand) {
+                        ExpandButton(
+                            onClick = {
+                                isExpanded = true
+                                onExpandedChange(true)
+                                keyboardController?.hide()
+                            },
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            textResId = R.string.action_more_search_history,
                         )
                     }
                 }
             }
+        }
+
+        if (isExpanded) {
+            CollapseButton(
+                onClick = {
+                    isExpanded = false
+                    onExpandedChange(false)
+                    keyboardController?.show()
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = DesignTokens.SpacingXXLarge),
+            )
         }
     }
 }

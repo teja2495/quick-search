@@ -62,6 +62,7 @@ import com.tk.quicksearch.search.searchScreen.overlayActionColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
+import com.tk.quicksearch.search.searchScreen.components.CollapseButton
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -122,12 +123,10 @@ fun SearchContentArea(
                 shouldShowFilesSection(renderingState, filesParams) ||
                 shouldShowSettingsSection(renderingState)
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
-    val pinOverlayFooterToBottom =
-        isOverlayPresentation &&
-                renderingState.expandedSection == ExpandedSection.NONE &&
-                !showDirectSearch &&
-                !showCalculator
     val edgeFadeHeight = 32.dp
+    val expandedSectionBottomInset = 80.dp
+    val footerBottomPadding = 28.dp
+    val expandedCardExtraReduction = 20.dp
 
     // Compute "no results" state once - shared by both places that need it
     val shouldShowNoResults =
@@ -214,10 +213,13 @@ fun SearchContentArea(
 
             val heightModifier =
                 if (isOverlayPresentation) {
-                    if (alignResultsToBottom || pinOverlayFooterToBottom) {
+                    val shouldFillOverlayHeight =
+                        alignResultsToBottom ||
+                                renderingState.expandedSection != ExpandedSection.NONE ||
+                                showRetryButton
+                    if (shouldFillOverlayHeight) {
                         // Ensure overlay content occupies full available height so one-handed
-                        // and overlay footer actions can stay pinned at the bottom even with
-                        // short content (e.g., app suggestions only).
+                        // and footer actions can stay pinned at the bottom even with short content.
                         Modifier.heightIn(min = maxHeight, max = maxHeight)
                     } else {
                         Modifier.heightIn(min = 0.dp, max = maxHeight)
@@ -338,7 +340,7 @@ fun SearchContentArea(
                                                 ExpandedSection
                                                     .NONE
                                             ) {
-                                                80.dp
+                                                expandedSectionBottomInset
                                             } else {
                                                 DesignTokens
                                                     .SpacingMedium
@@ -415,6 +417,13 @@ fun SearchContentArea(
                                 } else {
                                     this@BoxWithConstraints.maxHeight
                                 },
+                            expandedCardMaxHeight =
+                                (
+                                    this@BoxWithConstraints.maxHeight -
+                                        expandedSectionBottomInset -
+                                        expandedCardExtraReduction
+                                )
+                                    .coerceAtLeast(220.dp),
                             isReversed = useOneHandedMode && !showDirectSearch,
                             hideResults = hideOtherResults,
                             showCalculator = showCalculator,
@@ -442,7 +451,7 @@ fun SearchContentArea(
             }
 
             if (renderingState.expandedSection != ExpandedSection.NONE) {
-                com.tk.quicksearch.search.contacts.CollapseButton(
+                CollapseButton(
                     onClick = {
                         when (renderingState.expandedSection) {
                             ExpandedSection.FILES -> {
@@ -467,7 +476,7 @@ fun SearchContentArea(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 28.dp),
+                            .padding(bottom = footerBottomPadding),
                 )
             }
 
@@ -488,7 +497,7 @@ fun SearchContentArea(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 28.dp),
+                            .padding(bottom = footerBottomPadding),
                 )
             }
         }

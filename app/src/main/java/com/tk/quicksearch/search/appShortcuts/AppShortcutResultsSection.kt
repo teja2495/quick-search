@@ -39,11 +39,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
-import com.tk.quicksearch.search.contacts.ExpandButton
+import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.search.data.AppShortcutRepository.ShortcutIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
@@ -78,6 +79,7 @@ fun AppShortcutResultsSection(
         showAllResults: Boolean,
         showExpandControls: Boolean,
         onExpandClick: () -> Unit,
+        expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
         iconPackPackage: String?,
         showWallpaperBackground: Boolean,
         predictedTarget: PredictedSubmitTarget? = null,
@@ -136,9 +138,7 @@ fun AppShortcutResultsSection(
                                                         .then(
                                                                 if (isExpanded) {
                                                                         Modifier.heightIn(
-                                                                                        max =
-                                                                                                SearchScreenConstants
-                                                                                                        .EXPANDED_CARD_MAX_HEIGHT,
+                                                                                        max = expandedCardMaxHeight,
                                                                                 )
                                                                                 .verticalScroll(
                                                                                         scrollState,

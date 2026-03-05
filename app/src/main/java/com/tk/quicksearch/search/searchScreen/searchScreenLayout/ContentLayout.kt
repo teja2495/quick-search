@@ -57,6 +57,7 @@ fun ContentLayout(
     predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
     minContentHeight: Dp,
+    expandedCardMaxHeight: Dp,
     isReversed: Boolean,
     hideResults: Boolean,
     showCalculator: Boolean = false,
@@ -78,10 +79,26 @@ fun ContentLayout(
     onGeminiModelInfoClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val effectiveContactsParams = contactsParams.copy(predictedTarget = predictedTarget)
-    val effectiveFilesParams = filesParams.copy(predictedTarget = predictedTarget)
-    val effectiveAppShortcutsParams = appShortcutsParams.copy(predictedTarget = predictedTarget)
-    val effectiveSettingsParams = settingsParams.copy(predictedTarget = predictedTarget)
+    val effectiveContactsParams =
+        contactsParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
+    val effectiveFilesParams =
+        filesParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
+    val effectiveAppShortcutsParams =
+        appShortcutsParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
+    val effectiveSettingsParams =
+        settingsParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
     val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
 
     // 1. Determine Layout Order based on ItemPriorityConfig
@@ -430,6 +447,7 @@ fun ContentLayout(
                                     onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                                     onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                                     onExpandedChange = { searchHistoryExpanded = it },
+                                    expandedCardMaxHeight = expandedCardMaxHeight,
                                     showWallpaperBackground =
                                         effectiveShowWallpaperBackground,
                                     isOverlayPresentation = isOverlayPresentation,
