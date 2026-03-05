@@ -42,6 +42,7 @@ internal fun SettingsDetailLevel1Screen(
     state: SettingsScreenState,
     callbacks: SettingsScreenCallbacks,
     detailType: SettingsDetailType,
+    hasUsagePermission: Boolean,
     isDefaultAssistant: Boolean,
     assistantLaunchVoiceModeEnabled: Boolean,
     showShortcutHintBanner: Boolean = false,
@@ -141,7 +142,7 @@ internal fun SettingsDetailLevel1Screen(
                         SearchResultsSettingsSection(
                             state = state,
                             callbacks = callbacks,
-                            hasUsagePermission = PermissionUtils.hasUsageStatsPermission(context),
+                            hasUsagePermission = hasUsagePermission,
                             hasContactPermission = PermissionUtils.hasContactsPermission(context),
                             hasFilePermission = PermissionHelper.checkFilesPermission(context),
                             onNavigateToExcludedItems = {

@@ -10,7 +10,7 @@ data class GeminiTextModel(
 
 /** Shared Gemini model configuration defaults. */
 object GeminiModelCatalog {
-        const val DEFAULT_MODEL_ID = "gemini-2.5-flash"
+        const val DEFAULT_MODEL_ID = "gemini-flash-lite-latest"
         const val DEFAULT_GROUNDING_ENABLED = true
 
         /**
@@ -21,23 +21,15 @@ object GeminiModelCatalog {
                 listOf(
                                 GeminiTextModel(
                                         id = DEFAULT_MODEL_ID,
-                                        displayName = "Gemini 2.5 Flash",
+                                        displayName = "Gemini Flash-Lite Latest",
                                 ),
                                 GeminiTextModel(
-                                        id = "gemini-2.5-pro",
-                                        displayName = "Gemini 2.5 Pro",
+                                        id = "gemini-flash-latest",
+                                        displayName = "Gemini Flash Latest",
                                 ),
                                 GeminiTextModel(
-                                        id = "gemma-2-9b-it",
-                                        displayName = "Gemma 2 9B",
-                                        supportsSystemInstructions = false,
-                                        supportsGrounding = false,
-                                ),
-                                GeminiTextModel(
-                                        id = "gemma-2-27b-it",
-                                        displayName = "Gemma 2 27B",
-                                        supportsSystemInstructions = false,
-                                        supportsGrounding = false,
+                                        id = "gemini-pro-latest",
+                                        displayName = "Gemini Pro Latest",
                                 ),
                         )
                         .distinctBy { it.id }
@@ -60,7 +52,6 @@ object GeminiModelCatalog {
                                 "-001",
                                 "robotics",
                                 "computer-use",
-                                "preview",
                         )
                 return nonTextMarkers.none(lowerId::contains)
         }

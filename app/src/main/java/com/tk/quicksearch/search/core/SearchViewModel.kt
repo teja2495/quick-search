@@ -2701,8 +2701,21 @@ class SearchViewModel(
     }
 
     fun handleOptionalPermissionChange() {
+        val previousUsagePermission = _uiState.value.hasUsagePermission
+        val latestUsagePermission = repository.hasUsageAccess()
+        val usagePermissionChanged = previousUsagePermission != latestUsagePermission
+
+        if (usagePermissionChanged) {
+            _uiState.update { it.copy(hasUsagePermission = latestUsagePermission) }
+            if (latestUsagePermission) {
+                refreshApps()
+            } else {
+                refreshDerivedState()
+            }
+        }
+
         val optionalChanged = refreshOptionalPermissions()
-        if (optionalChanged && _uiState.value.query.isNotBlank()) {
+        if ((optionalChanged || usagePermissionChanged) && _uiState.value.query.isNotBlank()) {
             secondarySearchOrchestrator.performSecondarySearches(_uiState.value.query)
         }
     }

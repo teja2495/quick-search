@@ -461,6 +461,7 @@ fun SettingsDetailRoute(
                 state = resolvedState,
                 callbacks = callbacks,
                 detailType = detailType,
+                hasUsagePermission = uiState.hasUsagePermission,
                 showShortcutHintBanner = shouldShowShortcutHint,
                 onDismissShortcutHintBanner = onDismissShortcutHint,
                 showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
