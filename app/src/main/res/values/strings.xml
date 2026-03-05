@@ -496,7 +496,7 @@
     <string name="settings_app_shortcuts_filter_search_engines">Search Engines</string>
     <string name="settings_app_shortcuts_filter_browsers">Browsers</string>
     <string name="settings_app_shortcuts_add_button">Add Shortcut</string>
-    <string name="settings_app_shortcuts_search_hint">Search App Shortcuts</string>
+    <string name="settings_app_shortcuts_search_hint">Search</string>
     <string name="settings_app_shortcuts_expand_all">Expand all</string>
     <string name="settings_app_shortcuts_collapse_all">Collapse all</string>
     <string name="settings_app_shortcuts_add_dialog_title">Choose Shortcut Source</string>

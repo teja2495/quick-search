@@ -59,6 +59,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.io.File
@@ -85,12 +86,16 @@ fun AppManagementSettingsSection(
     apps: List<AppInfo>,
     hasUsagePermission: Boolean,
     iconPackPackage: String?,
+    searchQuery: String = "",
     onRequestAppUninstall: (AppInfo) -> Unit,
     onOpenAppInfo: (AppInfo) -> Unit,
     onRefreshApps: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val locale = Locale.getDefault()
+    val normalizedSearchQuery =
+        remember(searchQuery, locale) { searchQuery.trim().lowercase(locale) }
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     if (apps.isEmpty()) {
@@ -132,9 +137,30 @@ fun AppManagementSettingsSection(
             }
         }
     val selectedCount = selectedAppKeys.size
+    val filteredApps =
+        remember(apps, normalizedSearchQuery, locale) {
+            if (normalizedSearchQuery.isBlank()) {
+                apps
+            } else {
+                apps
+                    .mapNotNull { app ->
+                        val priority =
+                            shortcutMatchPriority(
+                                name = app.appName,
+                                query = normalizedSearchQuery,
+                                locale = locale,
+                            ) ?: return@mapNotNull null
+                        app to priority
+                    }.sortedWith(
+                        compareBy<Pair<AppInfo, com.tk.quicksearch.settings.AppShortcutsSettings.ShortcutSearchMatchPriority>> { it.second.ordinal }
+                            .thenBy { it.first.appName.lowercase(locale) },
+                    )
+                    .map { it.first }
+            }
+        }
 
     val sortedApps =
-        remember(apps, selectedSortOption, isSortAscending, appSortMetadataByKey) {
+        remember(filteredApps, selectedSortOption, isSortAscending, appSortMetadataByKey) {
             val baseComparator =
                 when (selectedSortOption) {
                     AppSortOption.NAME -> {
@@ -177,7 +203,7 @@ fun AppManagementSettingsSection(
                 }
 
             val comparator = if (isSortAscending) baseComparator else baseComparator.reversed()
-            apps.sortedWith(comparator)
+            filteredApps.sortedWith(comparator)
         }
 
     LaunchedEffect(selectedSortOption, isSortAscending) {
@@ -326,37 +352,50 @@ fun AppManagementSettingsSection(
                 modifier = Modifier.fillMaxSize(),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = if (selectedCount > 0) 96.dp else 0.dp),
-                ) {
-                    itemsIndexed(
-                        items = sortedApps,
-                        key = { _, app -> app.launchCountKey() },
-                    ) { index, app ->
-                        val appKey = app.launchCountKey()
-                        val canUninstall = !app.isSystemApp && app.userHandleId == null
-
-                        AppManagementRow(
-                            app = app,
-                            apkSizeBytes = appSortMetadataByKey[appKey]?.sizeBytes ?: 0L,
-                            iconPackPackage = iconPackPackage,
-                            isSelected = appKey in selectedAppKeys,
-                            checkboxEnabled = canUninstall,
-                            onSelectionChanged = { checked ->
-                                selectedAppKeys =
-                                    if (checked) {
-                                        selectedAppKeys + appKey
-                                    } else {
-                                        selectedAppKeys - appKey
-                                    }
-                            },
-                            onItemClick = { selectedAppForDetails = app },
+                if (sortedApps.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_apps_empty),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = if (selectedCount > 0) 96.dp else 0.dp),
+                    ) {
+                        itemsIndexed(
+                            items = sortedApps,
+                            key = { _, app -> app.launchCountKey() },
+                        ) { index, app ->
+                            val appKey = app.launchCountKey()
+                            val canUninstall = !app.isSystemApp && app.userHandleId == null
 
-                        if (index < sortedApps.lastIndex) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            AppManagementRow(
+                                app = app,
+                                apkSizeBytes = appSortMetadataByKey[appKey]?.sizeBytes ?: 0L,
+                                iconPackPackage = iconPackPackage,
+                                isSelected = appKey in selectedAppKeys,
+                                checkboxEnabled = canUninstall,
+                                onSelectionChanged = { checked ->
+                                    selectedAppKeys =
+                                        if (checked) {
+                                            selectedAppKeys + appKey
+                                        } else {
+                                            selectedAppKeys - appKey
+                                        }
+                                },
+                                onItemClick = { selectedAppForDetails = app },
+                            )
+
+                            if (index < sortedApps.lastIndex) {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            }
                         }
                     }
                 }

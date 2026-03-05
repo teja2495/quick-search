@@ -219,44 +219,17 @@ fun AppShortcutsSettingsSection(
                     } else {
                         allShortcutGroups
                             .mapNotNull { group ->
-                                val appMatchPriority =
-                                    shortcutMatchPriority(group.appLabel, normalizedSearchQuery, locale)
-                                val matchingShortcuts =
-                                    group.shortcuts.filter { shortcut ->
-                                        shortcutMatchPriority(
-                                            shortcutDisplayName(shortcut),
-                                            normalizedSearchQuery,
-                                            locale,
-                                        ) != null
-                                    }
-                                val matchingSources =
-                                    group.sources.filter { source ->
-                                        shortcutMatchPriority(source.label, normalizedSearchQuery, locale) != null
-                                    }
-                                val matchingSearchTargetSources =
-                                    group.searchTargetSources.filter { source ->
-                                        shortcutMatchPriority(source.label, normalizedSearchQuery, locale) != null
-                                    }
-                                val filteredGroup =
-                                    when {
-                                        appMatchPriority != null -> group
-                                        matchingShortcuts.isNotEmpty() ||
-                                            matchingSources.isNotEmpty() ||
-                                            matchingSearchTargetSources.isNotEmpty() ->
-                                            group.copy(
-                                                shortcuts = matchingShortcuts,
-                                                sources = matchingSources,
-                                                searchTargetSources = matchingSearchTargetSources,
-                                            )
-                                        else -> null
-                                    } ?: return@mapNotNull null
-
-                                val bestPriority =
-                                    bestShortcutMatchPriority(filteredGroup, normalizedSearchQuery, locale)
-                                        ?: return@mapNotNull null
-                                filteredGroup to bestPriority
-                            }.sortedWith(compareBy<Pair<AppShortcutGroup, ShortcutSearchMatchPriority>> { it.second.ordinal }
-                                .thenBy { it.first.appLabel.lowercase(locale) })
+                                val priority =
+                                    shortcutMatchPriority(
+                                        group.appLabel,
+                                        normalizedSearchQuery,
+                                        locale,
+                                    ) ?: return@mapNotNull null
+                                group to priority
+                            }.sortedWith(
+                                compareBy<Pair<AppShortcutGroup, ShortcutSearchMatchPriority>> { it.second.ordinal }
+                                    .thenBy { it.first.appLabel.lowercase(locale) },
+                            )
                             .map { it.first }
                     }
                 }
