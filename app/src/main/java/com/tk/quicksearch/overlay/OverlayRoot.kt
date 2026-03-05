@@ -52,8 +52,8 @@ import com.tk.quicksearch.shared.util.WallpaperUtils
 import kotlinx.coroutines.delay
 
 private const val OVERLAY_WIDTH_PERCENT = 0.9f
-private const val OVERLAY_TABLET_PORTRAIT_WIDTH_PERCENT = 0.7f
-private const val OVERLAY_TABLET_WIDTH_PERCENT = 0.5f
+private const val OVERLAY_TABLET_PORTRAIT_WIDTH_PERCENT = 0.85f
+private const val OVERLAY_TABLET_WIDTH_PERCENT = 0.65f
 private const val OVERLAY_MAX_HEIGHT_PERCENT = 0.95f
 private const val OVERLAY_FALLBACK_GRADIENT_ALPHA = 0.98f
 private const val OVERLAY_CONTENT_RESIZE_ANIMATION_MS = 140
