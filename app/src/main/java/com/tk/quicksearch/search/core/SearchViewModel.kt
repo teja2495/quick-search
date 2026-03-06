@@ -1468,25 +1468,23 @@ class SearchViewModel(
             return
         }
 
-        // Check for shortcuts at the start of query (show UI button) BEFORE calculator processing
+        // Check for shortcuts at the start of query (show UI button) BEFORE calculator processing.
+        // Keep evaluating this even when a shortcut is already locked so typed aliases are always
+        // stripped from the query and can retarget the locked engine.
         var detectedTarget: SearchTarget? = lockedShortcutTarget
+        val shortcutMatchAtStart = shortcutHandler.detectAliasAtStart(trimmedQuery)
+        if (shortcutMatchAtStart != null) {
+            val detectedAliasTarget = shortcutMatchAtStart.second
+            detectedTarget = detectedAliasTarget.asSearchTargetOrNull()
+            lockedShortcutTarget = detectedTarget
 
-        // If we don't have a locked engine, try to detect one
-        if (detectedTarget == null) {
-            val shortcutMatchAtStart = shortcutHandler.detectAliasAtStart(trimmedQuery)
-            if (shortcutMatchAtStart != null) {
-                val detectedAliasTarget = shortcutMatchAtStart.second
-                detectedTarget = detectedAliasTarget.asSearchTargetOrNull()
-                lockedShortcutTarget = detectedTarget
-
-                // Strip the shortcut from the query and update recursively
-                val queryWithoutShortcut = shortcutMatchAtStart.first
-                onQueryChangeInternal(
-                        queryWithoutShortcut,
-                        clearShortcutWhenBlank = false,
-                )
-                return
-            }
+            // Strip the shortcut from the query and update recursively.
+            val queryWithoutShortcut = shortcutMatchAtStart.first
+            onQueryChangeInternal(
+                    queryWithoutShortcut,
+                    clearShortcutWhenBlank = false,
+            )
+            return
         }
 
         // Check for shortcuts at the end of query (auto-execute)
