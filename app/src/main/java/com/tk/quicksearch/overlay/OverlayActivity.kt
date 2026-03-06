@@ -74,9 +74,6 @@ class OverlayActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         searchViewModel.handleOnStop()
-        if (!isChangingConfigurations && !isFinishing) {
-            finishAndRemoveTask()
-        }
     }
 
     override fun finish() {

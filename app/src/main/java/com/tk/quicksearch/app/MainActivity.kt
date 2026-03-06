@@ -247,6 +247,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (isExplicitLauncherLaunch(intent)) {
+            navigationRequest.value = NavigationRequest(destination = RootDestination.Search)
+        }
+
         if (intent?.action == ACTION_SEARCH_TARGET_SHORTCUT) {
             val query = intent.getStringExtra(EXTRA_SHORTCUT_QUERY)?.trim().orEmpty()
             val engineName = intent.getStringExtra(EXTRA_SHORTCUT_TARGET_ENGINE)
@@ -331,6 +335,11 @@ class MainActivity : ComponentActivity() {
             voiceSearchHandler.handleMicAction(micAction)
         }
         // ACTION_ASSIST can optionally start voice typing based on user preference.
+    }
+
+    private fun isExplicitLauncherLaunch(intent: Intent?): Boolean {
+        if (intent?.action != Intent.ACTION_MAIN) return false
+        return intent.hasCategory(Intent.CATEGORY_LAUNCHER)
     }
 
     private fun maybeExecutePendingSearchTargetShortcut() {
