@@ -52,11 +52,20 @@ object SearchRankingUtils {
         val normalizedText = SearchTextNormalizer.normalizeForSearch(text)
         val isMultiWord = queryTokens.size > 1
         val primaryToken = queryTokens.lastOrNull() ?: normalizedQuery
+        val textWords = normalizedText.split(WHITESPACE_REGEX)
 
-        // For multi-word queries, only match if the text starts with the full query
+        // Multi-word matching:
+        // 1) exact phrase at start, then 2) all tokens match word starts (order-agnostic),
+        // then 3) all tokens are present anywhere in the text.
         if (isMultiWord) {
             if (normalizedText.startsWith(normalizedQuery)) {
                 return PRIORITY_STARTS_WITH
+            }
+            if (allTokensMatchWordStarts(textWords, queryTokens)) {
+                return PRIORITY_WORD_STARTS_WITH
+            }
+            if (allTokensContained(normalizedText, queryTokens)) {
+                return PRIORITY_CONTAINS
             }
             return PRIORITY_NO_MATCH
         }
@@ -67,7 +76,6 @@ object SearchRankingUtils {
         }
 
         // Priority 2: Any word starts with query/token (single-word only)
-        val textWords = normalizedText.split(WHITESPACE_REGEX)
         if (hasWordStartingWithQuery(textWords, normalizedQuery, primaryToken, queryTokens)) {
             return PRIORITY_WORD_STARTS_WITH
         }
@@ -110,10 +118,24 @@ object SearchRankingUtils {
         normalizedText.contains(normalizedQuery) ||
             (
                 queryTokens.size > 1 &&
-                    queryTokens.all { token ->
-                        token.isNotBlank() && normalizedText.contains(token)
-                    }
+                    allTokensContained(normalizedText, queryTokens)
             )
+
+    private fun allTokensMatchWordStarts(
+        textWords: List<String>,
+        queryTokens: List<String>,
+    ): Boolean =
+        queryTokens.all { token ->
+            token.isNotBlank() && textWords.any { word -> word.startsWith(token) }
+        }
+
+    private fun allTokensContained(
+        normalizedText: String,
+        queryTokens: List<String>,
+    ): Boolean =
+        queryTokens.all { token ->
+            token.isNotBlank() && normalizedText.contains(token)
+        }
 
     /**
      * Calculates match priority while giving an optional nickname the highest boost.
