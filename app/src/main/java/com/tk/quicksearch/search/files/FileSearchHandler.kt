@@ -12,6 +12,7 @@ class FileSearchHandler(
 ) {
     companion object {
         const val FILE_SEARCH_RESULT_LIMIT = 25
+        private const val FILE_SEARCH_PREFETCH_MULTIPLIER = 4
     }
 
     fun searchFiles(
@@ -49,16 +50,11 @@ class FileSearchHandler(
         val normalizedQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
         if (normalizedQuery.length < 2) return emptyList()
 
+        val prefetchLimit = FILE_SEARCH_RESULT_LIMIT * FILE_SEARCH_PREFETCH_MULTIPLIER
         val allFiles =
-            fileRepository.searchFiles(normalizedQuery, FILE_SEARCH_RESULT_LIMIT)
+            fileRepository.searchFiles(normalizedQuery, prefetchLimit)
 
-        val fileNicknames =
-            allFiles.associate { file ->
-                file.uri.toString() to
-                    userPreferences.getFileNickname(file.uri.toString())
-            }
-
-        return FileSearchAlgorithm.search(
+        return FileSearchAlgorithm.filterCandidates(
             fullList = allFiles,
             query = normalizedQuery,
             enabledFileTypes = enabledFileTypes,
@@ -69,8 +65,6 @@ class FileSearchHandler(
             showFolders = showFolders,
             showSystemFiles = showSystemFiles,
             showHiddenFiles = showHiddenFiles,
-            fileNicknames = fileNicknames,
-            resultLimit = FILE_SEARCH_RESULT_LIMIT,
         )
     }
 }

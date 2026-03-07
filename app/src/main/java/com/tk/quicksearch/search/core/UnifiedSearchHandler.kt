@@ -17,6 +17,8 @@ import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -77,29 +79,56 @@ class UnifiedSearchHandler(
 
             val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
 
-            // Search contacts by display name
-            val contactResults =
-                if (canSearchContacts) {
-                    searchOperations.searchContacts(
-                        trimmedQuery,
-                        userPreferences.getExcludedContactIds(),
-                    )
-                } else {
-                    emptyList()
-                }
+            val (contactResults, fileResults, settingsMatches, appShortcutMatches) =
+                coroutineScope {
+                    val contactsDeferred =
+                        async {
+                            if (canSearchContacts) {
+                                searchOperations.searchContacts(
+                                    trimmedQuery,
+                                    userPreferences.getExcludedContactIds(),
+                                )
+                            } else {
+                                emptyList()
+                            }
+                        }
+                    val filesDeferred =
+                        async {
+                            if (canSearchFiles) {
+                                fileSearchHandler.searchFiles(
+                                    trimmedQuery,
+                                    enabledFileTypes,
+                                    showFolders,
+                                    showSystemFiles,
+                                    showHiddenFiles,
+                                )
+                            } else {
+                                emptyList()
+                            }
+                        }
+                    val settingsDeferred =
+                        async {
+                            if (canSearchSettings) {
+                                settingsSearchHandler.searchSettings(trimmedQuery)
+                            } else {
+                                emptyList()
+                            }
+                        }
+                    val appShortcutsDeferred =
+                        async {
+                            if (canSearchAppShortcuts) {
+                                appShortcutSearchHandler.searchShortcuts(trimmedQuery)
+                            } else {
+                                emptyList()
+                            }
+                        }
 
-            // Search files using FileSearchHandler
-            val fileResults =
-                if (canSearchFiles) {
-                    fileSearchHandler.searchFiles(
-                        trimmedQuery,
-                        enabledFileTypes,
-                        showFolders,
-                        showSystemFiles,
-                        showHiddenFiles,
+                    SecondarySearchResults(
+                        contactsDeferred.await(),
+                        filesDeferred.await(),
+                        settingsDeferred.await(),
+                        appShortcutsDeferred.await(),
                     )
-                } else {
-                    emptyList()
                 }
 
             // Add nickname matches that weren't found by display name
@@ -126,22 +155,9 @@ class UnifiedSearchHandler(
                     contactResults + nicknameContacts,
                     normalizedQuery,
                 )
+                    .take(SearchOperations.CONTACT_RESULT_LIMIT)
             val filteredFiles =
                 filterAndRankFiles(fileResults + nicknameFiles, normalizedQuery)
-
-            val settingsMatches =
-                if (canSearchSettings) {
-                    settingsSearchHandler.searchSettings(trimmedQuery)
-                } else {
-                    emptyList()
-                }
-
-            val appShortcutMatches =
-                if (canSearchAppShortcuts) {
-                    appShortcutSearchHandler.searchShortcuts(trimmedQuery)
-                } else {
-                    emptyList()
-                }
 
             return@withContext UnifiedSearchResults(
                 contactResults = filteredContacts,
@@ -152,6 +168,13 @@ class UnifiedSearchHandler(
         }
 
     private fun shouldSkipSearch(query: String): Boolean = query.isBlank() || query.length == 1
+
+    private data class SecondarySearchResults(
+        val contactResults: List<ContactInfo>,
+        val fileResults: List<DeviceFile>,
+        val settingsResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
+        val appShortcutResults: List<StaticShortcut>,
+    )
 
     private suspend fun findNicknameOnlyContacts(
         displayNameContacts: List<ContactInfo>,

@@ -2528,9 +2528,8 @@ class SearchViewModel(
             }
             else -> {
                 val hasResults = state.searchResults.isNotEmpty()
-                val hasPinned = state.pinnedApps.isNotEmpty()
-                if (hasResults || hasPinned) {
-                    AppsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                if (hasResults) {
+                    AppsSectionVisibility.ShowingResults(hasPinned = false)
                 } else {
                     AppsSectionVisibility.NoResults
                 }

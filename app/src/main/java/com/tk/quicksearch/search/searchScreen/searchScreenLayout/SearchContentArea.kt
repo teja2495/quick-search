@@ -22,12 +22,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,7 +72,6 @@ import com.tk.quicksearch.search.webSuggestions.WebSuggestionsSection
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.tools.directSearch.CalculatorResult
 import com.tk.quicksearch.tools.directSearch.DirectSearchResult
-import kotlinx.coroutines.delay
 import kotlin.math.min
 
 /** Renders the scrollable content area with sections based on layout mode. */
@@ -136,16 +132,7 @@ fun SearchContentArea(
             state.webSuggestions,
             state.detectedShortcutTarget,
         ) {
-            val hasAnySearchResults = hasAnySearchResults(state)
-            val trimmedQuery = state.query.trim()
-            val queryLength = trimmedQuery.length
-            trimmedQuery.isNotBlank() &&
-                    !hasAnySearchResults &&
-                    state.detectedShortcutTarget == null &&
-                    (
-                            !state.webSuggestionsEnabled ||
-                                    (queryLength >= 2 && state.webSuggestions.isEmpty())
-                    )
+            computeShouldShowNoResults(state)
         }
 
     val hasInlineSearchEngines = hasQuery && (!state.isSearchEngineCompactMode || isUrlQuery)
@@ -352,52 +339,8 @@ fun SearchContentArea(
                     if (shouldHideScrollView) Arrangement.Top else verticalArrangement,
             ) {
                 if (shouldHideScrollView) {
-                    // Show only the no results text without scroll view
-                    // Add delay before showing no results text to avoid flashing before
-                    // web suggestions load (only when web suggestions are enabled)
-                    var showNoResultsText by remember { mutableStateOf(false) }
-                    LaunchedEffect(
-                        shouldShowNoResults,
-                        state.query,
-                        state.webSuggestionsEnabled,
-                    ) {
-                        if (shouldShowNoResults) {
-                            // Only delay if web suggestions are enabled and
-                            // might still be loading
-                            if (state.webSuggestionsEnabled) {
-                                delay(500L) // Wait for web suggestions load
-                            }
-                            showNoResultsText = true
-                        } else {
-                            showNoResultsText = false
-                        }
-                    }
-
-                    if (showNoResultsText) {
-                        Text(
-                            text = stringResource(R.string.no_results_found),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color =
-                                MaterialTheme.colorScheme.onSurface.copy(
-                                    alpha = 0.6f,
-                                ),
-                            textAlign = TextAlign.Center,
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        top =
-                                            DesignTokens
-                                                .SpacingSmall,
-                                        start =
-                                            DesignTokens
-                                                .SpacingLarge,
-                                        end =
-                                            DesignTokens
-                                                .SpacingLarge,
-                                    ),
-                        )
-                    }
+                    // Show only the shared no-results message layout without the scroll view.
+                    NoResultsMessage(state)
                 } else {
                     key(state.backgroundSource, state.showWallpaperBackground) {
                         ContentLayout(

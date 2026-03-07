@@ -7,7 +7,7 @@ class SearchOperations(
     private val contactRepository: ContactRepository,
 ) {
     companion object {
-        private const val CONTACT_RESULT_LIMIT = 25
+        const val CONTACT_RESULT_LIMIT = 25
 
         private const val SHORT_QUERY_PREFETCH_MULTIPLIER = 10
         private const val DEFAULT_CONTACT_PREFETCH_MULTIPLIER = 4
@@ -38,6 +38,6 @@ class SearchOperations(
                 .searchContacts(query, prefetchLimit)
                 .filterNot { excludedContactIds.contains(it.contactId) }
 
-        return if (limit == Int.MAX_VALUE) results else results.take(limit)
+        return results
     }
 }

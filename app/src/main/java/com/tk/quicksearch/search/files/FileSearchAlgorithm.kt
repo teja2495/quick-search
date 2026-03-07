@@ -42,6 +42,36 @@ object FileSearchAlgorithm {
         fileNicknames: Map<String, String?>,
         resultLimit: Int = 25,
     ): List<DeviceFile> {
+        val normalizedQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
+        val filteredFiles =
+            filterCandidates(
+                fullList = fullList,
+                query = query,
+                enabledFileTypes = enabledFileTypes,
+                excludedFileUris = excludedFileUris,
+                excludedFileExtensions = excludedFileExtensions,
+                folderWhitelistPatterns = folderWhitelistPatterns,
+                folderBlacklistPatterns = folderBlacklistPatterns,
+                showFolders = showFolders,
+                showSystemFiles = showSystemFiles,
+                showHiddenFiles = showHiddenFiles,
+            )
+
+        return rankFiles(filteredFiles, normalizedQuery, fileNicknames).take(resultLimit)
+    }
+
+    fun filterCandidates(
+        fullList: List<DeviceFile>,
+        query: String,
+        enabledFileTypes: Set<FileType>,
+        excludedFileUris: Set<String>,
+        excludedFileExtensions: Set<String>,
+        folderWhitelistPatterns: Set<String>,
+        folderBlacklistPatterns: Set<String>,
+        showFolders: Boolean,
+        showSystemFiles: Boolean,
+        showHiddenFiles: Boolean,
+    ): List<DeviceFile> {
         if (query.isBlank()) return emptyList()
 
         val normalizedQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
@@ -52,34 +82,32 @@ object FileSearchAlgorithm {
                 whitelistPatterns = folderWhitelistPatterns,
                 blacklistPatterns = folderBlacklistPatterns,
             )
-        val filteredFiles =
-            fullList.filter { file ->
-                val fileType = FileTypeUtils.getFileType(file)
-                val fileTypeMatches = fileType in enabledFileTypes
 
-                if (file.isDirectory && !showFolders) return@filter false
+        return fullList.filter { file ->
+            val fileType = FileTypeUtils.getFileType(file)
+            val fileTypeMatches = fileType in enabledFileTypes
 
-                val isApk = isApkFile(file)
-                if (isApk && FileType.APKS !in enabledFileTypes) return@filter false
+            if (file.isDirectory && !showFolders) return@filter false
 
-                val isSystem = isSystemFolder(file) || isSystemFile(file)
-                if (isSystem && !showSystemFiles) return@filter false
+            val isApk = isApkFile(file)
+            if (isApk && FileType.APKS !in enabledFileTypes) return@filter false
 
-                val isHidden = file.displayName.startsWith(".")
-                if (isHidden && !showHiddenFiles) return@filter false
+            val isSystem = isSystemFolder(file) || isSystemFile(file)
+            if (isSystem && !showSystemFiles) return@filter false
 
-                if (!showHiddenFiles && isInTrashFolder(file)) return@filter false
+            val isHidden = file.displayName.startsWith(".")
+            if (isHidden && !showHiddenFiles) return@filter false
 
-                fileTypeMatches &&
-                    !excludedFileUris.contains(file.uri.toString()) &&
-                    pathMatcher(file) &&
-                    !FileUtils.isFileExtensionExcluded(
-                        file.displayName,
-                        excludedFileExtensions,
-                    )
-            }
+            if (!showHiddenFiles && isInTrashFolder(file)) return@filter false
 
-        return rankFiles(filteredFiles, normalizedQuery, fileNicknames).take(resultLimit)
+            fileTypeMatches &&
+                !excludedFileUris.contains(file.uri.toString()) &&
+                pathMatcher(file) &&
+                !FileUtils.isFileExtensionExcluded(
+                    file.displayName,
+                    excludedFileExtensions,
+                )
+        }
     }
 
     private fun rankFiles(

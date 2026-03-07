@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
 import com.tk.quicksearch.R
-import com.tk.quicksearch.search.contacts.ContactSearchAlgorithm
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.ContactMethodMimeTypes
@@ -159,14 +158,11 @@ class ContactRepository(
         if (query.isBlank() || !hasPermission()) return emptyList()
 
         val normalizedProviderQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
-        val normalizedQuery = normalizeSearchQuery(query)
         val contacts = queryContactsBySearch(normalizedProviderQuery, limit)
         fetchPhotoUris(contacts)
         fetchContactMethods(contacts)
 
-        return contacts.values
-            .map { it.toContactInfo() }
-            .let { ContactSearchAlgorithm.search(it, normalizedQuery) }
+        return contacts.values.map { it.toContactInfo() }
     }
 
     // ==================== Private Helpers ====================
@@ -457,12 +453,6 @@ class ContactRepository(
             null
         }
     }
-
-    private fun normalizeSearchQuery(query: String): String =
-        SearchTextNormalizer
-            .normalizeForSearch(query.trim())
-            .replace("%", "")
-            .replace("_", "")
 
     private fun buildInClause(
         columnName: String,

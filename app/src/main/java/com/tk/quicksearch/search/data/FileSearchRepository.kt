@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.MediaStore
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.PermissionUtils
-import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
 
@@ -134,15 +133,7 @@ class FileSearchRepository(
                 }
             }
 
-        // Pre-tokenize the already-normalized query for efficient ranking
-        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
-
-        return results.sortedWith(
-            compareBy(
-                { SearchRankingUtils.calculateMatchPriority(it.displayName, normalizedQuery, queryTokens) },
-                { it.displayName.lowercase(Locale.getDefault()) },
-            ),
-        )
+        return results
     }
 
     private fun normalizeQuery(query: String): String =
