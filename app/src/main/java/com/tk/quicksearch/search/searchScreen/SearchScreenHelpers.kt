@@ -204,6 +204,7 @@ data class ContactsSectionParams(
 /** Data class for Apps section parameters */
 data class AppsSectionParams(
     val apps: List<AppInfo>,
+    val appShortcuts: List<StaticShortcut>,
     val isSearching: Boolean,
     val hasAppResults: Boolean,
     val pinnedPackageNames: Set<String>,
@@ -221,6 +222,7 @@ data class AppsSectionParams(
     val showAppLabels: Boolean,
     val oneHandedMode: Boolean,
     val isInitializing: Boolean,
+    val startupPhase: StartupPhase,
     val isOverlayPresentation: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
 )
@@ -551,6 +553,7 @@ internal fun buildSectionParams(
     val appsParams =
         AppsSectionParams(
             apps = derivedState.displayApps,
+            appShortcuts = state.allAppShortcuts,
             isSearching = derivedState.isSearching,
             hasAppResults = derivedState.hasAppResults,
             pinnedPackageNames = derivedState.pinnedPackageNames,
@@ -577,6 +580,7 @@ internal fun buildSectionParams(
             showAppLabels = state.showAppLabels,
             oneHandedMode = state.oneHandedMode,
             isInitializing = state.isInitializing,
+            startupPhase = state.startupPhase,
             isOverlayPresentation = isOverlayPresentation,
         )
 

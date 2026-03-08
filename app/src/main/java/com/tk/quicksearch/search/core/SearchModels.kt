@@ -107,6 +107,13 @@ enum class BackgroundSource {
         CUSTOM_IMAGE,
 }
 
+enum class StartupPhase {
+        PHASE_0_SHELL,
+        PHASE_1_CACHE_PREFS,
+        PHASE_2_HEAVY_FEATURES,
+        COMPLETE,
+}
+
 enum class DirectSearchStatus {
         Idle,
         Loading,
@@ -299,6 +306,7 @@ data class SearchUiState(
         val pinnedSettings: List<DeviceSetting> = emptyList(),
         val excludedSettings: List<DeviceSetting> = emptyList(),
         // Lifecycle / loading
+        val startupPhase: StartupPhase = StartupPhase.PHASE_0_SHELL,
         val isInitializing: Boolean = true,
         val isLoading: Boolean = true,
         val errorMessage: String? = null,
@@ -488,6 +496,7 @@ fun SearchUiState(
                 directDialEnabled = features.directDialEnabled,
                 shouldShowUsagePermissionBanner = features.shouldShowUsagePermissionBanner,
                 // ── SearchUiConfigState ───────────────────────────────────────────
+                startupPhase = config.startupPhase,
                 isInitializing = config.isInitializing,
                 isLoading = config.isLoading,
                 errorMessage = config.errorMessage,

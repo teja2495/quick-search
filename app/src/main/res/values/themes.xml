@@ -3,8 +3,7 @@
 
     <!-- Base theme for the app -->
     <style name="Theme.QuickSearch" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Keep window translucent throughout -->
-        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsTranslucent">false</item>
 
         <!-- Disable animations and configure window -->
         <item name="android:windowAnimationStyle">@null</item>

@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
-import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepository
+import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -87,6 +87,7 @@ private data class AppState(
 @Composable
 fun AppGridView(
         apps: List<AppInfo>,
+        appShortcuts: List<StaticShortcut>,
         isSearching: Boolean,
         hasAppResults: Boolean,
         onAppClick: (AppInfo) -> Unit,
@@ -106,41 +107,19 @@ fun AppGridView(
         oneHandedMode: Boolean = false,
         isInitializing: Boolean = false,
         isOverlayPresentation: Boolean = false,
+        startupPhase: StartupPhase = StartupPhase.COMPLETE,
         predictedTarget: PredictedSubmitTarget? = null,
 ) {
     val context = LocalContext.current
-    val shortcutRepository = remember(context) { AppShortcutRepository(context) }
-    var shortcuts by remember { mutableStateOf<List<StaticShortcut>>(emptyList()) }
     val shortcutsByPackage =
-            remember(shortcuts, disabledShortcutIds) {
-                shortcuts
+            remember(appShortcuts, disabledShortcutIds) {
+                appShortcuts
                         .asSequence()
                         .filterNot { shortcut ->
                             disabledShortcutIds.contains(shortcutKey(shortcut))
                         }
                         .groupBy { it.packageName }
             }
-    val areSuggestionIconsReady =
-            if (isSearching) {
-                true
-            } else {
-                rememberSuggestionIconsReady(
-                        apps = apps,
-                        iconPackPackage = iconPackPackage,
-                )
-            }
-
-    LaunchedEffect(shortcutRepository) {
-        val cached = shortcutRepository.loadCachedShortcuts()
-        if (cached != null) {
-            shortcuts = cached
-        }
-
-        val loaded = runCatching { shortcutRepository.loadStaticShortcuts() }.getOrNull()
-        if (loaded != null) {
-            shortcuts = loaded
-        }
-    }
 
     Column(
             modifier =
@@ -149,7 +128,7 @@ fun AppGridView(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val showAppGrid = apps.isNotEmpty() && areSuggestionIconsReady
+        val showAppGrid = apps.isNotEmpty()
         AnimatedVisibility(
                 visible = showAppGrid,
                 enter =
@@ -186,26 +165,71 @@ fun AppGridView(
                     predictedTarget = predictedTarget,
             )
         }
+        if (!showAppGrid &&
+            isInitializing &&
+            startupPhase != StartupPhase.PHASE_0_SHELL &&
+            !isSearching &&
+            !hasAppResults
+        ) {
+            AppGridPlaceholder(
+                    rowCount = rowCount,
+                    showAppLabels = showAppLabels,
+            )
+        }
     }
 }
 
 @Composable
-private fun rememberSuggestionIconsReady(
-        apps: List<AppInfo>,
-        iconPackPackage: String?,
-): Boolean {
-    if (apps.isEmpty()) return true
-
-    for (app in apps) {
-        val iconResult =
-                rememberAppIcon(
-                        packageName = app.packageName,
-                        iconPackPackage = iconPackPackage,
-                        userHandleId = app.userHandleId,
-                )
-        if (iconResult.bitmap == null) return false
+private fun AppGridPlaceholder(
+        rowCount: Int,
+        showAppLabels: Boolean,
+) {
+    val columns = getAppGridColumns().coerceAtLeast(1)
+    repeat(rowCount.coerceAtLeast(1)) {
+        Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+        ) {
+            repeat(columns) {
+                Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                ) {
+                    Surface(
+                            modifier = Modifier.size(DesignTokens.AppIconSize),
+                            color = Color.Transparent,
+                            tonalElevation = 0.dp,
+                            shape = DesignTokens.ShapeLarge,
+                    ) {
+                        Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                        ) {
+                            Box(
+                                    modifier =
+                                            Modifier.size(DesignTokens.IconSizeXLarge - 4.dp)
+                                                    .clip(DesignTokens.ShapeLarge)
+                                                    .background(
+                                                            MaterialTheme.colorScheme.surfaceVariant,
+                                                    ),
+                            )
+                        }
+                    }
+                    if (showAppLabels) {
+                        Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
+                        Box(
+                                modifier =
+                                        Modifier.width(36.dp)
+                                                .height(10.dp)
+                                                .clip(DesignTokens.ShapeSmall)
+                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                        )
+                    }
+                }
+            }
+        }
     }
-    return true
 }
 
 @Composable

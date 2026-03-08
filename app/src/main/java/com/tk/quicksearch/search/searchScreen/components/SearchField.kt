@@ -89,6 +89,7 @@ internal fun PersistentSearchField(
     detectedShortcutTarget: SearchTarget? = null,
     showWelcomeAnimation: Boolean = false,
     opaqueBackground: Boolean = false,
+    autoFocusOnStart: Boolean = false,
     onClearDetectedShortcut: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -123,21 +124,22 @@ internal fun PersistentSearchField(
         }
     }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+    LaunchedEffect(autoFocusOnStart) {
+        if (autoFocusOnStart) {
+            focusRequester.requestFocus()
+        }
     }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
+    if (autoFocusOnStart) {
+        DisposableEffect(lifecycleOwner) {
+            val observer =
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        focusRequester.requestFocus()
+                    }
                 }
-            }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
     }
 
     // Animation state

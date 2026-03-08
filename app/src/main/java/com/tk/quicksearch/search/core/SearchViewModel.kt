@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.core
 
 import android.app.Application
 import android.content.Intent
+import android.os.Trace
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -104,33 +105,6 @@ class SearchViewModel(
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
 
-    private val initialOverlayModeEnabled: Boolean =
-            runCatching { userPreferences.isOverlayModeEnabled() }.getOrDefault(false)
-    private val initialWallpaperBackgroundAlpha: Float =
-            runCatching { userPreferences.getWallpaperBackgroundAlpha() }
-                    .getOrDefault(UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA)
-    private val initialWallpaperBlurRadius: Float =
-            runCatching { userPreferences.getWallpaperBlurRadius() }
-                    .getOrDefault(UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS)
-    private val initialOverlayGradientTheme: OverlayGradientTheme =
-            runCatching { userPreferences.getOverlayGradientTheme() }
-                    .getOrDefault(OverlayGradientTheme.MONOCHROME)
-    private val initialOverlayThemeIntensity: Float =
-            sanitizeOverlayThemeIntensity(
-                    runCatching { userPreferences.getOverlayThemeIntensity() }
-                            .getOrDefault(UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY)
-            )
-    private val initialFontScaleMultiplier: Float =
-            sanitizeFontScaleMultiplier(
-                    runCatching { userPreferences.getFontScaleMultiplier() }
-                            .getOrDefault(UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER)
-            )
-    private val initialBackgroundSource: BackgroundSource =
-            runCatching { userPreferences.getBackgroundSource() }
-                    .getOrDefault(BackgroundSource.THEME)
-    private val initialOverlayCustomImageUri: String? =
-            runCatching { userPreferences.getCustomImageUri() }.getOrNull()
-
     // =========================================================================
     // Four focused sub-state flows (the core GC-pressure fix).
     //
@@ -158,20 +132,7 @@ class SearchViewModel(
     val featureState: StateFlow<SearchFeatureState> = _featureState.asStateFlow()
 
     // Updated only when appearance/display prefs change
-    private val _configState =
-            MutableStateFlow(
-                    SearchUiConfigState(
-                            overlayModeEnabled = initialOverlayModeEnabled,
-                            showWallpaperBackground = false,
-                            wallpaperBackgroundAlpha = initialWallpaperBackgroundAlpha,
-                            wallpaperBlurRadius = initialWallpaperBlurRadius,
-                            overlayGradientTheme = initialOverlayGradientTheme,
-                            overlayThemeIntensity = initialOverlayThemeIntensity,
-                            fontScaleMultiplier = initialFontScaleMultiplier,
-                            backgroundSource = initialBackgroundSource,
-                            customImageUri = initialOverlayCustomImageUri,
-                    )
-            )
+    private val _configState = MutableStateFlow(SearchUiConfigState())
     val configState: StateFlow<SearchUiConfigState> = _configState.asStateFlow()
 
     /**
@@ -201,26 +162,7 @@ class SearchViewModel(
                                             results = SearchResultsState(),
                                             permissions = SearchPermissionState(),
                                             features = SearchFeatureState(),
-                                            config =
-                                                    SearchUiConfigState(
-                                                            overlayModeEnabled =
-                                                                    initialOverlayModeEnabled,
-                                                            showWallpaperBackground = false,
-                                                            wallpaperBackgroundAlpha =
-                                                                    initialWallpaperBackgroundAlpha,
-                                                            wallpaperBlurRadius =
-                                                                    initialWallpaperBlurRadius,
-                                                            overlayGradientTheme =
-                                                                    initialOverlayGradientTheme,
-                                                            overlayThemeIntensity =
-                                                                    initialOverlayThemeIntensity,
-                                                            fontScaleMultiplier =
-                                                                    initialFontScaleMultiplier,
-                                                            backgroundSource =
-                                                                    initialBackgroundSource,
-                                                            customImageUri =
-                                                                    initialOverlayCustomImageUri,
-                                                    ),
+                                            config = SearchUiConfigState(),
                                     ),
                     )
 
@@ -235,6 +177,7 @@ class SearchViewModel(
     // Consolidated startup configuration loaded in single batch operation
     @Volatile private var startupConfig: StartupPreferencesFacade.StartupConfig? = null
     private val isAppShortcutsLoadInFlight = AtomicBoolean(false)
+    private val hasStartedStartupPhases = AtomicBoolean(false)
 
     // -------------------------------------------------------------------------
     // Resume dirty-flags — set when something changes while the screen is in
@@ -244,10 +187,9 @@ class SearchViewModel(
     /**
      * Set to true whenever device settings or app-shortcut metadata is mutated
      * (pin/exclude/disable).  handleOnResume() will call refreshSettingsState()
-     * and refreshAppShortcutsState() and then clear this flag.  Starts as true
-     * so the very first resume after startup does a full refresh.
+     * and refreshAppShortcutsState() and then clear this flag.
      */
-    @Volatile private var resumeNeedsStaticDataRefresh: Boolean = true
+    @Volatile private var resumeNeedsStaticDataRefresh: Boolean = false
 
     /**
      * Epoch-ms of the last time we told searchEngineManager to refresh browser
@@ -420,6 +362,7 @@ class SearchViewModel(
 
     private fun extractConfigState(s: SearchUiState) =
             SearchUiConfigState(
+                    startupPhase = s.startupPhase,
                     isInitializing = s.isInitializing,
                     isLoading = s.isLoading,
                     errorMessage = s.errorMessage,
@@ -654,18 +597,18 @@ class SearchViewModel(
     private var excludedFileExtensions: Set<String> = emptySet()
     private var oneHandedMode: Boolean = false
     private var bottomSearchBarEnabled: Boolean = false
-    private var overlayModeEnabled: Boolean = initialOverlayModeEnabled
+    private var overlayModeEnabled: Boolean = false
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
     private var showAppLabels: Boolean = true
-    private var wallpaperBackgroundAlpha: Float = initialWallpaperBackgroundAlpha
-    private var wallpaperBlurRadius: Float = initialWallpaperBlurRadius
-    private var overlayGradientTheme: OverlayGradientTheme = initialOverlayGradientTheme
-    private var overlayThemeIntensity: Float = initialOverlayThemeIntensity
-    private var fontScaleMultiplier: Float = initialFontScaleMultiplier
-    private var backgroundSource: BackgroundSource = initialBackgroundSource
-    private var customImageUri: String? = initialOverlayCustomImageUri
+    private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
+    private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
+    private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME
+    private var overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY
+    private var fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER
+    private var backgroundSource: BackgroundSource = BackgroundSource.THEME
+    private var customImageUri: String? = null
     private var lockedShortcutTarget: SearchTarget? = null
     private var amazonDomain: String? = null
     private var pendingNavigationClear: Boolean = false
@@ -750,23 +693,37 @@ class SearchViewModel(
 
         setupDirectSearchStateListener()
 
-        // INSTANT RENDER: Create minimal initial state synchronously
-        // UI renders immediately with empty/placeholder state based on definitions in SearchUiState
-        // No update needed - use default SearchUiState values
+        // Phase 0 intentionally does not load data. First-frame shell render uses defaults.
+    }
 
-        // POST-FIRST-FRAME: Load cache and preferences after UI renders
+    fun startStartupPhasesAfterFirstFrame() {
+        if (!hasStartedStartupPhases.compareAndSet(false, true)) return
+
         viewModelScope.launch(Dispatchers.Main.immediate) {
-            // Immediately load cache without yield - cache read is fast and we want to show it ASAP
-            withContext(Dispatchers.IO) { loadCacheAndMinimalPrefs() }
+            updateConfigState { it.copy(startupPhase = StartupPhase.PHASE_1_CACHE_PREFS) }
+            Trace.beginSection("QS.Startup.Phase1.CachePrefs")
+            try {
+                withContext(Dispatchers.IO) { loadCacheAndMinimalPrefs() }
+            } finally {
+                Trace.endSection()
+            }
 
-            // Now yield to let UI render with cached data
             kotlinx.coroutines.yield()
 
-            // Then compute derived state and load remaining preferences
-            withContext(Dispatchers.IO) { loadRemainingStartupPreferences() }
+            updateConfigState { it.copy(startupPhase = StartupPhase.PHASE_2_HEAVY_FEATURES) }
+            Trace.beginSection("QS.Startup.Phase2.HeavyInit")
+            try {
+                withContext(Dispatchers.IO) { loadRemainingStartupPreferences() }
+            } finally {
+                Trace.endSection()
+            }
 
-            // Then start all background operations (non-blocking)
-            launchDeferredInitialization()
+            Trace.beginSection("QS.Startup.Phase3.DeferredInit")
+            try {
+                launchDeferredInitialization()
+            } finally {
+                Trace.endSection()
+            }
         }
     }
 
@@ -793,6 +750,10 @@ class SearchViewModel(
         // This is just a fast JSON parse
         val cachedAppsList = runCatching { repository.loadCachedApps() }.getOrNull()
         val hasUsagePermission = repository.hasUsageAccess()
+        val hasContactPermission = hasContactPermission()
+        val hasFilePermission = hasFilePermission()
+        val hasCallPermission = hasCallPermission()
+        val hasWallpaperPermission = hasWallpaperPermission()
         val disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds()
 
         withContext(Dispatchers.Main) {
@@ -803,6 +764,15 @@ class SearchViewModel(
                         // We don't have full prefs yet, so keep initializing flag true
                         // but show the apps we found in cache
                         isInitializing = true,
+                )
+            }
+            updatePermissionState {
+                it.copy(
+                        hasUsagePermission = hasUsagePermission,
+                        hasContactPermission = hasContactPermission,
+                        hasFilePermission = hasFilePermission,
+                        hasCallPermission = hasCallPermission,
+                        hasWallpaperPermission = hasWallpaperPermission,
                 )
             }
             updateFeatureState { it.copy(disabledAppShortcutIds = disabledAppShortcutIds) }
@@ -849,15 +819,14 @@ class SearchViewModel(
 
             // Sync handlers with loaded prefs
             appSearchManager.setSortAppsByUsage(true)
-
-            // Now we can compute the full state including pinned/hidden apps
-            val lastUpdated =
-                    startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
-            refreshDerivedState(lastUpdated = lastUpdated, isLoading = false)
-
-            // Fully initialized now
-            updateConfigState { it.copy(isInitializing = false) }
         }
+
+        // Compute heavier derived startup state off the main thread.
+        val lastUpdated = startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
+        withContext(Dispatchers.Default) { refreshDerivedState(lastUpdated = lastUpdated, isLoading = false) }
+
+        // Fully initialized now.
+        withContext(Dispatchers.Main) { updateConfigState { it.copy(isInitializing = false) } }
     }
 
     private fun applyStartupPreferences(prefs: StartupPreferencesFacade.StartupPreferences) {
@@ -1037,13 +1006,17 @@ class SearchViewModel(
 
             if (!directSearchHandler.getGeminiApiKey().isNullOrBlank()) {
                 launch(Dispatchers.IO) {
+                    delay(DEFERRED_DIRECT_SEARCH_MODELS_DELAY_MS)
                     val models = directSearchHandler.refreshAvailableGeminiModels()
                     updateFeatureState { state -> state.copy(availableGeminiModels = models) }
                 }
             }
 
             // 3. Start heavy background loads
-            launch(Dispatchers.IO) { loadApps() }
+            launch(Dispatchers.IO) {
+                delay(DEFERRED_APP_REFRESH_DELAY_MS)
+                loadApps()
+            }
 
             launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
 
@@ -1080,14 +1053,24 @@ class SearchViewModel(
             launch(Dispatchers.IO) { loadAppShortcuts() }
 
             // 4. Release notes
-            releaseNotesHandler.checkForReleaseNotes()
+            launch(Dispatchers.IO) {
+                delay(DEFERRED_RELEASE_NOTES_DELAY_MS)
+                releaseNotesHandler.checkForReleaseNotes()
+            }
 
-            // 5. Startup complete - now compute visibility and refresh UI
+            // 5. Startup complete - update coarse UI state on main, then run heavy
+            // refresh work off the main thread.
             withContext(Dispatchers.Main) {
                 isStartupComplete = true
-                updateVisibilityStates()
-                refreshDerivedState()
+                updateUiState {
+                    applyVisibilityStates(
+                            it.copy(
+                                    startupPhase = StartupPhase.COMPLETE,
+                            ),
+                    )
+                }
             }
+            withContext(Dispatchers.Default) { refreshDerivedState() }
         }
     }
 
@@ -1992,6 +1975,8 @@ class SearchViewModel(
     }
 
     fun handleOnResume() {
+        val startupComplete = isStartupComplete
+
         // --- 1. Usage-access permission ----------------------------------------
         // Only refresh the app list when usage-access permission has actually
         // changed state since last resume.  Rotation and notification-shade
@@ -2001,10 +1986,12 @@ class SearchViewModel(
         val usageChanged = previousUsage != latestUsage
         if (usageChanged) {
             updatePermissionState { it.copy(hasUsagePermission = latestUsage) }
-            if (latestUsage) {
-                refreshApps()
-            } else {
-                refreshAppSuggestions()
+            if (startupComplete) {
+                if (latestUsage) {
+                    refreshApps()
+                } else {
+                    refreshAppSuggestions()
+                }
             }
         }
 
@@ -2013,7 +2000,7 @@ class SearchViewModel(
         // and returns true only when something actually changed.
         val optionalPermissionsChanged = run {
             val before = _permissionState.value
-            handleOptionalPermissionChange()
+            handleOptionalPermissionChangeInternal(allowAppRefresh = startupComplete)
             _permissionState.value != before
         }
 
@@ -2021,7 +2008,7 @@ class SearchViewModel(
         // ContentProvider queries are expensive — only reload when a permission
         // that gates these lists has just changed.  If anything else triggered
         // this resume (rotation, notification shade) we skip these queries.
-        if (optionalPermissionsChanged) {
+        if (startupComplete && optionalPermissionsChanged) {
             pinningHandler.loadPinnedContactsAndFiles()
             pinningHandler.loadExcludedContactsAndFiles()
         }
@@ -2029,7 +2016,7 @@ class SearchViewModel(
         // --- 4. Device settings & app shortcuts ---------------------------------
         // Only re-read SharedPreferences when something actually mutated them
         // (flag is set by pin/exclude/disable operations and cleared here).
-        if (resumeNeedsStaticDataRefresh) {
+        if (startupComplete && resumeNeedsStaticDataRefresh) {
             resumeNeedsStaticDataRefresh = false
             refreshSettingsState()
             refreshAppShortcutsState()
@@ -2038,7 +2025,7 @@ class SearchViewModel(
         // --- 5. Browser targets -------------------------------------------------
         // PackageManager query — throttle to at most once per 5 minutes.
         val now = System.currentTimeMillis()
-        if (now - lastBrowserTargetRefreshMs >= BROWSER_REFRESH_INTERVAL_MS) {
+        if (startupComplete && now - lastBrowserTargetRefreshMs >= BROWSER_REFRESH_INTERVAL_MS) {
             lastBrowserTargetRefreshMs = now
             viewModelScope.launch(Dispatchers.IO) {
                 searchEngineManager.ensureInitialized()
@@ -2921,6 +2908,9 @@ class SearchViewModel(
             !sectionEnabled -> {
                 AppsSectionVisibility.Hidden
             }
+            state.startupPhase == StartupPhase.PHASE_0_SHELL -> {
+                AppsSectionVisibility.Hidden
+            }
             state.isInitializing || state.isLoading -> {
                 AppsSectionVisibility.Loading
             }
@@ -3080,6 +3070,9 @@ class SearchViewModel(
         private const val APP_SEARCH_DEBOUNCE_MS = 60L
         /** Minimum interval between browser-target refreshes triggered by onResume. */
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L // 5 minutes
+        private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L
+        private const val DEFERRED_DIRECT_SEARCH_MODELS_DELAY_MS = 3_000L
+        private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 3_000L
     }
 
     private fun getGridItemCount(): Int =
@@ -3269,15 +3262,19 @@ class SearchViewModel(
     }
 
     fun handleOptionalPermissionChange() {
+        handleOptionalPermissionChangeInternal(allowAppRefresh = true)
+    }
+
+    private fun handleOptionalPermissionChangeInternal(allowAppRefresh: Boolean) {
         val previousUsagePermission = _permissionState.value.hasUsagePermission
         val latestUsagePermission = repository.hasUsageAccess()
         val usagePermissionChanged = previousUsagePermission != latestUsagePermission
 
         if (usagePermissionChanged) {
             updatePermissionState { it.copy(hasUsagePermission = latestUsagePermission) }
-            if (latestUsagePermission) {
+            if (allowAppRefresh && latestUsagePermission) {
                 refreshApps()
-            } else {
+            } else if (allowAppRefresh) {
                 // Permission revoked — recompute app suggestions (recents/pinned change without
                 // usage data)
                 refreshAppSuggestions()
@@ -3287,6 +3284,20 @@ class SearchViewModel(
         val optionalChanged = refreshOptionalPermissions()
         if ((optionalChanged || usagePermissionChanged) && _resultsState.value.query.isNotBlank()) {
             secondarySearchOrchestrator.performSecondarySearches(_resultsState.value.query)
+        }
+    }
+
+    /**
+     * Startup-safe permission refresh that avoids forcing expensive app refreshes during first
+     * frame launch work.
+     */
+    fun refreshPermissionSnapshotAtLaunch() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val latestUsagePermission = repository.hasUsageAccess()
+            if (_permissionState.value.hasUsagePermission != latestUsagePermission) {
+                updatePermissionState { it.copy(hasUsagePermission = latestUsagePermission) }
+            }
+            refreshOptionalPermissions()
         }
     }
 

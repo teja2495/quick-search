@@ -130,6 +130,7 @@ private fun renderAppsSection(
     if (context.shouldRenderApps && params.appsParams != null) {
         AppGridView(
             apps = params.appsParams.apps,
+            appShortcuts = params.appsParams.appShortcuts,
             isSearching = params.appsParams.isSearching,
             hasAppResults = params.appsParams.hasAppResults,
             onAppClick = params.appsParams.onAppClick,
@@ -147,6 +148,7 @@ private fun renderAppsSection(
             showAppLabels = params.appsParams.showAppLabels,
             oneHandedMode = params.appsParams.oneHandedMode,
             isInitializing = params.appsParams.isInitializing,
+            startupPhase = params.appsParams.startupPhase,
             isOverlayPresentation = params.appsParams.isOverlayPresentation,
             predictedTarget = params.appsParams.predictedTarget,
         )

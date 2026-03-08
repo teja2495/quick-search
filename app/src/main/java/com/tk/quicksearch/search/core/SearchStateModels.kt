@@ -148,6 +148,7 @@ data class SearchFeatureState(
 
 data class SearchUiConfigState(
         // Lifecycle / loading coarse state
+        val startupPhase: StartupPhase = StartupPhase.PHASE_0_SHELL,
         val isInitializing: Boolean = true,
         val isLoading: Boolean = true,
         val errorMessage: String? = null,

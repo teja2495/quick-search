@@ -70,6 +70,10 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
                 )
             }
         }
+
+        window.decorView.post {
+            searchViewModel.startStartupPhasesAfterFirstFrame()
+        }
     }
 
     private suspend fun getGlanceId(appWidgetId: Int): GlanceId? {

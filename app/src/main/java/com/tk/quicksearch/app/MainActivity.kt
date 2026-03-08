@@ -2,6 +2,7 @@ package com.tk.quicksearch.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -20,6 +21,8 @@ import com.tk.quicksearch.app.navigation.MainContent
 import com.tk.quicksearch.app.navigation.NavigationRequest
 import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
+import com.tk.quicksearch.app.startup.StartupCoordinator
+import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -28,15 +31,19 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.FeedbackUtils
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private data class PendingContactActionPickerRequest(
+        val contactId: Long,
+        val isPrimary: Boolean,
+        val serializedAction: String?,
+    )
+
     companion object {
         const val ACTION_VOICE_SEARCH_SHORTCUT = "com.tk.quicksearch.action.VOICE_SEARCH_SHORTCUT"
         const val ACTION_SEARCH_TARGET_SHORTCUT = "com.tk.quicksearch.action.SEARCH_TARGET_SHORTCUT"
@@ -48,10 +55,12 @@ class MainActivity : ComponentActivity() {
         private const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
         private const val EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION =
             "overlay_contact_action_picker_serialized_action"
+        private const val TRACE_PHASE_0_SHELL = "QS.Startup.Phase0.Shell"
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
+    private lateinit var startupCoordinator: StartupCoordinator
     private lateinit var voiceSearchHandler: VoiceSearchHandler
     private val voiceInputLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -61,6 +70,7 @@ class MainActivity : ComponentActivity() {
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
     private var pendingSearchTargetShortcut: Pair<String, SearchTarget>? = null
+    private var pendingContactActionPickerRequest: PendingContactActionPickerRequest? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Set transparent background initially for seamless launch
@@ -78,53 +88,36 @@ class MainActivity : ComponentActivity() {
         overridePendingTransition(0, 0)
 
         initializePreferences()
+        startupCoordinator =
+            StartupCoordinator(
+                context = this,
+                activity = this,
+                lifecycleScope = lifecycleScope,
+                viewModel = searchViewModel,
+                userPreferences = userPreferences,
+                mode = StartupMode.MAIN,
+                onReviewPromptEligible = { showReviewPromptDialog.value = true },
+            )
 
         if (launchOverlayIfNeeded(intent)) {
             return
         }
 
         initializeVoiceSearchHandler()
-        // Initialize ViewModel early to start loading cached data immediately
-        // This ensures cached apps are ready when UI renders
-        searchViewModel
-
-        // PRIORITY: Preload wallpaper immediately for seamless visual foundation
-        // This ensures wallpaper is available when SearchScreen renders, providing
-        // instant visual feedback alongside search bar and app list
-        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@MainActivity) }
 
         // Handle intent BEFORE composing UI to avoid briefly showing the Search screen
         // (which auto-focuses the search bar and can flash the keyboard) before navigating.
         handleIntent(intent)
 
-        setupContent()
-        maybeExecutePendingSearchTargetShortcut()
-        refreshPermissionStateIfNeeded()
-
-        // Track first app open time and app open count
-        // Only track after first launch is complete
-        window.decorView.post {
-            // Track first app open time and app open count
-            // Only track after first launch is complete
-            if (!userPreferences.isFirstLaunch()) {
-                userPreferences.recordFirstAppOpenTime()
-                userPreferences.incrementAppOpenCount()
-
-                // Reset update check session flag at app start
-                userPreferences.resetUpdateCheckSession()
-
-                // Check for app updates first (higher priority)
-                UpdateHelper.checkForUpdates(this, userPreferences)
-
-                // Only show review prompt if no update check was performed
-                // This prevents both prompts from appearing simultaneously
-                if (!userPreferences.hasShownUpdateCheckThisSession()) {
-                    if (userPreferences.shouldShowReviewPrompt()) {
-                        showReviewPromptDialog.value = true
-                    }
-                }
-            }
+        Trace.beginSection(TRACE_PHASE_0_SHELL)
+        try {
+            setupContent()
+        } finally {
+            Trace.endSection()
         }
+        maybeExecutePendingSearchTargetShortcut()
+        maybeExecutePendingContactActionPickerRequest()
+        startupCoordinator.scheduleAfterFirstFrame(window)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -135,6 +128,7 @@ class MainActivity : ComponentActivity() {
         }
         handleIntent(intent)
         maybeExecutePendingSearchTargetShortcut()
+        maybeExecutePendingContactActionPickerRequest()
     }
 
     override fun onStop() {
@@ -240,12 +234,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun refreshPermissionStateIfNeeded() {
-        if (!userPreferences.isFirstLaunch()) {
-            searchViewModel.handleOptionalPermissionChange()
-        }
-    }
-
     private fun handleIntent(intent: Intent?) {
         if (isExplicitLauncherLaunch(intent)) {
             navigationRequest.value = NavigationRequest(destination = RootDestination.Search)
@@ -305,11 +293,12 @@ class MainActivity : ComponentActivity() {
                     EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION,
                 )
             if (contactId != -1L) {
-                searchViewModel.requestContactActionPicker(
-                    contactId = contactId,
-                    isPrimary = isPrimary,
-                    serializedAction = serializedAction,
-                )
+                pendingContactActionPickerRequest =
+                    PendingContactActionPickerRequest(
+                        contactId = contactId,
+                        isPrimary = isPrimary,
+                        serializedAction = serializedAction,
+                    )
             }
             contactActionIntent.removeExtra(EXTRA_CONTACT_ACTION_PICKER)
             contactActionIntent.removeExtra(EXTRA_CONTACT_ACTION_PICKER_ID)
@@ -358,5 +347,15 @@ class MainActivity : ComponentActivity() {
             }
             pendingSearchTargetShortcut = null
         }
+    }
+
+    private fun maybeExecutePendingContactActionPickerRequest() {
+        val pending = pendingContactActionPickerRequest ?: return
+        pendingContactActionPickerRequest = null
+        searchViewModel.requestContactActionPicker(
+            contactId = pending.contactId,
+            isPrimary = pending.isPrimary,
+            serializedAction = pending.serializedAction,
+        )
     }
 }
