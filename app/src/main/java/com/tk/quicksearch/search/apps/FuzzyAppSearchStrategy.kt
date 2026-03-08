@@ -44,9 +44,17 @@ class FuzzyAppSearchStrategy(
         query: String,
         app: AppInfo,
         nickname: String?,
+        initials: List<String> = emptyList(),
     ): FuzzySearchStrategy.Match<AppInfo>? {
         if (query.isBlank()) return null
-        val score = engine.computeScore(query, app.appName, nickname, config.minQueryLength)
+        val alternateNames =
+            sequenceOf(nickname)
+                .filterNotNull()
+                .plus(initials.asSequence())
+                .filter { it.isNotBlank() }
+                .joinToString(separator = " ")
+                .ifBlank { null }
+        val score = engine.computeScore(query, app.appName, alternateNames, config.minQueryLength)
         return if (score >= config.matchThreshold) {
             FuzzySearchStrategy.Match(
                 item = app,
@@ -59,14 +67,28 @@ class FuzzyAppSearchStrategy(
         }
     }
 
-    fun isTokenCoveredByApp(token: String, appName: String, nickname: String?): Boolean {
+    fun isTokenCoveredByApp(
+        token: String,
+        appName: String,
+        nickname: String?,
+        initials: List<String> = emptyList(),
+    ): Boolean {
         val tokenLower = SearchTextNormalizer.normalizeForSearch(token)
         val nameLower = SearchTextNormalizer.normalizeForSearch(appName)
         if (nameLower.contains(tokenLower)) return true
         nickname?.let { nick ->
             if (SearchTextNormalizer.normalizeForSearch(nick).contains(tokenLower)) return true
         }
-        val score = engine.computeScore(token, appName, nickname, config.minQueryLength)
+        if (initials.any { it.contains(tokenLower) }) return true
+
+        val alternateNames =
+            sequenceOf(nickname)
+                .filterNotNull()
+                .plus(initials.asSequence())
+                .filter { it.isNotBlank() }
+                .joinToString(separator = " ")
+                .ifBlank { null }
+        val score = engine.computeScore(token, appName, alternateNames, config.minQueryLength)
         return score >= config.matchThreshold
     }
 }
