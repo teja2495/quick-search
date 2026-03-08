@@ -49,7 +49,7 @@ class SecondarySearchOrchestrator(
     private fun performSecondarySearchesInternal(query: String) {
         searchJob?.cancel()
         val trimmedQuery = query.trim()
-        if (trimmedQuery.isBlank() || trimmedQuery.length == 1) {
+        if (trimmedQuery.isBlank()) {
             // Clear all no-results tracking when query is cleared
             lastQueryWithNoContacts = null
             lastQueryWithNoFiles = null
@@ -92,14 +92,18 @@ class SecondarySearchOrchestrator(
             }
         }
 
+        val isSingleCharacterQuery = trimmedQuery.length == 1
         val currentState = currentStateProvider()
         val canSearchContacts =
-            currentState.hasContactPermission &&
+            !isSingleCharacterQuery &&
+                currentState.hasContactPermission &&
                 SearchSection.CONTACTS !in sectionManager.disabledSections
         val canSearchFiles =
-            currentState.hasFilePermission &&
+            !isSingleCharacterQuery &&
+                currentState.hasFilePermission &&
                 SearchSection.FILES !in sectionManager.disabledSections
-        val canSearchSettings = SearchSection.SETTINGS !in sectionManager.disabledSections
+        val canSearchSettings =
+            !isSingleCharacterQuery && SearchSection.SETTINGS !in sectionManager.disabledSections
         val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
 
         // Skip searches if current query extends a previous no-results query
@@ -119,6 +123,10 @@ class SecondarySearchOrchestrator(
             !isBackspacing &&
                 lastQueryWithNoAppShortcuts != null &&
                 trimmedQuery.startsWith(lastQueryWithNoAppShortcuts!!)
+        val shouldSearchContacts = canSearchContacts && !shouldSkipContacts
+        val shouldSearchFiles = canSearchFiles && !shouldSkipFiles
+        val shouldSearchSettings = canSearchSettings && !shouldSkipSettings
+        val shouldSearchAppShortcuts = canSearchAppShortcuts && !shouldSkipAppShortcuts
 
         val currentVersion = queryVersion.incrementAndGet()
         lastQueryLength = trimmedQuery.length
@@ -133,11 +141,10 @@ class SecondarySearchOrchestrator(
                     unifiedSearchHandler.performSearch(
                         query = trimmedQuery,
                         enabledFileTypes = currentState.enabledFileTypes,
-                        canSearchContacts = canSearchContacts && !shouldSkipContacts,
-                        canSearchFiles = canSearchFiles && !shouldSkipFiles,
-                        canSearchSettings = canSearchSettings && !shouldSkipSettings,
-                        canSearchAppShortcuts =
-                            canSearchAppShortcuts && !shouldSkipAppShortcuts,
+                        canSearchContacts = shouldSearchContacts,
+                        canSearchFiles = shouldSearchFiles,
+                        canSearchSettings = shouldSearchSettings,
+                        canSearchAppShortcuts = shouldSearchAppShortcuts,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         showHiddenFiles = currentState.showHiddenFiles,
@@ -146,30 +153,30 @@ class SecondarySearchOrchestrator(
                 withContext(Dispatchers.Main) {
                     if (currentVersion == queryVersion.get()) {
                         // Update no-results tracking based on search results
-                        if (unifiedResults.contactResults.isEmpty() && !shouldSkipContacts) {
+                        if (shouldSearchContacts && unifiedResults.contactResults.isEmpty()) {
                             lastQueryWithNoContacts = trimmedQuery
-                        } else if (unifiedResults.contactResults.isNotEmpty()) {
+                        } else if (shouldSearchContacts && unifiedResults.contactResults.isNotEmpty()) {
                             // Clear if we got results
                             lastQueryWithNoContacts = null
                         }
 
-                        if (unifiedResults.fileResults.isEmpty() && !shouldSkipFiles) {
+                        if (shouldSearchFiles && unifiedResults.fileResults.isEmpty()) {
                             lastQueryWithNoFiles = trimmedQuery
-                        } else if (unifiedResults.fileResults.isNotEmpty()) {
+                        } else if (shouldSearchFiles && unifiedResults.fileResults.isNotEmpty()) {
                             lastQueryWithNoFiles = null
                         }
 
-                        if (unifiedResults.settingResults.isEmpty() && !shouldSkipSettings) {
+                        if (shouldSearchSettings && unifiedResults.settingResults.isEmpty()) {
                             lastQueryWithNoSettings = trimmedQuery
-                        } else if (unifiedResults.settingResults.isNotEmpty()) {
+                        } else if (shouldSearchSettings && unifiedResults.settingResults.isNotEmpty()) {
                             lastQueryWithNoSettings = null
                         }
 
-                        if (unifiedResults.appShortcutResults.isEmpty() &&
-                            !shouldSkipAppShortcuts
-                        ) {
+                        if (shouldSearchAppShortcuts && unifiedResults.appShortcutResults.isEmpty()) {
                             lastQueryWithNoAppShortcuts = trimmedQuery
-                        } else if (unifiedResults.appShortcutResults.isNotEmpty()) {
+                        } else if (shouldSearchAppShortcuts &&
+                            unifiedResults.appShortcutResults.isNotEmpty()
+                        ) {
                             lastQueryWithNoAppShortcuts = null
                         }
 

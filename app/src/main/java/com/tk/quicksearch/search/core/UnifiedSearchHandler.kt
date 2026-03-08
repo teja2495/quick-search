@@ -194,7 +194,7 @@ class UnifiedSearchHandler(
                         )
                 }
 
-        private fun shouldSkipSearch(query: String): Boolean = query.isBlank() || query.length == 1
+        private fun shouldSkipSearch(query: String): Boolean = query.isBlank()
 
         private data class SecondarySearchResults(
                 val contactResults: List<ContactInfo>,
