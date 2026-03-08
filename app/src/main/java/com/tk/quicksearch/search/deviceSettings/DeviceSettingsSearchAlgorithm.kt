@@ -1,7 +1,7 @@
 package com.tk.quicksearch.search.deviceSettings
 
 import com.tk.quicksearch.search.utils.SearchQueryContext
-import java.util.Locale
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 
 object DeviceSettingsSearchAlgorithm {
     fun search(
@@ -10,6 +10,7 @@ object DeviceSettingsSearchAlgorithm {
         excludedIds: Set<String>,
         matchingNicknameIds: Set<String>,
         nicknameCache: Map<String, String?>,
+        recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
@@ -21,6 +22,7 @@ object DeviceSettingsSearchAlgorithm {
             excludedIds = excludedIds,
             matchingNicknameIds = matchingNicknameIds,
             nicknameCache = nicknameCache,
+            recentSettingScores = recentSettingScores,
             resultLimit = resultLimit,
         )
     }
@@ -31,6 +33,7 @@ object DeviceSettingsSearchAlgorithm {
         excludedIds: Set<String>,
         matchingNicknameIds: Set<String>,
         nicknameCache: Map<String, String?>,
+        recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
@@ -54,7 +57,11 @@ object DeviceSettingsSearchAlgorithm {
                     DeviceSettingsSearchPolicy.rankingPriority(matchResult)
                 shortcut to priority
             }.sortedWith(
-                compareBy({ it.second }, { it.first.title.lowercase(Locale.getDefault()) }),
+                RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                    recencyScores = recentSettingScores,
+                    keySelector = { it.id },
+                    labelSelector = { it.title },
+                ),
             ).take(resultLimit)
             .map { it.first }
             .toList()

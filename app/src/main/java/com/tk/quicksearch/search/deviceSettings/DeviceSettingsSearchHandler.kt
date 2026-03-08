@@ -4,6 +4,7 @@ import android.content.Context
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
 
@@ -79,7 +80,11 @@ class DeviceSettingsSearchHandler(
 
         val results =
             if (query.isNotBlank() && isSettingsSectionEnabled) {
-                searchSettingsInternal(SearchQueryContext.fromRawQuery(query), excludedIds)
+                searchSettingsInternal(
+                    queryContext = SearchQueryContext.fromRawQuery(query),
+                    excludedIds = excludedIds,
+                    recentSettingScores = getRecentSettingScores(),
+                )
             } else {
                 emptyList()
             }
@@ -87,12 +92,20 @@ class DeviceSettingsSearchHandler(
         return DeviceSettingsSearchResults(pinned, excluded, results)
     }
 
-    fun searchSettings(queryContext: SearchQueryContext): List<DeviceSetting> =
-        searchSettingsInternal(queryContext, userPreferences.getExcludedSettingIds())
+    fun searchSettings(
+        queryContext: SearchQueryContext,
+        recentSettingScores: Map<String, Int> = getRecentSettingScores(),
+    ): List<DeviceSetting> =
+        searchSettingsInternal(
+            queryContext = queryContext,
+            excludedIds = userPreferences.getExcludedSettingIds(),
+            recentSettingScores = recentSettingScores,
+        )
 
     private fun searchSettingsInternal(
         queryContext: SearchQueryContext,
         excludedIds: Set<String>,
+        recentSettingScores: Map<String, Int>,
     ): List<DeviceSetting> {
         val nicknameMatches =
             userPreferences
@@ -111,6 +124,7 @@ class DeviceSettingsSearchHandler(
             excludedIds = excludedIds,
             matchingNicknameIds = nicknameMatches,
             nicknameCache = nicknameCache,
+            recentSettingScores = recentSettingScores,
             resultLimit = RESULT_LIMIT,
         )
     }
@@ -122,4 +136,9 @@ class DeviceSettingsSearchHandler(
             context.startActivity(intent)
         }.onFailure { showToastCallback(R.string.error_open_setting) }
     }
+
+    private fun getRecentSettingScores(): Map<String, Int> =
+        RecentResultRankingUtils
+            .buildRecencyIndex(userPreferences.getRecentResultOpens())
+            .settingScores
 }

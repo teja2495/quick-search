@@ -4,8 +4,8 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
-import java.util.Locale
 
 object AppShortcutSearchAlgorithm {
     fun search(
@@ -14,6 +14,7 @@ object AppShortcutSearchAlgorithm {
         excludedIds: Set<String>,
         disabledIds: Set<String>,
         shortcutNicknames: Map<String, String>,
+        recentShortcutScores: Map<String, Int> = emptyMap(),
         minQueryLength: Int = 2,
         resultLimit: Int = 25,
     ): List<StaticShortcut> {
@@ -26,6 +27,7 @@ object AppShortcutSearchAlgorithm {
             excludedIds = excludedIds,
             disabledIds = disabledIds,
             shortcutNicknames = shortcutNicknames,
+            recentShortcutScores = recentShortcutScores,
             resultLimit = resultLimit,
         )
     }
@@ -36,6 +38,7 @@ object AppShortcutSearchAlgorithm {
         excludedIds: Set<String>,
         disabledIds: Set<String>,
         shortcutNicknames: Map<String, String>,
+        recentShortcutScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
     ): List<StaticShortcut> {
         if (fullList.isEmpty()) return emptyList()
@@ -63,9 +66,11 @@ object AppShortcutSearchAlgorithm {
                     shortcut to priority
                 }
             }.sortedWith(
-                compareBy<Pair<StaticShortcut, Int>> { it.second }.thenBy {
-                    shortcutDisplayName(it.first).lowercase(Locale.getDefault())
-                },
+                RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                    recencyScores = recentShortcutScores,
+                    keySelector = { shortcutKey(it) },
+                    labelSelector = { shortcutDisplayName(it) },
+                ),
             ).take(resultLimit)
             .map { it.first }
             .toList()

@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.models.FileTypeUtils
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import java.util.Locale
@@ -24,6 +25,7 @@ object FileSearchAlgorithm {
             showSystemFiles: Boolean,
             showHiddenFiles: Boolean,
             fileNicknames: Map<String, String?>,
+            recentFileScores: Map<String, Int> = emptyMap(),
             resultLimit: Int = 25,
     ): List<DeviceFile> {
         val normalizedQuery = SearchTextNormalizer.normalizeQueryWhitespace(query)
@@ -45,6 +47,7 @@ object FileSearchAlgorithm {
                 filteredFiles,
                 SearchQueryContext.fromRawQuery(normalizedQuery),
                 fileNicknames,
+                recentFileScores,
         ).take(resultLimit)
     }
 
@@ -60,6 +63,7 @@ object FileSearchAlgorithm {
             showSystemFiles: Boolean,
             showHiddenFiles: Boolean,
             fileNicknames: Map<String, String?>,
+            recentFileScores: Map<String, Int> = emptyMap(),
             resultLimit: Int = 25,
     ): List<DeviceFile> {
         val filteredFiles =
@@ -76,7 +80,7 @@ object FileSearchAlgorithm {
                         showHiddenFiles = showHiddenFiles,
                 )
 
-        return rankFiles(filteredFiles, queryContext, fileNicknames).take(resultLimit)
+        return rankFiles(filteredFiles, queryContext, fileNicknames, recentFileScores).take(resultLimit)
     }
 
     fun filterCandidates(
@@ -133,6 +137,7 @@ object FileSearchAlgorithm {
             files: List<DeviceFile>,
             queryContext: SearchQueryContext,
             fileNicknames: Map<String, String?>,
+            recentFileScores: Map<String, Int>,
     ): List<DeviceFile> {
         if (files.isEmpty()) return emptyList()
 
@@ -150,9 +155,11 @@ object FileSearchAlgorithm {
                     }
                 }
                 .sortedWith(
-                        compareBy<Pair<DeviceFile, Int>> { it.second }.thenBy {
-                            it.first.displayName.lowercase(Locale.getDefault())
-                        },
+                        RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                                recencyScores = recentFileScores,
+                                keySelector = { it.uri.toString() },
+                                labelSelector = { it.displayName },
+                        ),
                 )
                 .map { it.first }
     }

@@ -16,9 +16,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
-import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -60,7 +59,6 @@ class UnifiedSearchHandler(
                         }
 
                         val queryContext = SearchQueryContext.fromRawQuery(trimmedQuery)
-                        val normalizedQuery = queryContext.normalizedQuery
 
                         // Read all per-query preferences once to avoid repeated SharedPreferences
                         // I/O.
@@ -79,6 +77,10 @@ class UnifiedSearchHandler(
                         val folderBlacklistPatterns =
                                 if (canSearchFiles) userPreferences.getFolderBlacklistPatterns()
                                 else emptySet()
+                        val recencyIndex =
+                                RecentResultRankingUtils.buildRecencyIndex(
+                                        userPreferences.getRecentResultOpens()
+                                )
 
                         val (contactResults, fileResults, settingsMatches, appShortcutMatches) =
                                 coroutineScope {
@@ -104,6 +106,7 @@ class UnifiedSearchHandler(
                                                                 showFolders,
                                                                 showSystemFiles,
                                                                 showHiddenFiles,
+                                                                recencyIndex.fileScores,
                                                         )
                                                 } else {
                                                         emptyList()
@@ -112,7 +115,8 @@ class UnifiedSearchHandler(
                                         val settingsDeferred = async {
                                                 if (canSearchSettings) {
                                                         settingsSearchHandler.searchSettings(
-                                                                queryContext
+                                                                queryContext,
+                                                                recencyIndex.settingScores,
                                                         )
                                                 } else {
                                                         emptyList()
@@ -121,7 +125,8 @@ class UnifiedSearchHandler(
                                         val appShortcutsDeferred = async {
                                                 if (canSearchAppShortcuts) {
                                                         appShortcutSearchHandler.searchShortcuts(
-                                                                queryContext
+                                                                queryContext,
+                                                                recencyIndex.appShortcutScores,
                                                         )
                                                 } else {
                                                         emptyList()
@@ -164,10 +169,15 @@ class UnifiedSearchHandler(
                                 filterAndRankContacts(
                                                 contactResults + nicknameContacts,
                                                 queryContext,
+                                                recencyIndex.contactScores,
                                         )
                                         .take(SearchOperations.CONTACT_RESULT_LIMIT)
                         val filteredFiles =
-                                filterAndRankFiles(fileResults + nicknameFiles, queryContext)
+                                filterAndRankFiles(
+                                        fileResults + nicknameFiles,
+                                        queryContext,
+                                        recencyIndex.fileScores,
+                                )
 
                         return@withContext UnifiedSearchResults(
                                 contactResults = filteredContacts,
@@ -280,6 +290,7 @@ class UnifiedSearchHandler(
         private fun filterAndRankContacts(
                 contacts: List<ContactInfo>,
                 queryContext: SearchQueryContext,
+                recentContactScores: Map<Long, Int>,
         ): List<ContactInfo> {
                 if (contacts.isEmpty()) return emptyList()
 
@@ -308,9 +319,11 @@ class UnifiedSearchHandler(
                                 }
                         }
                         .sortedWith(
-                                compareBy<Pair<ContactInfo, Int>> { it.second }.thenBy {
-                                        it.first.displayName.lowercase(Locale.getDefault())
-                                },
+                                RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                                        recencyScores = recentContactScores,
+                                        keySelector = { it.contactId },
+                                        labelSelector = { it.displayName },
+                                ),
                         )
                         .map { it.first }
         }
@@ -318,6 +331,7 @@ class UnifiedSearchHandler(
         private fun filterAndRankFiles(
                 files: List<DeviceFile>,
                 queryContext: SearchQueryContext,
+                recentFileScores: Map<String, Int>,
         ): List<DeviceFile> {
                 if (files.isEmpty()) return emptyList()
 
@@ -346,9 +360,11 @@ class UnifiedSearchHandler(
                                 }
                         }
                         .sortedWith(
-                                compareBy<Pair<DeviceFile, Int>> { it.second }.thenBy {
-                                        it.first.displayName.lowercase(Locale.getDefault())
-                                },
+                                RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                                        recencyScores = recentFileScores,
+                                        keySelector = { it.uri.toString() },
+                                        labelSelector = { it.displayName },
+                                ),
                         )
                         .map { it.first }
                         .take(FileSearchHandler.FILE_SEARCH_RESULT_LIMIT)
