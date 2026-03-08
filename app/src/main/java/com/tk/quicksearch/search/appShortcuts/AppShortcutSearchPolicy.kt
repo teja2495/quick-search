@@ -14,6 +14,25 @@ object AppShortcutSearchPolicy {
     ): Int {
         val displayNamePriority = matcher.match(displayName, query, nickname)
         val appLabelPriority = matcher.match(appLabel, query)
-        return minOf(displayNamePriority, appLabelPriority)
+        val combinedPriority =
+            matcher.matchAny(
+                query,
+                "$displayName $appLabel",
+                "$appLabel $displayName",
+                *buildCombinedNicknameFields(nickname, appLabel),
+            )
+        return minOf(displayNamePriority, appLabelPriority, combinedPriority)
+    }
+
+    private fun buildCombinedNicknameFields(
+        nickname: String?,
+        appLabel: String,
+    ): Array<String> {
+        val normalizedNickname = nickname?.trim().orEmpty()
+        if (normalizedNickname.isBlank()) return emptyArray()
+        return arrayOf(
+            "$normalizedNickname $appLabel",
+            "$appLabel $normalizedNickname",
+        )
     }
 }
