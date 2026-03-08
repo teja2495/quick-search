@@ -73,8 +73,6 @@ dependencies {
     implementation(libs.play.app.update.ktx)
     implementation(libs.play.services.oss.licenses)
     implementation(libs.libphonenumber)
-    implementation(libs.fuzzywuzzy)
-
     implementation(libs.reorderable)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
