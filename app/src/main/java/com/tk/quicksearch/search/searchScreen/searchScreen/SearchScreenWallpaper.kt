@@ -22,6 +22,7 @@ internal fun SearchScreenWallpaperLogic(
             initialValue = null,
             key1 = state.backgroundSource,
             key2 = state.hasWallpaperPermission,
+            key3 = state.startupBackgroundPreviewPath,
         ) {
             value =
                 if (state.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER) {
@@ -30,6 +31,14 @@ internal fun SearchScreenWallpaperLogic(
                             onWallpaperLoaded?.invoke()
                         }
                     }
+                        ?: WallpaperUtils.getStartupBackgroundPreviewBitmap(
+                            context = context,
+                            previewPath = state.startupBackgroundPreviewPath,
+                        )?.asImageBitmap()?.also {
+                            if (!isOverlayPresentation) {
+                                onWallpaperLoaded?.invoke()
+                            }
+                        }
                         ?: when (val result = WallpaperUtils.getWallpaperBitmapResult(context)) {
                             is WallpaperUtils.WallpaperLoadResult.Success -> {
                                 if (!isOverlayPresentation) {
@@ -51,10 +60,23 @@ internal fun SearchScreenWallpaperLogic(
             initialValue = null,
             key1 = state.backgroundSource,
             key2 = state.customImageUri,
+            key3 = state.startupBackgroundPreviewPath,
         ) {
             value =
                 if (state.backgroundSource == BackgroundSource.CUSTOM_IMAGE) {
-                    WallpaperUtils.getOverlayCustomImageBitmap(context, state.customImageUri)
+                    WallpaperUtils.getStartupBackgroundPreviewBitmap(
+                        context = context,
+                        previewPath = state.startupBackgroundPreviewPath,
+                    )?.asImageBitmap()?.also {
+                        if (!isOverlayPresentation) {
+                            onWallpaperLoaded?.invoke()
+                        }
+                    }
+                        ?: WallpaperUtils.getOverlayCustomImageBitmap(context, state.customImageUri)?.also {
+                            if (!isOverlayPresentation) {
+                                onWallpaperLoaded?.invoke()
+                            }
+                        }
                 } else {
                     null
                 }

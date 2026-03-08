@@ -222,6 +222,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_DISABLED_SEARCH_ENGINES_EXPANDED, expanded)
     }
 
+    fun isInstantStartupSurfaceEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_INSTANT_STARTUP_SURFACE_ENABLED, true)
+
+    fun setInstantStartupSurfaceEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_INSTANT_STARTUP_SURFACE_ENABLED, enabled)
+    }
+
     fun hasSeenSearchBarWelcome(): Boolean =
             sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
 
@@ -576,6 +583,7 @@ class UiPreferences(
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
+        const val KEY_INSTANT_STARTUP_SURFACE_ENABLED = "instant_startup_surface_v1"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
         const val KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN =
                 "force_search_bar_welcome_on_next_open"

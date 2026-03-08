@@ -543,6 +543,11 @@ class UserAppPreferences(
     fun setDisabledSearchEnginesExpanded(expanded: Boolean) =
             uiPreferences.setDisabledSearchEnginesExpanded(expanded)
 
+    fun isInstantStartupSurfaceEnabled(): Boolean = uiPreferences.isInstantStartupSurfaceEnabled()
+
+    fun setInstantStartupSurfaceEnabled(enabled: Boolean) =
+            uiPreferences.setInstantStartupSurfaceEnabled(enabled)
+
     fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)

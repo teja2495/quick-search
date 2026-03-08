@@ -165,17 +165,6 @@ fun AppGridView(
                     predictedTarget = predictedTarget,
             )
         }
-        if (!showAppGrid &&
-            isInitializing &&
-            startupPhase != StartupPhase.PHASE_0_SHELL &&
-            !isSearching &&
-            !hasAppResults
-        ) {
-            AppGridPlaceholder(
-                    rowCount = rowCount,
-                    showAppLabels = showAppLabels,
-            )
-        }
     }
 }
 

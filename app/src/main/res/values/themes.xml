@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.QuickSearch.Launch" parent="Theme.QuickSearch">
-        <item name="android:windowBackground">#121212</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <!-- Base theme for the app -->

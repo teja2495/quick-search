@@ -306,10 +306,11 @@ data class SearchUiState(
         val pinnedSettings: List<DeviceSetting> = emptyList(),
         val excludedSettings: List<DeviceSetting> = emptyList(),
         // Lifecycle / loading
-        val startupPhase: StartupPhase = StartupPhase.PHASE_0_SHELL,
+        val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
         val isLoading: Boolean = true,
         val errorMessage: String? = null,
+        val isStartupCoreSurfaceReady: Boolean = false,
         // Search engine configuration
         val searchTargetsOrder: List<SearchTarget> = emptyList(),
         val disabledSearchTargetIds: Set<String> = emptySet(),
@@ -360,6 +361,7 @@ data class SearchUiState(
         val fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
         val backgroundSource: BackgroundSource = BackgroundSource.THEME,
         val customImageUri: String? = null,
+        val startupBackgroundPreviewPath: String? = null,
         // Icon pack
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
@@ -500,6 +502,7 @@ fun SearchUiState(
                 isInitializing = config.isInitializing,
                 isLoading = config.isLoading,
                 errorMessage = config.errorMessage,
+                isStartupCoreSurfaceReady = config.isStartupCoreSurfaceReady,
                 showWallpaperBackground = config.showWallpaperBackground,
                 wallpaperBackgroundAlpha = config.wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = config.wallpaperBlurRadius,
@@ -507,6 +510,7 @@ fun SearchUiState(
                 overlayThemeIntensity = config.overlayThemeIntensity,
                 backgroundSource = config.backgroundSource,
                 customImageUri = config.customImageUri,
+                startupBackgroundPreviewPath = config.startupBackgroundPreviewPath,
                 overlayModeEnabled = config.overlayModeEnabled,
                 oneHandedMode = config.oneHandedMode,
                 bottomSearchBarEnabled = config.bottomSearchBarEnabled,

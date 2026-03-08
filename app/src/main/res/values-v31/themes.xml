@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.QuickSearch.Launch" parent="Theme.QuickSearch">
-        <item name="android:windowSplashScreenBackground">#121212</item>
+        <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
     </style>
 

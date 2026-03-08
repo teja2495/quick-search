@@ -14,7 +14,10 @@ import android.net.Uri
 import android.os.Build
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.tk.quicksearch.search.core.BackgroundSource
 import androidx.core.content.ContextCompat
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +25,8 @@ import kotlinx.coroutines.withContext
 
 private const val MAX_BACKGROUND_BITMAP_DIMENSION = 4096
 private const val MAX_BACKGROUND_BITMAP_PIXELS = 12_000_000
+private const val STARTUP_PREVIEW_MAX_DIMENSION = 720
+private const val STARTUP_PREVIEW_QUALITY = 82
 
 /**
  * Utility functions for working with wallpapers.
@@ -152,6 +157,61 @@ object WallpaperUtils {
         return bitmap.asImageBitmap()
     }
 
+    fun getStartupBackgroundPreviewBitmap(
+        context: Context,
+        previewPath: String?,
+    ): Bitmap? {
+        val normalized = previewPath?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val file = File(normalized)
+        if (!file.exists() || !file.isFile) return null
+        return runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
+    }
+
+    suspend fun saveStartupBackgroundPreview(
+        context: Context,
+        backgroundSource: BackgroundSource,
+        customImageUri: String?,
+    ): String? =
+        withContext(Dispatchers.IO) {
+            val sourceBitmap =
+                when (backgroundSource) {
+                    BackgroundSource.SYSTEM_WALLPAPER ->
+                        cachedBitmap ?: loadWallpaperBitmap(context)
+                    BackgroundSource.CUSTOM_IMAGE -> {
+                        val normalized = customImageUri?.trim()?.takeIf { it.isNotEmpty() }
+                        if (normalized == null) {
+                            null
+                        } else if (cachedOverlayCustomUri == normalized && cachedOverlayCustomBitmap != null) {
+                            cachedOverlayCustomBitmap
+                        } else {
+                            runCatching {
+                                decodeBitmapWithOrientation(context, Uri.parse(normalized))
+                            }.getOrNull()
+                        }
+                    }
+                    BackgroundSource.THEME -> null
+                } ?: return@withContext null
+
+            val preview = buildStartupPreview(sourceBitmap)
+            val directory = File(context.filesDir, "startup")
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+            val file = File(directory, "startup_background_preview.jpg")
+            val writeSucceeded =
+                runCatching {
+                    FileOutputStream(file).use { output ->
+                        preview.compress(Bitmap.CompressFormat.JPEG, STARTUP_PREVIEW_QUALITY, output)
+                    }
+                }.isSuccess
+
+            if (preview != sourceBitmap) {
+                preview.recycle()
+            }
+
+            if (writeSucceeded) file.absolutePath else null
+        }
+
     private fun loadWallpaperBitmap(context: Context): Bitmap? {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val wallpaperDrawable = wallpaperManager.drawable
@@ -274,6 +334,24 @@ object WallpaperUtils {
             bitmap.recycle()
         }
         return scaled
+    }
+
+    private fun buildStartupPreview(bitmap: Bitmap): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width <= 0 || height <= 0) return bitmap
+
+        val scale =
+            minOf(
+                1f,
+                STARTUP_PREVIEW_MAX_DIMENSION.toFloat() / width,
+                STARTUP_PREVIEW_MAX_DIMENSION.toFloat() / height,
+            )
+        if (scale >= 1f) return bitmap
+
+        val targetWidth = (width * scale).toInt().coerceAtLeast(1)
+        val targetHeight = (height * scale).toInt().coerceAtLeast(1)
+        return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
     }
 }
 

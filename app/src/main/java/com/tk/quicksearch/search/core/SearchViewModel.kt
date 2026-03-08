@@ -49,6 +49,8 @@ import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.startup.StartupSurfaceSnapshot
+import com.tk.quicksearch.search.startup.StartupSurfaceStore
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
@@ -85,19 +87,87 @@ import kotlinx.coroutines.withContext
 class SearchViewModel(
         application: Application,
 ) : AndroidViewModel(application) {
-    private val repository by lazy { AppsRepository(application.applicationContext) }
+    private val appContext = application.applicationContext
+    private val startupPreferencesReader = UserAppPreferences(appContext)
+    private val instantStartupSurfaceEnabled = startupPreferencesReader.isInstantStartupSurfaceEnabled()
+    private val startupSurfaceStore = StartupSurfaceStore(appContext)
+    private val startupSnapshot: StartupSurfaceSnapshot? =
+            if (instantStartupSurfaceEnabled) startupSurfaceStore.loadSnapshot() else null
+    private val initialBackgroundSource = startupPreferencesReader.getBackgroundSource()
+    private val initialCustomImageUri = startupPreferencesReader.getCustomImageUri()
+    private val initialPreviewPath =
+            startupSnapshot?.startupBackgroundPreviewPath?.takeIf { snapshotPath ->
+                startupSnapshot.backgroundSource == initialBackgroundSource &&
+                        (initialBackgroundSource != BackgroundSource.CUSTOM_IMAGE ||
+                                startupSnapshot.customImageUri == initialCustomImageUri) &&
+                        !snapshotPath.isNullOrBlank()
+            }
+
+    private val initialResultsState =
+            SearchResultsState(
+                    recentApps = startupSnapshot?.suggestedApps.orEmpty(),
+                    indexedAppCount = startupSnapshot?.suggestedApps?.size ?: 0,
+            )
+
+    private val initialConfigState =
+            SearchUiConfigState(
+                    startupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
+                    isInitializing = true,
+                    isLoading = true,
+                    isStartupCoreSurfaceReady = startupSnapshot != null,
+                    showWallpaperBackground =
+                            startupSnapshot?.showWallpaperBackground
+                                    ?: initialBackgroundSource != BackgroundSource.THEME,
+                    wallpaperBackgroundAlpha =
+                            startupSnapshot?.wallpaperBackgroundAlpha
+                                    ?: startupPreferencesReader.getWallpaperBackgroundAlpha(),
+                    wallpaperBlurRadius =
+                            startupSnapshot?.wallpaperBlurRadius
+                                    ?: startupPreferencesReader.getWallpaperBlurRadius(),
+                    overlayGradientTheme =
+                            startupSnapshot?.overlayGradientTheme
+                                    ?: startupPreferencesReader.getOverlayGradientTheme(),
+                    overlayThemeIntensity =
+                            sanitizeOverlayThemeIntensity(
+                                    startupSnapshot?.overlayThemeIntensity
+                                            ?: startupPreferencesReader.getOverlayThemeIntensity(),
+                            ),
+                    backgroundSource =
+                            initialBackgroundSource,
+                    customImageUri = initialCustomImageUri,
+                    startupBackgroundPreviewPath = initialPreviewPath,
+                    oneHandedMode =
+                            startupSnapshot?.oneHandedMode
+                                    ?: startupPreferencesReader.isOneHandedMode(),
+                    bottomSearchBarEnabled =
+                            startupSnapshot?.bottomSearchBarEnabled
+                                    ?: startupPreferencesReader.isBottomSearchBarEnabled(),
+                    fontScaleMultiplier =
+                            sanitizeFontScaleMultiplier(
+                                    startupSnapshot?.fontScaleMultiplier
+                                            ?: startupPreferencesReader.getFontScaleMultiplier(),
+                            ),
+                    showAppLabels =
+                            startupSnapshot?.showAppLabels
+                                    ?: startupPreferencesReader.shouldShowAppLabels(),
+                    appSuggestionsEnabled =
+                            startupSnapshot?.appSuggestionsEnabled
+                                    ?: startupPreferencesReader.areAppSuggestionsEnabled(),
+            )
+
+    private val repository by lazy { AppsRepository(appContext) }
     private val appShortcutRepository by lazy {
-        AppShortcutRepository(application.applicationContext)
+        AppShortcutRepository(appContext)
     }
-    private val contactRepository by lazy { ContactRepository(application.applicationContext) }
-    private val fileRepository by lazy { FileSearchRepository(application.applicationContext) }
+    private val contactRepository by lazy { ContactRepository(appContext) }
+    private val fileRepository by lazy { FileSearchRepository(appContext) }
     private val settingsShortcutRepository by lazy {
-        DeviceSettingsRepository(application.applicationContext)
+        DeviceSettingsRepository(appContext)
     }
-    private val userPreferences by lazy { UserAppPreferences(application.applicationContext) }
+    private val userPreferences by lazy { UserAppPreferences(appContext) }
     private val contactPreferences by lazy {
         com.tk.quicksearch.search.data.preferences.ContactPreferences(
-                application.applicationContext,
+                appContext,
         )
     }
 
@@ -121,7 +191,7 @@ class SearchViewModel(
     // =========================================================================
 
     // Hot path — updated on every keystroke
-    private val _resultsState = MutableStateFlow(SearchResultsState())
+    private val _resultsState = MutableStateFlow(initialResultsState)
     val resultsState: StateFlow<SearchResultsState> = _resultsState.asStateFlow()
 
     // Updated only when OS grants/revokes a permission
@@ -133,7 +203,7 @@ class SearchViewModel(
     val featureState: StateFlow<SearchFeatureState> = _featureState.asStateFlow()
 
     // Updated only when appearance/display prefs change
-    private val _configState = MutableStateFlow(SearchUiConfigState())
+    private val _configState = MutableStateFlow(initialConfigState)
     val configState: StateFlow<SearchUiConfigState> = _configState.asStateFlow()
 
     /**
@@ -160,10 +230,10 @@ class SearchViewModel(
                             started = SharingStarted.Eagerly,
                             initialValue =
                                     SearchUiState(
-                                            results = SearchResultsState(),
+                                            results = initialResultsState,
                                             permissions = SearchPermissionState(),
                                             features = SearchFeatureState(),
-                                            config = SearchUiConfigState(),
+                                            config = initialConfigState,
                                     ),
                     )
 
@@ -367,6 +437,7 @@ class SearchViewModel(
                     isInitializing = s.isInitializing,
                     isLoading = s.isLoading,
                     errorMessage = s.errorMessage,
+                    isStartupCoreSurfaceReady = s.isStartupCoreSurfaceReady,
                     showWallpaperBackground = s.showWallpaperBackground,
                     wallpaperBackgroundAlpha = s.wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = s.wallpaperBlurRadius,
@@ -374,6 +445,7 @@ class SearchViewModel(
                     overlayThemeIntensity = s.overlayThemeIntensity,
                     backgroundSource = s.backgroundSource,
                     customImageUri = s.customImageUri,
+                    startupBackgroundPreviewPath = s.startupBackgroundPreviewPath,
                     overlayModeEnabled = s.overlayModeEnabled,
                     oneHandedMode = s.oneHandedMode,
                     bottomSearchBarEnabled = s.bottomSearchBarEnabled,
@@ -646,6 +718,12 @@ class SearchViewModel(
         }
     }
 
+    fun markStartupCoreSurfaceReady() {
+        if (!_configState.value.isStartupCoreSurfaceReady) {
+            updateConfigState { it.copy(isStartupCoreSurfaceReady = true) }
+        }
+    }
+
     fun handleOnStop() {
         clearQuery()
         if (pendingNavigationClear) {
@@ -693,15 +771,15 @@ class SearchViewModel(
         initializeServices()
 
         setupDirectSearchStateListener()
-
-        // Phase 0 intentionally does not load data. First-frame shell render uses defaults.
     }
 
     fun startStartupPhasesAfterFirstFrame() {
         if (!hasStartedStartupPhases.compareAndSet(false, true)) return
 
         viewModelScope.launch(Dispatchers.Main.immediate) {
-            withContext(Dispatchers.IO) { preloadBackgroundForInitialSearchSurface() }
+            if (!instantStartupSurfaceEnabled) {
+                withContext(Dispatchers.IO) { preloadBackgroundForInitialSearchSurface() }
+            }
             updateConfigState { it.copy(startupPhase = StartupPhase.PHASE_1_CACHE_PREFS) }
             Trace.beginSection("QS.Startup.Phase1.CachePrefs")
             try {
@@ -933,6 +1011,7 @@ class SearchViewModel(
 
         // Load recent queries on startup if enabled
         refreshRecentItems()
+        saveStartupSurfaceSnapshotAsync()
     }
 
     private fun initializeWithCacheMinimal(
@@ -970,8 +1049,10 @@ class SearchViewModel(
                     bottomSearchBarEnabled = bottomSearchBarEnabled,
                     appSuggestionsEnabled = suggestionsEnabled,
                     showAppLabels = labelsEnabled,
+                    isStartupCoreSurfaceReady = true,
             )
         }
+        saveStartupSurfaceSnapshotAsync()
     }
 
     /** Phase 2 & 3: Deferred initialization of background handlers */
@@ -1107,6 +1188,7 @@ class SearchViewModel(
                 }
             }
             withContext(Dispatchers.Default) { refreshDerivedState() }
+            saveStartupSurfaceSnapshotAsync(forcePreviewRefresh = true)
         }
     }
 
@@ -1247,6 +1329,7 @@ class SearchViewModel(
                     appSuggestionsEnabled = it
                     updateUiState { state -> state.copy(appSuggestionsEnabled = it) }
                     refreshAppSuggestions()
+                    saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
                 },
         )
     }
@@ -1258,6 +1341,7 @@ class SearchViewModel(
                 stateUpdater = {
                     showAppLabels = it
                     updateUiState { state -> state.copy(showAppLabels = it) }
+                    saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
                 },
         )
     }
@@ -2465,6 +2549,7 @@ class SearchViewModel(
             userPreferences.setWallpaperBackgroundAlpha(sanitizedAlpha)
             wallpaperBackgroundAlpha = sanitizedAlpha
             updateConfigState { it.copy(wallpaperBackgroundAlpha = sanitizedAlpha) }
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -2474,6 +2559,7 @@ class SearchViewModel(
             userPreferences.setWallpaperBlurRadius(sanitizedRadius)
             wallpaperBlurRadius = sanitizedRadius
             updateConfigState { it.copy(wallpaperBlurRadius = sanitizedRadius) }
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -2483,6 +2569,7 @@ class SearchViewModel(
             userPreferences.setOverlayGradientTheme(theme)
             overlayGradientTheme = theme
             updateConfigState { it.copy(overlayGradientTheme = theme) }
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -2493,6 +2580,7 @@ class SearchViewModel(
             userPreferences.setOverlayThemeIntensity(sanitizedIntensity)
             overlayThemeIntensity = sanitizedIntensity
             updateConfigState { it.copy(overlayThemeIntensity = sanitizedIntensity) }
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -2503,6 +2591,7 @@ class SearchViewModel(
             userPreferences.setFontScaleMultiplier(sanitizedMultiplier)
             fontScaleMultiplier = sanitizedMultiplier
             updateConfigState { it.copy(fontScaleMultiplier = sanitizedMultiplier) }
+            saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
     }
 
@@ -2517,6 +2606,7 @@ class SearchViewModel(
                         showWallpaperBackground = source != BackgroundSource.THEME,
                 )
             }
+            saveStartupSurfaceSnapshotAsync(forcePreviewRefresh = true, allowDuringQuery = true)
         }
     }
 
@@ -2527,6 +2617,7 @@ class SearchViewModel(
             userPreferences.setCustomImageUri(normalized)
             customImageUri = normalized
             updateConfigState { it.copy(customImageUri = normalized) }
+            saveStartupSurfaceSnapshotAsync(forcePreviewRefresh = true, allowDuringQuery = true)
         }
     }
 
@@ -2812,6 +2903,7 @@ class SearchViewModel(
                 stateUpdater = {
                     oneHandedMode = it
                     updateUiState { state -> state.copy(oneHandedMode = it) }
+                    saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
                 },
         )
     }
@@ -2823,6 +2915,7 @@ class SearchViewModel(
                 stateUpdater = {
                     bottomSearchBarEnabled = it
                     updateUiState { state -> state.copy(bottomSearchBarEnabled = it) }
+                    saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
                 },
         )
     }
@@ -2942,9 +3035,6 @@ class SearchViewModel(
 
         return when {
             !sectionEnabled -> {
-                AppsSectionVisibility.Hidden
-            }
-            state.startupPhase == StartupPhase.PHASE_0_SHELL -> {
                 AppsSectionVisibility.Hidden
             }
             state.isInitializing || state.isLoading -> {
@@ -3219,6 +3309,12 @@ class SearchViewModel(
                 recents = recents,
                 searchResults = searchResults,
         )
+
+        val hasStartupSuggestions = pinnedAppsForSuggestions.isNotEmpty() || recents.isNotEmpty()
+        if (hasStartupSuggestions && !_configState.value.isStartupCoreSurfaceReady) {
+            updateConfigState { it.copy(isStartupCoreSurfaceReady = true) }
+        }
+        saveStartupSurfaceSnapshotAsync()
     }
 
     /**
@@ -3294,6 +3390,69 @@ class SearchViewModel(
         val query = _resultsState.value.query
         if (query.isNotBlank()) {
             secondarySearchOrchestrator.performSecondarySearches(query)
+        }
+    }
+
+    private fun saveStartupSurfaceSnapshotAsync(
+            forcePreviewRefresh: Boolean = false,
+            allowDuringQuery: Boolean = false,
+    ) {
+        if (!instantStartupSurfaceEnabled) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val config = _configState.value
+            val results = _resultsState.value
+            val suggestionLimit = getGridItemCount().coerceAtLeast(1)
+            val startupSuggestions =
+                buildList {
+                    addAll(results.pinnedApps)
+                    addAll(results.recentApps)
+                }
+                    .distinctBy { it.launchCountKey() }
+                    .take(suggestionLimit)
+
+            if (!allowDuringQuery && results.query.isNotBlank()) {
+                return@launch
+            }
+
+            val previewPath =
+                if (config.backgroundSource == BackgroundSource.THEME) {
+                    null
+                } else if (forcePreviewRefresh || config.startupBackgroundPreviewPath.isNullOrBlank()) {
+                    WallpaperUtils.saveStartupBackgroundPreview(
+                        context = appContext,
+                        backgroundSource = config.backgroundSource,
+                        customImageUri = config.customImageUri,
+                    )
+                } else {
+                    config.startupBackgroundPreviewPath
+                }
+
+            val snapshot =
+                StartupSurfaceSnapshot(
+                    createdAtMillis = System.currentTimeMillis(),
+                    backgroundSource = config.backgroundSource,
+                    showWallpaperBackground = config.showWallpaperBackground,
+                    wallpaperBackgroundAlpha = config.wallpaperBackgroundAlpha,
+                    wallpaperBlurRadius = config.wallpaperBlurRadius,
+                    overlayGradientTheme = config.overlayGradientTheme,
+                    overlayThemeIntensity = config.overlayThemeIntensity,
+                    customImageUri = config.customImageUri,
+                    startupBackgroundPreviewPath = previewPath,
+                    oneHandedMode = config.oneHandedMode,
+                    bottomSearchBarEnabled = config.bottomSearchBarEnabled,
+                    fontScaleMultiplier = config.fontScaleMultiplier,
+                    showAppLabels = config.showAppLabels,
+                    appSuggestionsEnabled = config.appSuggestionsEnabled,
+                    suggestedApps = startupSuggestions,
+                )
+            startupSurfaceStore.saveSnapshot(snapshot)
+
+            if (previewPath != config.startupBackgroundPreviewPath) {
+                withContext(Dispatchers.Main) {
+                    updateConfigState { it.copy(startupBackgroundPreviewPath = previewPath) }
+                }
+            }
         }
     }
 

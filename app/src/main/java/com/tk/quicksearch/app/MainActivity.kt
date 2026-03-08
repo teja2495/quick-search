@@ -10,30 +10,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.app.navigation.MainContent
@@ -42,20 +26,14 @@ import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.app.startup.StartupMode
-import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
-import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.overlay.OverlayModeController
-import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
-import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.FeedbackUtils
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
@@ -80,13 +58,14 @@ class MainActivity : ComponentActivity() {
         private const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
         private const val EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION =
             "overlay_contact_action_picker_serialized_action"
-        private const val ENABLE_LAUNCH_SHELL_SWAP = true
         private const val TRACE_ON_CREATE_ENTRY = "QS.Startup.MainActivity.OnCreate"
         private const val TRACE_SET_CONTENT = "QS.Startup.MainActivity.SetContent"
-        private const val TRACE_PHASE_0_SHELL = "QS.Startup.Phase0.Shell"
         private const val TRACE_FIRST_FRAME_CALLBACK = "QS.Startup.MainActivity.FirstFrameCallback"
         private const val TRACE_SEARCH_SURFACE_FIRST_COMPOSE =
             "QS.Startup.MainActivity.SearchSurfaceFirstCompose"
+        private const val TRACE_CORE_SURFACE_READY = "QS.Startup.CoreSurface.Ready"
+        private const val TRACE_WALLPAPER_PREVIEW_READY = "QS.Startup.WallpaperPreview.Ready"
+        private const val TRACE_SUGGESTIONS_READY = "QS.Startup.Suggestions.Ready"
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
@@ -105,6 +84,9 @@ class MainActivity : ComponentActivity() {
     private var hasMainUiActivated = false
     private var hasSearchSurfaceComposeTraced = false
     private var hasFirstFrameTraced = false
+    private var hasCoreSurfaceReadyTraced = false
+    private var hasWallpaperPreviewReadyTraced = false
+    private var hasSuggestionsReadyTraced = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Trace.beginSection(TRACE_ON_CREATE_ENTRY)
@@ -129,12 +111,7 @@ class MainActivity : ComponentActivity() {
 
             Trace.beginSection(TRACE_SET_CONTENT)
             try {
-                Trace.beginSection(TRACE_PHASE_0_SHELL)
-                try {
-                    setupContent()
-                } finally {
-                    Trace.endSection()
-                }
+                setupContent()
             } finally {
                 Trace.endSection()
             }
@@ -218,8 +195,6 @@ class MainActivity : ComponentActivity() {
     private fun setupContent() {
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
-            val showLaunchShell =
-                ENABLE_LAUNCH_SHELL_SWAP && uiState.startupPhase == StartupPhase.PHASE_0_SHELL
             QuickSearchTheme(fontScaleMultiplier = uiState.fontScaleMultiplier) {
                 Box(
                     modifier =
@@ -227,66 +202,119 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background),
                 ) {
-                    if (showLaunchShell) {
-                        LaunchShell(uiState = uiState)
-                    } else {
-                        LaunchedEffect(Unit) {
-                            if (!hasSearchSurfaceComposeTraced) {
-                                hasSearchSurfaceComposeTraced = true
-                                Trace.beginSection(TRACE_SEARCH_SURFACE_FIRST_COMPOSE)
-                                Trace.endSection()
-                            }
-                            if (!hasMainUiActivated) {
-                                hasMainUiActivated = true
-                                maybeExecutePendingSearchTargetShortcut()
-                                maybeExecutePendingContactActionPickerRequest()
-                            }
+                    LaunchedEffect(Unit) {
+                        if (!hasSearchSurfaceComposeTraced) {
+                            hasSearchSurfaceComposeTraced = true
+                            Trace.beginSection(TRACE_SEARCH_SURFACE_FIRST_COMPOSE)
+                            Trace.endSection()
                         }
+                        if (!hasMainUiActivated) {
+                            hasMainUiActivated = true
+                            maybeExecutePendingSearchTargetShortcut()
+                            maybeExecutePendingContactActionPickerRequest()
+                        }
+                    }
 
-                        MainContent(
-                            context = this@MainActivity,
-                            userPreferences = userPreferences,
-                            searchViewModel = searchViewModel,
-                            onSearchBackPressed = { moveTaskToBack(true) },
-                            navigationRequest = navigationRequest.value,
-                            onNavigationRequestHandled = { navigationRequest.value = null },
-                            onFinishActivity = {
-                                if (userPreferences.isOverlayModeEnabled()) {
-                                    OverlayModeController.startOverlay(this@MainActivity)
-                                }
-                                finish()
+                    LaunchedEffect(
+                        uiState.startupBackgroundPreviewPath,
+                        uiState.wallpaperAvailable,
+                        uiState.backgroundSource,
+                    ) {
+                        val hasImageBackground = uiState.backgroundSource != com.tk.quicksearch.search.core.BackgroundSource.THEME
+                        val backgroundReady =
+                            uiState.startupBackgroundPreviewPath != null || uiState.wallpaperAvailable
+                        if (hasImageBackground && backgroundReady && !hasWallpaperPreviewReadyTraced) {
+                            hasWallpaperPreviewReadyTraced = true
+                            Trace.beginSection(TRACE_WALLPAPER_PREVIEW_READY)
+                            Trace.endSection()
+                        }
+                    }
+
+                    LaunchedEffect(
+                        uiState.recentApps,
+                        uiState.pinnedApps,
+                        uiState.appSuggestionsEnabled,
+                    ) {
+                        val suggestionsReady =
+                            !uiState.appSuggestionsEnabled ||
+                                uiState.recentApps.isNotEmpty() ||
+                                uiState.pinnedApps.isNotEmpty()
+                        if (suggestionsReady && !hasSuggestionsReadyTraced) {
+                            hasSuggestionsReadyTraced = true
+                            Trace.beginSection(TRACE_SUGGESTIONS_READY)
+                            Trace.endSection()
+                        }
+                    }
+
+                    LaunchedEffect(
+                        uiState.isStartupCoreSurfaceReady,
+                        uiState.startupBackgroundPreviewPath,
+                        uiState.wallpaperAvailable,
+                        uiState.backgroundSource,
+                        uiState.recentApps,
+                        uiState.pinnedApps,
+                    ) {
+                        val backgroundReady =
+                            uiState.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME ||
+                                uiState.startupBackgroundPreviewPath != null ||
+                                uiState.wallpaperAvailable
+                        val suggestionsReady =
+                            !uiState.appSuggestionsEnabled ||
+                                uiState.recentApps.isNotEmpty() ||
+                                uiState.pinnedApps.isNotEmpty()
+                        val ready =
+                            uiState.isStartupCoreSurfaceReady || (backgroundReady && suggestionsReady)
+                        if (ready && !hasCoreSurfaceReadyTraced) {
+                            hasCoreSurfaceReadyTraced = true
+                            searchViewModel.markStartupCoreSurfaceReady()
+                            Trace.beginSection(TRACE_CORE_SURFACE_READY)
+                            Trace.endSection()
+                        }
+                    }
+
+                    MainContent(
+                        context = this@MainActivity,
+                        userPreferences = userPreferences,
+                        searchViewModel = searchViewModel,
+                        onSearchBackPressed = { moveTaskToBack(true) },
+                        navigationRequest = navigationRequest.value,
+                        onNavigationRequestHandled = { navigationRequest.value = null },
+                        onFinishActivity = {
+                            if (userPreferences.isOverlayModeEnabled()) {
+                                OverlayModeController.startOverlay(this@MainActivity)
+                            }
+                            finish()
+                        },
+                    )
+                    if (showReviewPromptDialog.value) {
+                        EnjoyingAppDialog(
+                            onYes = {
+                                showReviewPromptDialog.value = false
+                                ReviewHelper.requestReviewIfEligible(
+                                    this@MainActivity,
+                                    userPreferences,
+                                )
                             },
+                            onNo = {
+                                showReviewPromptDialog.value = false
+                                showFeedbackDialog.value = true
+                                userPreferences.recordReviewPromptTime()
+                                userPreferences.recordAppOpenCountAtPrompt()
+                                userPreferences.incrementReviewPromptedCount()
+                            },
+                            onDismiss = { showReviewPromptDialog.value = false },
                         )
-                        if (showReviewPromptDialog.value) {
-                            EnjoyingAppDialog(
-                                onYes = {
-                                    showReviewPromptDialog.value = false
-                                    ReviewHelper.requestReviewIfEligible(
-                                        this@MainActivity,
-                                        userPreferences,
-                                    )
-                                },
-                                onNo = {
-                                    showReviewPromptDialog.value = false
-                                    showFeedbackDialog.value = true
-                                    userPreferences.recordReviewPromptTime()
-                                    userPreferences.recordAppOpenCountAtPrompt()
-                                    userPreferences.incrementReviewPromptedCount()
-                                },
-                                onDismiss = { showReviewPromptDialog.value = false },
-                            )
-                        }
-                        if (showFeedbackDialog.value) {
-                            SendFeedbackDialog(
-                                onSend = { feedbackText ->
-                                    FeedbackUtils.launchFeedbackEmail(
-                                        this@MainActivity,
-                                        feedbackText,
-                                    )
-                                },
-                                onDismiss = { showFeedbackDialog.value = false },
-                            )
-                        }
+                    }
+                    if (showFeedbackDialog.value) {
+                        SendFeedbackDialog(
+                            onSend = { feedbackText ->
+                                FeedbackUtils.launchFeedbackEmail(
+                                    this@MainActivity,
+                                    feedbackText,
+                                )
+                            },
+                            onDismiss = { showFeedbackDialog.value = false },
+                        )
                     }
                 }
             }
@@ -437,126 +465,5 @@ class MainActivity : ComponentActivity() {
             isPrimary = pending.isPrimary,
             serializedAction = pending.serializedAction,
         )
-    }
-}
-
-@Composable
-private fun LaunchShell(uiState: SearchUiState) {
-    val cachedWallpaperBitmap = remember { WallpaperUtils.getCachedWallpaperBitmap() }
-    val wallpaperImage = remember(cachedWallpaperBitmap) { cachedWallpaperBitmap?.asImageBitmap() }
-    val shellApps =
-        remember(uiState.pinnedApps, uiState.recentApps, uiState.searchResults) {
-            buildList {
-                addAll(uiState.pinnedApps)
-                addAll(uiState.recentApps)
-                addAll(uiState.searchResults)
-            }
-                .distinctBy { it.packageName }
-                .take(8)
-        }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        SearchScreenBackground(
-            showWallpaperBackground = wallpaperImage != null,
-            wallpaperBitmap = wallpaperImage,
-            wallpaperBackgroundAlpha = uiState.wallpaperBackgroundAlpha,
-            wallpaperBlurRadius = uiState.wallpaperBlurRadius,
-            backgroundTransitionDurationMillis = 0,
-            animateBlurRadius = false,
-            fallbackBackgroundAlpha =
-                if (uiState.backgroundSource == BackgroundSource.THEME) {
-                    0.6f
-                } else {
-                    1f
-                },
-            useGradientFallback = uiState.backgroundSource == BackgroundSource.THEME,
-            overlayGradientTheme = uiState.overlayGradientTheme,
-            overlayThemeIntensity = uiState.overlayThemeIntensity,
-        )
-
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .safeDrawingPadding()
-                    .padding(
-                        start = DesignTokens.SpacingXLarge,
-                        top = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingXLarge,
-                    ),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = DesignTokens.ShapeXXLarge,
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = DesignTokens.SpacingLarge,
-                                vertical = DesignTokens.SpacingMedium,
-                            ),
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .width(18.dp)
-                                .height(18.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
-                                    shape = DesignTokens.ShapeFull,
-                                ),
-                    )
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth(0.58f)
-                                .height(14.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.25f),
-                                    shape = DesignTokens.ShapeSmall,
-                                ),
-                    )
-                }
-            }
-
-            if (shellApps.isNotEmpty()) {
-                val rows = shellApps.chunked(4).take(2)
-                rows.forEach { rowApps ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    ) {
-                        rowApps.forEach { app ->
-                            Surface(
-                                modifier = Modifier.weight(1f),
-                                shape = DesignTokens.ShapeLarge,
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.56f),
-                            ) {
-                                Text(
-                                    text = app.appName,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier =
-                                        Modifier.padding(
-                                            horizontal = DesignTokens.SpacingMedium,
-                                            vertical = DesignTokens.SpacingSmall,
-                                        ),
-                                )
-                            }
-                        }
-                        repeat(4 - rowApps.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-            }
-        }
     }
 }

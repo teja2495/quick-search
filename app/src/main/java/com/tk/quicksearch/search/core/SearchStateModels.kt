@@ -148,10 +148,11 @@ data class SearchFeatureState(
 
 data class SearchUiConfigState(
         // Lifecycle / loading coarse state
-        val startupPhase: StartupPhase = StartupPhase.PHASE_0_SHELL,
+        val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
         val isLoading: Boolean = true,
         val errorMessage: String? = null,
+        val isStartupCoreSurfaceReady: Boolean = false,
         // Wallpaper / background appearance
         val showWallpaperBackground: Boolean = false,
         val wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
@@ -160,6 +161,7 @@ data class SearchUiConfigState(
         val overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
         val backgroundSource: BackgroundSource = BackgroundSource.THEME,
         val customImageUri: String? = null,
+        val startupBackgroundPreviewPath: String? = null,
         // Layout preferences
         val overlayModeEnabled: Boolean = false,
         val oneHandedMode: Boolean = false,
