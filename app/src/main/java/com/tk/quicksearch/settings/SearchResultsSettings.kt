@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
@@ -125,6 +126,8 @@ private fun SearchOptionsCard(
     onRecentQueriesToggle: (Boolean) -> Unit,
     openKeyboardOnLaunch: Boolean,
     onOpenKeyboardOnLaunchToggle: (Boolean) -> Unit,
+    clearQueryOnLaunch: Boolean,
+    onClearQueryOnLaunchToggle: (Boolean) -> Unit,
     hasExcludedItems: Boolean,
     excludedItemsTitle: String,
     excludedItemsDescription: String,
@@ -171,6 +174,16 @@ private fun SearchOptionsCard(
                 checked = openKeyboardOnLaunch,
                 onCheckedChange = onOpenKeyboardOnLaunchToggle,
                 leadingIcon = Icons.Rounded.Keyboard,
+                isFirstItem = false,
+                isLastItem = false,
+            )
+
+            SettingsToggleRow(
+                title = stringResource(R.string.clear_query_toggle_title),
+                subtitle = stringResource(R.string.clear_query_toggle_desc),
+                checked = clearQueryOnLaunch,
+                onCheckedChange = onClearQueryOnLaunchToggle,
+                leadingIcon = Icons.Rounded.SearchOff,
                 isFirstItem = false,
                 isLastItem = !hasExcludedItems,
             )
@@ -374,6 +387,8 @@ fun SearchResultsSettingsSection(
             onRecentQueriesToggle = callbacks.onToggleRecentQueries,
             openKeyboardOnLaunch = state.openKeyboardOnLaunch,
             onOpenKeyboardOnLaunchToggle = callbacks.onToggleOpenKeyboardOnLaunch,
+            clearQueryOnLaunch = state.clearQueryOnLaunch,
+            onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
             hasExcludedItems = hasExcludedItems,
             excludedItemsTitle = stringResource(R.string.settings_excluded_items_title),
             excludedItemsDescription = stringResource(R.string.settings_excluded_items_desc),

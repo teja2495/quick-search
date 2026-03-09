@@ -57,6 +57,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         webSuggestionsEnabled = webSuggestionsEnabled,
         webSuggestionsCount = webSuggestionsCount,
         openKeyboardOnLaunch = openKeyboardOnLaunch,
+        clearQueryOnLaunch = clearQueryOnLaunch,
         recentQueriesEnabled = recentQueriesEnabled,
         hasGeminiApiKey = hasGeminiApiKey,
         geminiApiKeyLast4 = geminiApiKeyLast4,

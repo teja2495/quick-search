@@ -145,6 +145,8 @@ class SearchViewModel(
                     openKeyboardOnLaunch =
                             startupSnapshot?.openKeyboardOnLaunch
                                     ?: startupPreferencesReader.isOpenKeyboardOnLaunchEnabled(),
+                    clearQueryOnLaunch =
+                            startupPreferencesReader.isClearQueryOnLaunchEnabled(),
                     fontScaleMultiplier =
                             sanitizeFontScaleMultiplier(
                                     startupSnapshot?.fontScaleMultiplier
@@ -453,6 +455,7 @@ class SearchViewModel(
                     oneHandedMode = s.oneHandedMode,
                     bottomSearchBarEnabled = s.bottomSearchBarEnabled,
                     openKeyboardOnLaunch = s.openKeyboardOnLaunch,
+                    clearQueryOnLaunch = s.clearQueryOnLaunch,
                     fontScaleMultiplier = s.fontScaleMultiplier,
                     showAppLabels = s.showAppLabels,
                     appSuggestionsEnabled = s.appSuggestionsEnabled,
@@ -689,6 +692,7 @@ class SearchViewModel(
     private var customImageUri: String? = null
     private var lockedShortcutTarget: SearchTarget? = null
     private var lockedCalculatorMode: Boolean = false
+    private var clearQueryOnLaunch: Boolean = true
     private var amazonDomain: String? = null
     private var pendingNavigationClear: Boolean = false
     private var isStartupComplete: Boolean = false
@@ -732,7 +736,9 @@ class SearchViewModel(
     }
 
     fun handleOnStop() {
-        clearQuery()
+        if (clearQueryOnLaunch) {
+            clearQuery()
+        }
         if (pendingNavigationClear) {
             pendingNavigationClear = false
         }
@@ -862,6 +868,7 @@ class SearchViewModel(
         oneHandedMode = startupConfig.oneHandedMode
         bottomSearchBarEnabled = startupPrefs.bottomSearchBarEnabled
         openKeyboardOnLaunch = startupPrefs.openKeyboardOnLaunch
+        clearQueryOnLaunch = startupPrefs.clearQueryOnLaunch
         wallpaperBackgroundAlpha = startupPrefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = startupPrefs.wallpaperBlurRadius
         overlayGradientTheme = startupPrefs.overlayGradientTheme
@@ -885,6 +892,7 @@ class SearchViewModel(
                         oneHandedMode = oneHandedMode,
                         bottomSearchBarEnabled = bottomSearchBarEnabled,
                         openKeyboardOnLaunch = openKeyboardOnLaunch,
+                        clearQueryOnLaunch = clearQueryOnLaunch,
                         showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                         wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                         wallpaperBlurRadius = wallpaperBlurRadius,
@@ -971,6 +979,7 @@ class SearchViewModel(
         oneHandedMode = prefs.oneHandedMode
         bottomSearchBarEnabled = prefs.bottomSearchBarEnabled
         openKeyboardOnLaunch = prefs.openKeyboardOnLaunch
+        clearQueryOnLaunch = prefs.clearQueryOnLaunch
         overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
@@ -991,6 +1000,7 @@ class SearchViewModel(
                     oneHandedMode = oneHandedMode,
                     bottomSearchBarEnabled = bottomSearchBarEnabled,
                     openKeyboardOnLaunch = openKeyboardOnLaunch,
+                    clearQueryOnLaunch = clearQueryOnLaunch,
                     overlayModeEnabled = overlayModeEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     showAppLabels = showAppLabels,
@@ -1123,6 +1133,7 @@ class SearchViewModel(
                         showAppLabels = userPreferences.shouldShowAppLabels(),
                         bottomSearchBarEnabled = userPreferences.isBottomSearchBarEnabled(),
                         openKeyboardOnLaunch = userPreferences.isOpenKeyboardOnLaunchEnabled(),
+                        clearQueryOnLaunch = userPreferences.isClearQueryOnLaunchEnabled(),
                         showPersonalContextHint =
                                 !userPreferences.hasSeenPersonalContextHint() &&
                                         directSearchHandler.getPersonalContext().isBlank(),
@@ -3023,6 +3034,17 @@ class SearchViewModel(
                     openKeyboardOnLaunch = it
                     updateUiState { state -> state.copy(openKeyboardOnLaunch = it) }
                     saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
+                },
+        )
+    }
+
+    fun setClearQueryOnLaunchEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setClearQueryOnLaunchEnabled,
+                stateUpdater = {
+                    clearQueryOnLaunch = it
+                    updateUiState { state -> state.copy(clearQueryOnLaunch = it) }
                 },
         )
     }

@@ -333,6 +333,7 @@ fun SettingsRoute(
             onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
             onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
             onToggleOpenKeyboardOnLaunch = viewModel::setOpenKeyboardOnLaunchEnabled,
+            onToggleClearQueryOnLaunch = viewModel::setClearQueryOnLaunchEnabled,
             onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
             onSetGeminiApiKey = viewModel::setGeminiApiKey,
             onSetPersonalContext = viewModel::setPersonalContext,

@@ -167,6 +167,7 @@ data class SearchUiConfigState(
         val oneHandedMode: Boolean = false,
         val bottomSearchBarEnabled: Boolean = false,
         val openKeyboardOnLaunch: Boolean = true,
+        val clearQueryOnLaunch: Boolean = true,
         val fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
         // App display preferences
         val showAppLabels: Boolean = true,

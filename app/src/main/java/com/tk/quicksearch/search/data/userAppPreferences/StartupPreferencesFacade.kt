@@ -28,6 +28,7 @@ class StartupPreferencesFacade(
             val oneHandedMode: Boolean,
             val bottomSearchBarEnabled: Boolean,
             val openKeyboardOnLaunch: Boolean,
+            val clearQueryOnLaunch: Boolean,
             val overlayModeEnabled: Boolean,
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
@@ -155,6 +156,13 @@ class StartupPreferencesFacade(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_OPEN_KEYBOARD_ON_LAUNCH,
+                        ] as?
+                                Boolean
+                                ?: true,
+                clearQueryOnLaunch =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_CLEAR_QUERY_ON_LAUNCH,
                         ] as?
                                 Boolean
                                 ?: true,
@@ -426,6 +434,13 @@ class StartupPreferencesFacade(
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .KEY_OPEN_KEYBOARD_ON_LAUNCH,
+                                ] as?
+                                        Boolean
+                                        ?: true,
+                        clearQueryOnLaunch =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_CLEAR_QUERY_ON_LAUNCH,
                                 ] as?
                                         Boolean
                                         ?: true,

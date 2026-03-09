@@ -766,6 +766,8 @@
     <string name="recent_queries_toggle_desc">Show your search history in the home screen.</string>
     <string name="open_keyboard_toggle_title">Open Keyboard</string>
     <string name="open_keyboard_toggle_desc">Automatically open keyboard when the app launches</string>
+    <string name="clear_query_toggle_title">Clear Query</string>
+    <string name="clear_query_toggle_desc">Automatically clear old query when the app launches</string>
 
     <!-- ============================================================================
          Calculator
