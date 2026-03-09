@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 class NicknamePreferences(
     context: Context,
 ) : BasePreferences(context) {
+    private val appShortcutNicknameCache = ConcurrentHashMap<String, String>()
     private val contactNicknameCache = ConcurrentHashMap<Long, String>()
     private val fileNicknameCache = ConcurrentHashMap<String, String>()
     private val settingNicknameCache = ConcurrentHashMap<String, String>()
@@ -33,6 +34,11 @@ class NicknamePreferences(
                 key.startsWith(BasePreferences.KEY_NICKNAME_FILE_PREFIX) -> {
                     val fileUri = key.removePrefix(BasePreferences.KEY_NICKNAME_FILE_PREFIX)
                     fileNicknameCache[fileUri] = value
+                }
+
+                key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX) -> {
+                    val shortcutId = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX)
+                    appShortcutNicknameCache[shortcutId] = value
                 }
 
                 key.startsWith(BasePreferences.KEY_NICKNAME_SETTING_PREFIX) -> {
@@ -73,11 +79,7 @@ class NicknamePreferences(
         return nicknames
     }
 
-    fun getAppShortcutNickname(shortcutId: String): String? =
-        prefs.getString(
-            "${BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX}$shortcutId",
-            null,
-        )
+    fun getAppShortcutNickname(shortcutId: String): String? = appShortcutNicknameCache[shortcutId]
 
     fun setAppShortcutNickname(
         shortcutId: String,
@@ -86,22 +88,15 @@ class NicknamePreferences(
         val key = "${BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX}$shortcutId"
         if (nickname.isNullOrBlank()) {
             prefs.edit().remove(key).apply()
+            appShortcutNicknameCache.remove(shortcutId)
         } else {
-            prefs.edit().putString(key, nickname.trim()).apply()
+            val trimmed = nickname.trim()
+            prefs.edit().putString(key, trimmed).apply()
+            appShortcutNicknameCache[shortcutId] = trimmed
         }
     }
 
-    fun getAllAppShortcutNicknames(): Map<String, String> {
-        val allPrefs = prefs.all
-        val nicknames = mutableMapOf<String, String>()
-        for ((key, value) in allPrefs) {
-            if (key.startsWith(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX) && value is String) {
-                val shortcutId = key.removePrefix(BasePreferences.KEY_NICKNAME_APP_SHORTCUT_PREFIX)
-                nicknames[shortcutId] = value
-            }
-        }
-        return nicknames
-    }
+    fun getAllAppShortcutNicknames(): Map<String, String> = appShortcutNicknameCache.toMap()
 
     fun getContactNickname(contactId: Long): String? = contactNicknameCache[contactId]
 

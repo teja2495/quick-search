@@ -1,6 +1,6 @@
 package com.tk.quicksearch.search.fuzzy
 
-import com.frosch2010.fuzzywuzzy_kotlin.FuzzySearch
+import com.tk.quicksearch.search.utils.FuzzyMatcher
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 /**
@@ -43,12 +43,12 @@ class FuzzySearchEngine {
 
         val normalizedTarget = SearchTextNormalizer.normalizeForSearch(targetText)
 
-        var bestScore = FuzzySearch.tokenSetRatio(normalizedQuery, normalizedTarget)
+        var bestScore = FuzzyMatcher.score(normalizedQuery, normalizedTarget)
 
         // Check nickname if available
         targetNickname?.let { nickname ->
             val nicknameScore =
-                FuzzySearch.tokenSetRatio(
+                FuzzyMatcher.score(
                     normalizedQuery,
                     SearchTextNormalizer.normalizeForSearch(nickname),
                 )

@@ -9,17 +9,20 @@ import android.os.Build
 import android.provider.MediaStore
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.utils.PermissionUtils
-import com.tk.quicksearch.search.utils.SearchRankingUtils
 import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import java.util.LinkedHashMap
 import java.util.Locale
 
 class FileSearchRepository(
     private val context: Context,
 ) {
     private val contentResolver = context.contentResolver
+    private val recentFilesByUri = buildRecentFilesCache()
 
     companion object {
         private const val COLUMN_FORMAT = "format"
+        private const val BATCH_ID_QUERY_CHUNK_SIZE = 200
+        private const val MAX_RECENT_FILE_SNAPSHOT_SIZE = 400
 
         private val FILE_PROJECTION = buildFileProjection()
 
@@ -42,6 +45,13 @@ class FileSearchRepository(
 
             return projection.toTypedArray()
         }
+
+        private fun buildRecentFilesCache(): LinkedHashMap<String, DeviceFile> =
+            object : LinkedHashMap<String, DeviceFile>(MAX_RECENT_FILE_SNAPSHOT_SIZE, 0.75f, true) {
+                override fun removeEldestEntry(
+                    eldest: MutableMap.MutableEntry<String, DeviceFile>?,
+                ): Boolean = size > MAX_RECENT_FILE_SNAPSHOT_SIZE
+            }
     }
 
     fun hasPermission(): Boolean = PermissionUtils.hasFileAccessPermission(context)
@@ -74,30 +84,69 @@ class FileSearchRepository(
     fun getFilesByUris(uris: Set<String>): List<DeviceFile> {
         if (uris.isEmpty() || !hasPermission()) return emptyList()
 
-        val results = mutableListOf<DeviceFile>()
+        val orderedUris = uris.toList()
+        val resultsByUri = LinkedHashMap<String, DeviceFile>(orderedUris.size)
+        val pendingUris = mutableListOf<String>()
 
-        for (uriString in uris) {
-            val parsedUri = parseUri(uriString) ?: continue
-
-            contentResolver
-                .query(
-                    parsedUri,
-                    FILE_PROJECTION,
-                    null,
-                    null,
-                    null,
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val columnIndices = getColumnIndices(cursor)
-                        val file = createDeviceFileFromCursor(cursor, parsedUri, columnIndices, useUriDirectly = true)
-                        if (file != null) {
-                            results.add(file)
-                        }
-                    }
-                }
+        orderedUris.forEach { uriString ->
+            val cachedFile = getCachedFile(uriString)
+            if (cachedFile != null) {
+                resultsByUri[uriString] = cachedFile
+            } else {
+                pendingUris.add(uriString)
+            }
         }
 
-        return results.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
+        if (pendingUris.isNotEmpty()) {
+            val batchableKeys = mutableMapOf<MediaStoreLookupKey, String>()
+            val nonBatchableUris = mutableListOf<String>()
+
+            pendingUris.forEach { uriString ->
+                val lookupKey = parseMediaStoreLookupKey(uriString)
+                if (lookupKey != null) {
+                    // Keep original URI for consistency with persisted pin/exclude sets.
+                    batchableKeys.putIfAbsent(lookupKey, uriString)
+                } else {
+                    nonBatchableUris.add(uriString)
+                }
+            }
+
+            if (batchableKeys.isNotEmpty()) {
+                queryBatchableMediaStoreUris(batchableKeys).forEach { (originalUri, file) ->
+                    resultsByUri[originalUri] = file
+                    cacheFile(file)
+                }
+            }
+
+            nonBatchableUris.forEach { uriString ->
+                val parsedUri = parseUri(uriString) ?: return@forEach
+                contentResolver
+                    .query(
+                        parsedUri,
+                        FILE_PROJECTION,
+                        null,
+                        null,
+                        null,
+                    )?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val columnIndices = getColumnIndices(cursor)
+                            val file =
+                                createDeviceFileFromCursor(
+                                    cursor,
+                                    parsedUri,
+                                    columnIndices,
+                                    useUriDirectly = true,
+                                )
+                            if (file != null) {
+                                resultsByUri[uriString] = file
+                                cacheFile(file)
+                            }
+                        }
+                    }
+            }
+        }
+
+        return resultsByUri.values.sortedBy { it.displayName.lowercase(Locale.getDefault()) }
     }
 
     fun searchFiles(
@@ -134,15 +183,8 @@ class FileSearchRepository(
                 }
             }
 
-        // Pre-tokenize the already-normalized query for efficient ranking
-        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
-
-        return results.sortedWith(
-            compareBy(
-                { SearchRankingUtils.calculateMatchPriority(it.displayName, normalizedQuery, queryTokens) },
-                { it.displayName.lowercase(Locale.getDefault()) },
-            ),
-        )
+        cacheFiles(results)
+        return results
     }
 
     private fun normalizeQuery(query: String): String =
@@ -171,6 +213,93 @@ class FileSearchRepository(
         }
 
     private fun parseUri(uriString: String): Uri? = runCatching { Uri.parse(uriString) }.getOrNull()
+
+    private data class MediaStoreLookupKey(
+        val volumeName: String,
+        val id: Long,
+    )
+
+    private fun parseMediaStoreLookupKey(uriString: String): MediaStoreLookupKey? {
+        val parsedUri = parseUri(uriString) ?: return null
+        if (parsedUri.scheme != "content") return null
+        if (parsedUri.authority != MediaStore.AUTHORITY) return null
+
+        val pathSegments = parsedUri.pathSegments
+        if (pathSegments.size < 3) return null
+
+        val volumeName = pathSegments[0]
+        val collection = pathSegments[1]
+        if (collection != "file") return null
+
+        val id = runCatching { ContentUris.parseId(parsedUri) }.getOrNull() ?: return null
+        if (id <= 0L) return null
+
+        return MediaStoreLookupKey(volumeName = volumeName, id = id)
+    }
+
+    private fun queryBatchableMediaStoreUris(
+        keysToOriginalUri: Map<MediaStoreLookupKey, String>,
+    ): Map<String, DeviceFile> {
+        val filesByUri = mutableMapOf<String, DeviceFile>()
+
+        keysToOriginalUri.keys
+            .groupBy { it.volumeName }
+            .forEach { (volumeName, volumeKeys) ->
+                val baseUri = MediaStore.Files.getContentUri(volumeName)
+                val ids = volumeKeys.map { it.id }
+
+                ids.chunked(BATCH_ID_QUERY_CHUNK_SIZE).forEach { chunkIds ->
+                    val placeholders = chunkIds.joinToString(",") { "?" }
+                    val selection = "${MediaStore.Files.FileColumns._ID} IN ($placeholders)"
+                    val selectionArgs = chunkIds.map { it.toString() }.toTypedArray()
+
+                    contentResolver
+                        .query(
+                            baseUri,
+                            FILE_PROJECTION,
+                            selection,
+                            selectionArgs,
+                            null,
+                        )?.use { cursor ->
+                            val columnIndices = getColumnIndices(cursor)
+                            while (cursor.moveToNext()) {
+                                val rowId = cursor.getLong(columnIndices.idIndex)
+                                val key = MediaStoreLookupKey(volumeName = volumeName, id = rowId)
+                                val originalUriString = keysToOriginalUri[key] ?: continue
+                                val originalUri = parseUri(originalUriString) ?: continue
+                                val file =
+                                    createDeviceFileFromCursor(
+                                        cursor,
+                                        originalUri,
+                                        columnIndices,
+                                        useUriDirectly = true,
+                                    ) ?: continue
+                                filesByUri[originalUriString] = file
+                            }
+                        }
+                }
+            }
+
+        return filesByUri
+    }
+
+    private fun getCachedFile(uriString: String): DeviceFile? =
+        synchronized(recentFilesByUri) { recentFilesByUri[uriString] }
+
+    private fun cacheFile(file: DeviceFile) {
+        synchronized(recentFilesByUri) {
+            recentFilesByUri[file.uri.toString()] = file
+        }
+    }
+
+    private fun cacheFiles(files: List<DeviceFile>) {
+        if (files.isEmpty()) return
+        synchronized(recentFilesByUri) {
+            files.forEach { file ->
+                recentFilesByUri[file.uri.toString()] = file
+            }
+        }
+    }
 
     private data class ColumnIndices(
         val idIndex: Int,

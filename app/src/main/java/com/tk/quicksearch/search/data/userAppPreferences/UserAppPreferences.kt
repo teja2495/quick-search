@@ -39,6 +39,7 @@ class UserAppPreferences(
     val uiPreferences by lazy { UiPreferences(context) }
     private val amazonPreferences by lazy { AmazonPreferences(context) }
     private val recentSearchesPreferences by lazy { SearchHistoryPreferences(context) }
+    private val recentResultOpensPreferences by lazy { RecentResultOpensPreferences(context) }
     private val startupPreferences by lazy { StartupPreferencesFacade(this, context) }
 
 
@@ -542,6 +543,11 @@ class UserAppPreferences(
     fun setDisabledSearchEnginesExpanded(expanded: Boolean) =
             uiPreferences.setDisabledSearchEnginesExpanded(expanded)
 
+    fun isInstantStartupSurfaceEnabled(): Boolean = uiPreferences.isInstantStartupSurfaceEnabled()
+
+    fun setInstantStartupSurfaceEnabled(enabled: Boolean) =
+            uiPreferences.setInstantStartupSurfaceEnabled(enabled)
+
     fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
@@ -638,8 +644,13 @@ class UserAppPreferences(
     fun getRecentItems(): List<com.tk.quicksearch.search.searchHistory.RecentSearchEntry> =
             recentSearchesPreferences.getRecentItems()
 
-    fun addRecentItem(entry: com.tk.quicksearch.search.searchHistory.RecentSearchEntry) =
-            recentSearchesPreferences.addRecentItem(entry)
+    fun addRecentItem(entry: com.tk.quicksearch.search.searchHistory.RecentSearchEntry) {
+        recentSearchesPreferences.addRecentItem(entry)
+        recentResultOpensPreferences.addRecentResultOpen(entry)
+    }
+
+    fun getRecentResultOpens(): List<com.tk.quicksearch.search.searchHistory.RecentSearchEntry> =
+            recentResultOpensPreferences.getRecentResultOpens()
 
     fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
 

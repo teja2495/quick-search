@@ -300,6 +300,7 @@ internal fun SearchScreenContent(
                 shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard,
                 detectedShortcutTarget = state.detectedShortcutTarget,
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
+                autoFocusOnStart = true,
                 onClearDetectedShortcut = onClearDetectedShortcut,
                 onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
                 modifier = searchFieldModifier,

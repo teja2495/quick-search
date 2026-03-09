@@ -15,16 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tk.quicksearch.app.startup.StartupCoordinator
+import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class OverlayActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
+    private lateinit var userPreferences: UserAppPreferences
+    private lateinit var startupCoordinator: StartupCoordinator
     private lateinit var voiceSearchHandler: VoiceSearchHandler
     private var animationToken: Long = 0L
     private val voiceInputLauncher =
@@ -46,6 +48,16 @@ class OverlayActivity : ComponentActivity() {
         @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
 
+        userPreferences = UserAppPreferences(this)
+        startupCoordinator =
+            StartupCoordinator(
+                context = this,
+                lifecycleScope = lifecycleScope,
+                viewModel = searchViewModel,
+                userPreferences = userPreferences,
+                mode = StartupMode.OVERLAY,
+            )
+
         if (intent?.getBooleanExtra(OverlayModeController.EXTRA_CLOSE_OVERLAY, false) == true) {
             finish()
             return
@@ -54,10 +66,8 @@ class OverlayActivity : ComponentActivity() {
         initializeVoiceSearchHandler()
         handleVoiceIntentIfNeeded(intent)
 
-        // Match MainActivity behavior so cold overlay opens with wallpaper already warming.
-        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@OverlayActivity) }
-
         renderOverlayContent()
+        startupCoordinator.scheduleAfterFirstFrame(window)
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

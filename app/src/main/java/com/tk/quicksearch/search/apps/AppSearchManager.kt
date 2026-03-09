@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.AppsRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.fuzzy.FuzzySearchConfig
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.utils.SearchQueryContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -173,6 +174,20 @@ class AppSearchManager(
     ): List<AppInfo> =
         AppSearchAlgorithm.findMatches(
             query = query,
+            source = source,
+            limit = limit,
+            fuzzySearchStrategy = fuzzySearchStrategy,
+            appNicknames = cachedAppNicknames,
+            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+        )
+
+    fun deriveMatches(
+        queryContext: SearchQueryContext,
+        source: List<AppInfo>,
+        limit: Int,
+    ): List<AppInfo> =
+        AppSearchAlgorithm.findMatches(
+            queryContext = queryContext,
             source = source,
             limit = limit,
             fuzzySearchStrategy = fuzzySearchStrategy,

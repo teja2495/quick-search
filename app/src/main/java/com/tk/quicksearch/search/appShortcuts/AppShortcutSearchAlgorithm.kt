@@ -3,9 +3,9 @@ package com.tk.quicksearch.search.appShortcuts
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
-import com.tk.quicksearch.search.utils.SearchRankingUtils
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
-import java.util.Locale
+import com.tk.quicksearch.search.utils.DefaultSearchMatcher
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.search.utils.SearchQueryContext
 
 object AppShortcutSearchAlgorithm {
     fun search(
@@ -14,15 +14,35 @@ object AppShortcutSearchAlgorithm {
         excludedIds: Set<String>,
         disabledIds: Set<String>,
         shortcutNicknames: Map<String, String>,
+        recentShortcutScores: Map<String, Int> = emptyMap(),
         minQueryLength: Int = 2,
         resultLimit: Int = 25,
     ): List<StaticShortcut> {
         if (fullList.isEmpty()) return emptyList()
         val trimmed = query.trim()
         if (trimmed.length < minQueryLength) return emptyList()
+        return search(
+            fullList = fullList,
+            queryContext = SearchQueryContext.fromRawQuery(trimmed),
+            excludedIds = excludedIds,
+            disabledIds = disabledIds,
+            shortcutNicknames = shortcutNicknames,
+            recentShortcutScores = recentShortcutScores,
+            resultLimit = resultLimit,
+        )
+    }
 
-        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmed)
-        val queryTokens = normalizedQuery.split("\\s+".toRegex()).filter { it.isNotBlank() }
+    fun search(
+        fullList: List<StaticShortcut>,
+        queryContext: SearchQueryContext,
+        excludedIds: Set<String>,
+        disabledIds: Set<String>,
+        shortcutNicknames: Map<String, String>,
+        recentShortcutScores: Map<String, Int> = emptyMap(),
+        resultLimit: Int = 25,
+    ): List<StaticShortcut> {
+        if (fullList.isEmpty()) return emptyList()
+        if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
         return fullList
             .asSequence()
@@ -33,29 +53,24 @@ object AppShortcutSearchAlgorithm {
                 val displayName = shortcutDisplayName(shortcut)
                 val nickname = shortcutNicknames[shortcutId]
                 val priority =
-                    minOf(
-                        SearchRankingUtils.calculateMatchPriorityWithNickname(
-                            displayName,
-                            nickname,
-                            normalizedQuery,
-                            queryTokens,
-                        ),
-                        SearchRankingUtils.calculateMatchPriority(
-                            shortcut.appLabel,
-                            normalizedQuery,
-                            queryTokens,
-                        ),
+                    AppShortcutSearchPolicy.matchPriority(
+                        displayName = displayName,
+                        appLabel = shortcut.appLabel,
+                        nickname = nickname,
+                        query = queryContext,
                     )
 
-                if (SearchRankingUtils.isOtherMatch(priority)) {
+                if (!DefaultSearchMatcher.isMatch(priority)) {
                     null
                 } else {
                     shortcut to priority
                 }
             }.sortedWith(
-                compareBy<Pair<StaticShortcut, Int>> { it.second }.thenBy {
-                    shortcutDisplayName(it.first).lowercase(Locale.getDefault())
-                },
+                RecentResultRankingUtils.matchThenRecencyThenAlphabeticalComparator(
+                    recencyScores = recentShortcutScores,
+                    keySelector = { shortcutKey(it) },
+                    labelSelector = { shortcutDisplayName(it) },
+                ),
             ).take(resultLimit)
             .map { it.first }
             .toList()

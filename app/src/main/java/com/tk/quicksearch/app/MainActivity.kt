@@ -2,6 +2,8 @@ package com.tk.quicksearch.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Trace
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -12,6 +14,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +24,8 @@ import com.tk.quicksearch.app.navigation.MainContent
 import com.tk.quicksearch.app.navigation.NavigationRequest
 import com.tk.quicksearch.app.navigation.RootDestination
 import com.tk.quicksearch.app.navigation.SettingsNavigationMemory
+import com.tk.quicksearch.app.startup.StartupCoordinator
+import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
@@ -28,15 +34,19 @@ import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.shared.util.FeedbackUtils
-import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.widgets.searchWidget.SearchWidget
 import com.tk.quicksearch.widgets.searchWidget.MicAction
 import com.tk.quicksearch.widgets.searchWidget.VoiceSearchHandler
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private data class PendingContactActionPickerRequest(
+        val contactId: Long,
+        val isPrimary: Boolean,
+        val serializedAction: String?,
+    )
+
     companion object {
         const val ACTION_VOICE_SEARCH_SHORTCUT = "com.tk.quicksearch.action.VOICE_SEARCH_SHORTCUT"
         const val ACTION_SEARCH_TARGET_SHORTCUT = "com.tk.quicksearch.action.SEARCH_TARGET_SHORTCUT"
@@ -48,10 +58,19 @@ class MainActivity : ComponentActivity() {
         private const val EXTRA_CONTACT_ACTION_PICKER_IS_PRIMARY = "overlay_contact_action_picker_primary"
         private const val EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION =
             "overlay_contact_action_picker_serialized_action"
+        private const val TRACE_ON_CREATE_ENTRY = "QS.Startup.MainActivity.OnCreate"
+        private const val TRACE_SET_CONTENT = "QS.Startup.MainActivity.SetContent"
+        private const val TRACE_FIRST_FRAME_CALLBACK = "QS.Startup.MainActivity.FirstFrameCallback"
+        private const val TRACE_SEARCH_SURFACE_FIRST_COMPOSE =
+            "QS.Startup.MainActivity.SearchSurfaceFirstCompose"
+        private const val TRACE_CORE_SURFACE_READY = "QS.Startup.CoreSurface.Ready"
+        private const val TRACE_WALLPAPER_PREVIEW_READY = "QS.Startup.WallpaperPreview.Ready"
+        private const val TRACE_SUGGESTIONS_READY = "QS.Startup.Suggestions.Ready"
     }
 
     private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var userPreferences: UserAppPreferences
+    private lateinit var startupCoordinator: StartupCoordinator
     private lateinit var voiceSearchHandler: VoiceSearchHandler
     private val voiceInputLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -61,69 +80,59 @@ class MainActivity : ComponentActivity() {
     private val showFeedbackDialog = mutableStateOf(false)
     private val navigationRequest = mutableStateOf<NavigationRequest?>(null)
     private var pendingSearchTargetShortcut: Pair<String, SearchTarget>? = null
+    private var pendingContactActionPickerRequest: PendingContactActionPickerRequest? = null
+    private var hasMainUiActivated = false
+    private var hasSearchSurfaceComposeTraced = false
+    private var hasFirstFrameTraced = false
+    private var hasCoreSurfaceReadyTraced = false
+    private var hasWallpaperPreviewReadyTraced = false
+    private var hasSuggestionsReadyTraced = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Set transparent background initially for seamless launch
-        window.setBackgroundDrawableResource(android.R.color.transparent)
+        Trace.beginSection(TRACE_ON_CREATE_ENTRY)
+        try {
+            // Must be called before super.onCreate for edge-to-edge to work correctly on all versions
+            val statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            val navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            enableEdgeToEdge(statusBarStyle, navigationBarStyle)
 
-        // Must be called before super.onCreate for edge-to-edge to work correctly on all versions
-        val statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-        val navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-        enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+            super.onCreate(savedInstanceState)
+            window.setBackgroundDrawable(null)
 
-        super.onCreate(savedInstanceState)
+            // Disable activity opening animation for instant appearance
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, 0)
 
-        // Disable activity opening animation for instant appearance
-        @Suppress("DEPRECATION")
-        overridePendingTransition(0, 0)
-
-        initializePreferences()
-
-        if (launchOverlayIfNeeded(intent)) {
-            return
-        }
-
-        initializeVoiceSearchHandler()
-        // Initialize ViewModel early to start loading cached data immediately
-        // This ensures cached apps are ready when UI renders
-        searchViewModel
-
-        // PRIORITY: Preload wallpaper immediately for seamless visual foundation
-        // This ensures wallpaper is available when SearchScreen renders, providing
-        // instant visual feedback alongside search bar and app list
-        lifecycleScope.launch(Dispatchers.IO) { WallpaperUtils.preloadWallpaper(this@MainActivity) }
-
-        // Handle intent BEFORE composing UI to avoid briefly showing the Search screen
-        // (which auto-focuses the search bar and can flash the keyboard) before navigating.
-        handleIntent(intent)
-
-        setupContent()
-        maybeExecutePendingSearchTargetShortcut()
-        refreshPermissionStateIfNeeded()
-
-        // Track first app open time and app open count
-        // Only track after first launch is complete
-        window.decorView.post {
-            // Track first app open time and app open count
-            // Only track after first launch is complete
-            if (!userPreferences.isFirstLaunch()) {
-                userPreferences.recordFirstAppOpenTime()
-                userPreferences.incrementAppOpenCount()
-
-                // Reset update check session flag at app start
-                userPreferences.resetUpdateCheckSession()
-
-                // Check for app updates first (higher priority)
-                UpdateHelper.checkForUpdates(this, userPreferences)
-
-                // Only show review prompt if no update check was performed
-                // This prevents both prompts from appearing simultaneously
-                if (!userPreferences.hasShownUpdateCheckThisSession()) {
-                    if (userPreferences.shouldShowReviewPrompt()) {
-                        showReviewPromptDialog.value = true
-                    }
-                }
+            initializePreferences()
+            if (launchOverlayIfNeeded(intent)) {
+                return
             }
+
+            installFirstFrameTrace()
+
+            Trace.beginSection(TRACE_SET_CONTENT)
+            try {
+                setupContent()
+            } finally {
+                Trace.endSection()
+            }
+
+            startupCoordinator =
+                StartupCoordinator(
+                    context = this,
+                    activity = this,
+                    lifecycleScope = lifecycleScope,
+                    viewModel = searchViewModel,
+                    userPreferences = userPreferences,
+                    mode = StartupMode.MAIN,
+                    onReviewPromptEligible = { showReviewPromptDialog.value = true },
+                )
+            startupCoordinator.scheduleAfterFirstFrame(window)
+
+            initializeVoiceSearchHandler()
+            handleIntent(intent)
+        } finally {
+            Trace.endSection()
         }
     }
 
@@ -134,7 +143,10 @@ class MainActivity : ComponentActivity() {
             return
         }
         handleIntent(intent)
-        maybeExecutePendingSearchTargetShortcut()
+        if (hasMainUiActivated) {
+            maybeExecutePendingSearchTargetShortcut()
+            maybeExecutePendingContactActionPickerRequest()
+        }
     }
 
     override fun onStop() {
@@ -183,14 +195,84 @@ class MainActivity : ComponentActivity() {
 
     private fun setupContent() {
         setContent {
-            val uiState = searchViewModel.uiState.collectAsStateWithLifecycle()
-            QuickSearchTheme(fontScaleMultiplier = uiState.value.fontScaleMultiplier) {
+            val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
+            QuickSearchTheme(fontScaleMultiplier = uiState.fontScaleMultiplier) {
                 Box(
                     modifier =
                         Modifier
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background),
                 ) {
+                    LaunchedEffect(Unit) {
+                        if (!hasSearchSurfaceComposeTraced) {
+                            hasSearchSurfaceComposeTraced = true
+                            Trace.beginSection(TRACE_SEARCH_SURFACE_FIRST_COMPOSE)
+                            Trace.endSection()
+                        }
+                        if (!hasMainUiActivated) {
+                            hasMainUiActivated = true
+                            maybeExecutePendingSearchTargetShortcut()
+                            maybeExecutePendingContactActionPickerRequest()
+                        }
+                    }
+
+                    LaunchedEffect(
+                        uiState.startupBackgroundPreviewPath,
+                        uiState.wallpaperAvailable,
+                        uiState.backgroundSource,
+                    ) {
+                        val hasImageBackground = uiState.backgroundSource != com.tk.quicksearch.search.core.BackgroundSource.THEME
+                        val backgroundReady =
+                            uiState.startupBackgroundPreviewPath != null || uiState.wallpaperAvailable
+                        if (hasImageBackground && backgroundReady && !hasWallpaperPreviewReadyTraced) {
+                            hasWallpaperPreviewReadyTraced = true
+                            Trace.beginSection(TRACE_WALLPAPER_PREVIEW_READY)
+                            Trace.endSection()
+                        }
+                    }
+
+                    LaunchedEffect(
+                        uiState.recentApps,
+                        uiState.pinnedApps,
+                        uiState.appSuggestionsEnabled,
+                    ) {
+                        val suggestionsReady =
+                            !uiState.appSuggestionsEnabled ||
+                                uiState.recentApps.isNotEmpty() ||
+                                uiState.pinnedApps.isNotEmpty()
+                        if (suggestionsReady && !hasSuggestionsReadyTraced) {
+                            hasSuggestionsReadyTraced = true
+                            Trace.beginSection(TRACE_SUGGESTIONS_READY)
+                            Trace.endSection()
+                        }
+                    }
+
+                    LaunchedEffect(
+                        uiState.isStartupCoreSurfaceReady,
+                        uiState.startupBackgroundPreviewPath,
+                        uiState.wallpaperAvailable,
+                        uiState.backgroundSource,
+                        uiState.recentApps,
+                        uiState.pinnedApps,
+                    ) {
+                        val backgroundReady =
+                            uiState.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME ||
+                                uiState.startupBackgroundPreviewPath != null ||
+                                uiState.wallpaperAvailable
+                        val suggestionsReady =
+                            !uiState.appSuggestionsEnabled ||
+                                uiState.recentApps.isNotEmpty() ||
+                                uiState.pinnedApps.isNotEmpty()
+                        val ready =
+                            uiState.isStartupCoreSurfaceReady || (backgroundReady && suggestionsReady)
+                        if (ready && !hasCoreSurfaceReadyTraced) {
+                            hasCoreSurfaceReadyTraced = true
+                            searchViewModel.markStartupCoreSurfaceReady()
+                            Trace.beginSection(TRACE_CORE_SURFACE_READY)
+                            Trace.endSection()
+                        }
+                    }
+
                     MainContent(
                         context = this@MainActivity,
                         userPreferences = userPreferences,
@@ -240,10 +322,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun refreshPermissionStateIfNeeded() {
-        if (!userPreferences.isFirstLaunch()) {
-            searchViewModel.handleOptionalPermissionChange()
-        }
+    private fun installFirstFrameTrace() {
+        val decorView = window.decorView
+        val observer = decorView.viewTreeObserver
+        if (!observer.isAlive) return
+        observer.addOnDrawListener(
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    if (hasFirstFrameTraced) return
+                    hasFirstFrameTraced = true
+                    Trace.beginSection(TRACE_FIRST_FRAME_CALLBACK)
+                    Trace.endSection()
+                    decorView.post {
+                        if (decorView.viewTreeObserver.isAlive) {
+                            decorView.viewTreeObserver.removeOnDrawListener(this)
+                        }
+                    }
+                }
+            },
+        )
     }
 
     private fun handleIntent(intent: Intent?) {
@@ -305,11 +402,12 @@ class MainActivity : ComponentActivity() {
                     EXTRA_CONTACT_ACTION_PICKER_SERIALIZED_ACTION,
                 )
             if (contactId != -1L) {
-                searchViewModel.requestContactActionPicker(
-                    contactId = contactId,
-                    isPrimary = isPrimary,
-                    serializedAction = serializedAction,
-                )
+                pendingContactActionPickerRequest =
+                    PendingContactActionPickerRequest(
+                        contactId = contactId,
+                        isPrimary = isPrimary,
+                        serializedAction = serializedAction,
+                    )
             }
             contactActionIntent.removeExtra(EXTRA_CONTACT_ACTION_PICKER)
             contactActionIntent.removeExtra(EXTRA_CONTACT_ACTION_PICKER_ID)
@@ -358,5 +456,15 @@ class MainActivity : ComponentActivity() {
             }
             pendingSearchTargetShortcut = null
         }
+    }
+
+    private fun maybeExecutePendingContactActionPickerRequest() {
+        val pending = pendingContactActionPickerRequest ?: return
+        pendingContactActionPickerRequest = null
+        searchViewModel.requestContactActionPicker(
+            contactId = pending.contactId,
+            isPrimary = pending.isPrimary,
+            serializedAction = pending.serializedAction,
+        )
     }
 }

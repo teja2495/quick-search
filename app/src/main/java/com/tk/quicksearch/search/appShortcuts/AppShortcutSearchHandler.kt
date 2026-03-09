@@ -4,8 +4,11 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepositor
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
+import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
 
 private const val MIN_QUERY_LENGTH = 2
@@ -104,7 +107,12 @@ class AppShortcutSearchHandler(
 
         val results =
             if (query.isNotBlank() && isSectionEnabled) {
-                searchShortcutsInternal(query, excludedIds, disabledIds)
+                searchShortcutsInternal(
+                    queryContext = SearchQueryContext.fromRawQuery(query),
+                    excludedIds = excludedIds,
+                    disabledIds = disabledIds,
+                    recentShortcutScores = getRecentShortcutScores(),
+                )
             } else {
                 emptyList()
             }
@@ -112,27 +120,37 @@ class AppShortcutSearchHandler(
         return AppShortcutSearchResults(pinned, excluded, results)
     }
 
-    fun searchShortcuts(query: String): List<StaticShortcut> =
+    fun searchShortcuts(
+        queryContext: SearchQueryContext,
+        recentShortcutScores: Map<String, Int> = getRecentShortcutScores(),
+    ): List<StaticShortcut> =
         searchShortcutsInternal(
-            query = query,
+            queryContext = queryContext,
             excludedIds = userPreferences.getExcludedAppShortcutIds(),
             disabledIds = userPreferences.getDisabledAppShortcutIds(),
+            recentShortcutScores = recentShortcutScores,
         )
 
     private fun searchShortcutsInternal(
-        query: String,
+        queryContext: SearchQueryContext,
         excludedIds: Set<String>,
         disabledIds: Set<String>,
+        recentShortcutScores: Map<String, Int>,
     ): List<StaticShortcut> =
         AppShortcutSearchAlgorithm.search(
             fullList = availableShortcuts,
-            query = query,
+            queryContext = queryContext,
             excludedIds = excludedIds,
             disabledIds = disabledIds,
             shortcutNicknames = userPreferences.getAllAppShortcutNicknames(),
-            minQueryLength = MIN_QUERY_LENGTH,
+            recentShortcutScores = recentShortcutScores,
             resultLimit = RESULT_LIMIT,
         )
+
+    private fun getRecentShortcutScores(): Map<String, Int> =
+        RecentResultRankingUtils
+            .buildRecencyIndex(userPreferences.getRecentResultOpens())
+            .appShortcutScores
 
     private fun normalizeShortcuts(shortcuts: List<StaticShortcut>): List<StaticShortcut> =
         shortcuts

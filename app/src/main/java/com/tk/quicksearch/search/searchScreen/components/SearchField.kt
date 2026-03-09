@@ -56,12 +56,14 @@ import androidx.compose.ui.input.key.type
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.runtime.withFrameNanos
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
@@ -89,6 +91,7 @@ internal fun PersistentSearchField(
     detectedShortcutTarget: SearchTarget? = null,
     showWelcomeAnimation: Boolean = false,
     opaqueBackground: Boolean = false,
+    autoFocusOnStart: Boolean = false,
     onClearDetectedShortcut: () -> Unit = {},
     onWelcomeAnimationCompleted: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -112,6 +115,7 @@ internal fun PersistentSearchField(
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(query, TextRange(query.length)))
     }
+    var hasLaidOutSearchField by remember { mutableStateOf(false) }
 
     LaunchedEffect(query) {
         if (query != textFieldValue.text) {
@@ -123,21 +127,26 @@ internal fun PersistentSearchField(
         }
     }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+    LaunchedEffect(autoFocusOnStart, hasLaidOutSearchField) {
+        if (autoFocusOnStart && hasLaidOutSearchField) {
+            // Wait for a rendered frame before focusing to avoid startup contention.
+            withFrameNanos { }
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
+    if (autoFocusOnStart) {
+        DisposableEffect(lifecycleOwner) {
+            val observer =
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
                 }
-            }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
     }
 
     // Animation state
@@ -300,6 +309,11 @@ internal fun PersistentSearchField(
                 Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
+                    .onGloballyPositioned {
+                        if (!hasLaidOutSearchField) {
+                            hasLaidOutSearchField = true
+                        }
+                    }
                     .onPreviewKeyEvent { keyEvent ->
                         if (
                             keyEvent.type == KeyEventType.KeyDown &&

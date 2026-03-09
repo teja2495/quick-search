@@ -14,8 +14,8 @@ android {
         applicationId = "com.tk.quicksearch"
         minSdk = 24
         targetSdk = 36
-        versionCode = 35
-        versionName = "2.6"
+        versionCode = 36
+        versionName = "2.6.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.google.material)
     implementation(libs.androidx.security.crypto)
     implementation(libs.okhttp)
@@ -73,8 +74,6 @@ dependencies {
     implementation(libs.play.app.update.ktx)
     implementation(libs.play.services.oss.licenses)
     implementation(libs.libphonenumber)
-    implementation(libs.fuzzywuzzy)
-
     implementation(libs.reorderable)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

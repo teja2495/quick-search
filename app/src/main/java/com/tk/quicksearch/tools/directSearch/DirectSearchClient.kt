@@ -1,6 +1,7 @@
 package com.tk.quicksearch.tools.directSearch
 
 import android.util.Log
+import com.tk.quicksearch.BuildConfig
 import com.tk.quicksearch.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -214,13 +215,13 @@ class DirectSearchClient(
                     useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
                     useSystemInstruction = useSystemInstruction,
                 )
-            val payloadForLogging =
-                if (personalContext.isNullOrBlank()) {
-                    payload
-                } else {
-                    "[payload with personal context hidden]"
-                }
-            Log.i(LOG_TAG, "Gemini request JSON: $payloadForLogging")
+            logRequestDiagnostics(
+                endpointModelId = endpointModelId,
+                queryLength = query.length,
+                hasPersonalContext = !personalContext.isNullOrBlank(),
+                useGroundingWithGoogleSearch = useGroundingWithGoogleSearch,
+                useSystemInstruction = useSystemInstruction,
+            )
             connection.outputStream.use { output ->
                 output.write(payload.toByteArray(Charsets.UTF_8))
                 output.flush()
@@ -228,7 +229,10 @@ class DirectSearchClient(
 
             val responseCode = connection.responseCode
             val rawResponse = readResponseBody(connection, responseCode)
-            Log.i(LOG_TAG, "Gemini response JSON: $rawResponse")
+            logResponseDiagnostics(
+                responseCode = responseCode,
+                responseLength = rawResponse.length,
+            )
 
             if (responseCode in 200..299) {
                 val answer =
@@ -246,6 +250,32 @@ class DirectSearchClient(
         } finally {
             connection?.disconnect()
         }
+    }
+
+    private fun logRequestDiagnostics(
+        endpointModelId: String,
+        queryLength: Int,
+        hasPersonalContext: Boolean,
+        useGroundingWithGoogleSearch: Boolean,
+        useSystemInstruction: Boolean,
+    ) {
+        if (!BuildConfig.DEBUG) return
+        Log.d(
+            LOG_TAG,
+            "Gemini request: model=$endpointModelId, queryLength=$queryLength, hasPersonalContext=$hasPersonalContext, " +
+                "groundingEnabled=$useGroundingWithGoogleSearch, systemInstructionEnabled=$useSystemInstruction",
+        )
+    }
+
+    private fun logResponseDiagnostics(
+        responseCode: Int,
+        responseLength: Int,
+    ) {
+        if (!BuildConfig.DEBUG) return
+        Log.d(
+            LOG_TAG,
+            "Gemini response: code=$responseCode, bodyLength=$responseLength",
+        )
     }
 
     private fun buildRequestBody(

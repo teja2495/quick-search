@@ -36,30 +36,59 @@ class FuzzyAppSearchStrategy(
         if (query.isBlank()) return emptyList()
 
         return candidates
-            .mapNotNull { app ->
-                val nickname = nicknameProvider(app)
-                val score = engine.computeScore(query, app.appName, nickname, config.minQueryLength)
-                if (score >= config.matchThreshold) {
-                    FuzzySearchStrategy.Match(
-                        item = app,
-                        score = score,
-                        priority = config.priority,
-                        isFuzzyMatch = true,
-                    )
-                } else {
-                    null
-                }
-            }.sortedByDescending { it.score }
+            .mapNotNull { app -> computeMatch(query, app, nicknameProvider(app)) }
+            .sortedByDescending { it.score }
     }
 
-    fun isTokenCoveredByApp(token: String, appName: String, nickname: String?): Boolean {
+    fun computeMatch(
+        query: String,
+        app: AppInfo,
+        nickname: String?,
+        initials: List<String> = emptyList(),
+    ): FuzzySearchStrategy.Match<AppInfo>? {
+        if (query.isBlank()) return null
+        val alternateNames =
+            sequenceOf(nickname)
+                .filterNotNull()
+                .plus(initials.asSequence())
+                .filter { it.isNotBlank() }
+                .joinToString(separator = " ")
+                .ifBlank { null }
+        val score = engine.computeScore(query, app.appName, alternateNames, config.minQueryLength)
+        return if (score >= config.matchThreshold) {
+            FuzzySearchStrategy.Match(
+                item = app,
+                score = score,
+                priority = config.priority,
+                isFuzzyMatch = true,
+            )
+        } else {
+            null
+        }
+    }
+
+    fun isTokenCoveredByApp(
+        token: String,
+        appName: String,
+        nickname: String?,
+        initials: List<String> = emptyList(),
+    ): Boolean {
         val tokenLower = SearchTextNormalizer.normalizeForSearch(token)
         val nameLower = SearchTextNormalizer.normalizeForSearch(appName)
         if (nameLower.contains(tokenLower)) return true
         nickname?.let { nick ->
             if (SearchTextNormalizer.normalizeForSearch(nick).contains(tokenLower)) return true
         }
-        val score = engine.computeScore(token, appName, nickname, config.minQueryLength)
+        if (initials.any { it.contains(tokenLower) }) return true
+
+        val alternateNames =
+            sequenceOf(nickname)
+                .filterNotNull()
+                .plus(initials.asSequence())
+                .filter { it.isNotBlank() }
+                .joinToString(separator = " ")
+                .ifBlank { null }
+        val score = engine.computeScore(token, appName, alternateNames, config.minQueryLength)
         return score >= config.matchThreshold
     }
 }

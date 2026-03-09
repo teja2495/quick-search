@@ -5,6 +5,7 @@
     <style name="Theme.QuickSearch" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Keep window translucent throughout -->
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
 
         <!-- Completely disable splash screen -->
         <item name="android:windowDisablePreview">true</item>

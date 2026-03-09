@@ -1,11 +1,8 @@
 package com.tk.quicksearch.search.apps
 
 import com.tk.quicksearch.search.models.AppInfo
-import com.tk.quicksearch.search.utils.SearchRankingUtils
-import com.tk.quicksearch.search.utils.SearchTextNormalizer
+import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
-
-private val WHITESPACE_REGEX = "\\s+".toRegex()
 
 object AppSearchAlgorithm {
     fun findMatches(
@@ -17,17 +14,32 @@ object AppSearchAlgorithm {
         sortAppsByUsageEnabled: Boolean,
     ): List<AppInfo> {
         if (query.isBlank()) return emptyList()
+        return findMatches(
+            queryContext = SearchQueryContext.fromRawQuery(query),
+            source = source,
+            limit = limit,
+            fuzzySearchStrategy = fuzzySearchStrategy,
+            appNicknames = appNicknames,
+            sortAppsByUsageEnabled = sortAppsByUsageEnabled,
+        )
+    }
 
-        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
-        val queryTokens = normalizedQuery.split(WHITESPACE_REGEX).filter { it.isNotBlank() }
+    fun findMatches(
+        queryContext: SearchQueryContext,
+        source: List<AppInfo>,
+        limit: Int,
+        fuzzySearchStrategy: FuzzyAppSearchStrategy,
+        appNicknames: Map<String, String>,
+        sortAppsByUsageEnabled: Boolean,
+    ): List<AppInfo> {
+        if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
         return source
             .asSequence()
             .mapNotNull { app ->
                 calculateAppMatch(
                     app = app,
-                    normalizedQuery = normalizedQuery,
-                    queryTokens = queryTokens,
+                    queryContext = queryContext,
                     fuzzySearchStrategy = fuzzySearchStrategy,
                     appNicknames = appNicknames,
                 )
@@ -46,45 +58,49 @@ object AppSearchAlgorithm {
 
     private fun calculateAppMatch(
         app: AppInfo,
-        normalizedQuery: String,
-        queryTokens: List<String>,
+        queryContext: SearchQueryContext,
         fuzzySearchStrategy: FuzzyAppSearchStrategy,
         appNicknames: Map<String, String>,
     ): AppMatch? {
         val nickname = appNicknames[app.packageName]
-        val priority =
-            SearchRankingUtils.calculateMatchPriorityWithNickname(
-                app.appName,
-                nickname,
-                normalizedQuery,
-                queryTokens,
-            )
-        if (!SearchRankingUtils.isOtherMatch(priority)) {
-            if (!queryTokensCoveredByApp(queryTokens, app.appName, nickname, fuzzySearchStrategy)) return null
+        val initials = AppSearchInitials.initialsFor(app)
+        val priority = AppSearchPolicy.matchPriority(app.appName, nickname, queryContext, initials)
+        if (AppSearchPolicy.hasMatch(priority)) {
+            if (
+                !AppSearchPolicy.areAllQueryTokensCovered(
+                    queryContext,
+                    app.appName,
+                    nickname,
+                    initials,
+                    fuzzySearchStrategy,
+                )
+            ) {
+                return null
+            }
             return AppMatch(app, priority, 0, false)
         }
 
-        val fuzzyMatches =
-            fuzzySearchStrategy.findMatchesWithNicknames(
-                normalizedQuery,
-                listOf(app),
-            ) { appNicknames[it.packageName] }
+        val match =
+            fuzzySearchStrategy.computeMatch(
+                query = queryContext.normalizedQuery,
+                app = app,
+                nickname = appNicknames[app.packageName],
+                initials = initials,
+            )
 
-        return fuzzyMatches.firstOrNull()?.let { match ->
-            if (!queryTokensCoveredByApp(queryTokens, app.appName, nickname, fuzzySearchStrategy)) return null
-            AppMatch(app, match.priority, match.score, true)
-        }
-    }
-
-    private fun queryTokensCoveredByApp(
-        queryTokens: List<String>,
-        appName: String,
-        nickname: String?,
-        fuzzySearchStrategy: FuzzyAppSearchStrategy,
-    ): Boolean {
-        if (queryTokens.size <= 1) return true
-        return queryTokens.all { token ->
-            fuzzySearchStrategy.isTokenCoveredByApp(token, appName, nickname)
+        return match?.let {
+            if (
+                !AppSearchPolicy.areAllQueryTokensCovered(
+                    queryContext,
+                    app.appName,
+                    nickname,
+                    initials,
+                    fuzzySearchStrategy,
+                )
+            ) {
+                return null
+            }
+            AppMatch(app, it.priority, it.score, true)
         }
     }
 

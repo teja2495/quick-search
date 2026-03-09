@@ -22,10 +22,43 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 
+private const val NO_RESULTS_DELAY_MS = 500L
+
+internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
+    val hasAnySearchResults = hasAnySearchResults(state)
+    val trimmedQuery = state.query.trim()
+    val queryLength = trimmedQuery.length
+    return trimmedQuery.isNotBlank() &&
+        !hasAnySearchResults &&
+        state.detectedShortcutTarget == null &&
+        (
+            !state.webSuggestionsEnabled ||
+                (queryLength >= 2 && state.webSuggestions.isEmpty())
+        )
+}
+
+@Composable
+internal fun rememberNoResultsTextVisible(
+    shouldShowNoResults: Boolean,
+    query: String,
+    webSuggestionsEnabled: Boolean,
+): Boolean {
+    var showNoResultsText by remember { mutableStateOf(false) }
+    LaunchedEffect(shouldShowNoResults, query, webSuggestionsEnabled) {
+        if (shouldShowNoResults) {
+            if (webSuggestionsEnabled) {
+                delay(NO_RESULTS_DELAY_MS)
+            }
+            showNoResultsText = true
+        } else {
+            showNoResultsText = false
+        }
+    }
+    return showNoResultsText
+}
+
 @Composable
 internal fun NoResultsMessage(state: SearchUiState) {
-    // Determine whether to show "No results" message when there's a query but no results and no
-    // search engine shortcut is detected
     val shouldShowNoResults =
         remember(
             state.query,
@@ -33,32 +66,14 @@ internal fun NoResultsMessage(state: SearchUiState) {
             state.webSuggestions,
             state.detectedShortcutTarget,
         ) {
-            val hasAnySearchResults = hasAnySearchResults(state)
-            val trimmedQuery = state.query.trim()
-            val queryLength = trimmedQuery.length
-            trimmedQuery.isNotBlank() &&
-                    !hasAnySearchResults &&
-                    state.detectedShortcutTarget == null &&
-                    (
-                            !state.webSuggestionsEnabled ||
-                                    (queryLength >= 2 && state.webSuggestions.isEmpty())
-                    )
+            computeShouldShowNoResults(state)
         }
-
-    // Add delay before showing no results text to avoid flashing before
-    // web suggestions load (only when web suggestions are enabled)
-    var showNoResultsText by remember { mutableStateOf(false) }
-    LaunchedEffect(shouldShowNoResults, state.query, state.webSuggestionsEnabled) {
-        if (shouldShowNoResults) {
-            // Only delay if web suggestions are enabled and might still be loading
-            if (state.webSuggestionsEnabled) {
-                delay(500L) // Wait for web suggestions load
-            }
-            showNoResultsText = true
-        } else {
-            showNoResultsText = false
-        }
-    }
+    val showNoResultsText =
+        rememberNoResultsTextVisible(
+            shouldShowNoResults = shouldShowNoResults,
+            query = state.query,
+            webSuggestionsEnabled = state.webSuggestionsEnabled,
+        )
 
     if (showNoResultsText) {
         Column(

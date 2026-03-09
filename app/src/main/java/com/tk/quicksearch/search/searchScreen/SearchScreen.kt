@@ -19,7 +19,6 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.core.BackgroundSource
-import com.tk.quicksearch.search.core.OverlayGradientTheme
 // import com.tk.quicksearch.search.searchScreen.SearchEngineOnboardingOverlay
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
 import com.tk.quicksearch.search.searchScreen.SearchScreenContent
@@ -30,6 +29,8 @@ import com.tk.quicksearch.search.searchScreen.DerivedState
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenStateManagement
 import com.tk.quicksearch.search.searchScreen.SearchScreenDialogLogic
+
+private const val STARTUP_BACKGROUND_TRANSITION_DURATION_MS = 90
 
 @Composable
 fun SearchScreen(
@@ -228,20 +229,23 @@ fun SearchScreen(
                 wallpaperBitmap = stateResult.imageBitmap,
                 wallpaperBackgroundAlpha = state.wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = state.wallpaperBlurRadius,
+                backgroundTransitionDurationMillis =
+                    if (state.isInitializing &&
+                        state.backgroundSource != com.tk.quicksearch.search.core.BackgroundSource.THEME
+                    ) {
+                        STARTUP_BACKGROUND_TRANSITION_DURATION_MS
+                    } else {
+                        com.tk.quicksearch.shared.ui.theme.DesignTokens.WallpaperFadeInDuration + 120
+                    },
                 fallbackBackgroundAlpha =
-                    if (state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback) {
+                    if (state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME) {
                         0.6f
                     } else {
                         1f
                     },
                 useGradientFallback =
                     state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME || stateResult.useMonoThemeFallback,
-                overlayGradientTheme =
-                    if (stateResult.useMonoThemeFallback) {
-                        OverlayGradientTheme.MONOCHROME
-                    } else {
-                        state.overlayGradientTheme
-                    },
+                overlayGradientTheme = state.overlayGradientTheme,
                 overlayThemeIntensity = state.overlayThemeIntensity,
             )
         }

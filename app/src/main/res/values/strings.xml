@@ -687,7 +687,7 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Bottom search bar.\nNew Custom Buttons Widget.\nImport / Export app settings.\nApp shortcuts now support deep links.\nChange app font size.\nUI optimisations for Tablets.\nSearch engine shortcuts are now called Aliases.\nEnhancements &amp; bug fixes.</string>
+    <string name="release_notes_points">Big improvements to search algorithm - faster and better results.\nStartup speed improvements.</string>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
