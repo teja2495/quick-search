@@ -341,9 +341,6 @@ fun SearchResultsSettingsSection(
             deviceSettingsSubtitle = stringResource(R.string.settings_view_all_desc),
             onDeviceSettingsClick = onNavigateToDeviceSettings,
             onDeviceSettingsClickNoRipple = true,
-            calculatorEnabled = state.calculatorEnabled,
-            onCalculatorToggle = callbacks.onToggleCalculator,
-            calculatorSubtitle = stringResource(R.string.calculator_toggle_desc),
             showTitle = false,
         )
 

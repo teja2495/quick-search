@@ -277,6 +277,9 @@ fun SettingsDetailRoute(
                         SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
                             onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
                         }
+                        SettingsDetailType.TOOLS -> {
+                            onBack()
+                        }
                         else -> {
                             onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
                         }
@@ -334,6 +337,12 @@ fun SettingsDetailRoute(
                     onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
                     onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
                     onSetAmazonDomain = viewModel::setAmazonDomain,
+                    onSetCalculatorAlias = { code ->
+                        viewModel.setShortcutCode(
+                                com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
+                                code,
+                        )
+                    },
                     onToggleCalculator = viewModel::setCalculatorEnabled,
                     onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
                     onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,

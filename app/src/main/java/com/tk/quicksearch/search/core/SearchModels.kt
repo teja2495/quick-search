@@ -132,6 +132,8 @@ data class DirectSearchState(
 data class CalculatorState(
         val result: String? = null,
         val expression: String? = null,
+        val isCalculatorMode: Boolean = false,
+        val showInvalidExpression: Boolean = false,
 )
 
 data class PhoneNumberSelection(

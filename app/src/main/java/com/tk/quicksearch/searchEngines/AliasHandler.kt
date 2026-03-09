@@ -13,13 +13,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class ShortcutHandler(
+class AliasHandler(
     private val userPreferences: UserAppPreferences,
     private val scope: CoroutineScope,
     private val uiStateUpdater: ((SearchUiState) -> SearchUiState) -> Unit,
     private val directSearchHandler: DirectSearchHandler,
     private val searchTargetsProvider: () -> List<SearchTarget>,
 ) {
+    companion object {
+        const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
+        const val DEFAULT_CALCULATOR_ALIAS = "cal"
+    }
+
     private var aliasCodes: Map<String, String> = emptyMap()
     private var aliasEnabled: Map<String, Boolean> = emptyMap()
 
@@ -71,6 +76,26 @@ class ShortcutHandler(
                         }
                     }
                 id to enabled
+            }
+
+        val persistedCalculatorAlias =
+            userPreferences.getAliasCode(CALCULATOR_ALIAS_FEATURE_ID).orEmpty()
+        val normalizedCalculatorAlias = normalizeShortcutCodeInput(persistedCalculatorAlias)
+        val calculatorAlias =
+            when {
+                isValidShortcutCode(normalizedCalculatorAlias) -> normalizedCalculatorAlias
+                else -> DEFAULT_CALCULATOR_ALIAS
+            }
+        if (persistedCalculatorAlias != calculatorAlias) {
+            userPreferences.setAliasCode(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
+        }
+        aliasCodes =
+            aliasCodes.toMutableMap().apply {
+                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
+            }
+        aliasEnabled =
+            aliasEnabled.toMutableMap().apply {
+                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias.isNotEmpty())
             }
     }
 
@@ -150,6 +175,31 @@ class ShortcutHandler(
         }
     }
 
+    fun setAliasCode(
+        targetId: String,
+        code: String,
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val normalizedCode = normalizeShortcutCodeInput(code)
+            if (!isValidShortcutCode(normalizedCode)) {
+                return@launch
+            }
+            val existingShortcutsForValidation = aliasCodes.filterKeys { it != targetId }
+            if (!isValidShortcutPrefix(normalizedCode, existingShortcutsForValidation)) {
+                return@launch
+            }
+            userPreferences.setAliasCode(targetId, normalizedCode)
+            aliasCodes = aliasCodes.toMutableMap().apply { put(targetId, normalizedCode) }
+            aliasEnabled = aliasEnabled.toMutableMap().apply { put(targetId, true) }
+            uiStateUpdater {
+                it.copy(
+                    shortcutCodes = aliasCodes,
+                    shortcutEnabled = aliasEnabled,
+                )
+            }
+        }
+    }
+
     fun setShortcutCode(
         target: SearchTarget,
         code: String,
@@ -183,6 +233,11 @@ class ShortcutHandler(
                 is SearchTarget.Custom -> userPreferences.getAliasCode(id).orEmpty()
             }
     }
+
+    fun getAliasCode(
+        targetId: String,
+        defaultCode: String = "",
+    ): String = aliasCodes[targetId] ?: userPreferences.getAliasCode(targetId) ?: defaultCode
 
     fun getShortcutCode(target: SearchTarget): String = getAliasCode(target)
 
@@ -233,8 +288,7 @@ class ShortcutHandler(
 
     fun detectAliasAtStart(query: String): Pair<String, AliasTarget>? {
         ensureInitialized()
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) return null
+        if (query.isBlank()) return null
 
         val targets =
             searchTargetsProvider().ifEmpty {
@@ -254,7 +308,12 @@ class ShortcutHandler(
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = AliasTarget.Search(target)
         }
-        val match = AliasParser.detectPrefixAlias(trimmedQuery, aliases) ?: return null
+        val calculatorAliasCode = getAliasCode(CALCULATOR_ALIAS_FEATURE_ID, DEFAULT_CALCULATOR_ALIAS)
+            .lowercase(Locale.getDefault())
+        if (calculatorAliasCode.isNotEmpty()) {
+            aliases[calculatorAliasCode] = AliasTarget.Feature(CALCULATOR_ALIAS_FEATURE_ID)
+        }
+        val match = AliasParser.detectPrefixAlias(query, aliases) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
 

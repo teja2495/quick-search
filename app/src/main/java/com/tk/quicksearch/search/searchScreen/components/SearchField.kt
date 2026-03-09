@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
@@ -89,6 +90,8 @@ internal fun PersistentSearchField(
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutTarget: SearchTarget? = null,
+    isCalculatorMode: Boolean = false,
+    placeholderText: String,
     showWelcomeAnimation: Boolean = false,
     opaqueBackground: Boolean = false,
     autoFocusOnStart: Boolean = false,
@@ -319,7 +322,7 @@ internal fun PersistentSearchField(
                             keyEvent.type == KeyEventType.KeyDown &&
                                 keyEvent.key == Key.Backspace &&
                                 textFieldValue.text.isEmpty() &&
-                                detectedShortcutTarget != null
+                                (detectedShortcutTarget != null || isCalculatorMode)
                         ) {
                             onClearDetectedShortcut()
                             true
@@ -331,7 +334,7 @@ internal fun PersistentSearchField(
             shape = DesignTokens.ShapeXXLarge,
             placeholder = {
                 Text(
-                    text = stringResource(R.string.search_hint),
+                    text = placeholderText,
                     style = MaterialTheme.typography.titleMedium,
                     color = iconAndTextColor.copy(alpha = DesignTokens.SearchFieldPlaceholderAlpha),
                 )
@@ -341,7 +344,17 @@ internal fun PersistentSearchField(
             singleLine = false,
             maxLines = 3,
             leadingIcon = {
-                if (detectedShortcutTarget != null) {
+                if (isCalculatorMode) {
+                    Icon(
+                        imageVector = Icons.Rounded.Calculate,
+                        contentDescription = stringResource(R.string.calculator_toggle_title),
+                        tint = iconAndTextColor,
+                        modifier =
+                            Modifier.padding(
+                                start = DesignTokens.SpacingXSmall,
+                            ),
+                    )
+                } else if (detectedShortcutTarget != null) {
                     SearchTargetIcon(
                         target = detectedShortcutTarget,
                         iconSize = DesignTokens.IconSize,

@@ -246,6 +246,19 @@ internal fun SettingsDetailLevel2Screen(
                             )
                         }
 
+                        SettingsDetailType.TOOLS -> {
+                            ToolsSettingsSection(
+                                calculatorEnabled = state.calculatorEnabled,
+                                calculatorAlias =
+                                    state.shortcutCodes[
+                                        com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID
+                                    ] ?: com.tk.quicksearch.searchEngines.AliasHandler.DEFAULT_CALCULATOR_ALIAS,
+                                existingShortcuts = state.shortcutCodes,
+                                onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
+                                onCalculatorToggle = callbacks.onToggleCalculator,
+                            )
+                        }
+
                         else -> Unit
                     }
                 }

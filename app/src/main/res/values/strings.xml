@@ -360,6 +360,8 @@
     <string name="settings_search_results_desc">Manage result types, web suggestions, and search history</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
+    <string name="settings_tools_title">Tools</string>
+    <string name="settings_tools_desc">Calculator and other tools</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, etc.</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
@@ -766,6 +768,8 @@
          ============================================================================ -->
     <string name="calculator_toggle_title">Calculator</string>
     <string name="calculator_toggle_desc">Results for basic math expressions</string>
+    <string name="calculator_enter_math_expression_hint">Enter a math expression</string>
+    <string name="calculator_invalid_or_unsupported_expression">Invalid or unsupported expression</string>
 
     <!-- ============================================================================
          No Results

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.automirrored.rounded.ManageSearch
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RocketLaunch
@@ -277,6 +278,16 @@ fun SettingsScreen(
                             icon = Icons.AutoMirrored.Rounded.ManageSearch,
                             actionOnPress = {
                                 onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
+                            },
+                        ),
+                    )
+                    add(
+                        SettingsCardItem(
+                            title = stringResource(R.string.settings_tools_title),
+                            description = stringResource(R.string.settings_tools_desc),
+                            icon = Icons.Rounded.Build,
+                            actionOnPress = {
+                                onNavigateToDetail(SettingsDetailType.TOOLS)
                             },
                         ),
                     )

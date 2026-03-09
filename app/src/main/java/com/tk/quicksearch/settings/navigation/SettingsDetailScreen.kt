@@ -256,6 +256,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.CALLS_TEXTS,
                     SettingsDetailType.FILES,
                     SettingsDetailType.DIRECT_SEARCH_CONFIGURE,
+                    SettingsDetailType.TOOLS,
                     -> Unit
                 }
             }
@@ -314,6 +315,7 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
         SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
         SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> R.string.settings_direct_search_configure_title
+        SettingsDetailType.TOOLS -> R.string.settings_tools_title
     }
 
 internal fun SettingsDetailType.isLevel2(): Boolean =
@@ -323,7 +325,8 @@ internal fun SettingsDetailType.isLevel2(): Boolean =
         this == SettingsDetailType.DEVICE_SETTINGS ||
         this == SettingsDetailType.CALLS_TEXTS ||
         this == SettingsDetailType.FILES ||
-        this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE
+        this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE ||
+        this == SettingsDetailType.TOOLS
 
 internal fun SettingsDetailType.level(): Int = if (isLevel2()) 2 else 1
 
@@ -343,4 +346,5 @@ enum class SettingsDetailType {
     LAUNCH_OPTIONS,
     PERMISSIONS,
     DIRECT_SEARCH_CONFIGURE,
+    TOOLS,
 }

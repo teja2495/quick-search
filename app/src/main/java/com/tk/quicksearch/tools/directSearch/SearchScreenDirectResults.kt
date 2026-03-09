@@ -166,7 +166,9 @@ fun CalculatorResult(
         showWallpaperBackground: Boolean = false,
 ) {
     val result = calculatorState.result
-    if (result == null) return
+    val isCalculatorMode = calculatorState.isCalculatorMode
+    val showInvalidExpression = calculatorState.showInvalidExpression
+    if (result == null && !isCalculatorMode) return
 
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
@@ -180,7 +182,12 @@ fun CalculatorResult(
     val cardElevation =
             AppColors.getCardElevation(showWallpaperBackground = showWallpaperBackground)
 
-    val onLongClick = { clipboardManager.setText(AnnotatedString(result)) }
+    val onLongClick: (() -> Unit)? =
+            if (result != null) {
+                { clipboardManager.setText(AnnotatedString(result)) }
+            } else {
+                null
+            }
 
     val content: @Composable () -> Unit = {
         Column(
@@ -188,11 +195,30 @@ fun CalculatorResult(
                         Modifier.fillMaxWidth().fillMaxHeight().padding(DesignTokens.SpacingLarge),
                 verticalArrangement = Arrangement.Center,
         ) {
-            Text(
-                    text = "= $result",
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-            )
+            when {
+                result != null -> {
+                    Text(
+                            text = "= $result",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+
+                showInvalidExpression -> {
+                    Text(
+                            text =
+                                    stringResource(
+                                            R.string.calculator_invalid_or_unsupported_expression
+                                    ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                else -> {
+                    // Intentionally empty while in calculator mode with no expression.
+                }
+            }
         }
     }
 

@@ -29,6 +29,7 @@ internal fun AliasCodeDisplay(
     engineName: String = "",
     existingShortcuts: Map<String, String> = emptyMap(),
     currentShortcutId: String? = null,
+    modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val isCustomEngine = currentShortcutId?.startsWith("custom:") == true
@@ -48,6 +49,7 @@ internal fun AliasCodeDisplay(
     }
 
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {

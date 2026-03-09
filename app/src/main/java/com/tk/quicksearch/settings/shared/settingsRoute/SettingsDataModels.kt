@@ -128,6 +128,7 @@ data class SettingsScreenCallbacks(
     val onToggleSearchEngineCompactMode: (Boolean) -> Unit,
     val onSetSearchEngineCompactRowCount: (Int) -> Unit,
     val onSetAmazonDomain: (String?) -> Unit,
+    val onSetCalculatorAlias: (String) -> Unit,
     val onToggleCalculator: (Boolean) -> Unit,
     val onToggleAppSuggestions: (Boolean) -> Unit,
     val onToggleWebSuggestions: (Boolean) -> Unit,

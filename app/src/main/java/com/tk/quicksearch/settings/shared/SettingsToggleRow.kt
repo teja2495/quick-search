@@ -44,6 +44,7 @@ fun SettingsToggleRow(
     onRowClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    subtitleContent: (@Composable () -> Unit)? = null,
     leadingIcon: ImageVector? = null,
     titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
     horizontalPadding: Dp = DesignTokens.SpacingXXLarge,
@@ -117,6 +118,8 @@ fun SettingsToggleRow(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
+                subtitleContent?.invoke()
             }
 
             Switch(

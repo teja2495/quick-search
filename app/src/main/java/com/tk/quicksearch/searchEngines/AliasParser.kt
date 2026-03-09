@@ -28,14 +28,21 @@ internal object AliasParser {
         query: String,
         aliases: Map<String, T>,
     ): ParsedAliasMatch<T>? {
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) return null
-        val words = trimmedQuery.split("\\s+".toRegex())
-        if (words.isEmpty()) return null
-        val prefix = words.first().lowercase(Locale.getDefault())
+        val queryWithNoLeadingWhitespace = query.trimStart()
+        if (queryWithNoLeadingWhitespace.isEmpty()) return null
+
+        // Start aliases trigger only after the user types a separating space.
+        val separatorIndex = queryWithNoLeadingWhitespace.indexOfFirst { it.isWhitespace() }
+        if (separatorIndex <= 0) return null
+
+        val prefix =
+            queryWithNoLeadingWhitespace
+                .substring(0, separatorIndex)
+                .lowercase(Locale.getDefault())
         val match = aliases[prefix] ?: return null
         return ParsedAliasMatch(
-            queryWithoutAlias = words.drop(1).joinToString(" "),
+            queryWithoutAlias =
+                queryWithNoLeadingWhitespace.substring(separatorIndex).trimStart(),
             target = match,
         )
     }
