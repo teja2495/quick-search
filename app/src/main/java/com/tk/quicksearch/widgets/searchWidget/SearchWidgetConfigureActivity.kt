@@ -2,7 +2,6 @@ package com.tk.quicksearch.widgets.searchWidget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -123,24 +122,6 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
     }
 
     companion object {
-        private const val WIDGET_TIP_PREFS_NAME = "widget_config_tip_state"
-        private const val KEY_WIDGET_CONFIG_TIP_SHOWN = "widget_config_tip_shown"
-
-        private fun isWidgetConfigTipShown(context: Context): Boolean =
-            context
-                .getSharedPreferences(WIDGET_TIP_PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(KEY_WIDGET_CONFIG_TIP_SHOWN, false)
-
-        private fun setWidgetConfigTipShown(
-            context: Context,
-            shown: Boolean,
-        ) {
-            context
-                .getSharedPreferences(WIDGET_TIP_PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_WIDGET_CONFIG_TIP_SHOWN, shown)
-                .apply()
-        }
     }
 
     @Composable
@@ -149,12 +130,10 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
         widgetVariant: WidgetVariant,
         onConfigurationComplete: () -> Unit,
     ) {
-        val context = LocalContext.current
         var config by rememberSaveable {
             mutableStateOf(WidgetPreferences.Default.enforceVariantConstraints(widgetVariant))
         }
         var isLoaded by rememberSaveable { mutableStateOf(false) }
-        var showConfigTip by rememberSaveable { mutableStateOf(!isWidgetConfigTipShown(context)) }
         val scope = rememberCoroutineScope()
 
         LaunchedEffect(appWidgetId) {
@@ -188,11 +167,6 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
                 } else {
                     R.string.widget_settings_title
                 },
-            showConfigTip = showConfigTip,
-            onDismissConfigTip = {
-                showConfigTip = false
-                setWidgetConfigTipShown(context, true)
-            },
         )
     }
 }

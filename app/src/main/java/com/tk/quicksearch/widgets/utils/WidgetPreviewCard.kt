@@ -43,6 +43,10 @@ fun WidgetPreviewCard(
         remember(context) {
             UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
         }
+    val outerHorizontalPadding = previewState.internalHorizontalPaddingDp.dp
+    val verticalInset = previewState.internalVerticalPaddingDp.dp
+    val innerHorizontalPadding = WidgetConfigConstants.PREVIEW_INNER_PADDING
+    val previewBarHeight = (WidgetConfigConstants.PREVIEW_HEIGHT - (verticalInset * 2)).coerceAtLeast(1.dp)
     val customButtons = previewState.customButtons.filterNotNull()
 
     Box(
@@ -58,7 +62,8 @@ fun WidgetPreviewCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(WidgetConfigConstants.PREVIEW_HEIGHT)
+                    .padding(start = outerHorizontalPadding, end = outerHorizontalPadding)
+                    .height(previewBarHeight)
                     .background(colors.background, shape = borderShape)
                     .then(
                         if (shouldShowBorder) {
@@ -77,7 +82,7 @@ fun WidgetPreviewCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                            .padding(horizontal = innerHorizontalPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (previewState.showLabel) {
@@ -107,7 +112,7 @@ fun WidgetPreviewCard(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                            .padding(horizontal = innerHorizontalPadding),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
@@ -145,7 +150,7 @@ fun WidgetPreviewCard(
                             modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(end = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                                    .padding(end = innerHorizontalPadding),
                             contentAlignment = Alignment.CenterEnd,
                         ) {
                             Row(
@@ -197,7 +202,7 @@ fun WidgetPreviewCard(
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = WidgetConfigConstants.PREVIEW_INNER_PADDING),
+                                .padding(horizontal = innerHorizontalPadding),
                         contentAlignment = Alignment.Center,
                     ) {
                         Row(

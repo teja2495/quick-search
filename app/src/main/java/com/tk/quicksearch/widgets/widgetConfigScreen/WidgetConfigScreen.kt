@@ -25,10 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchViewModel
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonsSection
 import com.tk.quicksearch.widgets.utils.WidgetButtonSlotConfig
 import com.tk.quicksearch.widgets.utils.WidgetConfigConstants
@@ -38,6 +36,7 @@ import com.tk.quicksearch.widgets.utils.enforceVariantConstraints
 import com.tk.quicksearch.widgets.utils.WidgetVariant
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetLoadingState
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetMicIconSection
+import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetInternalPaddingSection
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetSearchIconSection
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetSlidersSection
 import com.tk.quicksearch.widgets.WidgetConfigScreen.components.WidgetTextIconColorSection
@@ -56,8 +55,6 @@ fun WidgetConfigScreen(
     searchViewModel: SearchViewModel,
     widgetVariant: WidgetVariant = WidgetVariant.STANDARD,
     titleResId: Int = R.string.widget_settings_title,
-    showConfigTip: Boolean = false,
-    onDismissConfigTip: (() -> Unit)? = null,
 ) {
     val constrainedState = state.enforceVariantConstraints(widgetVariant)
     val onConstrainedStateChange: (WidgetPreferences) -> Unit = { updated ->
@@ -177,28 +174,24 @@ fun WidgetConfigScreen(
                 verticalArrangement =
                     Arrangement.spacedBy(WidgetConfigConstants.SECTION_SPACING),
             ) {
-                if (widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY) {
+                if (
+                    widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY ||
+                    widgetVariant == WidgetVariant.STANDARD
+                ) {
                     CustomWidgetButtonsSection(
                         state = constrainedState,
                         searchViewModel = searchViewModel,
-                        maxButtons = WidgetButtonSlotConfig.CUSTOM_ONLY_COUNT,
+                        maxButtons =
+                            if (widgetVariant == WidgetVariant.CUSTOM_BUTTONS_ONLY) {
+                                WidgetButtonSlotConfig.CUSTOM_ONLY_COUNT
+                            } else {
+                                WidgetButtonSlotConfig.STANDARD_COUNT
+                            },
                         onStateChange = onConstrainedStateChange,
                     )
                 }
 
                 WidgetThemeSection(state = constrainedState, onStateChange = onConstrainedStateChange)
-
-                // Tip banner (only shown once)
-                if (showConfigTip && widgetVariant == WidgetVariant.STANDARD) {
-                    TipBanner(
-                        text =
-                            stringResource(
-                                R.string.widget_config_scroll_tip,
-                            ),
-                        onDismiss = onDismissConfigTip,
-                        modifier = Modifier.padding(vertical = 8.dp),
-                    )
-                }
 
                 WidgetSlidersSection(state = constrainedState, onStateChange = onConstrainedStateChange)
                 if (widgetVariant == WidgetVariant.STANDARD) {
@@ -216,13 +209,11 @@ fun WidgetConfigScreen(
                         state = constrainedState,
                         onStateChange = onConstrainedStateChange,
                     )
-                    CustomWidgetButtonsSection(
-                        state = constrainedState,
-                        searchViewModel = searchViewModel,
-                        maxButtons = WidgetButtonSlotConfig.STANDARD_COUNT,
-                        onStateChange = onConstrainedStateChange,
-                    )
                 }
+                WidgetInternalPaddingSection(
+                    state = constrainedState,
+                    onStateChange = onConstrainedStateChange,
+                )
             }
         }
     }

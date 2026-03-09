@@ -69,6 +69,8 @@ internal object WidgetDefaults {
     const val BACKGROUND_ALPHA = 0.35f
     const val BORDER_ALPHA = BACKGROUND_ALPHA
     val MIC_ACTION = MicAction.DEFAULT_VOICE_SEARCH
+    const val INTERNAL_HORIZONTAL_PADDING_DP = 0f
+    const val INTERNAL_VERTICAL_PADDING_DP = 0f
     val CUSTOM_BUTTONS: List<CustomWidgetButtonAction?> =
         List(WidgetButtonSlotConfig.STANDARD_COUNT) { null }
 }
@@ -80,6 +82,10 @@ private object WidgetRanges {
     const val BORDER_WIDTH_MAX = 4f
     const val BACKGROUND_ALPHA_MIN = 0f
     const val BACKGROUND_ALPHA_MAX = 1f
+    const val INTERNAL_HORIZONTAL_PADDING_MIN = 0f
+    const val INTERNAL_HORIZONTAL_PADDING_MAX = 16f
+    const val INTERNAL_VERTICAL_PADDING_MIN = -12f
+    const val INTERNAL_VERTICAL_PADDING_MAX = 12f
 }
 
 private object WidgetKeys {
@@ -96,6 +102,10 @@ private object WidgetKeys {
     val MIC_ACTION = stringPreferencesKey("quick_search_widget_mic_action")
     val TEXT_ICON_COLOR_OVERRIDE =
         stringPreferencesKey("quick_search_widget_text_icon_color_override")
+    val INTERNAL_HORIZONTAL_PADDING =
+        floatPreferencesKey("quick_search_widget_internal_horizontal_padding")
+    val INTERNAL_VERTICAL_PADDING =
+        floatPreferencesKey("quick_search_widget_internal_vertical_padding")
     val CUSTOM_BUTTON_0 = stringPreferencesKey("quick_search_widget_custom_button_0")
     val CUSTOM_BUTTON_1 = stringPreferencesKey("quick_search_widget_custom_button_1")
     val CUSTOM_BUTTON_2 = stringPreferencesKey("quick_search_widget_custom_button_2")
@@ -127,6 +137,8 @@ data class WidgetPreferences(
     val borderAlpha: Float = WidgetDefaults.BORDER_ALPHA,
     val micAction: MicAction = WidgetDefaults.MIC_ACTION,
     val textIconColorOverride: TextIconColorOverride = TextIconColorOverride.THEME,
+    val internalHorizontalPaddingDp: Float = WidgetDefaults.INTERNAL_HORIZONTAL_PADDING_DP,
+    val internalVerticalPaddingDp: Float = WidgetDefaults.INTERNAL_VERTICAL_PADDING_DP,
     val customButtons: List<CustomWidgetButtonAction?> = WidgetDefaults.CUSTOM_BUTTONS,
 ) : Parcelable {
     companion object {
@@ -167,6 +179,16 @@ data class WidgetPreferences(
                 borderAlpha.coerceIn(
                     WidgetRanges.BACKGROUND_ALPHA_MIN,
                     WidgetRanges.BACKGROUND_ALPHA_MAX,
+                ),
+            internalHorizontalPaddingDp =
+                internalHorizontalPaddingDp.coerceIn(
+                    WidgetRanges.INTERNAL_HORIZONTAL_PADDING_MIN,
+                    WidgetRanges.INTERNAL_HORIZONTAL_PADDING_MAX,
+                ),
+            internalVerticalPaddingDp =
+                internalVerticalPaddingDp.coerceIn(
+                    WidgetRanges.INTERNAL_VERTICAL_PADDING_MIN,
+                    WidgetRanges.INTERNAL_VERTICAL_PADDING_MAX,
                 ),
             customButtons = normalizedButtons,
             showLabel = if (shouldHideLabel) false else showLabel,
@@ -282,6 +304,12 @@ fun Preferences.toWidgetPreferences(): WidgetPreferences {
                 TextIconColorOverride.entries.find { it.value == overrideString }
             }
                 ?: TextIconColorOverride.THEME,
+        internalHorizontalPaddingDp =
+            this[WidgetKeys.INTERNAL_HORIZONTAL_PADDING]
+                ?: WidgetDefaults.INTERNAL_HORIZONTAL_PADDING_DP,
+        internalVerticalPaddingDp =
+            this[WidgetKeys.INTERNAL_VERTICAL_PADDING]
+                ?: WidgetDefaults.INTERNAL_VERTICAL_PADDING_DP,
         customButtons = customButtons,
     ).coerceToValidRanges()
 }
@@ -301,6 +329,8 @@ fun MutablePreferences.applyWidgetPreferences(config: WidgetPreferences) {
     this[WidgetKeys.BORDER_ALPHA] = validated.borderAlpha
     this[WidgetKeys.MIC_ACTION] = validated.micAction.value
     this[WidgetKeys.TEXT_ICON_COLOR_OVERRIDE] = validated.textIconColorOverride.value
+    this[WidgetKeys.INTERNAL_HORIZONTAL_PADDING] = validated.internalHorizontalPaddingDp
+    this[WidgetKeys.INTERNAL_VERTICAL_PADDING] = validated.internalVerticalPaddingDp
     val customButtons = normalizeCustomButtons(validated.customButtons, WidgetButtonSlotConfig.MAX_COUNT)
     customButtons.getOrNull(0)?.let { action -> this[WidgetKeys.CUSTOM_BUTTON_0] = action.toJson() }
         ?: remove(WidgetKeys.CUSTOM_BUTTON_0)

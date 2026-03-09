@@ -83,7 +83,7 @@ private fun formatBorderWidth(value: Float): String =
     }
 
 @Composable
-private fun SliderRow(
+internal fun SliderRow(
     label: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,

@@ -146,6 +146,8 @@ class SearchWidget(
                     showMicIcon = config.micAction != MicAction.OFF,
                     // Force left alignment for icons when the widget collapses to ~2 columns.
                     iconAlignLeft = config.iconAlignLeft || isNarrowWidth,
+                    internalHorizontalPaddingDp = config.internalHorizontalPaddingDp,
+                    internalVerticalPaddingDp = config.internalVerticalPaddingDp,
                     launchIntent = launchIntent,
                     voiceLaunchIntent = voiceLaunchIntent,
                     customButtons = customButtons,
@@ -157,6 +159,8 @@ class SearchWidget(
                     backgroundBitmap = backgroundBitmap,
                     useDefaultBackground = hasDefaultBackground,
                     textIconColor = colors.textIconColor,
+                    internalHorizontalPaddingDp = config.internalHorizontalPaddingDp,
+                    internalVerticalPaddingDp = config.internalVerticalPaddingDp,
                     customButtons = customButtons,
                 )
         }
@@ -232,6 +236,8 @@ private fun CustomButtonsOnlyWidgetContent(
     backgroundBitmap: Bitmap?,
     useDefaultBackground: Boolean,
     textIconColor: Color,
+    internalHorizontalPaddingDp: Float,
+    internalVerticalPaddingDp: Float,
     customButtons: List<CustomWidgetButtonAction>,
 ) {
     val context = LocalContext.current
@@ -243,9 +249,13 @@ private fun CustomButtonsOnlyWidgetContent(
     val iconSizePx = (20.dp.value * density).roundToInt().coerceAtLeast(1)
     val useCompactSpacing = customButtons.size >= 5 || widthDp <= WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
     val touchSpace = if (useCompactSpacing) 28.dp else 36.dp
+    val outerHorizontalPadding = internalHorizontalPaddingDp.dp
+    val verticalInset = internalVerticalPaddingDp.dp
     val contentHorizontalPadding = 16.dp
+    val barHeight = (heightDp - (verticalInset * 2)).coerceAtLeast(1.dp)
     val minimumGap = if (useCompactSpacing) 4.dp else 8.dp
-    val availableWidth = (widthDp.value - (contentHorizontalPadding.value * 2f)).coerceAtLeast(0f)
+    val containerWidth = (widthDp.value - (outerHorizontalPadding.value * 2f)).coerceAtLeast(0f)
+    val availableWidth = (containerWidth - (contentHorizontalPadding.value * 2f)).coerceAtLeast(0f)
     val maxVisibleButtons =
         if (customButtons.isEmpty()) {
             0
@@ -261,7 +271,7 @@ private fun CustomButtonsOnlyWidgetContent(
         } else {
             val totalButtonWidth = touchSpace.value * visibleButtons.size
             val available =
-                (widthDp.value - (contentHorizontalPadding.value * 2f) - totalButtonWidth).coerceAtLeast(0f)
+                (containerWidth - (contentHorizontalPadding.value * 2f) - totalButtonWidth).coerceAtLeast(0f)
             (available / (visibleButtons.size + 1)).dp
         }
     val buttonHorizontalPadding = (gapWidth.value / 2f).dp
@@ -277,7 +287,7 @@ private fun CustomButtonsOnlyWidgetContent(
             val widgetModifier =
                 GlanceModifier
                     .fillMaxWidth()
-                    .height(heightDp)
+                    .height(barHeight)
                     .background(
                         if (useDefaultBackground) {
                             ImageProvider(R.drawable.widget_quick_search_placeholder_outline)
@@ -287,64 +297,72 @@ private fun CustomButtonsOnlyWidgetContent(
                     ).padding(horizontal = contentHorizontalPadding)
 
             Box(
-                modifier = widgetModifier,
+                modifier =
+                    GlanceModifier
+                        .fillMaxSize()
+                        .padding(start = outerHorizontalPadding, end = outerHorizontalPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
+                    modifier = widgetModifier,
+                    contentAlignment = Alignment.Center,
                 ) {
-                    visibleButtons.forEach { action ->
-                        val icon =
-                            remember(action, iconPackPackage, iconSizePx, textIconColor) {
-                                rememberWidgetButtonIcon(
-                                    context = context,
-                                    action = action,
-                                    iconSizePx = iconSizePx,
-                                    textIconColor = textIconColor,
-                                    iconPackPackage = iconPackPackage,
-                                )
-                            }
-                        Box(
-                            modifier =
-                                GlanceModifier
-                                    .padding(horizontal = buttonHorizontalPadding),
-                            contentAlignment = Alignment.Center,
-                        ) {
+                    Row(
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        visibleButtons.forEach { action ->
+                            val icon =
+                                remember(action, iconPackPackage, iconSizePx, textIconColor) {
+                                    rememberWidgetButtonIcon(
+                                        context = context,
+                                        action = action,
+                                        iconSizePx = iconSizePx,
+                                        textIconColor = textIconColor,
+                                        iconPackPackage = iconPackPackage,
+                                    )
+                                }
                             Box(
                                 modifier =
                                     GlanceModifier
-                                        .size(touchSpace)
-                                        .clickable(
-                                            onClick =
-                                                actionStartActivity(
-                                                    WidgetActionActivity.createIntent(
-                                                        context,
-                                                        action,
-                                                    ),
-                                                ),
-                                            rippleOverride = android.R.color.transparent,
-                                        ),
+                                        .padding(horizontal = buttonHorizontalPadding),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                val imageProvider =
-                                    when {
-                                        icon.bitmap != null -> ImageProvider(icon.bitmap)
-                                        icon.drawableResId != null -> ImageProvider(icon.drawableResId)
-                                        else -> ImageProvider(R.drawable.ic_widget_search)
-                                    }
-                                Image(
-                                    provider = imageProvider,
-                                    contentDescription = action.contentDescription(),
-                                    modifier = GlanceModifier.size(20.dp),
-                                    colorFilter =
-                                        if (icon.shouldTint) {
-                                            ColorFilter.tint(ColorProvider(textIconColor))
-                                        } else {
-                                            null
-                                        },
-                                )
+                                Box(
+                                    modifier =
+                                        GlanceModifier
+                                            .size(touchSpace)
+                                            .clickable(
+                                                onClick =
+                                                    actionStartActivity(
+                                                        WidgetActionActivity.createIntent(
+                                                            context,
+                                                            action,
+                                                        ),
+                                                    ),
+                                                rippleOverride = android.R.color.transparent,
+                                            ),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    val imageProvider =
+                                        when {
+                                            icon.bitmap != null -> ImageProvider(icon.bitmap)
+                                            icon.drawableResId != null -> ImageProvider(icon.drawableResId)
+                                            else -> ImageProvider(R.drawable.ic_widget_search)
+                                        }
+                                    Image(
+                                        provider = imageProvider,
+                                        contentDescription = action.contentDescription(),
+                                        modifier = GlanceModifier.size(20.dp),
+                                        colorFilter =
+                                            if (icon.shouldTint) {
+                                                ColorFilter.tint(ColorProvider(textIconColor))
+                                            } else {
+                                                null
+                                            },
+                                    )
+                                }
                             }
                         }
                     }
@@ -365,6 +383,8 @@ private fun WidgetContent(
     showSearchIcon: Boolean,
     showMicIcon: Boolean,
     iconAlignLeft: Boolean,
+    internalHorizontalPaddingDp: Float,
+    internalVerticalPaddingDp: Float,
     launchIntent: Intent,
     voiceLaunchIntent: Intent,
     customButtons: List<CustomWidgetButtonAction>,
@@ -377,6 +397,10 @@ private fun WidgetContent(
         }
     val density = context.resources.displayMetrics.density
     val iconSizePx = (20.dp.value * density).roundToInt().coerceAtLeast(1)
+    val outerHorizontalPadding = internalHorizontalPaddingDp.dp
+    val verticalInset = internalVerticalPaddingDp.dp
+    val contentHorizontalPadding = 16.dp
+    val barHeight = (heightDp - (verticalInset * 2)).coerceAtLeast(1.dp)
     Box(
         modifier = GlanceModifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -385,7 +409,7 @@ private fun WidgetContent(
             modifier =
                 GlanceModifier
                     .fillMaxSize()
-                    .padding(0.dp)
+                    .padding(start = outerHorizontalPadding, end = outerHorizontalPadding)
                     .clickable(
                         onClick = actionStartActivity(launchIntent),
                         rippleOverride = android.R.color.transparent,
@@ -395,14 +419,14 @@ private fun WidgetContent(
             val widgetModifier =
                 GlanceModifier
                     .fillMaxWidth()
-                    .height(heightDp)
+                    .height(barHeight)
                     .background(
                         if (useDefaultBackground) {
                             ImageProvider(R.drawable.widget_quick_search_placeholder_outline)
                         } else {
                             ImageProvider(backgroundBitmap!!)
                         },
-                    ).padding(horizontal = 16.dp)
+                    ).padding(horizontal = contentHorizontalPadding)
 
             if (iconAlignLeft) {
                 // Left alignment: icon on left, text centered

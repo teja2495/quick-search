@@ -618,6 +618,9 @@
     <string name="widget_slider_transparency">Transparency</string>
     <string name="widget_slider_transparency_background">Background</string>
     <string name="widget_slider_transparency_border">Border</string>
+    <string name="widget_slider_internal_padding">Outer Padding</string>
+    <string name="widget_slider_internal_padding_horizontal">Horizontal</string>
+    <string name="widget_slider_internal_padding_vertical">Vertical</string>
     <string name="widget_toggle_show_label">Quick Search Text</string>
     <string name="widget_mic_icon">Mic Icon</string>
     <string name="widget_mic_action_default">Default</string>
@@ -645,7 +648,6 @@
     <string name="widget_custom_button_add_desc">Add custom button</string>
     <string name="widget_custom_buttons_restriction">Not available when custom buttons are active.</string>
     <string name="widget_action_cancel">Cancel</string>
-    <string name="widget_config_scroll_tip">Tip: Scroll to the bottom to add custom buttons to the widget to open apps, app shortcuts, contacts, files &amp; device settings.</string>
     <string name="desc_voice_search_icon">Start voice search</string>
     <string name="shortcut_voice_search_short_label">Voice Search</string>
     <string name="shortcut_voice_search_long_label">Open Voice Search</string>
