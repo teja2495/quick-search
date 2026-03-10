@@ -251,6 +251,9 @@
     <string name="dialog_edit_alias_error_prefix">This code overlaps with an existing alias code</string>
     <string name="dialog_add_alias_for_search_type_title">Add Alias for "%1$s"</string>
     <string name="dialog_edit_alias_for_search_type_title">Edit Alias for "%1$s"</string>
+    <string name="dialog_alias_info_search_type">Type alias at the start of your query to trigger the %1$s search.</string>
+    <string name="dialog_alias_info_search_engine">Type alias at the start or end of your query to quickly initiate search with %1$s.</string>
+    <string name="dialog_alias_info_tool">Type alias at the start of your query to enter into %1$s mode.</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
     <string name="dialog_edit_amazon_domain_message">Update Amazon domain for your country.</string>
     <string name="dialog_edit_amazon_domain_hint">Examples: amazon.com, amazon.in, amazon.ca, etc.</string>
@@ -429,10 +432,8 @@
          Settings - Shortcuts
          ============================================================================ -->
     <string name="settings_shortcuts_hint_message">Tip: Add a search engine shortcut at the start or end of your query to quickly search with that engine.</string>
-    <string name="settings_default_search_engine_hint_message">Tip: The first search engine in the list becomes your default. It is used when you press the keyboard\'s search button when there are no other results.</string>
     <string name="settings_shortcut_label">Shortcut:</string>
     <string name="settings_add_shortcut">Setup Shortcut</string>
-    <string name="settings_aliases_hint_message">Tip: Add an alias at the start or end of your query to quickly search with that search engine.</string>
     <string name="settings_alias_label">Alias:</string>
     <string name="settings_add_alias">Setup Alias</string>
     <string name="settings_edit_label">Edit</string>

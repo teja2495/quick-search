@@ -79,20 +79,6 @@ fun SettingsDetailRoute(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val userPreferences = remember { UserAppPreferences(context) }
-    var shouldShowShortcutHint by
-            remember(detailType) {
-                mutableStateOf(
-                        detailType == SettingsDetailType.SEARCH_ENGINES &&
-                                userPreferences.shouldShowShortcutHintBanner(),
-                )
-            }
-    var shouldShowDefaultEngineHint by
-            remember(detailType) {
-                mutableStateOf(
-                        detailType == SettingsDetailType.SEARCH_ENGINES &&
-                                userPreferences.shouldShowDefaultEngineHintBanner(),
-                )
-            }
     var isDefaultAssistant by remember { mutableStateOf(context.isDefaultDigitalAssistant()) }
     var assistantLaunchVoiceModeEnabled by
             remember {
@@ -127,29 +113,17 @@ fun SettingsDetailRoute(
                 wallpaperPermissionController.onRefreshPermissionState()
             }
             if (
-                    detailType != SettingsDetailType.SEARCH_ENGINES &&
-                            detailType != SettingsDetailType.LAUNCH_OPTIONS
+                    detailType != SettingsDetailType.LAUNCH_OPTIONS
             ) {
                 return@LifecycleEventObserver
             }
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                        userPreferences.resetShortcutHintBannerSessionDismissed()
-                        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
-                        shouldShowDefaultEngineHint =
-                                userPreferences.shouldShowDefaultEngineHintBanner()
-                    }
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                     assistantLaunchVoiceModeEnabled =
                             userPreferences.isAssistantLaunchVoiceModeEnabled()
                 }
                 Lifecycle.Event.ON_RESUME -> {
-                    if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
-                        shouldShowDefaultEngineHint =
-                                userPreferences.shouldShowDefaultEngineHintBanner()
-                    }
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                     assistantLaunchVoiceModeEnabled =
                             userPreferences.isAssistantLaunchVoiceModeEnabled()
@@ -159,18 +133,6 @@ fun SettingsDetailRoute(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    val onDismissShortcutHint = {
-        userPreferences.incrementShortcutHintBannerDismissCount()
-        userPreferences.setShortcutHintBannerSessionDismissed(true)
-        shouldShowShortcutHint = userPreferences.shouldShowShortcutHintBanner()
-        shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
-    }
-
-    val onDismissDefaultEngineHint = {
-        userPreferences.setDefaultEngineHintBannerDismissed(true)
-        shouldShowDefaultEngineHint = userPreferences.shouldShowDefaultEngineHintBanner()
     }
 
     val onToggleSection = rememberSectionToggleHandler(viewModel, uiState.disabledSections)
@@ -487,10 +449,6 @@ fun SettingsDetailRoute(
                 callbacks = callbacks,
                 detailType = detailType,
                 hasUsagePermission = uiState.hasUsagePermission,
-                showAliasHintBanner = shouldShowShortcutHint,
-                onDismissAliasHintBanner = onDismissShortcutHint,
-                showDefaultEngineHintBanner = shouldShowDefaultEngineHint,
-                onDismissDefaultEngineHintBanner = onDismissDefaultEngineHint,
                 isDefaultAssistant = isDefaultAssistant,
                 assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
                 directSearchSetupExpanded = directSearchSetupExpanded,

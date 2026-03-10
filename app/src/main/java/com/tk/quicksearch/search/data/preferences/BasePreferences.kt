@@ -534,12 +534,6 @@ abstract class BasePreferences(
         const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED =
             "usage_permission_banner_session_dismissed"
 
-        // Shortcut hint banner preferences keys
-        const val KEY_SHORTCUT_HINT_BANNER_DISMISS_COUNT =
-            "shortcut_hint_banner_dismiss_count"
-        const val KEY_SHORTCUT_HINT_BANNER_SESSION_DISMISSED =
-            "shortcut_hint_banner_session_dismissed"
-
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
         const val KEY_WEB_SUGGESTIONS_COUNT = "web_suggestions_count"

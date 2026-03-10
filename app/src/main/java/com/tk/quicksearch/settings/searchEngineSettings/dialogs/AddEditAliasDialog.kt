@@ -1,12 +1,17 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,6 +36,12 @@ import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 
+enum class AliasInfoType {
+    SEARCH_TYPE,
+    SEARCH_ENGINE,
+    TOOL,
+}
+
 /**
  * Reusable dialog for adding or editing a search target alias code.
  *
@@ -46,6 +57,8 @@ fun AddEditAliasDialog(
     existingShortcuts: Map<String, String>,
     currentShortcutId: String? = null,
     onSave: (String) -> Unit,
+    aliasInfoType: AliasInfoType = AliasInfoType.SEARCH_ENGINE,
+    aliasTargetName: String = "",
     dialogTitle: String? = null,
     validateCode: (String) -> Boolean = ::isValidShortcutCode,
     validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
@@ -73,6 +86,24 @@ fun AddEditAliasDialog(
     val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidConflict)
     val isEmptyInput = editingCode.text.isEmpty()
     val confirmEnabled = isEmptyInput || (isValidShortcut && isValidConflict)
+    val infoText =
+        when (aliasInfoType) {
+            AliasInfoType.SEARCH_TYPE ->
+                stringResource(
+                    R.string.dialog_alias_info_search_type,
+                    aliasTargetName,
+                )
+            AliasInfoType.SEARCH_ENGINE ->
+                stringResource(
+                    R.string.dialog_alias_info_search_engine,
+                    aliasTargetName,
+                )
+            AliasInfoType.TOOL ->
+                stringResource(
+                    R.string.dialog_alias_info_tool,
+                    aliasTargetName,
+                )
+        }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -119,6 +150,22 @@ fun AddEditAliasDialog(
                             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                         ),
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text = infoText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 if (showShortcutError) {
                     val errorMessage =
                         when {
@@ -162,6 +209,8 @@ fun EditAliasDialog(
     existingShortcuts: Map<String, String>,
     currentShortcutId: String? = null,
     onSave: (String) -> Unit,
+    aliasInfoType: AliasInfoType = AliasInfoType.SEARCH_ENGINE,
+    aliasTargetName: String = "",
     dialogTitle: String? = null,
     validateCode: (String) -> Boolean = ::isValidShortcutCode,
     validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
@@ -172,6 +221,8 @@ fun EditAliasDialog(
     existingShortcuts = existingShortcuts,
     currentShortcutId = currentShortcutId,
     onSave = onSave,
+    aliasInfoType = aliasInfoType,
+    aliasTargetName = aliasTargetName,
     dialogTitle = dialogTitle,
     validateCode = validateCode,
     validateConflict = validateConflict,

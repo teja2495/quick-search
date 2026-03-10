@@ -22,6 +22,12 @@ import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
 import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.searchEnginesScreen.AddEditAliasDialog
 
+enum class AliasDisplayType {
+    SEARCH_TYPE,
+    SEARCH_ENGINE,
+    TOOL,
+}
+
 /**
  * Display component for alias code with edit dialog.
  */
@@ -38,6 +44,7 @@ internal fun AliasCodeDisplay(
     conflictErrorMessage: String? = null,
     addAliasLabel: String? = null,
     allowClearAction: Boolean = true,
+    aliasDisplayType: AliasDisplayType = AliasDisplayType.SEARCH_ENGINE,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -50,6 +57,13 @@ internal fun AliasCodeDisplay(
             existingShortcuts = existingShortcuts,
             currentShortcutId = currentShortcutId,
             onSave = { code -> onCodeChange(code) },
+            aliasInfoType =
+                when (aliasDisplayType) {
+                    AliasDisplayType.SEARCH_TYPE -> AliasInfoType.SEARCH_TYPE
+                    AliasDisplayType.SEARCH_ENGINE -> AliasInfoType.SEARCH_ENGINE
+                    AliasDisplayType.TOOL -> AliasInfoType.TOOL
+                },
+            aliasTargetName = engineName,
             dialogTitle =
                 if (shortcutCode.isBlank()) {
                     stringResource(R.string.dialog_add_alias_for_search_type_title, engineName)

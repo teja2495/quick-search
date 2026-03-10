@@ -693,32 +693,6 @@ class UserAppPreferences(
             recentSearchesPreferences.setRecentQueriesEnabled(enabled)
 
     // ============================================================================
-    // Usage Permission Banner Preferences
-    // ============================================================================
-
-    fun getShortcutHintBannerDismissCount(): Int = uiPreferences.getShortcutHintBannerDismissCount()
-
-    fun incrementShortcutHintBannerDismissCount() =
-            uiPreferences.incrementShortcutHintBannerDismissCount()
-
-    fun isShortcutHintBannerSessionDismissed(): Boolean =
-            uiPreferences.isShortcutHintBannerSessionDismissed()
-
-    fun setShortcutHintBannerSessionDismissed(dismissed: Boolean) =
-            uiPreferences.setShortcutHintBannerSessionDismissed(dismissed)
-
-    fun resetShortcutHintBannerSessionDismissed() =
-            uiPreferences.resetShortcutHintBannerSessionDismissed()
-
-    fun shouldShowShortcutHintBanner(): Boolean = uiPreferences.shouldShowShortcutHintBanner()
-
-    fun shouldShowDefaultEngineHintBanner(): Boolean =
-            uiPreferences.shouldShowDefaultEngineHintBanner()
-
-    fun setDefaultEngineHintBannerDismissed(dismissed: Boolean) =
-            uiPreferences.setDefaultEngineHintBannerDismissed(dismissed)
-
-    // ============================================================================
     // Section Preferences
     // ============================================================================
 

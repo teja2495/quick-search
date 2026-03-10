@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -61,6 +62,7 @@ fun ToolToggleRow(
                                 engineName = tool.title,
                                 existingShortcuts = tool.existingShortcuts,
                                 currentShortcutId = tool.aliasFeatureId,
+                                aliasDisplayType = AliasDisplayType.TOOL,
                             )
                         }
                     } else {

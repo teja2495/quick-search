@@ -34,6 +34,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -216,6 +217,7 @@ private fun SectionRowWithoutDrag(
                             !hasExactAliasConflict(input, existing)
                         },
                         conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
+                        aliasDisplayType = AliasDisplayType.SEARCH_TYPE,
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }

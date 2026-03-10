@@ -14,7 +14,6 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.searchEngines.getId
-import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -50,10 +49,6 @@ fun SearchEngines(
     onOpenDirectSearchConfigure: (() -> Unit)? = null,
     showTitle: Boolean = true,
     directSearchAvailable: Boolean = false,
-    showAliasHintBanner: Boolean = false,
-    onDismissAliasHintBanner: (() -> Unit)? = null,
-    showDefaultEngineHintBanner: Boolean = false,
-    onDismissDefaultEngineHintBanner: (() -> Unit)? = null,
     directSearchSetupExpanded: Boolean = true,
     onToggleDirectSearchSetupExpanded: (() -> Unit)? = null,
     showAddSearchEngineButton: Boolean = true,
@@ -103,22 +98,6 @@ fun SearchEngines(
         Spacer(modifier = Modifier.height(6.dp))
     }
 
-    if (hasEnabledEngines && showAliasHintBanner && onDismissAliasHintBanner != null) {
-        AliasHintBanner(
-            onDismiss = onDismissAliasHintBanner,
-            modifier = Modifier.padding(bottom = 18.dp),
-        )
-    } else if (
-        hasEnabledEngines &&
-        showDefaultEngineHintBanner &&
-        onDismissDefaultEngineHintBanner != null
-    ) {
-        DefaultEngineHintBanner(
-            onDismiss = onDismissDefaultEngineHintBanner,
-            modifier = Modifier.padding(bottom = 18.dp),
-        )
-    }
-
     val enginesToDisplay =
         if (directSearchAvailable) {
             searchEngineOrder
@@ -159,28 +138,4 @@ fun SearchEngines(
             onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )
     }
-}
-
-@Composable
-private fun AliasHintBanner(
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TipBanner(
-        text = stringResource(R.string.settings_aliases_hint_message),
-        onDismiss = onDismiss,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun DefaultEngineHintBanner(
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    TipBanner(
-        text = stringResource(R.string.settings_default_search_engine_hint_message),
-        onDismiss = onDismiss,
-        modifier = modifier,
-    )
 }
