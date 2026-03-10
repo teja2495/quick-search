@@ -1,6 +1,7 @@
 package com.tk.quicksearch.searchEngines
 
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -377,6 +378,49 @@ class AliasHandler(
         val aliasMatch = detectAliasAtStart(query) ?: return null
         val searchTarget = aliasMatch.second.asSearchTargetOrNull() ?: return null
         return Pair(aliasMatch.first, searchTarget)
+    }
+
+    fun detectSectionAliasAtStart(query: String): Pair<String, SearchSection>? {
+        ensureInitialized()
+        if (query.isBlank()) return null
+
+        val aliases = buildMap<String, SearchSection> {
+            putSectionAlias(SEARCH_SECTION_APPS_ALIAS_ID, SearchSection.APPS)
+            putSectionAlias(SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID, SearchSection.APP_SHORTCUTS)
+            putSectionAlias(SEARCH_SECTION_CONTACTS_ALIAS_ID, SearchSection.CONTACTS)
+            putSectionAlias(SEARCH_SECTION_FILES_ALIAS_ID, SearchSection.FILES)
+            putSectionAlias(SEARCH_SECTION_SETTINGS_ALIAS_ID, SearchSection.SETTINGS)
+        }
+
+        val match = AliasParser.detectPrefixAlias(query, aliases) ?: return null
+        return Pair(match.queryWithoutAlias, match.target)
+    }
+
+    fun detectSectionAlias(query: String): Pair<String, SearchSection>? {
+        ensureInitialized()
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) return null
+
+        val aliases = buildMap<String, SearchSection> {
+            putSectionAlias(SEARCH_SECTION_APPS_ALIAS_ID, SearchSection.APPS)
+            putSectionAlias(SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID, SearchSection.APP_SHORTCUTS)
+            putSectionAlias(SEARCH_SECTION_CONTACTS_ALIAS_ID, SearchSection.CONTACTS)
+            putSectionAlias(SEARCH_SECTION_FILES_ALIAS_ID, SearchSection.FILES)
+            putSectionAlias(SEARCH_SECTION_SETTINGS_ALIAS_ID, SearchSection.SETTINGS)
+        }
+
+        val match = AliasParser.detectSuffixAlias(trimmedQuery, aliases) ?: return null
+        return Pair(match.queryWithoutAlias, match.target)
+    }
+
+    private fun MutableMap<String, SearchSection>.putSectionAlias(
+        aliasId: String,
+        section: SearchSection,
+    ) {
+        if (aliasEnabled[aliasId] != true) return
+        val aliasCode = aliasCodes[aliasId].orEmpty().lowercase(Locale.getDefault())
+        if (aliasCode.isEmpty()) return
+        put(aliasCode, section)
     }
 
     data class AliasesState(

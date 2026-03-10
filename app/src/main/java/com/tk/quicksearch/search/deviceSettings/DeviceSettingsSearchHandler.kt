@@ -95,17 +95,20 @@ class DeviceSettingsSearchHandler(
     fun searchSettings(
         queryContext: SearchQueryContext,
         recentSettingScores: Map<String, Int> = getRecentSettingScores(),
+        enableFuzzyMatching: Boolean = false,
     ): List<DeviceSetting> =
         searchSettingsInternal(
             queryContext = queryContext,
             excludedIds = userPreferences.getExcludedSettingIds(),
             recentSettingScores = recentSettingScores,
+            enableFuzzyMatching = enableFuzzyMatching,
         )
 
     private fun searchSettingsInternal(
         queryContext: SearchQueryContext,
         excludedIds: Set<String>,
         recentSettingScores: Map<String, Int>,
+        enableFuzzyMatching: Boolean = false,
     ): List<DeviceSetting> {
         val nicknameMatches =
             userPreferences
@@ -126,6 +129,7 @@ class DeviceSettingsSearchHandler(
             nicknameCache = nicknameCache,
             recentSettingScores = recentSettingScores,
             resultLimit = RESULT_LIMIT,
+            enableFuzzyMatching = enableFuzzyMatching,
         )
     }
 

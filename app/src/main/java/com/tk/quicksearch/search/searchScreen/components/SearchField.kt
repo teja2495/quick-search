@@ -17,8 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.Shortcut
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
@@ -69,6 +73,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
@@ -90,6 +95,7 @@ internal fun PersistentSearchField(
     onSearchAction: () -> Unit,
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutTarget: SearchTarget? = null,
+    detectedAliasSearchSection: SearchSection? = null,
     isCalculatorMode: Boolean = false,
     placeholderText: String,
     showWelcomeAnimation: Boolean = false,
@@ -319,10 +325,12 @@ internal fun PersistentSearchField(
                     }
                     .onPreviewKeyEvent { keyEvent ->
                         if (
-                            keyEvent.type == KeyEventType.KeyDown &&
+                                keyEvent.type == KeyEventType.KeyDown &&
                                 keyEvent.key == Key.Backspace &&
                                 textFieldValue.text.isEmpty() &&
-                                (detectedShortcutTarget != null || isCalculatorMode)
+                                (detectedShortcutTarget != null ||
+                                    detectedAliasSearchSection != null ||
+                                    isCalculatorMode)
                         ) {
                             onClearDetectedShortcut()
                             true
@@ -360,6 +368,24 @@ internal fun PersistentSearchField(
                         iconSize = DesignTokens.IconSize,
                         style = IconRenderStyle.ADVANCED,
                         modifier = Modifier.padding(start = DesignTokens.SpacingSmall),
+                    )
+                } else if (detectedAliasSearchSection != null) {
+                    Icon(
+                        imageVector =
+                            when (detectedAliasSearchSection) {
+                                SearchSection.APPS -> Icons.Rounded.Apps
+                                SearchSection.APP_SHORTCUTS -> Icons.AutoMirrored.Rounded.Shortcut
+                                SearchSection.CONTACTS -> Icons.Rounded.Person
+                                SearchSection.FILES -> Icons.AutoMirrored.Rounded.InsertDriveFile
+                                SearchSection.SETTINGS -> Icons.Rounded.Settings
+                            },
+                        contentDescription =
+                            stringResource(R.string.desc_search_icon),
+                        tint = iconAndTextColor,
+                        modifier =
+                            Modifier.padding(
+                                start = DesignTokens.SpacingXSmall,
+                            ),
                     )
                 } else {
                     Icon(

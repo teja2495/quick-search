@@ -394,6 +394,7 @@ data class SearchUiState(
         val calculatorState: CalculatorState = CalculatorState(),
         val webSuggestions: List<String> = emptyList(),
         val detectedShortcutTarget: SearchTarget? = null,
+        val detectedAliasSearchSection: SearchSection? = null,
         val webSuggestionWasSelected: Boolean = false,
         // Onboarding / hints
         val showSearchEngineOnboarding: Boolean = false,
@@ -461,6 +462,7 @@ fun SearchUiState(
                 webSuggestions = results.webSuggestions,
                 webSuggestionWasSelected = results.webSuggestionWasSelected,
                 detectedShortcutTarget = results.detectedShortcutTarget,
+                detectedAliasSearchSection = results.detectedAliasSearchSection,
                 recentItems = results.recentItems,
                 nicknameUpdateVersion = results.nicknameUpdateVersion,
                 contactActionsVersion = results.contactActionsVersion,

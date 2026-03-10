@@ -305,6 +305,7 @@ internal fun SearchScreenContent(
                 enabledTargets = enabledTargets,
                 shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard || isCalculatorMode,
                 detectedShortcutTarget = state.detectedShortcutTarget,
+                detectedAliasSearchSection = state.detectedAliasSearchSection,
                 isCalculatorMode = isCalculatorMode,
                 placeholderText = searchHintText,
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
@@ -444,7 +445,8 @@ internal fun SearchScreenContent(
                         stringResource(R.string.keyboard_switch_back)
                     } else if (state.query.isNotEmpty() &&
                                     state.query.none { it.isLetter() } &&
-                                    state.detectedShortcutTarget == null
+                                    state.detectedShortcutTarget == null &&
+                                    state.detectedAliasSearchSection == null
                     ) {
                         stringResource(R.string.keyboard_switch_to_number)
                     } else {
@@ -567,7 +569,9 @@ internal fun SearchScreenContent(
 
         if (showSearchField && showBottomSearchBar) {
             val shouldShowCompactBottomBarBackground =
-                    state.isSearchEngineCompactMode && state.detectedShortcutTarget == null
+                    state.isSearchEngineCompactMode &&
+                            state.detectedShortcutTarget == null &&
+                            state.detectedAliasSearchSection == null
 
             if (shouldShowCompactBottomBarBackground) {
                 Box(

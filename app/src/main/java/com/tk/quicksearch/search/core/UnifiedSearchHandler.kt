@@ -15,9 +15,11 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
+import com.tk.quicksearch.search.utils.FuzzyMatcher
 import com.tk.quicksearch.search.utils.FileUtils
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -43,6 +45,7 @@ class UnifiedSearchHandler(
         companion object {
                 private const val NICKNAME_ONLY_FILE_URI_HYDRATION_LIMIT =
                         FileSearchHandler.FILE_SEARCH_RESULT_LIMIT * 2
+                private const val ALIAS_FUZZY_MIN_SCORE = 78
         }
 
         suspend fun performSearch(
@@ -52,6 +55,9 @@ class UnifiedSearchHandler(
                 canSearchFiles: Boolean,
                 canSearchSettings: Boolean,
                 canSearchAppShortcuts: Boolean,
+                enableFuzzyContactSearch: Boolean = false,
+                enableFuzzyFileSearch: Boolean = false,
+                enableFuzzySettingsSearch: Boolean = false,
                 showFolders: Boolean = true,
                 showSystemFiles: Boolean = false,
                 showHiddenFiles: Boolean = false,
@@ -121,6 +127,8 @@ class UnifiedSearchHandler(
                                                         settingsSearchHandler.searchSettings(
                                                                 queryContext,
                                                                 recencyIndex.settingScores,
+                                                                enableFuzzyMatching =
+                                                                        enableFuzzySettingsSearch,
                                                         )
                                                 } else {
                                                         emptyList()
@@ -170,10 +178,11 @@ class UnifiedSearchHandler(
 
                         // Combine and filter results
                         val filteredContacts =
-                                filterAndRankContacts(
+                                        filterAndRankContacts(
                                                 contactResults + nicknameContacts,
                                                 queryContext,
                                                 recencyIndex.contactScores,
+                                                enableFuzzyContactSearch,
                                         )
                                         .take(SearchOperations.CONTACT_RESULT_LIMIT)
                         val filteredFiles =
@@ -181,6 +190,7 @@ class UnifiedSearchHandler(
                                         fileResults + nicknameFiles,
                                         queryContext,
                                         recencyIndex.fileScores,
+                                        enableFuzzyFileSearch,
                                 )
 
                         val hydratedContacts =
@@ -300,6 +310,7 @@ class UnifiedSearchHandler(
                 contacts: List<ContactInfo>,
                 queryContext: SearchQueryContext,
                 recentContactScores: Map<Long, Int>,
+                enableFuzzyMatching: Boolean,
         ): List<ContactInfo> {
                 if (contacts.isEmpty()) return emptyList()
 
@@ -312,7 +323,8 @@ class UnifiedSearchHandler(
                                         userPreferences.getContactNickname(contact.contactId)
                         }
 
-                return distinctContacts
+                val exactMatches =
+                        distinctContacts
                         .mapNotNull { contact: ContactInfo ->
                                 val nickname = contactNicknames[contact.contactId]
                                 val priority =
@@ -335,12 +347,49 @@ class UnifiedSearchHandler(
                                 ),
                         )
                         .map { it.first }
+
+                if (!enableFuzzyMatching) return exactMatches
+
+                val exactContactIds = exactMatches.map { it.contactId }.toSet()
+                val fuzzyMatches =
+                        distinctContacts
+                                .asSequence()
+                                .filterNot { exactContactIds.contains(it.contactId) }
+                                .mapNotNull { contact ->
+                                        val normalizedName =
+                                                SearchTextNormalizer.normalizeForSearch(
+                                                        contact.displayName
+                                                )
+                                        val normalizedNickname =
+                                                contactNicknames[contact.contactId]
+                                                        ?.let { SearchTextNormalizer.normalizeForSearch(it) }
+                                        val fuzzyScore =
+                                                FuzzyMatcher.score(
+                                                        query = queryContext.normalizedQuery,
+                                                        primaryTarget = normalizedName,
+                                                        secondaryTarget = normalizedNickname,
+                                                )
+                                        if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE) {
+                                                null
+                                        } else {
+                                                contact to fuzzyScore
+                                        }
+                                }
+                                .sortedWith(
+                                        compareByDescending<Pair<ContactInfo, Int>> { it.second }
+                                                .thenBy { it.first.displayName.lowercase() },
+                                )
+                                .map { it.first }
+                                .toList()
+
+                return exactMatches + fuzzyMatches
         }
 
         private fun filterAndRankFiles(
                 files: List<DeviceFile>,
                 queryContext: SearchQueryContext,
                 recentFileScores: Map<String, Int>,
+                enableFuzzyMatching: Boolean,
         ): List<DeviceFile> {
                 if (files.isEmpty()) return emptyList()
 
@@ -352,7 +401,8 @@ class UnifiedSearchHandler(
                                         userPreferences.getFileNickname(file.uri.toString())
                         }
 
-                return distinctFiles
+                val exactMatches =
+                        distinctFiles
                         .mapNotNull { file: DeviceFile ->
                                 val uriString = file.uri.toString()
                                 val nickname = fileNicknames[uriString]
@@ -377,5 +427,42 @@ class UnifiedSearchHandler(
                         )
                         .map { it.first }
                         .take(FileSearchHandler.FILE_SEARCH_RESULT_LIMIT)
+
+                if (!enableFuzzyMatching) return exactMatches
+
+                val exactFileUris = exactMatches.map { it.uri.toString() }.toSet()
+                val fuzzyMatches =
+                        distinctFiles
+                                .asSequence()
+                                .filterNot { exactFileUris.contains(it.uri.toString()) }
+                                .mapNotNull { file ->
+                                        val uriString = file.uri.toString()
+                                        val normalizedName =
+                                                SearchTextNormalizer.normalizeForSearch(
+                                                        file.displayName
+                                                )
+                                        val normalizedNickname =
+                                                fileNicknames[uriString]
+                                                        ?.let { SearchTextNormalizer.normalizeForSearch(it) }
+                                        val fuzzyScore =
+                                                FuzzyMatcher.score(
+                                                        query = queryContext.normalizedQuery,
+                                                        primaryTarget = normalizedName,
+                                                        secondaryTarget = normalizedNickname,
+                                                )
+                                        if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE) {
+                                                null
+                                        } else {
+                                                file to fuzzyScore
+                                        }
+                                }
+                                .sortedWith(
+                                        compareByDescending<Pair<DeviceFile, Int>> { it.second }
+                                                .thenBy { it.first.displayName.lowercase() },
+                                )
+                                .map { it.first }
+                                .toList()
+
+                return (exactMatches + fuzzyMatches).take(FileSearchHandler.FILE_SEARCH_RESULT_LIMIT)
         }
 }

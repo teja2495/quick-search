@@ -145,6 +145,9 @@ class SecondarySearchOrchestrator(
                         canSearchFiles = shouldSearchFiles,
                         canSearchSettings = shouldSearchSettings,
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
+                        enableFuzzyContactSearch = false,
+                        enableFuzzyFileSearch = false,
+                        enableFuzzySettingsSearch = false,
                         showFolders = currentState.showFolders,
                         showSystemFiles = currentState.showSystemFiles,
                         showHiddenFiles = currentState.showHiddenFiles,
@@ -208,6 +211,98 @@ class SecondarySearchOrchestrator(
                                 state.copy(webSuggestions = emptyList())
                             }
                         }
+                    }
+                }
+            }
+    }
+
+    fun performTargetedSecondarySearch(
+        query: String,
+        section: SearchSection,
+        useFuzzyMatching: Boolean,
+    ) {
+        if (!isOnMainThread()) {
+            scope.launch(Dispatchers.Main.immediate) {
+                performTargetedSecondarySearchInternal(query, section, useFuzzyMatching)
+            }
+            return
+        }
+        performTargetedSecondarySearchInternal(query, section, useFuzzyMatching)
+    }
+
+    private fun performTargetedSecondarySearchInternal(
+        query: String,
+        section: SearchSection,
+        useFuzzyMatching: Boolean,
+    ) {
+        searchJob?.cancel()
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) {
+            uiStateUpdater {
+                it.copy(
+                    contactResults = emptyList(),
+                    fileResults = emptyList(),
+                    settingResults = emptyList(),
+                    appShortcutResults = emptyList(),
+                    webSuggestions = emptyList(),
+                )
+            }
+            return
+        }
+
+        val currentState = currentStateProvider()
+        val isSingleCharacterQuery = trimmedQuery.length == 1
+        val isContactsEnabled =
+            !isSingleCharacterQuery &&
+                currentState.hasContactPermission &&
+                SearchSection.CONTACTS !in sectionManager.disabledSections
+        val isFilesEnabled =
+            !isSingleCharacterQuery &&
+                currentState.hasFilePermission &&
+                SearchSection.FILES !in sectionManager.disabledSections
+        val isSettingsEnabled =
+            !isSingleCharacterQuery && SearchSection.SETTINGS !in sectionManager.disabledSections
+        val isAppShortcutsEnabled =
+            SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
+
+        val shouldSearchContacts = section == SearchSection.CONTACTS && isContactsEnabled
+        val shouldSearchFiles = section == SearchSection.FILES && isFilesEnabled
+        val shouldSearchSettings = section == SearchSection.SETTINGS && isSettingsEnabled
+        val shouldSearchAppShortcuts =
+            section == SearchSection.APP_SHORTCUTS && isAppShortcutsEnabled
+
+        val currentVersion = queryVersion.incrementAndGet()
+        searchJob =
+            scope.launch(Dispatchers.IO) {
+                delay(SECONDARY_SEARCH_DEBOUNCE_MS)
+                if (currentVersion != queryVersion.get()) return@launch
+
+                val unifiedResults =
+                    unifiedSearchHandler.performSearch(
+                        query = trimmedQuery,
+                        enabledFileTypes = currentState.enabledFileTypes,
+                        canSearchContacts = shouldSearchContacts,
+                        canSearchFiles = shouldSearchFiles,
+                        canSearchSettings = shouldSearchSettings,
+                        canSearchAppShortcuts = shouldSearchAppShortcuts,
+                        enableFuzzyContactSearch = shouldSearchContacts && useFuzzyMatching,
+                        enableFuzzyFileSearch = shouldSearchFiles && useFuzzyMatching,
+                        enableFuzzySettingsSearch = shouldSearchSettings && useFuzzyMatching,
+                        showFolders = currentState.showFolders,
+                        showSystemFiles = currentState.showSystemFiles,
+                        showHiddenFiles = currentState.showHiddenFiles,
+                    )
+
+                withContext(Dispatchers.Main) {
+                    if (currentVersion != queryVersion.get()) return@withContext
+                    uiStateUpdater { state ->
+                        state.copy(
+                            contactResults = unifiedResults.contactResults,
+                            fileResults = unifiedResults.fileResults,
+                            settingResults = unifiedResults.settingResults,
+                            appShortcutResults = unifiedResults.appShortcutResults,
+                            webSuggestions = emptyList(),
+                        )
                     }
                 }
             }

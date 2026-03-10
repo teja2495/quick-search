@@ -76,6 +76,7 @@ data class SearchResultsState(
         val webSuggestions: List<String> = emptyList(),
         val webSuggestionWasSelected: Boolean = false,
         val detectedShortcutTarget: SearchTarget? = null,
+        val detectedAliasSearchSection: SearchSection? = null,
         // Recent items (shown when query is blank)
         val recentItems: List<RecentSearchItem> = emptyList(),
         // Cache invalidation counters

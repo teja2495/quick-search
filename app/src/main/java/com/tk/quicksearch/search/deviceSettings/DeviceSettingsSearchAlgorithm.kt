@@ -2,8 +2,12 @@ package com.tk.quicksearch.search.deviceSettings
 
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
+import com.tk.quicksearch.search.utils.FuzzyMatcher
+import com.tk.quicksearch.search.utils.SearchTextNormalizer
 
 object DeviceSettingsSearchAlgorithm {
+    private const val ALIAS_FUZZY_MIN_SCORE = 78
+
     fun search(
         fullList: List<DeviceSetting>,
         query: String,
@@ -12,6 +16,7 @@ object DeviceSettingsSearchAlgorithm {
         nicknameCache: Map<String, String?>,
         recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
+        enableFuzzyMatching: Boolean = false,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
         val trimmed = query.trim()
@@ -24,6 +29,7 @@ object DeviceSettingsSearchAlgorithm {
             nicknameCache = nicknameCache,
             recentSettingScores = recentSettingScores,
             resultLimit = resultLimit,
+            enableFuzzyMatching = enableFuzzyMatching,
         )
     }
 
@@ -35,13 +41,15 @@ object DeviceSettingsSearchAlgorithm {
         nicknameCache: Map<String, String?>,
         recentSettingScores: Map<String, Int> = emptyMap(),
         resultLimit: Int = 25,
+        enableFuzzyMatching: Boolean = false,
     ): List<DeviceSetting> {
         if (fullList.isEmpty()) return emptyList()
         if (queryContext.normalizedQuery.isBlank()) return emptyList()
 
         val settingsToSearch = fullList.filterNot { excludedIds.contains(it.id) }
 
-        return settingsToSearch
+        val exactMatches =
+            settingsToSearch
             .asSequence()
             .mapNotNull { shortcut ->
                 val matchResult =
@@ -65,5 +73,48 @@ object DeviceSettingsSearchAlgorithm {
             ).take(resultLimit)
             .map { it.first }
             .toList()
+
+        if (!enableFuzzyMatching) return exactMatches
+
+        val exactMatchIds = exactMatches.map { it.id }.toSet()
+        val fuzzyMatches =
+            settingsToSearch
+                .asSequence()
+                .filterNot { exactMatchIds.contains(it.id) }
+                .mapNotNull { setting ->
+                    val normalizedTitle = SearchTextNormalizer.normalizeForSearch(setting.title)
+                    val normalizedSupportingText =
+                        SearchTextNormalizer.normalizeForSearch(
+                            buildString {
+                                append(setting.description.orEmpty())
+                                if (setting.keywords.isNotEmpty()) {
+                                    append(' ')
+                                    append(setting.keywords.joinToString(" "))
+                                }
+                                val nickname = nicknameCache[setting.id]
+                                if (!nickname.isNullOrBlank()) {
+                                    append(' ')
+                                    append(nickname)
+                                }
+                            },
+                        )
+                    val fuzzyScore =
+                        FuzzyMatcher.score(
+                            query = queryContext.normalizedQuery,
+                            primaryTarget = normalizedTitle,
+                            secondaryTarget = normalizedSupportingText,
+                        )
+                    if (fuzzyScore < ALIAS_FUZZY_MIN_SCORE) {
+                        null
+                    } else {
+                        setting to fuzzyScore
+                    }
+                }.sortedWith(
+                    compareByDescending<Pair<DeviceSetting, Int>> { it.second }
+                        .thenBy { it.first.title.lowercase() },
+                ).map { it.first }
+                .toList()
+
+        return (exactMatches + fuzzyMatches).take(resultLimit)
     }
 }

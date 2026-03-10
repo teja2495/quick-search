@@ -39,6 +39,15 @@ import com.tk.quicksearch.search.searchScreen.ScrollBasedKeyboardBehavior
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
+    when (this) {
+        SearchSection.APP_SHORTCUTS -> ExpandedSection.APP_SHORTCUTS
+        SearchSection.CONTACTS -> ExpandedSection.CONTACTS
+        SearchSection.FILES -> ExpandedSection.FILES
+        SearchSection.SETTINGS -> ExpandedSection.SETTINGS
+        SearchSection.APPS -> ExpandedSection.NONE
+    }
+
 @Composable
 internal fun SearchScreenStateManagement(
     state: SearchUiState,
@@ -227,8 +236,16 @@ internal fun SearchScreenStateManagement(
         }
     }
 
-    // Reset expansion when query changes
-    LaunchedEffect(state.query) { expandedSection = ExpandedSection.NONE }
+    // Keep alias-triggered searches expanded by default.
+    LaunchedEffect(state.query, state.detectedAliasSearchSection) {
+        val aliasSection = state.detectedAliasSearchSection
+        expandedSection =
+            if (aliasSection != null) {
+                aliasSection.toExpandedSectionOrNone()
+            } else {
+                ExpandedSection.NONE
+            }
+    }
 
     LaunchedEffect(isOverlayPresentation, onOverlayScrollableContentChanged, scrollState) {
         if (!isOverlayPresentation) return@LaunchedEffect
@@ -251,7 +268,10 @@ internal fun SearchScreenStateManagement(
     }
 
     // Handle back button when section is expanded
-    BackHandler(enabled = expandedSection != ExpandedSection.NONE) {
+    BackHandler(
+        enabled =
+            expandedSection != ExpandedSection.NONE && state.detectedAliasSearchSection == null,
+    ) {
         keyboardController?.show()
         expandedSection = ExpandedSection.NONE
     }
@@ -395,7 +415,8 @@ internal fun SearchScreenStateManagement(
             pinnedFiles = state.pinnedFiles,
             pinnedSettings = state.pinnedSettings,
             orderedSections = derivedState.orderedSections,
-            shortcutDetected = state.detectedShortcutTarget != null,
+            shortcutDetected =
+                state.detectedShortcutTarget != null || state.detectedAliasSearchSection != null,
         )
 
     return SearchScreenStateResult(

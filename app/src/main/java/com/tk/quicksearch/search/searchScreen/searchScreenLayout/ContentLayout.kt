@@ -184,6 +184,17 @@ fun ContentLayout(
 
     val hidePinnedAndAppsWhenSearchHistoryExpanded =
         showRecentItems && searchHistoryExpanded
+    val activeAliasSection = state.detectedAliasSearchSection
+    val isSectionAliasMode = activeAliasSection != null
+
+    fun shouldRenderSection(section: SearchSection): Boolean {
+        if (hidePinnedAndAppsWhenSearchHistoryExpanded) return false
+        return if (isSectionAliasMode) {
+            activeAliasSection == section
+        } else {
+            !hideResults
+        }
+    }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         finalLayoutOrder.forEach { itemType ->
@@ -301,9 +312,8 @@ fun ContentLayout(
                 // When search history is expanded, hide app suggestions and pinned items.
                 ItemPriorityConfig.ItemType.APPS_SECTION -> {
                     if (
-                        !hideResults &&
-                                !isUrlQuery &&
-                                !hidePinnedAndAppsWhenSearchHistoryExpanded
+                        shouldRenderSection(SearchSection.APPS) &&
+                                !isUrlQuery
                     ) {
                         renderSection(
                             SearchSection.APPS,
@@ -314,7 +324,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.APP_SHORTCUTS_SECTION -> {
-                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                    if (shouldRenderSection(SearchSection.APP_SHORTCUTS)) {
                         renderSection(
                             SearchSection.APP_SHORTCUTS,
                             sectionParams,
@@ -324,7 +334,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.FILES_SECTION -> {
-                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                    if (shouldRenderSection(SearchSection.FILES)) {
                         renderSection(
                             SearchSection.FILES,
                             sectionParams,
@@ -334,7 +344,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.CONTACTS_SECTION -> {
-                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                    if (shouldRenderSection(SearchSection.CONTACTS)) {
                         renderSection(
                             SearchSection.CONTACTS,
                             sectionParams,
@@ -344,7 +354,7 @@ fun ContentLayout(
                 }
 
                 ItemPriorityConfig.ItemType.SETTINGS_SECTION -> {
-                    if (!hideResults && !hidePinnedAndAppsWhenSearchHistoryExpanded) {
+                    if (shouldRenderSection(SearchSection.SETTINGS)) {
                         renderSection(
                             SearchSection.SETTINGS,
                             sectionParams,

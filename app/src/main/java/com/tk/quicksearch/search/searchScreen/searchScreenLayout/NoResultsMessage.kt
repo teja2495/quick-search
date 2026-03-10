@@ -31,6 +31,7 @@ internal fun computeShouldShowNoResults(state: SearchUiState): Boolean {
     return trimmedQuery.isNotBlank() &&
         !hasAnySearchResults &&
         state.detectedShortcutTarget == null &&
+        state.detectedAliasSearchSection == null &&
         (
             !state.webSuggestionsEnabled ||
                 (queryLength >= 2 && state.webSuggestions.isEmpty())
@@ -65,6 +66,7 @@ internal fun NoResultsMessage(state: SearchUiState) {
             state.webSuggestionsEnabled,
             state.webSuggestions,
             state.detectedShortcutTarget,
+            state.detectedAliasSearchSection,
         ) {
             computeShouldShowNoResults(state)
         }

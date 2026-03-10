@@ -109,7 +109,10 @@ fun SearchContentArea(
     val useOneHandedMode =
         state.oneHandedMode && renderingState.expandedSection == ExpandedSection.NONE
     val hideOtherResults =
-        showDirectSearch || showCalculator || (state.detectedShortcutTarget != null)
+        showDirectSearch ||
+                showCalculator ||
+                (state.detectedShortcutTarget != null) ||
+                (state.detectedAliasSearchSection != null)
     val hasQuery = state.query.isNotBlank()
     val isUrlQuery = remember(state.query) { isLikelyWebUrl(state.query) }
     val hasAnySearchContent =
@@ -131,6 +134,7 @@ fun SearchContentArea(
             state.webSuggestionsEnabled,
             state.webSuggestions,
             state.detectedShortcutTarget,
+            state.detectedAliasSearchSection,
         ) {
             computeShouldShowNoResults(state)
         }
@@ -142,6 +146,7 @@ fun SearchContentArea(
                 directSearchState?.status == DirectSearchStatus.Error &&
                 !directSearchState.activeQuery.isNullOrBlank() &&
                 renderingState.expandedSection == ExpandedSection.NONE
+    val isSectionAliasMode = state.detectedAliasSearchSection != null
     val effectiveShowWallpaperBackground = state.showWallpaperBackground
     val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -393,7 +398,7 @@ fun SearchContentArea(
                 }
             }
 
-            if (renderingState.expandedSection != ExpandedSection.NONE) {
+            if (renderingState.expandedSection != ExpandedSection.NONE && !isSectionAliasMode) {
                 CollapseButton(
                     onClick = {
                         when (renderingState.expandedSection) {
