@@ -39,8 +39,8 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 
@@ -94,14 +94,14 @@ fun EditCustomSearchEngineDialog(
     val showUrlError =
         urlInput.text.isNotBlank() && validation is CustomSearchTemplateValidation.Invalid
     val normalizedShortcut = remember(shortcutInput.text) { normalizeShortcutCodeInput(shortcutInput.text) }
-    val isShortcutValid = remember(normalizedShortcut) { isValidShortcutCode(normalizedShortcut) }
+    val isShortcutValid = remember(normalizedShortcut) { isValidGeneralAliasCode(normalizedShortcut) }
     val existingShortcutsForValidation =
         remember(customEngine.id, existingShortcuts) {
             existingShortcuts.filterKeys { it != "$CUSTOM_ID_PREFIX${customEngine.id}" }
         }
     val isShortcutPrefixValid =
         remember(normalizedShortcut, existingShortcutsForValidation) {
-            isValidShortcutPrefix(normalizedShortcut, existingShortcutsForValidation)
+            !hasExactAliasConflict(normalizedShortcut, existingShortcutsForValidation)
         }
     val showShortcutError =
         shortcutInput.text.isNotBlank() && (!isShortcutValid || !isShortcutPrefixValid)
@@ -227,7 +227,7 @@ fun EditCustomSearchEngineDialog(
                             val errorMessage =
                                 when {
                                     !isShortcutPrefixValid -> stringResource(R.string.dialog_edit_alias_error_prefix)
-                                    !isShortcutValid -> stringResource(R.string.dialog_edit_alias_error_length)
+                                    !isShortcutValid -> stringResource(R.string.dialog_edit_alias_error_prefix)
                                     else -> ""
                                 }
                             Text(text = errorMessage)

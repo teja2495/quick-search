@@ -7,6 +7,7 @@ import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
@@ -24,7 +25,6 @@ class AliasHandler(
 ) {
     companion object {
         const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
-        const val DEFAULT_CALCULATOR_ALIAS = "cal"
         const val SEARCH_SECTION_APPS_ALIAS_ID = "search_section_apps"
         const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID = "search_section_app_shortcuts"
         const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
@@ -76,49 +76,22 @@ class AliasHandler(
         aliasEnabled =
             targets.associate { target ->
                 val id = target.getId()
-                val enabled =
-                    when (target) {
-                        is SearchTarget.Engine -> {
-                            userPreferences.isAliasEnabled(target.engine)
-                        }
-
-                        is SearchTarget.Browser -> {
-                            aliasCodes[id].orEmpty().isNotEmpty()
-                        }
-
-                        is SearchTarget.Custom -> {
-                            aliasCodes[id].orEmpty().isNotEmpty()
-                        }
-                    }
+                val enabled = aliasCodes[id].orEmpty().isNotEmpty()
                 id to enabled
-            }
-        aliasCodes =
-            aliasCodes.toMutableMap().apply {
-                targets.forEach { target ->
-                    if (target is SearchTarget.Engine && aliasEnabled[target.getId()] == false) {
-                        put(target.getId(), "")
-                    }
-                }
             }
 
         val persistedCalculatorAlias =
             userPreferences.getAliasCode(CALCULATOR_ALIAS_FEATURE_ID).orEmpty()
-        val normalizedCalculatorAlias = normalizeShortcutCodeInput(persistedCalculatorAlias)
-        val isCalculatorAliasEnabled =
-            userPreferences.isAliasEnabled(
-                CALCULATOR_ALIAS_FEATURE_ID,
-                defaultValue = true,
-            )
         val calculatorAlias =
-            when {
-                !isCalculatorAliasEnabled -> ""
-                isValidShortcutCode(normalizedCalculatorAlias) -> normalizedCalculatorAlias
-                else -> DEFAULT_CALCULATOR_ALIAS
+            if (isValidGeneralAliasCode(persistedCalculatorAlias)) {
+                normalizeShortcutCodeInput(persistedCalculatorAlias)
+            } else {
+                ""
             }
-        if (isCalculatorAliasEnabled && persistedCalculatorAlias != calculatorAlias) {
-            userPreferences.setAliasCode(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
-        } else if (!isCalculatorAliasEnabled && persistedCalculatorAlias.isNotBlank()) {
+        if (persistedCalculatorAlias.isNotBlank() && calculatorAlias.isEmpty()) {
             userPreferences.clearAliasCode(CALCULATOR_ALIAS_FEATURE_ID)
+        } else if (persistedCalculatorAlias != calculatorAlias) {
+            userPreferences.setAliasCodeAllowSingleChar(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
         }
         aliasCodes =
             aliasCodes.toMutableMap().apply {
@@ -126,7 +99,7 @@ class AliasHandler(
             }
         aliasEnabled =
             aliasEnabled.toMutableMap().apply {
-                put(CALCULATOR_ALIAS_FEATURE_ID, isCalculatorAliasEnabled && calculatorAlias.isNotEmpty())
+                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias.isNotEmpty())
             }
 
         SEARCH_SECTION_ALIAS_IDS.forEach { sectionAliasId ->
@@ -195,13 +168,13 @@ class AliasHandler(
             val engineTarget = (target as? SearchTarget.Engine)?.engine
                 ?: SearchEngine.values().firstOrNull { it.name == targetId }
             val isSearchSectionAlias = targetId in SEARCH_SECTION_ALIAS_IDS
+            val isSearchEngineAlias = engineTarget != null
 
             if (normalizedCode.isEmpty()) {
-                userPreferences.clearAliasCode(targetId)
                 if (engineTarget != null) {
-                    userPreferences.setAliasEnabled(engineTarget, false)
+                    userPreferences.setAliasCode(engineTarget, "")
                 } else {
-                    userPreferences.setAliasEnabled(targetId, false)
+                    userPreferences.clearAliasCode(targetId)
                 }
                 aliasCodes = aliasCodes.toMutableMap().apply { put(targetId, "") }
                 aliasEnabled = aliasEnabled.toMutableMap().apply { put(targetId, false) }
@@ -215,10 +188,10 @@ class AliasHandler(
             }
 
             val isValidCode =
-                if (isSearchSectionAlias) {
-                    normalizedCode.isNotEmpty()
-                } else {
+                if (isSearchEngineAlias) {
                     isValidShortcutCode(normalizedCode)
+                } else {
+                    isValidGeneralAliasCode(normalizedCode)
                 }
             if (!isValidCode) {
                 return@launch
@@ -229,10 +202,10 @@ class AliasHandler(
                     .filterKeys { it != targetId }
                     .filterValues { it.isNotBlank() }
             val isConflictFree =
-                if (isSearchSectionAlias) {
-                    !hasExactAliasConflict(normalizedCode, existingAliasesForValidation)
-                } else {
+                if (isSearchEngineAlias) {
                     isValidShortcutPrefix(normalizedCode, existingAliasesForValidation)
+                } else {
+                    !hasExactAliasConflict(normalizedCode, existingAliasesForValidation)
                 }
             if (!isConflictFree) {
                 return@launch
@@ -240,15 +213,10 @@ class AliasHandler(
 
             if (engineTarget != null) {
                 userPreferences.setAliasCode(engineTarget, normalizedCode)
-                userPreferences.setAliasEnabled(engineTarget, true)
             } else if (isSearchSectionAlias) {
                 userPreferences.setAliasCodeAllowSingleChar(targetId, normalizedCode)
-                userPreferences.setAliasEnabled(targetId, true)
             } else {
                 userPreferences.setAliasCode(targetId, normalizedCode)
-                if (targetId == CALCULATOR_ALIAS_FEATURE_ID) {
-                    userPreferences.setAliasEnabled(targetId, true)
-                }
             }
             aliasCodes = aliasCodes.toMutableMap().apply { put(targetId, normalizedCode) }
             aliasEnabled = aliasEnabled.toMutableMap().apply { put(targetId, true) }
@@ -266,11 +234,8 @@ class AliasHandler(
         enabled: Boolean,
     ) {
         scope.launch(Dispatchers.IO) {
-            if (target is SearchTarget.Engine) {
-                userPreferences.setAliasEnabled(target.engine, enabled)
-            }
             val id = target.getId()
-            aliasEnabled = aliasEnabled.toMutableMap().apply { put(id, enabled) }
+            aliasEnabled = aliasEnabled.toMutableMap().apply { put(id, getAlias(target).isNotEmpty()) }
             uiStateUpdater { it.copy(shortcutEnabled = aliasEnabled) }
         }
     }
@@ -302,12 +267,7 @@ class AliasHandler(
 
     fun isAliasEnabled(target: SearchTarget): Boolean {
         val id = target.getId()
-        return aliasEnabled[id]
-            ?: when (target) {
-                is SearchTarget.Engine -> userPreferences.isAliasEnabled(target.engine)
-                is SearchTarget.Browser -> getAlias(target).isNotEmpty()
-                is SearchTarget.Custom -> getAlias(target).isNotEmpty()
-            }
+        return aliasEnabled[id] ?: getAlias(target).isNotEmpty()
     }
 
     fun detectAliasAtStart(query: String): Pair<String, AliasTarget>? {

@@ -8,22 +8,23 @@ import java.util.Locale
  */
 object AliasValidator {
     /**
-     * Normalizes shortcut input by trimming, lowercasing, and filtering to valid characters. Only
-     * allows letters and digits, removes spaces and special characters.
+     * Normalizes shortcut input by trimming, lowercasing, and removing whitespace.
      */
     fun normalizeShortcutCodeInput(input: String): String =
-        input.trim().lowercase(Locale.getDefault()).filter { char -> char.isLetterOrDigit() }
+        input.trim().lowercase(Locale.getDefault()).filterNot { char -> char.isWhitespace() }
 
     /**
-     * Validates shortcut input. Must contain only letters and digits, be non-empty, and at least 2
-     * characters.
+     * Validates search-engine shortcut input. Must be non-empty and at least 2 characters after
+     * normalization.
      */
     fun isValidShortcutCode(input: String): Boolean {
         val normalized = normalizeShortcutCodeInput(input)
-        return normalized.isNotEmpty() &&
-            normalized.length >= 2 &&
-            normalized.all { it.isLetterOrDigit() }
+        return normalized.length >= 2
     }
+
+    /** Validates non-search-engine aliases. Any non-empty normalized code is allowed. */
+    fun isValidGeneralAliasCode(input: String): Boolean =
+        normalizeShortcutCodeInput(input).isNotEmpty()
 
     /**
      * Validates that a shortcut does not conflict with any existing shortcut. A conflict occurs if
