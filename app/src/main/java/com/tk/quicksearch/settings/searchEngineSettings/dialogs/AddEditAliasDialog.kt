@@ -2,13 +2,11 @@ package com.tk.quicksearch.settings.searchEnginesScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,31 +27,29 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutPrefix
-import com.tk.quicksearch.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 
 /**
- * Dialog for editing a search target alias code.
+ * Reusable dialog for adding or editing a search target alias code.
  *
- * @param engineName The display name of the search engine
  * @param currentCode The current shortcut code
- * @param isEnabled Whether the shortcut is currently enabled
  * @param existingShortcuts Existing shortcuts for prefix validation
  * @param currentShortcutId Identifier for the shortcut being edited (excluded from validation)
  * @param onSave Callback when the code is saved
- * @param onToggle Optional callback when the enabled state changes
  * @param onDismiss Callback when the dialog is dismissed
  */
 @Composable
-fun EditAliasDialog(
-    engineName: String,
+fun AddEditAliasDialog(
     currentCode: String,
-    isEnabled: Boolean,
     existingShortcuts: Map<String, String>,
     currentShortcutId: String? = null,
     onSave: (String) -> Unit,
-    onToggle: ((Boolean) -> Unit)?,
+    dialogTitle: String? = null,
+    validateCode: (String) -> Boolean = ::isValidShortcutCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    conflictErrorMessage: String? = null,
     onDismiss: () -> Unit,
 ) {
     val initialText = normalizeShortcutCodeInput(currentCode)
@@ -65,42 +61,35 @@ fun EditAliasDialog(
             ),
         )
     }
-    val initialEnabledState = if (onToggle == null) true else isEnabled
-    var enabledState by remember(isEnabled, onToggle) { mutableStateOf(initialEnabledState) }
     val focusRequester = remember { FocusRequester() }
-    val isValidShortcut = isValidShortcutCode(editingCode.text)
+    val isValidShortcut = validateCode(editingCode.text)
     val existingShortcutsForValidation =
         if (currentShortcutId.isNullOrEmpty()) {
             existingShortcuts
         } else {
             existingShortcuts.filterKeys { it != currentShortcutId }
         }
-    val isValidPrefix = isValidShortcutPrefix(editingCode.text, existingShortcutsForValidation)
-    val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidPrefix)
+    val isValidConflict = validateConflict(editingCode.text, existingShortcutsForValidation)
+    val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidConflict)
+    val isEmptyInput = editingCode.text.isEmpty()
+    val confirmEnabled = isEmptyInput || (isValidShortcut && isValidConflict)
 
     LaunchedEffect(Unit) {
-        if (enabledState) {
-            focusRequester.requestFocus()
-            // Ensure cursor is at the end of text
-            editingCode = editingCode.copy(selection = TextRange(editingCode.text.length))
-        }
+        focusRequester.requestFocus()
+        // Ensure cursor is at the end of text
+        editingCode = editingCode.copy(selection = TextRange(editingCode.text.length))
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = stringResource(R.string.dialog_edit_alias_title))
+            Text(text = dialogTitle ?: stringResource(R.string.dialog_edit_alias_title))
         },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    text = stringResource(R.string.dialog_edit_alias_message, engineName),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
                 TextField(
                     value = editingCode,
                     onValueChange = {
@@ -111,7 +100,6 @@ fun EditAliasDialog(
                         Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester),
-                    enabled = enabledState,
                     singleLine = true,
                     maxLines = 1,
                     isError = showShortcutError,
@@ -119,8 +107,8 @@ fun EditAliasDialog(
                     keyboardActions =
                         KeyboardActions(
                             onDone = {
-                                if (isValidShortcut && isValidPrefix) {
-                                    onSave(editingCode.text)
+                                if (confirmEnabled) {
+                                    onSave(if (isEmptyInput) "" else editingCode.text)
                                     onDismiss()
                                 }
                             },
@@ -134,7 +122,8 @@ fun EditAliasDialog(
                 if (showShortcutError) {
                     val errorMessage =
                         when {
-                            !isValidPrefix -> stringResource(R.string.dialog_edit_alias_error_prefix)
+                            !isValidConflict ->
+                                conflictErrorMessage ?: stringResource(R.string.dialog_edit_alias_error_prefix)
                             !isValidShortcut -> stringResource(R.string.dialog_edit_alias_error_length)
                             else -> ""
                         }
@@ -144,38 +133,17 @@ fun EditAliasDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
-                if (onToggle != null) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Checkbox(
-                            checked = enabledState,
-                            onCheckedChange = {
-                                enabledState = it
-                                onToggle(it)
-                            },
-                        )
-                        Text(
-                            text = stringResource(R.string.dialog_enable_alias),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (isValidShortcut && isValidPrefix) {
-                        onSave(editingCode.text)
+                    if (confirmEnabled) {
+                        onSave(if (isEmptyInput) "" else editingCode.text)
                         onDismiss()
                     }
                 },
-                enabled = isValidShortcut && isValidPrefix,
+                enabled = confirmEnabled,
             ) {
                 Text(text = stringResource(R.string.dialog_save))
             }
@@ -187,3 +155,26 @@ fun EditAliasDialog(
         },
     )
 }
+
+@Composable
+fun EditAliasDialog(
+    currentCode: String,
+    existingShortcuts: Map<String, String>,
+    currentShortcutId: String? = null,
+    onSave: (String) -> Unit,
+    dialogTitle: String? = null,
+    validateCode: (String) -> Boolean = ::isValidShortcutCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    conflictErrorMessage: String? = null,
+    onDismiss: () -> Unit,
+) = AddEditAliasDialog(
+    currentCode = currentCode,
+    existingShortcuts = existingShortcuts,
+    currentShortcutId = currentShortcutId,
+    onSave = onSave,
+    dialogTitle = dialogTitle,
+    validateCode = validateCode,
+    validateConflict = validateConflict,
+    conflictErrorMessage = conflictErrorMessage,
+    onDismiss = onDismiss,
+)

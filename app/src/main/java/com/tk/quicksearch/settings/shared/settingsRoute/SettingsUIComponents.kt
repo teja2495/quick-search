@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.searchEngines.AliasHandler
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -40,6 +43,8 @@ fun SectionSettingsSection(
     sectionOrder: List<SearchSection>,
     disabledSections: Set<SearchSection>,
     onToggleSection: (SearchSection, Boolean) -> Unit,
+    sectionAliasCodes: Map<String, String> = emptyMap(),
+    onSetSectionAlias: ((String, String) -> Unit)? = null,
     appsSubtitle: String? = null,
     onAppsClick: (() -> Unit)? = null,
     onAppsClickNoRipple: Boolean = false,
@@ -76,10 +81,21 @@ fun SectionSettingsSection(
                 val isContactsRow = section == SearchSection.CONTACTS
                 val isFilesRow = section == SearchSection.FILES
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
+                val showAliasForSection = section != SearchSection.APPS
+                val aliasTargetId = section.getAliasTargetId()
                 SectionRowWithoutDrag(
                     section = section,
                     isEnabled = isSectionEnabled,
                     onToggle = { enabled -> onToggleSection(section, enabled) },
+                    aliasCode = sectionAliasCodes[aliasTargetId].orEmpty(),
+                    aliasTargetId = aliasTargetId,
+                    onAliasChange =
+                        if (showAliasForSection) {
+                            onSetSectionAlias?.let { { code -> it(aliasTargetId, code) } }
+                        } else {
+                            null
+                        },
+                    existingAliases = sectionAliasCodes,
                     subtitle =
                         when {
                             isAppsRow -> appsSubtitle
@@ -122,6 +138,10 @@ private fun SectionRowWithoutDrag(
     section: SearchSection,
     isEnabled: Boolean,
     onToggle: (Boolean) -> Unit,
+    aliasCode: String,
+    aliasTargetId: String,
+    onAliasChange: ((String) -> Unit)? = null,
+    existingAliases: Map<String, String> = emptyMap(),
     subtitle: String? = null,
     onRowClick: (() -> Unit)? = null,
     noRippleOnRowClick: Boolean = false,
@@ -183,6 +203,22 @@ private fun SectionRowWithoutDrag(
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
+                if (onAliasChange != null) {
+                    AliasCodeDisplay(
+                        shortcutCode = aliasCode,
+                        isEnabled = true,
+                        onCodeChange = onAliasChange,
+                        engineName = metadata.name,
+                        existingShortcuts = existingAliases,
+                        currentShortcutId = aliasTargetId,
+                        validateCode = { input -> input.isNotBlank() },
+                        validateConflict = { input, existing ->
+                            !hasExactAliasConflict(input, existing)
+                        },
+                        conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
             }
         }
 
@@ -213,3 +249,12 @@ private fun SectionRowWithoutDrag(
         )
     }
 }
+
+private fun SearchSection.getAliasTargetId(): String =
+    when (this) {
+        SearchSection.APPS -> AliasHandler.SEARCH_SECTION_APPS_ALIAS_ID
+        SearchSection.APP_SHORTCUTS -> AliasHandler.SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID
+        SearchSection.CONTACTS -> AliasHandler.SEARCH_SECTION_CONTACTS_ALIAS_ID
+        SearchSection.FILES -> AliasHandler.SEARCH_SECTION_FILES_ALIAS_ID
+        SearchSection.SETTINGS -> AliasHandler.SEARCH_SECTION_SETTINGS_ALIAS_ID
+    }

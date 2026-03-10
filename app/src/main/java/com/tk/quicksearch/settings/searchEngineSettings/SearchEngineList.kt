@@ -70,9 +70,9 @@ fun SearchEngineListCard(
     onToggleSearchEngine: (SearchTarget, Boolean) -> Unit,
     onReorderSearchEngines: (List<SearchTarget>) -> Unit,
     shortcutCodes: Map<String, String>,
-    setShortcutCode: ((SearchTarget, String) -> Unit)?,
+    setAliasCode: ((SearchTarget, String) -> Unit)?,
     shortcutEnabled: Map<String, Boolean>,
-    setShortcutEnabled: ((SearchTarget, Boolean) -> Unit)?,
+    setAliasEnabled: ((SearchTarget, Boolean) -> Unit)?,
     isSearchEngineCompactMode: Boolean,
     amazonDomain: String? = null,
     onSetAmazonDomain: ((String?) -> Unit)? = null,
@@ -112,8 +112,8 @@ fun SearchEngineListCard(
             onSave = { name, normalizedTemplate, shortcutCode, iconBase64 ->
                 val editingEngine = customEngineToEdit!!
                 onUpdateCustomSearchEngine(editingEngine.id, name, normalizedTemplate, iconBase64)
-                setShortcutCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
-                setShortcutEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
+                setAliasCode?.invoke(SearchTarget.Custom(editingEngine), shortcutCode)
+                setAliasEnabled?.invoke(SearchTarget.Custom(editingEngine), true)
                 customEngineToEdit = null
             },
             onDelete = {
@@ -196,10 +196,10 @@ fun SearchEngineListCard(
                                     shortcutCode = shortcutCode,
                                     shortcutEnabled = isShortcutEnabled,
                                     onShortcutCodeChange =
-                                        setShortcutCode?.let { { code -> it(engine, code) } },
+                                        setAliasCode?.let { { code -> it(engine, code) } },
                                     onShortcutToggle =
                                         engineInfo?.let {
-                                            setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                            setAliasEnabled?.let { { enabled -> it(engine, enabled) } }
                                         },
                                     showToggle = true,
                                     switchEnabled = true,
@@ -363,10 +363,10 @@ fun SearchEngineListCard(
                                 shortcutCode = shortcutCode,
                                 shortcutEnabled = isShortcutEnabled,
                                 onShortcutCodeChange =
-                                    setShortcutCode?.let { { code -> it(engine, code) } },
+                                    setAliasCode?.let { { code -> it(engine, code) } },
                                 onShortcutToggle =
                                     engineInfo?.let {
-                                        setShortcutEnabled?.let { { enabled -> it(engine, enabled) } }
+                                        setAliasEnabled?.let { { enabled -> it(engine, enabled) } }
                                     },
                                 showToggle = true,
                                 switchEnabled = true,
@@ -499,7 +499,6 @@ private fun SearchEngineRowContent(
                     shortcutCode = shortcutCode,
                     isEnabled = shortcutEnabled,
                     onCodeChange = onShortcutCodeChange,
-                    onToggle = onShortcutToggle,
                     engineName = engineName,
                     existingShortcuts = existingShortcuts,
                     currentShortcutId = engine.getId(),

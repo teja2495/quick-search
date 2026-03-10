@@ -58,7 +58,6 @@ fun ToolToggleRow(
                                 shortcutCode = tool.aliasCode,
                                 isEnabled = true,
                                 onCodeChange = tool.onAliasCodeChange,
-                                onToggle = null,
                                 engineName = tool.title,
                                 existingShortcuts = tool.existingShortcuts,
                                 currentShortcutId = tool.aliasFeatureId,

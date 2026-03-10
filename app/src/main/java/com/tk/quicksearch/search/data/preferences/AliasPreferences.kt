@@ -2,8 +2,8 @@ package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
 import com.tk.quicksearch.search.core.SearchEngine
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.searchEngines.getDefaultShortcutCode
 
 open class AliasPreferences(
@@ -74,6 +74,25 @@ open class AliasPreferences(
         }
     }
 
+    fun getAliasCodeAllowSingleChar(targetId: String): String? {
+        val aliasKey = "${BasePreferences.KEY_ALIAS_CODE_PREFIX}$targetId"
+        val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
+        val storedCode =
+            AliasPreferenceMigration.resolveAliasValue(
+                aliasValue = prefs.getString(aliasKey, null),
+                legacyShortcutValue = prefs.getString(legacyKey, null),
+            ) ?: return null
+        val normalizedCode = normalizeShortcutCodeInput(storedCode)
+        if (prefs.getString(aliasKey, null).isNullOrEmpty() && normalizedCode.isNotEmpty()) {
+            prefs.edit().putString(aliasKey, normalizedCode).apply()
+        }
+        return if (normalizedCode.isNotEmpty()) {
+            normalizedCode
+        } else {
+            null
+        }
+    }
+
     fun setAliasCode(
         targetId: String,
         code: String,
@@ -82,6 +101,26 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
         val normalizedCode = normalizeShortcutCodeInput(code)
         if (!isValidShortcutCode(normalizedCode)) {
+            return
+        }
+        prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()
+    }
+
+    fun clearAliasCode(targetId: String) {
+        val aliasKey = "${BasePreferences.KEY_ALIAS_CODE_PREFIX}$targetId"
+        val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
+        prefs.edit().remove(aliasKey).remove(legacyKey).apply()
+    }
+
+    fun setAliasCodeAllowSingleChar(
+        targetId: String,
+        code: String,
+    ) {
+        val aliasKey = "${BasePreferences.KEY_ALIAS_CODE_PREFIX}$targetId"
+        val legacyKey = "${BasePreferences.KEY_SHORTCUT_CODE_PREFIX_LEGACY}$targetId"
+        val normalizedCode = normalizeShortcutCodeInput(code)
+        if (normalizedCode.isEmpty()) {
+            prefs.edit().remove(aliasKey).remove(legacyKey).apply()
             return
         }
         prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()
@@ -111,6 +150,26 @@ open class AliasPreferences(
         val legacyKey = "${BasePreferences.KEY_SHORTCUT_ENABLED_PREFIX_LEGACY}${engine.name}"
         setBooleanPref(aliasKey, enabled)
         setBooleanPref(legacyKey, enabled)
+    }
+
+    fun isAliasEnabled(
+        targetId: String,
+        defaultValue: Boolean,
+    ): Boolean {
+        val aliasKey = "${BasePreferences.KEY_ALIAS_ENABLED_PREFIX}$targetId"
+        return if (prefs.contains(aliasKey)) {
+            getBooleanPref(aliasKey, defaultValue)
+        } else {
+            defaultValue
+        }
+    }
+
+    fun setAliasEnabled(
+        targetId: String,
+        enabled: Boolean,
+    ) {
+        val aliasKey = "${BasePreferences.KEY_ALIAS_ENABLED_PREFIX}$targetId"
+        setBooleanPref(aliasKey, enabled)
     }
 
     fun getAllAliasCodes(): Map<SearchEngine, String> =

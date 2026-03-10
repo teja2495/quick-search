@@ -5,9 +5,10 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutPrefix
-import com.tk.quicksearch.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +24,19 @@ class AliasHandler(
     companion object {
         const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
         const val DEFAULT_CALCULATOR_ALIAS = "cal"
+        const val SEARCH_SECTION_APPS_ALIAS_ID = "search_section_apps"
+        const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID = "search_section_app_shortcuts"
+        const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
+        const val SEARCH_SECTION_FILES_ALIAS_ID = "search_section_files"
+        const val SEARCH_SECTION_SETTINGS_ALIAS_ID = "search_section_settings"
+        val SEARCH_SECTION_ALIAS_IDS =
+            setOf(
+                SEARCH_SECTION_APPS_ALIAS_ID,
+                SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID,
+                SEARCH_SECTION_CONTACTS_ALIAS_ID,
+                SEARCH_SECTION_FILES_ALIAS_ID,
+                SEARCH_SECTION_SETTINGS_ALIAS_ID,
+            )
     }
 
     private var aliasCodes: Map<String, String> = emptyMap()
@@ -77,17 +91,33 @@ class AliasHandler(
                     }
                 id to enabled
             }
+        aliasCodes =
+            aliasCodes.toMutableMap().apply {
+                targets.forEach { target ->
+                    if (target is SearchTarget.Engine && aliasEnabled[target.getId()] == false) {
+                        put(target.getId(), "")
+                    }
+                }
+            }
 
         val persistedCalculatorAlias =
             userPreferences.getAliasCode(CALCULATOR_ALIAS_FEATURE_ID).orEmpty()
         val normalizedCalculatorAlias = normalizeShortcutCodeInput(persistedCalculatorAlias)
+        val isCalculatorAliasEnabled =
+            userPreferences.isAliasEnabled(
+                CALCULATOR_ALIAS_FEATURE_ID,
+                defaultValue = true,
+            )
         val calculatorAlias =
             when {
+                !isCalculatorAliasEnabled -> ""
                 isValidShortcutCode(normalizedCalculatorAlias) -> normalizedCalculatorAlias
                 else -> DEFAULT_CALCULATOR_ALIAS
             }
-        if (persistedCalculatorAlias != calculatorAlias) {
+        if (isCalculatorAliasEnabled && persistedCalculatorAlias != calculatorAlias) {
             userPreferences.setAliasCode(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
+        } else if (!isCalculatorAliasEnabled && persistedCalculatorAlias.isNotBlank()) {
+            userPreferences.clearAliasCode(CALCULATOR_ALIAS_FEATURE_ID)
         }
         aliasCodes =
             aliasCodes.toMutableMap().apply {
@@ -95,8 +125,20 @@ class AliasHandler(
             }
         aliasEnabled =
             aliasEnabled.toMutableMap().apply {
-                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias.isNotEmpty())
+                put(CALCULATOR_ALIAS_FEATURE_ID, isCalculatorAliasEnabled && calculatorAlias.isNotEmpty())
             }
+
+        SEARCH_SECTION_ALIAS_IDS.forEach { sectionAliasId ->
+            val aliasCode = userPreferences.getAliasCodeAllowSingleChar(sectionAliasId).orEmpty()
+            aliasCodes =
+                aliasCodes.toMutableMap().apply {
+                    put(sectionAliasId, aliasCode)
+                }
+            aliasEnabled =
+                aliasEnabled.toMutableMap().apply {
+                    put(sectionAliasId, aliasCode.isNotEmpty())
+                }
+        }
     }
 
     private fun ensureInitialized() {
@@ -142,53 +184,71 @@ class AliasHandler(
         }
     }
 
-    fun setShortcutsEnabled(enabled: Boolean) = setAliasesEnabled(enabled)
-
-    fun setAliasCode(
-        target: SearchTarget,
-        code: String,
-    ) {
-        scope.launch(Dispatchers.IO) {
-            val normalizedCode = normalizeShortcutCodeInput(code)
-            if (!isValidShortcutCode(normalizedCode)) {
-                return@launch
-            }
-            val id = target.getId()
-            // Filter out the current target's alias for validation
-            val existingShortcutsForValidation = aliasCodes.filterKeys { it != id }
-            if (!isValidShortcutPrefix(normalizedCode, existingShortcutsForValidation)) {
-                return@launch
-            }
-            when (target) {
-                is SearchTarget.Engine -> userPreferences.setAliasCode(target.engine, normalizedCode)
-                is SearchTarget.Browser -> userPreferences.setAliasCode(id, normalizedCode)
-                is SearchTarget.Custom -> userPreferences.setAliasCode(id, normalizedCode)
-            }
-            aliasCodes = aliasCodes.toMutableMap().apply { put(id, normalizedCode) }
-            aliasEnabled = aliasEnabled.toMutableMap().apply { put(id, true) }
-            uiStateUpdater {
-                it.copy(
-                    shortcutCodes = aliasCodes,
-                    shortcutEnabled = aliasEnabled,
-                )
-            }
-        }
-    }
-
-    fun setAliasCode(
+    private fun setAliasInternal(
         targetId: String,
         code: String,
+        target: SearchTarget?,
     ) {
         scope.launch(Dispatchers.IO) {
             val normalizedCode = normalizeShortcutCodeInput(code)
-            if (!isValidShortcutCode(normalizedCode)) {
+            val engineTarget = (target as? SearchTarget.Engine)?.engine
+                ?: SearchEngine.values().firstOrNull { it.name == targetId }
+            val isSearchSectionAlias = targetId in SEARCH_SECTION_ALIAS_IDS
+
+            if (normalizedCode.isEmpty()) {
+                userPreferences.clearAliasCode(targetId)
+                if (engineTarget != null) {
+                    userPreferences.setAliasEnabled(engineTarget, false)
+                } else {
+                    userPreferences.setAliasEnabled(targetId, false)
+                }
+                aliasCodes = aliasCodes.toMutableMap().apply { put(targetId, "") }
+                aliasEnabled = aliasEnabled.toMutableMap().apply { put(targetId, false) }
+                uiStateUpdater {
+                    it.copy(
+                        shortcutCodes = aliasCodes,
+                        shortcutEnabled = aliasEnabled,
+                    )
+                }
                 return@launch
             }
-            val existingShortcutsForValidation = aliasCodes.filterKeys { it != targetId }
-            if (!isValidShortcutPrefix(normalizedCode, existingShortcutsForValidation)) {
+
+            val isValidCode =
+                if (isSearchSectionAlias) {
+                    normalizedCode.isNotEmpty()
+                } else {
+                    isValidShortcutCode(normalizedCode)
+                }
+            if (!isValidCode) {
                 return@launch
             }
-            userPreferences.setAliasCode(targetId, normalizedCode)
+
+            val existingAliasesForValidation =
+                aliasCodes
+                    .filterKeys { it != targetId }
+                    .filterValues { it.isNotBlank() }
+            val isConflictFree =
+                if (isSearchSectionAlias) {
+                    !hasExactAliasConflict(normalizedCode, existingAliasesForValidation)
+                } else {
+                    isValidShortcutPrefix(normalizedCode, existingAliasesForValidation)
+                }
+            if (!isConflictFree) {
+                return@launch
+            }
+
+            if (engineTarget != null) {
+                userPreferences.setAliasCode(engineTarget, normalizedCode)
+                userPreferences.setAliasEnabled(engineTarget, true)
+            } else if (isSearchSectionAlias) {
+                userPreferences.setAliasCodeAllowSingleChar(targetId, normalizedCode)
+                userPreferences.setAliasEnabled(targetId, true)
+            } else {
+                userPreferences.setAliasCode(targetId, normalizedCode)
+                if (targetId == CALCULATOR_ALIAS_FEATURE_ID) {
+                    userPreferences.setAliasEnabled(targetId, true)
+                }
+            }
             aliasCodes = aliasCodes.toMutableMap().apply { put(targetId, normalizedCode) }
             aliasEnabled = aliasEnabled.toMutableMap().apply { put(targetId, true) }
             uiStateUpdater {
@@ -199,11 +259,6 @@ class AliasHandler(
             }
         }
     }
-
-    fun setShortcutCode(
-        target: SearchTarget,
-        code: String,
-    ) = setAliasCode(target, code)
 
     fun setAliasEnabled(
         target: SearchTarget,
@@ -219,12 +274,7 @@ class AliasHandler(
         }
     }
 
-    fun setShortcutEnabled(
-        target: SearchTarget,
-        enabled: Boolean,
-    ) = setAliasEnabled(target, enabled)
-
-    fun getAliasCode(target: SearchTarget): String {
+    fun getAlias(target: SearchTarget): String {
         val id = target.getId()
         return aliasCodes[id]
             ?: when (target) {
@@ -234,24 +284,30 @@ class AliasHandler(
             }
     }
 
-    fun getAliasCode(
+    fun getAlias(
         targetId: String,
         defaultCode: String = "",
     ): String = aliasCodes[targetId] ?: userPreferences.getAliasCode(targetId) ?: defaultCode
 
-    fun getShortcutCode(target: SearchTarget): String = getAliasCode(target)
+    fun setAlias(
+        target: SearchTarget,
+        code: String,
+    ) = setAliasInternal(target.getId(), code, target)
+
+    fun setAlias(
+        targetId: String,
+        code: String,
+    ) = setAliasInternal(targetId, code, null)
 
     fun isAliasEnabled(target: SearchTarget): Boolean {
         val id = target.getId()
         return aliasEnabled[id]
             ?: when (target) {
                 is SearchTarget.Engine -> userPreferences.isAliasEnabled(target.engine)
-                is SearchTarget.Browser -> getAliasCode(target).isNotEmpty()
-                is SearchTarget.Custom -> getAliasCode(target).isNotEmpty()
+                is SearchTarget.Browser -> getAlias(target).isNotEmpty()
+                is SearchTarget.Custom -> getAlias(target).isNotEmpty()
             }
     }
-
-    fun isShortcutEnabled(target: SearchTarget): Boolean = isAliasEnabled(target)
 
     fun detectAlias(query: String): Pair<String, AliasTarget>? {
         ensureInitialized()
@@ -272,7 +328,7 @@ class AliasHandler(
             }
             if (!isAliasEnabled(target)) continue
 
-            val aliasCode = getAliasCode(target).lowercase(Locale.getDefault())
+            val aliasCode = getAlias(target).lowercase(Locale.getDefault())
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = AliasTarget.Search(target)
         }
@@ -304,11 +360,11 @@ class AliasHandler(
             }
             if (!isAliasEnabled(target)) continue
 
-            val aliasCode = getAliasCode(target).lowercase(Locale.getDefault())
+            val aliasCode = getAlias(target).lowercase(Locale.getDefault())
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = AliasTarget.Search(target)
         }
-        val calculatorAliasCode = getAliasCode(CALCULATOR_ALIAS_FEATURE_ID, DEFAULT_CALCULATOR_ALIAS)
+        val calculatorAliasCode = getAlias(CALCULATOR_ALIAS_FEATURE_ID)
             .lowercase(Locale.getDefault())
         if (calculatorAliasCode.isNotEmpty()) {
             aliases[calculatorAliasCode] = AliasTarget.Feature(CALCULATOR_ALIAS_FEATURE_ID)

@@ -2748,47 +2748,29 @@ class SearchViewModel(
     // Aliases
     fun setAliasesEnabled(enabled: Boolean) = aliasHandler.setAliasesEnabled(enabled)
 
-    fun setAliasCode(
+    fun setAlias(
             target: SearchTarget,
             code: String,
-    ) = aliasHandler.setAliasCode(target, code)
+    ) = aliasHandler.setAlias(target, code)
+
+    fun setAlias(
+            targetId: String,
+            code: String,
+    ) = aliasHandler.setAlias(targetId, code)
 
     fun setAliasEnabled(
             target: SearchTarget,
             enabled: Boolean,
     ) = aliasHandler.setAliasEnabled(target, enabled)
 
-    fun getAliasCode(target: SearchTarget): String = aliasHandler.getAliasCode(target)
+    fun getAlias(target: SearchTarget): String = aliasHandler.getAlias(target)
 
-    fun getAliasCode(
+    fun getAlias(
             targetId: String,
             defaultCode: String = "",
-    ): String = aliasHandler.getAliasCode(targetId, defaultCode)
+    ): String = aliasHandler.getAlias(targetId, defaultCode)
 
     fun isAliasEnabled(target: SearchTarget): Boolean = aliasHandler.isAliasEnabled(target)
-
-    fun setShortcutsEnabled(enabled: Boolean) = setAliasesEnabled(enabled)
-
-    fun setShortcutCode(
-            target: SearchTarget,
-            code: String,
-    ) = setAliasCode(target, code)
-
-    fun setShortcutCode(
-            targetId: String,
-            code: String,
-    ) = aliasHandler.setAliasCode(targetId, code)
-
-    fun setShortcutEnabled(
-            target: SearchTarget,
-            enabled: Boolean,
-    ) = setAliasEnabled(target, enabled)
-
-    fun getShortcutCode(target: SearchTarget): String = getAliasCode(target)
-
-    fun isShortcutEnabled(target: SearchTarget): Boolean = isAliasEnabled(target)
-
-    fun areShortcutsEnabled(): Boolean = true
 
     // Sections
     fun setSectionEnabled(

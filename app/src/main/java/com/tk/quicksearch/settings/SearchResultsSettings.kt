@@ -352,6 +352,8 @@ fun SearchResultsSettingsSection(
             sectionOrder = ItemPriorityConfig.getSearchResultsPriority(),
             disabledSections = state.disabledSections,
             onToggleSection = callbacks.onToggleSection,
+            sectionAliasCodes = state.shortcutCodes,
+            onSetSectionAlias = callbacks.onSetSearchSectionAlias,
             appsSubtitle = stringResource(R.string.settings_manage_apps_desc),
             onAppsClick = onNavigateToAppManagement,
             onAppsClickNoRipple = true,

@@ -252,7 +252,7 @@ internal fun SettingsDetailLevel2Screen(
                                 calculatorAlias =
                                     state.shortcutCodes[
                                         com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID
-                                    ] ?: com.tk.quicksearch.searchEngines.AliasHandler.DEFAULT_CALCULATOR_ALIAS,
+                                    ].orEmpty(),
                                 existingShortcuts = state.shortcutCodes,
                                 onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
                                 onCalculatorToggle = callbacks.onToggleCalculator,

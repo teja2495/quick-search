@@ -1,8 +1,9 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,9 +14,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.settings.searchEnginesScreen.EditAliasDialog
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.settings.shared.AliasPill
+import com.tk.quicksearch.settings.searchEnginesScreen.AddEditAliasDialog
 
 /**
  * Display component for alias code with edit dialog.
@@ -25,10 +30,14 @@ internal fun AliasCodeDisplay(
     shortcutCode: String,
     isEnabled: Boolean,
     onCodeChange: ((String) -> Unit)?,
-    onToggle: ((Boolean) -> Unit)?,
     engineName: String = "",
     existingShortcuts: Map<String, String> = emptyMap(),
     currentShortcutId: String? = null,
+    validateCode: (String) -> Boolean = ::isValidShortcutCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    conflictErrorMessage: String? = null,
+    addAliasLabel: String? = null,
+    allowClearAction: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -36,14 +45,20 @@ internal fun AliasCodeDisplay(
     val allowAliasDialog = !isCustomEngine
 
     if (showDialog && onCodeChange != null && allowAliasDialog) {
-        EditAliasDialog(
-            engineName = engineName,
+        AddEditAliasDialog(
             currentCode = shortcutCode,
-            isEnabled = isEnabled,
             existingShortcuts = existingShortcuts,
             currentShortcutId = currentShortcutId,
             onSave = { code -> onCodeChange(code) },
-            onToggle = onToggle,
+            dialogTitle =
+                if (shortcutCode.isBlank()) {
+                    stringResource(R.string.dialog_add_alias_for_search_type_title, engineName)
+                } else {
+                    stringResource(R.string.dialog_edit_alias_for_search_type_title, engineName)
+                },
+            validateCode = validateCode,
+            validateConflict = validateConflict,
+            conflictErrorMessage = conflictErrorMessage,
             onDismiss = { showDialog = false },
         )
     }
@@ -59,39 +74,45 @@ internal fun AliasCodeDisplay(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
-        } else if (isEnabled) {
-            Text(
-                text = stringResource(R.string.settings_alias_label),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = shortcutCode,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier =
-                    if (allowAliasDialog) {
-                        Modifier.clickable { showDialog = true }
+        } else if (isEnabled && shortcutCode.isNotBlank()) {
+            AliasPill(
+                text =
+                    buildAnnotatedString {
+                        append(shortcutCode)
+                    },
+                textStyle = MaterialTheme.typography.bodySmall,
+                textColor = MaterialTheme.colorScheme.primary,
+                leadingIcon = Icons.Rounded.Bolt,
+                onClick = if (allowAliasDialog) ({ showDialog = true }) else null,
+                onClearClick =
+                    if (allowClearAction && shortcutCode.isNotBlank() && onCodeChange != null) {
+                        { onCodeChange("") }
                     } else {
-                        Modifier
+                        null
                     },
             )
         } else {
-            Text(
+            AliasPill(
                 text =
+                    buildAnnotatedString {
+                        append(
+                            if (isCustomEngine) {
+                                stringResource(R.string.settings_edit_label)
+                            } else {
+                                addAliasLabel ?: stringResource(R.string.settings_add_alias)
+                            },
+                        )
+                    },
+                textStyle =
                     if (isCustomEngine) {
-                        stringResource(R.string.settings_edit_label)
+                        MaterialTheme.typography.bodyMedium
                     } else {
-                        stringResource(R.string.settings_add_alias)
+                        MaterialTheme.typography.bodySmall
                     },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier =
-                    if (allowAliasDialog) {
-                        Modifier.clickable { showDialog = true }
-                    } else {
-                        Modifier
-                    },
+                textColor = MaterialTheme.colorScheme.primary,
+                showBackground = false,
+                leadingIcon = Icons.Rounded.Bolt,
+                onClick = if (allowAliasDialog) ({ showDialog = true }) else null,
             )
         }
     }

@@ -39,9 +39,9 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.CustomSearchEngine
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.searchEngines.*
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.ShortcutValidator.isValidShortcutPrefix
-import com.tk.quicksearch.searchEngines.ShortcutValidator.normalizeShortcutCodeInput
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.shared.util.withoutWhitespaces
 
 @Composable

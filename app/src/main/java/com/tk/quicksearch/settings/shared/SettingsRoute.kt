@@ -302,8 +302,8 @@ fun SettingsRoute(
             onToggleBottomSearchBar = viewModel::setBottomSearchBarEnabled,
             onToggleOverlayMode = onToggleOverlayMode,
             onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
-            setShortcutCode = viewModel::setShortcutCode,
-            setShortcutEnabled = viewModel::setShortcutEnabled,
+            setAliasCode = viewModel::setAlias,
+            setAliasEnabled = viewModel::setAliasEnabled,
                     onSetMessagingApp = viewModel::setMessagingApp,
                     onSetCallingApp = viewModel::setCallingApp,
             onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
@@ -323,10 +323,13 @@ fun SettingsRoute(
             onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
             onSetAmazonDomain = viewModel::setAmazonDomain,
             onSetCalculatorAlias = { code ->
-                viewModel.setShortcutCode(
+                viewModel.setAlias(
                     com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
                     code,
                 )
+            },
+            onSetSearchSectionAlias = { targetId, code ->
+                viewModel.setAlias(targetId, code)
             },
             onToggleCalculator = viewModel::setCalculatorEnabled,
             onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,

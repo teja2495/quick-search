@@ -247,10 +247,10 @@
     <string name="dialog_save">Save</string>
     <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_alias_title">Edit alias</string>
-    <string name="dialog_edit_alias_message">Enter an alias code for %1$s</string>
     <string name="dialog_edit_alias_error_length">Alias must be at least 2 characters.</string>
     <string name="dialog_edit_alias_error_prefix">This code overlaps with an existing alias code</string>
-    <string name="dialog_enable_alias">Enable alias</string>
+    <string name="dialog_add_alias_for_search_type_title">Add Alias for "%1$s"</string>
+    <string name="dialog_edit_alias_for_search_type_title">Edit Alias for "%1$s"</string>
     <string name="dialog_edit_amazon_domain_title">Edit Amazon Domain</string>
     <string name="dialog_edit_amazon_domain_message">Update Amazon domain for your country.</string>
     <string name="dialog_edit_amazon_domain_hint">Examples: amazon.com, amazon.in, amazon.ca, etc.</string>

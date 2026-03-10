@@ -6,7 +6,7 @@ import java.util.Locale
  * Centralized validation and normalization for search engine shortcuts. Consolidates all shortcut
  * validation logic to ensure consistency across the app.
  */
-object ShortcutValidator {
+object AliasValidator {
     /**
      * Normalizes shortcut input by trimming, lowercasing, and filtering to valid characters. Only
      * allows letters and digits, removes spaces and special characters.
@@ -50,6 +50,19 @@ object ShortcutValidator {
                     normalizedNew.startsWith(normalizedExisting) ||
                         normalizedExisting.startsWith(normalizedNew)
                 )
+        }
+    }
+
+    fun hasExactAliasConflict(
+        newAlias: String,
+        existingAliases: Map<String, String>,
+    ): Boolean {
+        val normalizedNew = normalizeShortcutCodeInput(newAlias)
+        if (normalizedNew.isEmpty()) return false
+
+        return existingAliases.values.any { existingAlias ->
+            val normalizedExisting = normalizeShortcutCodeInput(existingAlias)
+            normalizedExisting.isNotEmpty() && normalizedExisting == normalizedNew
         }
     }
 }

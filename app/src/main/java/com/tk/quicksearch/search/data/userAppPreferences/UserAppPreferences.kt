@@ -398,10 +398,20 @@ class UserAppPreferences(
 
     fun getAliasCode(targetId: String): String? = aliasPreferences.getAliasCode(targetId)
 
+    fun getAliasCodeAllowSingleChar(targetId: String): String? =
+            aliasPreferences.getAliasCodeAllowSingleChar(targetId)
+
     fun setAliasCode(
             targetId: String,
             code: String,
     ) = aliasPreferences.setAliasCode(targetId, code)
+
+    fun clearAliasCode(targetId: String) = aliasPreferences.clearAliasCode(targetId)
+
+    fun setAliasCodeAllowSingleChar(
+            targetId: String,
+            code: String,
+    ) = aliasPreferences.setAliasCodeAllowSingleChar(targetId, code)
 
     fun isAliasEnabled(engine: SearchEngine): Boolean =
             aliasPreferences.isAliasEnabled(engine)
@@ -410,6 +420,16 @@ class UserAppPreferences(
             engine: SearchEngine,
             enabled: Boolean,
     ) = aliasPreferences.setAliasEnabled(engine, enabled)
+
+    fun isAliasEnabled(
+            targetId: String,
+            defaultValue: Boolean,
+    ): Boolean = aliasPreferences.isAliasEnabled(targetId, defaultValue)
+
+    fun setAliasEnabled(
+            targetId: String,
+            enabled: Boolean,
+    ) = aliasPreferences.setAliasEnabled(targetId, enabled)
 
     fun getAllAliasCodes(): Map<SearchEngine, String> = aliasPreferences.getAllAliasCodes()
 
