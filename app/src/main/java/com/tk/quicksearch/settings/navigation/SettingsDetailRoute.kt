@@ -338,11 +338,12 @@ fun SettingsDetailRoute(
                                 onAddFailed = onShortcutAddFailed,
                         )
                     },
-                    onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery ->
+                    onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
                         viewModel.addSearchTargetQueryShortcut(
                                 target = target,
                                 shortcutName = shortcutName,
                                 shortcutQuery = shortcutQuery,
+                                mode = mode,
                                 showDefaultToast = false,
                                 onShortcutAdded = onShortcutAdded,
                                 onAddFailed = onShortcutAddFailed,

@@ -25,6 +25,7 @@ import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.contacts.utils.MessagingHandler
 import com.tk.quicksearch.search.contacts.utils.TelegramContactUtils
 import com.tk.quicksearch.search.data.AppShortcutRepository.AppShortcutRepository
+import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
@@ -2597,6 +2598,7 @@ class SearchViewModel(
             target: SearchTarget,
             shortcutName: String,
             shortcutQuery: String,
+            mode: SearchTargetShortcutMode = SearchTargetShortcutMode.AUTO,
             showDefaultToast: Boolean = true,
             onShortcutAdded: ((StaticShortcut) -> Unit)? = null,
             onAddFailed: (() -> Unit)? = null,
@@ -2607,6 +2609,7 @@ class SearchViewModel(
                             target = target,
                             shortcutName = shortcutName,
                             shortcutQuery = shortcutQuery,
+                            mode = mode,
                     )
             if (addedShortcut != null) {
                 appShortcutSearchHandler.loadCachedShortcutsOnly()
@@ -2722,6 +2725,7 @@ class SearchViewModel(
     fun updateCustomAppShortcut(
             shortcut: StaticShortcut,
             shortcutName: String,
+            shortcutValue: String?,
             iconBase64: String?,
     ) {
         if (!isUserCreatedShortcut(shortcut)) return
@@ -2730,6 +2734,7 @@ class SearchViewModel(
                     appShortcutRepository.updateCustomShortcut(
                             shortcut = shortcut,
                             shortcutName = shortcutName,
+                            shortcutValue = shortcutValue,
                             iconBase64 = iconBase64,
                     )
             if (updated) {

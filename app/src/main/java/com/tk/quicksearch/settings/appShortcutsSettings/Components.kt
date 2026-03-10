@@ -63,6 +63,8 @@ import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.rememberShortcutIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
+import com.tk.quicksearch.searchEngines.SearchTargetQueryShortcutActivity
 import com.tk.quicksearch.searchEngines.loadCustomIconAsBase64
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
@@ -392,6 +394,8 @@ fun AddSearchTargetShortcutDialog(
     onDismiss: () -> Unit,
     onSave: (String, String) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val nameFocusRequester = remember { FocusRequester() }
     var shortcutName by remember(targetLabel, shortcutKind) {
         mutableStateOf(
             TextFieldValue(
@@ -423,6 +427,11 @@ fun AddSearchTargetShortcutDialog(
             SearchTargetShortcutKind.URL -> R.string.settings_app_shortcuts_url_label
         }
 
+    LaunchedEffect(Unit) {
+        nameFocusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(titleResId, targetLabel)) },
@@ -431,6 +440,7 @@ fun AddSearchTargetShortcutDialog(
                 OutlinedTextField(
                     value = shortcutName,
                     onValueChange = { shortcutName = it },
+                    modifier = Modifier.focusRequester(nameFocusRequester),
                     singleLine = true,
                     maxLines = 1,
                     label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
@@ -472,7 +482,7 @@ fun EditCustomShortcutDialog(
     shortcut: StaticShortcut,
     iconPackPackage: String?,
     onDismiss: () -> Unit,
-    onSave: (String, String?) -> Unit,
+    onSave: (String, String?, String?) -> Unit,
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -485,8 +495,18 @@ fun EditCustomShortcutDialog(
         )
     }
     var iconBase64 by remember(shortcut) { mutableStateOf(shortcut.iconBase64) }
+    val editableConfiguredValue = remember(shortcut) { resolveEditableConfiguredValue(shortcut) }
+    var shortcutValue by remember(shortcut, editableConfiguredValue) {
+        mutableStateOf(
+            TextFieldValue(
+                text = editableConfiguredValue?.value.orEmpty(),
+                selection = TextRange(editableConfiguredValue?.value?.length ?: 0),
+            ),
+        )
+    }
     val trimmedName = shortcutName.text.trim()
-    val canSave = trimmedName.isNotBlank()
+    val trimmedValue = shortcutValue.text.trim()
+    val canSave = trimmedName.isNotBlank() && (editableConfiguredValue == null || trimmedValue.isNotBlank())
 
     val pickIconLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -598,11 +618,39 @@ fun EditCustomShortcutDialog(
                         label = { Text(stringResource(R.string.settings_app_shortcuts_shortcut_name_label)) },
                     )
                 }
+                editableConfiguredValue?.let { editableValue ->
+                    OutlinedTextField(
+                        value = shortcutValue,
+                        onValueChange = {
+                            shortcutValue =
+                                if (editableValue.kind == EditableShortcutValueKind.URL ||
+                                    editableValue.kind == EditableShortcutValueKind.DEEP_LINK
+                                ) {
+                                    it.withoutWhitespaces()
+                                } else {
+                                    it
+                                }
+                        },
+                        singleLine = editableValue.kind != EditableShortcutValueKind.QUERY,
+                        maxLines = if (editableValue.kind == EditableShortcutValueKind.QUERY) 3 else 1,
+                        isError = trimmedValue.isBlank(),
+                        label = {
+                            val labelResId =
+                                when (editableValue.kind) {
+                                    EditableShortcutValueKind.QUERY -> R.string.settings_app_shortcuts_query_label
+                                    EditableShortcutValueKind.URL -> R.string.settings_app_shortcuts_url_label
+                                    EditableShortcutValueKind.DEEP_LINK ->
+                                        R.string.settings_app_shortcuts_deep_link_label
+                                }
+                            Text(stringResource(labelResId))
+                        },
+                    )
+                }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onSave(trimmedName, iconBase64) },
+                onClick = { onSave(trimmedName, editableConfiguredValue?.let { trimmedValue }, iconBase64) },
                 enabled = canSave,
             ) {
                 Text(text = stringResource(R.string.dialog_save))
@@ -614,6 +662,52 @@ fun EditCustomShortcutDialog(
             }
         },
     )
+}
+
+private enum class EditableShortcutValueKind {
+    QUERY,
+    URL,
+    DEEP_LINK,
+}
+
+private data class EditableShortcutValue(
+    val kind: EditableShortcutValueKind,
+    val value: String,
+)
+
+private fun resolveEditableConfiguredValue(shortcut: StaticShortcut): EditableShortcutValue? {
+    if (shortcut.id.startsWith("custom_deeplink_")) {
+        val deepLink =
+            shortcut.intents
+                .asSequence()
+                .mapNotNull { it.dataString?.trim() }
+                .firstOrNull { it.isNotBlank() }
+                ?: return null
+        return EditableShortcutValue(kind = EditableShortcutValueKind.DEEP_LINK, value = deepLink)
+    }
+
+    val searchIntent =
+        shortcut.intents.firstOrNull {
+            it.action == SearchTargetQueryShortcutActivity.ACTION_LAUNCH_SEARCH_TARGET_QUERY_SHORTCUT
+        } ?: return null
+    val query =
+        searchIntent
+            .getStringExtra(SearchTargetQueryShortcutActivity.EXTRA_QUERY)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?: return null
+    val targetType = searchIntent.getStringExtra(SearchTargetQueryShortcutActivity.EXTRA_TARGET_TYPE)
+    if (targetType == SearchTargetQueryShortcutActivity.TARGET_TYPE_BROWSER) {
+        val mode =
+            searchIntent
+                .getStringExtra(SearchTargetQueryShortcutActivity.EXTRA_BROWSER_SHORTCUT_MODE)
+                ?.let { runCatching { SearchTargetShortcutMode.valueOf(it) }.getOrNull() }
+                ?: SearchTargetShortcutMode.AUTO
+        if (mode == SearchTargetShortcutMode.FORCE_URL) {
+            return EditableShortcutValue(kind = EditableShortcutValueKind.URL, value = query)
+        }
+    }
+    return EditableShortcutValue(kind = EditableShortcutValueKind.QUERY, value = query)
 }
 
 @Composable

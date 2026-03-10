@@ -26,7 +26,7 @@ class SearchEngineManager(
     private val onStateUpdate: ((SearchUiState) -> SearchUiState) -> Unit,
 ) {
     companion object {
-        private const val BRAVE_BROWSER_PACKAGE = "com.brave.browser"
+        private val EXCLUDED_BROWSER_PACKAGES = setOf(PackageConstants.COINBASE_PACKAGE)
     }
 
     var searchTargetsOrder: List<SearchTarget> = emptyList()
@@ -628,6 +628,7 @@ class SearchEngineManager(
             }
 
         return browserPackages
+            .filterNot { it in EXCLUDED_BROWSER_PACKAGES }
             .mapNotNull { packageName ->
                 val label =
                     runCatching {
@@ -645,7 +646,8 @@ class SearchEngineManager(
                     }.getOrNull()
                 val displayLabel =
                     when (packageName) {
-                        BRAVE_BROWSER_PACKAGE -> context.getString(R.string.browser_brave_name)
+                        PackageConstants.BRAVE_BROWSER_PACKAGE ->
+                            context.getString(R.string.browser_brave_name)
                         else -> label
                     }
                 displayLabel?.let { BrowserApp(packageName = packageName, label = it) }

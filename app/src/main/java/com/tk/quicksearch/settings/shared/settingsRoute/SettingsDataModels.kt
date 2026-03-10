@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -150,8 +151,8 @@ data class SettingsScreenCallbacks(
     val onOpenAddAppShortcutDialog: () -> Unit,
     val onAddAppShortcutFromSource: (AppShortcutSource) -> Unit,
     val onAddAppDeepLinkShortcut: (String, String, String, String?) -> Unit,
-    val onAddSearchTargetQueryShortcut: (SearchTarget, String, String) -> Unit,
-    val onUpdateCustomAppShortcut: (StaticShortcut, String, String?) -> Unit,
+    val onAddSearchTargetQueryShortcut: (SearchTarget, String, String, SearchTargetShortcutMode) -> Unit,
+    val onUpdateCustomAppShortcut: (StaticShortcut, String, String?, String?) -> Unit,
     val onDeleteCustomAppShortcut: (StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (DeviceSetting) -> Unit,
     val onRequestAppUninstall: (AppInfo) -> Unit,

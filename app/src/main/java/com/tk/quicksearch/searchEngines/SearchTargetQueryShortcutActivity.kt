@@ -10,6 +10,7 @@ import com.tk.quicksearch.app.MainActivity
 import com.tk.quicksearch.search.core.IntentHelpers
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.isLikelyWebUrl
+import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.overlay.OverlayModeController
@@ -67,11 +68,25 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
             TARGET_TYPE_BROWSER -> {
                 val browserPackage = intent.getStringExtra(EXTRA_BROWSER_PACKAGE).orEmpty()
                 if (browserPackage.isBlank()) return
+                val browserShortcutMode =
+                    intent
+                        .getStringExtra(EXTRA_BROWSER_SHORTCUT_MODE)
+                        ?.let {
+                            runCatching { SearchTargetShortcutMode.valueOf(it) }.getOrNull()
+                        } ?: SearchTargetShortcutMode.AUTO
                 userPreferences.addRecentItem(RecentSearchEntry.Query(query))
-                if (isLikelyWebUrl(query)) {
-                    IntentHelpers.openBrowserUrl(app, query, browserPackage, ::showToastMessage)
-                } else {
-                    IntentHelpers.openBrowserSearch(app, query, browserPackage, ::showToastMessage)
+                when (browserShortcutMode) {
+                    SearchTargetShortcutMode.FORCE_URL ->
+                        IntentHelpers.openBrowserUrl(app, query, browserPackage, ::showToastMessage)
+                    SearchTargetShortcutMode.FORCE_SEARCH ->
+                        IntentHelpers.openBrowserSearch(app, query, browserPackage, ::showToastMessage)
+                    SearchTargetShortcutMode.AUTO -> {
+                        if (isLikelyWebUrl(query)) {
+                            IntentHelpers.openBrowserUrl(app, query, browserPackage, ::showToastMessage)
+                        } else {
+                            IntentHelpers.openBrowserSearch(app, query, browserPackage, ::showToastMessage)
+                        }
+                    }
                 }
             }
 
@@ -88,12 +103,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
         stringResId: Int,
         formatArg: String?,
     ) {
-        val message =
-            if (formatArg.isNullOrBlank()) {
-                getString(stringResId)
-            } else {
-                getString(stringResId, formatArg)
-            }
+        val message = runCatching { getString(stringResId, formatArg.orEmpty()) }.getOrElse { getString(stringResId) }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
@@ -105,6 +115,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
         const val EXTRA_TARGET_TYPE = "com.tk.quicksearch.extra.SHORTCUT_TARGET_TYPE"
         const val EXTRA_ENGINE_NAME = "com.tk.quicksearch.extra.SHORTCUT_ENGINE_NAME"
         const val EXTRA_BROWSER_PACKAGE = "com.tk.quicksearch.extra.SHORTCUT_BROWSER_PACKAGE"
+        const val EXTRA_BROWSER_SHORTCUT_MODE = "com.tk.quicksearch.extra.SHORTCUT_BROWSER_SHORTCUT_MODE"
         const val EXTRA_CUSTOM_URL_TEMPLATE = "com.tk.quicksearch.extra.SHORTCUT_CUSTOM_URL_TEMPLATE"
 
         const val TARGET_TYPE_ENGINE = "engine"
@@ -117,6 +128,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
             query: String,
             engineName: String? = null,
             browserPackage: String? = null,
+            browserShortcutMode: String? = null,
             customUrlTemplate: String? = null,
         ): Intent =
             Intent(context, SearchTargetQueryShortcutActivity::class.java).apply {
@@ -125,6 +137,7 @@ class SearchTargetQueryShortcutActivity : ComponentActivity() {
                 putExtra(EXTRA_QUERY, query)
                 putExtra(EXTRA_ENGINE_NAME, engineName)
                 putExtra(EXTRA_BROWSER_PACKAGE, browserPackage)
+                putExtra(EXTRA_BROWSER_SHORTCUT_MODE, browserShortcutMode)
                 putExtra(EXTRA_CUSTOM_URL_TEMPLATE, customUrlTemplate)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }

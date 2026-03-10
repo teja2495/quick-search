@@ -25,6 +25,8 @@ object PackageConstants {
     const val CHATGPT_PACKAGE = "com.openai.chatgpt"
     const val PERPLEXITY_PACKAGE = "ai.perplexity.app.android"
     const val GROK_PACKAGE = "ai.x.grok"
+    const val BRAVE_BROWSER_PACKAGE = "com.brave.browser"
+    const val COINBASE_PACKAGE = "com.coinbase.android"
 
     // Social media and content
     const val FACEBOOK_PACKAGE = "com.facebook.katana"

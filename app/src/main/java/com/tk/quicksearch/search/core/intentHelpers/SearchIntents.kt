@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.searchEngines.buildCustomSearchUrl
 import com.tk.quicksearch.searchEngines.buildSearchUrl
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
+import java.util.Locale
 
 /** Search and URL opening intents. */
 internal object SearchIntents {
@@ -112,6 +113,7 @@ internal object SearchIntents {
         browserPackageName: String,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
+        val browserLabel = resolveAppLabel(context, browserPackageName)
         val trimmedQuery = query.trim()
         if (trimmedQuery.isBlank()) {
             val launchIntent = context.packageManager.getLaunchIntentForPackage(browserPackageName)
@@ -124,7 +126,7 @@ internal object SearchIntents {
                 } catch (_: SecurityException) {
                 }
             }
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            onShowToast?.invoke(R.string.error_open_search_engine, browserLabel)
             return
         }
 
@@ -157,37 +159,29 @@ internal object SearchIntents {
         browserPackageName: String,
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
+        val browserLabel = resolveAppLabel(context, browserPackageName)
         val normalizedUrl = normalizeToBrowsableUrl(url)
         if (normalizedUrl == null) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
+            onShowToast?.invoke(R.string.error_open_search_engine, browserLabel)
             return
         }
 
         val browserIntent =
             Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
                 setPackage(browserPackageName)
+                addCategory(Intent.CATEGORY_BROWSABLE)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+        if (tryStartIntent(context, browserIntent)) return
 
-        try {
-            if (IntentUtils.canResolveIntent(context, browserIntent)) {
-                context.startActivity(browserIntent)
-                return
+        val fallbackIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+        if (tryStartIntent(context, fallbackIntent)) return
 
-            val fallbackIntent =
-                Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            if (IntentUtils.canResolveIntent(context, fallbackIntent)) {
-                context.startActivity(fallbackIntent)
-                return
-            }
-        } catch (_: ActivityNotFoundException) {
-        } catch (_: SecurityException) {
-        }
-
-        onShowToast?.invoke(R.string.error_open_search_engine, null)
+        onShowToast?.invoke(R.string.error_open_search_engine, browserLabel ?: inferDisplayLabelFromUrl(normalizedUrl))
     }
 
     fun openCustomSearchUrl(
@@ -200,19 +194,12 @@ internal object SearchIntents {
         val url = normalizeToBrowsableUrl(rawUrl) ?: rawUrl
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        if (!IntentUtils.canResolveIntent(context, intent)) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
-            return
-        }
-        try {
-            context.startActivity(intent)
-        } catch (exception: ActivityNotFoundException) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
-        } catch (exception: SecurityException) {
-            onShowToast?.invoke(R.string.error_open_search_engine, null)
-        }
+        if (tryStartIntent(context, intent)) return
+
+        onShowToast?.invoke(R.string.error_open_search_engine, inferDisplayLabelFromUrl(url))
     }
 
     private fun normalizeToBrowsableUrl(url: String): String? {
@@ -223,6 +210,40 @@ internal object SearchIntents {
             trimmedUrl.contains("://") -> trimmedUrl
             trimmedUrl.matches(Regex("^[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/.*)?$")) -> "https://$trimmedUrl"
             else -> "https://www.google.com/search?q=${Uri.encode(trimmedUrl)}"
+        }
+    }
+
+    private fun tryStartIntent(
+        context: Application,
+        intent: Intent,
+    ): Boolean =
+        try {
+            context.startActivity(intent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
+
+    private fun resolveAppLabel(
+        context: Application,
+        packageName: String,
+    ): String? =
+        runCatching {
+            val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
+            context.packageManager.getApplicationLabel(appInfo).toString().takeIf { it.isNotBlank() }
+        }.getOrNull()
+
+    private fun inferDisplayLabelFromUrl(url: String): String {
+        val parsed = Uri.parse(url)
+        val host = parsed.host?.takeIf { it.isNotBlank() }
+        if (host != null) {
+            return host.removePrefix("www.")
+        }
+        val scheme = parsed.scheme?.takeIf { it.isNotBlank() } ?: return url
+        return scheme.replaceFirstChar { first ->
+            if (first.isLowerCase()) first.titlecase(Locale.getDefault()) else first.toString()
         }
     }
 

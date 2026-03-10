@@ -358,11 +358,12 @@ fun SettingsRoute(
                     iconBase64 = iconBase64,
                 )
             },
-            onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery ->
+            onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
                 viewModel.addSearchTargetQueryShortcut(
                     target = target,
                     shortcutName = shortcutName,
                     shortcutQuery = shortcutQuery,
+                    mode = mode,
                 )
             },
             onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,

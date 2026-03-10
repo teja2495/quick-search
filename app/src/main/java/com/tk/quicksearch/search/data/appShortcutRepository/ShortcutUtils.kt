@@ -71,7 +71,7 @@ fun parseCustomShortcutFromPickerResult(
             ?: packageName
     val customId =
         "custom_${System.currentTimeMillis()}_${(Math.random() * 100000).toInt()}"
-    val iconBase64 = extractCustomShortcutIconBase64(data, context)
+    val iconBase64 = extractCustomShortcutIconBase64(data, context) ?: loadAppIconBase64(context, packageName)
     val shortcut =
         StaticShortcut(
             packageName = packageName,

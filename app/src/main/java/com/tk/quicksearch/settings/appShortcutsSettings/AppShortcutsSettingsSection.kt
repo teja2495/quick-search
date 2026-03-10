@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getDisplayNameResId
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
@@ -74,8 +76,8 @@ fun AppShortcutsSettingsSection(
     onAddShortcutFromSource: (AppShortcutSource) -> Unit,
     onAddAppDeepLinkShortcut: (String, String, String, String?) -> Unit,
     searchTargets: List<SearchTarget>,
-    onAddQueryShortcut: (SearchTarget, String, String) -> Unit,
-    onUpdateCustomShortcut: (StaticShortcut, String, String?) -> Unit,
+    onAddQueryShortcut: (SearchTarget, String, String, SearchTargetShortcutMode) -> Unit,
+    onUpdateCustomShortcut: (StaticShortcut, String, String?, String?) -> Unit,
     onDeleteCustomShortcut: (StaticShortcut) -> Unit,
     focusShortcut: StaticShortcut? = null,
     focusPackageName: String? = null,
@@ -135,6 +137,13 @@ fun AppShortcutsSettingsSection(
                 }
         }
     }
+    val browserPackageNames =
+        remember(searchTargets) {
+            searchTargets
+                .filterIsInstance<SearchTarget.Browser>()
+                .map { it.app.packageName }
+                .toSet()
+        }
     val allPackageNames =
         remember(displayShortcuts, filteredShortcutSources, searchTargetShortcutSources) {
             (
@@ -184,8 +193,9 @@ fun AppShortcutsSettingsSection(
                                 null
                             } else {
                                 val appLabel =
-                                    appShortcuts.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
-                                        ?: appSources.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
+                                    // Keep the section label stable in settings by prioritizing source labels.
+                                    appSources.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
+                                        ?: appShortcuts.firstOrNull()?.appLabel?.takeIf { it.isNotBlank() }
                                         ?: appSearchTargetSources.firstOrNull()?.label?.takeIf { it.isNotBlank() }
                                         ?: labelCacheSnapshot[packageName]
                                         ?: fallbackAppLabel(packageName, locale)
@@ -238,6 +248,7 @@ fun AppShortcutsSettingsSection(
     var selectedFilterOption by remember { mutableStateOf(ShortcutFilterOption.ALL) }
     var isFilterMenuExpanded by remember { mutableStateOf(false) }
     var shortcutToEdit by remember { mutableStateOf<StaticShortcut?>(null) }
+    val shortcutListState = rememberLazyListState()
     val visibleShortcutGroups =
         remember(shortcutGroups, selectedFilterOption) {
             when (selectedFilterOption) {
@@ -283,6 +294,9 @@ fun AppShortcutsSettingsSection(
             }
         }
     }
+    LaunchedEffect(searchQuery) {
+        shortcutListState.scrollToItem(index = 0)
+    }
 
     if (visibleShortcutGroups.isEmpty()) {
         Text(
@@ -300,7 +314,12 @@ fun AppShortcutsSettingsSection(
             shortcutKind = source.kind,
             onDismiss = { shortcutDialogSource = null },
             onSave = { shortcutName, shortcutValue ->
-                onAddQueryShortcut(source.target, shortcutName, shortcutValue)
+                val mode =
+                    when (source.kind) {
+                        SearchTargetShortcutKind.QUERY -> SearchTargetShortcutMode.FORCE_SEARCH
+                        SearchTargetShortcutKind.URL -> SearchTargetShortcutMode.FORCE_URL
+                    }
+                onAddQueryShortcut(source.target, shortcutName, shortcutValue, mode)
                 shortcutDialogSource = null
             },
         )
@@ -321,8 +340,8 @@ fun AppShortcutsSettingsSection(
             shortcut = shortcut,
             iconPackPackage = iconPackPackage,
             onDismiss = { shortcutToEdit = null },
-            onSave = { updatedName, updatedIconBase64 ->
-                onUpdateCustomShortcut(shortcut, updatedName, updatedIconBase64)
+            onSave = { updatedName, updatedValue, updatedIconBase64 ->
+                onUpdateCustomShortcut(shortcut, updatedName, updatedValue, updatedIconBase64)
                 shortcutToEdit = null
             },
             onDelete = {
@@ -337,6 +356,7 @@ fun AppShortcutsSettingsSection(
             visibleShortcutGroups.all { expandedCards[it.packageName] == true }
 
     LazyColumn(
+        state = shortcutListState,
         modifier =
             modifier
                 .fillMaxWidth(),
@@ -549,7 +569,8 @@ fun AppShortcutsSettingsSection(
                             val appActivitySources =
                                 group.sources.filter { it.sourceType == AppShortcutSourceType.APP_ACTIVITY }
                             if (appActivitySources.isNotEmpty() &&
-                                !isSearchTargetShortcutPackageName(group.packageName)
+                                !isSearchTargetShortcutPackageName(group.packageName) &&
+                                group.packageName !in browserPackageNames
                             ) {
                                 if (hasRenderedSection) {
                                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

@@ -254,6 +254,7 @@ internal fun createSearchTargetShortcutIntent(
     context: Context,
     target: SearchTarget,
     query: String,
+    mode: SearchTargetShortcutMode = SearchTargetShortcutMode.AUTO,
 ): Intent? =
     when (target) {
         is SearchTarget.Engine -> {
@@ -271,6 +272,7 @@ internal fun createSearchTargetShortcutIntent(
                 targetType = SearchTargetQueryShortcutActivity.TARGET_TYPE_BROWSER,
                 query = query,
                 browserPackage = target.app.packageName,
+                browserShortcutMode = mode.name,
             )
         }
 
@@ -294,10 +296,16 @@ internal fun resolveSearchTargetLabel(context: Context, target: SearchTarget): S
 internal fun resolveSearchTargetIconBase64(context: Context, target: SearchTarget): String? =
     when (target) {
         is SearchTarget.Engine -> {
-            val drawable =
-                AppCompatResources.getDrawable(context, target.engine.getDrawableResId())
-                    ?: return null
-            bitmapToBase64Png(drawable.toBitmap(width = 96, height = 96))
+            val installedAppIconBase64 =
+                target.engine
+                    .getAppPackageCandidates()
+                    .firstNotNullOfOrNull { packageName ->
+                        loadAppIconBase64(context, packageName)
+                    }
+            installedAppIconBase64
+                ?: AppCompatResources.getDrawable(context, target.engine.getDrawableResId())
+                    ?.toBitmap(width = 96, height = 96)
+                    ?.let(::bitmapToBase64Png)
         }
 
         is SearchTarget.Browser -> {
@@ -306,6 +314,11 @@ internal fun resolveSearchTargetIconBase64(context: Context, target: SearchTarge
 
         is SearchTarget.Custom -> {
             target.custom.faviconBase64
+                ?.takeIf { it.isNotBlank() }
+                ?: loadAppIconBase64(
+                    context = context,
+                    packageName = resolveSearchTargetShortcutPackageName(context, target, context.packageManager),
+                )
         }
     }
 
