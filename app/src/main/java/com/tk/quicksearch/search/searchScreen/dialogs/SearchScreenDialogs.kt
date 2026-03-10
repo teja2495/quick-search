@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -54,8 +55,7 @@ internal fun ReleaseNotesDialog(
             stringResource(R.string.release_notes_title_no_version)
         }
     val bulletPoints =
-        stringResource(R.string.release_notes_points)
-            .split("\n")
+        stringArrayResource(R.array.release_notes_points)
             .filter { it.isNotBlank() }
     val context = LocalContext.current
 

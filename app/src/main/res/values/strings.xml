@@ -693,7 +693,14 @@
          ============================================================================ -->
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
-    <string name="release_notes_points">Big improvements to search algorithm - faster and better results.\nStartup speed improvements.</string>
+    <string-array name="release_notes_points">
+        <item>Alias support for individual searches and calculator</item>
+        <item>New Search Engine: Wikipedia</item>
+        <item>Faster and better search results</item>
+        <item>Option to disable Auto-launch keyboard and auto-clear query</item>
+        <item>Widget padding customization</item>
+        <item>Performance improvements, enhancements and bug fixes</item>
+    </string-array>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
     <string name="settings_all_quick_search_features">Features List</string>
