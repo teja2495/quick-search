@@ -124,6 +124,7 @@ fun SearchContentArea(
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
     val edgeFadeHeight = 32.dp
     val expandedSectionBottomInset = 80.dp
+    val aliasExpandedSectionBottomInset = 12.dp
     val footerBottomPadding = 28.dp
     val expandedCardExtraReduction = 20.dp
 
@@ -332,7 +333,11 @@ fun SearchContentArea(
                                                 ExpandedSection
                                                     .NONE
                                             ) {
-                                                expandedSectionBottomInset
+                                                if (isSectionAliasMode) {
+                                                    aliasExpandedSectionBottomInset
+                                                } else {
+                                                    expandedSectionBottomInset
+                                                }
                                             } else {
                                                 DesignTokens
                                                     .SpacingMedium
@@ -368,8 +373,12 @@ fun SearchContentArea(
                             expandedCardMaxHeight =
                                 (
                                     this@BoxWithConstraints.maxHeight -
-                                        expandedSectionBottomInset -
-                                        expandedCardExtraReduction
+                                        if (isSectionAliasMode) {
+                                            aliasExpandedSectionBottomInset
+                                        } else {
+                                            expandedSectionBottomInset +
+                                                expandedCardExtraReduction
+                                        }
                                 )
                                     .coerceAtLeast(220.dp),
                             isReversed = useOneHandedMode && !showDirectSearch,

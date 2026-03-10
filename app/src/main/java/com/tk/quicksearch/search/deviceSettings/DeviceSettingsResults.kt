@@ -97,6 +97,7 @@ fun DeviceSettingsResultsSection(
         expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
         showWallpaperBackground: Boolean = false,
         predictedTarget: PredictedSubmitTarget? = null,
+        fillExpandedHeight: Boolean = false,
 ) {
         val overlayCardColor = LocalOverlayResultCardColor.current
         val overlayDividerColor = LocalOverlayDividerColor.current
@@ -116,6 +117,8 @@ fun DeviceSettingsResultsSection(
         val predictedSettingId = (predictedTarget as? PredictedSubmitTarget.Setting)?.id
 
         val scrollState = rememberScrollState()
+        val shouldFillExpandedHeight =
+                fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
         Column(
                 modifier = modifier.fillMaxWidth(),
@@ -146,6 +149,12 @@ fun DeviceSettingsResultsSection(
                                                 .then(
                                                         if (isExpanded) {
                                                                 Modifier.heightIn(
+                                                                                min =
+                                                                                        if (shouldFillExpandedHeight) {
+                                                                                                expandedCardMaxHeight
+                                                                                        } else {
+                                                                                                0.dp
+                                                                                        },
                                                                                 max = expandedCardMaxHeight,
                                                                         )
                                                                         .verticalScroll(scrollState)
@@ -161,8 +170,16 @@ fun DeviceSettingsResultsSection(
                                                         top = 4.dp,
                                                         end = DesignTokens.SpacingMedium,
                                                         bottom = 4.dp,
+                                                )
+                                                .padding(
+                                                        bottom =
+                                                                if (shouldFillExpandedHeight) {
+                                                                        DesignTokens.SpacingSmall
+                                                                } else {
+                                                                        0.dp
+                                                                },
                                                 ),
-                                        ) {
+                                ) {
                                         displaySettings.forEachIndexed { index, shortcut ->
                                                 val isPredictedSetting =
                                                         predictedSettingId != null &&
@@ -233,16 +250,29 @@ internal fun SettingResultRow(
                 remember(context) { com.tk.quicksearch.search.common.AddToHomeHandler(context) }
         var showOptions by remember { mutableStateOf(false) }
         val view = LocalView.current
+        val predictedRowShape =
+                if (isPredicted) {
+                        DesignTokens.ShapeXXLarge
+                } else {
+                        DesignTokens.CardShape
+                }
 
         Row(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .heightIn(min = ROW_MIN_HEIGHT.dp)
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(top = DesignTokens.SpacingXSmall)
+                                        } else {
+                                                Modifier
+                                        },
+                                )
                                 .predictedSubmitHighlight(
                                         isPredicted = isPredicted,
-                                        shape = DesignTokens.CardShape,
+                                        shape = predictedRowShape,
                                 )
-                                .clip(DesignTokens.CardShape)
+                                .clip(predictedRowShape)
                                 .combinedClickable(
                                         onClick = {
                                                 hapticConfirm(view)()
@@ -254,6 +284,17 @@ internal fun SettingResultRow(
                                                         } else {
                                                                 null
                                                         },
+                                )
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingXSmall,
+                                                        end = DesignTokens.SpacingXSmall,
+                                                        bottom = DesignTokens.SpacingXSmall,
+                                                )
+                                        } else {
+                                                Modifier
+                                        },
                                 )
                                 .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),

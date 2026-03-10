@@ -94,6 +94,7 @@ fun ContactResultsSection(
     permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
     showWallpaperBackground: Boolean = false,
     predictedTarget: PredictedSubmitTarget? = null,
+    fillExpandedHeight: Boolean = false,
 ) {
     val hasVisibleContent = (hasPermission && contacts.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -133,6 +134,7 @@ fun ContactResultsSection(
                     onContactActionHintDismissed = onContactActionHintDismissed,
                     showWallpaperBackground = showWallpaperBackground,
                     predictedTarget = predictedTarget,
+                    fillExpandedHeight = fillExpandedHeight,
                 )
             }
 
@@ -181,6 +183,7 @@ private fun ContactsResultCard(
     onContactActionHintDismissed: () -> Unit,
     showWallpaperBackground: Boolean = false,
     predictedTarget: PredictedSubmitTarget?,
+    fillExpandedHeight: Boolean,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
@@ -199,6 +202,8 @@ private fun ContactsResultCard(
         }
 
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    val shouldFillExpandedHeight =
+        fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -218,6 +223,12 @@ private fun ContactsResultCard(
                                 if (isExpanded) {
                                     Modifier
                                         .heightIn(
+                                            min =
+                                                if (shouldFillExpandedHeight) {
+                                                    expandedCardMaxHeight
+                                                } else {
+                                                    0.dp
+                                                },
                                             max = expandedCardMaxHeight,
                                         ).verticalScroll(
                                             scrollState,
@@ -256,6 +267,12 @@ private fun ContactsResultCard(
                         onContactActionHintDismissed =
                         onContactActionHintDismissed,
                         predictedContactId = predictedContactId,
+                        bottomContentPadding =
+                            if (shouldFillExpandedHeight) {
+                                DesignTokens.SpacingSmall
+                            } else {
+                                0.dp
+                            },
                     )
                 }
             }
@@ -317,13 +334,14 @@ private fun ContactList(
     showContactActionHint: Boolean,
     onContactActionHintDismissed: () -> Unit,
     predictedContactId: Long?,
+    bottomContentPadding: Dp,
 ) {
     Column(
         modifier =
             Modifier.padding(
                 horizontal = DesignTokens.SpacingMedium,
                 vertical = DesignTokens.SpacingXSmall,
-            ),
+            ).padding(bottom = bottomContentPadding),
     ) {
         displayContacts.forEachIndexed { index, contactInfo ->
             val isPredictedContact =

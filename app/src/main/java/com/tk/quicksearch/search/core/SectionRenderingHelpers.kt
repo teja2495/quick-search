@@ -350,6 +350,7 @@ fun rememberSectionRenderContext(
         contactsExpandClick = contactsParams.onExpandClick,
         settingsExpandClick = settingsParams.onExpandClick,
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
+        isSectionAliasMode = state.detectedAliasSearchSection != null,
     )
 }
 
@@ -391,4 +392,5 @@ data class SectionRenderContext(
     val showAllSettingsResults: Boolean = false,
     val showSettingsExpandControls: Boolean = false,
     val settingsExpandClick: () -> Unit = {},
+    val isSectionAliasMode: Boolean = false,
 )

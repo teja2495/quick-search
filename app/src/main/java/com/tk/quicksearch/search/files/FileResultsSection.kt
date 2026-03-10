@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Android
@@ -195,6 +196,7 @@ fun FileResultsSection(
         permissionDisabledCard: @Composable (String, String, String, () -> Unit) -> Unit,
         showWallpaperBackground: Boolean = false,
         predictedTarget: PredictedSubmitTarget? = null,
+        fillExpandedHeight: Boolean = false,
 ) {
     val hasVisibleContent = (hasPermission && files.isNotEmpty()) || !hasPermission
     if (!hasVisibleContent) return
@@ -222,6 +224,7 @@ fun FileResultsSection(
                         expandedCardMaxHeight = expandedCardMaxHeight,
                         showWallpaperBackground = showWallpaperBackground,
                         predictedTarget = predictedTarget,
+                        fillExpandedHeight = fillExpandedHeight,
                 )
             }
             !hasPermission -> {
@@ -258,6 +261,7 @@ private fun FilesResultCard(
         expandedCardMaxHeight: Dp,
         showWallpaperBackground: Boolean = false,
         predictedTarget: PredictedSubmitTarget?,
+        fillExpandedHeight: Boolean,
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
@@ -266,6 +270,10 @@ private fun FilesResultCard(
             showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val shouldShowExpandButton = !displayAsExpanded && canShowExpand
     val shouldUseLazyList = isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
+    val lazyListState = rememberLazyListState()
+    val hasLazyListOverflow = lazyListState.canScrollForward || lazyListState.canScrollBackward
+    val shouldFillExpandedHeight =
+            fillExpandedHeight && isExpanded && shouldUseLazyList && hasLazyListOverflow
     val predictedFileUri = (predictedTarget as? PredictedSubmitTarget.File)?.uri
 
     val displayFiles =
@@ -285,6 +293,12 @@ private fun FilesResultCard(
                 if (isExpanded) {
                     Modifier.fillMaxWidth()
                             .heightIn(
+                                    min =
+                                            if (shouldFillExpandedHeight) {
+                                                    expandedCardMaxHeight
+                                            } else {
+                                                    0.dp
+                                            },
                                     max = expandedCardMaxHeight,
                             )
                 } else {
@@ -309,7 +323,14 @@ private fun FilesResultCard(
                             onExpandClick = onExpandClick,
                             modifier = contentModifier,
                             useLazyList = shouldUseLazyList,
+                            lazyListState = lazyListState,
                             predictedFileUri = predictedFileUri,
+                            bottomContentPadding =
+                                    if (shouldFillExpandedHeight) {
+                                            DesignTokens.SpacingSmall
+                                    } else {
+                                            0.dp
+                                    },
                     )
                 }
 
@@ -358,12 +379,21 @@ private fun FileCardContent(
         getFileNickname: (String) -> String?,
         onExpandClick: () -> Unit,
         useLazyList: Boolean = false,
+        lazyListState: androidx.compose.foundation.lazy.LazyListState,
         predictedFileUri: String?,
+        bottomContentPadding: Dp,
 ) {
     if (useLazyList) {
         LazyColumn(
                 modifier = modifier,
-                contentPadding = PaddingValues(horizontal = DesignTokens.SpacingMedium),
+                state = lazyListState,
+                contentPadding =
+                        PaddingValues(
+                                start = DesignTokens.SpacingMedium,
+                                top = 0.dp,
+                                end = DesignTokens.SpacingMedium,
+                                bottom = bottomContentPadding,
+                        ),
         ) {
             itemsIndexed(
                     items = displayFiles,
@@ -411,7 +441,12 @@ private fun FileCardContent(
             }
         }
     } else {
-        Column(modifier = modifier.padding(horizontal = DesignTokens.SpacingMedium)) {
+        Column(
+                modifier =
+                        modifier
+                                .padding(horizontal = DesignTokens.SpacingMedium)
+                                .padding(bottom = bottomContentPadding)
+        ) {
             displayFiles.forEachIndexed { index, file ->
                 val isPredictedFile =
                         predictedFileUri != null &&
@@ -577,16 +612,29 @@ internal fun FileResultRow(
     var showOptions by remember { mutableStateOf(false) }
     var showFileInfoDialog by remember { mutableStateOf(false) }
     val view = LocalView.current
+    val predictedRowShape =
+            if (isPredicted) {
+                DesignTokens.ShapeXXLarge
+            } else {
+                DesignTokens.CardShape
+            }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
                 modifier =
                         Modifier.fillMaxWidth()
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(top = DesignTokens.SpacingXSmall)
+                                        } else {
+                                                Modifier
+                                        },
+                                )
                                 .predictedSubmitHighlight(
                                         isPredicted = isPredicted,
-                                        shape = DesignTokens.CardShape,
+                                        shape = predictedRowShape,
                                 )
-                                .clip(DesignTokens.CardShape)
+                                .clip(predictedRowShape)
                                 .combinedClickable(
                                         onClick = {
                                             hapticConfirm(view)()
@@ -598,6 +646,17 @@ internal fun FileResultRow(
                                                         } else {
                                                             null
                                                         },
+                                )
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingXSmall,
+                                                        end = DesignTokens.SpacingXSmall,
+                                                        bottom = DesignTokens.SpacingXSmall,
+                                                )
+                                        } else {
+                                                Modifier
+                                        },
                                 )
                                 .padding(vertical = DesignTokens.SpacingLarge),
         ) {

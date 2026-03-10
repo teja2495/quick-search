@@ -83,6 +83,7 @@ fun AppShortcutResultsSection(
         iconPackPackage: String?,
         showWallpaperBackground: Boolean,
         predictedTarget: PredictedSubmitTarget? = null,
+        fillExpandedHeight: Boolean = false,
 ) {
         val overlayCardColor = LocalOverlayResultCardColor.current
         val overlayDividerColor = LocalOverlayDividerColor.current
@@ -102,6 +103,8 @@ fun AppShortcutResultsSection(
         val predictedShortcutId = (predictedTarget as? PredictedSubmitTarget.AppShortcut)?.id
 
         val scrollState = rememberScrollState()
+        val shouldFillExpandedHeight =
+                fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
         Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -129,8 +132,14 @@ fun AppShortcutResultsSection(
                                         modifier =
                                                 Modifier.fillMaxWidth()
                                                         .then(
-                                                                if (isExpanded) {
+                                                        if (isExpanded) {
                                                                         Modifier.heightIn(
+                                                                                        min =
+                                                                                                if (shouldFillExpandedHeight) {
+                                                                                                        expandedCardMaxHeight
+                                                                                                } else {
+                                                                                                        0.dp
+                                                                                                },
                                                                                         max = expandedCardMaxHeight,
                                                                                 )
                                                                                 .verticalScroll(
@@ -157,6 +166,12 @@ fun AppShortcutResultsSection(
                                                 shouldShowExpandButton = shouldShowExpandButton,
                                                 onExpandClick = onExpandClick,
                                                 predictedShortcutId = predictedShortcutId,
+                                                bottomContentPadding =
+                                                        if (shouldFillExpandedHeight) {
+                                                                DesignTokens.SpacingSmall
+                                                        } else {
+                                                                0.dp
+                                                        },
                                         )
                                 }
                         }
@@ -196,10 +211,12 @@ private fun AppShortcutsCardContent(
         shouldShowExpandButton: Boolean,
         onExpandClick: () -> Unit,
         predictedShortcutId: String?,
+        bottomContentPadding: Dp,
 ) {
         Column(
                 modifier =
-                        Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp),
+                        Modifier.padding(horizontal = DesignTokens.SpacingMedium, vertical = 4.dp)
+                                .padding(bottom = bottomContentPadding),
         ) {
                 displayShortcuts.forEachIndexed { index, shortcut ->
                         val shortcutId = shortcutKey(shortcut)
@@ -265,6 +282,12 @@ internal fun AppShortcutRow(
         val view = LocalView.current
         val displayName = shortcutDisplayName(shortcut)
         val iconSizePx = with(LocalDensity.current) { ICON_SIZE.dp.roundToPx() }
+        val predictedRowShape =
+                if (isPredicted) {
+                        DesignTokens.ShapeXXLarge
+                } else {
+                        DesignTokens.CardShape
+                }
         val iconBitmap = rememberShortcutIcon(shortcut = shortcut, iconSizePx = iconSizePx)
         val appIconResult =
                 rememberAppIcon(
@@ -277,11 +300,18 @@ internal fun AppShortcutRow(
                 modifier =
                         Modifier.fillMaxWidth()
                                 .heightIn(min = ROW_MIN_HEIGHT.dp)
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(top = DesignTokens.SpacingXSmall)
+                                        } else {
+                                                Modifier
+                                        },
+                                )
                                 .predictedSubmitHighlight(
                                         isPredicted = isPredicted,
-                                        shape = DesignTokens.CardShape,
+                                        shape = predictedRowShape,
                                 )
-                                .clip(DesignTokens.CardShape)
+                                .clip(predictedRowShape)
                                 .combinedClickable(
                                         onClick = {
                                                 hapticConfirm(view)()
@@ -293,6 +323,17 @@ internal fun AppShortcutRow(
                                                         } else {
                                                                 null
                                                         },
+                                )
+                                .then(
+                                        if (isPredicted) {
+                                                Modifier.padding(
+                                                        start = DesignTokens.SpacingXSmall,
+                                                        end = DesignTokens.SpacingXSmall,
+                                                        bottom = DesignTokens.SpacingXSmall,
+                                                )
+                                        } else {
+                                                Modifier
+                                        },
                                 )
                                 .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),

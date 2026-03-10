@@ -67,6 +67,7 @@ private fun renderFilesSection(
             permissionDisabledCard = filesParams.permissionDisabledCard,
             showWallpaperBackground = filesParams.showWallpaperBackground,
             predictedTarget = filesParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
         )
     }
 }
@@ -117,6 +118,7 @@ private fun renderContactsSection(
             permissionDisabledCard = contactsParams.permissionDisabledCard,
             showWallpaperBackground = contactsParams.showWallpaperBackground,
             predictedTarget = contactsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
         )
     }
 }
@@ -182,6 +184,7 @@ private fun renderAppShortcutsSection(
             iconPackPackage = appShortcutsParams.iconPackPackage,
             showWallpaperBackground = appShortcutsParams.showWallpaperBackground,
             predictedTarget = appShortcutsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
         )
     }
 }
@@ -208,6 +211,7 @@ private fun renderSettingsSection(
             expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
             showWallpaperBackground = params.settingsParams.showWallpaperBackground,
             predictedTarget = params.settingsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
         )
     }
 }
