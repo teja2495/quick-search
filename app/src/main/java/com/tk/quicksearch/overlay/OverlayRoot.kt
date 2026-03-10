@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -45,6 +48,7 @@ import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.searchScreen.ExcludeUndoSnackbarHost
 import com.tk.quicksearch.search.searchScreen.SearchRoute
 import com.tk.quicksearch.search.searchScreen.SearchScreenBackground
+import com.tk.quicksearch.search.searchScreen.components.NumberKeyboardOperatorPills
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.isLandscape
@@ -62,6 +66,7 @@ private const val OVERLAY_ENTER_ANIMATION_MS = 420
 private const val OVERLAY_EXIT_ANIMATION_MS = 220
 private const val OVERLAY_ENTER_START_DELAY_MS = 32
 private const val OVERLAY_ENTER_START_SCALE = 0.9f
+private val OVERLAY_OPERATOR_ROW_ESTIMATED_HEIGHT = 48.dp
 private val OVERLAY_TOP_OFFSET = 16.dp
 private val OVERLAY_ENTER_START_OFFSET = 56.dp
 
@@ -98,6 +103,9 @@ fun OverlayRoot(
 
         val context = LocalContext.current
         val overlaySnackbarHostState = remember { SnackbarHostState() }
+        var overlayManualNumberKeyboard by remember { mutableStateOf(false) }
+        var overlayImeVisible by remember { mutableStateOf(false) }
+        var overlayOperatorRowHeightPx by remember { mutableStateOf(0) }
 
         BoxWithConstraints(
                         modifier =
@@ -110,10 +118,25 @@ fun OverlayRoot(
                                         ) { handleClose() },
                 ) {
                         val uiState by viewModel.uiState.collectAsState()
+                        val density = LocalDensity.current
                         val layoutDirection = LocalLayoutDirection.current
                         val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
                         val imeBottomPadding =
                                 WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+                        val shouldShowOverlayOperatorRow =
+                                overlayImeVisible &&
+                                        (overlayManualNumberKeyboard ||
+                                                uiState.calculatorState.isCalculatorMode)
+                        val overlayOperatorRowReservedHeight =
+                                if (shouldShowOverlayOperatorRow) {
+                                        if (overlayOperatorRowHeightPx > 0) {
+                                                with(density) { overlayOperatorRowHeightPx.toDp() }
+                                        } else {
+                                                OVERLAY_OPERATOR_ROW_ESTIMATED_HEIGHT
+                                        }
+                                } else {
+                                        0.dp
+                                }
                         val topSafePadding = systemBarsPadding.calculateTopPadding()
                         val leftSafePadding = systemBarsPadding.calculateLeftPadding(layoutDirection)
                         val rightSafePadding =
@@ -127,7 +150,8 @@ fun OverlayRoot(
                         val availableHeight =
                                 (maxHeight -
                                                 overlayTopPadding -
-                                                bottomSafePadding)
+                                                bottomSafePadding -
+                                                overlayOperatorRowReservedHeight)
                                         .coerceAtLeast(
                                         0.dp
                                 )
@@ -202,7 +226,6 @@ fun OverlayRoot(
                                 uiState.backgroundSource == BackgroundSource.SYSTEM_WALLPAPER &&
                                         overlayImageBitmap == null
 
-                        val density = LocalDensity.current
                         val overlayEntryProgress by animateFloatAsState(
                                 targetValue = if (canPlayEnterAnimation && isVisible) 1f else 0f,
                                 animationSpec =
@@ -296,6 +319,11 @@ fun OverlayRoot(
                                                 viewModel = viewModel,
                                                 isOverlayPresentation = true,
                                                 overlaySnackbarHostState = overlaySnackbarHostState,
+                                                onOverlayNumberKeyboardUiChanged = {
+                                                    manuallySwitched, isImeOpen ->
+                                                    overlayManualNumberKeyboard = manuallySwitched
+                                                    overlayImeVisible = isImeOpen
+                                                },
                                                 onWelcomeAnimationCompleted = {
                                                         viewModel.onSearchBarWelcomeAnimationCompleted()
                                                 },
@@ -352,6 +380,23 @@ fun OverlayRoot(
                                                 },
                                         )
                                 }
+                        }
+
+                        if (shouldShowOverlayOperatorRow) {
+                                NumberKeyboardOperatorPills(
+                                        modifier =
+                                                Modifier.align(Alignment.BottomCenter)
+                                                        .imePadding()
+                                                        .fillMaxWidth()
+                                                        .onSizeChanged { size ->
+                                                                overlayOperatorRowHeightPx = size.height
+                                                        },
+                                        onOperatorClick = { operator ->
+                                                viewModel.onQueryChange(uiState.query + operator)
+                                        },
+                                        isOverlayPresentation = true,
+                                        extendToScreenEdges = false,
+                                )
                         }
 
                         ExcludeUndoSnackbarHost(

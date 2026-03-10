@@ -84,6 +84,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+//TODO: Refactor this HUGE file
+
 class SearchViewModel(
         application: Application,
 ) : AndroidViewModel(application) {

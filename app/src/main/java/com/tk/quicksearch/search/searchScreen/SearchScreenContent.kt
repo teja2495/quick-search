@@ -165,8 +165,7 @@ internal fun SearchScreenContent(
                 null
             }
     val shouldRenderInlineNumberKeyboardOperators =
-            shouldShowNumberKeyboardOperators &&
-                    (!isOverlayPresentation || showBottomSearchBar)
+            shouldShowNumberKeyboardOperators && !isOverlayPresentation
     val shouldShowPredictedHighlight = isImeVisible
     val predictedTarget =
             remember(
@@ -560,6 +559,7 @@ internal fun SearchScreenContent(
             ) {
                 NumberKeyboardOperatorPills(
                         modifier = Modifier.imePadding(),
+                        isOverlayPresentation = isOverlayPresentation,
                         onOperatorClick = { operator ->
                             onQueryChanged(state.query + operator)
                         },
@@ -603,6 +603,7 @@ internal fun SearchScreenContent(
             ) {
                 NumberKeyboardOperatorPills(
                         modifier = Modifier.imePadding(),
+                        isOverlayPresentation = isOverlayPresentation,
                         onOperatorClick = { operator ->
                             onQueryChanged(state.query + operator)
                         },

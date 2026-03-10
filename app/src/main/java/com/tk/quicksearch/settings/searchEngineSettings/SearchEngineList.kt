@@ -499,7 +499,8 @@ private fun SearchEngineRowContent(
                 color = MaterialTheme.colorScheme.onSurface,
             )
             if (onShortcutCodeChange != null) {
-                val isSearchEngineAlias = engine is SearchTarget.Engine
+                val isSearchEngineAlias =
+                    engine is SearchTarget.Engine || engine is SearchTarget.Browser
                 AliasCodeDisplay(
                     shortcutCode = shortcutCode,
                     isEnabled = shortcutEnabled,

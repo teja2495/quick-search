@@ -167,8 +167,10 @@ class AliasHandler(
             val normalizedCode = normalizeShortcutCodeInput(code)
             val engineTarget = (target as? SearchTarget.Engine)?.engine
                 ?: SearchEngine.values().firstOrNull { it.name == targetId }
+            val isBrowserAlias =
+                (target is SearchTarget.Browser) || targetId.startsWith(BROWSER_ID_PREFIX)
             val isSearchSectionAlias = targetId in SEARCH_SECTION_ALIAS_IDS
-            val isSearchEngineAlias = engineTarget != null
+            val isSearchEngineAlias = engineTarget != null || isBrowserAlias
 
             if (normalizedCode.isEmpty()) {
                 if (engineTarget != null) {
@@ -293,13 +295,13 @@ class AliasHandler(
                 SearchEngine.values().map { SearchTarget.Engine(it) }
             }
         for (target in targets) {
-            // End-of-query aliases are intentionally limited to search engines.
-            if (target !is SearchTarget.Engine) continue
-            if (target.engine == SearchEngine.DIRECT_SEARCH &&
+            if (target is SearchTarget.Engine &&
+                target.engine == SearchEngine.DIRECT_SEARCH &&
                 directSearchHandler.getGeminiApiKey().isNullOrBlank()
             ) {
                 continue
             }
+            if (target !is SearchTarget.Engine && target !is SearchTarget.Browser) continue
             if (!isAliasEnabled(target)) continue
 
             val aliasCode = getAlias(target).lowercase(Locale.getDefault())
