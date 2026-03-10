@@ -45,6 +45,7 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -187,119 +188,79 @@ private fun ContactsResultCard(
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
-    val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand =
-        showExpandControls && contacts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-    val shouldShowCollapseButton = isExpanded && showExpandControls
     val predictedContactId = (predictedTarget as? PredictedSubmitTarget.Contact)?.contactId
 
-    val displayContacts =
-        if (displayAsExpanded) {
-            contacts
-        } else {
-            contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-        }
-
     val scrollState = androidx.compose.foundation.rememberScrollState()
-    val shouldFillExpandedHeight =
-        fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val cardModifier =
-            Modifier.fillMaxWidth()
-
-        val cardContent =
-            @Composable
-            {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .then(
-                                if (isExpanded) {
-                                    Modifier
-                                        .heightIn(
-                                            min =
-                                                if (shouldFillExpandedHeight) {
-                                                    expandedCardMaxHeight
-                                                } else {
-                                                    0.dp
-                                                },
-                                            max = expandedCardMaxHeight,
-                                        ).verticalScroll(
-                                            scrollState,
-                                        )
-                                } else {
-                                    Modifier
-                                },
-                            ),
-                ) {
-                    ContactList(
-                        displayContacts = displayContacts,
-                        overlayDividerColor = overlayDividerColor,
-                        callingApp = callingApp,
-                        messagingApp = messagingApp,
-                        onContactClick = onContactClick,
-                        onShowContactMethods = onShowContactMethods,
-                        onCallContact = onCallContact,
-                        onSmsContact = onSmsContact,
-                        onContactMethodClick = onContactMethodClick,
-                        pinnedContactIds = pinnedContactIds,
-                        onTogglePin = onTogglePin,
-                        onExclude = onExclude,
-                        onNicknameClick = onNicknameClick,
-                        getContactNickname = getContactNickname,
-                        getPrimaryContactCardAction =
-                        getPrimaryContactCardAction,
-                        getSecondaryContactCardAction =
-                        getSecondaryContactCardAction,
-                        onPrimaryActionLongPress = onPrimaryActionLongPress,
-                        onSecondaryActionLongPress =
-                        onSecondaryActionLongPress,
-                        onCustomAction = onCustomAction,
-                        shouldShowExpandButton = shouldShowExpandButton,
-                        onExpandClick = onExpandClick,
-                        showContactActionHint = showContactActionHint,
-                        onContactActionHintDismissed =
-                        onContactActionHintDismissed,
-                        predictedContactId = predictedContactId,
-                        bottomContentPadding =
-                            if (shouldFillExpandedHeight) {
-                                DesignTokens.SpacingSmall
-                            } else {
-                                0.dp
-                            },
-                    )
+        ExpandableResultsCard(
+            resultCount = contacts.size,
+            isExpanded = isExpanded,
+            showAllResults = showAllResults,
+            showExpandControls = showExpandControls,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+            hasScrollableContent = scrollState.maxValue > 0,
+            fillExpandedHeight = fillExpandedHeight,
+            showWallpaperBackground = showWallpaperBackground,
+            overlayCardColor = overlayCardColor,
+        ) { contentModifier, cardState ->
+            val displayContacts =
+                if (cardState.displayAsExpanded) {
+                    contacts
+                } else {
+                    contacts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
                 }
-            }
 
-        val cardColors =
-            if (overlayCardColor != null) {
-                CardDefaults.cardColors(containerColor = overlayCardColor)
-            } else {
-                AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
+            Column(
+                modifier =
+                    contentModifier.then(
+                        if (isExpanded) {
+                            Modifier.verticalScroll(scrollState)
+                        } else {
+                            Modifier
+                        },
+                    ),
+            ) {
+                ContactList(
+                    displayContacts = displayContacts,
+                    overlayDividerColor = overlayDividerColor,
+                    callingApp = callingApp,
+                    messagingApp = messagingApp,
+                    onContactClick = onContactClick,
+                    onShowContactMethods = onShowContactMethods,
+                    onCallContact = onCallContact,
+                    onSmsContact = onSmsContact,
+                    onContactMethodClick = onContactMethodClick,
+                    pinnedContactIds = pinnedContactIds,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onNicknameClick = onNicknameClick,
+                    getContactNickname = getContactNickname,
+                    getPrimaryContactCardAction =
+                    getPrimaryContactCardAction,
+                    getSecondaryContactCardAction =
+                    getSecondaryContactCardAction,
+                    onPrimaryActionLongPress = onPrimaryActionLongPress,
+                    onSecondaryActionLongPress =
+                    onSecondaryActionLongPress,
+                    onCustomAction = onCustomAction,
+                    shouldShowExpandButton = cardState.shouldShowExpandButton,
+                    onExpandClick = onExpandClick,
+                    showContactActionHint = showContactActionHint,
+                    onContactActionHintDismissed =
+                    onContactActionHintDismissed,
+                    predictedContactId = predictedContactId,
+                    bottomContentPadding =
+                        if (cardState.shouldFillExpandedHeight) {
+                            DesignTokens.SpacingSmall
+                        } else {
+                            0.dp
+                        },
+                )
             }
-
-        if (showWallpaperBackground) {
-            Card(
-                modifier = cardModifier,
-                colors = cardColors,
-                shape = MaterialTheme.shapes.extraLarge,
-                elevation =
-                    AppColors.getCardElevation(showWallpaperBackground = true),
-            ) { cardContent() }
-        } else {
-            ElevatedCard(
-                modifier = cardModifier,
-                colors = cardColors,
-                shape = MaterialTheme.shapes.extraLarge,
-                elevation =
-                    AppColors.getCardElevation(showWallpaperBackground = false),
-            ) { cardContent() }
         }
     }
 }

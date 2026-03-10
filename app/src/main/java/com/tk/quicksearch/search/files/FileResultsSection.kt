@@ -30,9 +30,6 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.VideoLibrary
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -69,8 +66,8 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 import kotlinx.coroutines.CancellationException
@@ -265,96 +262,56 @@ private fun FilesResultCard(
 ) {
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
-    val displayAsExpanded = isExpanded || showAllResults
-    val canShowExpand =
-            showExpandControls && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-    val shouldShowExpandButton = !displayAsExpanded && canShowExpand
-    val shouldUseLazyList = isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
     val lazyListState = rememberLazyListState()
     val hasLazyListOverflow = lazyListState.canScrollForward || lazyListState.canScrollBackward
-    val shouldFillExpandedHeight =
-            fillExpandedHeight && isExpanded && shouldUseLazyList && hasLazyListOverflow
     val predictedFileUri = (predictedTarget as? PredictedSubmitTarget.File)?.uri
-
-    val displayFiles =
-            if (displayAsExpanded) {
-                files
-            } else {
-                files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-            }
+    val shouldUseLazyList = isExpanded && files.size > SearchScreenConstants.INITIAL_RESULT_COUNT
 
     Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val cardModifier =
-                Modifier.fillMaxWidth()
-        val contentModifier =
-                if (isExpanded) {
-                    Modifier.fillMaxWidth()
-                            .heightIn(
-                                    min =
-                                            if (shouldFillExpandedHeight) {
-                                                    expandedCardMaxHeight
-                                            } else {
-                                                    0.dp
-                                            },
-                                    max = expandedCardMaxHeight,
-                            )
-                } else {
-                    Modifier.fillMaxWidth()
-                }
-
-        val cardContent =
-                @Composable
-                {
-                    FileCardContent(
-                            displayFiles = displayFiles,
-                            overlayDividerColor = overlayDividerColor,
-                            shouldShowExpandButton = shouldShowExpandButton,
-                            onFileClick = onFileClick,
-                            onOpenFolder = onOpenFolder,
-                            pinnedFileUris = pinnedFileUris,
-                            onTogglePin = onTogglePin,
-                            onExclude = onExclude,
-                            onExcludeExtension = onExcludeExtension,
-                            onNicknameClick = onNicknameClick,
-                            getFileNickname = getFileNickname,
-                            onExpandClick = onExpandClick,
-                            modifier = contentModifier,
-                            useLazyList = shouldUseLazyList,
-                            lazyListState = lazyListState,
-                            predictedFileUri = predictedFileUri,
-                            bottomContentPadding =
-                                    if (shouldFillExpandedHeight) {
-                                            DesignTokens.SpacingSmall
-                                    } else {
-                                            0.dp
-                                    },
-                    )
-                }
-
-        val cardColors =
-                if (overlayCardColor != null) {
-                    CardDefaults.cardColors(containerColor = overlayCardColor)
-                } else {
-                    AppColors.getCardColors(showWallpaperBackground = showWallpaperBackground)
-                }
-
-        if (showWallpaperBackground) {
-            Card(
-                    modifier = cardModifier,
-                    colors = cardColors,
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = AppColors.getCardElevation(showWallpaperBackground = true),
-            ) { cardContent() }
-        } else {
-            ElevatedCard(
-                    modifier = cardModifier,
-                    colors = cardColors,
-                    shape = MaterialTheme.shapes.extraLarge,
-                    elevation = AppColors.getCardElevation(showWallpaperBackground = false),
-            ) { cardContent() }
+        ExpandableResultsCard(
+                resultCount = files.size,
+                isExpanded = isExpanded,
+                showAllResults = showAllResults,
+                showExpandControls = showExpandControls,
+                expandedCardMaxHeight = expandedCardMaxHeight,
+                hasScrollableContent = shouldUseLazyList && hasLazyListOverflow,
+                fillExpandedHeight = fillExpandedHeight,
+                showWallpaperBackground = showWallpaperBackground,
+                overlayCardColor = overlayCardColor,
+        ) { contentModifier, cardState ->
+            val displayFiles =
+                    if (cardState.displayAsExpanded) {
+                        files
+                    } else {
+                        files.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+                    }
+            FileCardContent(
+                    displayFiles = displayFiles,
+                    overlayDividerColor = overlayDividerColor,
+                    shouldShowExpandButton = cardState.shouldShowExpandButton,
+                    onFileClick = onFileClick,
+                    onOpenFolder = onOpenFolder,
+                    pinnedFileUris = pinnedFileUris,
+                    onTogglePin = onTogglePin,
+                    onExclude = onExclude,
+                    onExcludeExtension = onExcludeExtension,
+                    onNicknameClick = onNicknameClick,
+                    getFileNickname = getFileNickname,
+                    onExpandClick = onExpandClick,
+                    modifier = contentModifier,
+                    useLazyList = shouldUseLazyList,
+                    lazyListState = lazyListState,
+                    predictedFileUri = predictedFileUri,
+                    bottomContentPadding =
+                            if (cardState.shouldFillExpandedHeight) {
+                                    DesignTokens.SpacingSmall
+                            } else {
+                                    0.dp
+                            },
+            )
         }
     }
 }

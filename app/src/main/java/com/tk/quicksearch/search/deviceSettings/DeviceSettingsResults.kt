@@ -15,9 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,40 +42,14 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
 private const val ROW_MIN_HEIGHT = 52
 private const val ICON_SIZE = 24
 private const val EXPAND_BUTTON_HORIZONTAL_PADDING = 12
-
-@Composable
-private fun DeviceSettingsCard(
-        showWallpaperBackground: Boolean,
-        cardColors: androidx.compose.material3.CardColors,
-        cardShape: androidx.compose.ui.graphics.Shape,
-        cardElevation: androidx.compose.material3.CardElevation,
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit,
-) {
-        if (showWallpaperBackground) {
-                Card(
-                        modifier = modifier,
-                        colors = cardColors,
-                        shape = cardShape,
-                        elevation = cardElevation,
-                ) { content() }
-        } else {
-                ElevatedCard(
-                        modifier = modifier,
-                        colors = cardColors,
-                        shape = cardShape,
-                        elevation = cardElevation,
-                ) { content() }
-        }
-}
 
 @Composable
 fun DeviceSettingsResultsSection(
@@ -103,64 +74,39 @@ fun DeviceSettingsResultsSection(
         val overlayDividerColor = LocalOverlayDividerColor.current
         if (settings.isEmpty()) return
 
-        val displaySettings =
-                if (isExpanded || showAllResults) {
-                        settings
-                } else {
-                        settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        val canShowExpandControls =
-                showExpandControls && settings.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
-        val shouldShowCollapseButton = isExpanded && showExpandControls
         val predictedSettingId = (predictedTarget as? PredictedSubmitTarget.Setting)?.id
 
         val scrollState = rememberScrollState()
-        val shouldFillExpandedHeight =
-                fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
         Column(
                 modifier = modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-                val cardColors =
-                        if (overlayCardColor != null) {
-                                CardDefaults.cardColors(containerColor = overlayCardColor)
-                        } else {
-                                AppColors.getCardColors(
-                                        showWallpaperBackground = showWallpaperBackground
-                                )
-                        }
-
-                val cardShape = MaterialTheme.shapes.extraLarge
-                val cardElevation = AppColors.getCardElevation(showWallpaperBackground)
-
-                DeviceSettingsCard(
+                ExpandableResultsCard(
+                        resultCount = settings.size,
+                        isExpanded = isExpanded,
+                        showAllResults = showAllResults,
+                        showExpandControls = showExpandControls,
+                        expandedCardMaxHeight = expandedCardMaxHeight,
+                        hasScrollableContent = scrollState.maxValue > 0,
+                        fillExpandedHeight = fillExpandedHeight,
                         showWallpaperBackground = showWallpaperBackground,
-                        cardColors = cardColors,
-                        cardShape = cardShape,
-                        cardElevation = cardElevation,
-                        modifier = Modifier.fillMaxWidth(),
-                ) {
+                        overlayCardColor = overlayCardColor,
+                ) { contentModifier, cardState ->
+                        val displaySettings =
+                                if (cardState.displayAsExpanded) {
+                                        settings
+                                } else {
+                                        settings.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+                                }
                         Column(
                                 modifier =
-                                        Modifier.fillMaxWidth()
-                                                .then(
-                                                        if (isExpanded) {
-                                                                Modifier.heightIn(
-                                                                                min =
-                                                                                        if (shouldFillExpandedHeight) {
-                                                                                                expandedCardMaxHeight
-                                                                                        } else {
-                                                                                                0.dp
-                                                                                        },
-                                                                                max = expandedCardMaxHeight,
-                                                                        )
-                                                                        .verticalScroll(scrollState)
+                                        contentModifier.then(
+                                                if (isExpanded) {
+                                                        Modifier.verticalScroll(scrollState)
                                                         } else {
                                                                 Modifier
-                                                        },
+                                                },
                                                 ),
                         ) {
                                 Column(
@@ -173,7 +119,7 @@ fun DeviceSettingsResultsSection(
                                                 )
                                                 .padding(
                                                         bottom =
-                                                                if (shouldFillExpandedHeight) {
+                                                                if (cardState.shouldFillExpandedHeight) {
                                                                         DesignTokens.SpacingSmall
                                                                 } else {
                                                                         0.dp
@@ -211,7 +157,7 @@ fun DeviceSettingsResultsSection(
                                                 }
                                         }
 
-                                        if (shouldShowExpandButton) {
+                                        if (cardState.shouldShowExpandButton) {
                                                 ExpandButton(
                                                         onClick = onExpandClick,
                                                         modifier =

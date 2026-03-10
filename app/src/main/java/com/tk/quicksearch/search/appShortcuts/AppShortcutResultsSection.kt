@@ -18,9 +18,6 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +51,7 @@ import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.SearchScreenConstants
+import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -89,107 +87,65 @@ fun AppShortcutResultsSection(
         val overlayDividerColor = LocalOverlayDividerColor.current
         if (shortcuts.isEmpty()) return
 
-        val displayShortcuts =
-                if (isExpanded || showAllResults) {
-                        shortcuts
-                } else {
-                        shortcuts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
-                }
-
-        val canShowExpandControls =
-                showExpandControls && shortcuts.size > SearchScreenConstants.INITIAL_RESULT_COUNT
-        val shouldShowExpandButton = !isExpanded && !showAllResults && canShowExpandControls
-        val shouldShowCollapseButton = isExpanded && showExpandControls
         val predictedShortcutId = (predictedTarget as? PredictedSubmitTarget.AppShortcut)?.id
 
         val scrollState = rememberScrollState()
-        val shouldFillExpandedHeight =
-                fillExpandedHeight && isExpanded && scrollState.maxValue > 0
 
         Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
-                val cardModifier =
-                        Modifier.fillMaxWidth()
-                val cardColors =
-                        if (overlayCardColor != null) {
-                                CardDefaults.cardColors(containerColor = overlayCardColor)
-                        } else {
-                                AppColors.getCardColors(
-                                        showWallpaperBackground = showWallpaperBackground
+                ExpandableResultsCard(
+                        resultCount = shortcuts.size,
+                        isExpanded = isExpanded,
+                        showAllResults = showAllResults,
+                        showExpandControls = showExpandControls,
+                        expandedCardMaxHeight = expandedCardMaxHeight,
+                        hasScrollableContent = scrollState.maxValue > 0,
+                        fillExpandedHeight = fillExpandedHeight,
+                        showWallpaperBackground = showWallpaperBackground,
+                        overlayCardColor = overlayCardColor,
+                ) { contentModifier, cardState ->
+                        val displayShortcuts =
+                                if (cardState.displayAsExpanded) {
+                                        shortcuts
+                                } else {
+                                        shortcuts.take(SearchScreenConstants.INITIAL_RESULT_COUNT)
+                                }
+                        Column(
+                                modifier =
+                                        contentModifier.then(
+                                                if (isExpanded) {
+                                                        Modifier.verticalScroll(scrollState)
+                                                } else {
+                                                        Modifier
+                                                },
+                                        ),
+                        ) {
+                                AppShortcutsCardContent(
+                                        displayShortcuts = displayShortcuts,
+                                        overlayDividerColor = overlayDividerColor,
+                                        pinnedShortcutIds = pinnedShortcutIds,
+                                        excludedShortcutIds = excludedShortcutIds,
+                                        onShortcutClick = onShortcutClick,
+                                        onTogglePin = onTogglePin,
+                                        onExclude = onExclude,
+                                        onInclude = onInclude,
+                                        onAppInfoClick = onAppInfoClick,
+                                        onNicknameClick = onNicknameClick,
+                                        getShortcutNickname = getShortcutNickname,
+                                        iconPackPackage = iconPackPackage,
+                                        shouldShowExpandButton = cardState.shouldShowExpandButton,
+                                        onExpandClick = onExpandClick,
+                                        predictedShortcutId = predictedShortcutId,
+                                        bottomContentPadding =
+                                                if (cardState.shouldFillExpandedHeight) {
+                                                        DesignTokens.SpacingSmall
+                                                } else {
+                                                        0.dp
+                                                },
                                 )
                         }
-                val cardElevation =
-                        AppColors.getCardElevation(
-                                showWallpaperBackground = showWallpaperBackground,
-                        )
-
-                val cardContent =
-                        @Composable
-                        {
-                                Column(
-                                        modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .then(
-                                                        if (isExpanded) {
-                                                                        Modifier.heightIn(
-                                                                                        min =
-                                                                                                if (shouldFillExpandedHeight) {
-                                                                                                        expandedCardMaxHeight
-                                                                                                } else {
-                                                                                                        0.dp
-                                                                                                },
-                                                                                        max = expandedCardMaxHeight,
-                                                                                )
-                                                                                .verticalScroll(
-                                                                                        scrollState,
-                                                                                )
-                                                                } else {
-                                                                        Modifier
-                                                                },
-                                                        ),
-                                ) {
-                                        AppShortcutsCardContent(
-                                                displayShortcuts = displayShortcuts,
-                                                overlayDividerColor = overlayDividerColor,
-                                                pinnedShortcutIds = pinnedShortcutIds,
-                                                excludedShortcutIds = excludedShortcutIds,
-                                                onShortcutClick = onShortcutClick,
-                                                onTogglePin = onTogglePin,
-                                                onExclude = onExclude,
-                                                onInclude = onInclude,
-                                                onAppInfoClick = onAppInfoClick,
-                                                onNicknameClick = onNicknameClick,
-                                                getShortcutNickname = getShortcutNickname,
-                                                iconPackPackage = iconPackPackage,
-                                                shouldShowExpandButton = shouldShowExpandButton,
-                                                onExpandClick = onExpandClick,
-                                                predictedShortcutId = predictedShortcutId,
-                                                bottomContentPadding =
-                                                        if (shouldFillExpandedHeight) {
-                                                                DesignTokens.SpacingSmall
-                                                        } else {
-                                                                0.dp
-                                                        },
-                                        )
-                                }
-                        }
-
-                if (showWallpaperBackground) {
-                        Card(
-                                modifier = cardModifier,
-                                colors = cardColors,
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = cardElevation,
-                        ) { cardContent() }
-                } else {
-                        ElevatedCard(
-                                modifier = cardModifier,
-                                colors = cardColors,
-                                shape = MaterialTheme.shapes.extraLarge,
-                                elevation = cardElevation,
-                        ) { cardContent() }
                 }
         }
 }

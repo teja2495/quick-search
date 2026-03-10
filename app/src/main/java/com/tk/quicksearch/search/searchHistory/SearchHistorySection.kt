@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -61,6 +60,7 @@ import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchScreen.LocalOverlayDividerColor
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.searchScreen.components.CollapseButton
+import com.tk.quicksearch.search.searchScreen.components.ExpandableResultsCard
 import com.tk.quicksearch.search.searchScreen.components.ExpandButton
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -112,8 +112,8 @@ fun SearchHistorySection(
     if (items.isEmpty()) return
     var isExpanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val displayItems = if (isExpanded) items else items.take(1)
     val canExpand = items.size > 1
+    val scrollState = rememberScrollState()
     val expandedHistoryMaxHeight =
         if (isOverlayPresentation) {
             minOf(expandedCardMaxHeight, EXPANDED_HISTORY_MAX_HEIGHT_OVERLAY)
@@ -142,26 +142,21 @@ fun SearchHistorySection(
         }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors =
-                if (overlayCardColor != null) {
-                    androidx.compose.material3.CardDefaults.cardColors(
-                        containerColor = overlayCardColor,
-                    )
-                } else {
-                    AppColors.getCardColors(showWallpaperBackground)
-                },
-            elevation = AppColors.getCardElevation(showWallpaperBackground),
-        ) {
-            if (isExpanded) {
-                val scrollState = rememberScrollState()
+        ExpandableResultsCard(
+            resultCount = items.size,
+            isExpanded = isExpanded,
+            showAllResults = false,
+            showExpandControls = canExpand,
+            expandedCardMaxHeight = expandedHistoryMaxHeight,
+            hasScrollableContent = scrollState.maxValue > 0,
+            fillExpandedHeight = false,
+            showWallpaperBackground = showWallpaperBackground,
+            overlayCardColor = overlayCardColor,
+        ) { contentModifier, cardState ->
+            val displayItems = if (cardState.displayAsExpanded) items else items.take(1)
+            if (cardState.displayAsExpanded) {
                 Column(
-                    modifier = Modifier
-                        .heightIn(max = expandedHistoryMaxHeight)
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState),
+                    modifier = contentModifier.verticalScroll(scrollState),
                 ) {
                     displayItems.forEachIndexed { index, item ->
                         val showTipBelowFirstItem = showSearchHistoryTip && index == 0
@@ -203,7 +198,7 @@ fun SearchHistorySection(
                     }
                 }
             } else {
-                Column {
+                Column(modifier = contentModifier) {
                     displayItems.forEachIndexed { index, item ->
                         val showTipBelowFirstItem = showSearchHistoryTip && index == 0
                         val baseShowDivider = index < displayItems.lastIndex
