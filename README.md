@@ -57,7 +57,7 @@ Enable AI-powered answers by:
 - **Direct Search**: AI answers with Gemini API integration; choose among several Gemini and Gemma models; optional personal context
 - **Style**: Choose between inline or compact styles
 
-[View all features](features.md)
+[View all features](app/src/main/assets/FEATURES.md)
 
 ## 🚀 Installation
 

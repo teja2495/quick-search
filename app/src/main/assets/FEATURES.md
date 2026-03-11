@@ -1,200 +1,177 @@
 # Quick Search - Complete Feature Documentation
 
-**Version**: 2.6 (March 3 2026)
+This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-## Overlay Mode
+**Version**: 2.7 (Updated March 11 2026)
 
-- **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This dictates the main experience: search from any screen without leaving what you're doing.
-- **Overlay Themes** - Choose from multiple themes for the overlay search bar and results (access via search results settings).
+### Search
 
-## Core Search Capabilities
-
-### Search Functions
 - **App Search** - Find and launch applications instantly
-- **Contact Search** - Quickly locate contacts in your phone
-- **File Search** - Search through device files
-- **Settings Search** - Find specific device settings
-- **App Suggestions** - Displays suggested apps when no search query is entered with option to hide app suggestions completely
-- **Built-in Calculator** - Type basic math expressions in the search bar to see results directly (long press calculator result to copy to clipboard). Switching to number keyboard while using calculator displays calculator buttons for easy access
-- **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it directly in your browser with improved recognition and handling
-- **Advanced Fuzzy Search** - Intelligent search with typo tolerance, acronym matching, and smart ranking
+- **App Shortcuts Search** - Find and launch app shortcuts instantly
+- **Contact Search** - Quickly locate contacts in your phone and perform any action on for that contact i.e. Call, SMS, Google Meet Voice/Video call, WhatsApp (Chat, Audio/Video Call), Telegram (Chat, Audio/Video Call), Signal (Chat, Audio/Video Call)
+- **File Search** - Search through device files & folders
+- **Device Settings Search** - Find specific device settings
+- **App Suggestions** - Shows suggested apps when no search query is entered. You can also choose to hide app suggestions completely. This feature requires usage access permission. If permission is not granted, the app shows suggestions based on apps you recently opened from within the app.
 
 ### Internet Search
-- **Multi-App Search** - Type a query and tap any search engine icon (located above the keyboard) to search within that specific app
-- **Horizontal Scroll** - Swipe horizontally to access additional search engines
-- **Customize Search Engines** - Long press any search engine to reorder, enable, or disable it
-- **Hide All Search Engines** - Option to hide all search engines for a cleaner interface when not needed
-- **Custom Search Engines** - Add your own search engines from the Search Engines settings screen
-- **Search Engine Shortcuts** - Add a search engine shortcut at the start of your query to quickly search with that search engine
-- **Browser Integration** - Installed browsers automatically appear as search engine options
-- **Supported Search Engines** (24 total):
-  - **Direct Search** (dsh) - AI-powered answers using Gemini API
-  - **Google** (ggl) - Default web search
-  - **ChatGPT** (cgpt) - OpenAI's conversational AI
-  - **Gemini** (gmi) - Google's AI assistant
-  - **Perplexity** (ppx) - AI-powered search with citations
-  - **Grok** (grk) - xAI's AI assistant
-  - **Google Maps** (mps) - Location and directions
-  - **Google Drive** (gdr) - File search in Google Drive
-  - **Google Photos** (gph) - Photo search and organization
-  - **Google Play** (gpl) - Android app search
-  - **YouTube** (ytb) - Video search and streaming
-  - **YouTube Music** (ytm) - Music streaming and discovery
-  - **Spotify** (sfy) - Music and podcast streaming
-  - **Reddit** (rdt) - Community discussions and content
-  - **Amazon** (amz) - E-commerce shopping
-  - **X (Twitter)** (twt) - Social media platform
-  - **Facebook Marketplace** (fbm) - Local buying and selling
-  - **Bing** (bng) - Microsoft's search engine
-  - **DuckDuckGo** (ddg) - Privacy-focused search
-  - **Brave** (brv) - Privacy-focused browser search
-  - **Startpage** (stp) - Privacy-focused search engine
-  - **You.com** (yu) - AI-powered search platform
-  - **AI Mode** (gai) - Google's AI-focused search
-  - **Claude** (cld) - Anthropic's AI assistant (requires the Claude app)
-- **Web Search Suggestions** - Automatically appear when your query has no app, contact, file, or calculator results (choose how many to display)
-- **Search Engine Style** - Choose between:
-  - **Inline Mode**: Search engines scroll with the content
-  - **Compact Mode**: Search engines stay fixed at the bottom of the screen for quick access, with optional second row support
 
-### Advanced Search Algorithms
-- **Typo Tolerance** - Handles common spelling mistakes and typos (e.g., "chrmoe" finds "Chrome")
-- **Acronym Matching** - Short queries match app acronyms (e.g., "yt" finds "YouTube", "gm" finds "Google Maps")
+- **Multi-App Search** - Type a query and tap any "search on" card to quickly search using that search engine. If compact mode is enabled, you can just tap on any icon in the search engine section above your keyboard.
+- **Browser Integration** - Installed browsers automatically appear as search engine options
+- **Supported Search Engines** (25 total): Direct Search, Google, ChatGPT, Gemini, Perplexity, Grok, Google Maps, Google Drive, Google Photos, Google Play, YouTube, YouTube Music, Spotify, Reddit, Amazon, X (Twitter), Facebook Marketplace, Bing, DuckDuckGo, Brave, Startpage, You.com, AI Mode, Claude, Wikipedia
+- **Direct Search (AI-Powered)** - Configure your Gemini API key to see answers directly within Quick Search. 
+- **Custom Search Engines** - Add your own search engines from the Search Engines settings screen.
+- **Web Search Suggestions** - Web suggestions automatically appear when you type your query, you can disable them or change count in settings.
+
+### Tools
+
+- **Calculator** - Type basic math expressions in the search bar to see results directly. Switching to number keyboard while using calculator displays calculator buttons for easy access. You can trigger calculator mode with Alias.
+
+### Search Algorithm
+
 - **Smart Ranking System** - Results are ranked by relevance with multiple priority levels:
   - Exact matches (highest priority)
   - Names starting with query
   - Second word matches
   - Names containing query anywhere
-- **Fuzzy Matching** - Advanced algorithms using token-based scoring for accurate results
-- **Nickname Support** - Custom app nicknames work with all search algorithms
+- **Recently Opened Results** - Recently opened results are prioritized in the result order.
+- **Apps and App Shortcut Searches** - These searches support fuzzy search to ignore typos.
 
-### Direct Search (Gemini API)
-- **AI-Powered Answers** - Configure your Gemini API key to see answers directly within Quick Search
-- **Model Selection** - Choose among several Gemini and Gemma models for Direct Search
-- **Personal Context** - Optionally add personal information to customize AI responses (e.g., location, preferences)
-- **Easy Setup** - Tap "Get Free API Key" in settings for setup instructions
-- **Interactive Results** - Tap phone numbers to call or email addresses to send emails directly from search results
-- **Copy to Clipboard** - Long press any Gemini answer to copy it to clipboard
-- **Secure Storage** - API keys are encrypted using Android's EncryptedSharedPreferences
-- **Powered By Attribution** - The "Powered by" (Gemini/Gemma) text below Direct Search results is interactive: tap to open the model picker and choose a different model; long press to open Direct Search configuration in settings
+### Long-Press Actions
 
-## Customization & Settings
+Long-press on most results to open a context menu with quick actions.
 
-### Search Result Management
-- **Enable/Disable Categories** - Toggle individual search result types on or off
-- **Auto-Expand Results** - Show all results at once without tapping "More" button (This option is available in additional settings)
-- **Sort Options** - Results are ordered by most-opened apps by default (can be disabled)
-- **Recent Searches** - Show recently accessed items from all search types (apps, shortcuts, files, contacts, settings) when the search bar is empty (choose how many to display, default is 3)
-- **Delete Recent Queries** - Remove individual recent queries with a tap
+- **Pin / Unpin** - Pin or unpin apps, app shortcuts, contacts, files, and device settings so that they stay on your home screen when you open the app.
+- **Add / Edit Nickname** - Add or edit nicknames for apps, app shortcuts, contacts, files, and device settings so you can search them using custom names.
+- **Exclude / Include** - Exclude individual contacts, app shortcuts, files, and device settings from results. You can include them again later by clearing them from Excluded Items list in Search Results settings.
+- **Add to Home Screen** - Add apps, app shortcuts, contacts, files, and device settings directly to your home screen as shortcuts for one-tap access.
+- **App Info / Uninstall / Hide** - For apps, open system app info, uninstall supported apps, or hide them from suggestions/results using the long-press menu on the app icon.
+- **File-Specific Options** - For files, long-press to open the containing folder, exclude all files with the same extension, or view a detailed file info dialog (type, size, path, last modified, etc.).
 
-### Visual Customization
-- **Wallpaper Integration** - Your default phone wallpaper automatically sets as the app's background (it needs files permission and can be disabled in settings). Select any picture from your device for custom background
-- **Wallpaper Controls** - Adjust wallpaper transparency and blur effects for optimal readability
-- **New App Themes** - Choose from multiple visual themes to customize the app's appearance
-- **Icon Pack Support** - Apply 3rd party icon packs to app suggestions and results
-- **One-Hand Mode** - Position search results at the bottom of the screen for easier reach (bottom-aligned layout)
-- **Section Titles** - Show/hide section headers (Apps, Contacts, Files, Settings)
-- **App Labels** - Hide app labels in results or adjust their size to your preference
-- **Bottom Search Bar** - New bottom-positioned search bar option for improved accessibility
-- **Change App Font Size** - Customize the font size throughout the app for better readability
-- **UI Optimizations for Tablets** - Improved layouts, grid sizing, and touch targets for tablet devices
-### Contact Features
-- **Comprehensive Contact Actions** - Tap any contact result to access all available options:
-  - Call, SMS, Google Meet
-  - WhatsApp: chat, audio call, video call
-  - Telegram: chat, audio call, video call
-  - Signal: chat, audio call, video call
-- **Default Messaging App** - Set your preferred messaging app (Messages/WhatsApp/Telegram). The default messaging app will appear for contact results.
-- **Default Calling App** - Set your preferred dialer or calling app for contact calls
-- **Direct Calling Toggle** - Enable to call immediately, or disable to open dialer first
-- **Multiple Numbers** - When you open a contact result which has multiple phone numbers, tap the arrow beside the phone number to access other numbers. The app will remember the last opened number and opens it first when you reopen the contact.
-- **Preferred Number Memory** - The app remembers your preferred number for each contact
-- **Customize Contact Actions** - Long press any contact action to customize it for individual contacts
-- **Contact Action Shortcuts** - Long press any item in contact options popup to add that action as a home screen shortcut
 
-### File Management
-- **File Type Filtering** - Ignore specific categories in settings:
-  - Photos & Videos
-  - Documents
-  - All other file types
-- **Folder Search** - Search through device folders and directories
-- **Custom Exclusions** - Long press any file result for example, .pdf and tap "Exclude .pdf files" to ignore that file type
+### Settings
 
-### Result Management
-- **Exclude Items** - Long press any item and tap "Exclude" to remove from suggestions or results
-  - App suggestions and app results are treated as separate exclusion categories
-- **Manage Exclusions** - View and manage all excluded items in settings
-- **Pin Results** - Long press any result (app, contact, file, or setting) to pin it to the search home screen for quick access
-- **Add to Home Screen** - Long press any result to add it as a shortcut on your device home screen with more options
-- **Nicknames** - Long press any app to add a nickname, then search using that nickname in the future
-- **App Management** - View app details or bulk uninstall apps (access via search results settings). Long press apps to view app info or uninstall from results.
-- **Shortcut Management** - Enable, disable, or add custom app shortcuts (access via search results settings). Add custom search queries, URLs, and app activities as shortcuts. Search and filter apps in the shortcut management screen. Long press any app to access its shortcuts (if available) and enable them in search results.
-- **Built-in Shortcuts** - Pre-configured shortcuts including "Google Song Search" and "YouTube Watch Later"
+#### Appearance
 
-### Behavior Settings
-- **Import/Export App Settings** - Backup and restore your Quick Search configuration and preferences
-- **Clear Query Toggle** - Automatically clear search query after performing an action
-  - App and settings results: always cleared
-  - Contact results: never cleared
-  - Other results: depends on your setting
-- **Permission Management** - All permissions are optional and can be granted later through settings
-- **Refresh Data** - Manually refresh apps, contacts, and file data
-- **Haptic Feedback** - Context-aware vibration feedback for different interactions (confirm, toggle, strong)
+- **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This dictates the main experience: search from any screen without leaving what you're doing.
+- **Font Size** - Choose between small, medium, and large font sizes for all in-app text.
+- **Background Theme** - Pick among the available themes - Mono, Forest, Aurora, Sunset -  adjust its intensity. You can also choose your wallpaper or any custom image as your background theme. When using wallpaper/custom images, you can also tune transparency and blur to keep content readable.
+- **Search Engine Style** - Choose between:
+  - **Inline Mode**: Search engines scroll with the content
+  - **Compact Mode**: Search engines stay fixed at the bottom of the screen above the keyboard for quick access, with support for one or two rows of engines.
+- **One-Handed Mode** - Most relevant items appear at the bottom of your screen for easy access.
+- **Bottom Searchbar** - You can choose to move the search bar to the bottom.
+- **App Labels** - You can choose to hide App labels.
+- **Icon Packs** - Select an installed icon pack, if none of them are installed, tapping on the card will open play store and searches for icon packs. Once installed come back to the app and hit refresh button on the icon packs option to refresh icon packs list.
 
-## System Integration
+#### Search Results
 
-### Assistant & Quick Access
-- **Default Assistant** - Set Quick Search as your default assistant app to replace Google Assistant or Gemini
-- **Quick Settings Tile** - Add a Quick Search tile to notification quick settings for instant access
+- **Search Sections Management** - Enable/disable individual result sections (apps, app shortcuts, contacts, files, device settings, history, etc.), and assign alias shortcuts to each section. Tap on the search types options to navigate to their respective screen which offers additional options.
+- **App Suggestions** - You can choose to disable app suggestions if you want a cleaner home screen. 
+- **Web Search Suggestions** - Turn web suggestions on or off and control how many suggestions (1–5) appear under the search bar.
+- **Search History** - Enable or disable search history. You search queries and recently opened items (files, contacts etc.) appear in your search history.
+- **Excluded Items** - When you exclude any item in search results page, you can find them here and clear them if you want to.
+- **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
+- **Clear Query** - The app clears your query by default when your reopen the app, you can choose to keep the query by disabling this toggle.
+- **Refresh Data** - The app automatically refreshes your data from time to time but if you want to manually refresh the data, you can do it here.
 
-### First-Launch Experience
-- **Onboarding Flow** - Guided setup for permissions, search engines, and preferences
-- **Search Engine Configuration** - Customize your preferred search engines during setup
-- **Messaging Preferences** - Set your default messaging app (Messages/WhatsApp/Telegram) during setup
-- **File Type Selection** - Choose which file types to include in search results during setup
+#### Search Engines
 
-## Home Screen Widget
+- **Enable / Disable Search Engines** - Turn individual search engines on or off and control the order in which they appear.
+- **Aliases for Engines** - Assign or edit alias codes to search engines.
+- **Alias after Query** - You can choose to disable search engine alias triggers at the end of your query.
+- **Amazon Domain** - Select the Amazon region/domain used when searching via the Amazon engine. Updating this will open your amazon queries within the installed app instead of the website.
+- **Custom Search Engines** - Add your own search engines by specifying URL template with {{query}} placeholder. The app automatically fetches the name and icon for the website but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your url so that you don't have to type it.
+- **Direct Search (AI)** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated Direct Search configuration screen.
 
-### Widget Types
+#### Direct Search Configuration
+
+- **Gemini API Key** - Use the "Get Free API Key" button to see a guide on how to setup your Gemini API key for free. 
+- **Personal Context** - Provide optional personal context so AI results can be better tailored to you (kept on-device within Quick Search).
+- **Gemini Model Selection** - Choose among the available Gemini / Gemma models. Gemma models do not support Google search and personal context.
+- **Grounding** - Enable or disable grounding with Google search as needed.
+
+### Aliases
+
+Add aliases at the start of your query to quickly let the app know what you want to do.
+
+- **Search Section Aliases** - Configure aliases to instantly focus on specific result sections (apps, app shortcuts, contacts, files, device settings) from the search bar.
+- **Search Engine Aliases** - Assign aliases (like `ggl` for Google) to quickly trigger any search engine just by typing your alias at the start or end of the query. (When you add alias at the end of your query, hit space to trigger it)
+- **Calculator Alias** - Set a dedicated alias that switches the search bar into calculator mode on demand.
+
+#### Permissions
+
+- **Usage Access** - View and request the usage access permission used for app suggestions and usage‑based ranking.
+- **Contacts Permission** - View and request contacts access, required for searching contacts and calls/texts.
+- **Files / Storage Permission** - View and request file access to enable file search.
+- **Phone Permission** - View and request phone calling permission, required for direct dial and some calling integrations.
+
+#### File Settings
+
+- Can be accessed in Search Result settings page via Files Option
+- **Show Folders** - Choose whether folders appear in search results.
+- **File Types** - Enable or disable specific file categories (documents, pictures, videos, audio, APKs, other) to fine‑tune which files are searchable.
+- **Excluded Extensions** - See and remove file extensions that are currently excluded from results.
+- **System & Hidden Files** - Show or hide system files and hidden files from file search results.
+- **Folder Filters (Whitelist / Blacklist)** - Configure which folder paths should always be included or excluded using simple comma‑separated patterns.
+
+#### Calls & Texts Settings
+
+- Can be accessed in Search Result settings page via Contacts Option
+- **Direct Dial** - Enable direct dialing from search results (tapping a phone result calls immediately instead of opening the dialer).
+- **Default Calling App** - Choose which app to show up as default calling action in contact results cards (Supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
+- **Default Messaging App** - Choose which app to show up as default messaging action in the contact result cards (Supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
+
+#### Apps Management Screen
+
+- Can be accessed in Search Result settings page via Apps Option
+- **Installed Apps List** - View all installed apps known to Quick Search.
+- **Sorting Options** - Sort apps by name, APK size, most/least used (when usage access is granted), installation date, last update time, or target API level.
+- **App Search & Selection** - Search within your installed apps, multi‑select them, and perform batch actions.
+- **Batch Uninstall & App Info** - Uninstall multiple user apps in one flow and open the system App Info screen for any app, with a detailed info dialog (package name, version, SDK levels, install/update dates).
+
+#### App Shortcuts Management Screen
+
+- This page can be accessed in Search Result settings page via App Shortcuts Option.
+- **Shortcuts List** - View all app shortcuts grouped by app, search engine, or browser inside expandable cards.
+- **Enable / Disable Shortcuts** - Turn individual shortcuts on or off while keeping them available on the device.
+- **Search & Filters** - Search within shortcuts and filter by all apps, apps with shortcuts only, search engines, or browsers, with expand/collapse all controls.
+- **Add Shortcuts from Apps** - Discover and add app-provided shortcuts directly from supported apps. (Example: Add Google Drive files as shortcuts to open them directly)
+- **Create Search & Browser Shortcuts** - Create query or URL shortcuts for search engines and browsers to instantly open them when needed.
+- **Custom Deep Link Shortcuts** - Add, edit, or delete your own deep-link shortcuts that jump straight into specific screens inside apps. (Example: Add YouTube Music playlists as Deeplinks to open them directly)
+- **Add App Activities as Shortcuts** - See and add available App activites as shortcuts. This is not a realiable feature, apps do not always provide useful activites but when if they do, you can add them here.
+
+### Launch Options
+
+- **Default Assistant** - Set Quick Search as your default assistant app to replace Google Assistant or Gemini. You can enable Assistant Voice Mode to open the app with voice typing enabled when triggered with digital assistant gesture.
+- **Quick Settings Tile** - Add a Quick Search tile to notification quick settings for quick access
+
+### Widgets
+
 - **Search Widget** - Tap the widget to instantly open Quick Search. Highly customizable with mic button support and up to 2 custom buttons alongside the search functionality
-- **Custom Buttons Widget** - A dedicated widget for custom buttons with enhanced customizable layouts and actions
+- **Custom Buttons Widget** - A dedicated widget for custom buttons - apps, app shorcuts, contacts, files, device settings - with enhanced customizable layouts and actions
 
-### Widget Customization Options
-- **Background Color** - Choose black or white
-- **Corner Radius** - Adjust roundness of corners
-- **Border Thickness** - Modify border width
-- **Transparency** - Control widget opacity
-- **Element Visibility** - Show/hide text, search icon, and mic icon
-- **Color Options** - Set text, search icon, and mic icon to white or black
-- **Additional Widget Colors** - More color choices for widget text and icons beyond white and black
-- **Icon Alignment** - Position search icon left or center
-- **Mic Icon Action** - Choose what happens when tapping the mic:
-  - Default: Opens Quick Search with voice typing enabled
-  - Digital Assistant: Triggers device's digital assistant (Note: Your default assistant will be triggered)
-- **Voice Mode on Assistant Launch** - When Quick Search is launched using the digital assistant trigger (e.g. from the widget), voice mode is enabled automatically so you can speak your query right away
+### Widget Customization
 
-## App Updates & Feedback
+- **Layouts & Variants** - Choose between the main search widget and the custom buttons widget, with flexible button layouts for each.
+- **Themes & Colors** - Adjust widget theme, background, and text/icon colors to match your home screen.
+- **Size & Spacing** - Control corner radius, internal padding, and spacing using intuitive sliders.
+- **Icons & Buttons** - Toggle search and mic icons and configure up to 2 custom buttons on the search widget or a full set of custom buttons on the custom buttons widget.
+- Widget Mic button can be customized to open other device assistants like (Gemini, Perplexity, Bixby etc)
 
-### In-App Updates
-- **Automatic Update Detection** - App checks for updates from Google Play Store
-- **Update Prompts** - Smart prompts based on usage patterns
-- **Seamless Installation** - Update without leaving the app
+### Hidden / Non-Obvious Features
 
-### In-App Reviews
-- **Smart Review Prompts** - Non-intrusive prompts to rate the app after positive usage patterns
-- **One-Tap Rating** - Quick access to Play Store rating
-- **Usage-Based Timing** - Review prompts appear at appropriate times
-
-### Release Notes
-- **What's New** - View release notes for each app version
-- **In-App Display** - Release notes shown directly within the app
-- **Version Information** - Clear indication of current version and changes
+- **URL Detection in Search Bar** - Paste or type a URL in the search bar to open it quickly in your installed browsers of your choice.
+- **App Search** - Acronym matching is supported for apps search. Example: You can search for "yt" to find "YouTube"
+- **Direct Search (Gemini API)**
+  - If the results contain emails or phone numbers or links, you can tap them to email, call or open them.
+  - You can quickly change the model by tapping on "Powered by" text in the result.
+- **Show/Switch Keyboard Button** - When you close the keyboard, a small "Open Keyboard" button appears so that you don't have to tap on the search bar. When you type numbers in search, "Switch to number" keyboard will appear. This is useful when using the calculator.
+- **Alias-based Contact and File searches** - When you trigger contact / files search using alias, the app will search more deeply.
+- **Search History Items** - Long-press on any search history item to remove it from your search history.
+- **Search Engines Long Press** - Long-press any search engine icon or card (inline or compact) to jump directly to the Search Engines settings screen for managing engines, order, aliases, and other options.
+- **Contacts**
+  - **Contact Action Customization** - Long-press the call/message action buttons on a contact card to customize to replace them with any action you like.
+  - **Add Contact Action to Home** - Open any contact and Long-press on any of the actions (ex: WhatsApp call, Telegram video etc) to add it your home screen as a shortcut.
+  - **Contact Image Tap** - Tap on Contact photo to open the contact in the default contacts app to edit it.
 
 
-## Support & Development
-
-- **Send Feedback** - Submit feedback, bug reports, and feature requests via email from app settings
-- **Rate App** - Rate Quick Search on the Play Store with in-app review prompts
-- **View Source Code** - Access the Quick Search project's open-source code on GitHub
-- **Version Information** - View app version number at the bottom of settings
-- **Contact Developer** - Tap the developer name below the version number to get in touch
