@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.apps
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -120,6 +121,21 @@ fun AppGridView(
                         }
                         .groupBy { it.packageName }
             }
+    val waitForSuggestionIcons = !isSearching && apps.isNotEmpty()
+    val areSuggestionIconsLoaded =
+            if (waitForSuggestionIcons) {
+                apps.all { app ->
+                    val iconResult =
+                            rememberAppIcon(
+                                    packageName = app.packageName,
+                                    iconPackPackage = iconPackPackage,
+                                    userHandleId = app.userHandleId,
+                            )
+                    iconResult.bitmap != null
+                }
+            } else {
+                true
+            }
 
     Column(
             modifier =
@@ -128,18 +144,27 @@ fun AppGridView(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
-        val showAppGrid = apps.isNotEmpty()
+        val showAppGrid = apps.isNotEmpty() && areSuggestionIconsLoaded
+        val showLoadingPlaceholder = waitForSuggestionIcons && !areSuggestionIconsLoaded
+        val appGridVisibilityState = remember { MutableTransitionState(false) }
+        appGridVisibilityState.targetState = showAppGrid
+        if (showLoadingPlaceholder) {
+            AppGridPlaceholder(
+                    rowCount = rowCount,
+                    showAppLabels = showAppLabels,
+            )
+        }
         AnimatedVisibility(
-                visible = showAppGrid,
+                visibleState = appGridVisibilityState,
                 enter =
-                        fadeIn(animationSpec = tween(durationMillis = if (isInitializing) 0 else 200)) +
+                        fadeIn(animationSpec = tween(durationMillis = 200)) +
                                 slideInVertically(
                                         animationSpec =
-                                                tween(durationMillis = if (isInitializing) 0 else 260),
+                                                tween(durationMillis = 260),
                                         initialOffsetY = { it / 10 },
                                 ) +
                                 scaleIn(
-                                        animationSpec = tween(durationMillis = if (isInitializing) 0 else 220),
+                                        animationSpec = tween(durationMillis = 220),
                                         initialScale = 0.98f,
                                 ),
                 exit = fadeOut(animationSpec = tween(durationMillis = 120)),
