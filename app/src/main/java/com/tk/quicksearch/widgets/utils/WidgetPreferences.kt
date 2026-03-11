@@ -161,32 +161,32 @@ data class WidgetPreferences(
         val shouldHideLabel = normalizedButtons.any { it != null }
         return copy(
             borderRadiusDp =
-                borderRadiusDp.coerceIn(
+                borderRadiusDp.coerceFiniteIn(
                     WidgetRanges.BORDER_RADIUS_MIN,
                     WidgetRanges.BORDER_RADIUS_MAX,
                 ),
             borderWidthDp =
-                borderWidthDp.coerceIn(
+                borderWidthDp.coerceFiniteIn(
                     WidgetRanges.BORDER_WIDTH_MIN,
                     WidgetRanges.BORDER_WIDTH_MAX,
                 ),
             backgroundAlpha =
-                backgroundAlpha.coerceIn(
+                backgroundAlpha.coerceFiniteIn(
                     WidgetRanges.BACKGROUND_ALPHA_MIN,
                     WidgetRanges.BACKGROUND_ALPHA_MAX,
                 ),
             borderAlpha =
-                borderAlpha.coerceIn(
+                borderAlpha.coerceFiniteIn(
                     WidgetRanges.BACKGROUND_ALPHA_MIN,
                     WidgetRanges.BACKGROUND_ALPHA_MAX,
                 ),
             internalHorizontalPaddingDp =
-                internalHorizontalPaddingDp.coerceIn(
+                internalHorizontalPaddingDp.coerceFiniteIn(
                     WidgetRanges.INTERNAL_HORIZONTAL_PADDING_MIN,
                     WidgetRanges.INTERNAL_HORIZONTAL_PADDING_MAX,
                 ),
             internalVerticalPaddingDp =
-                internalVerticalPaddingDp.coerceIn(
+                internalVerticalPaddingDp.coerceFiniteIn(
                     WidgetRanges.INTERNAL_VERTICAL_PADDING_MIN,
                     WidgetRanges.INTERNAL_VERTICAL_PADDING_MAX,
                 ),
@@ -201,6 +201,11 @@ data class WidgetPreferences(
         )
     }
 }
+
+private fun Float.coerceFiniteIn(
+    min: Float,
+    max: Float,
+): Float = if (isFinite()) coerceIn(min, max) else min
 
 private fun normalizeCustomButtons(
     buttons: List<CustomWidgetButtonAction?>,

@@ -60,6 +60,8 @@ import com.tk.quicksearch.widgets.utils.toWidgetPreferences
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+private const val MIN_RENDERABLE_WIDTH_DP = 48f
+
 class SearchWidget(
     private val variant: WidgetVariant = WidgetVariant.STANDARD,
 ) : GlanceAppWidget() {
@@ -87,7 +89,8 @@ class SearchWidget(
         val defaultWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
         val defaultHeight = WidgetLayoutUtils.DEFAULT_HEIGHT_DP.dp
         val widgetPadding = 0.dp
-        val widthDp = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultWidth)
+        val resolvedWidth = WidgetLayoutUtils.resolveOr(widgetSize.width, defaultWidth)
+        val widthDp = (resolvedWidth.value.finiteOr(defaultWidth.value)).dp
         // Force fixed height regardless of grid size
         val heightDp = defaultHeight
         val isNarrowWidth = widthDp <= WidgetLayoutUtils.TWO_COLUMN_WIDTH_DP.dp
@@ -249,8 +252,12 @@ private fun CustomButtonsOnlyWidgetContent(
     val iconSizePx = (20.dp.value * density).roundToInt().coerceAtLeast(1)
     val useCompactSpacing = customButtons.size >= 5 || widthDp <= WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
     val touchSpace = if (useCompactSpacing) 28.dp else 36.dp
-    val outerHorizontalPadding = internalHorizontalPaddingDp.dp
-    val verticalInset = internalVerticalPaddingDp.dp
+    val outerHorizontalPadding =
+        computeSafeOuterHorizontalPadding(
+            widthDp = widthDp,
+            requestedPaddingDp = internalHorizontalPaddingDp,
+        )
+    val verticalInset = internalVerticalPaddingDp.finiteOr(0f).dp
     val contentHorizontalPadding = 16.dp
     val barHeight = (heightDp - (verticalInset * 2)).coerceAtLeast(1.dp)
     val minimumGap = if (useCompactSpacing) 4.dp else 8.dp
@@ -262,7 +269,7 @@ private fun CustomButtonsOnlyWidgetContent(
         } else {
             floor((availableWidth - minimumGap.value) / (touchSpace.value + minimumGap.value))
                 .toInt()
-                .coerceIn(1, customButtons.size)
+                .coerceIn(0, customButtons.size)
         }
     val visibleButtons = customButtons.take(maxVisibleButtons)
     val gapWidth =
@@ -397,8 +404,12 @@ private fun WidgetContent(
         }
     val density = context.resources.displayMetrics.density
     val iconSizePx = (20.dp.value * density).roundToInt().coerceAtLeast(1)
-    val outerHorizontalPadding = internalHorizontalPaddingDp.dp
-    val verticalInset = internalVerticalPaddingDp.dp
+    val outerHorizontalPadding =
+        computeSafeOuterHorizontalPadding(
+            widthDp = widthDp,
+            requestedPaddingDp = internalHorizontalPaddingDp,
+        )
+    val verticalInset = internalVerticalPaddingDp.finiteOr(0f).dp
     val contentHorizontalPadding = 16.dp
     val barHeight = (heightDp - (verticalInset * 2)).coerceAtLeast(1.dp)
     Box(
@@ -586,3 +597,15 @@ private fun WidgetContent(
         }
     }
 }
+
+private fun computeSafeOuterHorizontalPadding(
+    widthDp: Dp,
+    requestedPaddingDp: Float,
+): Dp {
+    val safeWidth = widthDp.value.finiteOr(WidgetLayoutUtils.DEFAULT_WIDTH_DP).coerceAtLeast(1f)
+    val requested = requestedPaddingDp.finiteOr(0f).coerceAtLeast(0f)
+    val maxPadding = ((safeWidth - MIN_RENDERABLE_WIDTH_DP) / 2f).coerceAtLeast(0f)
+    return requested.coerceAtMost(maxPadding).dp
+}
+
+private fun Float.finiteOr(default: Float): Float = if (isFinite()) this else default

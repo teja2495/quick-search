@@ -28,6 +28,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.widgets.customButtonsWidget.CustomWidgetButtonIcon
 import com.tk.quicksearch.widgets.searchWidget.MicAction
+import kotlin.math.floor
 
 @Composable
 fun WidgetPreviewCard(
@@ -43,8 +44,13 @@ fun WidgetPreviewCard(
         remember(context) {
             UserAppPreferences(context).uiPreferences.getSelectedIconPackPackage()
         }
-    val outerHorizontalPadding = previewState.internalHorizontalPaddingDp.dp
-    val verticalInset = previewState.internalVerticalPaddingDp.dp
+    val previewWidth = WidgetLayoutUtils.DEFAULT_WIDTH_DP.dp
+    val outerHorizontalPadding =
+        computeSafePreviewOuterPadding(
+            previewWidth = previewWidth,
+            requestedPaddingDp = previewState.internalHorizontalPaddingDp,
+        )
+    val verticalInset = previewState.internalVerticalPaddingDp.finiteOr(0f).dp
     val innerHorizontalPadding = WidgetConfigConstants.PREVIEW_INNER_PADDING
     val previewBarHeight = (WidgetConfigConstants.PREVIEW_HEIGHT - (verticalInset * 2)).coerceAtLeast(1.dp)
     val customButtons = previewState.customButtons.filterNotNull()
@@ -198,6 +204,20 @@ fun WidgetPreviewCard(
                             R.drawable.ic_widget_settings,
                         )
                     val touchSpace = if (customButtons.size >= 5 || customButtons.isEmpty()) 28.dp else 36.dp
+                    val containerWidth =
+                        (previewWidth.value - (outerHorizontalPadding.value * 2f)).coerceAtLeast(0f)
+                    val availableWidth =
+                        (containerWidth - (innerHorizontalPadding.value * 2f)).coerceAtLeast(0f)
+                    val minimumGap = if (touchSpace == 28.dp) 4.dp else 8.dp
+                    val maxVisibleButtons =
+                        if (customButtons.isEmpty()) {
+                            0
+                        } else {
+                            floor((availableWidth - minimumGap.value) / (touchSpace.value + minimumGap.value))
+                                .toInt()
+                                .coerceIn(0, customButtons.size)
+                        }
+                    val visibleButtons = customButtons.take(maxVisibleButtons)
                     Box(
                         modifier =
                             Modifier
@@ -210,8 +230,8 @@ fun WidgetPreviewCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
-                            if (customButtons.isNotEmpty()) {
-                                customButtons.forEach { action ->
+                            if (visibleButtons.isNotEmpty()) {
+                                visibleButtons.forEach { action ->
                                     Box(
                                         modifier = Modifier.size(touchSpace),
                                         contentAlignment = Alignment.Center,
@@ -246,6 +266,20 @@ fun WidgetPreviewCard(
         }
     }
 }
+
+private fun computeSafePreviewOuterPadding(
+    previewWidth: androidx.compose.ui.unit.Dp,
+    requestedPaddingDp: Float,
+): androidx.compose.ui.unit.Dp {
+    val safeWidth = previewWidth.value.finiteOr(WidgetLayoutUtils.DEFAULT_WIDTH_DP).coerceAtLeast(1f)
+    val requested = requestedPaddingDp.finiteOr(0f).coerceAtLeast(0f)
+    val maxPadding = ((safeWidth - PREVIEW_MIN_RENDERABLE_WIDTH_DP) / 2f).coerceAtLeast(0f)
+    return requested.coerceAtMost(maxPadding).dp
+}
+
+private fun Float.finiteOr(default: Float): Float = if (isFinite()) this else default
+
+private const val PREVIEW_MIN_RENDERABLE_WIDTH_DP = 48f
 
 private data class PreviewColors(
     val background: Color,
