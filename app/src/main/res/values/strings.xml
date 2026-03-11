@@ -705,7 +705,13 @@
     <string name="settings_all_quick_search_features">Features List</string>
     <string name="settings_all_quick_search_features_desc">View the complete list of features and capabilities</string>
     <string name="settings_features_load_failed">Unable to load feature documentation.</string>
+    <string name="settings_features_sections_title">Contents</string>
+    <string name="settings_scroll_to_top">Scroll to top</string>
     <string name="settings_open_source_licenses_title">Open Source Licenses</string>
+    <string name="settings_open_source_licenses_loading">Loading licenses…</string>
+    <string name="settings_open_source_licenses_tap_to_view">Tap to view license text</string>
+    <string name="settings_open_source_licenses_load_failed">Unable to load licenses.</string>
+    <string name="settings_back_content_description">Back</string>
 
     <!-- ============================================================================
          Search Engine Names

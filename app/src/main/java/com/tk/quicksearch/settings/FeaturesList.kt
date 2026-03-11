@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ private const val FEATURES_ASSET_FILE_NAME = "FEATURES.md"
 
 @Composable
 internal fun FeaturesList(
+    scrollState: ScrollState? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -42,6 +44,7 @@ internal fun FeaturesList(
 
     RenderMarkdownDocument(
         markdown = markdown.orEmpty(),
+        scrollState = scrollState,
         modifier = modifier,
     )
 }

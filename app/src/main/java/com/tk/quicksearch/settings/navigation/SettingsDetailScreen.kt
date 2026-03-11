@@ -12,16 +12,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,11 +40,14 @@ import com.tk.quicksearch.search.utils.PermissionUtils
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.FeaturesList
+import com.tk.quicksearch.settings.OpenSourceLicenseEntry
+import com.tk.quicksearch.settings.OpenSourceLicensesList
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngines
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
 import com.tk.quicksearch.settings.shared.settingsContentWidth
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingsDetailLevel1Screen(
@@ -56,8 +67,17 @@ internal fun SettingsDetailLevel1Screen(
     if (detailType.isLevel2()) return
 
     val context = LocalContext.current
-    BackHandler(onBack = callbacks.onBack)
+    var selectedOpenSourceLicense by
+        remember(detailType) { mutableStateOf<OpenSourceLicenseEntry?>(null) }
+    val onBackAction: () -> Unit =
+        if (detailType == SettingsDetailType.OPEN_SOURCE_LICENSES && selectedOpenSourceLicense != null) {
+            { selectedOpenSourceLicense = null }
+        } else {
+            callbacks.onBack
+        }
+    BackHandler(onBack = onBackAction)
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
             state.resultExcludedApps.isNotEmpty() ||
@@ -77,7 +97,7 @@ internal fun SettingsDetailLevel1Screen(
         Column(modifier = Modifier.fillMaxSize()) {
             SettingsDetailHeader(
                 title = stringResource(detailType.titleResId()),
-                onBack = callbacks.onBack,
+                onBack = onBackAction,
             )
 
             Column(
@@ -247,6 +267,18 @@ internal fun SettingsDetailLevel1Screen(
 
                     SettingsDetailType.FEATURES_LIST -> {
                         FeaturesList(
+                            scrollState = scrollState,
+                            modifier =
+                                Modifier.padding(
+                                    bottom = DesignTokens.SectionTopPadding,
+                                ),
+                        )
+                    }
+
+                    SettingsDetailType.OPEN_SOURCE_LICENSES -> {
+                        OpenSourceLicensesList(
+                            selectedEntry = selectedOpenSourceLicense,
+                            onSelectedEntryChange = { selectedOpenSourceLicense = it },
                             modifier =
                                 Modifier.padding(
                                     bottom = DesignTokens.SectionTopPadding,
@@ -264,6 +296,25 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.TOOLS,
                     -> Unit
                 }
+            }
+        }
+
+        if (detailType == SettingsDetailType.FEATURES_LIST && scrollState.value > 0) {
+            FloatingActionButton(
+                onClick = { coroutineScope.launch { scrollState.animateScrollTo(0) } },
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(DesignTokens.SpacingLarge)
+                        .size(40.dp),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowUp,
+                    contentDescription = stringResource(R.string.settings_scroll_to_top),
+                    modifier = Modifier.size(DesignTokens.IconSizeSmall),
+                )
             }
         }
     }
@@ -322,6 +373,7 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> R.string.settings_direct_search_configure_title
         SettingsDetailType.TOOLS -> R.string.settings_tools_title
         SettingsDetailType.FEATURES_LIST -> R.string.settings_all_quick_search_features
+        SettingsDetailType.OPEN_SOURCE_LICENSES -> R.string.settings_open_source_licenses_title
     }
 
 internal fun SettingsDetailType.isLevel2(): Boolean =
@@ -354,4 +406,5 @@ enum class SettingsDetailType {
     DIRECT_SEARCH_CONFIGURE,
     TOOLS,
     FEATURES_LIST,
+    OPEN_SOURCE_LICENSES,
 }

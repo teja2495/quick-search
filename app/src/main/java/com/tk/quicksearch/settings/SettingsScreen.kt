@@ -65,7 +65,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -390,6 +389,7 @@ fun SettingsScreen(
             // More Options Section
             SettingsMoreOptions(
                 onOpenFeaturesList = { onNavigateToDetail(SettingsDetailType.FEATURES_LIST) },
+                onOpenOssLicenses = { onNavigateToDetail(SettingsDetailType.OPEN_SOURCE_LICENSES) },
             )
 
             // App Version
@@ -478,6 +478,7 @@ fun SettingsScreen(
 fun SettingsMoreOptions(
     modifier: Modifier = Modifier,
     onOpenFeaturesList: () -> Unit = {},
+    onOpenOssLicenses: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -521,16 +522,6 @@ fun SettingsMoreOptions(
 
     val onOpenFeatures = {
         onOpenFeaturesList()
-    }
-
-    val onOpenOssLicenses = {
-        try {
-            OssLicensesMenuActivity.setActivityTitle(
-                context.getString(R.string.settings_open_source_licenses_title),
-            )
-            context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
-        } catch (e: Exception) {
-        }
     }
 
     val feedbackItems =

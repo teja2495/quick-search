@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 2.7 (Updated March 11 2026)
+**Version**: 2.7 (Updated March 12 2026)
 
 ### Search
 
@@ -13,6 +13,8 @@ This document highlights all the available features. It also includes details ab
 - **Device Settings Search** - Find specific device settings
 - **App Suggestions** - Shows suggested apps when no search query is entered. You can also choose to hide app suggestions completely. This feature requires usage access permission. If permission is not granted, the app shows suggestions based on apps you recently opened from within the app.
 
+---
+
 ### Internet Search
 
 - **Multi-App Search** - Type a query and tap any "search on" card to quickly search using that search engine. If compact mode is enabled, you can just tap on any icon in the search engine section above your keyboard.
@@ -22,9 +24,23 @@ This document highlights all the available features. It also includes details ab
 - **Custom Search Engines** - Add your own search engines from the Search Engines settings screen.
 - **Web Search Suggestions** - Web suggestions automatically appear when you type your query; you can disable them or change the count in settings.
 
+---
+
 ### Tools
 
 - **Calculator** - Type basic math expressions in the search bar to see results directly. Switching to the numeric keyboard while using the calculator displays calculator buttons for easy access. You can trigger calculator mode with an alias.
+
+---
+
+### Aliases
+
+Add aliases at the start of your query to quickly let the app know what you want to do.
+
+- **Search Section Aliases** - Configure aliases to instantly focus on specific result sections (apps, app shortcuts, contacts, files, device settings) from the search bar.
+- **Search Engine Aliases** - Assign aliases (like `ggl` for Google) to quickly trigger any search engine just by typing your alias at the start or end of the query. (When you add an alias at the end of your query, hit space to trigger it.)
+- **Calculator Alias** - Set a dedicated alias that switches the search bar into calculator mode on demand.
+
+---
 
 ### Search Algorithm
 
@@ -35,6 +51,8 @@ This document highlights all the available features. It also includes details ab
   - Names containing query anywhere
 - **Recently Opened Results** - Recently opened results are prioritized in the result order.
 - **App and App Shortcut Searches** - These searches support fuzzy search to ignore typos.
+
+---
 
 ### Long-Press Actions
 
@@ -47,10 +65,9 @@ Long-press on most results to open a context menu with quick actions.
 - **App Info / Uninstall / Hide** - For apps, open system app info, uninstall supported apps, or hide them from suggestions/results using the long-press menu on the app icon.
 - **File-Specific Options** - For files, long-press to open the containing folder, exclude all files with the same extension, or view a detailed file info dialog (type, size, path, last modified, etc.).
 
+---
 
-### Settings
-
-#### Appearance
+### Appearance Settings
 
 - **Overlay Mode** - Enable to make the search bar appear over other apps anywhere in the system. This defines the main experience: search from any screen without leaving what you're doing.
 - **Font Size** - Choose between small, medium, and large font sizes for all in-app text.
@@ -63,7 +80,9 @@ Long-press on most results to open a context menu with quick actions.
 - **App Labels** - You can choose to hide app labels.
 - **Icon Packs** - Select an installed icon pack. If none of them are installed, tapping on the card will open the Play Store and search for icon packs. Once installed, come back to the app and hit the refresh button on the icon packs option to refresh the icon packs list.
 
-#### Search Results
+---
+
+### Search Results Settings
 
 - **Search Sections Management** - Enable/disable individual result sections (apps, app shortcuts, contacts, files, device settings, history, etc.), and assign alias shortcuts to each section. Tap on the search type options to navigate to their respective screen, which offers additional options.
 - **App Suggestions** - You can choose to disable app suggestions if you want a cleaner home screen. 
@@ -74,7 +93,9 @@ Long-press on most results to open a context menu with quick actions.
 - **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
 - **Refresh Data** - The app automatically refreshes your data from time to time, but if you want to manually refresh the data, you can do it here.
 
-#### Search Engines
+---
+
+### Search Engine Settings
 
 - **Enable / Disable Search Engines** - Turn individual search engines on or off and control the order in which they appear.
 - **Aliases for Engines** - Assign or edit alias codes to search engines.
@@ -83,29 +104,27 @@ Long-press on most results to open a context menu with quick actions.
 - **Custom Search Engines** - Add your own search engines by specifying a URL template with the {{query}} placeholder. The app automatically fetches the name and icon for the website, but you can choose to edit them if needed. Tapping on {{query}} in the error hint will add this string to your URL so that you don't have to type it.
 - **Direct Search (AI)** - Connect a Gemini API key to enable AI answers directly in Quick Search, view if a key is configured, and open the dedicated Direct Search configuration screen.
 
-#### Direct Search Configuration
+---
+
+### Direct Search Configuration
 
 - **Gemini API Key** - Use the "Get Free API Key" button to see a guide on how to set up your Gemini API key for free. 
 - **Personal Context** - Provide optional personal context so AI results can be better tailored to you (kept on-device within Quick Search).
 - **Gemini Model Selection** - Choose among the available Gemini / Gemma models. Gemma models do not support Google search and personal context.
 - **Grounding** - Enable or disable grounding with Google search as needed.
 
-### Aliases
+---
 
-Add aliases at the start of your query to quickly let the app know what you want to do.
-
-- **Search Section Aliases** - Configure aliases to instantly focus on specific result sections (apps, app shortcuts, contacts, files, device settings) from the search bar.
-- **Search Engine Aliases** - Assign aliases (like `ggl` for Google) to quickly trigger any search engine just by typing your alias at the start or end of the query. (When you add an alias at the end of your query, hit space to trigger it.)
-- **Calculator Alias** - Set a dedicated alias that switches the search bar into calculator mode on demand.
-
-#### Permissions
+### Permissions Settings
 
 - **Usage Access** - View and request the usage access permission used for app suggestions and usage‑based ranking.
 - **Contacts Permission** - View and request contacts access, required for searching contacts and calls/texts.
 - **Files / Storage Permission** - View and request file access to enable file search.
 - **Phone Permission** - View and request phone calling permission, required for direct dial and some calling integrations.
 
-#### File Settings
+---
+
+### File Settings
 
 - Can be accessed in Search Results settings page via Files option.
 - **Show Folders** - Choose whether folders appear in search results.
@@ -114,14 +133,18 @@ Add aliases at the start of your query to quickly let the app know what you want
 - **System & Hidden Files** - Show or hide system files and hidden files from file search results.
 - **Folder Filters (Whitelist / Blacklist)** - Configure which folder paths should always be included or excluded using simple comma‑separated patterns.
 
-#### Calls & Texts Settings
+---
+
+### Calls & Texts Settings
 
 - Can be accessed in Search Result settings page via Contacts Option
 - **Direct Dial** - Enable direct dialing from search results (tapping a phone result calls immediately instead of opening the dialer).
 - **Default Calling App** - Choose which app to show up as the default calling action in contact result cards (supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
 - **Default Messaging App** - Choose which app to show up as the default messaging action in the contact result cards (supported apps when installed: Google Meet, WhatsApp, Telegram, Signal).
 
-#### Apps Management Screen
+---
+
+### Apps Management Screen
 
 - Can be accessed in Search Results settings page via Apps option.
 - **Installed Apps List** - View all installed apps known to Quick Search.
@@ -129,7 +152,9 @@ Add aliases at the start of your query to quickly let the app know what you want
 - **App Search & Selection** - Search within your installed apps, multi‑select them, and perform batch actions.
 - **Batch Uninstall & App Info** - Uninstall multiple user apps in one flow and open the system App Info screen for any app, with a detailed info dialog (package name, version, SDK levels, install/update dates).
 
-#### App Shortcuts Management Screen
+---
+
+### App Shortcuts Management Screen
 
 - This page can be accessed in Search Result settings page via App Shortcuts Option.
 - **Shortcuts List** - View all app shortcuts grouped by app, search engine, or browser inside expandable cards.
@@ -140,15 +165,21 @@ Add aliases at the start of your query to quickly let the app know what you want
 - **Custom Deep Link Shortcuts** - Add, edit, or delete your own deep-link shortcuts that jump straight into specific screens inside apps. (Example: Add YouTube Music playlists as deep links to open them directly.)
 - **Add App Activities as Shortcuts** - See and add available app activities as shortcuts. This is not a reliable feature; apps do not always provide useful activities, but when they do, you can add them here.
 
+---
+
 ### Launch Options
 
 - **Default Assistant** - Set Quick Search as your default assistant app to replace Google Assistant or Gemini. You can enable Assistant Voice Mode to open the app with voice typing enabled when triggered with digital assistant gesture.
 - **Quick Settings Tile** - Add a Quick Search tile to notification quick settings for quick access
 
+---
+
 ### Widgets
 
 - **Search Widget** - Tap the widget to instantly open Quick Search. Highly customizable with mic button support and up to 2 custom buttons alongside the search functionality.
 - **Custom Buttons Widget** - A dedicated widget for custom buttons - apps, app shortcuts, contacts, files, device settings - with enhanced customizable layouts and actions.
+
+---
 
 ### Widget Customization
 
@@ -157,6 +188,8 @@ Add aliases at the start of your query to quickly let the app know what you want
 - **Size & Spacing** - Control corner radius, internal padding, and spacing using intuitive sliders.
 - **Icons & Buttons** - Toggle search and mic icons and configure up to 2 custom buttons on the search widget or a full set of custom buttons on the custom buttons widget.
 - The widget mic button can be customized to open other device assistants like Gemini, Perplexity, Bixby, etc.
+
+---
 
 ### Hidden / Non-Obvious Features
 
@@ -174,4 +207,25 @@ Add aliases at the start of your query to quickly let the app know what you want
 - **Add Contact Action to Home** - Open any contact and long-press on any of the actions (e.g. WhatsApp call, Telegram video, etc.) to add it to your home screen as a shortcut.
 - **Contact Image Tap** - Tap on the contact photo to open the contact in the default contacts app to edit it.
 
+---
 
+### Other Options
+
+- **Backup & Restore Settings** - Import or export your app settings when switching devices or if you just want a backup of your settings. Even if you don't manually back up settings, the app will automatically back up and restore them using Android's built-in backup system.
+- **Send Feedback** - Send feedback, bug reports, and feature requests to the developer at [tejakarlapudi.apps@gmail.com](mailto:tejakarlapudi.apps@gmail.com).
+- **Development** - View this project's source code on GitHub.
+- **Contact Developer** - Tap on the developer name below the version number to contact the developer.
+
+---
+
+### Note from the Developer
+
+I've been an Android enthusiast my whole life, and it's been awesome working on this project. Because I have the privilege of a full-time job, I decided to keep this app completely free, ad-free, and open source — my small contribution to the Android community that's given me so much. In the future, if I ever want to earn from this project, I'll add donation links, but I promise that it will remain ad-free forever.
+
+This is what I ask in return: if this app brings value to your life, share it with the people around you and consider leaving a 5-star review on the Play Store. That means a lot to me.
+
+Your feedback is important — it's what shapes every update and improvement. So please, keep it coming. Thank you for downloading, using, and being a part of this journey.
+
+-
+
+[Teja Karlapudi](https://hihello.com/p/e11b6338-b4a5-49d8-93c8-03ac219de738)
