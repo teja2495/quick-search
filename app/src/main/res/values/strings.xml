@@ -696,6 +696,8 @@
         <item>Faster and better search results</item>
         <item>Option to disable Auto-launch keyboard and auto-clear query</item>
         <item>Widget padding customization</item>
+        <item>Search engine aliases at the end of your query now requires a space to trigger</item>
+        <item>Features list documentation is updated and is now readable within the app</item>
         <item>Performance improvements, enhancements and bug fixes</item>
     </string-array>
     <string name="release_notes_action_got_it">Got it</string>
