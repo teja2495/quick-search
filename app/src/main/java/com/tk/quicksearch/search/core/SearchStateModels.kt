@@ -114,6 +114,7 @@ data class SearchFeatureState(
         val disabledSearchTargetIds: Set<String> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
         val searchEngineCompactRowCount: Int = 1,
+        val isSearchEngineAliasSuffixEnabled: Boolean = true,
         val amazonDomain: String? = null,
         // App shortcuts
         val shortcutsEnabled: Boolean = true,

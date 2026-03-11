@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.settings.shared.AliasPill
 import com.tk.quicksearch.settings.searchEnginesScreen.AddEditAliasDialog
@@ -42,8 +42,10 @@ internal fun AliasCodeDisplay(
     engineName: String = "",
     existingShortcuts: Map<String, String> = emptyMap(),
     currentShortcutId: String? = null,
-    validateCode: (String) -> Boolean = ::isValidShortcutCode,
-    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    validateCode: (String) -> Boolean = ::isValidGeneralAliasCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = { input, existing ->
+        !hasExactAliasConflict(input, existing)
+    },
     conflictErrorMessage: String? = null,
     addAliasLabel: String? = null,
     allowClearAction: Boolean = true,

@@ -1,8 +1,10 @@
 package com.tk.quicksearch.settings.searchEnginesScreen
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.settings.shared.SettingsToggleRow
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -47,6 +50,8 @@ fun SearchEngines(
     onSetGeminiGroundingEnabled: ((Boolean) -> Unit)? = null,
     onRefreshAvailableGeminiModels: (() -> Unit)? = null,
     onOpenDirectSearchConfigure: (() -> Unit)? = null,
+    isSearchEngineAliasSuffixEnabled: Boolean = true,
+    onToggleSearchEngineAliasSuffixEnabled: ((Boolean) -> Unit)? = null,
     showTitle: Boolean = true,
     directSearchAvailable: Boolean = false,
     directSearchSetupExpanded: Boolean = true,
@@ -96,6 +101,13 @@ fun SearchEngines(
             onToggleExpanded = onToggleDirectSearchSetupExpanded,
         )
         Spacer(modifier = Modifier.height(6.dp))
+        if (onToggleSearchEngineAliasSuffixEnabled != null) {
+            SearchEngineAliasSuffixCard(
+                enabled = isSearchEngineAliasSuffixEnabled,
+                onToggle = onToggleSearchEngineAliasSuffixEnabled,
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+        }
     }
 
     val enginesToDisplay =
@@ -136,6 +148,36 @@ fun SearchEngines(
             onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
             isExpanded = directSearchSetupExpanded,
             onToggleExpanded = onToggleDirectSearchSetupExpanded,
+        )
+        if (onToggleSearchEngineAliasSuffixEnabled != null) {
+            SearchEngineAliasSuffixCard(
+                enabled = isSearchEngineAliasSuffixEnabled,
+                onToggle = onToggleSearchEngineAliasSuffixEnabled,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchEngineAliasSuffixCard(
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
+    ElevatedCard(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_search_engine_alias_suffix_title),
+            subtitle = stringResource(R.string.settings_search_engine_alias_suffix_desc),
+            checked = enabled,
+            onCheckedChange = onToggle,
+            isFirstItem = true,
+            isLastItem = true,
+            showDivider = false,
         )
     }
 }

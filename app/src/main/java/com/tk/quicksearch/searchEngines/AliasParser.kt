@@ -12,9 +12,19 @@ internal object AliasParser {
         query: String,
         aliases: Map<String, T>,
     ): ParsedAliasMatch<T>? {
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) return null
-        val words = trimmedQuery.split("\\s+".toRegex())
+        if (query.isBlank()) return null
+
+        // End aliases trigger only after the user types a trailing space.
+        if (!query.last().isWhitespace()) return null
+
+        val queryWithoutTrailingWhitespace = query.trimEnd()
+        if (queryWithoutTrailingWhitespace.isEmpty()) return null
+
+        val words =
+            queryWithoutTrailingWhitespace
+                .trimStart()
+                .split("\\s+".toRegex())
+                .filter { it.isNotEmpty() }
         if (words.size < 2) return null
         val suffix = words.last().lowercase(Locale.getDefault())
         val match = aliases[suffix] ?: return null

@@ -3,7 +3,6 @@ package com.tk.quicksearch.search.data.preferences
 import android.content.Context
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import com.tk.quicksearch.searchEngines.getDefaultShortcutCode
 
@@ -27,7 +26,7 @@ open class AliasPreferences(
             val normalizedAlias = normalizeShortcutCodeInput(aliasValue)
             return if (normalizedAlias.isEmpty()) {
                 ""
-            } else if (isValidShortcutCode(normalizedAlias)) {
+            } else if (isValidGeneralAliasCode(normalizedAlias)) {
                 if (aliasValue != normalizedAlias) {
                     prefs.edit().putString(aliasKey, normalizedAlias).putString(legacyKey, normalizedAlias).apply()
                 }
@@ -50,7 +49,7 @@ open class AliasPreferences(
         if (migratedCode.isNullOrEmpty()) return defaultCode
 
         val normalizedMigrated = normalizeShortcutCodeInput(migratedCode)
-        return if (isValidShortcutCode(normalizedMigrated)) {
+        return if (isValidGeneralAliasCode(normalizedMigrated)) {
             prefs.edit().putString(aliasKey, normalizedMigrated).putString(legacyKey, normalizedMigrated).apply()
             normalizedMigrated
         } else {
@@ -70,7 +69,7 @@ open class AliasPreferences(
             prefs.edit().putString(aliasKey, "").putString(legacyKey, "").apply()
             return
         }
-        if (!isValidShortcutCode(normalizedCode)) {
+        if (!isValidGeneralAliasCode(normalizedCode)) {
             return
         }
         prefs.edit().putString(aliasKey, normalizedCode).putString(legacyKey, normalizedCode).apply()

@@ -26,34 +26,7 @@ object AliasValidator {
     fun isValidGeneralAliasCode(input: String): Boolean =
         normalizeShortcutCodeInput(input).isNotEmpty()
 
-    /**
-     * Validates that a shortcut does not conflict with any existing shortcut. A conflict occurs if
-     * one shortcut is a prefix of another (e.g., "br" conflicts with "brvt"). This prevents
-     * ambiguity where multiple shortcuts could potentially match the same input.
-     *
-     * @param newShortcut The new shortcut to validate
-     * @param existingShortcuts Map of existing shortcuts (target identifier -> shortcut code)
-     * @return true if the shortcut has no prefix conflicts, false otherwise
-     */
-    fun isValidShortcutPrefix(
-        newShortcut: String,
-        existingShortcuts: Map<String, String>,
-    ): Boolean {
-        val normalizedNew = normalizeShortcutCodeInput(newShortcut)
-        if (normalizedNew.isEmpty()) return true
-
-        // Check if any existing shortcut is a prefix of the new shortcut
-        // OR if the new shortcut is a prefix of any existing shortcut
-        return existingShortcuts.none { (_, existingCode) ->
-            val normalizedExisting = normalizeShortcutCodeInput(existingCode)
-            normalizedExisting.isNotEmpty() &&
-                (
-                    normalizedNew.startsWith(normalizedExisting) ||
-                        normalizedExisting.startsWith(normalizedNew)
-                )
-        }
-    }
-
+    /** Returns true when the new alias exactly matches an existing alias (case/whitespace-insensitive). */
     fun hasExactAliasConflict(
         newAlias: String,
         existingAliases: Map<String, String>,

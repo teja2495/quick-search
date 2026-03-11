@@ -207,7 +207,13 @@ class SearchViewModel(
     val permissionState: StateFlow<SearchPermissionState> = _permissionState.asStateFlow()
 
     // Updated only when the user changes settings
-    private val _featureState = MutableStateFlow(SearchFeatureState())
+    private val _featureState =
+            MutableStateFlow(
+                    SearchFeatureState(
+                            isSearchEngineAliasSuffixEnabled =
+                                    startupPreferencesReader.isSearchEngineAliasSuffixEnabled(),
+                    ),
+            )
     val featureState: StateFlow<SearchFeatureState> = _featureState.asStateFlow()
 
     // Updated only when appearance/display prefs change
@@ -237,10 +243,15 @@ class SearchViewModel(
                             scope = viewModelScope,
                             started = SharingStarted.Eagerly,
                             initialValue =
-                                    SearchUiState(
+                                            SearchUiState(
                                             results = initialResultsState,
                                             permissions = SearchPermissionState(),
-                                            features = SearchFeatureState(),
+                                            features =
+                                                    SearchFeatureState(
+                                                            isSearchEngineAliasSuffixEnabled =
+                                                                    startupPreferencesReader
+                                                                            .isSearchEngineAliasSuffixEnabled(),
+                                                    ),
                                             config = initialConfigState,
                                     ),
                     )
@@ -419,6 +430,7 @@ class SearchViewModel(
                     disabledSearchTargetIds = s.disabledSearchTargetIds,
                     isSearchEngineCompactMode = s.isSearchEngineCompactMode,
                     searchEngineCompactRowCount = s.searchEngineCompactRowCount,
+                    isSearchEngineAliasSuffixEnabled = s.isSearchEngineAliasSuffixEnabled,
                     amazonDomain = s.amazonDomain,
                     shortcutsEnabled = s.shortcutsEnabled,
                     shortcutCodes = s.shortcutCodes,
@@ -1118,6 +1130,8 @@ class SearchViewModel(
                         isSearchEngineCompactMode = searchEngineManager.isSearchEngineCompactMode,
                         searchEngineCompactRowCount =
                                 searchEngineManager.searchEngineCompactRowCount,
+                        isSearchEngineAliasSuffixEnabled =
+                                userPreferences.isSearchEngineAliasSuffixEnabled(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
@@ -1959,7 +1973,7 @@ class SearchViewModel(
             return AliasQueryResolution.None
         }
 
-        val trailingSearchEngineAlias = aliasHandler.detectSearchEngineAliasAtEnd(trimmedQuery)
+        val trailingSearchEngineAlias = aliasHandler.detectSearchEngineAliasAtEnd(newQuery)
             ?: return AliasQueryResolution.None
         val (queryWithoutAlias, target) = trailingSearchEngineAlias
         return AliasQueryResolution.ExecuteSearchTarget(
@@ -2283,6 +2297,8 @@ class SearchViewModel(
                                     searchEngineManager.isSearchEngineCompactMode,
                             searchEngineCompactRowCount =
                                     searchEngineManager.searchEngineCompactRowCount,
+                            isSearchEngineAliasSuffixEnabled =
+                                    userPreferences.isSearchEngineAliasSuffixEnabled(),
                             shortcutsEnabled = shortcutsState.shortcutsEnabled,
                             shortcutCodes = shortcutsState.shortcutCodes,
                             shortcutEnabled = shortcutsState.shortcutEnabled,
@@ -3019,6 +3035,13 @@ class SearchViewModel(
 
     fun setSearchEngineCompactRowCount(rowCount: Int) =
             searchEngineManager.setSearchEngineCompactRowCount(rowCount)
+
+    fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setSearchEngineAliasSuffixEnabled(enabled)
+            updateFeatureState { it.copy(isSearchEngineAliasSuffixEnabled = enabled) }
+        }
+    }
 
     fun setFileTypeEnabled(
             fileType: FileType,

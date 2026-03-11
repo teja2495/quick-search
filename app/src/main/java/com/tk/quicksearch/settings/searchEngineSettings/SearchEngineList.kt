@@ -49,8 +49,6 @@ import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
 import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
@@ -508,15 +506,10 @@ private fun SearchEngineRowContent(
                     engineName = engineName,
                     existingShortcuts = existingShortcuts,
                     currentShortcutId = engine.getId(),
-                    validateCode =
-                        if (isSearchEngineAlias) {
-                            { input -> isValidShortcutCode(input) }
-                        } else {
-                            { input -> isValidGeneralAliasCode(input) }
-                        },
+                    validateCode = { input -> isValidGeneralAliasCode(input) },
                     validateConflict =
                         if (isSearchEngineAlias) {
-                            { input, existing -> isValidShortcutPrefix(input, existing) }
+                            { input, existing -> !hasExactAliasConflict(input, existing) }
                         } else {
                             { input, existing ->
                                 !hasExactAliasConflict(input, existing)

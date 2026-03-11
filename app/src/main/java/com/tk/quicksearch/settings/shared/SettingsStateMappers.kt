@@ -51,6 +51,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         disabledSections = disabledSections,
         isSearchEngineCompactMode = isSearchEngineCompactMode,
         searchEngineCompactRowCount = searchEngineCompactRowCount,
+        isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled,
         amazonDomain = amazonDomain,
         calculatorEnabled = calculatorEnabled,
         appSuggestionsEnabled = appSuggestionsEnabled,

@@ -240,15 +240,9 @@
     <string name="permission_settings_dialog_message">This action requires %1$s permission. You will be taken to system settings to grant it.</string>
     <string name="dialog_call">Call</string>
     <string name="dialog_sms">Message</string>
-    <string name="dialog_edit_shortcut_title">Edit shortcut</string>
-    <string name="dialog_edit_shortcut_message">Enter a shortcut code for %1$s</string>
-    <string name="dialog_edit_shortcut_error_length">Shortcut must be at least 2 characters.</string>
-    <string name="dialog_edit_shortcut_error_prefix">This code overlaps with an existing shortcut code</string>
     <string name="dialog_save">Save</string>
-    <string name="dialog_enable_shortcut">Enable shortcut</string>
     <string name="dialog_edit_alias_title">Edit alias</string>
-    <string name="dialog_edit_alias_error_length">Alias must be at least 2 characters.</string>
-    <string name="dialog_edit_alias_error_prefix">This code overlaps with an existing alias code</string>
+    <string name="dialog_edit_alias_error_prefix">This alias is already taken.</string>
     <string name="dialog_add_alias_for_search_type_title">Add Alias for "%1$s"</string>
     <string name="dialog_edit_alias_for_search_type_title">Edit Alias for "%1$s"</string>
     <string name="dialog_alias_info_search_type">Type alias at the start of your query to trigger the %1$s search.</string>
@@ -440,6 +434,8 @@
     <string name="settings_edit_label">Edit</string>
     <string name="settings_direct_search_toggle">Direct Search Setup</string>
     <string name="settings_direct_search_desc">Setup Gemini API key to see answers directly within the app.</string>
+    <string name="settings_search_engine_alias_suffix_title">Alias after Query</string>
+    <string name="settings_search_engine_alias_suffix_desc">Triggers search engine when you add an alias at the end of the query and hit space. Aliases will always work at the start.</string>
     <string name="settings_direct_search_how_to">Get Free API Key</string>
     <string name="settings_gemini_guide_url" translatable="false">https://medium.com/@tejakarlapudi.apps/setting-up-gemini-api-key-in-quick-search-25ee92aa4311</string>
     <string name="settings_gemini_api_key_display">Your Gemini API key:  ****%1$s</string>

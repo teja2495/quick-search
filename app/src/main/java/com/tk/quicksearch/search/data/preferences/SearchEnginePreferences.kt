@@ -59,6 +59,13 @@ class SearchEnginePreferences(
             .apply()
     }
 
+    fun isSearchEngineAliasSuffixEnabled(): Boolean =
+        getBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ALIAS_SUFFIX_ENABLED, true)
+
+    fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) {
+        setBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ALIAS_SUFFIX_ENABLED, enabled)
+    }
+
     fun hasSeenSearchEngineOnboarding(): Boolean = getBooleanPref(BasePreferences.KEY_SEARCH_ENGINE_ONBOARDING_SEEN, false)
 
     fun setHasSeenSearchEngineOnboarding(seen: Boolean) {

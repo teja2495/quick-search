@@ -480,6 +480,7 @@ abstract class BasePreferences(
         const val KEY_SEARCH_ENGINE_ORDER = "search_engine_order"
         const val KEY_SEARCH_ENGINE_COMPACT_MODE = "search_engine_compact_mode"
         const val KEY_SEARCH_ENGINE_COMPACT_ROW_COUNT = "search_engine_compact_row_count"
+        const val KEY_SEARCH_ENGINE_ALIAS_SUFFIX_ENABLED = "search_engine_alias_suffix_enabled"
         const val KEY_SEARCH_ENGINE_ONBOARDING_SEEN = "search_engine_onboarding_seen"
         const val KEY_CUSTOM_SEARCH_ENGINES = "custom_search_engines"
 

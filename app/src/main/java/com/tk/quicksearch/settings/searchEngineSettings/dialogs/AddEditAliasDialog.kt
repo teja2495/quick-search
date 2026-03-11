@@ -32,8 +32,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
+import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
+import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 
 enum class AliasInfoType {
@@ -45,8 +45,8 @@ enum class AliasInfoType {
 /**
  * Reusable dialog for adding or editing a search target alias code.
  *
- * @param currentCode The current shortcut code
- * @param existingShortcuts Existing shortcuts for prefix validation
+ * @param currentCode The current alias code
+ * @param existingShortcuts Existing aliases used for conflict validation
  * @param currentShortcutId Identifier for the shortcut being edited (excluded from validation)
  * @param onSave Callback when the code is saved
  * @param onDismiss Callback when the dialog is dismissed
@@ -60,8 +60,10 @@ fun AddEditAliasDialog(
     aliasInfoType: AliasInfoType = AliasInfoType.SEARCH_ENGINE,
     aliasTargetName: String = "",
     dialogTitle: String? = null,
-    validateCode: (String) -> Boolean = ::isValidShortcutCode,
-    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    validateCode: (String) -> Boolean = ::isValidGeneralAliasCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = { input, existing ->
+        !hasExactAliasConflict(input, existing)
+    },
     conflictErrorMessage: String? = null,
     onDismiss: () -> Unit,
 ) {
@@ -83,7 +85,7 @@ fun AddEditAliasDialog(
             existingShortcuts.filterKeys { it != currentShortcutId }
         }
     val isValidConflict = validateConflict(editingCode.text, existingShortcutsForValidation)
-    val showShortcutError = editingCode.text.isNotEmpty() && (!isValidShortcut || !isValidConflict)
+    val showShortcutError = editingCode.text.isNotEmpty() && !isValidConflict
     val isEmptyInput = editingCode.text.isEmpty()
     val confirmEnabled = isEmptyInput || (isValidShortcut && isValidConflict)
     val infoText =
@@ -171,7 +173,6 @@ fun AddEditAliasDialog(
                         when {
                             !isValidConflict ->
                                 conflictErrorMessage ?: stringResource(R.string.dialog_edit_alias_error_prefix)
-                            !isValidShortcut -> stringResource(R.string.dialog_edit_alias_error_length)
                             else -> ""
                         }
                     Text(
@@ -212,8 +213,10 @@ fun EditAliasDialog(
     aliasInfoType: AliasInfoType = AliasInfoType.SEARCH_ENGINE,
     aliasTargetName: String = "",
     dialogTitle: String? = null,
-    validateCode: (String) -> Boolean = ::isValidShortcutCode,
-    validateConflict: (String, Map<String, String>) -> Boolean = ::isValidShortcutPrefix,
+    validateCode: (String) -> Boolean = ::isValidGeneralAliasCode,
+    validateConflict: (String, Map<String, String>) -> Boolean = { input, existing ->
+        !hasExactAliasConflict(input, existing)
+    },
     conflictErrorMessage: String? = null,
     onDismiss: () -> Unit,
 ) = AddEditAliasDialog(

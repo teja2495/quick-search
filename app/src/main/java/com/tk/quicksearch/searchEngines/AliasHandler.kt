@@ -8,8 +8,6 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutCode
-import com.tk.quicksearch.searchEngines.AliasValidator.isValidShortcutPrefix
 import com.tk.quicksearch.searchEngines.AliasValidator.normalizeShortcutCodeInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -167,10 +165,7 @@ class AliasHandler(
             val normalizedCode = normalizeShortcutCodeInput(code)
             val engineTarget = (target as? SearchTarget.Engine)?.engine
                 ?: SearchEngine.values().firstOrNull { it.name == targetId }
-            val isBrowserAlias =
-                (target is SearchTarget.Browser) || targetId.startsWith(BROWSER_ID_PREFIX)
             val isSearchSectionAlias = targetId in SEARCH_SECTION_ALIAS_IDS
-            val isSearchEngineAlias = engineTarget != null || isBrowserAlias
 
             if (normalizedCode.isEmpty()) {
                 if (engineTarget != null) {
@@ -189,12 +184,7 @@ class AliasHandler(
                 return@launch
             }
 
-            val isValidCode =
-                if (isSearchEngineAlias) {
-                    isValidShortcutCode(normalizedCode)
-                } else {
-                    isValidGeneralAliasCode(normalizedCode)
-                }
+            val isValidCode = isValidGeneralAliasCode(normalizedCode)
             if (!isValidCode) {
                 return@launch
             }
@@ -203,12 +193,7 @@ class AliasHandler(
                 aliasCodes
                     .filterKeys { it != targetId }
                     .filterValues { it.isNotBlank() }
-            val isConflictFree =
-                if (isSearchEngineAlias) {
-                    isValidShortcutPrefix(normalizedCode, existingAliasesForValidation)
-                } else {
-                    !hasExactAliasConflict(normalizedCode, existingAliasesForValidation)
-                }
+            val isConflictFree = !hasExactAliasConflict(normalizedCode, existingAliasesForValidation)
             if (!isConflictFree) {
                 return@launch
             }
@@ -286,8 +271,8 @@ class AliasHandler(
 
     fun detectSearchEngineAliasAtEnd(query: String): Pair<String, SearchTarget>? {
         ensureInitialized()
-        val trimmedQuery = query.trim()
-        if (trimmedQuery.isEmpty()) return null
+        if (!userPreferences.isSearchEngineAliasSuffixEnabled()) return null
+        if (query.isBlank()) return null
 
         val aliases = mutableMapOf<String, SearchTarget>()
         val targets =
@@ -308,7 +293,7 @@ class AliasHandler(
             if (aliasCode.isEmpty()) continue
             aliases[aliasCode] = target
         }
-        val match = AliasParser.detectSuffixAlias(trimmedQuery, aliases) ?: return null
+        val match = AliasParser.detectSuffixAlias(query, aliases) ?: return null
         return Pair(match.queryWithoutAlias, match.target)
     }
 

@@ -9,7 +9,7 @@ Quick Search is an Android app that lets you search apps, contacts, device files
 - Apps: App names, package IDs, and last-used timestamps (requires Usage Access) to rank and show recently used apps.
 - Contacts (optional): Contact names, phone numbers, and your chosen “preferred number” when you enable contact search.
 - Files (optional): File names, types, URIs, and basic metadata from MediaStore to show matching files; no file contents are read.
-- Preferences: Hidden/pinned apps, contacts, files, nicknames, section order, layout choices, shortcut codes, and widget settings stored locally in SharedPreferences. Sensitive items such as the optional Gemini API key are stored with EncryptedSharedPreferences when available.
+- Preferences: Hidden/pinned apps, contacts, files, nicknames, section order, layout choices, aliases, and widget settings stored locally in SharedPreferences. Sensitive items such as the optional Gemini API key are stored with EncryptedSharedPreferences when available.
 - Direct answers (optional): If you add a Gemini API key and use AI answers, the query and any personal context you provide are sent to Google’s Generative Language API to generate a response. Request/response bodies may be logged to your device’s logcat for troubleshooting and are not sent to the developer.
 - Network calls: Other web searches you launch (Google, Maps, Play, Reddit, YouTube, Amazon, ChatGPT/Perplexity/Grok links, etc.) are opened in the chosen browser/app and handled under those providers’ policies.
 

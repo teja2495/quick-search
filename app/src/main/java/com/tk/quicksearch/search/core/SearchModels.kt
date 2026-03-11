@@ -319,6 +319,7 @@ data class SearchUiState(
         val disabledSearchTargetIds: Set<String> = emptySet(),
         val isSearchEngineCompactMode: Boolean = false,
         val searchEngineCompactRowCount: Int = 1,
+        val isSearchEngineAliasSuffixEnabled: Boolean = true,
         val amazonDomain: String? = null,
         // Dialog state (transient, not part of query hot-path)
         val phoneNumberSelection: PhoneNumberSelection? = null,
@@ -485,6 +486,7 @@ fun SearchUiState(
                 disabledSearchTargetIds = features.disabledSearchTargetIds,
                 isSearchEngineCompactMode = features.isSearchEngineCompactMode,
                 searchEngineCompactRowCount = features.searchEngineCompactRowCount,
+                isSearchEngineAliasSuffixEnabled = features.isSearchEngineAliasSuffixEnabled,
                 amazonDomain = features.amazonDomain,
                 shortcutsEnabled = features.shortcutsEnabled,
                 shortcutCodes = features.shortcutCodes,

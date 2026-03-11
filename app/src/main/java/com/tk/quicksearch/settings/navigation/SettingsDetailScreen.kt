@@ -128,6 +128,9 @@ internal fun SettingsDetailLevel1Screen(
                             disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
                             onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
                             onToggleSearchEngineCompactMode = callbacks.onToggleSearchEngineCompactMode,
+                            isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
+                            onToggleSearchEngineAliasSuffixEnabled =
+                                callbacks.onToggleSearchEngineAliasSuffixEnabled,
                             showDirectSearchAtTop = true,
                         )
                     }

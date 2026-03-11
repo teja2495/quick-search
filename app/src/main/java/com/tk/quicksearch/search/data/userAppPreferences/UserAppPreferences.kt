@@ -369,6 +369,12 @@ class UserAppPreferences(
     fun setSearchEngineCompactRowCount(rowCount: Int) =
             searchEnginePreferences.setSearchEngineCompactRowCount(rowCount)
 
+    fun isSearchEngineAliasSuffixEnabled(): Boolean =
+            searchEnginePreferences.isSearchEngineAliasSuffixEnabled()
+
+    fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) =
+            searchEnginePreferences.setSearchEngineAliasSuffixEnabled(enabled)
+
     fun hasSeenSearchEngineOnboarding(): Boolean =
             searchEnginePreferences.hasSeenSearchEngineOnboarding()
 
