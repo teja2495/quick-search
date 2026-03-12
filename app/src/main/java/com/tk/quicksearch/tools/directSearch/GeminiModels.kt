@@ -10,7 +10,7 @@ data class GeminiTextModel(
 
 /** Shared Gemini model configuration defaults. */
 object GeminiModelCatalog {
-        const val DEFAULT_MODEL_ID = "gemini-flash-lite-latest"
+        const val DEFAULT_MODEL_ID = "gemini-flash-latest"
         const val DEFAULT_GROUNDING_ENABLED = true
 
         /**
@@ -21,11 +21,11 @@ object GeminiModelCatalog {
                 listOf(
                                 GeminiTextModel(
                                         id = DEFAULT_MODEL_ID,
-                                        displayName = "Gemini Flash-Lite Latest",
+                                        displayName = "Gemini Flash Latest",
                                 ),
                                 GeminiTextModel(
-                                        id = "gemini-flash-latest",
-                                        displayName = "Gemini Flash Latest",
+                                        id = "gemini-flash-lite-latest",
+                                        displayName = "Gemini Flash Lite Latest",
                                 ),
                                 GeminiTextModel(
                                         id = "gemini-pro-latest",
