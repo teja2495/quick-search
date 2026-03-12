@@ -17,12 +17,12 @@ import com.tk.quicksearch.search.searchHistory.SearchHistoryPreferences
  * to specialized preference classes for better organization.
  */
 class UserAppPreferences(
-        private val context: Context,
+    private val context: Context,
 ) {
     private val sharedPrefs by lazy {
         context.getSharedPreferences(
-                com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
-                android.content.Context.MODE_PRIVATE,
+            com.tk.quicksearch.search.data.preferences.BasePreferences.PREFS_NAME,
+            android.content.Context.MODE_PRIVATE,
         )
     }
 
@@ -67,23 +67,23 @@ class UserAppPreferences(
     fun getPinnedPackages(): Set<String> = appPreferences.getPinnedPackages()
 
     fun hidePackageInSuggestions(packageName: String): Set<String> =
-            appPreferences.hidePackageInSuggestions(packageName)
+        appPreferences.hidePackageInSuggestions(packageName)
 
     fun hidePackageInResults(packageName: String): Set<String> =
-            appPreferences.hidePackageInResults(packageName)
+        appPreferences.hidePackageInResults(packageName)
 
     fun unhidePackageInSuggestions(packageName: String): Set<String> =
-            appPreferences.unhidePackageInSuggestions(packageName)
+        appPreferences.unhidePackageInSuggestions(packageName)
 
     fun unhidePackageInResults(packageName: String): Set<String> =
-            appPreferences.unhidePackageInResults(packageName)
+        appPreferences.unhidePackageInResults(packageName)
 
     fun pinPackage(packageName: String): Set<String> = appPreferences.pinPackage(packageName)
 
     fun unpinPackage(packageName: String): Set<String> = appPreferences.unpinPackage(packageName)
 
     fun clearAllHiddenAppsInSuggestions(): Set<String> =
-            appPreferences.clearAllHiddenAppsInSuggestions()
+        appPreferences.clearAllHiddenAppsInSuggestions()
 
     fun clearAllHiddenAppsInResults(): Set<String> = appPreferences.clearAllHiddenAppsInResults()
 
@@ -103,10 +103,10 @@ class UserAppPreferences(
     fun getRecentAppLaunches(): List<String> = appPreferences.getRecentAppLaunches()
 
     fun setRecentAppLaunches(packageNames: List<String>): List<String> =
-            appPreferences.setRecentAppLaunches(packageNames)
+        appPreferences.setRecentAppLaunches(packageNames)
 
     fun addRecentAppLaunch(packageName: String): List<String> =
-            appPreferences.addRecentAppLaunch(packageName)
+        appPreferences.addRecentAppLaunch(packageName)
 
     // ============================================================================
     // Contact Preferences
@@ -123,24 +123,24 @@ class UserAppPreferences(
     fun excludeContact(contactId: Long): Set<Long> = contactPreferences.excludeContact(contactId)
 
     fun removeExcludedContact(contactId: Long): Set<Long> =
-            contactPreferences.removeExcludedContact(contactId)
+        contactPreferences.removeExcludedContact(contactId)
 
     fun clearAllExcludedContacts(): Set<Long> = contactPreferences.clearAllExcludedContacts()
 
     fun getPreferredPhoneNumber(contactId: Long): String? =
-            contactPreferences.getPreferredPhoneNumber(contactId)
+        contactPreferences.getPreferredPhoneNumber(contactId)
 
     fun setPreferredPhoneNumber(
-            contactId: Long,
-            phoneNumber: String,
+        contactId: Long,
+        phoneNumber: String,
     ) = contactPreferences.setPreferredPhoneNumber(contactId, phoneNumber)
 
     fun getLastShownPhoneNumber(contactId: Long): String? =
-            contactPreferences.getLastShownPhoneNumber(contactId)
+        contactPreferences.getLastShownPhoneNumber(contactId)
 
     fun setLastShownPhoneNumber(
-            contactId: Long,
-            phoneNumber: String,
+        contactId: Long,
+        phoneNumber: String,
     ) = contactPreferences.setLastShownPhoneNumber(contactId, phoneNumber)
 
     fun isDirectDialEnabled(): Boolean = contactPreferences.isDirectDialEnabled()
@@ -150,23 +150,23 @@ class UserAppPreferences(
     fun hasSeenDirectDialChoice(): Boolean = contactPreferences.hasSeenDirectDialChoice()
 
     fun setHasSeenDirectDialChoice(seen: Boolean) =
-            contactPreferences.setHasSeenDirectDialChoice(seen)
+        contactPreferences.setHasSeenDirectDialChoice(seen)
 
     fun isDirectDialManuallyDisabled(): Boolean =
-            sharedPrefs.getBoolean(
-                    com.tk.quicksearch.search.data.preferences.BasePreferences
-                            .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
-                    false,
-            )
+        sharedPrefs.getBoolean(
+            com.tk.quicksearch.search.data.preferences.BasePreferences
+                .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
+            false,
+        )
 
     fun setDirectDialManuallyDisabled(disabled: Boolean) {
         sharedPrefs
-                .edit()
-                .putBoolean(
-                        com.tk.quicksearch.search.data.preferences.BasePreferences
-                                .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
-                        disabled,
-                ).apply()
+            .edit()
+            .putBoolean(
+                com.tk.quicksearch.search.data.preferences.BasePreferences
+                    .KEY_DIRECT_DIAL_MANUALLY_DISABLED,
+                disabled,
+            ).apply()
     }
 
     // ============================================================================
@@ -190,22 +190,22 @@ class UserAppPreferences(
     fun getExcludedFileExtensions(): Set<String> = filePreferences.getExcludedFileExtensions()
 
     fun addExcludedFileExtension(extension: String): Set<String> =
-            filePreferences.addExcludedFileExtension(extension)
+        filePreferences.addExcludedFileExtension(extension)
 
     fun removeExcludedFileExtension(extension: String): Set<String> =
-            filePreferences.removeExcludedFileExtension(extension)
+        filePreferences.removeExcludedFileExtension(extension)
 
     fun clearAllExcludedFileExtensions(): Set<String> =
-            filePreferences.clearAllExcludedFileExtensions()
+        filePreferences.clearAllExcludedFileExtensions()
 
     fun getEnabledFileTypes(): Set<com.tk.quicksearch.search.models.FileType> =
-            filePreferences.getEnabledFileTypes()
+        filePreferences.getEnabledFileTypes()
 
     fun setEnabledFileTypes(enabled: Set<com.tk.quicksearch.search.models.FileType>) =
-            filePreferences.setEnabledFileTypes(enabled)
+        filePreferences.setEnabledFileTypes(enabled)
 
     fun clearEnabledFileTypes(): Set<com.tk.quicksearch.search.models.FileType> =
-            filePreferences.clearEnabledFileTypes()
+        filePreferences.clearEnabledFileTypes()
 
     fun getShowFoldersInResults(): Boolean = filePreferences.getShowFoldersInResults()
 
@@ -222,12 +222,12 @@ class UserAppPreferences(
     fun getFolderWhitelistPatterns(): Set<String> = filePreferences.getFolderWhitelistPatterns()
 
     fun setFolderWhitelistPatterns(patterns: Set<String>) =
-            filePreferences.setFolderWhitelistPatterns(patterns)
+        filePreferences.setFolderWhitelistPatterns(patterns)
 
     fun getFolderBlacklistPatterns(): Set<String> = filePreferences.getFolderBlacklistPatterns()
 
     fun setFolderBlacklistPatterns(patterns: Set<String>) =
-            filePreferences.setFolderBlacklistPatterns(patterns)
+        filePreferences.setFolderBlacklistPatterns(patterns)
 
     // ============================================================================
     // Settings Preferences
@@ -244,15 +244,15 @@ class UserAppPreferences(
     fun excludeSetting(id: String): Set<String> = settingsPreferences.excludeSetting(id)
 
     fun removeExcludedSetting(id: String): Set<String> =
-            settingsPreferences.removeExcludedSetting(id)
+        settingsPreferences.removeExcludedSetting(id)
 
     fun clearAllExcludedSettings(): Set<String> = settingsPreferences.clearAllExcludedSettings()
 
     fun isAssistantLaunchVoiceModeEnabled(): Boolean =
-            settingsPreferences.isAssistantLaunchVoiceModeEnabled()
+        settingsPreferences.isAssistantLaunchVoiceModeEnabled()
 
     fun setAssistantLaunchVoiceModeEnabled(enabled: Boolean) =
-            settingsPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
+        settingsPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
 
     // ============================================================================
     // App Shortcut Preferences
@@ -261,10 +261,10 @@ class UserAppPreferences(
     fun getPinnedAppShortcutIds(): Set<String> = appShortcutPreferences.getPinnedAppShortcutIds()
 
     fun getExcludedAppShortcutIds(): Set<String> =
-            appShortcutPreferences.getExcludedAppShortcutIds()
+        appShortcutPreferences.getExcludedAppShortcutIds()
 
     fun getDisabledAppShortcutIds(): Set<String> =
-            appShortcutPreferences.getDisabledAppShortcutIds()
+        appShortcutPreferences.getDisabledAppShortcutIds()
 
     fun pinAppShortcut(id: String): Set<String> = appShortcutPreferences.pinAppShortcut(id)
 
@@ -273,14 +273,14 @@ class UserAppPreferences(
     fun excludeAppShortcut(id: String): Set<String> = appShortcutPreferences.excludeAppShortcut(id)
 
     fun removeExcludedAppShortcut(id: String): Set<String> =
-            appShortcutPreferences.removeExcludedAppShortcut(id)
+        appShortcutPreferences.removeExcludedAppShortcut(id)
 
     fun clearAllExcludedAppShortcuts(): Set<String> =
-            appShortcutPreferences.clearAllExcludedAppShortcuts()
+        appShortcutPreferences.clearAllExcludedAppShortcuts()
 
     fun setAppShortcutEnabled(
-            id: String,
-            enabled: Boolean,
+        id: String,
+        enabled: Boolean,
     ): Set<String> = appShortcutPreferences.setAppShortcutEnabled(id, enabled)
 
     // ============================================================================
@@ -290,102 +290,102 @@ class UserAppPreferences(
     fun getAllAppNicknames(): Map<String, String> = nicknamePreferences.getAllAppNicknames()
 
     fun getAppNickname(packageName: String): String? =
-            nicknamePreferences.getAppNickname(packageName)
+        nicknamePreferences.getAppNickname(packageName)
 
     fun setAppNickname(
-            packageName: String,
-            nickname: String?,
+        packageName: String,
+        nickname: String?,
     ) = nicknamePreferences.setAppNickname(packageName, nickname)
 
     fun getAllAppShortcutNicknames(): Map<String, String> =
-            nicknamePreferences.getAllAppShortcutNicknames()
+        nicknamePreferences.getAllAppShortcutNicknames()
 
     fun getAppShortcutNickname(shortcutId: String): String? =
-            nicknamePreferences.getAppShortcutNickname(shortcutId)
+        nicknamePreferences.getAppShortcutNickname(shortcutId)
 
     fun setAppShortcutNickname(
-            shortcutId: String,
-            nickname: String?,
+        shortcutId: String,
+        nickname: String?,
     ) = nicknamePreferences.setAppShortcutNickname(shortcutId, nickname)
 
     fun getContactNickname(contactId: Long): String? =
-            nicknamePreferences.getContactNickname(contactId)
+        nicknamePreferences.getContactNickname(contactId)
 
     fun setContactNickname(
-            contactId: Long,
-            nickname: String?,
+        contactId: Long,
+        nickname: String?,
     ) = nicknamePreferences.setContactNickname(contactId, nickname)
 
     fun getFileNickname(uri: String): String? = nicknamePreferences.getFileNickname(uri)
 
     fun setFileNickname(
-            uri: String,
-            nickname: String?,
+        uri: String,
+        nickname: String?,
     ) = nicknamePreferences.setFileNickname(uri, nickname)
 
     fun getSettingNickname(id: String): String? = nicknamePreferences.getSettingNickname(id)
 
     fun setSettingNickname(
-            id: String,
-            nickname: String?,
+        id: String,
+        nickname: String?,
     ) = nicknamePreferences.setSettingNickname(id, nickname)
 
     /** Finds contact IDs that have nicknames matching the query. */
     fun findContactsWithMatchingNickname(query: String): Set<Long> =
-            nicknamePreferences.findContactsWithMatchingNickname(query)
+        nicknamePreferences.findContactsWithMatchingNickname(query)
 
     /** Finds file URIs that have nicknames matching the query. */
     fun findFilesWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findFilesWithMatchingNickname(query)
+        nicknamePreferences.findFilesWithMatchingNickname(query)
 
     /** Finds settings that have nicknames matching the query. */
     fun findSettingsWithMatchingNickname(query: String): Set<String> =
-            nicknamePreferences.findSettingsWithMatchingNickname(query)
+        nicknamePreferences.findSettingsWithMatchingNickname(query)
 
     // ============================================================================
     // Search Engine Preferences
     // ============================================================================
 
     fun hasDisabledSearchEnginesPreference(): Boolean =
-            searchEnginePreferences.hasDisabledSearchEnginesPreference()
+        searchEnginePreferences.hasDisabledSearchEnginesPreference()
 
     fun getDisabledSearchEngines(): Set<String> = searchEnginePreferences.getDisabledSearchEngines()
 
     fun setDisabledSearchEngines(disabled: Set<String>) =
-            searchEnginePreferences.setDisabledSearchEngines(disabled)
+        searchEnginePreferences.setDisabledSearchEngines(disabled)
 
     fun getSearchEngineOrder(): List<String> = searchEnginePreferences.getSearchEngineOrder()
 
     fun setSearchEngineOrder(order: List<String>) =
-            searchEnginePreferences.setSearchEngineOrder(order)
+        searchEnginePreferences.setSearchEngineOrder(order)
 
     fun isSearchEngineCompactMode(): Boolean = searchEnginePreferences.isSearchEngineCompactMode()
 
     fun setSearchEngineCompactMode(enabled: Boolean) =
-            searchEnginePreferences.setSearchEngineCompactMode(enabled)
+        searchEnginePreferences.setSearchEngineCompactMode(enabled)
 
     fun getSearchEngineCompactRowCount(): Int = searchEnginePreferences.getSearchEngineCompactRowCount()
 
     fun setSearchEngineCompactRowCount(rowCount: Int) =
-            searchEnginePreferences.setSearchEngineCompactRowCount(rowCount)
+        searchEnginePreferences.setSearchEngineCompactRowCount(rowCount)
 
     fun isSearchEngineAliasSuffixEnabled(): Boolean =
-            searchEnginePreferences.isSearchEngineAliasSuffixEnabled()
+        searchEnginePreferences.isSearchEngineAliasSuffixEnabled()
 
     fun setSearchEngineAliasSuffixEnabled(enabled: Boolean) =
-            searchEnginePreferences.setSearchEngineAliasSuffixEnabled(enabled)
+        searchEnginePreferences.setSearchEngineAliasSuffixEnabled(enabled)
 
     fun hasSeenSearchEngineOnboarding(): Boolean =
-            searchEnginePreferences.hasSeenSearchEngineOnboarding()
+        searchEnginePreferences.hasSeenSearchEngineOnboarding()
 
     fun setHasSeenSearchEngineOnboarding(seen: Boolean) =
-            searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
+        searchEnginePreferences.setHasSeenSearchEngineOnboarding(seen)
 
     fun getCustomSearchEngines(): List<CustomSearchEngine> =
-            searchEnginePreferences.getCustomSearchEngines()
+        searchEnginePreferences.getCustomSearchEngines()
 
     fun setCustomSearchEngines(engines: List<CustomSearchEngine>) =
-            searchEnginePreferences.setCustomSearchEngines(engines)
+        searchEnginePreferences.setCustomSearchEngines(engines)
 
     // ============================================================================
     // Alias Preferences
@@ -398,43 +398,43 @@ class UserAppPreferences(
     fun getAliasCode(engine: SearchEngine): String = aliasPreferences.getAliasCode(engine)
 
     fun setAliasCode(
-            engine: SearchEngine,
-            code: String,
+        engine: SearchEngine,
+        code: String,
     ) = aliasPreferences.setAliasCode(engine, code)
 
     fun getAliasCode(targetId: String): String? = aliasPreferences.getAliasCode(targetId)
 
     fun getAliasCodeAllowSingleChar(targetId: String): String? =
-            aliasPreferences.getAliasCodeAllowSingleChar(targetId)
+        aliasPreferences.getAliasCodeAllowSingleChar(targetId)
 
     fun setAliasCode(
-            targetId: String,
-            code: String,
+        targetId: String,
+        code: String,
     ) = aliasPreferences.setAliasCode(targetId, code)
 
     fun clearAliasCode(targetId: String) = aliasPreferences.clearAliasCode(targetId)
 
     fun setAliasCodeAllowSingleChar(
-            targetId: String,
-            code: String,
+        targetId: String,
+        code: String,
     ) = aliasPreferences.setAliasCodeAllowSingleChar(targetId, code)
 
     fun isAliasEnabled(engine: SearchEngine): Boolean =
-            aliasPreferences.isAliasEnabled(engine)
+        aliasPreferences.isAliasEnabled(engine)
 
     fun setAliasEnabled(
-            engine: SearchEngine,
-            enabled: Boolean,
+        engine: SearchEngine,
+        enabled: Boolean,
     ) = aliasPreferences.setAliasEnabled(engine, enabled)
 
     fun isAliasEnabled(
-            targetId: String,
-            defaultValue: Boolean,
+        targetId: String,
+        defaultValue: Boolean,
     ): Boolean = aliasPreferences.isAliasEnabled(targetId, defaultValue)
 
     fun setAliasEnabled(
-            targetId: String,
-            enabled: Boolean,
+        targetId: String,
+        enabled: Boolean,
     ) = aliasPreferences.setAliasEnabled(targetId, enabled)
 
     fun getAllAliasCodes(): Map<SearchEngine, String> = aliasPreferences.getAllAliasCodes()
@@ -446,22 +446,22 @@ class UserAppPreferences(
     fun getShortcutCode(engine: SearchEngine): String = getAliasCode(engine)
 
     fun setShortcutCode(
-            engine: SearchEngine,
-            code: String,
+        engine: SearchEngine,
+        code: String,
     ) = setAliasCode(engine, code)
 
     fun getShortcutCode(targetId: String): String? = getAliasCode(targetId)
 
     fun setShortcutCode(
-            targetId: String,
-            code: String,
+        targetId: String,
+        code: String,
     ) = setAliasCode(targetId, code)
 
     fun isShortcutEnabled(engine: SearchEngine): Boolean = isAliasEnabled(engine)
 
     fun setShortcutEnabled(
-            engine: SearchEngine,
-            enabled: Boolean,
+        engine: SearchEngine,
+        enabled: Boolean,
     ) = setAliasEnabled(engine, enabled)
 
     fun getAllShortcutCodes(): Map<SearchEngine, String> = getAllAliasCodes()
@@ -493,7 +493,7 @@ class UserAppPreferences(
     fun isGeminiGroundingEnabled(): Boolean = geminiPreferences.isGeminiGroundingEnabled()
 
     fun setGeminiGroundingEnabled(enabled: Boolean) =
-            geminiPreferences.setGeminiGroundingEnabled(enabled)
+        geminiPreferences.setGeminiGroundingEnabled(enabled)
 
     // ============================================================================
     // UI Preferences
@@ -506,17 +506,17 @@ class UserAppPreferences(
     fun isBottomSearchBarEnabled(): Boolean = uiPreferences.isBottomSearchBarEnabled()
 
     fun setBottomSearchBarEnabled(enabled: Boolean) =
-            uiPreferences.setBottomSearchBarEnabled(enabled)
+        uiPreferences.setBottomSearchBarEnabled(enabled)
 
     fun isOpenKeyboardOnLaunchEnabled(): Boolean = uiPreferences.isOpenKeyboardOnLaunchEnabled()
 
     fun setOpenKeyboardOnLaunchEnabled(enabled: Boolean) =
-            uiPreferences.setOpenKeyboardOnLaunchEnabled(enabled)
+        uiPreferences.setOpenKeyboardOnLaunchEnabled(enabled)
 
     fun isClearQueryOnLaunchEnabled(): Boolean = uiPreferences.isClearQueryOnLaunchEnabled()
 
     fun setClearQueryOnLaunchEnabled(enabled: Boolean) =
-            uiPreferences.setClearQueryOnLaunchEnabled(enabled)
+        uiPreferences.setClearQueryOnLaunchEnabled(enabled)
 
     fun isOverlayModeEnabled(): Boolean = uiPreferences.isOverlayModeEnabled()
 
@@ -545,7 +545,7 @@ class UserAppPreferences(
     fun getOverlayGradientTheme(): OverlayGradientTheme = uiPreferences.getOverlayGradientTheme()
 
     fun setOverlayGradientTheme(theme: OverlayGradientTheme) =
-            uiPreferences.setOverlayGradientTheme(theme)
+        uiPreferences.setOverlayGradientTheme(theme)
 
     fun getOverlayThemeIntensity(): Float = uiPreferences.getOverlayThemeIntensity()
 
@@ -558,7 +558,7 @@ class UserAppPreferences(
     fun getBackgroundSource(): BackgroundSource = uiPreferences.getBackgroundSource()
 
     fun setBackgroundSource(source: BackgroundSource) =
-            uiPreferences.setBackgroundSource(source)
+        uiPreferences.setBackgroundSource(source)
 
     fun getCustomImageUri(): String? = uiPreferences.getCustomImageUri()
 
@@ -567,32 +567,32 @@ class UserAppPreferences(
     fun getSelectedIconPackPackage(): String? = uiPreferences.getSelectedIconPackPackage()
 
     fun setSelectedIconPackPackage(packageName: String?) =
-            uiPreferences.setSelectedIconPackPackage(packageName)
+        uiPreferences.setSelectedIconPackPackage(packageName)
 
     fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) =
-            uiPreferences.setDirectSearchSetupExpanded(expanded)
+        uiPreferences.setDirectSearchSetupExpanded(expanded)
 
     fun isDisabledSearchEnginesExpanded(): Boolean = uiPreferences.isDisabledSearchEnginesExpanded()
 
     fun setDisabledSearchEnginesExpanded(expanded: Boolean) =
-            uiPreferences.setDisabledSearchEnginesExpanded(expanded)
+        uiPreferences.setDisabledSearchEnginesExpanded(expanded)
 
     fun isInstantStartupSurfaceEnabled(): Boolean = uiPreferences.isInstantStartupSurfaceEnabled()
 
     fun setInstantStartupSurfaceEnabled(enabled: Boolean) =
-            uiPreferences.setInstantStartupSurfaceEnabled(enabled)
+        uiPreferences.setInstantStartupSurfaceEnabled(enabled)
 
     fun hasSeenSearchBarWelcome(): Boolean = uiPreferences.hasSeenSearchBarWelcome()
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) = uiPreferences.setHasSeenSearchBarWelcome(seen)
 
     fun shouldForceSearchBarWelcomeOnNextOpen(): Boolean =
-            uiPreferences.shouldForceSearchBarWelcomeOnNextOpen()
+        uiPreferences.shouldForceSearchBarWelcomeOnNextOpen()
 
     fun setForceSearchBarWelcomeOnNextOpen(force: Boolean) =
-            uiPreferences.setForceSearchBarWelcomeOnNextOpen(force)
+        uiPreferences.setForceSearchBarWelcomeOnNextOpen(force)
 
     fun consumeForceSearchBarWelcomeOnNextOpen(): Boolean {
         val shouldForce = uiPreferences.shouldForceSearchBarWelcomeOnNextOpen()
@@ -609,37 +609,37 @@ class UserAppPreferences(
     fun hasSeenPersonalContextHint(): Boolean = uiPreferences.hasSeenPersonalContextHint()
 
     fun setHasSeenPersonalContextHint(seen: Boolean) =
-            uiPreferences.setHasSeenPersonalContextHint(seen)
+        uiPreferences.setHasSeenPersonalContextHint(seen)
 
     fun hasDismissedSearchHistoryTip(): Boolean = uiPreferences.hasDismissedSearchHistoryTip()
 
     fun setSearchHistoryTipDismissed(dismissed: Boolean) =
-            uiPreferences.setSearchHistoryTipDismissed(dismissed)
+        uiPreferences.setSearchHistoryTipDismissed(dismissed)
 
     fun hasSeenOverlayAssistantTip(): Boolean = uiPreferences.hasSeenOverlayAssistantTip()
 
     fun setHasSeenOverlayAssistantTip(seen: Boolean) =
-            uiPreferences.setHasSeenOverlayAssistantTip(seen)
+        uiPreferences.setHasSeenOverlayAssistantTip(seen)
 
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) =
-            uiPreferences.setLastSeenVersionName(versionName)
+        uiPreferences.setLastSeenVersionName(versionName)
 
     fun getUsagePermissionBannerDismissCount(): Int =
-            uiPreferences.getUsagePermissionBannerDismissCount()
+        uiPreferences.getUsagePermissionBannerDismissCount()
 
     fun incrementUsagePermissionBannerDismissCount() =
-            uiPreferences.incrementUsagePermissionBannerDismissCount()
+        uiPreferences.incrementUsagePermissionBannerDismissCount()
 
     fun isUsagePermissionBannerSessionDismissed(): Boolean =
-            uiPreferences.isUsagePermissionBannerSessionDismissed()
+        uiPreferences.isUsagePermissionBannerSessionDismissed()
 
     fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) =
-            uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
+        uiPreferences.setUsagePermissionBannerSessionDismissed(dismissed)
 
     fun resetUsagePermissionBannerSessionDismissed() =
-            uiPreferences.resetUsagePermissionBannerSessionDismissed()
+        uiPreferences.resetUsagePermissionBannerSessionDismissed()
 
     fun shouldShowUsagePermissionBanner(): Boolean = uiPreferences.shouldShowUsagePermissionBanner()
 
@@ -654,6 +654,10 @@ class UserAppPreferences(
     fun shouldShowAppLabels(): Boolean = uiPreferences.shouldShowAppLabels()
 
     fun setShowAppLabels(show: Boolean) = uiPreferences.setShowAppLabels(show)
+
+    fun getAppIconShape(): com.tk.quicksearch.search.core.AppIconShape = uiPreferences.getAppIconShape()
+
+    fun setAppIconShape(shape: com.tk.quicksearch.search.core.AppIconShape) = uiPreferences.setAppIconShape(shape)
 
     fun areWebSuggestionsEnabled(): Boolean = uiPreferences.areWebSuggestionsEnabled()
 
@@ -678,7 +682,7 @@ class UserAppPreferences(
     // ============================================================================
 
     fun getRecentItems(): List<com.tk.quicksearch.search.searchHistory.RecentSearchEntry> =
-            recentSearchesPreferences.getRecentItems()
+        recentSearchesPreferences.getRecentItems()
 
     fun addRecentItem(entry: com.tk.quicksearch.search.searchHistory.RecentSearchEntry) {
         recentSearchesPreferences.addRecentItem(entry)
@@ -686,17 +690,17 @@ class UserAppPreferences(
     }
 
     fun getRecentResultOpens(): List<com.tk.quicksearch.search.searchHistory.RecentSearchEntry> =
-            recentResultOpensPreferences.getRecentResultOpens()
+        recentResultOpensPreferences.getRecentResultOpens()
 
     fun clearRecentQueries() = recentSearchesPreferences.clearRecentQueries()
 
     fun deleteRecentItem(entry: com.tk.quicksearch.search.searchHistory.RecentSearchEntry) =
-            recentSearchesPreferences.deleteRecentItem(entry)
+        recentSearchesPreferences.deleteRecentItem(entry)
 
     fun areRecentQueriesEnabled(): Boolean = recentSearchesPreferences.areRecentQueriesEnabled()
 
     fun setRecentQueriesEnabled(enabled: Boolean) =
-            recentSearchesPreferences.setRecentQueriesEnabled(enabled)
+        recentSearchesPreferences.setRecentQueriesEnabled(enabled)
 
     // ============================================================================
     // Section Preferences

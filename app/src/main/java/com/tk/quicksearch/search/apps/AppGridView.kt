@@ -66,83 +66,84 @@ private enum class AppIconDisplayMode {
 
 /** Data class containing all app actions to reduce parameter count in composables. */
 private data class AppActions(
-        val onClick: () -> Unit,
-        val onAppInfoClick: () -> Unit,
-        val onUninstallClick: () -> Unit,
-        val onHideApp: () -> Unit,
-        val onPinApp: () -> Unit,
-        val onUnpinApp: () -> Unit,
-        val onNicknameClick: () -> Unit,
-        val onAddToHome: () -> Unit,
+    val onClick: () -> Unit,
+    val onAppInfoClick: () -> Unit,
+    val onUninstallClick: () -> Unit,
+    val onHideApp: () -> Unit,
+    val onPinApp: () -> Unit,
+    val onUnpinApp: () -> Unit,
+    val onNicknameClick: () -> Unit,
+    val onAddToHome: () -> Unit,
 )
 
 /** Data class containing app state information to reduce parameter count in composables. */
 private data class AppState(
-        val hasNickname: Boolean,
-        val isPinned: Boolean,
-        val showUninstall: Boolean,
-        val showAppLabel: Boolean,
-        val isOverlayPresentation: Boolean,
+    val hasNickname: Boolean,
+    val isPinned: Boolean,
+    val showUninstall: Boolean,
+    val showAppLabel: Boolean,
+    val isOverlayPresentation: Boolean,
 )
 
 @Composable
 fun AppGridView(
-        apps: List<AppInfo>,
-        appShortcuts: List<StaticShortcut>,
-        isSearching: Boolean,
-        hasAppResults: Boolean,
-        onAppClick: (AppInfo) -> Unit,
-        onAppInfoClick: (AppInfo) -> Unit,
-        onUninstallClick: (AppInfo) -> Unit,
-        onHideApp: (AppInfo) -> Unit,
-        onPinApp: (AppInfo) -> Unit,
-        onUnpinApp: (AppInfo) -> Unit,
-        onNicknameClick: (AppInfo) -> Unit,
-        getAppNickname: (String) -> String?,
-        pinnedPackageNames: Set<String>,
-        disabledShortcutIds: Set<String>,
-        modifier: Modifier = Modifier,
-        rowCount: Int = ROW_COUNT,
-        iconPackPackage: String? = null,
-        showAppLabels: Boolean = true,
-        oneHandedMode: Boolean = false,
-        isInitializing: Boolean = false,
-        isOverlayPresentation: Boolean = false,
-        startupPhase: StartupPhase = StartupPhase.COMPLETE,
-        predictedTarget: PredictedSubmitTarget? = null,
+    apps: List<AppInfo>,
+    appShortcuts: List<StaticShortcut>,
+    isSearching: Boolean,
+    hasAppResults: Boolean,
+    onAppClick: (AppInfo) -> Unit,
+    onAppInfoClick: (AppInfo) -> Unit,
+    onUninstallClick: (AppInfo) -> Unit,
+    onHideApp: (AppInfo) -> Unit,
+    onPinApp: (AppInfo) -> Unit,
+    onUnpinApp: (AppInfo) -> Unit,
+    onNicknameClick: (AppInfo) -> Unit,
+    getAppNickname: (String) -> String?,
+    pinnedPackageNames: Set<String>,
+    disabledShortcutIds: Set<String>,
+    modifier: Modifier = Modifier,
+    rowCount: Int = ROW_COUNT,
+    iconPackPackage: String? = null,
+    showAppLabels: Boolean = true,
+    oneHandedMode: Boolean = false,
+    isInitializing: Boolean = false,
+    isOverlayPresentation: Boolean = false,
+    startupPhase: StartupPhase = StartupPhase.COMPLETE,
+    predictedTarget: PredictedSubmitTarget? = null,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
 ) {
     val context = LocalContext.current
     val shortcutsByPackage =
-            remember(appShortcuts, disabledShortcutIds) {
-                appShortcuts
-                        .asSequence()
-                        .filterNot { shortcut ->
-                            disabledShortcutIds.contains(shortcutKey(shortcut))
-                        }
-                        .groupBy { it.packageName }
-            }
+        remember(appShortcuts, disabledShortcutIds) {
+            appShortcuts
+                .asSequence()
+                .filterNot { shortcut ->
+                    disabledShortcutIds.contains(shortcutKey(shortcut))
+                }
+                .groupBy { it.packageName }
+        }
     val waitForSuggestionIcons = !isSearching && apps.isNotEmpty()
     val areSuggestionIconsLoaded =
-            if (waitForSuggestionIcons) {
-                apps.all { app ->
-                    val iconResult =
-                            rememberAppIcon(
-                                    packageName = app.packageName,
-                                    iconPackPackage = iconPackPackage,
-                                    userHandleId = app.userHandleId,
-                            )
-                    iconResult.bitmap != null
-                }
-            } else {
-                true
+        if (waitForSuggestionIcons) {
+            apps.all { app ->
+                val iconResult =
+                    rememberAppIcon(
+                        packageName = app.packageName,
+                        iconPackPackage = iconPackPackage,
+                        userHandleId = app.userHandleId,
+                    )
+                iconResult.bitmap != null
             }
+        } else {
+            true
+        }
 
     Column(
-            modifier =
-                    modifier.fillMaxWidth()
-                            .padding(top = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        modifier =
+            modifier.fillMaxWidth()
+                .padding(top = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
         val showAppGrid = apps.isNotEmpty() && areSuggestionIconsLoaded
         val showLoadingPlaceholder = waitForSuggestionIcons && !areSuggestionIconsLoaded
@@ -150,44 +151,45 @@ fun AppGridView(
         appGridVisibilityState.targetState = showAppGrid
         if (showLoadingPlaceholder) {
             AppGridPlaceholder(
-                    rowCount = rowCount,
-                    showAppLabels = showAppLabels,
+                rowCount = rowCount,
+                showAppLabels = showAppLabels,
             )
         }
         AnimatedVisibility(
-                visibleState = appGridVisibilityState,
-                enter =
-                        fadeIn(animationSpec = tween(durationMillis = 200)) +
-                                slideInVertically(
-                                        animationSpec =
-                                                tween(durationMillis = 260),
-                                        initialOffsetY = { it / 10 },
-                                ) +
-                                scaleIn(
-                                        animationSpec = tween(durationMillis = 220),
-                                        initialScale = 0.98f,
-                                ),
-                exit = fadeOut(animationSpec = tween(durationMillis = 120)),
+            visibleState = appGridVisibilityState,
+            enter =
+                fadeIn(animationSpec = tween(durationMillis = 200)) +
+                        slideInVertically(
+                            animationSpec =
+                                tween(durationMillis = 260),
+                            initialOffsetY = { it / 10 },
+                        ) +
+                        scaleIn(
+                            animationSpec = tween(durationMillis = 220),
+                            initialScale = 0.98f,
+                        ),
+            exit = fadeOut(animationSpec = tween(durationMillis = 120)),
         ) {
             AppGrid(
-                    apps = apps,
-                    isSearching = isSearching,
-                    onAppClick = onAppClick,
-                    onAppInfoClick = onAppInfoClick,
-                    onUninstallClick = onUninstallClick,
-                    onHideApp = onHideApp,
-                    onPinApp = onPinApp,
-                    onUnpinApp = onUnpinApp,
-                    onNicknameClick = onNicknameClick,
-                    getAppNickname = getAppNickname,
-                    pinnedPackageNames = pinnedPackageNames,
-                    shortcutsByPackage = shortcutsByPackage,
-                    rowCount = rowCount,
-                    iconPackPackage = iconPackPackage,
-                    showAppLabels = showAppLabels,
-                    oneHandedMode = oneHandedMode,
-                    isOverlayPresentation = isOverlayPresentation,
-                    predictedTarget = predictedTarget,
+                apps = apps,
+                isSearching = isSearching,
+                onAppClick = onAppClick,
+                onAppInfoClick = onAppInfoClick,
+                onUninstallClick = onUninstallClick,
+                onHideApp = onHideApp,
+                onPinApp = onPinApp,
+                onUnpinApp = onUnpinApp,
+                onNicknameClick = onNicknameClick,
+                getAppNickname = getAppNickname,
+                pinnedPackageNames = pinnedPackageNames,
+                shortcutsByPackage = shortcutsByPackage,
+                rowCount = rowCount,
+                iconPackPackage = iconPackPackage,
+                showAppLabels = showAppLabels,
+                oneHandedMode = oneHandedMode,
+                isOverlayPresentation = isOverlayPresentation,
+                predictedTarget = predictedTarget,
+                appIconShape = appIconShape,
             )
         }
     }
@@ -195,49 +197,49 @@ fun AppGridView(
 
 @Composable
 private fun AppGridPlaceholder(
-        rowCount: Int,
-        showAppLabels: Boolean,
+    rowCount: Int,
+    showAppLabels: Boolean,
 ) {
     val columns = getAppGridColumns().coerceAtLeast(1)
     repeat(rowCount.coerceAtLeast(1)) {
         Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
         ) {
             repeat(columns) {
                 Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Surface(
-                            modifier = Modifier.size(DesignTokens.AppIconSize),
-                            color = Color.Transparent,
-                            tonalElevation = 0.dp,
-                            shape = DesignTokens.ShapeLarge,
+                        modifier = Modifier.size(DesignTokens.AppIconSize),
+                        color = Color.Transparent,
+                        tonalElevation = 0.dp,
+                        shape = DesignTokens.ShapeLarge,
                     ) {
                         Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Box(
-                                    modifier =
-                                            Modifier.size(DesignTokens.IconSizeXLarge - 4.dp)
-                                                    .clip(DesignTokens.ShapeLarge)
-                                                    .background(
-                                                            MaterialTheme.colorScheme.surfaceVariant,
-                                                    ),
+                                modifier =
+                                    Modifier.size(DesignTokens.IconSizeXLarge - 4.dp)
+                                        .clip(DesignTokens.ShapeLarge)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                        ),
                             )
                         }
                     }
                     if (showAppLabels) {
                         Spacer(modifier = Modifier.height(DesignTokens.SpacingXSmall))
                         Box(
-                                modifier =
-                                        Modifier.width(36.dp)
-                                                .height(10.dp)
-                                                .clip(DesignTokens.ShapeSmall)
-                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            modifier =
+                                Modifier.width(36.dp)
+                                    .height(10.dp)
+                                    .clip(DesignTokens.ShapeSmall)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                         )
                     }
                 }
@@ -248,108 +250,110 @@ private fun AppGridPlaceholder(
 
 @Composable
 private fun AppGrid(
-        apps: List<AppInfo>,
-        isSearching: Boolean,
-        onAppClick: (AppInfo) -> Unit,
-        onAppInfoClick: (AppInfo) -> Unit,
-        onUninstallClick: (AppInfo) -> Unit,
-        onHideApp: (AppInfo) -> Unit,
-        onPinApp: (AppInfo) -> Unit,
-        onUnpinApp: (AppInfo) -> Unit,
-        onNicknameClick: (AppInfo) -> Unit,
-        getAppNickname: (String) -> String?,
-        pinnedPackageNames: Set<String>,
-        shortcutsByPackage: Map<String, List<StaticShortcut>>,
-        rowCount: Int = ROW_COUNT,
-        iconPackPackage: String?,
-        showAppLabels: Boolean,
-        oneHandedMode: Boolean,
-        isOverlayPresentation: Boolean,
-        predictedTarget: PredictedSubmitTarget?,
+    apps: List<AppInfo>,
+    isSearching: Boolean,
+    onAppClick: (AppInfo) -> Unit,
+    onAppInfoClick: (AppInfo) -> Unit,
+    onUninstallClick: (AppInfo) -> Unit,
+    onHideApp: (AppInfo) -> Unit,
+    onPinApp: (AppInfo) -> Unit,
+    onUnpinApp: (AppInfo) -> Unit,
+    onNicknameClick: (AppInfo) -> Unit,
+    getAppNickname: (String) -> String?,
+    pinnedPackageNames: Set<String>,
+    shortcutsByPackage: Map<String, List<StaticShortcut>>,
+    rowCount: Int = ROW_COUNT,
+    iconPackPackage: String?,
+    showAppLabels: Boolean,
+    oneHandedMode: Boolean,
+    isOverlayPresentation: Boolean,
+    predictedTarget: PredictedSubmitTarget?,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
 ) {
     val maxVisibleColumns = getAppGridColumns()
     val columns =
-            remember(apps, rowCount, maxVisibleColumns, isSearching) {
-                if (apps.isEmpty()) {
-                    1
-                } else if (isSearching) {
-                    maxVisibleColumns.coerceAtLeast(1)
-                } else {
-                    val rowsToFill = rowCount.coerceAtLeast(1)
-                    val columnsNeededToAvoidGaps =
-                            ceil(apps.size.toFloat() / rowsToFill.toFloat()).toInt()
-                    min(maxVisibleColumns, columnsNeededToAvoidGaps.coerceAtLeast(1))
-                }
+        remember(apps, rowCount, maxVisibleColumns, isSearching) {
+            if (apps.isEmpty()) {
+                1
+            } else if (isSearching) {
+                maxVisibleColumns.coerceAtLeast(1)
+            } else {
+                val rowsToFill = rowCount.coerceAtLeast(1)
+                val columnsNeededToAvoidGaps =
+                    ceil(apps.size.toFloat() / rowsToFill.toFloat()).toInt()
+                min(maxVisibleColumns, columnsNeededToAvoidGaps.coerceAtLeast(1))
             }
+        }
     val rows =
-            remember(apps, oneHandedMode, columns) {
-                // Show all available apps, chunked into rows of the appropriate column count
-                val chunked = apps.chunked(columns)
-                if (oneHandedMode) chunked.reversed() else chunked
-            }
+        remember(apps, oneHandedMode, columns) {
+            // Show all available apps, chunked into rows of the appropriate column count
+            val chunked = apps.chunked(columns)
+            if (oneHandedMode) chunked.reversed() else chunked
+        }
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val horizontalSpacing = DesignTokens.SpacingMedium
         val rowItemWidth =
-                if (columns <= 1) {
-                    maxWidth
-                } else {
-                    ((maxWidth - (horizontalSpacing * (columns - 1))) / columns).coerceAtLeast(0.dp)
-                }
+            if (columns <= 1) {
+                maxWidth
+            } else {
+                ((maxWidth - (horizontalSpacing * (columns - 1))) / columns).coerceAtLeast(0.dp)
+            }
 
         Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
         ) {
             val context = LocalContext.current
             val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
             val createAppActions =
-                    remember(
-                            onAppClick,
-                            onAppInfoClick,
-                            onUninstallClick,
-                            onHideApp,
-                            onPinApp,
-                            onUnpinApp,
-                            onNicknameClick,
-                            addToHomeHandler
-                    ) {
-                        { app: AppInfo ->
-                            AppActions(
-                                    onClick = { onAppClick(app) },
-                                    onAppInfoClick = { onAppInfoClick(app) },
-                                    onUninstallClick = { onUninstallClick(app) },
-                                    onHideApp = { onHideApp(app) },
-                                    onPinApp = { onPinApp(app) },
-                                    onUnpinApp = { onUnpinApp(app) },
-                                    onNicknameClick = { onNicknameClick(app) },
-                                    onAddToHome = { addToHomeHandler.addAppToHome(app) },
-                            )
-                        }
+                remember(
+                    onAppClick,
+                    onAppInfoClick,
+                    onUninstallClick,
+                    onHideApp,
+                    onPinApp,
+                    onUnpinApp,
+                    onNicknameClick,
+                    addToHomeHandler
+                ) {
+                    { app: AppInfo ->
+                        AppActions(
+                            onClick = { onAppClick(app) },
+                            onAppInfoClick = { onAppInfoClick(app) },
+                            onUninstallClick = { onUninstallClick(app) },
+                            onHideApp = { onHideApp(app) },
+                            onPinApp = { onPinApp(app) },
+                            onUnpinApp = { onUnpinApp(app) },
+                            onNicknameClick = { onNicknameClick(app) },
+                            onAddToHome = { addToHomeHandler.addAppToHome(app) },
+                        )
                     }
+                }
 
             val createAppState =
-                    remember(getAppNickname, pinnedPackageNames) {
-                        { app: AppInfo ->
-                            AppState(
-                                    hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
-                                    isPinned = pinnedPackageNames.contains(app.launchCountKey()),
-                                    showUninstall = !app.isSystemApp && app.userHandleId == null,
-                                    showAppLabel = showAppLabels,
-                                    isOverlayPresentation = isOverlayPresentation,
-                            )
-                        }
+                remember(getAppNickname, pinnedPackageNames) {
+                    { app: AppInfo ->
+                        AppState(
+                            hasNickname = !getAppNickname(app.packageName).isNullOrBlank(),
+                            isPinned = pinnedPackageNames.contains(app.launchCountKey()),
+                            showUninstall = !app.isSystemApp && app.userHandleId == null,
+                            showAppLabel = showAppLabels,
+                            isOverlayPresentation = isOverlayPresentation,
+                        )
                     }
+                }
 
             rows.forEach { rowApps ->
                 AppGridRow(
-                        apps = rowApps,
-                        rowItemWidth = rowItemWidth,
-                        shortcutsByPackage = shortcutsByPackage,
-                        iconPackPackage = iconPackPackage,
-                        createAppActions = createAppActions,
-                        createAppState = createAppState,
-                        predictedTarget = predictedTarget,
+                    apps = rowApps,
+                    rowItemWidth = rowItemWidth,
+                    shortcutsByPackage = shortcutsByPackage,
+                    iconPackPackage = iconPackPackage,
+                    createAppActions = createAppActions,
+                    createAppState = createAppState,
+                    predictedTarget = predictedTarget,
+                    appIconShape = appIconShape,
                 )
             }
         }
@@ -358,32 +362,34 @@ private fun AppGrid(
 
 @Composable
 private fun AppGridRow(
-        apps: List<AppInfo>,
-        rowItemWidth: Dp,
-        shortcutsByPackage: Map<String, List<StaticShortcut>>,
-        iconPackPackage: String?,
-        createAppActions: (AppInfo) -> AppActions,
-        createAppState: (AppInfo) -> AppState,
-        predictedTarget: PredictedSubmitTarget?,
+    apps: List<AppInfo>,
+    rowItemWidth: Dp,
+    shortcutsByPackage: Map<String, List<StaticShortcut>>,
+    iconPackPackage: String?,
+    createAppActions: (AppInfo) -> AppActions,
+    createAppState: (AppInfo) -> AppState,
+    predictedTarget: PredictedSubmitTarget?,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
 ) {
     Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingMedium),
     ) {
         apps.forEach { app ->
             val appShortcuts = shortcutsByPackage[app.packageName].orEmpty()
             AppGridItem(
-                    modifier = Modifier.width(rowItemWidth),
-                    appInfo = app,
-                    shortcuts = appShortcuts,
-                    appActions = createAppActions(app),
-                    appState = createAppState(app),
-                    iconPackPackage = iconPackPackage,
-                    isPredicted =
-                            (predictedTarget as? PredictedSubmitTarget.App)?.let {
-                                it.packageName == app.packageName &&
-                                        it.userHandleId == app.userHandleId
-                            } == true,
+                modifier = Modifier.width(rowItemWidth),
+                appInfo = app,
+                shortcuts = appShortcuts,
+                appActions = createAppActions(app),
+                appState = createAppState(app),
+                iconPackPackage = iconPackPackage,
+                isPredicted =
+                    (predictedTarget as? PredictedSubmitTarget.App)?.let {
+                        it.packageName == app.packageName &&
+                                it.userHandleId == app.userHandleId
+                    } == true,
+                appIconShape = appIconShape,
             )
         }
     }
@@ -392,81 +398,83 @@ private fun AppGridRow(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AppGridItem(
-        modifier: Modifier = Modifier,
-        appInfo: AppInfo,
-        shortcuts: List<StaticShortcut>,
-        appActions: AppActions,
-        appState: AppState,
-        iconPackPackage: String?,
-        isPredicted: Boolean = false,
+    modifier: Modifier = Modifier,
+    appInfo: AppInfo,
+    shortcuts: List<StaticShortcut>,
+    appActions: AppActions,
+    appState: AppState,
+    iconPackPackage: String?,
+    isPredicted: Boolean = false,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
 ) {
     val context = LocalContext.current
     val iconResult =
-            rememberAppIcon(
-                    packageName = appInfo.packageName,
-                    iconPackPackage = iconPackPackage,
-                    userHandleId = appInfo.userHandleId,
-            )
+        rememberAppIcon(
+            packageName = appInfo.packageName,
+            iconPackPackage = iconPackPackage,
+            userHandleId = appInfo.userHandleId,
+        )
     var showOptions by remember { mutableStateOf(false) }
     val placeholderLabel =
-            remember(appInfo.appName) {
-                appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
-            }
+        remember(appInfo.appName) {
+            appInfo.appName.firstOrNull()?.uppercaseChar()?.toString().orEmpty()
+        }
     val appIconSize =
-            remember(appState.isOverlayPresentation) {
-                when (
-                    if (appState.isOverlayPresentation) {
-                        AppIconDisplayMode.OVERLAY
-                    } else {
-                        AppIconDisplayMode.REGULAR
-                    }
-                ) {
-                    AppIconDisplayMode.OVERLAY -> 44.dp
-                    AppIconDisplayMode.REGULAR -> DesignTokens.IconSizeXLarge - 4.dp
+        remember(appState.isOverlayPresentation) {
+            when (
+                if (appState.isOverlayPresentation) {
+                    AppIconDisplayMode.OVERLAY
+                } else {
+                    AppIconDisplayMode.REGULAR
                 }
+            ) {
+                AppIconDisplayMode.OVERLAY -> 44.dp
+                AppIconDisplayMode.REGULAR -> DesignTokens.IconSizeXLarge - 4.dp
             }
+        }
 
     Box(
-            modifier = modifier.fillMaxWidth(),
-            contentAlignment = Alignment.TopCenter,
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
             AppIconSurface(
-                    iconBitmap = iconResult.bitmap,
-                    iconIsLegacy = iconResult.isLegacy,
-                    placeholderLabel = placeholderLabel,
-                    appName = appInfo.appName,
-                    onClick = appActions.onClick,
-                    onLongClick = { showOptions = true },
-                    isPredicted = isPredicted,
-                    appIconSize = appIconSize,
+                iconBitmap = iconResult.bitmap,
+                iconIsLegacy = iconResult.isLegacy,
+                placeholderLabel = placeholderLabel,
+                appName = appInfo.appName,
+                onClick = appActions.onClick,
+                onLongClick = { showOptions = true },
+                isPredicted = isPredicted,
+                appIconSize = appIconSize,
+                appIconShape = appIconShape,
             )
             if (appState.showAppLabel) {
                 AppLabelText(
-                        appName = appInfo.appName,
-                        isOverlayPresentation = appState.isOverlayPresentation,
+                    appName = appInfo.appName,
+                    isOverlayPresentation = appState.isOverlayPresentation,
                 )
             }
         }
 
         AppItemDropdownMenu(
-                expanded = showOptions,
-                onDismiss = { showOptions = false },
-                isPinned = appState.isPinned,
-                showUninstall = appState.showUninstall,
-                hasNickname = appState.hasNickname,
-                shortcuts = shortcuts,
-                onShortcutClick = { shortcut -> launchStaticShortcut(context, shortcut) },
-                onAppInfoClick = appActions.onAppInfoClick,
-                onHideApp = appActions.onHideApp,
-                onPinApp = appActions.onPinApp,
-                onUnpinApp = appActions.onUnpinApp,
-                onUninstallClick = appActions.onUninstallClick,
-                onNicknameClick = appActions.onNicknameClick,
-                onAddToHome = appActions.onAddToHome,
+            expanded = showOptions,
+            onDismiss = { showOptions = false },
+            isPinned = appState.isPinned,
+            showUninstall = appState.showUninstall,
+            hasNickname = appState.hasNickname,
+            shortcuts = shortcuts,
+            onShortcutClick = { shortcut -> launchStaticShortcut(context, shortcut) },
+            onAppInfoClick = appActions.onAppInfoClick,
+            onHideApp = appActions.onHideApp,
+            onPinApp = appActions.onPinApp,
+            onUnpinApp = appActions.onUnpinApp,
+            onUninstallClick = appActions.onUninstallClick,
+            onNicknameClick = appActions.onNicknameClick,
+            onAddToHome = appActions.onAddToHome,
         )
     }
 }
@@ -474,88 +482,87 @@ private fun AppGridItem(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AppIconSurface(
-        iconBitmap: androidx.compose.ui.graphics.ImageBitmap?,
-        iconIsLegacy: Boolean,
-        placeholderLabel: String,
-        appName: String,
-        onClick: () -> Unit,
-        onLongClick: () -> Unit,
-        appIconSize: Dp,
-        isPredicted: Boolean = false,
+    iconBitmap: androidx.compose.ui.graphics.ImageBitmap?,
+    iconIsLegacy: Boolean,
+    placeholderLabel: String,
+    appName: String,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    appIconSize: Dp,
+    isPredicted: Boolean = false,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
 ) {
     val view = LocalView.current
     val predictedHighlightHeight =
-            if (isPredicted) {
-                (DesignTokens.AppIconSize - 4.dp).coerceAtLeast(48.dp)
-            } else {
-                DesignTokens.AppIconSize
-            }
+        if (isPredicted) {
+            (DesignTokens.AppIconSize - 4.dp).coerceAtLeast(48.dp)
+        } else {
+            DesignTokens.AppIconSize
+        }
     val predictedIconHorizontalInset =
-            if (isPredicted && appIconSize >= 60.dp) {
-                DesignTokens.SpacingXSmall
-            } else {
-                0.dp
-            }
+        if (isPredicted && appIconSize >= 60.dp) {
+            DesignTokens.SpacingXSmall
+        } else {
+            0.dp
+        }
     Surface(
-            modifier = Modifier.size(DesignTokens.AppIconSize),
-            color = Color.Transparent,
-            tonalElevation = 0.dp,
-            shape = DesignTokens.ShapeLarge,
+        modifier = Modifier.size(DesignTokens.AppIconSize),
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
+        shape = DesignTokens.ShapeLarge,
     ) {
         Box(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .combinedClickable(
-                                        onClick = {
-                                            hapticConfirm(view)()
-                                            onClick()
-                                        },
-                                        onLongClick = onLongClick,
-                                ),
-                contentAlignment = Alignment.Center,
+            modifier =
+                Modifier.fillMaxSize()
+                    .combinedClickable(
+                        onClick = {
+                            hapticConfirm(view)()
+                            onClick()
+                        },
+                        onLongClick = onLongClick,
+                    ),
+            contentAlignment = Alignment.Center,
         ) {
             Box(
-                    modifier =
-                            Modifier.align(Alignment.Center)
-                                    .size(
-                                            width = DesignTokens.AppIconSize,
-                                            height = predictedHighlightHeight,
-                                    )
-                                    .predictedSubmitHighlight(
-                                            isPredicted = isPredicted,
-                                            shape = DesignTokens.ShapeLarge,
-                                    ),
+                modifier =
+                    Modifier.align(Alignment.Center)
+                        .size(
+                            width = DesignTokens.AppIconSize,
+                            height = predictedHighlightHeight,
+                        )
+                        .predictedSubmitHighlight(
+                            isPredicted = isPredicted,
+                            shape = DesignTokens.ShapeLarge,
+                        ),
             )
             Box(
-                    modifier =
-                            Modifier.fillMaxSize()
-                                .padding(horizontal = predictedIconHorizontalInset)
-                                .align(Alignment.Center),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .padding(horizontal = predictedIconHorizontalInset)
+                        .align(Alignment.Center),
                 contentAlignment = Alignment.Center,
             ) {
                 if (iconBitmap != null) {
+                    val clipModifier = when (appIconShape) {
+                        com.tk.quicksearch.search.core.AppIconShape.CIRCLE ->
+                            Modifier.clip(androidx.compose.foundation.shape.CircleShape)
+                        com.tk.quicksearch.search.core.AppIconShape.SQUARE ->
+                            if (iconIsLegacy) Modifier.clip(DesignTokens.ShapeLarge) else Modifier
+                    }
                     Image(
-                            bitmap = iconBitmap,
-                            contentDescription =
-                                    stringResource(
-                                            R.string.desc_launch_app,
-                                            appName,
-                                    ),
-                            modifier =
-                                    Modifier.size(appIconSize)
-                                            .then(
-                                                    if (iconIsLegacy) {
-                                                        Modifier.clip(DesignTokens.ShapeLarge)
-                                                    } else {
-                                                        Modifier
-                                                    },
-                                            ),
+                        bitmap = iconBitmap,
+                        contentDescription =
+                            stringResource(
+                                R.string.desc_launch_app,
+                                appName,
+                            ),
+                        modifier = Modifier.size(appIconSize).then(clipModifier),
                     )
                 } else {
                     Text(
-                            text = placeholderLabel,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = placeholderLabel,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -565,26 +572,26 @@ private fun AppIconSurface(
 
 @Composable
 private fun AppLabelText(
-        appName: String,
-        isOverlayPresentation: Boolean,
+    appName: String,
+    isOverlayPresentation: Boolean,
 ) {
     Spacer(
-            modifier =
-                    Modifier.height(
-                            if (isOverlayPresentation) {
-                                4.dp
-                            } else {
-                                DesignTokens.SpacingXSmall
-                            },
-                    ),
+        modifier =
+            Modifier.height(
+                if (isOverlayPresentation) {
+                    4.dp
+                } else {
+                    DesignTokens.SpacingXSmall
+                },
+            ),
     )
     Text(
-            text = appName,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
+        text = appName,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
     )
 }

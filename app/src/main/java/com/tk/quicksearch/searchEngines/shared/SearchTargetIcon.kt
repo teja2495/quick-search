@@ -3,6 +3,7 @@ package com.tk.quicksearch.searchEngines.shared
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -20,8 +21,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.searchScreen.LocalAppIconShape
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
 import com.tk.quicksearch.searchEngines.getContentDescription
 import com.tk.quicksearch.searchEngines.getContentDescriptionResId
@@ -55,6 +58,9 @@ fun SearchTargetIcon(
     style: IconRenderStyle = IconRenderStyle.SIMPLE,
     modifier: Modifier = Modifier,
 ) {
+    val appIconShape = LocalAppIconShape.current
+    val circleModifier = if (appIconShape == AppIconShape.CIRCLE) Modifier.clip(CircleShape) else Modifier
+
     when (target) {
         is SearchTarget.Engine -> {
             val targetEngine = target.engine
@@ -68,7 +74,7 @@ fun SearchTargetIcon(
                 Image(
                     bitmap = appIconBitmap,
                     contentDescription = targetEngine.getContentDescription(),
-                    modifier = modifier.size(iconSize),
+                    modifier = modifier.size(iconSize).then(circleModifier),
                     contentScale = ContentScale.Fit,
                 )
             } else if (!targetEngine.isInstallOnlyEngine()) {
@@ -85,17 +91,17 @@ fun SearchTargetIcon(
                     IconRenderStyle.ADVANCED -> {
                         val needsColorChange =
                             targetEngine in
-                                setOf(
-                                    SearchEngine.CHATGPT,
-                                    SearchEngine.GROK,
-                                    SearchEngine.AMAZON,
-                                )
+                                    setOf(
+                                        SearchEngine.CHATGPT,
+                                        SearchEngine.GROK,
+                                        SearchEngine.AMAZON,
+                                    )
 
                         val backgroundColor = MaterialTheme.colorScheme.background
                         val isLightMode =
                             backgroundColor.red > 0.9f &&
-                                backgroundColor.green > 0.9f &&
-                                backgroundColor.blue > 0.9f
+                                    backgroundColor.green > 0.9f &&
+                                    backgroundColor.blue > 0.9f
 
                         val colorFilter =
                             if (needsColorChange && isLightMode) {
@@ -176,7 +182,7 @@ fun SearchTargetIcon(
                 Image(
                     bitmap = iconResult.bitmap!!,
                     contentDescription = target.app.label,
-                    modifier = modifier.size(iconSize),
+                    modifier = modifier.size(iconSize).then(circleModifier),
                     contentScale = ContentScale.Fit,
                 )
             } else {

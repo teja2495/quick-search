@@ -58,49 +58,49 @@ import kotlinx.coroutines.delay
 
 @Composable
 internal fun SearchScreenContent(
-        state: SearchUiState,
-        renderingState: SectionRenderingState,
-        contactsParams: ContactsSectionParams,
-        filesParams: FilesSectionParams,
-        appShortcutsParams: AppShortcutsSectionParams,
-        settingsParams: SettingsSectionParams,
-        appsParams: AppsSectionParams,
-        onQueryChanged: (String) -> Unit,
-        onClearQuery: () -> Unit,
-        onSettingsClick: () -> Unit,
-        onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
-        onRequestUsagePermission: () -> Unit,
-        onSearchTargetClick: (String, SearchTarget) -> Unit,
-        onSearchEngineLongPress: () -> Unit,
-        onDirectSearchEmailClick: (String) -> Unit,
-        onPhoneNumberClick: (String) -> Unit,
-        onWebSuggestionClick: (String) -> Unit,
-        onOpenPersonalContextDialog: () -> Unit,
-        onPersonalContextHintDismissed: () -> Unit,
-        onCustomizeSearchEnginesClick: () -> Unit = {},
-        onOpenDirectSearchConfigure: () -> Unit = {},
-        onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
-        onOpenSearchHistorySettings: () -> Unit = {},
-        onDismissSearchHistoryTip: () -> Unit = {},
-        onGeminiModelInfoClick: () -> Unit = {},
-        onKeyboardSwitchToggle: () -> Unit,
-        onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
-        onOverlayExpandRequest: () -> Unit = {},
-        isOverlayExpanded: Boolean = false,
-        onWelcomeAnimationCompleted: (() -> Unit)? = null,
-        expandedSection: ExpandedSection,
-        manuallySwitchedToNumberKeyboard: Boolean,
-        scrollState: androidx.compose.foundation.ScrollState,
-        onClearDetectedShortcut: () -> Unit,
-        modifier: Modifier = Modifier,
-        isOverlayPresentation: Boolean = false,
-        showSearchField: Boolean = true,
+    state: SearchUiState,
+    renderingState: SectionRenderingState,
+    contactsParams: ContactsSectionParams,
+    filesParams: FilesSectionParams,
+    appShortcutsParams: AppShortcutsSectionParams,
+    settingsParams: SettingsSectionParams,
+    appsParams: AppsSectionParams,
+    onQueryChanged: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAppClick: (com.tk.quicksearch.search.models.AppInfo) -> Unit,
+    onRequestUsagePermission: () -> Unit,
+    onSearchTargetClick: (String, SearchTarget) -> Unit,
+    onSearchEngineLongPress: () -> Unit,
+    onDirectSearchEmailClick: (String) -> Unit,
+    onPhoneNumberClick: (String) -> Unit,
+    onWebSuggestionClick: (String) -> Unit,
+    onOpenPersonalContextDialog: () -> Unit,
+    onPersonalContextHintDismissed: () -> Unit,
+    onCustomizeSearchEnginesClick: () -> Unit = {},
+    onOpenDirectSearchConfigure: () -> Unit = {},
+    onDeleteRecentItem: (RecentSearchEntry) -> Unit = {},
+    onOpenSearchHistorySettings: () -> Unit = {},
+    onDismissSearchHistoryTip: () -> Unit = {},
+    onGeminiModelInfoClick: () -> Unit = {},
+    onKeyboardSwitchToggle: () -> Unit,
+    onOverlayNumberKeyboardUiChanged: ((Boolean, Boolean) -> Unit)? = null,
+    onOverlayExpandRequest: () -> Unit = {},
+    isOverlayExpanded: Boolean = false,
+    onWelcomeAnimationCompleted: (() -> Unit)? = null,
+    expandedSection: ExpandedSection,
+    manuallySwitchedToNumberKeyboard: Boolean,
+    scrollState: androidx.compose.foundation.ScrollState,
+    onClearDetectedShortcut: () -> Unit,
+    modifier: Modifier = Modifier,
+    isOverlayPresentation: Boolean = false,
+    showSearchField: Boolean = true,
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     var canShowOpenKeyboardPill by
-            remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
+    remember(isOverlayPresentation) { mutableStateOf(!isOverlayPresentation) }
 
     LaunchedEffect(isOverlayPresentation) {
         if (!isOverlayPresentation) {
@@ -116,83 +116,83 @@ internal fun SearchScreenContent(
 
     // Calculate enabled engines
     val enabledTargets: List<SearchTarget> =
-            remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
-                state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
-            }
+        remember(state.searchTargetsOrder, state.disabledSearchTargetIds) {
+            state.searchTargetsOrder.filter { it.getId() !in state.disabledSearchTargetIds }
+        }
     val isImeVisible = WindowInsets.ime.getBottom(density) > 0
     val isCalculatorMode = state.calculatorState.isCalculatorMode
     val searchHintText =
-            if (isCalculatorMode) {
-                stringResource(R.string.calculator_enter_math_expression_hint)
-            } else {
-                stringResource(R.string.search_hint)
-            }
+        if (isCalculatorMode) {
+            stringResource(R.string.calculator_enter_math_expression_hint)
+        } else {
+            stringResource(R.string.search_hint)
+        }
     val hideCompactSearchEnginesInCalculatorMode =
-            isCalculatorMode && state.isSearchEngineCompactMode
+        isCalculatorMode && state.isSearchEngineCompactMode
     val shouldShowNumberKeyboardOperators =
-            isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
+        isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
     val useOverlayThemeTints = state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val overlayCardColor =
-            if (useOverlayThemeTints) {
-                overlayResultCardColor(
-                        theme = state.overlayGradientTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
+        if (useOverlayThemeTints) {
+            overlayResultCardColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
     val overlayDividerTint =
-            if (useOverlayThemeTints) {
-                overlayDividerColor(
-                        theme = state.overlayGradientTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
+        if (useOverlayThemeTints) {
+            overlayDividerColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
     val overlayActionTint =
-            if (useOverlayThemeTints) {
-                overlayActionColor(
-                        theme = state.overlayGradientTheme,
-                        isDarkMode = isDarkMode,
-                        intensity = state.overlayThemeIntensity,
-                )
-            } else {
-                null
-            }
+        if (useOverlayThemeTints) {
+            overlayActionColor(
+                theme = state.overlayGradientTheme,
+                isDarkMode = isDarkMode,
+                intensity = state.overlayThemeIntensity,
+            )
+        } else {
+            null
+        }
     val shouldRenderInlineNumberKeyboardOperators =
-            shouldShowNumberKeyboardOperators && !isOverlayPresentation
+        shouldShowNumberKeyboardOperators && !isOverlayPresentation
     val shouldShowPredictedHighlight = isImeVisible
     val predictedTarget =
-            remember(
-                    shouldShowPredictedHighlight,
-                    state.query,
-                    renderingState.displayApps,
-                    renderingState.appShortcutResults,
-                    renderingState.contactResults,
-                    renderingState.fileResults,
-                    renderingState.settingResults,
-                    state.detectedShortcutTarget,
-                    state.searchTargetsOrder,
-                    enabledTargets,
-            ) {
-                if (!shouldShowPredictedHighlight) {
-                    null
-                } else {
-                    resolvePredictedSubmitTarget(
-                            query = state.query,
-                            renderingState = renderingState,
-                            enabledTargets = enabledTargets,
-                            detectedShortcutTarget = state.detectedShortcutTarget,
-                            searchTargetsOrder = state.searchTargetsOrder,
-                            defaultBrowserPackage = resolveDefaultBrowserPackage(context),
-                    )
-                }
+        remember(
+            shouldShowPredictedHighlight,
+            state.query,
+            renderingState.displayApps,
+            renderingState.appShortcutResults,
+            renderingState.contactResults,
+            renderingState.fileResults,
+            renderingState.settingResults,
+            state.detectedShortcutTarget,
+            state.searchTargetsOrder,
+            enabledTargets,
+        ) {
+            if (!shouldShowPredictedHighlight) {
+                null
+            } else {
+                resolvePredictedSubmitTarget(
+                    query = state.query,
+                    renderingState = renderingState,
+                    enabledTargets = enabledTargets,
+                    detectedShortcutTarget = state.detectedShortcutTarget,
+                    searchTargetsOrder = state.searchTargetsOrder,
+                    defaultBrowserPackage = resolveDefaultBrowserPackage(context),
+                )
             }
+        }
 
     // Search engine scroll state for auto-scroll during onboarding
     val searchEngineScrollState = rememberLazyListState()
@@ -239,148 +239,148 @@ internal fun SearchScreenContent(
 //    }
 
     val contentModifier =
-            if (isOverlayPresentation) {
-                modifier.fillMaxWidth()
-                        .padding(
-                                start = DesignTokens.SpacingXLarge,
-                                top = DesignTokens.Spacing28,
-                                end = DesignTokens.SpacingXLarge,
-                        )
-            } else {
-                modifier.fillMaxSize()
-                        .safeDrawingPadding()
-                        .padding(
-                                start = DesignTokens.SpacingXLarge,
-                                top = DesignTokens.SpacingLarge,
-                                end = DesignTokens.SpacingXLarge,
-                        )
-            }
+        if (isOverlayPresentation) {
+            modifier.fillMaxWidth()
+                .padding(
+                    start = DesignTokens.SpacingXLarge,
+                    top = DesignTokens.Spacing28,
+                    end = DesignTokens.SpacingXLarge,
+                )
+        } else {
+            modifier.fillMaxSize()
+                .safeDrawingPadding()
+                .padding(
+                    start = DesignTokens.SpacingXLarge,
+                    top = DesignTokens.SpacingLarge,
+                    end = DesignTokens.SpacingXLarge,
+                )
+        }
 
     val searchEnginesModifier =
-            if (isOverlayPresentation || shouldRenderInlineNumberKeyboardOperators) {
-                Modifier
-            } else {
-                Modifier.imePadding()
-            }
+        if (isOverlayPresentation || shouldRenderInlineNumberKeyboardOperators) {
+            Modifier
+        } else {
+            Modifier.imePadding()
+        }
 
     LaunchedEffect(isOverlayPresentation, manuallySwitchedToNumberKeyboard, isImeVisible) {
         if (isOverlayPresentation) {
             onOverlayNumberKeyboardUiChanged?.invoke(
-                    manuallySwitchedToNumberKeyboard,
-                    isImeVisible,
+                manuallySwitchedToNumberKeyboard,
+                isImeVisible,
             )
         }
     }
 
     val searchFieldModifier =
-            if (showBottomSearchBar) {
-                Modifier.padding(
-                        top =
-                                if (state.oneHandedMode) {
-                                    DesignTokens.SpacingXSmall
-                                } else {
-                                    0.dp
-                                },
-                        bottom = DesignTokens.SpacingMedium,
-                )
-            } else {
-                Modifier.padding(
-                        bottom =
-                                if (state.oneHandedMode) {
-                                    DesignTokens.SpacingMedium
-                                } else {
-                                    DesignTokens.SpacingXSmall
-                                },
-                )
-            }
+        if (showBottomSearchBar) {
+            Modifier.padding(
+                top =
+                    if (state.oneHandedMode) {
+                        DesignTokens.SpacingXSmall
+                    } else {
+                        0.dp
+                    },
+                bottom = DesignTokens.SpacingMedium,
+            )
+        } else {
+            Modifier.padding(
+                bottom =
+                    if (state.oneHandedMode) {
+                        DesignTokens.SpacingMedium
+                    } else {
+                        DesignTokens.SpacingXSmall
+                    },
+            )
+        }
 
     val searchFieldContent: @Composable () -> Unit = {
         PersistentSearchBar(
-                query = state.query,
-                onQueryChange = onQueryChanged,
-                onClearQuery = onClearQuery,
-                onSettingsClick = onSettingsClick,
-                dismissKeyboardBeforeSettingsClick = isOverlayPresentation,
-                enabledTargets = enabledTargets,
-                shortcutCodes = state.shortcutCodes,
-                shortcutEnabled = state.shortcutEnabled,
-                isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
-                shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard || isCalculatorMode,
-                detectedShortcutTarget = state.detectedShortcutTarget,
-                detectedAliasSearchSection = state.detectedAliasSearchSection,
-                isCalculatorMode = isCalculatorMode,
-                placeholderText = searchHintText,
-                showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
-                autoFocusOnStart = state.openKeyboardOnLaunch,
-                onClearDetectedShortcut = onClearDetectedShortcut,
-                onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
-                modifier = searchFieldModifier,
-                onSearchAction = {
-                    val trimmedQuery = state.query.trim()
-                    val isUrlQuery = isLikelyWebUrl(trimmedQuery)
-                    val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
+            query = state.query,
+            onQueryChange = onQueryChanged,
+            onClearQuery = onClearQuery,
+            onSettingsClick = onSettingsClick,
+            dismissKeyboardBeforeSettingsClick = isOverlayPresentation,
+            enabledTargets = enabledTargets,
+            shortcutCodes = state.shortcutCodes,
+            shortcutEnabled = state.shortcutEnabled,
+            isSearchEngineAliasSuffixEnabled = state.isSearchEngineAliasSuffixEnabled,
+            shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard || isCalculatorMode,
+            detectedShortcutTarget = state.detectedShortcutTarget,
+            detectedAliasSearchSection = state.detectedAliasSearchSection,
+            isCalculatorMode = isCalculatorMode,
+            placeholderText = searchHintText,
+            showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
+            autoFocusOnStart = state.openKeyboardOnLaunch,
+            onClearDetectedShortcut = onClearDetectedShortcut,
+            onWelcomeAnimationCompleted = onWelcomeAnimationCompleted,
+            modifier = searchFieldModifier,
+            onSearchAction = {
+                val trimmedQuery = state.query.trim()
+                val isUrlQuery = isLikelyWebUrl(trimmedQuery)
+                val defaultBrowserPackage = resolveDefaultBrowserPackage(context)
 
-                    // If query has trailing/leading spaces, trim it first
-                    if (state.query != trimmedQuery) {
-                        onQueryChanged(trimmedQuery)
+                // If query has trailing/leading spaces, trim it first
+                if (state.query != trimmedQuery) {
+                    onQueryChanged(trimmedQuery)
+                }
+
+                if (isUrlQuery && trimmedQuery.isNotBlank()) {
+                    val browserTarget =
+                        defaultBrowserTarget(state.searchTargetsOrder, defaultBrowserPackage)
+                    if (browserTarget != null) {
+                        onSearchTargetClick(trimmedQuery, browserTarget)
+                        return@PersistentSearchBar
                     }
+                }
 
-                    if (isUrlQuery && trimmedQuery.isNotBlank()) {
-                        val browserTarget =
-                                defaultBrowserTarget(state.searchTargetsOrder, defaultBrowserPackage)
-                        if (browserTarget != null) {
-                            onSearchTargetClick(trimmedQuery, browserTarget)
-                            return@PersistentSearchBar
-                        }
-                    }
-
-                    val firstApp = renderingState.displayApps.firstOrNull()
-                    if (firstApp != null) {
-                        onAppClick(firstApp)
+                val firstApp = renderingState.displayApps.firstOrNull()
+                if (firstApp != null) {
+                    onAppClick(firstApp)
+                } else {
+                    val firstAppShortcut = renderingState.appShortcutResults.firstOrNull()
+                    if (firstAppShortcut != null) {
+                        appShortcutsParams.onShortcutClick(firstAppShortcut)
                     } else {
-                        val firstAppShortcut = renderingState.appShortcutResults.firstOrNull()
-                        if (firstAppShortcut != null) {
-                            appShortcutsParams.onShortcutClick(firstAppShortcut)
-                        } else {
-                            val firstContact = renderingState.contactResults.firstOrNull()
-                            if (firstContact != null) {
-                                if (firstContact.hasContactMethods) {
-                                    contactsParams.onShowContactMethods(firstContact)
-                                } else {
-                                    contactsParams.onContactClick(firstContact)
-                                }
+                        val firstContact = renderingState.contactResults.firstOrNull()
+                        if (firstContact != null) {
+                            if (firstContact.hasContactMethods) {
+                                contactsParams.onShowContactMethods(firstContact)
                             } else {
-                                val firstFile = renderingState.fileResults.firstOrNull()
-                                if (firstFile != null) {
-                                    filesParams.onFileClick(firstFile)
+                                contactsParams.onContactClick(firstContact)
+                            }
+                        } else {
+                            val firstFile = renderingState.fileResults.firstOrNull()
+                            if (firstFile != null) {
+                                filesParams.onFileClick(firstFile)
+                            } else {
+                                val firstSetting = renderingState.settingResults.firstOrNull()
+                                if (firstSetting != null) {
+                                    settingsParams.onSettingClick(firstSetting)
                                 } else {
-                                    val firstSetting = renderingState.settingResults.firstOrNull()
-                                    if (firstSetting != null) {
-                                        settingsParams.onSettingClick(firstSetting)
+                                    // Check if a shortcut is detected
+                                    if (isCalculatorMode) {
+                                        return@PersistentSearchBar
+                                    } else if (state.detectedShortcutTarget != null) {
+                                        // Query already has shortcut stripped by ViewModel when
+                                        // shortcut-at-start is detected
+                                        onSearchTargetClick(
+                                            trimmedQuery,
+                                            state.detectedShortcutTarget
+                                        )
                                     } else {
-                                        // Check if a shortcut is detected
-                                        if (isCalculatorMode) {
-                                            return@PersistentSearchBar
-                                        } else if (state.detectedShortcutTarget != null) {
-                                            // Query already has shortcut stripped by ViewModel when
-                                            // shortcut-at-start is detected
-                                            onSearchTargetClick(
-                                                    trimmedQuery,
-                                                    state.detectedShortcutTarget
-                                            )
-                                        } else {
-                                            val primaryTarget = enabledTargets.firstOrNull()
-                                            if (primaryTarget != null && trimmedQuery.isNotBlank()
-                                            ) {
-                                                onSearchTargetClick(trimmedQuery, primaryTarget)
-                                            }
+                                        val primaryTarget = enabledTargets.firstOrNull()
+                                        if (primaryTarget != null && trimmedQuery.isNotBlank()
+                                        ) {
+                                            onSearchTargetClick(trimmedQuery, primaryTarget)
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                },
+                }
+            },
         )
     }
 
@@ -397,39 +397,39 @@ internal fun SearchScreenContent(
 
         // Scrollable content between search bar and search engines
         SearchContentArea(
-                modifier =
-                        if (isOverlayPresentation) {
-                            Modifier.fillMaxWidth().weight(1f)
-                        } else {
-                            Modifier.weight(1f)
-                        },
-                state = state,
-                renderingState = renderingState,
-                contactsParams = contactsParams,
-                filesParams = filesParams,
-                appShortcutsParams = appShortcutsParams,
-                settingsParams = settingsParams,
-                appsParams = appsParams,
-                predictedTarget = predictedTarget,
-                onRequestUsagePermission = onRequestUsagePermission,
-                scrollState = scrollState,
-                onPhoneNumberClick = onPhoneNumberClick,
-                onEmailClick = onDirectSearchEmailClick,
-                onOpenPersonalContextDialog = onOpenPersonalContextDialog,
-                onPersonalContextHintDismissed = onPersonalContextHintDismissed,
-                onWebSuggestionClick = onWebSuggestionClick,
-                onSearchTargetClick = onSearchTargetClick,
-                onSearchEngineLongPress = onSearchEngineLongPress,
-                onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
-                onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
-                onDeleteRecentItem = onDeleteRecentItem,
-                onOpenSearchHistorySettings = onOpenSearchHistorySettings,
-                onDismissSearchHistoryTip = onDismissSearchHistoryTip,
-                onGeminiModelInfoClick = onGeminiModelInfoClick,
-                showCalculator = state.calculatorState.isCalculatorMode || state.calculatorState.result != null,
-                showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
-                directSearchState = state.DirectSearchState,
-                isOverlayPresentation = isOverlayPresentation,
+            modifier =
+                if (isOverlayPresentation) {
+                    Modifier.fillMaxWidth().weight(1f)
+                } else {
+                    Modifier.weight(1f)
+                },
+            state = state,
+            renderingState = renderingState,
+            contactsParams = contactsParams,
+            filesParams = filesParams,
+            appShortcutsParams = appShortcutsParams,
+            settingsParams = settingsParams,
+            appsParams = appsParams,
+            predictedTarget = predictedTarget,
+            onRequestUsagePermission = onRequestUsagePermission,
+            scrollState = scrollState,
+            onPhoneNumberClick = onPhoneNumberClick,
+            onEmailClick = onDirectSearchEmailClick,
+            onOpenPersonalContextDialog = onOpenPersonalContextDialog,
+            onPersonalContextHintDismissed = onPersonalContextHintDismissed,
+            onWebSuggestionClick = onWebSuggestionClick,
+            onSearchTargetClick = onSearchTargetClick,
+            onSearchEngineLongPress = onSearchEngineLongPress,
+            onCustomizeSearchEnginesClick = onCustomizeSearchEnginesClick,
+            onOpenDirectSearchConfigure = onOpenDirectSearchConfigure,
+            onDeleteRecentItem = onDeleteRecentItem,
+            onOpenSearchHistorySettings = onOpenSearchHistorySettings,
+            onDismissSearchHistoryTip = onDismissSearchHistoryTip,
+            onGeminiModelInfoClick = onGeminiModelInfoClick,
+            showCalculator = state.calculatorState.isCalculatorMode || state.calculatorState.result != null,
+            showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
+            directSearchState = state.DirectSearchState,
+            isOverlayPresentation = isOverlayPresentation,
         )
 
         // Fixed search engines section at the bottom (above keyboard, not scrollable)
@@ -439,46 +439,46 @@ internal fun SearchScreenContent(
         // Hide when files or contacts are expanded
         if (expandedSection == ExpandedSection.NONE) {
             val pillText =
-                    if (!isImeVisible && canShowOpenKeyboardPill) {
-                        stringResource(R.string.action_open_keyboard)
-                    } else if (isCalculatorMode) {
-                        null
-                    } else if (manuallySwitchedToNumberKeyboard) {
-                        stringResource(R.string.keyboard_switch_back)
-                    } else if (state.query.isNotEmpty() &&
-                                    state.query.none { it.isLetter() } &&
-                                    state.detectedShortcutTarget == null &&
-                                    state.detectedAliasSearchSection == null
-                    ) {
-                        stringResource(R.string.keyboard_switch_to_number)
-                    } else {
-                        null
-                    }
+                if (!isImeVisible && canShowOpenKeyboardPill) {
+                    stringResource(R.string.action_open_keyboard)
+                } else if (isCalculatorMode) {
+                    null
+                } else if (manuallySwitchedToNumberKeyboard) {
+                    stringResource(R.string.keyboard_switch_back)
+                } else if (state.query.isNotEmpty() &&
+                    state.query.none { it.isLetter() } &&
+                    state.detectedShortcutTarget == null &&
+                    state.detectedAliasSearchSection == null
+                ) {
+                    stringResource(R.string.keyboard_switch_to_number)
+                } else {
+                    null
+                }
             AnimatedVisibility(
-                    visible = pillText != null,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+                visible = pillText != null,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
                 Row(
-                        modifier =
-                                Modifier.fillMaxWidth()
-                                        .padding(
-                                                top = DesignTokens.SpacingSmall,
-                                                bottom = DesignTokens.SpacingSmall,
-                                        ),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .padding(
+                                top = DesignTokens.SpacingSmall,
+                                bottom = DesignTokens.SpacingSmall,
+                            ),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (pillText != null) {
                         KeyboardSwitchPill(
-                                text = pillText,
-                                onClick = {
-                                    if (!isImeVisible) {
-                                        keyboardController?.show()
-                                    } else {
-                                        onKeyboardSwitchToggle()
-                                    }
-                                },
+                            text = pillText,
+                            onClick = {
+                                if (!isImeVisible) {
+                                    keyboardController?.show()
+                                } else {
+                                    onKeyboardSwitchToggle()
+                                }
+                            },
                         )
                     }
                 }
@@ -486,109 +486,110 @@ internal fun SearchScreenContent(
 
             if (!hideCompactSearchEnginesInCalculatorMode) {
                 CompositionLocalProvider(
-                        LocalOverlayResultCardColor provides overlayCardColor,
-                        LocalOverlayDividerColor provides overlayDividerTint,
-                        LocalOverlayActionColor provides overlayActionTint,
+                    LocalOverlayResultCardColor provides overlayCardColor,
+                    LocalOverlayDividerColor provides overlayDividerTint,
+                    LocalOverlayActionColor provides overlayActionTint,
+                    LocalAppIconShape provides state.appIconShape,
                 ) {
                     SearchEnginesVisibility(
-                            enginesState = state.searchEnginesState,
-                            modifier = searchEnginesModifier,
-                            compactContent = {
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        hasAppResults = renderingState.hasAppResults,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = state.detectedShortcutTarget,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        isOverlayPresentation = isOverlayPresentation,
-                                        hasBottomSearchBar = showBottomSearchBar,
-                                        compactRowCount = state.searchEngineCompactRowCount,
-                                        predictedTarget = predictedTarget,
-                                )
-                            },
-                            fullContent = {
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        hasAppResults = renderingState.hasAppResults,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = state.detectedShortcutTarget,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        isOverlayPresentation = isOverlayPresentation,
-                                        hasBottomSearchBar = showBottomSearchBar,
-                                        compactRowCount = 1,
-                                        predictedTarget = predictedTarget,
-                                )
-                            },
-                            shortcutContent = { target ->
-                                SearchEngineIconsSection(
-                                        query = state.query,
-                                        hasAppResults = renderingState.hasAppResults,
-                                        enabledEngines = enabledTargets,
-                                        onSearchEngineClick = onSearchTargetClick,
-                                        onSearchEngineLongPress = onSearchEngineLongPress,
-                                        externalScrollState = searchEngineScrollState,
-                                        detectedShortcutTarget = target,
-                                        onClearDetectedShortcut = onClearDetectedShortcut,
-                                        showWallpaperBackground = state.showWallpaperBackground,
-                                        isOverlayPresentation = isOverlayPresentation,
-                                        hasBottomSearchBar = showBottomSearchBar,
-                                        compactRowCount = 1,
-                                        predictedTarget = predictedTarget,
-                                )
-                            },
-                            hiddenContent = {
-                                // Add padding when search engines are hidden to prevent keyboard from
-                                // covering content
-                                Spacer(modifier = searchEnginesModifier)
-                            },
+                        enginesState = state.searchEnginesState,
+                        modifier = searchEnginesModifier,
+                        compactContent = {
+                            SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = state.detectedShortcutTarget,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
+                                compactRowCount = state.searchEngineCompactRowCount,
+                                predictedTarget = predictedTarget,
+                            )
+                        },
+                        fullContent = {
+                            SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = state.detectedShortcutTarget,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
+                                compactRowCount = 1,
+                                predictedTarget = predictedTarget,
+                            )
+                        },
+                        shortcutContent = { target ->
+                            SearchEngineIconsSection(
+                                query = state.query,
+                                hasAppResults = renderingState.hasAppResults,
+                                enabledEngines = enabledTargets,
+                                onSearchEngineClick = onSearchTargetClick,
+                                onSearchEngineLongPress = onSearchEngineLongPress,
+                                externalScrollState = searchEngineScrollState,
+                                detectedShortcutTarget = target,
+                                onClearDetectedShortcut = onClearDetectedShortcut,
+                                showWallpaperBackground = state.showWallpaperBackground,
+                                isOverlayPresentation = isOverlayPresentation,
+                                hasBottomSearchBar = showBottomSearchBar,
+                                compactRowCount = 1,
+                                predictedTarget = predictedTarget,
+                            )
+                        },
+                        hiddenContent = {
+                            // Add padding when search engines are hidden to prevent keyboard from
+                            // covering content
+                            Spacer(modifier = searchEnginesModifier)
+                        },
                     )
                 }
             }
 
             AnimatedVisibility(
-                    visible =
-                            shouldRenderInlineNumberKeyboardOperators &&
-                                    !showBottomSearchBar,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+                visible =
+                    shouldRenderInlineNumberKeyboardOperators &&
+                            !showBottomSearchBar,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
                 NumberKeyboardOperatorPills(
-                        modifier = Modifier.imePadding(),
-                        isOverlayPresentation = isOverlayPresentation,
-                        onOperatorClick = { operator ->
-                            onQueryChanged(state.query + operator)
-                        },
+                    modifier = Modifier.imePadding(),
+                    isOverlayPresentation = isOverlayPresentation,
+                    onOperatorClick = { operator ->
+                        onQueryChanged(state.query + operator)
+                    },
                 )
             }
         }
 
         if (showSearchField && showBottomSearchBar) {
             val shouldShowCompactBottomBarBackground =
-                    state.isSearchEngineCompactMode &&
-                            state.detectedShortcutTarget == null &&
-                            state.detectedAliasSearchSection == null
+                state.isSearchEngineCompactMode &&
+                        state.detectedShortcutTarget == null &&
+                        state.detectedAliasSearchSection == null
 
             if (shouldShowCompactBottomBarBackground) {
                 Box(
-                        modifier =
-                                Modifier
-                                        .fillMaxWidth()
-                                        .extendToScreenEdges()
-                                        .background(Color.Black.copy(alpha = 0.5f))
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .extendToScreenEdges()
+                            .background(Color.Black.copy(alpha = 0.5f))
                 ) {
                     Box(
-                            modifier =
-                                    Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = DesignTokens.SpacingXLarge)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = DesignTokens.SpacingXLarge)
                     ) {
                         searchFieldContent()
                     }
@@ -598,18 +599,18 @@ internal fun SearchScreenContent(
             }
 
             AnimatedVisibility(
-                    visible =
-                            expandedSection == ExpandedSection.NONE &&
-                                    shouldRenderInlineNumberKeyboardOperators,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
-                    exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
+                visible =
+                    expandedSection == ExpandedSection.NONE &&
+                            shouldRenderInlineNumberKeyboardOperators,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+                exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
                 NumberKeyboardOperatorPills(
-                        modifier = Modifier.imePadding(),
-                        isOverlayPresentation = isOverlayPresentation,
-                        onOperatorClick = { operator ->
-                            onQueryChanged(state.query + operator)
-                        },
+                    modifier = Modifier.imePadding(),
+                    isOverlayPresentation = isOverlayPresentation,
+                    onOperatorClick = { operator ->
+                        onQueryChanged(state.query + operator)
+                    },
                 )
             }
         }

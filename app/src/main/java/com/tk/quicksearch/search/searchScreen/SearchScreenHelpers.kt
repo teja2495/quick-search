@@ -104,14 +104,14 @@ data class FilesSectionParams(
     val expandedCardMaxHeight: Dp =
         SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val permissionDisabledCard:
-        (
-        @Composable (
-            title: String,
-            message: String,
-            actionLabel: String,
-            onActionClick: () -> Unit,
-        ) -> Unit
-        ),
+    (
+    @Composable (
+        title: String,
+        message: String,
+        actionLabel: String,
+        onActionClick: () -> Unit,
+    ) -> Unit
+    ),
     val showWallpaperBackground: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
 )
@@ -189,14 +189,14 @@ data class ContactsSectionParams(
     val expandedCardMaxHeight: Dp =
         SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val permissionDisabledCard:
-        (
-        @Composable (
-            title: String,
-            message: String,
-            actionLabel: String,
-            onActionClick: () -> Unit,
-        ) -> Unit
-        ),
+    (
+    @Composable (
+        title: String,
+        message: String,
+        actionLabel: String,
+        onActionClick: () -> Unit,
+    ) -> Unit
+    ),
     val showWallpaperBackground: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
 )
@@ -225,6 +225,7 @@ data class AppsSectionParams(
     val startupPhase: StartupPhase,
     val isOverlayPresentation: Boolean,
     val predictedTarget: PredictedSubmitTarget? = null,
+    val appIconShape: AppIconShape = AppIconShape.SQUARE,
 )
 
 /** Helper function to build all the section parameters needed by SearchScreenContent */
@@ -375,10 +376,10 @@ internal fun buildSectionParams(
                 )
             },
             permissionDisabledCard = {
-                title,
-                message,
-                actionLabel,
-                onActionClick,
+                    title,
+                    message,
+                    actionLabel,
+                    onActionClick,
                 ->
                 PermissionDisabledCard(
                     title = title,
@@ -536,10 +537,10 @@ internal fun buildSectionParams(
                 )
             },
             permissionDisabledCard = {
-                title,
-                message,
-                actionLabel,
-                onActionClick,
+                    title,
+                    message,
+                    actionLabel,
+                    onActionClick,
                 ->
                 PermissionDisabledCard(
                     title = title,
@@ -582,6 +583,7 @@ internal fun buildSectionParams(
             isInitializing = state.isInitializing,
             startupPhase = state.startupPhase,
             isOverlayPresentation = isOverlayPresentation,
+            appIconShape = state.appIconShape,
         )
 
     SectionParams(

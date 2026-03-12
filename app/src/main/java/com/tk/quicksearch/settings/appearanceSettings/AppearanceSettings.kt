@@ -25,39 +25,41 @@ import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCar
 /** Complete appearance settings section with all appearance-related components and dialogs. */
 @Composable
 fun AppearanceSettingsSection(
-        oneHandedMode: Boolean,
-        onToggleOneHandedMode: (Boolean) -> Unit,
-        bottomSearchBarEnabled: Boolean,
-        onToggleBottomSearchBar: (Boolean) -> Unit,
-        wallpaperBackgroundAlpha: Float,
-        wallpaperBlurRadius: Float,
-        onWallpaperBackgroundAlphaChange: (Float) -> Unit,
-        onWallpaperBlurRadiusChange: (Float) -> Unit,
-        overlayGradientTheme: OverlayGradientTheme,
-        overlayThemeIntensity: Float,
-        fontScaleMultiplier: Float,
-        onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
-        onOverlayThemeIntensityChange: (Float) -> Unit,
-        onFontScaleMultiplierChange: (Float) -> Unit,
-        backgroundSource: BackgroundSource,
-        customImageUri: String?,
-        onSetBackgroundSource: (BackgroundSource) -> Unit,
-        onPickCustomImage: () -> Unit,
-        onRequestWallpaperPermission: () -> Unit,
-        isSearchEngineCompactMode: Boolean,
-        searchEngineCompactRowCount: Int,
-        hasEnabledSearchEngines: Boolean,
-        onToggleSearchEngineCompactMode: (Boolean) -> Unit,
-        onSetSearchEngineCompactRowCount: (Int) -> Unit,
-        selectedIconPackPackage: String?,
-        availableIconPacks: List<IconPackInfo>,
-        showAppLabels: Boolean,
-        onToggleAppLabels: (Boolean) -> Unit,
-        onSelectIconPack: (String?) -> Unit,
-        onRefreshIconPacks: () -> Unit,
-        onSearchIconPacks: () -> Unit,
-        hasWallpaperPermission: Boolean = true,
-        modifier: Modifier = Modifier,
+    oneHandedMode: Boolean,
+    onToggleOneHandedMode: (Boolean) -> Unit,
+    bottomSearchBarEnabled: Boolean,
+    onToggleBottomSearchBar: (Boolean) -> Unit,
+    wallpaperBackgroundAlpha: Float,
+    wallpaperBlurRadius: Float,
+    onWallpaperBackgroundAlphaChange: (Float) -> Unit,
+    onWallpaperBlurRadiusChange: (Float) -> Unit,
+    overlayGradientTheme: OverlayGradientTheme,
+    overlayThemeIntensity: Float,
+    fontScaleMultiplier: Float,
+    onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
+    onOverlayThemeIntensityChange: (Float) -> Unit,
+    onFontScaleMultiplierChange: (Float) -> Unit,
+    backgroundSource: BackgroundSource,
+    customImageUri: String?,
+    onSetBackgroundSource: (BackgroundSource) -> Unit,
+    onPickCustomImage: () -> Unit,
+    onRequestWallpaperPermission: () -> Unit,
+    isSearchEngineCompactMode: Boolean,
+    searchEngineCompactRowCount: Int,
+    hasEnabledSearchEngines: Boolean,
+    onToggleSearchEngineCompactMode: (Boolean) -> Unit,
+    onSetSearchEngineCompactRowCount: (Int) -> Unit,
+    selectedIconPackPackage: String?,
+    availableIconPacks: List<IconPackInfo>,
+    showAppLabels: Boolean,
+    onToggleAppLabels: (Boolean) -> Unit,
+    onSelectIconPack: (String?) -> Unit,
+    onRefreshIconPacks: () -> Unit,
+    onSearchIconPacks: () -> Unit,
+    hasWallpaperPermission: Boolean = true,
+    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    onSetAppIconShape: (com.tk.quicksearch.search.core.AppIconShape) -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     val appearanceContext = androidx.compose.ui.platform.LocalContext.current
     var showIconPackDialog by remember { mutableStateOf(false) }
@@ -65,34 +67,34 @@ fun AppearanceSettingsSection(
     val hasIconPacks = availableIconPacks.isNotEmpty()
     val systemIconPackLabel = stringResource(R.string.settings_icon_pack_option_system)
     val selectedIconPackLabel =
-            remember(selectedIconPackPackage, availableIconPacks, systemIconPackLabel) {
-                availableIconPacks.firstOrNull { it.packageName == selectedIconPackPackage }?.label
-                        ?: systemIconPackLabel
-            }
+        remember(selectedIconPackPackage, availableIconPacks, systemIconPackLabel) {
+            availableIconPacks.firstOrNull { it.packageName == selectedIconPackPackage }?.label
+                ?: systemIconPackLabel
+        }
 
     Column(modifier = modifier) {
         FontSizeCard(
-                fontScaleMultiplier = fontScaleMultiplier,
-                onFontScaleMultiplierChange = onFontScaleMultiplierChange,
+            fontScaleMultiplier = fontScaleMultiplier,
+            onFontScaleMultiplierChange = onFontScaleMultiplierChange,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OverlayThemeCard(
-                selectedTheme = overlayGradientTheme,
-                overlayThemeIntensity = overlayThemeIntensity,
-                onThemeSelected = onSetOverlayGradientTheme,
-                onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
-                wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
-                wallpaperBlurRadius = wallpaperBlurRadius,
-                onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
-                onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
-                backgroundSource = backgroundSource,
-                customImageUri = customImageUri,
-                onSetBackgroundSource = onSetBackgroundSource,
-                onPickCustomImage = onPickCustomImage,
-                hasWallpaperPermission = hasWallpaperPermission,
-                onRequestWallpaperPermission = onRequestWallpaperPermission,
+            selectedTheme = overlayGradientTheme,
+            overlayThemeIntensity = overlayThemeIntensity,
+            onThemeSelected = onSetOverlayGradientTheme,
+            onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
+            wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
+            wallpaperBlurRadius = wallpaperBlurRadius,
+            onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,
+            onWallpaperBlurRadiusChange = onWallpaperBlurRadiusChange,
+            backgroundSource = backgroundSource,
+            customImageUri = customImageUri,
+            onSetBackgroundSource = onSetBackgroundSource,
+            onPickCustomImage = onPickCustomImage,
+            hasWallpaperPermission = hasWallpaperPermission,
+            onRequestWallpaperPermission = onRequestWallpaperPermission,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -100,10 +102,10 @@ fun AppearanceSettingsSection(
         if (hasEnabledSearchEngines) {
             // Search Engine Style Card
             SearchEngineAppearanceCard(
-                    isSearchEngineCompactMode = isSearchEngineCompactMode,
-                    onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
-                    compactRowCount = searchEngineCompactRowCount,
-                    onSetCompactRowCount = onSetSearchEngineCompactRowCount,
+                isSearchEngineCompactMode = isSearchEngineCompactMode,
+                onToggleSearchEngineCompactMode = onToggleSearchEngineCompactMode,
+                compactRowCount = searchEngineCompactRowCount,
+                onSetCompactRowCount = onSetSearchEngineCompactRowCount,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -111,46 +113,48 @@ fun AppearanceSettingsSection(
 
         // One-Handed Mode and Icon Pack Card
         CombinedLayoutIconCard(
-                oneHandedMode = oneHandedMode,
-                onToggleOneHandedMode = onToggleOneHandedMode,
-                showAppLabels = showAppLabels,
-                onToggleAppLabels = onToggleAppLabels,
-                bottomSearchBarEnabled = bottomSearchBarEnabled,
-                onToggleBottomSearchBar = onToggleBottomSearchBar,
-                iconPackTitle =
-                        androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
-                iconPackDescription =
-                        if (hasIconPacks) {
-                            androidx.compose.ui.res.stringResource(
-                                    R.string.settings_icon_pack_selected_label,
-                                    selectedIconPackLabel,
-                            )
-                        } else {
-                            androidx.compose.ui.res.stringResource(
-                                    R.string.settings_icon_pack_empty,
-                            )
-                        },
-                onIconPackClick = {
-                    if (hasIconPacks) {
-                        showIconPackDialog = true
-                    } else {
-                        onSearchIconPacks()
-                    }
+            oneHandedMode = oneHandedMode,
+            onToggleOneHandedMode = onToggleOneHandedMode,
+            showAppLabels = showAppLabels,
+            onToggleAppLabels = onToggleAppLabels,
+            bottomSearchBarEnabled = bottomSearchBarEnabled,
+            onToggleBottomSearchBar = onToggleBottomSearchBar,
+            iconPackTitle =
+                androidx.compose.ui.res.stringResource(R.string.settings_icon_pack_title),
+            iconPackDescription =
+                if (hasIconPacks) {
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_selected_label,
+                        selectedIconPackLabel,
+                    )
+                } else {
+                    androidx.compose.ui.res.stringResource(
+                        R.string.settings_icon_pack_empty,
+                    )
                 },
-                onRefreshIconPacks = onRefreshIconPacks,
+            onIconPackClick = {
+                if (hasIconPacks) {
+                    showIconPackDialog = true
+                } else {
+                    onSearchIconPacks()
+                }
+            },
+            onRefreshIconPacks = onRefreshIconPacks,
+            appIconShape = appIconShape,
+            onSetAppIconShape = onSetAppIconShape,
         )
     }
 
     // Icon Pack Picker Dialog
     if (showIconPackDialog) {
         IconPackPickerDialog(
-                availableIconPacks = availableIconPacks,
-                selectedPackage = selectedIconPackPackage,
-                onSelect = { packageName: String? ->
-                    onSelectIconPack(packageName)
-                    showIconPackDialog = false
-                },
-                onDismiss = { showIconPackDialog = false },
+            availableIconPacks = availableIconPacks,
+            selectedPackage = selectedIconPackPackage,
+            onSelect = { packageName: String? ->
+                onSelectIconPack(packageName)
+                showIconPackDialog = false
+            },
+            onDismiss = { showIconPackDialog = false },
         )
     }
 }

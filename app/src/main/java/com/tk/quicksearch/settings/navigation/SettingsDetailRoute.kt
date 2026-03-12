@@ -35,15 +35,15 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun SettingsDetailRoute(
-        modifier: Modifier = Modifier,
-        onBack: () -> Unit,
-        viewModel: SearchViewModel,
-        detailType: SettingsDetailType,
-        onNavigateToDetail: (SettingsDetailType) -> Unit = {},
-        onRequestUsagePermission: () -> Unit = {},
-        onRequestContactPermission: () -> Unit = {},
-        onRequestFilePermission: () -> Unit = {},
-        onRequestCallPermission: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit,
+    viewModel: SearchViewModel,
+    detailType: SettingsDetailType,
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {},
+    onRequestUsagePermission: () -> Unit = {},
+    onRequestContactPermission: () -> Unit = {},
+    onRequestFilePermission: () -> Unit = {},
+    onRequestCallPermission: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -51,29 +51,29 @@ fun SettingsDetailRoute(
 
     val context = LocalContext.current
     val wallpaperPermissionController =
-            rememberWallpaperPermissionController(
-                    onSetWallpaperAvailable = viewModel::setWallpaperAvailable,
-                    onSetBackgroundSource = viewModel::setBackgroundSource,
-                    onOptionalPermissionChanged = viewModel::handleOptionalPermissionChange,
-            )
+        rememberWallpaperPermissionController(
+            onSetWallpaperAvailable = viewModel::setWallpaperAvailable,
+            onSetBackgroundSource = viewModel::setBackgroundSource,
+            onOptionalPermissionChanged = viewModel::handleOptionalPermissionChange,
+        )
 
     val overlayCustomImagePickerLauncher =
-            rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.OpenDocument(),
-            ) { uri ->
-                if (uri == null) return@rememberLauncherForActivityResult
-                runCatching {
-                            context.contentResolver.takePersistableUriPermission(
-                                    uri,
-                                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
-                            )
-                        }
-                        .onFailure {
-                            // Some providers do not support persistable permissions.
-                        }
-                viewModel.setCustomImageUri(uri.toString())
-                viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
             }
+                .onFailure {
+                    // Some providers do not support persistable permissions.
+                }
+            viewModel.setCustomImageUri(uri.toString())
+            viewModel.setBackgroundSource(BackgroundSource.CUSTOM_IMAGE)
+        }
 
     val onSelectWallpaperSource: () -> Unit = wallpaperPermissionController.onRequestPermission
 
@@ -81,30 +81,30 @@ fun SettingsDetailRoute(
     val userPreferences = remember { UserAppPreferences(context) }
     var isDefaultAssistant by remember { mutableStateOf(context.isDefaultDigitalAssistant()) }
     var assistantLaunchVoiceModeEnabled by
-            remember {
-                mutableStateOf(userPreferences.isAssistantLaunchVoiceModeEnabled())
-            }
+    remember {
+        mutableStateOf(userPreferences.isAssistantLaunchVoiceModeEnabled())
+    }
     var directSearchSetupExpanded by
-            remember(detailType) {
-                mutableStateOf(
-                        if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                            // Always start expanded in search engine settings screen
-                            true
-                        } else {
-                            true
-                        },
-                )
-            }
+    remember(detailType) {
+        mutableStateOf(
+            if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                // Always start expanded in search engine settings screen
+                true
+            } else {
+                true
+            },
+        )
+    }
     var disabledSearchEnginesExpanded by
-            remember(detailType) {
-                mutableStateOf(
-                        if (detailType == SettingsDetailType.SEARCH_ENGINES) {
-                            userPreferences.isDisabledSearchEnginesExpanded()
-                        } else {
-                            true
-                        },
-                )
-            }
+    remember(detailType) {
+        mutableStateOf(
+            if (detailType == SettingsDetailType.SEARCH_ENGINES) {
+                userPreferences.isDisabledSearchEnginesExpanded()
+            } else {
+                true
+            },
+        )
+    }
 
     DisposableEffect(lifecycleOwner, detailType) {
         val observer = LifecycleEventObserver { _, event ->
@@ -113,7 +113,7 @@ fun SettingsDetailRoute(
                 wallpaperPermissionController.onRefreshPermissionState()
             }
             if (
-                    detailType != SettingsDetailType.LAUNCH_OPTIONS
+                detailType != SettingsDetailType.LAUNCH_OPTIONS
             ) {
                 return@LifecycleEventObserver
             }
@@ -121,12 +121,12 @@ fun SettingsDetailRoute(
                 Lifecycle.Event.ON_START -> {
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                     assistantLaunchVoiceModeEnabled =
-                            userPreferences.isAssistantLaunchVoiceModeEnabled()
+                        userPreferences.isAssistantLaunchVoiceModeEnabled()
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     isDefaultAssistant = context.isDefaultDigitalAssistant()
                     assistantLaunchVoiceModeEnabled =
-                            userPreferences.isAssistantLaunchVoiceModeEnabled()
+                        userPreferences.isAssistantLaunchVoiceModeEnabled()
                 }
                 else -> {}
             }
@@ -163,44 +163,44 @@ fun SettingsDetailRoute(
         ).show()
     }
     val appShortcutSourceFlow =
-            rememberAppShortcutSourceFlow(
-                    context = context,
-                    onAddShortcutFromPickerResult = { resultData, sourcePackageName ->
-                        viewModel.addCustomAppShortcutFromPickerResult(
-                                resultData = resultData,
-                                sourcePackageName = sourcePackageName,
-                                showDefaultToast = false,
-                                onShortcutAdded = onShortcutAdded,
-                                onAddFailed = onShortcutAddFailed,
-                        )
-                    },
-                    onAddCustomAppActivityShortcut = { source, activity ->
-                        viewModel.addCustomAppActivityShortcut(
-                                packageName = source.packageName,
-                                activityClassName = activity.className,
-                                activityLabel = activity.label,
-                                showDefaultToast = false,
-                                onShortcutAdded = onShortcutAdded,
-                                onAddFailed = onShortcutAddFailed,
-                        )
-                    },
-                    onSourceLaunchUnsupported = {
-                        Toast.makeText(
-                                        context,
-                                        context.getString(
-                                                R.string.settings_app_shortcuts_create_not_supported,
-                                        ),
-                                        Toast.LENGTH_SHORT,
-                                )
-                                .show()
-                    },
-            )
+        rememberAppShortcutSourceFlow(
+            context = context,
+            onAddShortcutFromPickerResult = { resultData, sourcePackageName ->
+                viewModel.addCustomAppShortcutFromPickerResult(
+                    resultData = resultData,
+                    sourcePackageName = sourcePackageName,
+                    showDefaultToast = false,
+                    onShortcutAdded = onShortcutAdded,
+                    onAddFailed = onShortcutAddFailed,
+                )
+            },
+            onAddCustomAppActivityShortcut = { source, activity ->
+                viewModel.addCustomAppActivityShortcut(
+                    packageName = source.packageName,
+                    activityClassName = activity.className,
+                    activityLabel = activity.label,
+                    showDefaultToast = false,
+                    onShortcutAdded = onShortcutAdded,
+                    onAddFailed = onShortcutAddFailed,
+                )
+            },
+            onSourceLaunchUnsupported = {
+                Toast.makeText(
+                    context,
+                    context.getString(
+                        R.string.settings_app_shortcuts_create_not_supported,
+                    ),
+                    Toast.LENGTH_SHORT,
+                )
+                    .show()
+            },
+        )
 
     LaunchedEffect(
-            detailType,
-            state.allApps,
-            state.allAppShortcuts,
-            context.packageName,
+        detailType,
+        state.allApps,
+        state.allAppShortcuts,
+        context.packageName,
     ) {
         if (detailType != SettingsDetailType.APP_SHORTCUTS) {
             filteredAppShortcutSources = emptyList()
@@ -209,20 +209,20 @@ fun SettingsDetailRoute(
         }
 
         val appShortcutSources =
-                withContext(Dispatchers.Default) {
-                    queryAppShortcutSources(
-                            packageManager = context.packageManager,
-                            repositoryApps = state.allApps,
-                    )
-                }
+            withContext(Dispatchers.Default) {
+                queryAppShortcutSources(
+                    packageManager = context.packageManager,
+                    repositoryApps = state.allApps,
+                )
+            }
         filteredAppShortcutSources =
-                withContext(Dispatchers.Default) {
-                    filterAppShortcutSources(
-                            sources = appShortcutSources,
-                            existingShortcuts = state.allAppShortcuts,
-                            currentPackageName = context.packageName,
-                    )
-                }
+            withContext(Dispatchers.Default) {
+                filterAppShortcutSources(
+                    sources = appShortcutSources,
+                    existingShortcuts = state.allAppShortcuts,
+                    currentPackageName = context.packageName,
+                )
+            }
         hasLoadedAppShortcutSources = true
     }
 
@@ -233,166 +233,167 @@ fun SettingsDetailRoute(
     }
 
     val onBackAction: () -> Unit =
-            if (detailType.isLevel2()) {
-                {
-                    when (detailType) {
-                        SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
-                            onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
-                        }
-                        SettingsDetailType.TOOLS -> {
-                            onBack()
-                        }
-                        else -> {
-                            onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
-                        }
+        if (detailType.isLevel2()) {
+            {
+                when (detailType) {
+                    SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> {
+                        onNavigateToDetail(SettingsDetailType.SEARCH_ENGINES)
+                    }
+                    SettingsDetailType.TOOLS -> {
+                        onBack()
+                    }
+                    else -> {
+                        onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
                     }
                 }
-            } else {
-                onBack
             }
+        } else {
+            onBack
+        }
 
     val callbacks =
-            SettingsScreenCallbacks(
-                    onBack = onBackAction,
-                    onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
-                    onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
-                    onRemoveExcludedContact = viewModel::removeExcludedContact,
-                    onRemoveExcludedFile = viewModel::removeExcludedFile,
-                    onRemoveExcludedSetting = viewModel::removeExcludedSetting,
-                    onRemoveExcludedAppShortcut = viewModel::removeExcludedAppShortcut,
-                    onClearAllExclusions = viewModel::clearAllExclusions,
-                    onToggleSearchEngine = viewModel::setSearchTargetEnabled,
-                    onReorderSearchEngines = viewModel::reorderSearchTargets,
-                    onAddCustomSearchEngine = viewModel::addCustomSearchEngine,
-                    onUpdateCustomSearchEngine = viewModel::updateCustomSearchEngine,
-                    onDeleteCustomSearchEngine = viewModel::deleteCustomSearchEngine,
-                    onToggleFileType = viewModel::setFileTypeEnabled,
-                    onToggleFolders = viewModel::setShowFolders,
-                    onToggleSystemFiles = viewModel::setShowSystemFiles,
-                    onToggleHiddenFiles = viewModel::setShowHiddenFiles,
-                    onSetFolderWhitelistPatterns = viewModel::setFolderWhitelistPatterns,
-                    onSetFolderBlacklistPatterns = viewModel::setFolderBlacklistPatterns,
-                    onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
-                    onToggleOneHandedMode = viewModel::setOneHandedMode,
-                    onToggleBottomSearchBar = viewModel::setBottomSearchBarEnabled,
-                    onToggleOverlayMode = viewModel::setOverlayModeEnabled,
-                    onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
-                    setAliasCode = viewModel::setAlias,
-                    setAliasEnabled = viewModel::setAliasEnabled,
-                    onSetMessagingApp = viewModel::setMessagingApp,
-                    onSetCallingApp = viewModel::setCallingApp,
-                    onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
-                    onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
-                    onSetOverlayGradientTheme = viewModel::setOverlayGradientTheme,
-                    onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
-                    onFontScaleMultiplierChange = viewModel::setFontScaleMultiplier,
-                    onSetBackgroundSource = viewModel::setBackgroundSource,
-                    onPickCustomImage = {
-                        overlayCustomImagePickerLauncher.launch(arrayOf("image/*"))
-                    },
-                    onSelectIconPack = viewModel::setIconPackPackage,
-                    onSearchIconPacks = viewModel::searchIconPacks,
-                    onRefreshIconPacks = viewModel::refreshIconPacks,
-                    onToggleAppLabels = viewModel::setShowAppLabels,
-                    onToggleDirectDial = viewModel::setDirectDialEnabled,
-                    onToggleSection = onToggleSection,
-                    onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
-                    onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
-                    onToggleSearchEngineAliasSuffixEnabled =
-                            viewModel::setSearchEngineAliasSuffixEnabled,
-                    onSetAmazonDomain = viewModel::setAmazonDomain,
-                    onSetCalculatorAlias = { code ->
-                        viewModel.setAlias(
-                                com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
-                                code,
+        SettingsScreenCallbacks(
+            onBack = onBackAction,
+            onRemoveSuggestionExcludedApp = viewModel::unhideAppFromSuggestions,
+            onRemoveResultExcludedApp = viewModel::unhideAppFromResults,
+            onRemoveExcludedContact = viewModel::removeExcludedContact,
+            onRemoveExcludedFile = viewModel::removeExcludedFile,
+            onRemoveExcludedSetting = viewModel::removeExcludedSetting,
+            onRemoveExcludedAppShortcut = viewModel::removeExcludedAppShortcut,
+            onClearAllExclusions = viewModel::clearAllExclusions,
+            onToggleSearchEngine = viewModel::setSearchTargetEnabled,
+            onReorderSearchEngines = viewModel::reorderSearchTargets,
+            onAddCustomSearchEngine = viewModel::addCustomSearchEngine,
+            onUpdateCustomSearchEngine = viewModel::updateCustomSearchEngine,
+            onDeleteCustomSearchEngine = viewModel::deleteCustomSearchEngine,
+            onToggleFileType = viewModel::setFileTypeEnabled,
+            onToggleFolders = viewModel::setShowFolders,
+            onToggleSystemFiles = viewModel::setShowSystemFiles,
+            onToggleHiddenFiles = viewModel::setShowHiddenFiles,
+            onSetFolderWhitelistPatterns = viewModel::setFolderWhitelistPatterns,
+            onSetFolderBlacklistPatterns = viewModel::setFolderBlacklistPatterns,
+            onRemoveExcludedFileExtension = viewModel::removeExcludedFileExtension,
+            onToggleOneHandedMode = viewModel::setOneHandedMode,
+            onToggleBottomSearchBar = viewModel::setBottomSearchBarEnabled,
+            onToggleOverlayMode = viewModel::setOverlayModeEnabled,
+            onDismissOverlayAssistantTip = viewModel::dismissOverlayAssistantTip,
+            setAliasCode = viewModel::setAlias,
+            setAliasEnabled = viewModel::setAliasEnabled,
+            onSetMessagingApp = viewModel::setMessagingApp,
+            onSetCallingApp = viewModel::setCallingApp,
+            onWallpaperBackgroundAlphaChange = viewModel::setWallpaperBackgroundAlpha,
+            onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
+            onSetOverlayGradientTheme = viewModel::setOverlayGradientTheme,
+            onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
+            onFontScaleMultiplierChange = viewModel::setFontScaleMultiplier,
+            onSetBackgroundSource = viewModel::setBackgroundSource,
+            onPickCustomImage = {
+                overlayCustomImagePickerLauncher.launch(arrayOf("image/*"))
+            },
+            onSelectIconPack = viewModel::setIconPackPackage,
+            onSearchIconPacks = viewModel::searchIconPacks,
+            onRefreshIconPacks = viewModel::refreshIconPacks,
+            onToggleAppLabels = viewModel::setShowAppLabels,
+            onSetAppIconShape = viewModel::setAppIconShape,
+            onToggleDirectDial = viewModel::setDirectDialEnabled,
+            onToggleSection = onToggleSection,
+            onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,
+            onSetSearchEngineCompactRowCount = viewModel::setSearchEngineCompactRowCount,
+            onToggleSearchEngineAliasSuffixEnabled =
+                viewModel::setSearchEngineAliasSuffixEnabled,
+            onSetAmazonDomain = viewModel::setAmazonDomain,
+            onSetCalculatorAlias = { code ->
+                viewModel.setAlias(
+                    com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
+                    code,
+                )
+            },
+            onSetSearchSectionAlias = { targetId, code ->
+                viewModel.setAlias(targetId, code)
+            },
+            onToggleCalculator = viewModel::setCalculatorEnabled,
+            onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
+            onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
+            onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
+            onToggleOpenKeyboardOnLaunch = viewModel::setOpenKeyboardOnLaunchEnabled,
+            onToggleClearQueryOnLaunch = viewModel::setClearQueryOnLaunchEnabled,
+            onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
+            onSetGeminiApiKey = viewModel::setGeminiApiKey,
+            onSetPersonalContext = viewModel::setPersonalContext,
+            onSetGeminiModel = viewModel::setGeminiModel,
+            onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
+            onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
+            onOpenDirectSearchConfigure = {
+                onNavigateToDetail(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+            },
+            onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
+            onLaunchAppShortcut = viewModel::launchAppShortcut,
+            onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
+            onAddAppShortcutFromSource = appShortcutSourceFlow.selectSource,
+            onAddAppDeepLinkShortcut = { packageName, shortcutName, deepLink, iconBase64 ->
+                viewModel.addCustomAppDeepLinkShortcut(
+                    packageName = packageName,
+                    shortcutName = shortcutName,
+                    deepLink = deepLink,
+                    iconBase64 = iconBase64,
+                    showDefaultToast = false,
+                    onShortcutAdded = onShortcutAdded,
+                    onAddFailed = onShortcutAddFailed,
+                )
+            },
+            onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
+                viewModel.addSearchTargetQueryShortcut(
+                    target = target,
+                    shortcutName = shortcutName,
+                    shortcutQuery = shortcutQuery,
+                    mode = mode,
+                    showDefaultToast = false,
+                    onShortcutAdded = onShortcutAdded,
+                    onAddFailed = onShortcutAddFailed,
+                )
+            },
+            onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,
+            onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
+            onLaunchDeviceSetting = viewModel::openSetting,
+            onRequestAppUninstall = viewModel::requestUninstall,
+            onOpenAppInfo = viewModel::openAppInfo,
+            onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
+            onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
+            onSetDefaultAssistant = {
+                try {
+                    val intent =
+                        Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    // Fallback to general settings if voice input settings not available
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            context,
+                            context.getString(
+                                R.string.settings_unable_to_open_settings,
+                            ),
+                            Toast.LENGTH_SHORT,
                         )
-                    },
-                    onSetSearchSectionAlias = { targetId, code ->
-                        viewModel.setAlias(targetId, code)
-                    },
-                    onToggleCalculator = viewModel::setCalculatorEnabled,
-                    onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
-                    onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
-                    onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
-                    onToggleOpenKeyboardOnLaunch = viewModel::setOpenKeyboardOnLaunchEnabled,
-                    onToggleClearQueryOnLaunch = viewModel::setClearQueryOnLaunchEnabled,
-                    onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
-                    onSetGeminiApiKey = viewModel::setGeminiApiKey,
-                    onSetPersonalContext = viewModel::setPersonalContext,
-                    onSetGeminiModel = viewModel::setGeminiModel,
-                    onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
-                    onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
-                    onOpenDirectSearchConfigure = {
-                        onNavigateToDetail(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
-                    },
-                    onToggleAppShortcutEnabled = viewModel::setAppShortcutEnabled,
-                    onLaunchAppShortcut = viewModel::launchAppShortcut,
-                    onOpenAddAppShortcutDialog = appShortcutSourceFlow.openSourcePicker,
-                    onAddAppShortcutFromSource = appShortcutSourceFlow.selectSource,
-                    onAddAppDeepLinkShortcut = { packageName, shortcutName, deepLink, iconBase64 ->
-                        viewModel.addCustomAppDeepLinkShortcut(
-                                packageName = packageName,
-                                shortcutName = shortcutName,
-                                deepLink = deepLink,
-                                iconBase64 = iconBase64,
-                                showDefaultToast = false,
-                                onShortcutAdded = onShortcutAdded,
-                                onAddFailed = onShortcutAddFailed,
-                        )
-                    },
-                    onAddSearchTargetQueryShortcut = { target, shortcutName, shortcutQuery, mode ->
-                        viewModel.addSearchTargetQueryShortcut(
-                                target = target,
-                                shortcutName = shortcutName,
-                                shortcutQuery = shortcutQuery,
-                                mode = mode,
-                                showDefaultToast = false,
-                                onShortcutAdded = onShortcutAdded,
-                                onAddFailed = onShortcutAddFailed,
-                        )
-                    },
-                    onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,
-                    onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
-                    onLaunchDeviceSetting = viewModel::openSetting,
-                    onRequestAppUninstall = viewModel::requestUninstall,
-                    onOpenAppInfo = viewModel::openAppInfo,
-                    onAddHomeScreenWidget = onRequestAddHomeScreenWidget,
-                    onAddQuickSettingsTile = onRequestAddQuickSettingsTile,
-                    onSetDefaultAssistant = {
-                        try {
-                            val intent =
-                                    Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            // Fallback to general settings if voice input settings not available
-                            try {
-                                val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                Toast.makeText(
-                                                context,
-                                                context.getString(
-                                                        R.string.settings_unable_to_open_settings,
-                                                ),
-                                                Toast.LENGTH_SHORT,
-                                        )
-                                        .show()
-                            }
-                        }
-                    },
-                    onToggleAssistantLaunchVoiceMode = { enabled ->
-                        userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
-                        assistantLaunchVoiceModeEnabled = enabled
-                    },
-                    onRefreshApps = viewModel::refreshApps,
-                    onRefreshContacts = viewModel::refreshContacts,
-                    onRefreshFiles = viewModel::refreshFiles,
-                    onRequestUsagePermission = onRequestUsagePermission,
-                    onRequestContactPermission = onRequestContactPermission,
-                    onRequestFilePermission = onRequestFilePermission,
-                    onRequestCallPermission = onRequestCallPermission,
-                    onRequestWallpaperPermission = onSelectWallpaperSource,
-            )
+                            .show()
+                    }
+                }
+            },
+            onToggleAssistantLaunchVoiceMode = { enabled ->
+                userPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
+                assistantLaunchVoiceModeEnabled = enabled
+            },
+            onRefreshApps = viewModel::refreshApps,
+            onRefreshContacts = viewModel::refreshContacts,
+            onRefreshFiles = viewModel::refreshFiles,
+            onRequestUsagePermission = onRequestUsagePermission,
+            onRequestContactPermission = onRequestContactPermission,
+            onRequestFilePermission = onRequestFilePermission,
+            onRequestCallPermission = onRequestCallPermission,
+            onRequestWallpaperPermission = onSelectWallpaperSource,
+        )
 
     val onToggleDirectSearchSetupExpanded = {
         val newExpanded = !directSearchSetupExpanded
@@ -409,62 +410,62 @@ fun SettingsDetailRoute(
         }
     }
     val resolvedState =
-            if (detailType == SettingsDetailType.APPEARANCE) {
-                state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
-            } else {
-                state
-            }
+        if (detailType == SettingsDetailType.APPEARANCE) {
+            state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
+        } else {
+            state
+        }
 
     if (detailType.isLevel2()) {
         val shouldShowAppShortcutsContent =
-                detailType != SettingsDetailType.APP_SHORTCUTS ||
-                        hasLoadedAppShortcutSources
+            detailType != SettingsDetailType.APP_SHORTCUTS ||
+                    hasLoadedAppShortcutSources
 
         SettingsDetailLevel2Screen(
-                modifier = modifier,
-                state = resolvedState,
-                callbacks = callbacks,
-                detailType = detailType,
-                hasUsagePermission = uiState.hasUsagePermission,
-                appShortcutFocusShortcut = appShortcutFocusShortcut,
-                appShortcutFocusPackageName = appShortcutFocusPackageName,
-                appShortcutSources =
-                        if (shouldShowAppShortcutsContent) {
-                            filteredAppShortcutSources
-                        } else {
-                            emptyList()
-                        },
-                searchTargets =
-                        if (shouldShowAppShortcutsContent) {
-                            state.searchEngineOrder
-                        } else {
-                            emptyList()
-                        },
-                onAppShortcutFocusHandled = {
-                    appShortcutFocusShortcut = null
-                    appShortcutFocusPackageName = null
+            modifier = modifier,
+            state = resolvedState,
+            callbacks = callbacks,
+            detailType = detailType,
+            hasUsagePermission = uiState.hasUsagePermission,
+            appShortcutFocusShortcut = appShortcutFocusShortcut,
+            appShortcutFocusPackageName = appShortcutFocusPackageName,
+            appShortcutSources =
+                if (shouldShowAppShortcutsContent) {
+                    filteredAppShortcutSources
+                } else {
+                    emptyList()
                 },
+            searchTargets =
+                if (shouldShowAppShortcutsContent) {
+                    state.searchEngineOrder
+                } else {
+                    emptyList()
+                },
+            onAppShortcutFocusHandled = {
+                appShortcutFocusShortcut = null
+                appShortcutFocusPackageName = null
+            },
         )
     } else {
         SettingsDetailLevel1Screen(
-                modifier = modifier,
-                state = resolvedState,
-                callbacks = callbacks,
-                detailType = detailType,
-                hasUsagePermission = uiState.hasUsagePermission,
-                isDefaultAssistant = isDefaultAssistant,
-                assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
-                directSearchSetupExpanded = directSearchSetupExpanded,
-                onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
-                disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
-                onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
-                onNavigateToDetail = onNavigateToDetail,
+            modifier = modifier,
+            state = resolvedState,
+            callbacks = callbacks,
+            detailType = detailType,
+            hasUsagePermission = uiState.hasUsagePermission,
+            isDefaultAssistant = isDefaultAssistant,
+            assistantLaunchVoiceModeEnabled = assistantLaunchVoiceModeEnabled,
+            directSearchSetupExpanded = directSearchSetupExpanded,
+            onToggleDirectSearchSetupExpanded = onToggleDirectSearchSetupExpanded,
+            disabledSearchEnginesExpanded = disabledSearchEnginesExpanded,
+            onToggleDisabledSearchEnginesExpanded = onToggleDisabledSearchEnginesExpanded,
+            onNavigateToDetail = onNavigateToDetail,
         )
     }
 
     WallpaperPermissionFallbackDialog(controller = wallpaperPermissionController)
     AppShortcutSourceFlowDialogs(
-            flowState = appShortcutSourceFlow,
-            sources = filteredAppShortcutSources,
+        flowState = appShortcutSourceFlow,
+        sources = filteredAppShortcutSources,
     )
 }

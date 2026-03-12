@@ -176,6 +176,7 @@ data class SearchUiConfigState(
         val appSuggestionsEnabled: Boolean = true,
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),
+        val appIconShape: AppIconShape = AppIconShape.SQUARE,
         // File display preferences
         val enabledFileTypes: Set<FileType> =
                 FileType.values().filter { it != FileType.OTHER }.toSet(),

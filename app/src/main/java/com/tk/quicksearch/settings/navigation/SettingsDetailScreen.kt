@@ -68,7 +68,7 @@ internal fun SettingsDetailLevel1Screen(
 
     val context = LocalContext.current
     var selectedOpenSourceLicense by
-        remember(detailType) { mutableStateOf<OpenSourceLicenseEntry?>(null) }
+    remember(detailType) { mutableStateOf<OpenSourceLicenseEntry?>(null) }
     val onBackAction: () -> Unit =
         if (detailType == SettingsDetailType.OPEN_SOURCE_LICENSES && selectedOpenSourceLicense != null) {
             { selectedOpenSourceLicense = null }
@@ -80,12 +80,12 @@ internal fun SettingsDetailLevel1Screen(
     val coroutineScope = rememberCoroutineScope()
     val hasExcludedItems =
         state.suggestionExcludedApps.isNotEmpty() ||
-            state.resultExcludedApps.isNotEmpty() ||
-            state.excludedContacts.isNotEmpty() ||
-            state.excludedFiles.isNotEmpty() ||
-            state.excludedFileExtensions.isNotEmpty() ||
-            state.excludedSettings.isNotEmpty() ||
-            state.excludedAppShortcuts.isNotEmpty()
+                state.resultExcludedApps.isNotEmpty() ||
+                state.excludedContacts.isNotEmpty() ||
+                state.excludedFiles.isNotEmpty() ||
+                state.excludedFileExtensions.isNotEmpty() ||
+                state.excludedSettings.isNotEmpty() ||
+                state.excludedAppShortcuts.isNotEmpty()
 
     Box(
         modifier =
@@ -227,6 +227,8 @@ internal fun SettingsDetailLevel1Screen(
                             availableIconPacks = state.availableIconPacks,
                             showAppLabels = state.showAppLabels,
                             onToggleAppLabels = callbacks.onToggleAppLabels,
+                            appIconShape = state.appIconShape,
+                            onSetAppIconShape = callbacks.onSetAppIconShape,
                             onSelectIconPack = callbacks.onSelectIconPack,
                             onRefreshIconPacks = {
                                 callbacks.onRefreshIconPacks()
@@ -294,7 +296,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.FILES,
                     SettingsDetailType.DIRECT_SEARCH_CONFIGURE,
                     SettingsDetailType.TOOLS,
-                    -> Unit
+                        -> Unit
                 }
             }
         }
@@ -378,13 +380,13 @@ internal fun SettingsDetailType.titleResId(): Int =
 
 internal fun SettingsDetailType.isLevel2(): Boolean =
     this == SettingsDetailType.APP_MANAGEMENT ||
-        this == SettingsDetailType.APP_SHORTCUTS ||
-        this == SettingsDetailType.EXCLUDED_ITEMS ||
-        this == SettingsDetailType.DEVICE_SETTINGS ||
-        this == SettingsDetailType.CALLS_TEXTS ||
-        this == SettingsDetailType.FILES ||
-        this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE ||
-        this == SettingsDetailType.TOOLS
+            this == SettingsDetailType.APP_SHORTCUTS ||
+            this == SettingsDetailType.EXCLUDED_ITEMS ||
+            this == SettingsDetailType.DEVICE_SETTINGS ||
+            this == SettingsDetailType.CALLS_TEXTS ||
+            this == SettingsDetailType.FILES ||
+            this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE ||
+            this == SettingsDetailType.TOOLS
 
 internal fun SettingsDetailType.level(): Int = if (isLevel2()) 2 else 1
 

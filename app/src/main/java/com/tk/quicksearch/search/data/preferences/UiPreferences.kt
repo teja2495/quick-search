@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
@@ -8,7 +9,7 @@ import com.tk.quicksearch.search.core.OverlayGradientTheme
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
-        context: Context,
+    context: Context,
 ) : BasePreferences(context) {
     // ============================================================================
     // UI Preferences
@@ -21,28 +22,28 @@ class UiPreferences(
     }
 
     fun isBottomSearchBarEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_BOTTOM_SEARCH_BAR_ENABLED, false)
+        getBooleanPref(UiPreferences.KEY_BOTTOM_SEARCH_BAR_ENABLED, false)
 
     fun setBottomSearchBarEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_BOTTOM_SEARCH_BAR_ENABLED, enabled)
     }
 
     fun isOpenKeyboardOnLaunchEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_OPEN_KEYBOARD_ON_LAUNCH, true)
+        getBooleanPref(UiPreferences.KEY_OPEN_KEYBOARD_ON_LAUNCH, true)
 
     fun setOpenKeyboardOnLaunchEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_OPEN_KEYBOARD_ON_LAUNCH, enabled)
     }
 
     fun isClearQueryOnLaunchEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_CLEAR_QUERY_ON_LAUNCH, true)
+        getBooleanPref(UiPreferences.KEY_CLEAR_QUERY_ON_LAUNCH, true)
 
     fun setClearQueryOnLaunchEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_CLEAR_QUERY_ON_LAUNCH, enabled)
     }
 
     fun isOverlayModeEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
+        getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
 
     fun setOverlayModeEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, enabled)
@@ -93,30 +94,30 @@ class UiPreferences(
     }
 
     fun getWallpaperBackgroundAlpha(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
-                    UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
-            )
+        prefs.getFloat(
+            UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA,
+            UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA,
+        )
 
     fun setWallpaperBackgroundAlpha(alpha: Float) {
         prefs.edit()
-                .putFloat(UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA, alpha.coerceIn(0f, 1f))
-                .apply()
+            .putFloat(UiPreferences.KEY_WALLPAPER_BACKGROUND_ALPHA, alpha.coerceIn(0f, 1f))
+            .apply()
     }
 
     fun getWallpaperBlurRadius(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
-                    UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
-            )
+        prefs.getFloat(
+            UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+            UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
+        )
 
     fun setWallpaperBlurRadius(radius: Float) {
         prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
-                        radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS),
-                )
-                .apply()
+            .putFloat(
+                UiPreferences.KEY_WALLPAPER_BLUR_RADIUS,
+                radius.coerceIn(0f, MAX_WALLPAPER_BLUR_RADIUS),
+            )
+            .apply()
     }
 
     fun getOverlayGradientTheme(): OverlayGradientTheme {
@@ -131,42 +132,42 @@ class UiPreferences(
     }
 
     fun getOverlayThemeIntensity(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
-                    UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
-            ).coerceIn(
-                    UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
-                    UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
-            )
+        prefs.getFloat(
+            UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
+            UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
+        ).coerceIn(
+            UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
+            UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
+        )
 
     fun setOverlayThemeIntensity(intensity: Float) {
         prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
-                        intensity.coerceIn(
-                                UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
-                                UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
-                        ),
-                )
-                .apply()
+            .putFloat(
+                UiPreferences.KEY_OVERLAY_THEME_INTENSITY,
+                intensity.coerceIn(
+                    UiPreferences.MIN_OVERLAY_THEME_INTENSITY,
+                    UiPreferences.MAX_OVERLAY_THEME_INTENSITY,
+                ),
+            )
+            .apply()
     }
 
     fun getFontScaleMultiplier(): Float =
-            prefs.getFloat(
-                    UiPreferences.KEY_FONT_SCALE_MULTIPLIER,
-                    UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
-            ).coerceIn(UiPreferences.MIN_FONT_SCALE_MULTIPLIER, UiPreferences.MAX_FONT_SCALE_MULTIPLIER)
+        prefs.getFloat(
+            UiPreferences.KEY_FONT_SCALE_MULTIPLIER,
+            UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
+        ).coerceIn(UiPreferences.MIN_FONT_SCALE_MULTIPLIER, UiPreferences.MAX_FONT_SCALE_MULTIPLIER)
 
     fun setFontScaleMultiplier(multiplier: Float) {
         prefs.edit()
-                .putFloat(
-                        UiPreferences.KEY_FONT_SCALE_MULTIPLIER,
-                        multiplier.coerceIn(
-                                UiPreferences.MIN_FONT_SCALE_MULTIPLIER,
-                                UiPreferences.MAX_FONT_SCALE_MULTIPLIER,
-                        ),
-                )
-                .apply()
+            .putFloat(
+                UiPreferences.KEY_FONT_SCALE_MULTIPLIER,
+                multiplier.coerceIn(
+                    UiPreferences.MIN_FONT_SCALE_MULTIPLIER,
+                    UiPreferences.MAX_FONT_SCALE_MULTIPLIER,
+                ),
+            )
+            .apply()
     }
 
     fun getBackgroundSource(): BackgroundSource {
@@ -176,11 +177,11 @@ class UiPreferences(
         }
 
         val defaultSource =
-                if (isOverlayModeEnabled()) {
-                    BackgroundSource.THEME
-                } else {
-                    BackgroundSource.SYSTEM_WALLPAPER
-                }
+            if (isOverlayModeEnabled()) {
+                BackgroundSource.THEME
+            } else {
+                BackgroundSource.SYSTEM_WALLPAPER
+            }
         prefs.edit().putString(KEY_BACKGROUND_SOURCE, defaultSource.name).apply()
         return defaultSource
     }
@@ -190,7 +191,7 @@ class UiPreferences(
     }
 
     fun getCustomImageUri(): String? =
-            prefs.getString(KEY_CUSTOM_IMAGE_URI, null)?.takeIf { it.isNotBlank() }
+        prefs.getString(KEY_CUSTOM_IMAGE_URI, null)?.takeIf { it.isNotBlank() }
 
     fun setCustomImageUri(uri: String?) {
         val normalized = uri?.trim()
@@ -204,7 +205,7 @@ class UiPreferences(
     }
 
     fun getSelectedIconPackPackage(): String? =
-            sessionPrefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
+        sessionPrefs.getString(UiPreferences.KEY_SELECTED_ICON_PACK, null)
 
     fun setSelectedIconPackPackage(packageName: String?) {
         val editor = sessionPrefs.edit()
@@ -222,83 +223,92 @@ class UiPreferences(
         setBooleanPref(KEY_SHOW_APP_LABELS, show)
     }
 
+    fun getAppIconShape(): AppIconShape {
+        val saved = prefs.getString(KEY_APP_ICON_SHAPE, null)
+        return saved?.let { runCatching { AppIconShape.valueOf(it) }.getOrNull() } ?: AppIconShape.SQUARE
+    }
+
+    fun setAppIconShape(shape: AppIconShape) {
+        prefs.edit().putString(KEY_APP_ICON_SHAPE, shape.name).apply()
+    }
+
     fun isDirectSearchSetupExpanded(): Boolean =
-            getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
+        getBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, true)
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) {
         setBooleanPref(UiPreferences.KEY_DIRECT_SEARCH_SETUP_EXPANDED, expanded)
     }
 
     fun isDisabledSearchEnginesExpanded(): Boolean =
-            getBooleanPref(UiPreferences.KEY_DISABLED_SEARCH_ENGINES_EXPANDED, true)
+        getBooleanPref(UiPreferences.KEY_DISABLED_SEARCH_ENGINES_EXPANDED, true)
 
     fun setDisabledSearchEnginesExpanded(expanded: Boolean) {
         setBooleanPref(UiPreferences.KEY_DISABLED_SEARCH_ENGINES_EXPANDED, expanded)
     }
 
     fun isInstantStartupSurfaceEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_INSTANT_STARTUP_SURFACE_ENABLED, true)
+        getBooleanPref(UiPreferences.KEY_INSTANT_STARTUP_SURFACE_ENABLED, true)
 
     fun setInstantStartupSurfaceEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_INSTANT_STARTUP_SURFACE_ENABLED, enabled)
     }
 
     fun hasSeenSearchBarWelcome(): Boolean =
-            sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
+        sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, false)
 
     fun setHasSeenSearchBarWelcome(seen: Boolean) {
         sessionPrefs.edit().putBoolean(UiPreferences.KEY_HAS_SEEN_SEARCH_BAR_WELCOME, seen).apply()
     }
 
     fun shouldForceSearchBarWelcomeOnNextOpen(): Boolean =
-            sessionPrefs.getBoolean(
-                    UiPreferences.KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN,
-                    false,
-            )
+        sessionPrefs.getBoolean(
+            UiPreferences.KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN,
+            false,
+        )
 
     fun setForceSearchBarWelcomeOnNextOpen(force: Boolean) {
         sessionPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN, force)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN, force)
+            .apply()
     }
 
     fun hasSeenContactActionHint(): Boolean =
-            getBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, false)
+        getBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, false)
 
     fun setHasSeenContactActionHint(seen: Boolean) {
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_CONTACT_ACTION_HINT, seen)
     }
 
     fun hasSeenPersonalContextHint(): Boolean =
-            getBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, false)
+        getBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, false)
 
     fun setHasSeenPersonalContextHint(seen: Boolean) {
         setBooleanPref(UiPreferences.KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT, seen)
     }
 
     fun hasDismissedSearchHistoryTip(): Boolean =
-            firstLaunchPrefs.getBoolean(UiPreferences.KEY_SEARCH_HISTORY_TIP_DISMISSED, false)
+        firstLaunchPrefs.getBoolean(UiPreferences.KEY_SEARCH_HISTORY_TIP_DISMISSED, false)
 
     fun setSearchHistoryTipDismissed(dismissed: Boolean) {
         firstLaunchPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_SEARCH_HISTORY_TIP_DISMISSED, dismissed)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_SEARCH_HISTORY_TIP_DISMISSED, dismissed)
+            .apply()
     }
 
     fun hasSeenOverlayAssistantTip(): Boolean =
-            sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, false)
+        sessionPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, false)
 
     fun setHasSeenOverlayAssistantTip(seen: Boolean) {
         sessionPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, seen)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP, seen)
+            .apply()
     }
 
     fun getLastSeenVersionName(): String? =
-            sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
+        sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
     fun setLastSeenVersionName(versionName: String?) {
         val normalized = versionName?.trim()
@@ -312,34 +322,34 @@ class UiPreferences(
     }
 
     fun getUsagePermissionBannerDismissCount(): Int =
-            firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
+        firstLaunchPrefs.getInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, 0)
 
     fun incrementUsagePermissionBannerDismissCount() {
         val currentCount = getUsagePermissionBannerDismissCount()
         firstLaunchPrefs
-                .edit()
-                .putInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1)
-                .apply()
+            .edit()
+            .putInt(UiPreferences.KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT, currentCount + 1)
+            .apply()
     }
 
     fun isUsagePermissionBannerSessionDismissed(): Boolean =
-            firstLaunchPrefs.getBoolean(
-                    UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED,
-                    false,
-            )
+        firstLaunchPrefs.getBoolean(
+            UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED,
+            false,
+        )
 
     fun setUsagePermissionBannerSessionDismissed(dismissed: Boolean) {
         firstLaunchPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, dismissed)
+            .apply()
     }
 
     fun resetUsagePermissionBannerSessionDismissed() {
         firstLaunchPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED, false)
+            .apply()
     }
 
     fun shouldShowUsagePermissionBanner(): Boolean {
@@ -353,7 +363,7 @@ class UiPreferences(
     // ============================================================================
 
     fun areAppSuggestionsEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, true)
+        getBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, true)
 
     fun setAppSuggestionsEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_APP_SUGGESTIONS_ENABLED, enabled)
@@ -364,7 +374,7 @@ class UiPreferences(
     // ============================================================================
 
     fun areWebSuggestionsEnabled(): Boolean =
-            getBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, true)
+        getBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, true)
 
     fun setWebSuggestionsEnabled(enabled: Boolean) {
         setBooleanPref(UiPreferences.KEY_WEB_SUGGESTIONS_ENABLED, enabled)
@@ -412,24 +422,24 @@ class UiPreferences(
     fun recordFirstAppOpenTime() {
         if (getFirstAppOpenTime() == 0L) {
             timingPrefs
-                    .edit()
-                    .putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis())
-                    .apply()
+                .edit()
+                .putLong(UiPreferences.KEY_FIRST_APP_OPEN_TIME, System.currentTimeMillis())
+                .apply()
         }
     }
 
     fun getLastReviewPromptTime(): Long =
-            timingPrefs.getLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, 0L)
+        timingPrefs.getLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, 0L)
 
     fun recordReviewPromptTime() {
         timingPrefs
-                .edit()
-                .putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis())
-                .apply()
+            .edit()
+            .putLong(UiPreferences.KEY_LAST_REVIEW_PROMPT_TIME, System.currentTimeMillis())
+            .apply()
     }
 
     fun getReviewPromptedCount(): Int =
-            timingPrefs.getInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, 0)
+        timingPrefs.getInt(UiPreferences.KEY_REVIEW_PROMPTED_COUNT, 0)
 
     fun incrementReviewPromptedCount() {
         val currentCount = getReviewPromptedCount()
@@ -444,14 +454,14 @@ class UiPreferences(
     }
 
     fun getAppOpenCountAtLastPrompt(): Int =
-            timingPrefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, 0)
+        timingPrefs.getInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, 0)
 
     fun recordAppOpenCountAtPrompt() {
         val currentOpenCount = getAppOpenCount()
         timingPrefs
-                .edit()
-                .putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount)
-                .apply()
+            .edit()
+            .putInt(UiPreferences.KEY_APP_OPEN_COUNT_AT_LAST_PROMPT, currentOpenCount)
+            .apply()
     }
 
     fun shouldShowReviewPrompt(): Boolean {
@@ -499,22 +509,22 @@ class UiPreferences(
      * update and review prompts in the same session.
      */
     fun hasShownUpdateCheckThisSession(): Boolean =
-            sessionPrefs.getBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
+        sessionPrefs.getBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
 
     /** Mark that an update check was shown this session. */
     fun setUpdateCheckShownThisSession() {
         sessionPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, true)
+            .apply()
     }
 
     /** Reset the update check session flag. Should be called when the app starts. */
     fun resetUpdateCheckSession() {
         sessionPrefs
-                .edit()
-                .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
-                .apply()
+            .edit()
+            .putBoolean(UiPreferences.KEY_UPDATE_CHECK_SHOWN_THIS_SESSION, false)
+            .apply()
     }
 
     companion object {
@@ -525,7 +535,7 @@ class UiPreferences(
         const val KEY_CLEAR_QUERY_ON_LAUNCH = "clear_query_on_launch"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
-                "use_whatsapp_for_messages" // Deprecated, kept for migration
+            "use_whatsapp_for_messages" // Deprecated, kept for migration
         const val KEY_MESSAGING_APP = "messaging_app"
         const val KEY_CALLING_APP = "calling_app"
         const val KEY_FIRST_LAUNCH = "first_launch"
@@ -542,13 +552,14 @@ class UiPreferences(
         const val KEY_OVERLAY_CUSTOM_IMAGE_URI = "overlay_custom_image_uri" // Legacy only.
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
         const val KEY_SHOW_APP_LABELS = "show_app_labels"
+        const val KEY_APP_ICON_SHAPE = "app_icon_shape"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"
         const val KEY_DISABLED_SEARCH_ENGINES_EXPANDED = "disabled_search_engines_expanded"
         const val KEY_INSTANT_STARTUP_SURFACE_ENABLED = "instant_startup_surface_v1"
         const val KEY_HAS_SEEN_SEARCH_BAR_WELCOME = "has_seen_search_bar_welcome"
         const val KEY_FORCE_SEARCH_BAR_WELCOME_ON_NEXT_OPEN =
-                "force_search_bar_welcome_on_next_open"
+            "force_search_bar_welcome_on_next_open"
         const val KEY_HAS_SEEN_CONTACT_ACTION_HINT = "has_seen_contact_action_hint"
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_SEARCH_HISTORY_TIP_DISMISSED = "search_history_tip_dismissed"
@@ -562,9 +573,9 @@ class UiPreferences(
 
         // Usage permission banner preferences keys
         const val KEY_USAGE_PERMISSION_BANNER_DISMISS_COUNT =
-                "usage_permission_banner_dismiss_count"
+            "usage_permission_banner_dismiss_count"
         const val KEY_USAGE_PERMISSION_BANNER_SESSION_DISMISSED =
-                "usage_permission_banner_session_dismissed"
+            "usage_permission_banner_session_dismissed"
 
         // Web search suggestions preferences keys
         const val KEY_WEB_SUGGESTIONS_ENABLED = "web_suggestions_enabled"
@@ -586,11 +597,11 @@ class UiPreferences(
         const val OVERLAY_THEME_INTENSITY_DELTA_STEPS = 2
         const val FONT_SCALE_MULTIPLIER_STEP = 0.05f
         const val MIN_OVERLAY_THEME_INTENSITY =
-                DEFAULT_OVERLAY_THEME_INTENSITY -
-                        (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
+            DEFAULT_OVERLAY_THEME_INTENSITY -
+                    (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
         const val MAX_OVERLAY_THEME_INTENSITY =
-                DEFAULT_OVERLAY_THEME_INTENSITY +
-                        (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
+            DEFAULT_OVERLAY_THEME_INTENSITY +
+                    (OVERLAY_THEME_INTENSITY_STEP * OVERLAY_THEME_INTENSITY_DELTA_STEPS)
         const val MIN_FONT_SCALE_MULTIPLIER = 0.90f
         const val MAX_FONT_SCALE_MULTIPLIER = 1.05f
         const val MAX_WALLPAPER_BLUR_RADIUS = 40f

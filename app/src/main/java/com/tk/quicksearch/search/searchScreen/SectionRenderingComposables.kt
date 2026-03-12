@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.appShortcuts.AppShortcutResultsSection
 import com.tk.quicksearch.search.apps.AppGridView
 import com.tk.quicksearch.search.contacts.ContactResultsSection
 import com.tk.quicksearch.search.core.CallingApp
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SectionRenderContext
@@ -153,6 +154,7 @@ private fun renderAppsSection(
             startupPhase = params.appsParams.startupPhase,
             isOverlayPresentation = params.appsParams.isOverlayPresentation,
             predictedTarget = params.appsParams.predictedTarget,
+            appIconShape = params.appsParams.appIconShape,
         )
     }
 }
