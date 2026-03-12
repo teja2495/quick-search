@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.IconPackInfo
 import com.tk.quicksearch.search.core.OverlayGradientTheme
@@ -57,7 +58,7 @@ fun AppearanceSettingsSection(
     onRefreshIconPacks: () -> Unit,
     onSearchIconPacks: () -> Unit,
     hasWallpaperPermission: Boolean = true,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
     onSetAppIconShape: (com.tk.quicksearch.search.core.AppIconShape) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {

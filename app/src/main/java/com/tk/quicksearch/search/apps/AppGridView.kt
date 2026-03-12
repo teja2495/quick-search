@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
@@ -110,7 +111,7 @@ fun AppGridView(
     isOverlayPresentation: Boolean = false,
     startupPhase: StartupPhase = StartupPhase.COMPLETE,
     predictedTarget: PredictedSubmitTarget? = null,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
 ) {
     val context = LocalContext.current
     val shortcutsByPackage =
@@ -268,7 +269,7 @@ private fun AppGrid(
     oneHandedMode: Boolean,
     isOverlayPresentation: Boolean,
     predictedTarget: PredictedSubmitTarget?,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
 ) {
     val maxVisibleColumns = getAppGridColumns()
     val columns =
@@ -369,7 +370,7 @@ private fun AppGridRow(
     createAppActions: (AppInfo) -> AppActions,
     createAppState: (AppInfo) -> AppState,
     predictedTarget: PredictedSubmitTarget?,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -405,7 +406,7 @@ private fun AppGridItem(
     appState: AppState,
     iconPackPackage: String?,
     isPredicted: Boolean = false,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
 ) {
     val context = LocalContext.current
     val iconResult =
@@ -490,7 +491,7 @@ private fun AppIconSurface(
     onLongClick: () -> Unit,
     appIconSize: Dp,
     isPredicted: Boolean = false,
-    appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    appIconShape: AppIconShape = AppIconShape.SQUARE,
 ) {
     val view = LocalView.current
     val predictedHighlightHeight =

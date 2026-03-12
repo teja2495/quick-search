@@ -1,5 +1,6 @@
 package com.tk.quicksearch.settings.shared
 
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
@@ -65,7 +66,7 @@ data class SettingsScreenState(
     val selectedIconPackPackage: String? = null,
     val availableIconPacks: List<IconPackInfo> = emptyList(),
     val showAppLabels: Boolean = true,
-    val appIconShape: com.tk.quicksearch.search.core.AppIconShape = com.tk.quicksearch.search.core.AppIconShape.SQUARE,
+    val appIconShape: AppIconShape = AppIconShape.SQUARE,
     val directDialEnabled: Boolean,
     val disabledSections: Set<SearchSection>,
     val isSearchEngineCompactMode: Boolean,
