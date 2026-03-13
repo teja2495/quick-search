@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -336,6 +337,27 @@ fun SettingsScreen(
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
+                    SettingsNavigationRow(
+                        item =
+                            SettingsCardItem(
+                                title = stringResource(R.string.settings_more_options_title),
+                                description = stringResource(R.string.settings_more_options_desc),
+                                icon = Icons.Rounded.Tune,
+                                actionOnPress = {
+                                    onNavigateToDetail(SettingsDetailType.MORE_OPTIONS)
+                                },
+                            ),
+                        contentPadding =
+                            PaddingValues(
+                                horizontal = DesignTokens.SpacingXXLarge,
+                                vertical = DesignTokens.SpacingLarge,
+                            ),
+                    )
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                    )
+
                     SettingsNavigationRow(
                         item =
                             SettingsCardItem(

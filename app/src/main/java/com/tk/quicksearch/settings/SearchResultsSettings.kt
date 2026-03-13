@@ -1,6 +1,6 @@
 package com.tk.quicksearch.settings.settingsDetailScreen
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import com.tk.quicksearch.settings.shared.SectionSettingsSection
 import com.tk.quicksearch.settings.shared.SettingsScreenCallbacks
 import com.tk.quicksearch.settings.shared.SettingsScreenState
@@ -14,12 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.ElevatedCard
@@ -158,12 +155,6 @@ private fun SearchOptionsCard(
 
 @Composable
 private fun LaunchOptionsCard(
-    topResultIndicatorEnabled: Boolean,
-    onTopResultIndicatorToggle: (Boolean) -> Unit,
-    openKeyboardOnLaunch: Boolean,
-    onOpenKeyboardOnLaunchToggle: (Boolean) -> Unit,
-    clearQueryOnLaunch: Boolean,
-    onClearQueryOnLaunchToggle: (Boolean) -> Unit,
     onRefreshApps: (Boolean) -> Unit,
     onRefreshContacts: (Boolean) -> Unit,
     onRefreshFiles: (Boolean) -> Unit,
@@ -171,124 +162,90 @@ private fun LaunchOptionsCard(
     hasFilePermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
-        Column {
-            SettingsToggleRow(
-                title = stringResource(R.string.top_result_indicator_toggle_title),
-                subtitle = stringResource(R.string.top_result_indicator_toggle_desc),
-                checked = topResultIndicatorEnabled,
-                onCheckedChange = onTopResultIndicatorToggle,
-                leadingIcon = Icons.Rounded.CheckCircle,
-                isFirstItem = true,
-                isLastItem = false,
-            )
+    val itemShape = MaterialTheme.shapes.extraLarge
+    val buttonBackgroundColor = MaterialTheme.colorScheme.surfaceContainerLow
 
-            SettingsToggleRow(
-                title = stringResource(R.string.open_keyboard_toggle_title),
-                subtitle = stringResource(R.string.open_keyboard_toggle_desc),
-                checked = openKeyboardOnLaunch,
-                onCheckedChange = onOpenKeyboardOnLaunchToggle,
-                leadingIcon = Icons.Rounded.Keyboard,
-                isFirstItem = false,
-                isLastItem = false,
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(
+                    bottom = DesignTokens.SpacingLarge,
+                ),
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(itemShape)
+                .background(buttonBackgroundColor)
+                .clickable(onClick = { onRefreshApps(true) })
+                .padding(DesignTokens.SpacingMedium),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Apps,
+                contentDescription = stringResource(R.string.settings_refresh_apps_title),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp),
             )
-
-            SettingsToggleRow(
-                title = stringResource(R.string.clear_query_toggle_title),
-                subtitle = stringResource(R.string.clear_query_toggle_desc),
-                checked = clearQueryOnLaunch,
-                onCheckedChange = onClearQueryOnLaunchToggle,
-                leadingIcon = Icons.Rounded.SearchOff,
-                isFirstItem = false,
-                isLastItem = false,
+            Text(
+                text = stringResource(R.string.settings_refresh_apps_title),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
             )
-
-            val itemShape = DesignTokens.ShapeMedium
-            val borderColor = MaterialTheme.colorScheme.outlineVariant
-            Row(
-                modifier =
-                    Modifier.fillMaxWidth().padding(
-                        start = DesignTokens.SpacingLarge,
-                        end = DesignTokens.SpacingLarge,
-                        top = DesignTokens.SpacingLarge,
-                        bottom = DesignTokens.SpacingLarge,
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                verticalAlignment = Alignment.CenterVertically,
+        }
+        if (hasContactPermission) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(itemShape)
+                    .background(buttonBackgroundColor)
+                    .clickable(onClick = { onRefreshContacts(true) })
+                    .padding(DesignTokens.SpacingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(itemShape)
-                        .clickable(onClick = { onRefreshApps(true) })
-                        .border(DesignTokens.BorderWidth, borderColor, itemShape)
-                        .padding(DesignTokens.SpacingMedium),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Apps,
-                        contentDescription = stringResource(R.string.settings_refresh_apps_title),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(22.dp),
-                    )
-                    Text(
-                        text = stringResource(R.string.settings_refresh_apps_title),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                if (hasContactPermission) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(itemShape)
-                            .clickable(onClick = { onRefreshContacts(true) })
-                            .border(DesignTokens.BorderWidth, borderColor, itemShape)
-                            .padding(DesignTokens.SpacingMedium),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Contacts,
-                            contentDescription = stringResource(R.string.settings_refresh_contacts_title),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp),
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_refresh_contacts_title),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-                if (hasFilePermission) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(itemShape)
-                            .clickable(onClick = { onRefreshFiles(true) })
-                            .border(DesignTokens.BorderWidth, borderColor, itemShape)
-                            .padding(DesignTokens.SpacingMedium),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.InsertDriveFile,
-                            contentDescription = stringResource(R.string.settings_refresh_files_title),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp),
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_refresh_files_title),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Rounded.Contacts,
+                    contentDescription = stringResource(R.string.settings_refresh_contacts_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp),
+                )
+                Text(
+                    text = stringResource(R.string.settings_refresh_contacts_title),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+        if (hasFilePermission) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(itemShape)
+                    .background(buttonBackgroundColor)
+                    .clickable(onClick = { onRefreshFiles(true) })
+                    .padding(DesignTokens.SpacingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.InsertDriveFile,
+                    contentDescription = stringResource(R.string.settings_refresh_files_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp),
+                )
+                Text(
+                    text = stringResource(R.string.settings_refresh_files_title),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
@@ -367,12 +324,6 @@ fun SearchResultsSettingsSection(
         )
 
         LaunchOptionsCard(
-            topResultIndicatorEnabled = state.topResultIndicatorEnabled,
-            onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
-            openKeyboardOnLaunch = state.openKeyboardOnLaunch,
-            onOpenKeyboardOnLaunchToggle = callbacks.onToggleOpenKeyboardOnLaunch,
-            clearQueryOnLaunch = state.clearQueryOnLaunch,
-            onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
             onRefreshApps = callbacks.onRefreshApps,
             onRefreshContacts = callbacks.onRefreshContacts,
             onRefreshFiles = callbacks.onRefreshFiles,

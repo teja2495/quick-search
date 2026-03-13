@@ -89,9 +89,6 @@ Long-press on most results to open a context menu with quick actions.
 - **Web Search Suggestions** - Turn web suggestions on or off and control how many suggestions (1–5) appear under the search bar.
 - **Search History** - Enable or disable search history. Your search queries and recently opened items (files, contacts, etc.) appear in your search history.
 - **Excluded Items** - When you exclude any item on the search results page, you can find them here and clear them if you want to.
-- **Top Result Indicator Toggle** - Option to hide the top result indicator for top results that can be opened with the keyboard.
-- **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
-- **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
 - **Refresh Data** - The app automatically refreshes your data from time to time, but if you want to manually refresh the data, you can do it here.
 
 ---
@@ -168,6 +165,14 @@ Long-press on most results to open a context menu with quick actions.
 
 ---
 
+### More Options
+
+- **Top Result Indicator Toggle** - Option to hide the top result indicator for top results that can be opened with the keyboard.
+- **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
+- **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
+
+---
+
 ### Launch Options
 
 - **Default Assistant** - Set Quick Search as your default assistant app to replace Google Assistant or Gemini. You can enable Assistant Voice Mode to open the app with voice typing enabled when triggered with digital assistant gesture.
@@ -207,6 +212,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Contact Action Customization** - Long-press the call/message action buttons on a contact card to replace them with any action you like.
 - **Add Contact Action to Home** - Open any contact and long-press on any of the actions (e.g. WhatsApp call, Telegram video, etc.) to add it to your home screen as a shortcut.
 - **Contact Image Tap** - Tap on the contact photo to open the contact in the default contacts app to edit it.
+- **Access Beta Features** - Tap on version number 5 times to unlock new beta features. These features are hidden because they're not fully implemented & tested, so expect bugs. You can disable these features by long-pressing on the version number.
 
 ---
 
@@ -221,7 +227,7 @@ Long-press on most results to open a context menu with quick actions.
 
 ### Note from the Developer
 
-I've been an Android enthusiast my whole life, and it's been awesome working on this project. Because I have the privilege of a full-time job, I decided to keep this app completely free, ad-free, and open source — my small contribution to the Android community that's given me so much. In the future, if I ever want to earn from this project, I'll add donation links, but I promise that it will remain ad-free forever.
+I've been an Android enthusiast my whole life, and it's been awesome working on this project. Because I have the privilege of a full-time job, I decided to keep this app completely free, ad-free, and open source — my small contribution to the Android community that's given me so much.
 
 This is what I ask in return: if this app brings value to your life, share it with the people around you and consider leaving a 5-star review on the Play Store. That means a lot to me.
 

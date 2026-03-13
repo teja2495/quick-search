@@ -255,6 +255,18 @@ internal fun SettingsDetailLevel1Screen(
                         )
                     }
 
+                    SettingsDetailType.MORE_OPTIONS -> {
+                        MoreOptionsSettings(
+                            topResultIndicatorEnabled = state.topResultIndicatorEnabled,
+                            onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
+                            openKeyboardOnLaunch = state.openKeyboardOnLaunch,
+                            onOpenKeyboardOnLaunchToggle = callbacks.onToggleOpenKeyboardOnLaunch,
+                            clearQueryOnLaunch = state.clearQueryOnLaunch,
+                            onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
+                            modifier = Modifier,
+                        )
+                    }
+
                     SettingsDetailType.PERMISSIONS -> {
                         PermissionsSettings(
                             onRequestUsagePermission = callbacks.onRequestUsagePermission,
@@ -370,6 +382,7 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.CALLS_TEXTS -> R.string.settings_calls_texts_title
         SettingsDetailType.FILES -> R.string.settings_file_types_title
         SettingsDetailType.LAUNCH_OPTIONS -> R.string.settings_launch_options_title
+        SettingsDetailType.MORE_OPTIONS -> R.string.settings_more_options_title
         SettingsDetailType.PERMISSIONS -> R.string.settings_permissions_title
         SettingsDetailType.DIRECT_SEARCH_CONFIGURE -> R.string.settings_direct_search_configure_title
         SettingsDetailType.TOOLS -> R.string.settings_tools_title
@@ -403,6 +416,7 @@ enum class SettingsDetailType {
     CALLS_TEXTS,
     FILES,
     LAUNCH_OPTIONS,
+    MORE_OPTIONS,
     PERMISSIONS,
     DIRECT_SEARCH_CONFIGURE,
     TOOLS,
