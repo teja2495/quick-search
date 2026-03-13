@@ -37,6 +37,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
@@ -176,6 +177,16 @@ fun SearchRoute(
             ),
         ) {
             viewModel.removeExcludedAppShortcut(shortcut)
+        }
+    }
+
+    val onExcludeCalendarEventWithUndo: (CalendarEventInfo) -> Unit = @Suppress("LocalContextGetResourceValueCall") { event ->
+        viewModel.excludeCalendarEvent(event)
+        val label = event.title.ifBlank { context.getString(R.string.section_calendar) }
+        showUndoSnackbar(
+            context.getString(R.string.toast_excluded_from_results, label),
+        ) {
+            viewModel.removeExcludedCalendarEvent(event)
         }
     }
 
@@ -396,6 +407,11 @@ fun SearchRoute(
             onPinContact = viewModel::pinContact,
             onUnpinContact = viewModel::unpinContact,
             onExcludeContact = onExcludeContactWithUndo,
+            onCalendarEventClick = viewModel::openCalendarEvent,
+            onPinCalendarEvent = viewModel::pinCalendarEvent,
+            onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
+            onExcludeCalendarEvent = onExcludeCalendarEventWithUndo,
+            onIncludeCalendarEvent = viewModel::removeExcludedCalendarEvent,
             onPinFile = viewModel::pinFile,
             onUnpinFile = viewModel::unpinFile,
             onExcludeFile = onExcludeFileWithUndo,
@@ -432,6 +448,11 @@ fun SearchRoute(
                 pendingPermissionSettingsAction = viewModel::openAllFilesAccessSettings
                 showPermissionSettingsDialog = true
             },
+            onOpenCalendarPermissionSettings = {
+                pendingPermissionSettingsType = R.string.settings_calendar_permission_title
+                pendingPermissionSettingsAction = viewModel::openCalendarPermissionSettings
+                showPermissionSettingsDialog = true
+            },
             onAppNicknameClick = { app: com.tk.quicksearch.search.models.AppInfo ->
                 // This will be handled by the dialog state in SearchScreen
             },
@@ -446,10 +467,12 @@ fun SearchRoute(
             getContactNickname = getContactNickname,
             getFileNickname = getFileNickname,
             getAppShortcutNickname = getAppShortcutNickname,
+            getCalendarEventNickname = viewModel::getCalendarEventNickname,
             onSaveAppNickname = viewModel::setAppNickname,
             onSaveAppShortcutNickname = viewModel::setAppShortcutNickname,
             onSaveContactNickname = viewModel::setContactNickname,
             onSaveFileNickname = viewModel::setFileNickname,
+            onSaveCalendarEventNickname = viewModel::setCalendarEventNickname,
             getSettingNickname = getSettingNickname,
             onSaveSettingNickname = viewModel::setSettingNickname,
             getLastShownPhoneNumber = viewModel::getLastShownPhoneNumber,

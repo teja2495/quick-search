@@ -105,6 +105,7 @@ fun SettingsScreen(
     onRequestUsagePermission: () -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
+    onRequestCalendarPermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
     onDismissBanner: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit,

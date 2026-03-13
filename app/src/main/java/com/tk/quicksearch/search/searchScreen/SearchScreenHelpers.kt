@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.searchEngines.defaultBrowserTarget
@@ -29,6 +30,8 @@ sealed interface PredictedSubmitTarget {
     data class Setting(val id: String) : PredictedSubmitTarget
 
     data class AppSetting(val id: String) : PredictedSubmitTarget
+
+    data class Calendar(val eventId: Long) : PredictedSubmitTarget
 
     data class SearchTarget(val targetId: String) : PredictedSubmitTarget
 }
@@ -75,6 +78,11 @@ internal fun resolvePredictedSubmitTarget(
     val firstSetting = renderingState.settingResults.firstOrNull()
     if (firstSetting != null) {
         return PredictedSubmitTarget.Setting(firstSetting.id)
+    }
+
+    val firstCalendarEvent = renderingState.calendarEvents.firstOrNull()
+    if (firstCalendarEvent != null) {
+        return PredictedSubmitTarget.Calendar(firstCalendarEvent.eventId)
     }
 
     val firstAppSetting =
@@ -240,6 +248,37 @@ data class AppsSectionParams(
     val predictedTarget: PredictedSubmitTarget? = null,
 )
 
+/** Data class for Calendar section parameters */
+data class CalendarSectionParams(
+    val events: List<CalendarEventInfo>,
+    val hasPermission: Boolean,
+    val isExpanded: Boolean,
+    val pinnedEventIds: Set<Long>,
+    val excludedEventIds: Set<Long>,
+    val onEventClick: (CalendarEventInfo) -> Unit,
+    val onRequestPermission: () -> Unit,
+    val onTogglePin: (CalendarEventInfo) -> Unit,
+    val onExclude: (CalendarEventInfo) -> Unit,
+    val onInclude: (CalendarEventInfo) -> Unit,
+    val onNicknameClick: (CalendarEventInfo) -> Unit,
+    val getEventNickname: (Long) -> String?,
+    val showAllResults: Boolean,
+    val showExpandControls: Boolean,
+    val onExpandClick: () -> Unit,
+    val expandedCardMaxHeight: Dp = SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
+    val permissionDisabledCard:
+        (
+        @Composable (
+            title: String,
+            message: String,
+            actionLabel: String,
+            onActionClick: () -> Unit,
+        ) -> Unit
+        ),
+    val showWallpaperBackground: Boolean,
+    val predictedTarget: PredictedSubmitTarget? = null,
+)
+
 /** Helper function to build all the section parameters needed by SearchScreenContent */
 @Composable
 internal fun buildSectionParams(
@@ -274,6 +313,12 @@ internal fun buildSectionParams(
     onPinContact: (ContactInfo) -> Unit,
     onUnpinContact: (ContactInfo) -> Unit,
     onExcludeContact: (ContactInfo) -> Unit,
+    onCalendarEventClick: (CalendarEventInfo) -> Unit,
+    onPinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onOpenCalendarPermissionSettings: () -> Unit,
     getPrimaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     getSecondaryContactCardAction: (Long) -> com.tk.quicksearch.search.contacts.models.ContactCardAction?,
     onPrimaryActionLongPress: (ContactInfo) -> Unit,
@@ -292,6 +337,7 @@ internal fun buildSectionParams(
     getSettingNickname: (String) -> String?,
     getAppNickname: (String) -> String?,
     getAppShortcutNickname: (String) -> String?,
+    getCalendarEventNickname: (Long) -> String?,
     onUpdateNicknameDialogState: (NicknameDialogState?) -> Unit,
     onUpdateExpandedSection: (ExpandedSection) -> Unit,
     expandedSection: ExpandedSection,
@@ -327,6 +373,12 @@ internal fun buildSectionParams(
     onPinContact,
     onUnpinContact,
     onExcludeContact,
+    onCalendarEventClick,
+    onPinCalendarEvent,
+    onUnpinCalendarEvent,
+    onExcludeCalendarEvent,
+    onIncludeCalendarEvent,
+    onOpenCalendarPermissionSettings,
     onOpenAppSettings,
     getPrimaryContactCardAction,
     getSecondaryContactCardAction,
@@ -345,6 +397,7 @@ internal fun buildSectionParams(
     getSettingNickname,
     getAppNickname,
     getAppShortcutNickname,
+    getCalendarEventNickname,
     onUpdateNicknameDialogState,
     onUpdateExpandedSection,
 ) {
@@ -607,11 +660,62 @@ internal fun buildSectionParams(
             isOverlayPresentation = isOverlayPresentation,
         )
 
+    val calendarParams =
+        CalendarSectionParams(
+            events = state.calendarEvents,
+            hasPermission = state.hasCalendarPermission,
+            isExpanded = expandedSection == ExpandedSection.CALENDAR,
+            pinnedEventIds = state.pinnedCalendarEvents.map { it.eventId }.toSet(),
+            excludedEventIds = state.excludedCalendarEvents.map { it.eventId }.toSet(),
+            onEventClick = onCalendarEventClick,
+            onRequestPermission = onOpenCalendarPermissionSettings,
+            onTogglePin = { event ->
+                if (state.pinnedCalendarEvents.any { it.eventId == event.eventId }) {
+                    onUnpinCalendarEvent(event)
+                } else {
+                    onPinCalendarEvent(event)
+                }
+            },
+            onExclude = onExcludeCalendarEvent,
+            onInclude = onIncludeCalendarEvent,
+            onNicknameClick = { event ->
+                onUpdateNicknameDialogState(
+                    NicknameDialogState.CalendarEvent(
+                        event = event,
+                        currentNickname = getCalendarEventNickname(event.eventId),
+                        itemName = event.title,
+                    ),
+                )
+            },
+            getEventNickname = getCalendarEventNickname,
+            showAllResults = false,
+            showExpandControls = derivedState.isSearching,
+            onExpandClick = {
+                onUpdateExpandedSection(
+                    if (expandedSection == ExpandedSection.CALENDAR) {
+                        ExpandedSection.NONE
+                    } else {
+                        ExpandedSection.CALENDAR
+                    },
+                )
+            },
+            permissionDisabledCard = { title, message, actionLabel, onActionClick ->
+                PermissionDisabledCard(
+                    title = title,
+                    message = message,
+                    actionLabel = actionLabel,
+                    onActionClick = onActionClick,
+                )
+            },
+            showWallpaperBackground = state.showWallpaperBackground,
+        )
+
     SectionParams(
         filesParams = filesParams,
         appShortcutsParams = appShortcutParams,
         settingsParams = settingsParams,
         contactsParams = contactsParams,
+        calendarParams = calendarParams,
         appsParams = appsParams,
     )
 }
@@ -622,5 +726,6 @@ data class SectionParams(
     val appShortcutsParams: AppShortcutsSectionParams,
     val settingsParams: SettingsSectionParams,
     val contactsParams: ContactsSectionParams,
+    val calendarParams: CalendarSectionParams,
     val appsParams: AppsSectionParams,
 )

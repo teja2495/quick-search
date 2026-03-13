@@ -171,6 +171,7 @@ data class SettingsScreenCallbacks(
     val onRequestUsagePermission: () -> Unit,
     val onRequestContactPermission: () -> Unit,
     val onRequestFilePermission: () -> Unit,
+    val onRequestCalendarPermission: () -> Unit,
     val onRequestCallPermission: () -> Unit,
     val onRequestWallpaperPermission: () -> Unit,
 )

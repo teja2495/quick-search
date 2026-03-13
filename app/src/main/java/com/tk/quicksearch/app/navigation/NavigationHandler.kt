@@ -14,6 +14,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
@@ -51,6 +52,10 @@ class NavigationHandler(
     }
 
     fun openContactPermissionSettings() {
+        IntentHelpers.openAppSettings(application)
+    }
+
+    fun openCalendarPermissionSettings() {
         IntentHelpers.openAppSettings(application)
     }
 
@@ -213,5 +218,14 @@ class NavigationHandler(
         ContactIntentHelpers.composeEmail(application, email) { stringResId ->
             showToastCallback(stringResId)
         }
+    }
+
+    fun openCalendarEvent(event: CalendarEventInfo) {
+        mainHandler.post {
+            IntentHelpers.openCalendarEvent(application, event.eventId) { stringResId, _ ->
+                showToastCallback(stringResId)
+            }
+        }
+        onClearQuery()
     }
 }

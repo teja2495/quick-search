@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import kotlinx.coroutines.CoroutineScope
@@ -601,5 +602,97 @@ class FileManagementConfig : ManagementHandlerConfig<DeviceFile> {
 
     override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) {
         preferences.clearAllExcludedFiles()
+    }
+}
+
+/** Configuration for managing CalendarEventInfo items. */
+class CalendarEventManagementConfig : ManagementHandlerConfig<CalendarEventInfo> {
+    override fun getItemId(item: CalendarEventInfo): String = item.eventId.toString()
+
+    override fun updateUiForPin(
+        item: CalendarEventInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        if (state.pinnedCalendarEvents.any { it.eventId == item.eventId }) {
+            state
+        } else {
+            state.copy(pinnedCalendarEvents = state.pinnedCalendarEvents + item)
+        }
+
+    override fun updateUiForUnpin(
+        item: CalendarEventInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        state.copy(
+            pinnedCalendarEvents =
+                state.pinnedCalendarEvents.filterNot { it.eventId == item.eventId },
+        )
+
+    override fun updateUiForExclude(
+        item: CalendarEventInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        state.copy(
+            calendarEvents = state.calendarEvents.filterNot { it.eventId == item.eventId },
+            pinnedCalendarEvents =
+                state.pinnedCalendarEvents.filterNot { it.eventId == item.eventId },
+            excludedCalendarEvents = state.excludedCalendarEvents + item,
+        )
+
+    override fun updateUiForRemoveExclusion(
+        item: CalendarEventInfo,
+        state: SearchUiState,
+    ): SearchUiState =
+        state.copy(
+            excludedCalendarEvents =
+                state.excludedCalendarEvents.filterNot { it.eventId == item.eventId },
+        )
+
+    override fun pinItemInPreferences(
+        item: CalendarEventInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.pinCalendarEvent(item.eventId)
+    }
+
+    override fun unpinItemInPreferences(
+        item: CalendarEventInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.unpinCalendarEvent(item.eventId)
+    }
+
+    override fun excludeItemInPreferences(
+        item: CalendarEventInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.excludeCalendarEvent(item.eventId)
+        if (preferences.getPinnedCalendarEventIds().contains(item.eventId)) {
+            preferences.unpinCalendarEvent(item.eventId)
+        }
+    }
+
+    override fun removeExcludedItemInPreferences(
+        item: CalendarEventInfo,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.removeExcludedCalendarEvent(item.eventId)
+    }
+
+    override fun setItemNicknameInPreferences(
+        item: CalendarEventInfo,
+        nickname: String?,
+        preferences: UserAppPreferences,
+    ) {
+        preferences.setCalendarEventNickname(item.eventId, nickname)
+    }
+
+    override fun getItemNicknameFromPreferences(
+        item: CalendarEventInfo,
+        preferences: UserAppPreferences,
+    ): String? = preferences.getCalendarEventNickname(item.eventId)
+
+    override fun clearAllExcludedItemsInPreferences(preferences: UserAppPreferences) {
+        preferences.clearAllExcludedCalendarEvents()
     }
 }

@@ -21,6 +21,7 @@ import com.tk.quicksearch.onboarding.permissionScreen.PermissionCard
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionCardItem
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionState
 import com.tk.quicksearch.search.data.AppsRepository
+import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 
@@ -31,6 +32,8 @@ data class PermissionCardTexts(
     val contactsDescription: String,
     val filesTitle: String,
     val filesDescription: String,
+    val calendarTitle: String,
+    val calendarDescription: String,
     val callingTitle: String,
     val callingDescription: String,
 )
@@ -39,6 +42,7 @@ data class PermissionCardStates(
     val usage: PermissionState = PermissionState.initial(),
     val contacts: PermissionState = PermissionState.initial(),
     val files: PermissionState = PermissionState.initial(),
+    val calendar: PermissionState = PermissionState.initial(),
     val calling: PermissionState = PermissionState.initial(),
 )
 
@@ -50,6 +54,7 @@ fun PermissionsCardSection(
     onRequestUsagePermission: () -> Unit = {},
     onRequestContactPermission: () -> Unit = {},
     onRequestFilePermission: () -> Unit = {},
+    onRequestCalendarPermission: () -> Unit = {},
     onRequestCallPermission: () -> Unit = {},
     onStatesChanged: (PermissionCardStates) -> Unit = {},
 ) {
@@ -57,6 +62,7 @@ fun PermissionsCardSection(
     val appsRepository = remember { AppsRepository(context) }
     val contactRepository = remember { ContactRepository(context) }
     val fileRepository = remember { FileSearchRepository(context) }
+    val calendarRepository = remember { CalendarRepository(context) }
 
     var usagePermissionState by remember {
         mutableStateOf(createInitialPermissionState(appsRepository.hasUsageAccess()))
@@ -66,6 +72,9 @@ fun PermissionsCardSection(
     }
     var filesPermissionState by remember {
         mutableStateOf(createInitialPermissionState(fileRepository.hasPermission()))
+    }
+    var calendarPermissionState by remember {
+        mutableStateOf(createInitialPermissionState(calendarRepository.hasPermission()))
     }
     var callingPermissionState by remember {
         mutableStateOf(
@@ -98,6 +107,15 @@ fun PermissionsCardSection(
                     )
             }
 
+            permissions[Manifest.permission.READ_CALENDAR]?.let { calendarGranted ->
+                calendarPermissionState =
+                    updatePermissionState(
+                        isGranted = calendarGranted,
+                        isEnabled = calendarGranted,
+                        wasDenied = !calendarGranted,
+                    )
+            }
+
             if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
                 permissions[Manifest.permission.READ_EXTERNAL_STORAGE]?.let { filesGranted ->
                     filesPermissionState =
@@ -126,6 +144,7 @@ fun PermissionsCardSection(
                     val hasUsageAccess = appsRepository.hasUsageAccess()
                     val hasContactsPermission = contactRepository.hasPermission()
                     val hasFilesPermission = fileRepository.hasPermission()
+                    val hasCalendarPermission = calendarRepository.hasPermission()
 
                     usagePermissionState = updatePermissionState(hasUsageAccess, hasUsageAccess)
 
@@ -135,6 +154,10 @@ fun PermissionsCardSection(
 
                     if (hasFilesPermission) {
                         filesPermissionState = updatePermissionState(hasFilesPermission, true, wasDenied = false)
+                    }
+
+                    if (hasCalendarPermission) {
+                        calendarPermissionState = updatePermissionState(hasCalendarPermission, true, wasDenied = false)
                     }
 
                     val hasCallingPermission =
@@ -159,6 +182,7 @@ fun PermissionsCardSection(
             usage = usagePermissionState,
             contacts = contactsPermissionState,
             files = filesPermissionState,
+            calendar = calendarPermissionState,
             calling = callingPermissionState,
         )
     LaunchedEffect(states) {
@@ -214,6 +238,24 @@ fun PermissionsCardSection(
                                 allFilesLauncher = allFilesAccessLauncher,
                             )
                             onRequestFilePermission()
+                        }
+                    },
+                ),
+                PermissionCardItem(
+                    title = texts.calendarTitle,
+                    description = texts.calendarDescription,
+                    permissionState = calendarPermissionState,
+                    isMandatory = false,
+                    onToggleChange = { enabled ->
+                        calendarPermissionState = calendarPermissionState.copy(isEnabled = enabled)
+                        if (enabled && !calendarPermissionState.isGranted) {
+                            PermissionHelper.requestRuntimePermissionOrOpenSettings(
+                                context = context,
+                                permission = Manifest.permission.READ_CALENDAR,
+                                wasPreviouslyDenied = calendarPermissionState.wasDenied,
+                                runtimeLauncher = multiplePermissionsLauncher,
+                            )
+                            onRequestCalendarPermission()
                         }
                     },
                 ),

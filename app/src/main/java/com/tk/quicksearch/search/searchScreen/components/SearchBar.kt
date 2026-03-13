@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.automirrored.rounded.Shortcut
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
@@ -617,6 +618,7 @@ private fun SearchBarLeadingIcon(
                         SearchSection.CONTACTS -> Icons.Rounded.Person
                         SearchSection.FILES -> Icons.AutoMirrored.Rounded.InsertDriveFile
                         SearchSection.SETTINGS -> Icons.Rounded.Settings
+                        SearchSection.CALENDAR -> Icons.Rounded.CalendarMonth
                     },
                 contentDescription = stringResource(R.string.desc_search_icon),
                 tint = iconTint,

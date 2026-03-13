@@ -470,6 +470,10 @@ abstract class BasePreferences(
         const val KEY_EXCLUDED_SETTINGS = "excluded_settings"
         const val KEY_ASSISTANT_LAUNCH_VOICE_MODE_ENABLED = "assistant_launch_voice_mode_enabled"
 
+        // Calendar preferences keys
+        const val KEY_PINNED_CALENDAR_EVENT_IDS = "pinned_calendar_event_ids"
+        const val KEY_EXCLUDED_CALENDAR_EVENT_IDS = "excluded_calendar_event_ids"
+
         // App shortcut preferences keys
         const val KEY_PINNED_APP_SHORTCUTS = "pinned_app_shortcuts"
         const val KEY_EXCLUDED_APP_SHORTCUTS = "excluded_app_shortcuts"
@@ -566,9 +570,14 @@ abstract class BasePreferences(
         const val KEY_NICKNAME_CONTACT_PREFIX = "nickname_contact_"
         const val KEY_NICKNAME_FILE_PREFIX = "nickname_file_"
         const val KEY_NICKNAME_SETTING_PREFIX = "nickname_setting_"
+        const val KEY_NICKNAME_CALENDAR_EVENT_PREFIX = "nickname_calendar_event_"
 
         // Contact card action preferences keys
         const val KEY_CONTACT_PRIMARY_ACTION_PREFIX = "contact_primary_action_"
         const val KEY_CONTACT_SECONDARY_ACTION_PREFIX = "contact_secondary_action_"
+
+        // One-time migration keys
+        const val KEY_CALENDAR_SECTION_DEFAULT_MIGRATION_DONE =
+            "calendar_section_default_migration_done"
     }
 }

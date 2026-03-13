@@ -23,6 +23,7 @@ fun PermissionsSettings(
     onRequestUsagePermission: () -> Unit,
     onRequestContactPermission: () -> Unit,
     onRequestFilePermission: () -> Unit,
+    onRequestCalendarPermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -43,10 +44,17 @@ fun PermissionsSettings(
                     contactsDescription = stringResource(R.string.permissions_contacts_desc),
                     filesTitle = stringResource(R.string.settings_files_permission_title),
                     filesDescription = stringResource(R.string.permissions_files_desc),
+                    calendarTitle = stringResource(R.string.settings_calendar_permission_title),
+                    calendarDescription = stringResource(R.string.permissions_calendar_desc),
                     callingTitle = stringResource(R.string.settings_call_permission_title),
                     callingDescription = stringResource(R.string.permissions_calling_desc),
                 ),
             modifier = Modifier.fillMaxWidth(),
+            onRequestUsagePermission = onRequestUsagePermission,
+            onRequestContactPermission = onRequestContactPermission,
+            onRequestFilePermission = onRequestFilePermission,
+            onRequestCalendarPermission = onRequestCalendarPermission,
+            onRequestCallPermission = onRequestCallPermission,
             cardContainer = { cardModifier, content ->
                 ElevatedCard(
                     modifier = cardModifier,

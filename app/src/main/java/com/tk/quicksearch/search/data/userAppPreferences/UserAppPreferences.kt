@@ -31,6 +31,7 @@ class UserAppPreferences(
     private val contactPreferences by lazy { ContactPreferences(context) }
     private val filePreferences by lazy { FilePreferences(context) }
     private val settingsPreferences by lazy { SettingsPreferences(context) }
+    private val calendarPreferences by lazy { CalendarPreferences(context) }
     private val appShortcutPreferences by lazy { AppShortcutPreferences(context) }
     private val nicknamePreferences by lazy { NicknamePreferences(context) }
     private val searchEnginePreferences by lazy { SearchEnginePreferences(context) }
@@ -255,6 +256,25 @@ class UserAppPreferences(
             settingsPreferences.setAssistantLaunchVoiceModeEnabled(enabled)
 
     // ============================================================================
+    // Calendar Preferences
+    // ============================================================================
+
+    fun getPinnedCalendarEventIds(): Set<Long> = calendarPreferences.getPinnedEventIds()
+
+    fun getExcludedCalendarEventIds(): Set<Long> = calendarPreferences.getExcludedEventIds()
+
+    fun pinCalendarEvent(eventId: Long): Set<Long> = calendarPreferences.pinEvent(eventId)
+
+    fun unpinCalendarEvent(eventId: Long): Set<Long> = calendarPreferences.unpinEvent(eventId)
+
+    fun excludeCalendarEvent(eventId: Long): Set<Long> = calendarPreferences.excludeEvent(eventId)
+
+    fun removeExcludedCalendarEvent(eventId: Long): Set<Long> =
+            calendarPreferences.removeExcludedEvent(eventId)
+
+    fun clearAllExcludedCalendarEvents(): Set<Long> = calendarPreferences.clearAllExcludedEvents()
+
+    // ============================================================================
     // App Shortcut Preferences
     // ============================================================================
 
@@ -341,6 +361,18 @@ class UserAppPreferences(
     /** Finds settings that have nicknames matching the query. */
     fun findSettingsWithMatchingNickname(query: String): Set<String> =
             nicknamePreferences.findSettingsWithMatchingNickname(query)
+
+    /** Finds calendar event IDs that have nicknames matching the query. */
+    fun findCalendarEventsWithMatchingNickname(query: String): Set<Long> =
+            nicknamePreferences.findCalendarEventsWithMatchingNickname(query)
+
+    fun getCalendarEventNickname(eventId: Long): String? =
+            nicknamePreferences.getCalendarEventNickname(eventId)
+
+    fun setCalendarEventNickname(
+            eventId: Long,
+            nickname: String?,
+    ) = nicknamePreferences.setCalendarEventNickname(eventId, nickname)
 
     // ============================================================================
     // Search Engine Preferences
@@ -710,6 +742,23 @@ class UserAppPreferences(
     fun getDisabledSections(): Set<String> = uiPreferences.getDisabledSections()
 
     fun setDisabledSections(disabled: Set<String>) = uiPreferences.setDisabledSections(disabled)
+
+    /**
+     * One-time migration to ensure calendar section is default-off for all users, including
+     * existing installs.
+     */
+    fun ensureCalendarSectionDefaultDisabledMigration() {
+        if (sharedPrefs.getBoolean(BasePreferences.KEY_CALENDAR_SECTION_DEFAULT_MIGRATION_DONE, false)) {
+            return
+        }
+
+        val updatedDisabledSections = getDisabledSections().toMutableSet().apply { add("CALENDAR") }
+        setDisabledSections(updatedDisabledSections)
+        sharedPrefs
+                .edit()
+                .putBoolean(BasePreferences.KEY_CALENDAR_SECTION_DEFAULT_MIGRATION_DONE, true)
+                .apply()
+    }
 
     // ============================================================================
     // In-App Review Preferences

@@ -11,6 +11,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
@@ -36,6 +37,7 @@ internal fun SearchScreenDialogs(
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
+    onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
 ) {
@@ -137,6 +139,17 @@ internal fun SearchScreenDialogs(
                     itemName = dialogState.itemName,
                     onSave = { nickname ->
                         onSaveSettingNickname(dialogState.setting, nickname)
+                    },
+                    onDismiss = onDismissNicknameDialog,
+                )
+            }
+
+            is NicknameDialogState.CalendarEvent -> {
+                NicknameDialog(
+                    currentNickname = dialogState.currentNickname,
+                    itemName = dialogState.itemName,
+                    onSave = { nickname ->
+                        onSaveCalendarEventNickname(dialogState.event, nickname)
                     },
                     onDismiss = onDismissNicknameDialog,
                 )

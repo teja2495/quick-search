@@ -40,6 +40,7 @@ import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.searchScreen.AppsSectionParams
+import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import kotlinx.coroutines.delay
 
@@ -53,6 +54,7 @@ fun ContentLayout(
     filesParams: FilesSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
+    calendarParams: CalendarSectionParams,
     appsParams: AppsSectionParams,
     predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
@@ -99,6 +101,11 @@ fun ContentLayout(
             predictedTarget = predictedTarget,
             expandedCardMaxHeight = expandedCardMaxHeight,
         )
+    val effectiveCalendarParams =
+        calendarParams.copy(
+            predictedTarget = predictedTarget,
+            expandedCardMaxHeight = expandedCardMaxHeight,
+        )
     val effectiveAppsParams = appsParams.copy(predictedTarget = predictedTarget)
 
     // 1. Determine Layout Order based on ItemPriorityConfig
@@ -120,6 +127,7 @@ fun ContentLayout(
             filesParams = effectiveFilesParams,
             contactsParams = effectiveContactsParams,
             settingsParams = effectiveSettingsParams,
+            calendarParams = effectiveCalendarParams,
             appShortcutsParams = effectiveAppShortcutsParams,
             appsParams = effectiveAppsParams,
             isSearching = hasQuery,
@@ -134,6 +142,7 @@ fun ContentLayout(
             filesParams = effectiveFilesParams,
             appShortcutsParams = effectiveAppShortcutsParams,
             settingsParams = effectiveSettingsParams,
+            calendarParams = effectiveCalendarParams,
             appsParams = effectiveAppsParams,
             isReversed = isReversed,
         )
@@ -206,6 +215,7 @@ fun ContentLayout(
                     ItemPriorityConfig.ItemType.FILES_SECTION,
                     ItemPriorityConfig.ItemType.CONTACTS_SECTION,
                     ItemPriorityConfig.ItemType.SETTINGS_SECTION,
+                    ItemPriorityConfig.ItemType.CALENDAR_SECTION,
                     -> true
 
                     else -> false
@@ -357,6 +367,16 @@ fun ContentLayout(
                     if (shouldRenderSection(SearchSection.SETTINGS)) {
                         renderSection(
                             SearchSection.SETTINGS,
+                            sectionParams,
+                            sectionContext,
+                        )
+                    }
+                }
+
+                ItemPriorityConfig.ItemType.CALENDAR_SECTION -> {
+                    if (shouldRenderSection(SearchSection.CALENDAR)) {
+                        renderSection(
+                            SearchSection.CALENDAR,
                             sectionParams,
                             sectionContext,
                         )

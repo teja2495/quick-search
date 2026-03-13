@@ -29,6 +29,7 @@
     <string name="direct_search_powered_by">Powered by</string>
     <string name="error_open_email">No email app found to send mail.</string>
     <string name="error_open_search_engine">Unable to open %1$s</string>
+    <string name="error_open_calendar_event">Unable to open calendar event</string>
     <string name="keyboard_switch_back">Switch to regular keyboard</string>
     <string name="customize_search_engines">Customize Search Engines</string>
     <string name="keyboard_switch_to_number">Switch to number keyboard</string>
@@ -114,6 +115,8 @@
          ============================================================================ -->
     <string name="files_permission_title">File search disabled</string>
     <string name="files_permission_subtitle">Grant full file system access so Quick Search can index documents, downloads, and media.</string>
+    <string name="calendar_permission_title">Calendar search disabled</string>
+    <string name="calendar_permission_subtitle">Grant Calendar permission to search upcoming events.</string>
     <string name="error_open_file">Unable to open %1$s</string>
     <string name="error_open_setting">Unable to open %1$s</string>
     <string name="action_file_info">File Info</string>
@@ -289,6 +292,7 @@
     <string name="settings_usage_access_title">Usage Access</string>
     <string name="settings_contacts_permission_title">Contacts</string>
     <string name="settings_files_permission_title">Files</string>
+    <string name="settings_calendar_permission_title">Calendar</string>
     <string name="settings_call_permission_title">Phone</string>
 
     <!-- ============================================================================
@@ -492,6 +496,7 @@
     <string name="settings_sections_title">Search Results</string>
     <string name="section_apps">Apps</string>
     <string name="section_app_shortcuts">App Shortcuts</string>
+    <string name="section_calendar">Calendar</string>
     <string name="settings_manage_apps_title">Manage Apps</string>
     <string name="settings_manage_apps_desc">Manage your apps</string>
     <string name="settings_manage_shortcuts_desc">Manage your app shortcuts</string>
@@ -665,6 +670,8 @@
     <string name="permissions_contacts_desc">Required to search your contacts.</string>
     <string name="permissions_files_title">Files Access</string>
     <string name="permissions_files_desc">Required to search through your documents and other files.</string>
+    <string name="permissions_calendar_title">Calendar</string>
+    <string name="permissions_calendar_desc">Required to search your upcoming calendar events.</string>
     <string name="permissions_calling_title">Phone</string>
     <string name="permissions_calling_desc">Required to call your contacts directly without opening the dialer.</string>
     <string name="permissions_granted">Granted</string>

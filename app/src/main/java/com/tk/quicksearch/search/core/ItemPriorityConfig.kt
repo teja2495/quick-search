@@ -43,6 +43,7 @@ object ItemPriorityConfig {
         FILES_SECTION,
         CONTACTS_SECTION,
         SETTINGS_SECTION,
+        CALENDAR_SECTION,
 
         // Suggestion items
         WEB_SUGGESTIONS,
@@ -80,6 +81,7 @@ object ItemPriorityConfig {
             ItemType.CONTACTS_SECTION,
             ItemType.FILES_SECTION,
             ItemType.SETTINGS_SECTION,
+            ItemType.CALENDAR_SECTION,
             // Fallback suggestions
             ItemType.WEB_SUGGESTIONS,
             ItemType.SEARCH_ENGINES_INLINE,
@@ -106,6 +108,7 @@ object ItemPriorityConfig {
             ItemType.CONTACTS_SECTION,
             ItemType.FILES_SECTION,
             ItemType.SETTINGS_SECTION,
+            ItemType.CALENDAR_SECTION,
             // Recent queries/suggestions
             ItemType.RECENT_QUERIES,
         )
@@ -122,6 +125,7 @@ object ItemPriorityConfig {
             SearchSection.CONTACTS,
             SearchSection.FILES,
             SearchSection.SETTINGS,
+            SearchSection.CALENDAR,
         )
 
     /**
@@ -136,6 +140,7 @@ object ItemPriorityConfig {
             SearchSection.CONTACTS,
             SearchSection.FILES,
             SearchSection.SETTINGS,
+            SearchSection.CALENDAR,
         )
 
     /**

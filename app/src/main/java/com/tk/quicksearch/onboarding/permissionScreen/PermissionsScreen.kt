@@ -100,6 +100,8 @@ fun PermissionsScreen(
                         contactsDescription = stringResource(R.string.permissions_contacts_desc),
                         filesTitle = stringResource(R.string.permissions_files_title),
                         filesDescription = stringResource(R.string.permissions_files_desc),
+                        calendarTitle = stringResource(R.string.permissions_calendar_title),
+                        calendarDescription = stringResource(R.string.permissions_calendar_desc),
                         callingTitle = stringResource(R.string.permissions_calling_title),
                         callingDescription = stringResource(R.string.permissions_calling_desc),
                     ),
@@ -128,6 +130,7 @@ fun PermissionsScreen(
                     !permissionStates.usage.isGranted ||
                         !permissionStates.contacts.isGranted ||
                         !permissionStates.files.isGranted ||
+                        !permissionStates.calendar.isGranted ||
                         !permissionStates.calling.isGranted
 
                 if (hasUngrantedPermissions) {
@@ -163,6 +166,7 @@ fun PermissionsScreen(
             usagePermissionState = permissionStates.usage,
             contactsPermissionState = permissionStates.contacts,
             filesPermissionState = permissionStates.files,
+            calendarPermissionState = permissionStates.calendar,
             callingPermissionState = permissionStates.calling,
             onDismiss = { showPermissionReminderDialog = false },
             onContinue = {
@@ -181,6 +185,7 @@ private fun PermissionReminderDialog(
     usagePermissionState: PermissionState,
     contactsPermissionState: PermissionState,
     filesPermissionState: PermissionState,
+    calendarPermissionState: PermissionState,
     callingPermissionState: PermissionState,
     onDismiss: () -> Unit,
     onContinue: () -> Unit,
@@ -190,6 +195,7 @@ private fun PermissionReminderDialog(
             stringResource(R.string.permissions_usage_title).takeIf { !usagePermissionState.isGranted },
             stringResource(R.string.permissions_contacts_title).takeIf { !contactsPermissionState.isGranted },
             stringResource(R.string.permissions_files_title).takeIf { !filesPermissionState.isGranted },
+            stringResource(R.string.permissions_calendar_title).takeIf { !calendarPermissionState.isGranted },
             stringResource(R.string.permissions_calling_title).takeIf { !callingPermissionState.isGranted },
         ).joinToString(", ")
 
@@ -242,4 +248,3 @@ private fun PermissionReminderDialog(
         }
     }
 }
-

@@ -33,6 +33,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.searchScreen.dialogs.NicknameDialogState
 import com.tk.quicksearch.search.searchScreen.dialogs.SearchScreenDialogs
@@ -61,6 +62,7 @@ internal fun SearchScreenDialogLogic(
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
+    onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
     setLastShownPhoneNumber: (Long, String) -> Unit,
     onSetPersonalContext: (String?) -> Unit,
@@ -186,6 +188,7 @@ internal fun SearchScreenDialogLogic(
         onSaveContactNickname = onSaveContactNickname,
         onSaveFileNickname = onSaveFileNickname,
         onSaveSettingNickname = onSaveSettingNickname,
+        onSaveCalendarEventNickname = onSaveCalendarEventNickname,
         getLastShownPhoneNumber = getLastShownPhoneNumber,
         setLastShownPhoneNumber = setLastShownPhoneNumber,
     )

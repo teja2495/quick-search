@@ -12,6 +12,7 @@ import com.tk.quicksearch.search.core.DirectDialOption
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
@@ -58,6 +59,11 @@ fun SearchScreen(
     onPinContact: (ContactInfo) -> Unit,
     onUnpinContact: (ContactInfo) -> Unit,
     onExcludeContact: (ContactInfo) -> Unit,
+    onCalendarEventClick: (CalendarEventInfo) -> Unit,
+    onPinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
@@ -86,6 +92,7 @@ fun SearchScreen(
     onWallpaperLoaded: (() -> Unit)? = null,
     isOverlayPresentation: Boolean = false,
     onOpenAppSettings: () -> Unit,
+    onOpenCalendarPermissionSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onPhoneNumberSelected: (String, Boolean) -> Unit,
     onDismissPhoneNumberSelection: () -> Unit,
@@ -96,10 +103,12 @@ fun SearchScreen(
     getContactNickname: (Long) -> String?,
     getFileNickname: (String) -> String?,
     getAppShortcutNickname: (String) -> String?,
+    getCalendarEventNickname: (Long) -> String?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
     onSaveFileNickname: (DeviceFile, String?) -> Unit,
+    onSaveCalendarEventNickname: (CalendarEventInfo, String?) -> Unit,
     getSettingNickname: (String) -> String?,
     onSaveSettingNickname: (DeviceSetting, String?) -> Unit,
     getLastShownPhoneNumber: (Long) -> String?,
@@ -154,6 +163,11 @@ fun SearchScreen(
         onPinContact = onPinContact,
         onUnpinContact = onUnpinContact,
         onExcludeContact = onExcludeContact,
+        onCalendarEventClick = onCalendarEventClick,
+        onPinCalendarEvent = onPinCalendarEvent,
+        onUnpinCalendarEvent = onUnpinCalendarEvent,
+        onExcludeCalendarEvent = onExcludeCalendarEvent,
+        onIncludeCalendarEvent = onIncludeCalendarEvent,
         onPinFile = onPinFile,
         onUnpinFile = onUnpinFile,
         onExcludeFile = onExcludeFile,
@@ -179,6 +193,7 @@ fun SearchScreen(
         onSetGeminiGroundingEnabled = onSetGeminiGroundingEnabled,
         onRefreshAvailableGeminiModels = onRefreshAvailableGeminiModels,
         onOpenAppSettings = onOpenAppSettings,
+        onOpenCalendarPermissionSettings = onOpenCalendarPermissionSettings,
         onOpenStorageAccessSettings = onOpenStorageAccessSettings,
         onAppNicknameClick = onAppNicknameClick,
         onClearDetectedShortcut = onClearDetectedShortcut,
@@ -188,6 +203,7 @@ fun SearchScreen(
         getContactNickname = getContactNickname,
         getFileNickname = getFileNickname,
         getAppShortcutNickname = getAppShortcutNickname,
+        getCalendarEventNickname = getCalendarEventNickname,
         onSaveAppNickname = onSaveAppNickname,
         onSaveAppShortcutNickname = onSaveAppShortcutNickname,
         onSaveContactNickname = onSaveContactNickname,
@@ -272,6 +288,7 @@ fun SearchScreen(
             filesParams = stateResult.sectionParams.filesParams,
             appShortcutsParams = stateResult.sectionParams.appShortcutsParams,
             settingsParams = stateResult.sectionParams.settingsParams,
+            calendarParams = stateResult.sectionParams.calendarParams,
             appsParams = stateResult.sectionParams.appsParams,
             onQueryChanged = onQueryChanged,
             onClearQuery = onClearQuery,
@@ -354,6 +371,10 @@ fun SearchScreen(
         },
         onSaveFileNickname = { file, nickname ->
             onSaveFileNickname(file, nickname)
+            stateResult.setNicknameDialogState(null)
+        },
+        onSaveCalendarEventNickname = { event, nickname ->
+            onSaveCalendarEventNickname(event, nickname)
             stateResult.setNicknameDialogState(null)
         },
         onSaveSettingNickname = { setting, nickname ->

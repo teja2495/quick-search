@@ -41,6 +41,13 @@ object PermissionUtils {
             Manifest.permission.READ_CONTACTS,
         ) == PackageManager.PERMISSION_GRANTED
 
+    /** Checks if the app has read calendar permission. */
+    fun hasCalendarPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_CALENDAR,
+        ) == PackageManager.PERMISSION_GRANTED
+
     /**
      * Checks if the app has file access permission (READ_EXTERNAL_STORAGE pre-R, MANAGE_EXTERNAL_STORAGE R+).
      */

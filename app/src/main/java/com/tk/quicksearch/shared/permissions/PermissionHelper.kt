@@ -81,6 +81,12 @@ object PermissionHelper {
             Manifest.permission.CALL_PHONE,
         ) == PackageManager.PERMISSION_GRANTED
 
+    fun checkCalendarPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_CALENDAR,
+        ) == PackageManager.PERMISSION_GRANTED
+
     fun checkWallpaperPermission(context: Context): Boolean =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(

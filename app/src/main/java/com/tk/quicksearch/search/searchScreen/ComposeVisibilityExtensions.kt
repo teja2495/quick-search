@@ -80,6 +80,7 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
     val hasSettingResults = state.settingResults.isNotEmpty()
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
+    val hasCalendarResults = state.calendarEvents.isNotEmpty()
 
     val hasResults =
         hasAppResults ||
@@ -87,7 +88,8 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
             hasFileResults ||
             hasSettingResults ||
             hasAppSettingResults ||
-            hasAppShortcutResults
+            hasAppShortcutResults ||
+            hasCalendarResults
 
     return hasResults
 }

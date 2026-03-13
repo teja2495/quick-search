@@ -29,6 +29,7 @@ class SecondarySearchOrchestrator(
     private var lastQueryWithNoContacts: String? = null
     private var lastQueryWithNoFiles: String? = null
     private var lastQueryWithNoSettings: String? = null
+    private var lastQueryWithNoCalendar: String? = null
     private var lastQueryWithNoAppSettings: String? = null
     private var lastQueryWithNoAppShortcuts: String? = null
     private var lastQueryLength: Int = 0
@@ -55,6 +56,7 @@ class SecondarySearchOrchestrator(
             lastQueryWithNoContacts = null
             lastQueryWithNoFiles = null
             lastQueryWithNoSettings = null
+            lastQueryWithNoCalendar = null
             lastQueryWithNoAppSettings = null
             lastQueryWithNoAppShortcuts = null
             lastQueryLength = 0
@@ -64,6 +66,7 @@ class SecondarySearchOrchestrator(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
+                    calendarEvents = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                 )
@@ -87,6 +90,11 @@ class SecondarySearchOrchestrator(
                 trimmedQuery.length < lastQueryWithNoSettings!!.length
             ) {
                 lastQueryWithNoSettings = null
+            }
+            if (lastQueryWithNoCalendar != null &&
+                trimmedQuery.length < lastQueryWithNoCalendar!!.length
+            ) {
+                lastQueryWithNoCalendar = null
             }
             if (lastQueryWithNoAppSettings != null &&
                 trimmedQuery.length < lastQueryWithNoAppSettings!!.length
@@ -112,6 +120,10 @@ class SecondarySearchOrchestrator(
                 SearchSection.FILES !in sectionManager.disabledSections
         val canSearchSettings =
             !isSingleCharacterQuery && SearchSection.SETTINGS !in sectionManager.disabledSections
+        val canSearchCalendar =
+            !isSingleCharacterQuery &&
+                currentState.hasCalendarPermission &&
+                SearchSection.CALENDAR !in sectionManager.disabledSections
         val canSearchAppSettings = !isSingleCharacterQuery
         val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
 
@@ -128,6 +140,10 @@ class SecondarySearchOrchestrator(
             !isBackspacing &&
                 lastQueryWithNoSettings != null &&
                 trimmedQuery.startsWith(lastQueryWithNoSettings!!)
+        val shouldSkipCalendar =
+            !isBackspacing &&
+                lastQueryWithNoCalendar != null &&
+                trimmedQuery.startsWith(lastQueryWithNoCalendar!!)
         val shouldSkipAppSettings =
             !isBackspacing &&
                 lastQueryWithNoAppSettings != null &&
@@ -139,6 +155,7 @@ class SecondarySearchOrchestrator(
         val shouldSearchContacts = canSearchContacts && !shouldSkipContacts
         val shouldSearchFiles = canSearchFiles && !shouldSkipFiles
         val shouldSearchSettings = canSearchSettings && !shouldSkipSettings
+        val shouldSearchCalendar = canSearchCalendar && !shouldSkipCalendar
         val shouldSearchAppSettings = canSearchAppSettings && !shouldSkipAppSettings
         val shouldSearchAppShortcuts = canSearchAppShortcuts && !shouldSkipAppShortcuts
 
@@ -158,6 +175,7 @@ class SecondarySearchOrchestrator(
                         canSearchContacts = shouldSearchContacts,
                         canSearchFiles = shouldSearchFiles,
                         canSearchSettings = shouldSearchSettings,
+                        canSearchCalendar = shouldSearchCalendar,
                         canSearchAppSettings = shouldSearchAppSettings,
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
                         enableFuzzyContactSearch = false,
@@ -190,6 +208,11 @@ class SecondarySearchOrchestrator(
                         } else if (shouldSearchSettings && unifiedResults.settingResults.isNotEmpty()) {
                             lastQueryWithNoSettings = null
                         }
+                        if (shouldSearchCalendar && unifiedResults.calendarEvents.isEmpty()) {
+                            lastQueryWithNoCalendar = trimmedQuery
+                        } else if (shouldSearchCalendar && unifiedResults.calendarEvents.isNotEmpty()) {
+                            lastQueryWithNoCalendar = null
+                        }
 
                         if (shouldSearchAppSettings && unifiedResults.appSettingResults.isEmpty()) {
                             lastQueryWithNoAppSettings = trimmedQuery
@@ -212,6 +235,7 @@ class SecondarySearchOrchestrator(
                                 contactResults = unifiedResults.contactResults,
                                 fileResults = unifiedResults.fileResults,
                                 settingResults = unifiedResults.settingResults,
+                                calendarEvents = unifiedResults.calendarEvents,
                                 appSettingResults = unifiedResults.appSettingResults,
                                 appShortcutResults = unifiedResults.appShortcutResults,
                             )
@@ -280,6 +304,7 @@ class SecondarySearchOrchestrator(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
+                    calendarEvents = emptyList(),
                     appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
@@ -304,6 +329,10 @@ class SecondarySearchOrchestrator(
                 isSectionEnabled(SearchSection.FILES)
         val isSettingsEnabled =
             !isSingleCharacterQuery && isSectionEnabled(SearchSection.SETTINGS)
+        val isCalendarEnabled =
+            !isSingleCharacterQuery &&
+                currentState.hasCalendarPermission &&
+                isSectionEnabled(SearchSection.CALENDAR)
         val isAppSettingsEnabled = !isSingleCharacterQuery
         val isAppShortcutsEnabled =
             isSectionEnabled(SearchSection.APP_SHORTCUTS)
@@ -311,6 +340,7 @@ class SecondarySearchOrchestrator(
         val shouldSearchContacts = section == SearchSection.CONTACTS && isContactsEnabled
         val shouldSearchFiles = section == SearchSection.FILES && isFilesEnabled
         val shouldSearchSettings = section == SearchSection.SETTINGS && isSettingsEnabled
+        val shouldSearchCalendar = section == SearchSection.CALENDAR && isCalendarEnabled
         val shouldSearchAppSettings = section == SearchSection.SETTINGS && isAppSettingsEnabled
         val shouldSearchAppShortcuts =
             section == SearchSection.APP_SHORTCUTS && isAppShortcutsEnabled
@@ -328,6 +358,7 @@ class SecondarySearchOrchestrator(
                         canSearchContacts = shouldSearchContacts,
                         canSearchFiles = shouldSearchFiles,
                         canSearchSettings = shouldSearchSettings,
+                        canSearchCalendar = shouldSearchCalendar,
                         canSearchAppSettings = shouldSearchAppSettings,
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
                         enableFuzzyContactSearch = shouldSearchContacts && useFuzzyMatching,
@@ -346,6 +377,7 @@ class SecondarySearchOrchestrator(
                             contactResults = unifiedResults.contactResults,
                             fileResults = unifiedResults.fileResults,
                             settingResults = unifiedResults.settingResults,
+                            calendarEvents = unifiedResults.calendarEvents,
                             appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
@@ -369,6 +401,7 @@ class SecondarySearchOrchestrator(
         lastQueryWithNoContacts = null
         lastQueryWithNoFiles = null
         lastQueryWithNoSettings = null
+        lastQueryWithNoCalendar = null
         lastQueryWithNoAppSettings = null
         lastQueryWithNoAppShortcuts = null
         lastQueryLength = 0
@@ -403,6 +436,7 @@ class SecondarySearchOrchestrator(
                             contactResults = emptyList(),
                             fileResults = emptyList(),
                             settingResults = emptyList(),
+                            calendarEvents = emptyList(),
                             appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
                         )

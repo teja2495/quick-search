@@ -51,6 +51,7 @@ import com.tk.quicksearch.search.searchScreen.FilesSectionParams
 import com.tk.quicksearch.search.searchScreen.AppShortcutsSectionParams
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
 import com.tk.quicksearch.search.searchScreen.AppsSectionParams
+import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
 import com.tk.quicksearch.search.searchScreen.hasAnySearchResults
 import com.tk.quicksearch.search.searchScreen.overlayResultCardColor
@@ -84,6 +85,7 @@ fun SearchContentArea(
     filesParams: FilesSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     settingsParams: SettingsSectionParams,
+    calendarParams: CalendarSectionParams,
     appsParams: AppsSectionParams,
     predictedTarget: PredictedSubmitTarget? = null,
     onRequestUsagePermission: () -> Unit,
@@ -120,7 +122,8 @@ fun SearchContentArea(
                 shouldShowAppShortcutsSection(renderingState) ||
                 shouldShowContactsSection(renderingState, contactsParams) ||
                 shouldShowFilesSection(renderingState, filesParams) ||
-                shouldShowSettingsSection(renderingState)
+                shouldShowSettingsSection(renderingState) ||
+                shouldShowCalendarSection(renderingState, calendarParams)
     val alignResultsToBottom = useOneHandedMode && !showDirectSearch && !showCalculator
     val edgeFadeHeight = 32.dp
     val expandedSectionBottomInset = 80.dp
@@ -358,10 +361,11 @@ fun SearchContentArea(
                             state = state,
                             renderingState = renderingState,
                             contactsParams = contactsParams,
-                            filesParams = filesParams,
-                            appShortcutsParams = appShortcutsParams,
-                            settingsParams = settingsParams,
-                            appsParams = appsParams,
+            filesParams = filesParams,
+            appShortcutsParams = appShortcutsParams,
+            settingsParams = settingsParams,
+            calendarParams = calendarParams,
+            appsParams = appsParams,
                             predictedTarget = predictedTarget,
                             onRequestUsagePermission = onRequestUsagePermission,
                             minContentHeight =

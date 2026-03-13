@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.contacts.ContactSearchPolicy
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
@@ -16,6 +17,7 @@ import com.tk.quicksearch.search.files.FolderPathPatternMatcher
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.utils.DefaultSearchMatcher
 import com.tk.quicksearch.search.utils.FileClassifier
 import com.tk.quicksearch.search.utils.FuzzyMatcher
@@ -34,6 +36,7 @@ data class UnifiedSearchResults(
         val fileResults: List<DeviceFile> = emptyList(),
         val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
+        val calendarEvents: List<CalendarEventInfo> = emptyList(),
         val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
 )
@@ -41,6 +44,7 @@ data class UnifiedSearchResults(
 class UnifiedSearchHandler(
         private val context: Context,
         private val contactRepository: ContactRepository,
+        private val calendarRepository: CalendarRepository,
         private val fileRepository: FileSearchRepository,
         private val userPreferences: UserAppPreferences,
         private val settingsSearchHandler: DeviceSettingsSearchHandler,
@@ -71,6 +75,7 @@ class UnifiedSearchHandler(
                 canSearchContacts: Boolean,
                 canSearchFiles: Boolean,
                 canSearchSettings: Boolean,
+                canSearchCalendar: Boolean,
                 canSearchAppSettings: Boolean,
                 canSearchAppShortcuts: Boolean,
                 enableFuzzyContactSearch: Boolean = false,
@@ -90,6 +95,7 @@ class UnifiedSearchHandler(
                         val queryContext = SearchQueryContext.fromRawQuery(trimmedQuery)
                         val isContactsAliasSearch = aliasSection == SearchSection.CONTACTS
                         val isFilesAliasSearch = aliasSection == SearchSection.FILES
+                        val isCalendarAliasSearch = aliasSection == SearchSection.CALENDAR
                         val contactResultLimit =
                                 if (isContactsAliasSearch) {
                                         if (isLowRamDevice) LOW_RAM_ALIAS_CONTACT_RESULT_LIMIT
@@ -122,6 +128,12 @@ class UnifiedSearchHandler(
                                 }
                                 else FileSearchHandler.FILE_SEARCH_RESULT_LIMIT * 14
                         val nicknameOnlyFileUriHydrationLimit = fileResultLimit * 2
+                        val calendarResultLimit =
+                                if (isCalendarAliasSearch) {
+                                        if (isLowRamDevice) 35 else 60
+                                } else {
+                                        25
+                                }
 
                         // Read all per-query preferences once to avoid repeated SharedPreferences
                         // I/O.
@@ -133,6 +145,10 @@ class UnifiedSearchHandler(
                                 else emptySet()
                         val excludedFileExtensions =
                                 if (canSearchFiles) userPreferences.getExcludedFileExtensions()
+                                else emptySet()
+                        val excludedCalendarEventIds =
+                                if (canSearchCalendar)
+                                        userPreferences.getExcludedCalendarEventIds()
                                 else emptySet()
                         val folderWhitelistPatterns =
                                 if (canSearchFiles) userPreferences.getFolderWhitelistPatterns()
@@ -149,6 +165,7 @@ class UnifiedSearchHandler(
                                 contactResults,
                                 fileResults,
                                 settingsMatches,
+                                calendarMatches,
                                 appSettingsMatches,
                                 appShortcutMatches,
                         ) =
@@ -216,6 +233,17 @@ class UnifiedSearchHandler(
                                                         emptyList()
                                                 }
                                         }
+                                        val calendarDeferred = async {
+                                                if (canSearchCalendar) {
+                                                        calendarRepository.searchFutureEventsByTitle(
+                                                                query = queryContext.normalizedQuery,
+                                                                limit = calendarResultLimit * 4,
+                                                        )
+                                                                .filterNot { excludedCalendarEventIds.contains(it.eventId) }
+                                                } else {
+                                                        emptyList()
+                                                }
+                                        }
                                         val appShortcutsDeferred = async {
                                                 if (canSearchAppShortcuts) {
                                                         appShortcutSearchHandler.searchShortcuts(
@@ -231,6 +259,7 @@ class UnifiedSearchHandler(
                                                 contactsDeferred.await(),
                                                 filesDeferred.await(),
                                                 settingsDeferred.await(),
+                                                calendarDeferred.await(),
                                                 appSettingsDeferred.await(),
                                                 appShortcutsDeferred.await(),
                                         )
@@ -259,6 +288,13 @@ class UnifiedSearchHandler(
                                         showHiddenFiles,
                                         nicknameOnlyFileUriHydrationLimit,
                                 )
+                        val nicknameCalendarEvents =
+                                findNicknameOnlyCalendarEvents(
+                                        displayNameEvents = calendarMatches,
+                                        queryContext = queryContext,
+                                        canSearchCalendar = canSearchCalendar,
+                                        excludedCalendarEventIds = excludedCalendarEventIds,
+                                )
 
                         // Combine and filter results
                         val filteredContacts =
@@ -279,6 +315,12 @@ class UnifiedSearchHandler(
                                         fuzzyMinScore,
                                         fileResultLimit,
                                 )
+                        val filteredCalendarEvents =
+                                filterAndRankCalendarEvents(
+                                        events = calendarMatches + nicknameCalendarEvents,
+                                        queryContext = queryContext,
+                                        resultLimit = calendarResultLimit,
+                                )
 
                         val hydratedContacts =
                                 contactRepository.hydrateContactsForDisplay(filteredContacts)
@@ -287,6 +329,7 @@ class UnifiedSearchHandler(
                                 contactResults = hydratedContacts,
                                 fileResults = filteredFiles,
                                 settingResults = settingsMatches,
+                                calendarEvents = filteredCalendarEvents,
                                 appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,
                         )
@@ -298,6 +341,7 @@ class UnifiedSearchHandler(
                 val contactResults: List<ContactInfo>,
                 val fileResults: List<DeviceFile>,
                 val settingsResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
+                val calendarResults: List<CalendarEventInfo>,
                 val appSettingsResults: List<AppSettingResult>,
                 val appShortcutResults: List<StaticShortcut>,
         )
@@ -391,6 +435,31 @@ class UnifiedSearchHandler(
                                         ) &&
                                         file.displayName.contains(".")
                         }
+                } else {
+                        emptyList()
+                }
+        }
+
+        private suspend fun findNicknameOnlyCalendarEvents(
+                displayNameEvents: List<CalendarEventInfo>,
+                queryContext: SearchQueryContext,
+                canSearchCalendar: Boolean,
+                excludedCalendarEventIds: Set<Long>,
+        ): List<CalendarEventInfo> {
+                if (!canSearchCalendar) return emptyList()
+
+                val nicknameMatchingEventIds =
+                        userPreferences.findCalendarEventsWithMatchingNickname(queryContext.normalizedQuery).filterNot {
+                                excludedCalendarEventIds.contains(it)
+                        }
+                if (nicknameMatchingEventIds.isEmpty()) return emptyList()
+
+                val displayNameMatchedIds = displayNameEvents.map { it.eventId }.toSet()
+                val nicknameOnlyIds =
+                        nicknameMatchingEventIds.filterNot { displayNameMatchedIds.contains(it) }
+
+                return if (nicknameOnlyIds.isNotEmpty()) {
+                        calendarRepository.getEventsByIds(nicknameOnlyIds.toSet())
                 } else {
                         emptyList()
                 }
@@ -557,5 +626,39 @@ class UnifiedSearchHandler(
                                 .toList()
 
                 return (exactMatches + fuzzyMatches).take(resultLimit)
+        }
+
+        private fun filterAndRankCalendarEvents(
+                events: List<CalendarEventInfo>,
+                queryContext: SearchQueryContext,
+                resultLimit: Int,
+        ): List<CalendarEventInfo> {
+                if (events.isEmpty()) return emptyList()
+
+                val distinctEvents = events.distinctBy { it.eventId }
+                return distinctEvents
+                        .mapNotNull { event ->
+                                val nickname = userPreferences.getCalendarEventNickname(event.eventId)
+                                val priority =
+                                        com.tk.quicksearch.search.utils.SearchRankingUtils
+                                                .calculateMatchPriorityWithNickname(
+                                                        primaryText = event.title,
+                                                        nickname = nickname,
+                                                        normalizedQuery = queryContext.normalizedQuery,
+                                                        queryTokens = queryContext.tokens,
+                                                )
+                                if (com.tk.quicksearch.search.utils.SearchRankingUtils.isOtherMatch(priority)) {
+                                        null
+                                } else {
+                                        event to priority
+                                }
+                        }
+                        .sortedWith(
+                                compareBy<Pair<CalendarEventInfo, Int>> { it.second }
+                                        .thenBy { it.first.startMillis }
+                                        .thenBy { it.first.title.lowercase() },
+                        )
+                        .map { it.first }
+                        .take(resultLimit)
         }
 }

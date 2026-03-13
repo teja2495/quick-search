@@ -11,8 +11,10 @@ import com.tk.quicksearch.search.searchScreen.AppsSectionParams
 import com.tk.quicksearch.search.searchScreen.ContactsSectionParams
 import com.tk.quicksearch.search.searchScreen.ExpandedSection
 import com.tk.quicksearch.search.searchScreen.FilesSectionParams
+import com.tk.quicksearch.search.searchScreen.CalendarSectionParams
 import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SectionRenderingState
 import com.tk.quicksearch.search.searchScreen.SettingsSectionParams
+import com.tk.quicksearch.search.models.CalendarEventInfo
 
 // ============================================================================
 // Section Visibility Helpers
@@ -59,6 +61,16 @@ fun shouldShowAppShortcutsSection(renderingState: SectionRenderingState): Boolea
     renderingState.hasAppShortcutResults &&
         renderingState.shouldShowAppShortcuts &&
         renderingState.expandedSection == ExpandedSection.NONE
+
+fun shouldShowCalendarSection(
+    renderingState: SectionRenderingState,
+    calendarParams: CalendarSectionParams,
+): Boolean =
+    shouldShowSectionWithPermission(
+        shouldShow = renderingState.shouldShowCalendar,
+        hasPermission = calendarParams.hasPermission,
+        hasResults = renderingState.hasCalendarResults,
+    )
 
 /**
  * Generic helper for determining section visibility based on permission and results. Shows section
@@ -173,6 +185,7 @@ fun rememberSectionRenderContext(
     filesParams: FilesSectionParams,
     contactsParams: ContactsSectionParams,
     settingsParams: SettingsSectionParams,
+    calendarParams: CalendarSectionParams,
     appShortcutsParams: AppShortcutsSectionParams,
     appsParams: AppsSectionParams?,
     isSearching: Boolean,
@@ -181,6 +194,7 @@ fun rememberSectionRenderContext(
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
+    val isCalendarExpanded = renderingState.expandedSection == ExpandedSection.CALENDAR
     val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
 
     // Determine visibility based on state (Search vs Pinned)
@@ -189,6 +203,7 @@ fun rememberSectionRenderContext(
     val shouldRenderContacts: Boolean
     val shouldRenderAppShortcuts: Boolean
     val shouldRenderSettings: Boolean
+    val shouldRenderCalendar: Boolean
 
     if (isSearching) {
         shouldRenderApps =
@@ -231,9 +246,10 @@ fun rememberSectionRenderContext(
         shouldRenderAppShortcuts =
             when (state.appShortcutsSectionState) {
                 is AppShortcutsSectionVisibility.ShowingResults -> {
-                    !isFilesExpanded &&
+                        !isFilesExpanded &&
                         !isContactsExpanded &&
-                        !isSettingsExpanded
+                        !isSettingsExpanded &&
+                        !isCalendarExpanded
                 }
 
                 else -> {
@@ -243,14 +259,26 @@ fun rememberSectionRenderContext(
         shouldRenderSettings =
             when (state.settingsSectionState) {
                 is SettingsSectionVisibility.ShowingResults -> {
-                    !isFilesExpanded &&
+                        !isFilesExpanded &&
                         !isContactsExpanded &&
-                        !isAppShortcutsExpanded
+                        !isAppShortcutsExpanded &&
+                        !isCalendarExpanded
                 }
 
                 else -> {
                     false
                 }
+            }
+        shouldRenderCalendar =
+            when (state.calendarSectionState) {
+                is CalendarSectionVisibility.ShowingResults -> {
+                    !isFilesExpanded &&
+                        !isContactsExpanded &&
+                        !isAppShortcutsExpanded &&
+                        !isSettingsExpanded
+                }
+
+                else -> false
             }
     } else {
         // Pinned state
@@ -299,6 +327,14 @@ fun rememberSectionRenderContext(
                     false
                 }
             }
+        shouldRenderCalendar =
+            when (state.calendarSectionState) {
+                is CalendarSectionVisibility.ShowingResults -> {
+                    renderingState.hasPinnedCalendarEvents
+                }
+
+                else -> false
+            }
     }
 
     return SectionRenderContext(
@@ -307,9 +343,11 @@ fun rememberSectionRenderContext(
         shouldRenderApps = shouldRenderApps,
         shouldRenderAppShortcuts = shouldRenderAppShortcuts,
         shouldRenderSettings = shouldRenderSettings,
+        shouldRenderCalendar = shouldRenderCalendar,
         isFilesExpanded = isFilesExpanded || !isSearching,
         isContactsExpanded = isContactsExpanded || !isSearching,
         isSettingsExpanded = isSettingsExpanded || !isSearching,
+        isCalendarExpanded = isCalendarExpanded || !isSearching,
         isAppShortcutsExpanded = isAppShortcutsExpanded || !isSearching,
         filesList =
             if (isSearching) {
@@ -361,19 +399,28 @@ fun rememberSectionRenderContext(
             } else {
                 renderingState.pinnedAppShortcuts
             },
+        calendarEventsList =
+            if (isSearching) {
+                renderingState.calendarEvents
+            } else {
+                renderingState.pinnedCalendarEvents
+            },
         showAllFilesResults = !isSearching,
         showAllContactsResults = !isSearching,
         showAllSettingsResults = !isSearching,
+        showAllCalendarResults = !isSearching,
         showAllAppShortcutsResults = !isSearching,
         showFilesExpandControls = isSearching,
         showContactsExpandControls = isSearching,
         showSettingsExpandControls =
             isSearching &&
                 (renderingState.hasSettingResults || renderingState.hasAppSettingResults),
+        showCalendarExpandControls = isSearching,
         showAppShortcutsExpandControls = isSearching,
         filesExpandClick = filesParams.onExpandClick,
         contactsExpandClick = contactsParams.onExpandClick,
         settingsExpandClick = settingsParams.onExpandClick,
+        calendarExpandClick = calendarParams.onExpandClick,
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
         isSectionAliasMode = state.detectedAliasSearchSection != null,
     )
@@ -385,6 +432,7 @@ data class SectionRenderParams(
     val contactsParams: ContactsSectionParams,
     val filesParams: FilesSectionParams,
     val settingsParams: SettingsSectionParams? = null,
+    val calendarParams: CalendarSectionParams? = null,
     val appShortcutsParams: AppShortcutsSectionParams? = null,
     val appsParams: AppsSectionParams? = null,
     val isReversed: Boolean,
@@ -396,21 +444,27 @@ data class SectionRenderContext(
     val shouldRenderContacts: Boolean = false,
     val shouldRenderApps: Boolean = false,
     val shouldRenderAppShortcuts: Boolean = false,
+    val shouldRenderCalendar: Boolean = false,
     val isFilesExpanded: Boolean = false,
     val isContactsExpanded: Boolean = false,
+    val isCalendarExpanded: Boolean = false,
     val isAppShortcutsExpanded: Boolean = false,
     val filesList: List<DeviceFile> = emptyList(),
     val contactsList: List<ContactInfo> = emptyList(),
     val appShortcutsList: List<StaticShortcut> = emptyList(),
+    val calendarEventsList: List<CalendarEventInfo> = emptyList(),
     val showAllFilesResults: Boolean = false,
     val showAllContactsResults: Boolean = false,
     val showAllAppShortcutsResults: Boolean = false,
+    val showAllCalendarResults: Boolean = false,
     val showFilesExpandControls: Boolean = false,
     val showContactsExpandControls: Boolean = false,
     val showAppShortcutsExpandControls: Boolean = false,
+    val showCalendarExpandControls: Boolean = false,
     val filesExpandClick: () -> Unit = {},
     val contactsExpandClick: () -> Unit = {},
     val appShortcutsExpandClick: () -> Unit = {},
+    val calendarExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
     val isSettingsExpanded: Boolean = false,
     val settingsList: List<DeviceSetting> = emptyList(),

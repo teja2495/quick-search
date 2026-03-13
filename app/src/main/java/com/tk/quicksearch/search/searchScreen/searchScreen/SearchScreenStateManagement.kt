@@ -19,6 +19,7 @@ import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.ContactMethod
@@ -43,6 +44,7 @@ private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
         SearchSection.CONTACTS -> ExpandedSection.CONTACTS
         SearchSection.FILES -> ExpandedSection.FILES
         SearchSection.SETTINGS -> ExpandedSection.SETTINGS
+        SearchSection.CALENDAR -> ExpandedSection.CALENDAR
         SearchSection.APPS -> ExpandedSection.NONE
     }
 
@@ -70,6 +72,11 @@ internal fun SearchScreenStateManagement(
     onPinContact: (ContactInfo) -> Unit,
     onUnpinContact: (ContactInfo) -> Unit,
     onExcludeContact: (ContactInfo) -> Unit,
+    onCalendarEventClick: (CalendarEventInfo) -> Unit,
+    onPinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onUnpinCalendarEvent: (CalendarEventInfo) -> Unit,
+    onExcludeCalendarEvent: (CalendarEventInfo) -> Unit,
+    onIncludeCalendarEvent: (CalendarEventInfo) -> Unit,
     onPinFile: (DeviceFile) -> Unit,
     onUnpinFile: (DeviceFile) -> Unit,
     onExcludeFile: (DeviceFile) -> Unit,
@@ -95,6 +102,7 @@ internal fun SearchScreenStateManagement(
     onSetGeminiGroundingEnabled: (Boolean) -> Unit,
     onRefreshAvailableGeminiModels: () -> Unit,
     onOpenAppSettings: () -> Unit,
+    onOpenCalendarPermissionSettings: () -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onAppNicknameClick: (AppInfo) -> Unit,
     onClearDetectedShortcut: () -> Unit,
@@ -104,6 +112,7 @@ internal fun SearchScreenStateManagement(
     getContactNickname: (Long) -> String?,
     getFileNickname: (String) -> String?,
     getAppShortcutNickname: (String) -> String?,
+    getCalendarEventNickname: (Long) -> String?,
     onSaveAppNickname: (AppInfo, String?) -> Unit,
     onSaveAppShortcutNickname: (StaticShortcut, String?) -> Unit,
     onSaveContactNickname: (ContactInfo, String?) -> Unit,
@@ -346,7 +355,13 @@ internal fun SearchScreenStateManagement(
             onPinContact = onPinContact,
             onUnpinContact = onUnpinContact,
             onExcludeContact = onExcludeContact,
+            onCalendarEventClick = onCalendarEventClick,
+            onPinCalendarEvent = onPinCalendarEvent,
+            onUnpinCalendarEvent = onUnpinCalendarEvent,
+            onExcludeCalendarEvent = onExcludeCalendarEvent,
+            onIncludeCalendarEvent = onIncludeCalendarEvent,
             onOpenAppSettings = onOpenAppSettings,
+            onOpenCalendarPermissionSettings = onOpenCalendarPermissionSettings,
             onAppClick = onAppClick,
             onAppInfoClick = onAppInfoClick,
             onUninstallClick = onUninstallClick,
@@ -358,6 +373,7 @@ internal fun SearchScreenStateManagement(
             getSettingNickname = getSettingNickname,
             getAppNickname = getAppNickname,
             getAppShortcutNickname = getAppShortcutNickname,
+            getCalendarEventNickname = getCalendarEventNickname,
             onPrimaryActionLongPress = { contact ->
                 contactActionPickerDialogState =
                     ContactActionPickerDialogState(
@@ -400,15 +416,18 @@ internal fun SearchScreenStateManagement(
             hasFileResults = derivedState.hasFileResults,
             hasSettingResults = derivedState.hasSettingResults,
             hasAppSettingResults = derivedState.hasAppSettingResults,
+            hasCalendarResults = derivedState.hasCalendarResults,
             hasPinnedAppShortcuts = derivedState.hasPinnedAppShortcuts,
             hasPinnedContacts = derivedState.hasPinnedContacts,
             hasPinnedFiles = derivedState.hasPinnedFiles,
             hasPinnedSettings = derivedState.hasPinnedSettings,
+            hasPinnedCalendarEvents = derivedState.hasPinnedCalendarEvents,
             shouldShowApps = derivedState.shouldShowApps,
             shouldShowAppShortcuts = derivedState.shouldShowAppShortcuts,
             shouldShowContacts = derivedState.shouldShowContacts,
             shouldShowFiles = derivedState.shouldShowFiles,
             shouldShowSettings = derivedState.shouldShowSettings,
+            shouldShowCalendar = derivedState.shouldShowCalendar,
             hasMultipleExpandableSections = derivedState.hasMultipleExpandableSections,
             displayApps = derivedState.displayApps,
             appShortcutResults = state.appShortcutResults,
@@ -416,10 +435,12 @@ internal fun SearchScreenStateManagement(
             fileResults = state.fileResults,
             settingResults = state.settingResults,
             appSettingResults = state.appSettingResults,
+            calendarEvents = state.calendarEvents,
             pinnedAppShortcuts = state.pinnedAppShortcuts,
             pinnedContacts = state.pinnedContacts,
             pinnedFiles = state.pinnedFiles,
             pinnedSettings = state.pinnedSettings,
+            pinnedCalendarEvents = state.pinnedCalendarEvents,
             orderedSections = derivedState.orderedSections,
             shortcutDetected =
                 state.detectedShortcutTarget != null || state.detectedAliasSearchSection != null,

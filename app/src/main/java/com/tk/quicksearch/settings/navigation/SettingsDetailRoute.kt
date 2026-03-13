@@ -43,6 +43,7 @@ fun SettingsDetailRoute(
         onRequestUsagePermission: () -> Unit = {},
         onRequestContactPermission: () -> Unit = {},
         onRequestFilePermission: () -> Unit = {},
+        onRequestCalendarPermission: () -> Unit = {},
         onRequestCallPermission: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -391,6 +392,7 @@ fun SettingsDetailRoute(
                     onRequestUsagePermission = onRequestUsagePermission,
                     onRequestContactPermission = onRequestContactPermission,
                     onRequestFilePermission = onRequestFilePermission,
+                    onRequestCalendarPermission = onRequestCalendarPermission,
                     onRequestCallPermission = onRequestCallPermission,
                     onRequestWallpaperPermission = onSelectWallpaperSource,
             )

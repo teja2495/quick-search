@@ -259,4 +259,5 @@ private fun SearchSection.getAliasTargetId(): String =
         SearchSection.CONTACTS -> AliasHandler.SEARCH_SECTION_CONTACTS_ALIAS_ID
         SearchSection.FILES -> AliasHandler.SEARCH_SECTION_FILES_ALIAS_ID
         SearchSection.SETTINGS -> AliasHandler.SEARCH_SECTION_SETTINGS_ALIAS_ID
+        SearchSection.CALENDAR -> AliasHandler.SEARCH_SECTION_CALENDAR_ALIAS_ID
     }

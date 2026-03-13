@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.automirrored.rounded.Shortcut
@@ -84,6 +85,13 @@ internal fun getSectionMetadata(section: SearchSection): SectionMetadata =
             SectionMetadata(
                 name = stringResource(R.string.section_settings),
                 icon = Icons.Rounded.Settings,
+            )
+        }
+
+        SearchSection.CALENDAR -> {
+            SectionMetadata(
+                name = stringResource(R.string.section_calendar),
+                icon = Icons.Rounded.CalendarMonth,
             )
         }
     }

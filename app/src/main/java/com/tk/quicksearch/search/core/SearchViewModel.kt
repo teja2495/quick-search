@@ -20,6 +20,7 @@ import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
 import com.tk.quicksearch.search.apps.invalidateAppIconCache
 import com.tk.quicksearch.search.apps.prefetchAppIcons
+import com.tk.quicksearch.search.calendar.CalendarManagementHandler
 import com.tk.quicksearch.search.common.PinningHandler
 import com.tk.quicksearch.search.contacts.actions.ContactActionHandler
 import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
@@ -34,6 +35,7 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.isUserCreatedShortcu
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.data.AppsRepository
+import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.StartupPreferencesFacade
@@ -46,6 +48,7 @@ import com.tk.quicksearch.search.deviceSettings.DeviceSettingsSearchHandler
 import com.tk.quicksearch.search.files.FileManagementHandler
 import com.tk.quicksearch.search.files.FileSearchHandler
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
@@ -173,6 +176,7 @@ class SearchViewModel(
     private val appShortcutRepository by lazy {
         AppShortcutRepository(appContext)
     }
+    private val calendarRepository by lazy { CalendarRepository(appContext) }
     private val contactRepository by lazy { ContactRepository(appContext) }
     private val fileRepository by lazy { FileSearchRepository(appContext) }
     private val settingsShortcutRepository by lazy {
@@ -189,7 +193,7 @@ class SearchViewModel(
     }
 
     private val permissionManager by lazy {
-        PermissionManager(contactRepository, fileRepository, userPreferences)
+        PermissionManager(contactRepository, calendarRepository, fileRepository, userPreferences)
     }
     private val searchOperations by lazy { SearchOperations(contactRepository) }
 
@@ -400,12 +404,16 @@ class SearchViewModel(
                     allDeviceSettings = s.allDeviceSettings,
                     pinnedSettings = s.pinnedSettings,
                     excludedSettings = s.excludedSettings,
+                    calendarEvents = s.calendarEvents,
+                    pinnedCalendarEvents = s.pinnedCalendarEvents,
+                    excludedCalendarEvents = s.excludedCalendarEvents,
                     screenState = s.screenState,
                     appsSectionState = s.appsSectionState,
                     appShortcutsSectionState = s.appShortcutsSectionState,
                     contactsSectionState = s.contactsSectionState,
                     filesSectionState = s.filesSectionState,
                     settingsSectionState = s.settingsSectionState,
+                    calendarSectionState = s.calendarSectionState,
                     searchEnginesState = s.searchEnginesState,
                     calculatorState = s.calculatorState,
                     DirectSearchState = s.DirectSearchState,
@@ -423,6 +431,7 @@ class SearchViewModel(
                     hasUsagePermission = s.hasUsagePermission,
                     hasContactPermission = s.hasContactPermission,
                     hasFilePermission = s.hasFilePermission,
+                    hasCalendarPermission = s.hasCalendarPermission,
                     hasCallPermission = s.hasCallPermission,
                     hasWallpaperPermission = s.hasWallpaperPermission,
                     wallpaperAvailable = s.wallpaperAvailable,
@@ -557,6 +566,14 @@ class SearchViewModel(
                 this::updateUiState,
         )
     }
+    val calendarManager by lazy {
+        CalendarManagementHandler(
+                userPreferences,
+                viewModelScope,
+                this::refreshSecondarySearches,
+                this::updateUiState,
+        )
+    }
     val appShortcutManager by lazy {
         AppShortcutManagementHandler(
                 userPreferences,
@@ -683,6 +700,7 @@ class SearchViewModel(
         UnifiedSearchHandler(
                 context = appContext,
                 contactRepository = contactRepository,
+                calendarRepository = calendarRepository,
                 fileRepository = fileRepository,
                 userPreferences = userPreferences,
                 settingsSearchHandler = settingsSearchHandler,
@@ -750,6 +768,8 @@ class SearchViewModel(
     private fun hasContactPermission(): Boolean = contactRepository.hasPermission()
 
     private fun hasFilePermission(): Boolean = fileRepository.hasPermission()
+
+    private fun hasCalendarPermission(): Boolean = calendarRepository.hasPermission()
 
     private fun hasCallPermission(): Boolean =
             PermissionHelper.checkCallPermission(getApplication())
@@ -819,6 +839,7 @@ class SearchViewModel(
     }
 
     init {
+        userPreferences.ensureCalendarSectionDefaultDisabledMigration()
         // Initialize services after all handlers are available
         initializeServices()
 
@@ -921,6 +942,7 @@ class SearchViewModel(
         val hasUsagePermission = repository.hasUsageAccess()
         val hasContactPermission = hasContactPermission()
         val hasFilePermission = hasFilePermission()
+        val hasCalendarPermission = hasCalendarPermission()
         val hasCallPermission = hasCallPermission()
         val hasWallpaperPermission = hasWallpaperPermission()
         val disabledAppShortcutIds = userPreferences.getDisabledAppShortcutIds()
@@ -950,6 +972,7 @@ class SearchViewModel(
                         hasUsagePermission = hasUsagePermission,
                         hasContactPermission = hasContactPermission,
                         hasFilePermission = hasFilePermission,
+                        hasCalendarPermission = hasCalendarPermission,
                         hasCallPermission = hasCallPermission,
                         hasWallpaperPermission = hasWallpaperPermission,
                 )
@@ -1219,6 +1242,7 @@ class SearchViewModel(
                 // settings
                 pinningHandler.loadPinnedContactsAndFiles()
                 pinningHandler.loadExcludedContactsAndFiles()
+                loadPinnedAndExcludedCalendarEvents()
 
                 // Load pinned app shortcuts from cache (fast)
                 val pinnedAppShortcutsState = appShortcutSearchHandler.getPinnedAndExcludedOnly()
@@ -1916,6 +1940,30 @@ class SearchViewModel(
         }
     }
 
+    private fun loadPinnedAndExcludedCalendarEvents() {
+        if (!hasCalendarPermission()) {
+            updateResultsState {
+                it.copy(
+                    pinnedCalendarEvents = emptyList(),
+                    excludedCalendarEvents = emptyList(),
+                )
+            }
+            return
+        }
+
+        val excludedIds = userPreferences.getExcludedCalendarEventIds()
+        val pinnedIds = userPreferences.getPinnedCalendarEventIds().filterNot { excludedIds.contains(it) }.toSet()
+        val pinned = calendarRepository.getEventsByIds(pinnedIds)
+        val excluded = calendarRepository.getEventsByIds(excludedIds)
+
+        updateResultsState {
+            it.copy(
+                pinnedCalendarEvents = pinned,
+                excludedCalendarEvents = excluded,
+            )
+        }
+    }
+
     fun setDirectDialEnabled(
             enabled: Boolean,
             manual: Boolean = true,
@@ -2061,6 +2109,7 @@ class SearchViewModel(
                             fileResults = emptyList(),
                             settingResults = emptyList(),
                             appSettingResults = emptyList(),
+                            calendarEvents = emptyList(),
                             DirectSearchState = DirectSearchState(),
                             calculatorState =
                                     if (lockedCalculatorMode) {
@@ -2092,6 +2141,7 @@ class SearchViewModel(
                         fileResults = emptyList(),
                         settingResults = emptyList(),
                         appSettingResults = emptyList(),
+                        calendarEvents = emptyList(),
                         DirectSearchState = DirectSearchState(),
                         calculatorState =
                                 if (clearShortcutWhenBlank || !lockedCalculatorMode) {
@@ -2212,6 +2262,9 @@ class SearchViewModel(
                     appShortcutResults =
                             if (showingCalculator || shouldClearSecondaryResults) emptyList()
                             else state.appShortcutResults,
+                    calendarEvents =
+                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            else state.calendarEvents,
             )
         }
 
@@ -2271,6 +2324,7 @@ class SearchViewModel(
                                 settingResults = emptyList(),
                                 appSettingResults = emptyList(),
                                 appShortcutResults = emptyList(),
+                                calendarEvents = emptyList(),
                                 webSuggestions = emptyList(),
                         )
                     }
@@ -2397,6 +2451,7 @@ class SearchViewModel(
         if (startupComplete && optionalPermissionsChanged) {
             pinningHandler.loadPinnedContactsAndFiles()
             pinningHandler.loadExcludedContactsAndFiles()
+            loadPinnedAndExcludedCalendarEvents()
         }
 
         // --- 4. Device settings & app shortcuts ---------------------------------
@@ -2430,6 +2485,8 @@ class SearchViewModel(
     fun openFilesPermissionSettings() = navigationHandler.openFilesPermissionSettings()
 
     fun openContactPermissionSettings() = navigationHandler.openContactPermissionSettings()
+
+    fun openCalendarPermissionSettings() = navigationHandler.openCalendarPermissionSettings()
 
     fun launchApp(appInfo: AppInfo) =
             navigationHandler.launchApp(
@@ -2575,6 +2632,29 @@ class SearchViewModel(
     fun clearAllExcludedSettings() = settingsManager.clearAllExcludedSettings()
 
     fun openSetting(setting: DeviceSetting) = navigationHandler.openSetting(setting)
+
+    // Calendar Management Delegates
+    fun pinCalendarEvent(event: CalendarEventInfo) = calendarManager.pinItem(event)
+
+    fun unpinCalendarEvent(event: CalendarEventInfo) = calendarManager.unpinItem(event)
+
+    fun excludeCalendarEvent(event: CalendarEventInfo) = calendarManager.excludeItem(event)
+
+    fun removeExcludedCalendarEvent(event: CalendarEventInfo) =
+            calendarManager.removeExcludedItem(event)
+
+    fun clearAllExcludedCalendarEvents() = calendarManager.clearAllExcludedItems()
+
+    fun setCalendarEventNickname(
+            event: CalendarEventInfo,
+            nickname: String?,
+    ) = calendarManager.setItemNickname(event, nickname)
+
+    fun getCalendarEventNickname(eventId: Long): String? =
+            userPreferences.getCalendarEventNickname(eventId)
+
+    fun openCalendarEvent(event: CalendarEventInfo) =
+            navigationHandler.openCalendarEvent(event)
 
     // App Shortcut Management Delegates
     fun pinAppShortcut(shortcut: StaticShortcut) = appShortcutManager.pinShortcut(shortcut)
@@ -2807,8 +2887,10 @@ class SearchViewModel(
         fileManager.clearAllExcludedFiles()
         appManager.clearAllHiddenApps()
         settingsManager.clearAllExcludedSettings()
+        calendarManager.clearAllExcludedItems()
         appShortcutManager.clearAllExcludedShortcuts()
         pinningHandler.loadExcludedContactsAndFiles()
+        loadPinnedAndExcludedCalendarEvents()
         refreshSettingsState(updateResults = false)
         refreshAppShortcutsState(updateResults = false)
     }
@@ -3462,6 +3544,28 @@ class SearchViewModel(
         }
     }
 
+    private fun computeCalendarSectionVisibility(state: SearchUiState): CalendarSectionVisibility {
+        val sectionEnabled = isSectionEnabledForCurrentQuery(state, SearchSection.CALENDAR)
+
+        return when {
+            !sectionEnabled -> {
+                CalendarSectionVisibility.Hidden
+            }
+            !state.hasCalendarPermission -> {
+                CalendarSectionVisibility.NoPermission
+            }
+            else -> {
+                val hasResults = state.calendarEvents.isNotEmpty()
+                val hasPinned = state.pinnedCalendarEvents.isNotEmpty()
+                if (hasResults || hasPinned) {
+                    CalendarSectionVisibility.ShowingResults(hasPinned = hasPinned)
+                } else {
+                    CalendarSectionVisibility.NoResults
+                }
+            }
+        }
+    }
+
     /** Computes the search engines visibility state. */
     private fun computeSearchEnginesVisibility(state: SearchUiState): SearchEnginesVisibility =
             when {
@@ -3500,6 +3604,7 @@ class SearchViewModel(
                     contactsSectionState = computeContactsSectionVisibility(state),
                     filesSectionState = computeFilesSectionVisibility(state),
                     settingsSectionState = computeSettingsSectionVisibility(state),
+                    calendarSectionState = computeCalendarSectionVisibility(state),
                     searchEnginesState = computeSearchEnginesVisibility(state),
             )
 
@@ -3952,12 +4057,14 @@ class SearchViewModel(
     private fun refreshOptionalPermissions(): Boolean {
         val hasContacts = hasContactPermission()
         val hasFiles = hasFilePermission()
+        val hasCalendar = hasCalendarPermission()
         val hasCall = hasCallPermission()
         val hasWallpaper = hasWallpaperPermission()
         val previousState = _permissionState.value
         val changed =
                 previousState.hasContactPermission != hasContacts ||
                         previousState.hasFilePermission != hasFiles ||
+                        previousState.hasCalendarPermission != hasCalendar ||
                         previousState.hasCallPermission != hasCall ||
                         previousState.hasWallpaperPermission != hasWallpaper ||
                         previousState.wallpaperAvailable != wallpaperAvailable
@@ -3977,6 +4084,7 @@ class SearchViewModel(
                 state.copy(
                         hasContactPermission = hasContacts,
                         hasFilePermission = hasFiles,
+                        hasCalendarPermission = hasCalendar,
                         hasCallPermission = hasCall,
                         hasWallpaperPermission = hasWallpaper,
                         wallpaperAvailable = wallpaperAvailable,
@@ -3989,7 +4097,17 @@ class SearchViewModel(
                 state.copy(
                         contactResults = if (hasContacts) state.contactResults else emptyList(),
                         fileResults = if (hasFiles) state.fileResults else emptyList(),
+                        calendarEvents =
+                                if (hasCalendar) state.calendarEvents else emptyList(),
+                        pinnedCalendarEvents =
+                                if (hasCalendar) state.pinnedCalendarEvents else emptyList(),
+                        excludedCalendarEvents =
+                                if (hasCalendar) state.excludedCalendarEvents else emptyList(),
                 )
+            }
+
+            if (hasCalendar) {
+                loadPinnedAndExcludedCalendarEvents()
             }
 
             // Refresh disabled sections based on new permission state

@@ -5,6 +5,7 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
@@ -63,6 +64,10 @@ data class SearchResultsState(
         val allDeviceSettings: List<DeviceSetting> = emptyList(),
         val pinnedSettings: List<DeviceSetting> = emptyList(),
         val excludedSettings: List<DeviceSetting> = emptyList(),
+        // Calendar results (debounced secondary search)
+        val calendarEvents: List<CalendarEventInfo> = emptyList(),
+        val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         // Computed visibility states (derived from results above)
         val screenState: ScreenVisibilityState = ScreenVisibilityState.Initializing,
         val appsSectionState: AppsSectionVisibility = AppsSectionVisibility.Hidden,
@@ -71,6 +76,7 @@ data class SearchResultsState(
         val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
+        val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // Transient search state (calculator answer, direct search, web suggestions)
         val calculatorState: CalculatorState = CalculatorState(),
@@ -94,6 +100,7 @@ data class SearchPermissionState(
         val hasUsagePermission: Boolean = false,
         val hasContactPermission: Boolean = false,
         val hasFilePermission: Boolean = false,
+        val hasCalendarPermission: Boolean = false,
         val hasCallPermission: Boolean = false,
         val hasWallpaperPermission: Boolean = false,
         val wallpaperAvailable: Boolean = false,

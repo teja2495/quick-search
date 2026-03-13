@@ -97,6 +97,22 @@ fun rememberSectionToggleHandler(
                         }
                     }
 
+                    SearchSection.CALENDAR -> {
+                        val calendarGranted = permissions[Manifest.permission.READ_CALENDAR] == true
+                        if (calendarGranted) {
+                            viewModel.setSectionEnabled(section, true)
+                        } else {
+                            PermissionHelper.handleDeniedRuntimePermission(
+                                context = context,
+                                permission = Manifest.permission.READ_CALENDAR,
+                                wasPreviouslyDenied = true,
+                                onOpenSettings = {
+                                    openSettingsWithDialog(SearchSection.CALENDAR)
+                                },
+                            )
+                        }
+                    }
+
                     else -> {}
                 }
                 pendingSectionEnable.value = null
@@ -155,6 +171,19 @@ fun rememberSectionToggleHandler(
                             )
                         }
 
+                        SearchSection.CALENDAR -> {
+                            pendingSectionEnable.value = section
+                            PermissionHelper.requestRuntimePermissionOrOpenSettings(
+                                context = context,
+                                permission = Manifest.permission.READ_CALENDAR,
+                                wasPreviouslyDenied = false,
+                                runtimeLauncher = runtimePermissionsLauncher,
+                                onOpenSettings = {
+                                    openSettingsWithDialog(SearchSection.CALENDAR)
+                                },
+                            )
+                        }
+
                         SearchSection.APPS -> {
                             // Apps section doesn't require permissions
                             viewModel.setSectionEnabled(section, true)
@@ -194,6 +223,7 @@ fun rememberSectionToggleHandler(
             when (settingsDialogTargetSection) {
                 SearchSection.CONTACTS -> context.getString(R.string.settings_contacts_permission_title)
                 SearchSection.FILES -> context.getString(R.string.settings_files_permission_title)
+                SearchSection.CALENDAR -> context.getString(R.string.settings_calendar_permission_title)
                 else -> context.getString(R.string.settings_permissions_title)
             }
         PermissionSettingsDialog(
@@ -203,6 +233,7 @@ fun rememberSectionToggleHandler(
                 when (settingsDialogTargetSection) {
                     SearchSection.CONTACTS -> viewModel.openContactPermissionSettings()
                     SearchSection.FILES -> viewModel.openFilesPermissionSettings()
+                    SearchSection.CALENDAR -> viewModel.openCalendarPermissionSettings()
                     else -> Unit
                 }
                 settingsDialogTargetSection = null

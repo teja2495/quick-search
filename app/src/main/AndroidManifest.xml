@@ -26,6 +26,7 @@
     <!-- Contact Permissions -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <!-- Storage Permissions -->
     <uses-permission

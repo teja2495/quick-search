@@ -260,6 +260,7 @@ internal fun SettingsDetailLevel1Screen(
                             onRequestUsagePermission = callbacks.onRequestUsagePermission,
                             onRequestContactPermission = callbacks.onRequestContactPermission,
                             onRequestFilePermission = callbacks.onRequestFilePermission,
+                            onRequestCalendarPermission = callbacks.onRequestCalendarPermission,
                             onRequestCallPermission = callbacks.onRequestCallPermission,
                             modifier = Modifier,
                         )

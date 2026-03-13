@@ -18,6 +18,7 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
+import com.tk.quicksearch.search.calendar.CalendarEventsSection
 
 // ============================================================================
 // Section Rendering Functions
@@ -36,6 +37,7 @@ fun renderSection(
         SearchSection.APPS -> renderAppsSection(params, sectionContext)
         SearchSection.APP_SHORTCUTS -> renderAppShortcutsSection(params, sectionContext)
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
+        SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
     }
 }
 
@@ -237,6 +239,38 @@ private fun renderSettingsSection(
             expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
             showWallpaperBackground = params.settingsParams.showWallpaperBackground,
             predictedTarget = params.settingsParams.predictedTarget,
+            fillExpandedHeight = context.isSectionAliasMode,
+        )
+    }
+}
+
+@Composable
+private fun renderCalendarSection(
+    params: SectionRenderParams,
+    context: SectionRenderContext,
+) {
+    val calendarParams = params.calendarParams ?: return
+    if (context.shouldRenderCalendar) {
+        CalendarEventsSection(
+            events = context.calendarEventsList,
+            hasPermission = calendarParams.hasPermission,
+            isExpanded = context.isCalendarExpanded,
+            pinnedEventIds = calendarParams.pinnedEventIds,
+            excludedEventIds = calendarParams.excludedEventIds,
+            onEventClick = calendarParams.onEventClick,
+            onRequestPermission = calendarParams.onRequestPermission,
+            onTogglePin = calendarParams.onTogglePin,
+            onExclude = calendarParams.onExclude,
+            onInclude = calendarParams.onInclude,
+            onNicknameClick = calendarParams.onNicknameClick,
+            getEventNickname = calendarParams.getEventNickname,
+            showAllResults = context.showAllCalendarResults,
+            showExpandControls = context.showCalendarExpandControls,
+            onExpandClick = context.calendarExpandClick,
+            expandedCardMaxHeight = calendarParams.expandedCardMaxHeight,
+            permissionDisabledCard = calendarParams.permissionDisabledCard,
+            showWallpaperBackground = calendarParams.showWallpaperBackground,
+            predictedTarget = calendarParams.predictedTarget,
             fillExpandedHeight = context.isSectionAliasMode,
         )
     }

@@ -1,17 +1,21 @@
 package com.tk.quicksearch.search.core
 
 import com.tk.quicksearch.search.data.ContactRepository
+import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.data.FileSearchRepository
 import com.tk.quicksearch.search.data.UserAppPreferences
 
 class PermissionManager(
     private val contactRepository: ContactRepository,
+    private val calendarRepository: CalendarRepository,
     private val fileRepository: FileSearchRepository,
     private val userPreferences: UserAppPreferences,
 ) {
     fun hasContactPermission(): Boolean = contactRepository.hasPermission()
 
     fun hasFilePermission(): Boolean = fileRepository.hasPermission()
+
+    fun hasCalendarPermission(): Boolean = calendarRepository.hasPermission()
 
     fun computeDisabledSections(): Set<SearchSection> {
         val userDisabledSections =
@@ -27,6 +31,9 @@ class PermissionManager(
         if (!hasFilePermission()) {
             permissionBasedDisabledSections.add(SearchSection.FILES)
         }
+        if (!hasCalendarPermission()) {
+            permissionBasedDisabledSections.add(SearchSection.CALENDAR)
+        }
 
         return userDisabledSections + permissionBasedDisabledSections
     }
@@ -35,6 +42,7 @@ class PermissionManager(
         when (section) {
             SearchSection.CONTACTS -> hasContactPermission()
             SearchSection.FILES -> hasFilePermission()
+            SearchSection.CALENDAR -> hasCalendarPermission()
             SearchSection.APPS -> true
             SearchSection.APP_SHORTCUTS -> true
             SearchSection.SETTINGS -> true

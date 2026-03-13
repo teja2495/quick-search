@@ -64,6 +64,7 @@ internal fun SearchScreenContent(
         filesParams: FilesSectionParams,
         appShortcutsParams: AppShortcutsSectionParams,
         settingsParams: SettingsSectionParams,
+        calendarParams: CalendarSectionParams,
         appsParams: AppsSectionParams,
         onQueryChanged: (String) -> Unit,
         onClearQuery: () -> Unit,
@@ -176,6 +177,7 @@ internal fun SearchScreenContent(
                     renderingState.contactResults,
                     renderingState.fileResults,
                     renderingState.settingResults,
+                    renderingState.calendarEvents,
                     renderingState.appSettingResults,
                     state.detectedShortcutTarget,
                     state.searchTargetsOrder,
@@ -361,29 +363,34 @@ internal fun SearchScreenContent(
                                     if (firstSetting != null) {
                                         settingsParams.onSettingClick(firstSetting)
                                     } else {
-                                        val firstAppSetting =
-                                            renderingState.appSettingResults.firstOrNull {
-                                                it.isNavigateAction
-                                            }
-                                        if (firstAppSetting != null) {
-                                            settingsParams.onAppSettingClick(firstAppSetting)
-                                            return@PersistentSearchBar
-                                        }
-                                        // Check if a shortcut is detected
-                                        if (isCalculatorMode) {
-                                            return@PersistentSearchBar
-                                        } else if (state.detectedShortcutTarget != null) {
-                                            // Query already has shortcut stripped by ViewModel when
-                                            // shortcut-at-start is detected
-                                            onSearchTargetClick(
-                                                    trimmedQuery,
-                                                    state.detectedShortcutTarget
-                                            )
+                                        val firstCalendarEvent = renderingState.calendarEvents.firstOrNull()
+                                        if (firstCalendarEvent != null) {
+                                            calendarParams.onEventClick(firstCalendarEvent)
                                         } else {
-                                            val primaryTarget = enabledTargets.firstOrNull()
-                                            if (primaryTarget != null && trimmedQuery.isNotBlank()
-                                            ) {
-                                                onSearchTargetClick(trimmedQuery, primaryTarget)
+                                            val firstAppSetting =
+                                                renderingState.appSettingResults.firstOrNull {
+                                                    it.isNavigateAction
+                                                }
+                                            if (firstAppSetting != null) {
+                                                settingsParams.onAppSettingClick(firstAppSetting)
+                                                return@PersistentSearchBar
+                                            }
+                                            // Check if a shortcut is detected
+                                            if (isCalculatorMode) {
+                                                return@PersistentSearchBar
+                                            } else if (state.detectedShortcutTarget != null) {
+                                                // Query already has shortcut stripped by ViewModel when
+                                                // shortcut-at-start is detected
+                                                onSearchTargetClick(
+                                                        trimmedQuery,
+                                                        state.detectedShortcutTarget
+                                                )
+                                            } else {
+                                                val primaryTarget = enabledTargets.firstOrNull()
+                                                if (primaryTarget != null && trimmedQuery.isNotBlank()
+                                                ) {
+                                                    onSearchTargetClick(trimmedQuery, primaryTarget)
+                                                }
                                             }
                                         }
                                     }
@@ -420,6 +427,7 @@ internal fun SearchScreenContent(
                 filesParams = filesParams,
                 appShortcutsParams = appShortcutsParams,
                 settingsParams = settingsParams,
+                calendarParams = calendarParams,
                 appsParams = appsParams,
                 predictedTarget = predictedTargetForIndicator,
                 onRequestUsagePermission = onRequestUsagePermission,

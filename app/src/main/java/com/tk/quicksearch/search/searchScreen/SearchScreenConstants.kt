@@ -17,6 +17,7 @@ enum class ExpandedSection {
     CONTACTS,
     FILES,
     SETTINGS,
+    CALENDAR,
 }
 
 /** Constants for search screen layout. */
@@ -34,6 +35,7 @@ internal data class DerivedState(
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
     val hasPinnedSettings: Boolean,
+    val hasPinnedCalendarEvents: Boolean,
     val hasPinnedAppShortcuts: Boolean,
     val visibleRowCount: Int,
     val visibleAppLimit: Int,
@@ -47,6 +49,7 @@ internal data class DerivedState(
     val hasSettingResults: Boolean,
     val hasAppSettingResults: Boolean,
     val hasAppShortcutResults: Boolean,
+    val hasCalendarResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
     val hasMultipleExpandableSections: Boolean,
@@ -55,6 +58,7 @@ internal data class DerivedState(
     val shouldShowContacts: Boolean,
     val shouldShowFiles: Boolean,
     val shouldShowSettings: Boolean,
+    val shouldShowCalendar: Boolean,
     val shouldShowAppShortcuts: Boolean,
 )
 
@@ -65,6 +69,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasPinnedContacts = state.pinnedContacts.isNotEmpty() && state.hasContactPermission
     val hasPinnedFiles = state.pinnedFiles.isNotEmpty() && state.hasFilePermission
     val hasPinnedSettings = state.pinnedSettings.isNotEmpty()
+    val hasPinnedCalendarEvents = state.pinnedCalendarEvents.isNotEmpty() && state.hasCalendarPermission
     val hasPinnedAppShortcuts = state.pinnedAppShortcuts.isNotEmpty()
     val columns = getAppGridColumns()
     val visibleRowCount =
@@ -72,6 +77,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             hasPinnedContacts ||
             hasPinnedFiles ||
             hasPinnedSettings ||
+            hasPinnedCalendarEvents ||
             hasPinnedAppShortcuts ||
             (
                 !state.query.isNotBlank() &&
@@ -115,6 +121,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasSettingResults = state.settingResults.isNotEmpty()
     val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
+    val hasCalendarResults = state.calendarEvents.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
     val pinnedFileUris =
@@ -130,6 +137,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             hasContactResults,
             hasFileResults,
             hasSettingResults || hasAppSettingResults,
+            hasCalendarResults,
             hasAppShortcutResults,
         )
             .count { it } > 1
@@ -173,12 +181,19 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
                 state.detectedAliasSearchSection == SearchSection.SETTINGS
         ) &&
             (hasSettingResults || hasPinnedSettings)
+    val shouldShowCalendar =
+        (
+            SearchSection.CALENDAR !in state.disabledSections ||
+                state.detectedAliasSearchSection == SearchSection.CALENDAR
+        ) &&
+            (!state.hasCalendarPermission || hasCalendarResults || hasPinnedCalendarEvents)
 
     return DerivedState(
         isSearching = isSearching,
         hasPinnedContacts = hasPinnedContacts,
         hasPinnedFiles = hasPinnedFiles,
         hasPinnedSettings = hasPinnedSettings,
+        hasPinnedCalendarEvents = hasPinnedCalendarEvents,
         hasPinnedAppShortcuts = hasPinnedAppShortcuts,
         visibleRowCount = visibleRowCount,
         visibleAppLimit = visibleAppLimit,
@@ -192,6 +207,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasSettingResults = hasSettingResults,
         hasAppSettingResults = hasAppSettingResults,
         hasAppShortcutResults = hasAppShortcutResults,
+        hasCalendarResults = hasCalendarResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
         hasMultipleExpandableSections = hasMultipleExpandableSections,
@@ -200,6 +216,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         shouldShowContacts = shouldShowContacts,
         shouldShowFiles = shouldShowFiles,
         shouldShowSettings = shouldShowSettings,
+        shouldShowCalendar = shouldShowCalendar,
         shouldShowAppShortcuts = shouldShowAppShortcuts,
     )
 }

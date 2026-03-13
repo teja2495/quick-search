@@ -28,6 +28,7 @@ class AliasHandler(
         const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
         const val SEARCH_SECTION_FILES_ALIAS_ID = "search_section_files"
         const val SEARCH_SECTION_SETTINGS_ALIAS_ID = "search_section_settings"
+        const val SEARCH_SECTION_CALENDAR_ALIAS_ID = "search_section_calendar"
         val SEARCH_SECTION_ALIAS_IDS =
             setOf(
                 SEARCH_SECTION_APPS_ALIAS_ID,
@@ -35,6 +36,7 @@ class AliasHandler(
                 SEARCH_SECTION_CONTACTS_ALIAS_ID,
                 SEARCH_SECTION_FILES_ALIAS_ID,
                 SEARCH_SECTION_SETTINGS_ALIAS_ID,
+                SEARCH_SECTION_CALENDAR_ALIAS_ID,
             )
     }
 
@@ -330,6 +332,7 @@ class AliasHandler(
         putSectionAlias(aliases, SEARCH_SECTION_CONTACTS_ALIAS_ID, SearchSection.CONTACTS)
         putSectionAlias(aliases, SEARCH_SECTION_FILES_ALIAS_ID, SearchSection.FILES)
         putSectionAlias(aliases, SEARCH_SECTION_SETTINGS_ALIAS_ID, SearchSection.SETTINGS)
+        putSectionAlias(aliases, SEARCH_SECTION_CALENDAR_ALIAS_ID, SearchSection.CALENDAR)
     }
 
     private fun putSectionAlias(

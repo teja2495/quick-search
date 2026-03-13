@@ -275,6 +275,12 @@ fun SettingsRoute(
             viewModel::openFilesPermissionSettings,
         )
     }
+    val onRequestCalendarPermission = {
+        requestSettingsPermissionConfirmation(
+            context.getString(R.string.settings_calendar_permission_title),
+            viewModel::openCalendarPermissionSettings,
+        )
+    }
 
     val callbacks =
         SettingsScreenCallbacks(
@@ -445,6 +451,7 @@ fun SettingsRoute(
             onRequestUsagePermission = onRequestUsagePermission,
             onRequestContactPermission = onRequestContactPermission,
             onRequestFilePermission = onRequestFilePermission,
+            onRequestCalendarPermission = onRequestCalendarPermission,
             onRequestCallPermission = onRequestCallPermission,
             onRequestWallpaperPermission = onRequestWallpaperPermission,
         )
@@ -492,6 +499,7 @@ fun SettingsRoute(
         onRequestUsagePermission = onRequestUsagePermission,
         onRequestContactPermission = onRequestContactPermission,
         onRequestFilePermission = onRequestFilePermission,
+        onRequestCalendarPermission = onRequestCalendarPermission,
         onRequestCallPermission = onRequestCallPermission,
         onDismissBanner = onDismissBanner,
         onNavigateToDetail = onNavigateToDetail,

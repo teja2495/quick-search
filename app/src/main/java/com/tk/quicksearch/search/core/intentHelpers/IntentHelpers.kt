@@ -1,6 +1,10 @@
 package com.tk.quicksearch.search.core
 
 import android.app.Application
+import android.content.ContentUris
+import android.content.Intent
+import android.provider.CalendarContract
+import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.DeviceFile
 
@@ -101,5 +105,23 @@ object IntentHelpers {
         onShowToast: ((Int, String?) -> Unit)? = null,
     ) {
         FileIntents.openFile(context, deviceFile, onShowToast)
+    }
+
+    fun openCalendarEvent(
+        context: Application,
+        eventId: Long,
+        onShowToast: ((Int, String?) -> Unit)? = null,
+    ) {
+        val intent =
+            Intent(Intent.ACTION_VIEW).apply {
+                data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        if (!IntentUtils.canResolveIntent(context, intent)) {
+            onShowToast?.invoke(R.string.error_open_calendar_event, null)
+            return
+        }
+        runCatching { context.startActivity(intent) }
+            .onFailure { onShowToast?.invoke(R.string.error_open_calendar_event, null) }
     }
 }

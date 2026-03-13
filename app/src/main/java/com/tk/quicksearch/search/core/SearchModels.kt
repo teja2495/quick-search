@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchHistory.RecentSearchItem
@@ -79,6 +80,7 @@ enum class SearchSection {
         CONTACTS,
         FILES,
         SETTINGS,
+        CALENDAR,
 }
 
 enum class MessagingApp {
@@ -240,6 +242,18 @@ sealed class SettingsSectionVisibility {
         ) : SettingsSectionVisibility()
 }
 
+sealed class CalendarSectionVisibility {
+        object Hidden : CalendarSectionVisibility()
+
+        object NoPermission : CalendarSectionVisibility()
+
+        object NoResults : CalendarSectionVisibility()
+
+        data class ShowingResults(
+                val hasPinned: Boolean = false,
+        ) : CalendarSectionVisibility()
+}
+
 sealed class SearchEnginesVisibility {
         object Hidden : SearchEnginesVisibility()
 
@@ -270,6 +284,7 @@ data class SearchUiState(
         val hasUsagePermission: Boolean = false,
         val hasContactPermission: Boolean = false,
         val hasFilePermission: Boolean = false,
+        val hasCalendarPermission: Boolean = false,
         val hasCallPermission: Boolean = false,
         val hasWallpaperPermission: Boolean = false,
         val wallpaperAvailable: Boolean = false,
@@ -281,6 +296,7 @@ data class SearchUiState(
         val contactsSectionState: ContactsSectionVisibility = ContactsSectionVisibility.Hidden,
         val filesSectionState: FilesSectionVisibility = FilesSectionVisibility.Hidden,
         val settingsSectionState: SettingsSectionVisibility = SettingsSectionVisibility.Hidden,
+        val calendarSectionState: CalendarSectionVisibility = CalendarSectionVisibility.Hidden,
         val searchEnginesState: SearchEnginesVisibility = SearchEnginesVisibility.Hidden,
         // App results
         val recentApps: List<AppInfo> = emptyList(),
@@ -310,6 +326,10 @@ data class SearchUiState(
         val allDeviceSettings: List<DeviceSetting> = emptyList(),
         val pinnedSettings: List<DeviceSetting> = emptyList(),
         val excludedSettings: List<DeviceSetting> = emptyList(),
+        // Calendar results
+        val calendarEvents: List<CalendarEventInfo> = emptyList(),
+        val pinnedCalendarEvents: List<CalendarEventInfo> = emptyList(),
+        val excludedCalendarEvents: List<CalendarEventInfo> = emptyList(),
         // Lifecycle / loading
         val startupPhase: StartupPhase = StartupPhase.PHASE_1_CACHE_PREFS,
         val isInitializing: Boolean = true,
@@ -456,12 +476,16 @@ fun SearchUiState(
                 allDeviceSettings = results.allDeviceSettings,
                 pinnedSettings = results.pinnedSettings,
                 excludedSettings = results.excludedSettings,
+                calendarEvents = results.calendarEvents,
+                pinnedCalendarEvents = results.pinnedCalendarEvents,
+                excludedCalendarEvents = results.excludedCalendarEvents,
                 screenState = results.screenState,
                 appsSectionState = results.appsSectionState,
                 appShortcutsSectionState = results.appShortcutsSectionState,
                 contactsSectionState = results.contactsSectionState,
                 filesSectionState = results.filesSectionState,
                 settingsSectionState = results.settingsSectionState,
+                calendarSectionState = results.calendarSectionState,
                 searchEnginesState = results.searchEnginesState,
                 calculatorState = results.calculatorState,
                 DirectSearchState = results.DirectSearchState,
@@ -476,6 +500,7 @@ fun SearchUiState(
                 hasUsagePermission = permissions.hasUsagePermission,
                 hasContactPermission = permissions.hasContactPermission,
                 hasFilePermission = permissions.hasFilePermission,
+                hasCalendarPermission = permissions.hasCalendarPermission,
                 hasCallPermission = permissions.hasCallPermission,
                 hasWallpaperPermission = permissions.hasWallpaperPermission,
                 wallpaperAvailable = permissions.wallpaperAvailable,

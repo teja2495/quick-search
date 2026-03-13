@@ -15,6 +15,7 @@ class NicknamePreferences(
     private val contactNicknameCache = ConcurrentHashMap<Long, String>()
     private val fileNicknameCache = ConcurrentHashMap<String, String>()
     private val settingNicknameCache = ConcurrentHashMap<String, String>()
+    private val calendarEventNicknameCache = ConcurrentHashMap<Long, String>()
 
     init {
         loadNicknameCaches()
@@ -44,6 +45,11 @@ class NicknamePreferences(
                 key.startsWith(BasePreferences.KEY_NICKNAME_SETTING_PREFIX) -> {
                     val id = key.removePrefix(BasePreferences.KEY_NICKNAME_SETTING_PREFIX)
                     settingNicknameCache[id] = value
+                }
+
+                key.startsWith(BasePreferences.KEY_NICKNAME_CALENDAR_EVENT_PREFIX) -> {
+                    val eventId = key.removePrefix(BasePreferences.KEY_NICKNAME_CALENDAR_EVENT_PREFIX)
+                    eventId.toLongOrNull()?.let { calendarEventNicknameCache[it] = value }
                 }
             }
         }
@@ -149,6 +155,23 @@ class NicknamePreferences(
         }
     }
 
+    fun getCalendarEventNickname(eventId: Long): String? = calendarEventNicknameCache[eventId]
+
+    fun setCalendarEventNickname(
+        eventId: Long,
+        nickname: String?,
+    ) {
+        val key = "${BasePreferences.KEY_NICKNAME_CALENDAR_EVENT_PREFIX}$eventId"
+        if (nickname.isNullOrBlank()) {
+            prefs.edit().remove(key).apply()
+            calendarEventNicknameCache.remove(eventId)
+        } else {
+            val trimmed = nickname.trim()
+            prefs.edit().putString(key, trimmed).apply()
+            calendarEventNicknameCache[eventId] = trimmed
+        }
+    }
+
     /**
      * Finds contact IDs that have nicknames matching the query. Uses in-memory cache for O(1)
      * lookup instead of O(n) SharedPreferences iteration.
@@ -201,5 +224,20 @@ class NicknamePreferences(
         }
 
         return matchingSettingIds
+    }
+
+    /** Finds calendar event IDs that have nicknames matching the query. */
+    fun findCalendarEventsWithMatchingNickname(query: String): Set<Long> {
+        val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query).trim()
+        if (normalizedQuery.isBlank()) return emptySet()
+
+        val matchingEventIds = mutableSetOf<Long>()
+        for ((eventId, nickname) in calendarEventNicknameCache) {
+            if (SearchTextNormalizer.normalizeForSearch(nickname).contains(normalizedQuery)) {
+                matchingEventIds.add(eventId)
+            }
+        }
+
+        return matchingEventIds
     }
 }
