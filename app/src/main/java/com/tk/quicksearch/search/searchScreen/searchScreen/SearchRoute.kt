@@ -378,6 +378,15 @@ fun SearchRoute(
         } else {
             modifier.fillMaxSize()
         }
+    val dismissOverlayIfNeeded: () -> Unit = {
+        if (isOverlayPresentation) {
+            onOverlayDismissRequest?.invoke()
+        }
+    }
+    val runExternalNavigationFromOverlay: (() -> Unit) -> Unit = { action ->
+        dismissOverlayIfNeeded()
+        action()
+    }
 
     Box(modifier = containerModifier) {
         SearchScreenComposable(
@@ -391,26 +400,46 @@ fun SearchRoute(
             onQueryChanged = viewModel::onQueryChange,
             onSelectRetainedQueryHandled = viewModel::consumeRetainedQuerySelectionRequest,
             onClearQuery = viewModel::clearQuery,
-            onRequestUsagePermission = { viewModel.openUsageAccessSettings() },
+            onRequestUsagePermission = {
+                runExternalNavigationFromOverlay { viewModel.openUsageAccessSettings() }
+            },
             onSettingsClick = onSettingsClick,
-            onAppClick = { app: com.tk.quicksearch.search.models.AppInfo -> viewModel.launchApp(app) },
-            onAppInfoClick = { app: com.tk.quicksearch.search.models.AppInfo -> viewModel.openAppInfo(app) },
-            onUninstallClick = { app: com.tk.quicksearch.search.models.AppInfo -> viewModel.requestUninstall(app) },
+            onAppClick = { app: com.tk.quicksearch.search.models.AppInfo ->
+                runExternalNavigationFromOverlay { viewModel.launchApp(app) }
+            },
+            onAppInfoClick = { app: com.tk.quicksearch.search.models.AppInfo ->
+                runExternalNavigationFromOverlay { viewModel.openAppInfo(app) }
+            },
+            onUninstallClick = { app: com.tk.quicksearch.search.models.AppInfo ->
+                runExternalNavigationFromOverlay { viewModel.requestUninstall(app) }
+            },
             onHideApp = onHideAppWithUndo,
             onPinApp = viewModel::pinApp,
             onUnpinApp = viewModel::unpinApp,
-            onContactClick = viewModel::openContact,
+            onContactClick = { contact: com.tk.quicksearch.search.models.ContactInfo ->
+                runExternalNavigationFromOverlay { viewModel.openContact(contact) }
+            },
             onShowContactMethods = showContactMethodsBottomSheet,
             onDismissContactMethods = dismissContactMethodsBottomSheet,
             onCallContact = callContactWithPermission,
-            onSmsContact = viewModel::smsContact,
-            onContactMethodClick = viewModel::handleContactMethod,
-            onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile -> viewModel.openFile(file) },
-            onOpenFolder = { file: com.tk.quicksearch.search.models.DeviceFile -> viewModel.openContainingFolder(file) },
+            onSmsContact = { contact: com.tk.quicksearch.search.models.ContactInfo ->
+                runExternalNavigationFromOverlay { viewModel.smsContact(contact) }
+            },
+            onContactMethodClick = { contact, method ->
+                runExternalNavigationFromOverlay { viewModel.handleContactMethod(contact, method) }
+            },
+            onFileClick = { file: com.tk.quicksearch.search.models.DeviceFile ->
+                runExternalNavigationFromOverlay { viewModel.openFile(file) }
+            },
+            onOpenFolder = { file: com.tk.quicksearch.search.models.DeviceFile ->
+                runExternalNavigationFromOverlay { viewModel.openContainingFolder(file) }
+            },
             onPinContact = viewModel::pinContact,
             onUnpinContact = viewModel::unpinContact,
             onExcludeContact = onExcludeContactWithUndo,
-            onCalendarEventClick = viewModel::openCalendarEvent,
+            onCalendarEventClick = { event: com.tk.quicksearch.search.models.CalendarEventInfo ->
+                runExternalNavigationFromOverlay { viewModel.openCalendarEvent(event) }
+            },
             onPinCalendarEvent = viewModel::pinCalendarEvent,
             onUnpinCalendarEvent = viewModel::unpinCalendarEvent,
             onExcludeCalendarEvent = onExcludeCalendarEventWithUndo,
@@ -419,41 +448,57 @@ fun SearchRoute(
             onUnpinFile = viewModel::unpinFile,
             onExcludeFile = onExcludeFileWithUndo,
             onExcludeFileExtension = onExcludeFileExtensionWithUndo,
-            onSettingClick = { setting: com.tk.quicksearch.search.deviceSettings.DeviceSetting -> viewModel.openSetting(setting) },
+            onSettingClick = { setting: com.tk.quicksearch.search.deviceSettings.DeviceSetting ->
+                runExternalNavigationFromOverlay { viewModel.openSetting(setting) }
+            },
             onAppSettingClick = onAppSettingClick,
             onAppSettingToggle = onAppSettingToggle,
             isAppSettingToggleChecked = isAppSettingToggleChecked,
             onPinSetting = viewModel::pinSetting,
             onUnpinSetting = viewModel::unpinSetting,
             onExcludeSetting = onExcludeSettingWithUndo,
-            onAppShortcutClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut -> viewModel.launchAppShortcut(shortcut) },
+            onAppShortcutClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut ->
+                runExternalNavigationFromOverlay { viewModel.launchAppShortcut(shortcut) }
+            },
             onPinAppShortcut = viewModel::pinAppShortcut,
             onUnpinAppShortcut = viewModel::unpinAppShortcut,
             onExcludeAppShortcut = onExcludeAppShortcutWithUndo,
             onIncludeAppShortcut = viewModel::removeExcludedAppShortcut,
-            onAppShortcutAppInfoClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut -> viewModel.openAppInfo(shortcut.packageName) },
+            onAppShortcutAppInfoClick = { shortcut: com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut ->
+                runExternalNavigationFromOverlay { viewModel.openAppInfo(shortcut.packageName) }
+            },
             onPhoneNumberSelected = viewModel::onPhoneNumberSelected,
             onDismissPhoneNumberSelection = viewModel::dismissPhoneNumberSelection,
-            onSearchTargetClick = { query: String, target: com.tk.quicksearch.search.core.SearchTarget -> viewModel.openSearchTarget(query, target) },
+            onSearchTargetClick = { query: String, target: com.tk.quicksearch.search.core.SearchTarget ->
+                runExternalNavigationFromOverlay { viewModel.openSearchTarget(query, target) }
+            },
             onSearchEngineLongPress = onSearchEngineLongPress,
-            onDirectSearchEmailClick = { email: String -> viewModel.openEmail(email) },
+            onDirectSearchEmailClick = { email: String ->
+                runExternalNavigationFromOverlay { viewModel.openEmail(email) }
+            },
             onSetPersonalContext = viewModel::setPersonalContext,
             onSetGeminiModel = viewModel::setGeminiModel,
             onSetGeminiGroundingEnabled = viewModel::setGeminiGroundingEnabled,
             onRefreshAvailableGeminiModels = viewModel::refreshAvailableGeminiModels,
             onOpenAppSettings = {
                 pendingPermissionSettingsType = R.string.settings_permissions_title
-                pendingPermissionSettingsAction = viewModel::openAppSettings
+                pendingPermissionSettingsAction = {
+                    runExternalNavigationFromOverlay { viewModel.openAppSettings() }
+                }
                 showPermissionSettingsDialog = true
             },
             onOpenStorageAccessSettings = {
                 pendingPermissionSettingsType = R.string.settings_files_permission_title
-                pendingPermissionSettingsAction = viewModel::openAllFilesAccessSettings
+                pendingPermissionSettingsAction = {
+                    runExternalNavigationFromOverlay { viewModel.openAllFilesAccessSettings() }
+                }
                 showPermissionSettingsDialog = true
             },
             onOpenCalendarPermissionSettings = {
                 pendingPermissionSettingsType = R.string.settings_calendar_permission_title
-                pendingPermissionSettingsAction = viewModel::openCalendarPermissionSettings
+                pendingPermissionSettingsAction = {
+                    runExternalNavigationFromOverlay { viewModel.openCalendarPermissionSettings() }
+                }
                 showPermissionSettingsDialog = true
             },
             onAppNicknameClick = { app: com.tk.quicksearch.search.models.AppInfo ->
@@ -485,7 +530,9 @@ fun SearchRoute(
             onReleaseNotesAcknowledged = viewModel::acknowledgeReleaseNotes,
             onReleaseNotesViewAllFeatures = onOpenReleaseNotesFeatures,
             onWebSuggestionClick = { suggestion: String ->
-                viewModel.onWebSuggestionTap(suggestion)
+                runExternalNavigationFromOverlay {
+                    viewModel.onWebSuggestionTap(suggestion)
+                }
             },
             onSearchEngineOnboardingDismissed = viewModel::onSearchEngineOnboardingDismissed,
             onContactActionHintDismissed = viewModel::onContactActionHintDismissed,
