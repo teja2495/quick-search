@@ -41,7 +41,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_tools_title,
                 descriptionRes = R.string.settings_tools_desc,
                 destination = AppSettingsDestination.TOOLS,
-                keywords = listOf("calculator"),
+                keywords = listOf("calculator", "unit converter", "conversion", "tools"),
             )
             addNavigation(
                 id = "app_settings_launch_options",
@@ -161,6 +161,13 @@ class AppSettingsRepository(
                 descriptionRes = R.string.calculator_toggle_desc,
                 toggleKey = AppSettingsToggleKey.CALCULATOR,
                 keywords = listOf("calculator", "math"),
+            )
+            addToggle(
+                id = "app_toggle_unit_converter",
+                titleRes = R.string.unit_converter_toggle_title,
+                descriptionRes = R.string.unit_converter_toggle_desc,
+                toggleKey = AppSettingsToggleKey.UNIT_CONVERTER,
+                keywords = listOf("unit", "converter", "conversion", "lbs", "kg"),
             )
             addToggle(
                 id = "app_toggle_app_suggestions",

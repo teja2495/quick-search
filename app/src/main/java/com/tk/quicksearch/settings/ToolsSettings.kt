@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +23,13 @@ import com.tk.quicksearch.shared.ui.theme.DesignTokens
 fun ToolsSettingsSection(
     calculatorEnabled: Boolean,
     calculatorAlias: String,
+    unitConverterEnabled: Boolean,
+    unitConverterAlias: String,
     existingShortcuts: Map<String, String>,
     onSetCalculatorAlias: (String) -> Unit,
+    onSetUnitConverterAlias: (String) -> Unit,
     onCalculatorToggle: (Boolean) -> Unit,
+    onUnitConverterToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -44,6 +49,17 @@ fun ToolsSettingsSection(
                         onAliasCodeChange = onSetCalculatorAlias,
                         existingShortcuts = existingShortcuts,
                         aliasFeatureId = AliasHandler.CALCULATOR_ALIAS_FEATURE_ID,
+                    ),
+                    ToolToggleCardModel(
+                        title = stringResource(R.string.unit_converter_toggle_title),
+                        subtitle = stringResource(R.string.unit_converter_toggle_desc),
+                        checked = unitConverterEnabled,
+                        onCheckedChange = onUnitConverterToggle,
+                        leadingIcon = Icons.Rounded.Straighten,
+                        aliasCode = unitConverterAlias,
+                        onAliasCodeChange = onSetUnitConverterAlias,
+                        existingShortcuts = existingShortcuts,
+                        aliasFeatureId = AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
                     ),
                 ),
         )

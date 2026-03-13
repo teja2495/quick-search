@@ -54,6 +54,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         isSearchEngineAliasSuffixEnabled = isSearchEngineAliasSuffixEnabled,
         amazonDomain = amazonDomain,
         calculatorEnabled = calculatorEnabled,
+        unitConverterEnabled = unitConverterEnabled,
         appSuggestionsEnabled = appSuggestionsEnabled,
         webSuggestionsEnabled = webSuggestionsEnabled,
         webSuggestionsCount = webSuggestionsCount,

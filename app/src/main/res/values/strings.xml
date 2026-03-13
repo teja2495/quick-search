@@ -363,7 +363,7 @@
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
     <string name="settings_tools_title">Tools</string>
-    <string name="settings_tools_desc">Calculator</string>
+    <string name="settings_tools_desc">Calculator and unit converter</string>
     <string name="settings_tools_more_coming_soon">More tools coming soon</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, etc.</string>
@@ -801,6 +801,10 @@
     <string name="calculator_toggle_desc">Results for basic math expressions</string>
     <string name="calculator_enter_math_expression_hint">Enter a math expression</string>
     <string name="calculator_invalid_or_unsupported_expression">Invalid or unsupported expression</string>
+    <string name="unit_converter_toggle_title">Unit Converter</string>
+    <string name="unit_converter_toggle_desc">Convert between units like 5lbs to kgs</string>
+    <string name="unit_converter_enter_conversion_hint">Enter a conversion (e.g., 5lbs in kgs)</string>
+    <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
 
     <!-- ============================================================================
          No Results

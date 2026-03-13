@@ -395,6 +395,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_CALCULATOR_ENABLED, enabled)
     }
 
+    fun isUnitConverterEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_UNIT_CONVERTER_ENABLED, true)
+
+    fun setUnitConverterEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_UNIT_CONVERTER_ENABLED, enabled)
+    }
+
     // ============================================================================
     // Section Preferences
     // ============================================================================
@@ -605,6 +612,7 @@ class UiPreferences(
 
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
+        const val KEY_UNIT_CONVERTER_ENABLED = "unit_converter_enabled"
 
         // In-app review preferences keys
         const val KEY_FIRST_APP_OPEN_TIME = "first_app_open_time"

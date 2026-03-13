@@ -308,10 +308,17 @@ fun SettingsDetailRoute(
                                 code,
                         )
                     },
+                    onSetUnitConverterAlias = { code ->
+                        viewModel.setAlias(
+                                com.tk.quicksearch.searchEngines.AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
+                                code,
+                        )
+                    },
                     onSetSearchSectionAlias = { targetId, code ->
                         viewModel.setAlias(targetId, code)
                     },
                     onToggleCalculator = viewModel::setCalculatorEnabled,
+                    onToggleUnitConverter = viewModel::setUnitConverterEnabled,
                     onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
                     onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
                     onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,

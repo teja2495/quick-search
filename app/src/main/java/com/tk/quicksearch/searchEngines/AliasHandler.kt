@@ -23,12 +23,18 @@ class AliasHandler(
 ) {
     companion object {
         const val CALCULATOR_ALIAS_FEATURE_ID = "calculator_mode"
+        const val UNIT_CONVERTER_ALIAS_FEATURE_ID = "unit_converter_mode"
         const val SEARCH_SECTION_APPS_ALIAS_ID = "search_section_apps"
         const val SEARCH_SECTION_APP_SHORTCUTS_ALIAS_ID = "search_section_app_shortcuts"
         const val SEARCH_SECTION_CONTACTS_ALIAS_ID = "search_section_contacts"
         const val SEARCH_SECTION_FILES_ALIAS_ID = "search_section_files"
         const val SEARCH_SECTION_SETTINGS_ALIAS_ID = "search_section_settings"
         const val SEARCH_SECTION_CALENDAR_ALIAS_ID = "search_section_calendar"
+        val TOOL_ALIAS_IDS =
+            setOf(
+                CALCULATOR_ALIAS_FEATURE_ID,
+                UNIT_CONVERTER_ALIAS_FEATURE_ID,
+            )
         val SEARCH_SECTION_ALIAS_IDS =
             setOf(
                 SEARCH_SECTION_APPS_ALIAS_ID,
@@ -79,28 +85,7 @@ class AliasHandler(
                 val enabled = aliasCodes[id].orEmpty().isNotEmpty()
                 id to enabled
             }
-
-        val persistedCalculatorAlias =
-            userPreferences.getAliasCode(CALCULATOR_ALIAS_FEATURE_ID).orEmpty()
-        val calculatorAlias =
-            if (isValidGeneralAliasCode(persistedCalculatorAlias)) {
-                normalizeShortcutCodeInput(persistedCalculatorAlias)
-            } else {
-                ""
-            }
-        if (persistedCalculatorAlias.isNotBlank() && calculatorAlias.isEmpty()) {
-            userPreferences.clearAliasCode(CALCULATOR_ALIAS_FEATURE_ID)
-        } else if (persistedCalculatorAlias != calculatorAlias) {
-            userPreferences.setAliasCodeAllowSingleChar(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
-        }
-        aliasCodes =
-            aliasCodes.toMutableMap().apply {
-                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias)
-            }
-        aliasEnabled =
-            aliasEnabled.toMutableMap().apply {
-                put(CALCULATOR_ALIAS_FEATURE_ID, calculatorAlias.isNotEmpty())
-            }
+        TOOL_ALIAS_IDS.forEach(::loadToolAlias)
 
         SEARCH_SECTION_ALIAS_IDS.forEach { sectionAliasId ->
             val aliasCode = userPreferences.getAliasCodeAllowSingleChar(sectionAliasId).orEmpty()
@@ -113,6 +98,29 @@ class AliasHandler(
                     put(sectionAliasId, aliasCode.isNotEmpty())
                 }
         }
+    }
+
+    private fun loadToolAlias(toolAliasId: String) {
+        val persistedAlias = userPreferences.getAliasCode(toolAliasId).orEmpty()
+        val normalizedAlias =
+            if (isValidGeneralAliasCode(persistedAlias)) {
+                normalizeShortcutCodeInput(persistedAlias)
+            } else {
+                ""
+            }
+        if (persistedAlias.isNotBlank() && normalizedAlias.isEmpty()) {
+            userPreferences.clearAliasCode(toolAliasId)
+        } else if (persistedAlias != normalizedAlias && normalizedAlias.isNotEmpty()) {
+            userPreferences.setAliasCodeAllowSingleChar(toolAliasId, normalizedAlias)
+        }
+        aliasCodes =
+            aliasCodes.toMutableMap().apply {
+                put(toolAliasId, normalizedAlias)
+            }
+        aliasEnabled =
+            aliasEnabled.toMutableMap().apply {
+                put(toolAliasId, normalizedAlias.isNotEmpty())
+            }
     }
 
     private fun ensureInitialized() {
@@ -320,9 +328,11 @@ class AliasHandler(
     }
 
     private fun collectLeadingFeatureAliases(aliases: MutableMap<String, AliasTarget>) {
-        val calculatorAliasCode = getAlias(CALCULATOR_ALIAS_FEATURE_ID).lowercase(Locale.getDefault())
-        if (calculatorAliasCode.isNotEmpty()) {
-            aliases[calculatorAliasCode] = AliasTarget.Feature(CALCULATOR_ALIAS_FEATURE_ID)
+        TOOL_ALIAS_IDS.forEach { featureAliasId ->
+            val aliasCode = getAlias(featureAliasId).lowercase(Locale.getDefault())
+            if (aliasCode.isNotEmpty()) {
+                aliases[aliasCode] = AliasTarget.Feature(featureAliasId)
+            }
         }
     }
 

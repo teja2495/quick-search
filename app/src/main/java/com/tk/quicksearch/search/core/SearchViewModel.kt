@@ -73,6 +73,7 @@ import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
+import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
@@ -465,6 +466,7 @@ class SearchViewModel(
                     webSuggestionsEnabled = s.webSuggestionsEnabled,
                     webSuggestionsCount = s.webSuggestionsCount,
                     calculatorEnabled = s.calculatorEnabled,
+                    unitConverterEnabled = s.unitConverterEnabled,
                     recentQueriesEnabled = s.recentQueriesEnabled,
                     hasDismissedSearchHistoryTip = s.hasDismissedSearchHistoryTip,
                     directDialEnabled = s.directDialEnabled,
@@ -631,6 +633,12 @@ class SearchViewModel(
         )
     }
 
+    val unitConverterHandler by lazy {
+        UnitConverterHandler(
+                userPreferences = userPreferences,
+        )
+    }
+
     val appSearchManager by lazy {
         AppSearchManager(
                 context = application.applicationContext,
@@ -747,7 +755,7 @@ class SearchViewModel(
     private var customImageUri: String? = null
     private var lockedShortcutTarget: SearchTarget? = null
     private var lockedAliasSearchSection: SearchSection? = null
-    private var lockedCalculatorMode: Boolean = false
+    private var lockedToolMode: SearchToolType? = null
     private var clearQueryOnLaunch: Boolean = true
     private var amazonDomain: String? = null
     private var pendingNavigationClear: Boolean = false
@@ -1182,6 +1190,7 @@ class SearchViewModel(
                                 userPreferences.isSearchEngineAliasSuffixEnabled(),
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
+                        unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
@@ -1413,6 +1422,13 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setCalculatorEnabled(enabled)
             updateFeatureState { it.copy(calculatorEnabled = enabled) }
+        }
+    }
+
+    fun setUnitConverterEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setUnitConverterEnabled(enabled)
+            updateFeatureState { it.copy(unitConverterEnabled = enabled) }
         }
     }
 
@@ -1998,24 +2014,23 @@ class SearchViewModel(
     private fun setDetectedAliasMode(
         shortcutTarget: SearchTarget?,
         section: SearchSection?,
-        calculatorMode: Boolean,
+        toolMode: SearchToolType?,
     ) {
         lockedShortcutTarget = shortcutTarget
         lockedAliasSearchSection = section
-        lockedCalculatorMode = calculatorMode
+        lockedToolMode = toolMode
     }
 
     private fun clearDetectedAliasMode() {
         setDetectedAliasMode(
             shortcutTarget = null,
             section = null,
-            calculatorMode = false,
+            toolMode = null,
         )
     }
 
     private fun resolveAliasQueryResolution(
         newQuery: String,
-        trimmedQuery: String,
     ): AliasQueryResolution {
         val leadingAliasMatch = aliasHandler.detectAliasAtStart(newQuery)
         if (leadingAliasMatch != null) {
@@ -2025,7 +2040,7 @@ class SearchViewModel(
                     setDetectedAliasMode(
                         shortcutTarget = aliasTarget.target,
                         section = null,
-                        calculatorMode = false,
+                        toolMode = null,
                     )
                 }
 
@@ -2033,7 +2048,7 @@ class SearchViewModel(
                     setDetectedAliasMode(
                         shortcutTarget = null,
                         section = aliasTarget.section,
-                        calculatorMode = false,
+                        toolMode = null,
                     )
                 }
 
@@ -2044,7 +2059,7 @@ class SearchViewModel(
             return AliasQueryResolution.ReprocessQuery(queryWithoutAlias)
         }
 
-        if (lockedCalculatorMode || lockedAliasSearchSection != null || lockedShortcutTarget != null) {
+        if (lockedToolMode != null || lockedAliasSearchSection != null || lockedShortcutTarget != null) {
             return AliasQueryResolution.None
         }
 
@@ -2058,19 +2073,81 @@ class SearchViewModel(
     }
 
     private fun applyFeatureAliasMode(featureId: String) {
-        when (featureId) {
-            AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> {
-                setDetectedAliasMode(
-                    shortcutTarget = null,
-                    section = null,
-                    calculatorMode = true,
-                )
+        val toolMode =
+                when (featureId) {
+                    AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.CALCULATOR
+                    AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID -> SearchToolType.UNIT_CONVERTER
+                    else -> null
+                }
+        if (toolMode == null || !isToolEnabled(toolMode)) {
+            clearDetectedAliasMode()
+            return
+        }
+        setDetectedAliasMode(
+                shortcutTarget = null,
+                section = null,
+                toolMode = toolMode,
+        )
+    }
+
+    private fun isToolEnabled(toolMode: SearchToolType): Boolean =
+            when (toolMode) {
+                SearchToolType.CALCULATOR -> userPreferences.isCalculatorEnabled()
+                SearchToolType.UNIT_CONVERTER -> userPreferences.isUnitConverterEnabled()
             }
 
-            else -> {
-                clearDetectedAliasMode()
+    private fun createToolModeState(toolMode: SearchToolType): CalculatorState =
+            when (toolMode) {
+                SearchToolType.CALCULATOR ->
+                        CalculatorState(
+                                isCalculatorMode = true,
+                                toolType = SearchToolType.CALCULATOR,
+                        )
+                SearchToolType.UNIT_CONVERTER ->
+                        CalculatorState(
+                                isUnitConverterMode = true,
+                                toolType = SearchToolType.UNIT_CONVERTER,
+                        )
+            }
+
+    private fun resolveToolState(
+            trimmedQuery: String,
+            detectedTarget: SearchTarget?,
+            detectedAliasSearchSection: SearchSection?,
+    ): CalculatorState {
+        val toolMode = lockedToolMode
+        if (toolMode != null) {
+            return when (toolMode) {
+                SearchToolType.CALCULATOR ->
+                        calculatorHandler.processQuery(
+                                query = trimmedQuery,
+                                forceCalculatorMode = true,
+                        )
+                SearchToolType.UNIT_CONVERTER ->
+                        unitConverterHandler.processQuery(
+                                query = trimmedQuery,
+                                forceUnitConverterMode = true,
+                        )
             }
         }
+
+        if (detectedTarget != null || detectedAliasSearchSection != null) {
+            return CalculatorState()
+        }
+
+        val calculatorResult =
+                calculatorHandler.processQuery(
+                        query = trimmedQuery,
+                        forceCalculatorMode = false,
+                )
+        if (calculatorResult.result != null) {
+            return calculatorResult
+        }
+
+        return unitConverterHandler.processQuery(
+                query = trimmedQuery,
+                forceUnitConverterMode = false,
+        )
     }
 
     private fun onQueryChangeInternal(
@@ -2094,7 +2171,7 @@ class SearchViewModel(
             val hasLockedAliasMode =
                     lockedShortcutTarget != null ||
                             lockedAliasSearchSection != null ||
-                            lockedCalculatorMode
+                            lockedToolMode != null
             if (clearShortcutWhenBlank && hasLockedAliasMode && newQuery.isNotEmpty()) {
                 appSearchJob?.cancel()
                 appSearchManager.setNoMatchPrefix(null)
@@ -2112,11 +2189,7 @@ class SearchViewModel(
                             calendarEvents = emptyList(),
                             DirectSearchState = DirectSearchState(),
                             calculatorState =
-                                    if (lockedCalculatorMode) {
-                                        CalculatorState(isCalculatorMode = true)
-                                    } else {
-                                        CalculatorState()
-                                    },
+                                    lockedToolMode?.let(::createToolModeState) ?: CalculatorState(),
                             webSuggestions = emptyList(),
                             detectedShortcutTarget = lockedShortcutTarget,
                             detectedAliasSearchSection = lockedAliasSearchSection,
@@ -2132,6 +2205,7 @@ class SearchViewModel(
             appSearchManager.setNoMatchPrefix(null)
             secondarySearchOrchestrator.resetNoResultTracking()
             webSuggestionHandler.cancelSuggestions()
+            val lockedMode = lockedToolMode
             updateUiState {
                 it.copy(
                         query = "",
@@ -2144,10 +2218,10 @@ class SearchViewModel(
                         calendarEvents = emptyList(),
                         DirectSearchState = DirectSearchState(),
                         calculatorState =
-                                if (clearShortcutWhenBlank || !lockedCalculatorMode) {
+                                if (clearShortcutWhenBlank || lockedMode == null) {
                                     CalculatorState()
                                 } else {
-                                    CalculatorState(isCalculatorMode = true)
+                                    createToolModeState(lockedMode)
                                 },
                         webSuggestions = emptyList(),
                         detectedShortcutTarget =
@@ -2164,7 +2238,7 @@ class SearchViewModel(
 
         // Keep evaluating aliases while typing so aliases are always stripped and can retarget
         // the currently locked mode.
-        when (val aliasResolution = resolveAliasQueryResolution(newQuery, trimmedQuery)) {
+        when (val aliasResolution = resolveAliasQueryResolution(newQuery)) {
             is AliasQueryResolution.ReprocessQuery -> {
                 onQueryChangeInternal(
                         aliasResolution.queryWithoutAlias,
@@ -2192,22 +2266,12 @@ class SearchViewModel(
         val detectedTarget: SearchTarget? = lockedShortcutTarget
         val detectedAliasSearchSection: SearchSection? = lockedAliasSearchSection
 
-        // Check if query is a math expression (only if calculator is enabled)
-        // Only process calculator if no shortcut was detected at start
         val calculatorResult =
-                if (lockedCalculatorMode) {
-                    calculatorHandler.processQuery(
-                            query = trimmedQuery,
-                            forceCalculatorMode = true,
-                    )
-                } else if (detectedTarget == null && detectedAliasSearchSection == null) {
-                    calculatorHandler.processQuery(
-                            query = trimmedQuery,
-                            forceCalculatorMode = false,
-                    )
-                } else {
-                    CalculatorState()
-                }
+                resolveToolState(
+                        trimmedQuery = trimmedQuery,
+                        detectedTarget = detectedTarget,
+                        detectedAliasSearchSection = detectedAliasSearchSection,
+                )
 
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(trimmedQuery)
         // Build the query context once here so downstream consumers (app search, etc.)
@@ -2226,7 +2290,7 @@ class SearchViewModel(
         // Immediately update query / calculator / shortcut state so the UI is
         // responsive on every keystroke.  searchResults will be filled in by the
         // async job below (or cleared right away if we know there are no matches).
-        val showingCalculator = calculatorResult.isCalculatorMode || calculatorResult.result != null
+        val showingTool = calculatorResult.isToolMode || calculatorResult.result != null
         val shouldOnlySearchApps = detectedAliasSearchSection == SearchSection.APPS
         val shouldSkipAppSearchDueToAlias =
                 detectedAliasSearchSection != null && !shouldOnlySearchApps
@@ -2238,7 +2302,7 @@ class SearchViewModel(
                             if (
                                     shouldSkipSearch ||
                                             detectedTarget != null ||
-                                            showingCalculator ||
+                                            showingTool ||
                                             shouldSkipAppSearchDueToAlias
                             )
                                     emptyList()
@@ -2248,22 +2312,22 @@ class SearchViewModel(
                     detectedShortcutTarget = detectedTarget,
                     detectedAliasSearchSection = detectedAliasSearchSection,
                     contactResults =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.contactResults,
                     fileResults =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.fileResults,
                     settingResults =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.settingResults,
                     appSettingResults =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.appSettingResults,
                     appShortcutResults =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.appShortcutResults,
                     calendarEvents =
-                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            if (showingTool || shouldClearSecondaryResults) emptyList()
                             else state.calendarEvents,
             )
         }
@@ -2271,7 +2335,7 @@ class SearchViewModel(
         if (
                 !shouldSkipSearch &&
                         detectedTarget == null &&
-                        !showingCalculator &&
+                        !showingTool &&
                         !shouldSkipAppSearchDueToAlias
         ) {
             // Snapshot the list reference so the background coroutine isn't racing
@@ -2310,8 +2374,8 @@ class SearchViewModel(
             updateResultsState { state -> state.copy(searchResults = emptyList()) }
         }
 
-        // Skip secondary searches if calculator result is shown
-        if (!showingCalculator) {
+        // Skip secondary searches if a tool result is shown
+        if (!showingTool) {
             if (detectedTarget != null) {
                 secondarySearchOrchestrator.performWebSuggestionsOnly(newQuery)
             } else if (detectedAliasSearchSection != null) {
@@ -2391,6 +2455,7 @@ class SearchViewModel(
                             shortcutEnabled = shortcutsState.shortcutEnabled,
                             webSuggestionsEnabled = webSuggestionsEnabled,
                             calculatorEnabled = userPreferences.isCalculatorEnabled(),
+                            unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
                             hasGeminiApiKey = hasGeminiApiKey,
                             geminiApiKeyLast4 = geminiApiKey?.takeLast(4),
                             personalContext = personalContext,

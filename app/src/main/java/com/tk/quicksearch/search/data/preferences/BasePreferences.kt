@@ -553,6 +553,7 @@ abstract class BasePreferences(
 
         // Calculator preferences keys
         const val KEY_CALCULATOR_ENABLED = "calculator_enabled"
+        const val KEY_UNIT_CONVERTER_ENABLED = "unit_converter_enabled"
 
         // In-app review preferences keys
         const val KEY_FIRST_APP_OPEN_TIME = "first_app_open_time"

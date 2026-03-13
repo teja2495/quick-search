@@ -251,9 +251,16 @@ internal fun SettingsDetailLevel2Screen(
                                     state.shortcutCodes[
                                         com.tk.quicksearch.searchEngines.AliasHandler.CALCULATOR_ALIAS_FEATURE_ID
                                     ].orEmpty(),
+                                unitConverterEnabled = state.unitConverterEnabled,
+                                unitConverterAlias =
+                                    state.shortcutCodes[
+                                        com.tk.quicksearch.searchEngines.AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
                                 existingShortcuts = state.shortcutCodes,
                                 onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
+                                onSetUnitConverterAlias = callbacks.onSetUnitConverterAlias,
                                 onCalculatorToggle = callbacks.onToggleCalculator,
+                                onUnitConverterToggle = callbacks.onToggleUnitConverter,
                             )
                         }
 

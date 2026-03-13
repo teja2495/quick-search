@@ -5,6 +5,7 @@ package com.tk.quicksearch.search.searchScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 // Import the modifier functions
@@ -81,6 +82,7 @@ internal fun PersistentSearchBar(
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutTarget: com.tk.quicksearch.search.core.SearchTarget? = null,
     detectedAliasSearchSection: com.tk.quicksearch.search.core.SearchSection? = null,
+    activeToolType: SearchToolType? = null,
     isCalculatorMode: Boolean = false,
     placeholderText: String,
     showWelcomeAnimation: Boolean = false,
@@ -103,6 +105,7 @@ internal fun PersistentSearchBar(
     shouldUseNumberKeyboard = shouldUseNumberKeyboard,
     detectedShortcutTarget = detectedShortcutTarget,
     detectedAliasSearchSection = detectedAliasSearchSection,
+    activeToolType = activeToolType,
     isCalculatorMode = isCalculatorMode,
     placeholderText = placeholderText,
     showWelcomeAnimation = showWelcomeAnimation,

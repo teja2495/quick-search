@@ -710,6 +710,10 @@ class UserAppPreferences(
 
     fun setCalculatorEnabled(enabled: Boolean) = uiPreferences.setCalculatorEnabled(enabled)
 
+    fun isUnitConverterEnabled(): Boolean = uiPreferences.isUnitConverterEnabled()
+
+    fun setUnitConverterEnabled(enabled: Boolean) = uiPreferences.setUnitConverterEnabled(enabled)
+
     // ============================================================================
     // Recent Queries Preferences
     // ============================================================================

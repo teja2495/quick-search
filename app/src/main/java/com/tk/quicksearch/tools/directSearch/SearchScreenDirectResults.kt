@@ -20,6 +20,7 @@ import android.content.ClipData
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -166,9 +167,9 @@ fun CalculatorResult(
         showWallpaperBackground: Boolean = false,
 ) {
     val result = calculatorState.result
-    val isCalculatorMode = calculatorState.isCalculatorMode
+    val isToolMode = calculatorState.isToolMode
     val showInvalidExpression = calculatorState.showInvalidExpression
-    if (result == null && !isCalculatorMode) return
+    if (result == null && !isToolMode) return
 
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
@@ -207,9 +208,20 @@ fun CalculatorResult(
                 showInvalidExpression -> {
                     Text(
                             text =
-                                    stringResource(
-                                            R.string.calculator_invalid_or_unsupported_expression
-                                    ),
+                                    if (
+                                            calculatorState.toolType ==
+                                                    SearchToolType.UNIT_CONVERTER
+                                    ) {
+                                        stringResource(
+                                                R.string
+                                                        .unit_converter_invalid_or_unsupported_query
+                                        )
+                                    } else {
+                                        stringResource(
+                                                R.string
+                                                        .calculator_invalid_or_unsupported_expression
+                                        )
+                                    },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -257,6 +269,7 @@ fun CalculatorResult(
         CalculatorAttributionRow(
                 modifier = Modifier.fillMaxWidth(),
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                toolType = calculatorState.toolType,
         )
     }
 }
@@ -306,20 +319,33 @@ private fun GeminiAttributionRow(
 private fun CalculatorAttributionRow(
         modifier: Modifier = Modifier,
         contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        toolType: SearchToolType = SearchToolType.CALCULATOR,
 ) {
+    val titleRes =
+            if (toolType == SearchToolType.UNIT_CONVERTER) {
+                R.string.unit_converter_toggle_title
+            } else {
+                R.string.calculator_toggle_title
+            }
+    val icon =
+            if (toolType == SearchToolType.UNIT_CONVERTER) {
+                Icons.Rounded.Straighten
+            } else {
+                Icons.Rounded.Calculate
+            }
     Row(
             modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Icon(
-                imageVector = Icons.Rounded.Calculate,
-                contentDescription = stringResource(R.string.calculator_toggle_title),
+                imageVector = icon,
+                contentDescription = stringResource(titleRes),
                 tint = contentColor,
                 modifier = Modifier.size(14.dp),
         )
         Text(
-                text = stringResource(R.string.calculator_toggle_title),
+                text = stringResource(titleRes),
                 style = MaterialTheme.typography.labelSmall,
                 color = contentColor,
         )

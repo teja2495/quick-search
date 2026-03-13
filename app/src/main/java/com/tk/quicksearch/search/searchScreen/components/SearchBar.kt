@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -78,6 +79,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchSection
+import com.tk.quicksearch.search.core.SearchToolType
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
@@ -115,6 +117,7 @@ internal fun PersistentSearchBar(
     shouldUseNumberKeyboard: Boolean,
     detectedShortcutTarget: SearchTarget? = null,
     detectedAliasSearchSection: SearchSection? = null,
+    activeToolType: SearchToolType? = null,
     isCalculatorMode: Boolean = false,
     placeholderText: String,
     showWelcomeAnimation: Boolean = false,
@@ -138,7 +141,7 @@ internal fun PersistentSearchBar(
     // Light color for icons and text on dark grey background
     val iconAndTextColor = DesignTokens.ColorSearchText
     val isAliasDetected =
-        detectedShortcutTarget != null || detectedAliasSearchSection != null || isCalculatorMode
+        detectedShortcutTarget != null || detectedAliasSearchSection != null || activeToolType != null
     val aliasVisualTransformation =
         rememberAliasHighlightVisualTransformation(
             enabledTargets = enabledTargets,
@@ -149,7 +152,8 @@ internal fun PersistentSearchBar(
         )
     val leadingIconState =
         when {
-            isCalculatorMode -> LeadingIconState.Calculator
+            activeToolType == SearchToolType.UNIT_CONVERTER -> LeadingIconState.UnitConverter
+            activeToolType == SearchToolType.CALCULATOR || isCalculatorMode -> LeadingIconState.Calculator
             detectedShortcutTarget != null -> LeadingIconState.Shortcut(detectedShortcutTarget)
             detectedAliasSearchSection != null -> LeadingIconState.Section(detectedAliasSearchSection)
             else -> LeadingIconState.Search
@@ -600,6 +604,15 @@ private fun SearchBarLeadingIcon(
             )
         }
 
+        LeadingIconState.UnitConverter -> {
+            Icon(
+                imageVector = Icons.Rounded.Straighten,
+                contentDescription = stringResource(R.string.unit_converter_toggle_title),
+                tint = iconTint,
+                modifier = Modifier.padding(start = DesignTokens.SpacingXSmall),
+            )
+        }
+
         is LeadingIconState.Shortcut -> {
             SearchTargetIcon(
                 target = iconState.target,
@@ -641,6 +654,8 @@ private sealed interface LeadingIconState {
     data object Search : LeadingIconState
 
     data object Calculator : LeadingIconState
+
+    data object UnitConverter : LeadingIconState
 
     data class Shortcut(
         val target: SearchTarget,

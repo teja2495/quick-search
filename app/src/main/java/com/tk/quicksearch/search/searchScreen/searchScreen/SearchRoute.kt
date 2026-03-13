@@ -284,6 +284,7 @@ fun SearchRoute(
             AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> uiState.isSearchEngineCompactMode
             AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> uiState.isSearchEngineAliasSuffixEnabled
             AppSettingsToggleKey.CALCULATOR -> uiState.calculatorEnabled
+            AppSettingsToggleKey.UNIT_CONVERTER -> uiState.unitConverterEnabled
             AppSettingsToggleKey.APP_SUGGESTIONS -> uiState.appSuggestionsEnabled
             AppSettingsToggleKey.WEB_SUGGESTIONS -> uiState.webSuggestionsEnabled
             AppSettingsToggleKey.RECENT_QUERIES -> uiState.recentQueriesEnabled
@@ -307,6 +308,7 @@ fun SearchRoute(
             AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> viewModel.setSearchEngineCompactMode(enabled)
             AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> viewModel.setSearchEngineAliasSuffixEnabled(enabled)
             AppSettingsToggleKey.CALCULATOR -> viewModel.setCalculatorEnabled(enabled)
+            AppSettingsToggleKey.UNIT_CONVERTER -> viewModel.setUnitConverterEnabled(enabled)
             AppSettingsToggleKey.APP_SUGGESTIONS -> viewModel.setAppSuggestionsEnabled(enabled)
             AppSettingsToggleKey.WEB_SUGGESTIONS -> viewModel.setWebSuggestionsEnabled(enabled)
             AppSettingsToggleKey.RECENT_QUERIES -> viewModel.setRecentQueriesEnabled(enabled)

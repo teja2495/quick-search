@@ -125,6 +125,11 @@ enum class DirectSearchStatus {
         Error,
 }
 
+enum class SearchToolType {
+        CALCULATOR,
+        UNIT_CONVERTER,
+}
+
 data class DirectSearchState(
         val status: DirectSearchStatus = DirectSearchStatus.Idle,
         val answer: String? = null,
@@ -137,8 +142,13 @@ data class CalculatorState(
         val result: String? = null,
         val expression: String? = null,
         val isCalculatorMode: Boolean = false,
+        val isUnitConverterMode: Boolean = false,
+        val toolType: SearchToolType = SearchToolType.CALCULATOR,
         val showInvalidExpression: Boolean = false,
-)
+) {
+        val isToolMode: Boolean
+                get() = isCalculatorMode || isUnitConverterMode
+}
 
 data class PhoneNumberSelection(
         val contactInfo: com.tk.quicksearch.search.models.ContactInfo,
@@ -404,6 +414,7 @@ data class SearchUiState(
         val webSuggestionsCount: Int = 3,
         // Calculator / Direct Search
         val calculatorEnabled: Boolean = true,
+        val unitConverterEnabled: Boolean = true,
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         // Gemini
         val hasGeminiApiKey: Boolean = false,
@@ -531,6 +542,7 @@ fun SearchUiState(
                 webSuggestionsEnabled = features.webSuggestionsEnabled,
                 webSuggestionsCount = features.webSuggestionsCount,
                 calculatorEnabled = features.calculatorEnabled,
+                unitConverterEnabled = features.unitConverterEnabled,
                 recentQueriesEnabled = features.recentQueriesEnabled,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,

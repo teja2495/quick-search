@@ -144,6 +144,7 @@ data class SearchFeatureState(
         val webSuggestionsCount: Int = 3,
         // Calculator
         val calculatorEnabled: Boolean = true,
+        val unitConverterEnabled: Boolean = true,
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,

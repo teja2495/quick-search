@@ -122,14 +122,17 @@ internal fun SearchScreenContent(
             }
     val isImeVisible = WindowInsets.ime.getBottom(density) > 0
     val isCalculatorMode = state.calculatorState.isCalculatorMode
+    val isToolMode = state.calculatorState.isToolMode
+    val isUnitConverterMode = state.calculatorState.isUnitConverterMode
+    val activeToolType = if (isToolMode) state.calculatorState.toolType else null
     val searchHintText =
-            if (isCalculatorMode) {
-                stringResource(R.string.calculator_enter_math_expression_hint)
-            } else {
-                stringResource(R.string.search_hint)
+            when {
+                isCalculatorMode -> stringResource(R.string.calculator_enter_math_expression_hint)
+                isUnitConverterMode -> stringResource(R.string.unit_converter_enter_conversion_hint)
+                else -> stringResource(R.string.search_hint)
             }
-    val hideCompactSearchEnginesInCalculatorMode =
-            isCalculatorMode && state.isSearchEngineCompactMode
+    val hideCompactSearchEnginesInToolMode =
+            isToolMode && state.isSearchEngineCompactMode
     val shouldShowNumberKeyboardOperators =
             isImeVisible && (manuallySwitchedToNumberKeyboard || isCalculatorMode)
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
@@ -313,6 +316,7 @@ internal fun SearchScreenContent(
                 shouldUseNumberKeyboard = manuallySwitchedToNumberKeyboard || isCalculatorMode,
                 detectedShortcutTarget = state.detectedShortcutTarget,
                 detectedAliasSearchSection = state.detectedAliasSearchSection,
+                activeToolType = activeToolType,
                 isCalculatorMode = isCalculatorMode,
                 placeholderText = searchHintText,
                 showWelcomeAnimation = state.showSearchBarWelcomeAnimation,
@@ -445,7 +449,7 @@ internal fun SearchScreenContent(
                 onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                 onGeminiModelInfoClick = onGeminiModelInfoClick,
-                showCalculator = state.calculatorState.isCalculatorMode || state.calculatorState.result != null,
+                showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null,
                 showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
                 directSearchState = state.DirectSearchState,
                 isOverlayPresentation = isOverlayPresentation,
@@ -460,7 +464,7 @@ internal fun SearchScreenContent(
             val pillText =
                     if (!isImeVisible && canShowOpenKeyboardPill) {
                         stringResource(R.string.action_open_keyboard)
-                    } else if (isCalculatorMode) {
+                    } else if (isToolMode) {
                         null
                     } else if (manuallySwitchedToNumberKeyboard) {
                         stringResource(R.string.keyboard_switch_back)
@@ -503,7 +507,7 @@ internal fun SearchScreenContent(
                 }
             }
 
-            if (!hideCompactSearchEnginesInCalculatorMode) {
+            if (!hideCompactSearchEnginesInToolMode) {
                 CompositionLocalProvider(
                         LocalOverlayResultCardColor provides overlayCardColor,
                         LocalOverlayDividerColor provides overlayDividerTint,
