@@ -78,10 +78,16 @@ fun hasAnySearchResults(state: SearchUiState): Boolean {
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
     val hasSettingResults = state.settingResults.isNotEmpty()
+    val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
 
-    val hasResults = hasAppResults || hasContactResults || hasFileResults || hasSettingResults || hasAppShortcutResults
+    val hasResults =
+        hasAppResults ||
+            hasContactResults ||
+            hasFileResults ||
+            hasSettingResults ||
+            hasAppSettingResults ||
+            hasAppShortcutResults
 
     return hasResults
 }
-

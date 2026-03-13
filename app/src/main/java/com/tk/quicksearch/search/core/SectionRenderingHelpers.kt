@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.core
 
 import androidx.compose.runtime.Composable
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.ContactInfo
@@ -40,7 +41,7 @@ fun shouldShowContactsSection(
     )
 
 fun shouldShowSettingsSection(renderingState: SectionRenderingState): Boolean =
-    renderingState.hasSettingResults &&
+    (renderingState.hasSettingResults || renderingState.hasAppSettingResults) &&
         renderingState.shouldShowSettings &&
         (
             renderingState.expandedSection == ExpandedSection.NONE ||
@@ -114,6 +115,18 @@ fun getSettingsListForRendering(
 ): List<DeviceSetting> =
     getListForRendering(
         list = renderingState.settingResults,
+        isExpanded = isSettingsExpanded,
+        autoExpand = false,
+        oneHandedMode = oneHandedMode,
+    )
+
+fun getAppSettingsListForRendering(
+    renderingState: SectionRenderingState,
+    isSettingsExpanded: Boolean,
+    oneHandedMode: Boolean,
+): List<AppSettingResult> =
+    getListForRendering(
+        list = renderingState.appSettingResults,
         isExpanded = isSettingsExpanded,
         autoExpand = false,
         oneHandedMode = oneHandedMode,
@@ -328,6 +341,16 @@ fun rememberSectionRenderContext(
             } else {
                 renderingState.pinnedSettings
             },
+        appSettingsList =
+            if (isSearching) {
+                getAppSettingsListForRendering(
+                    renderingState,
+                    isSettingsExpanded,
+                    oneHandedMode,
+                )
+            } else {
+                emptyList()
+            },
         appShortcutsList =
             if (isSearching) {
                 getAppShortcutListForRendering(
@@ -344,7 +367,9 @@ fun rememberSectionRenderContext(
         showAllAppShortcutsResults = !isSearching,
         showFilesExpandControls = isSearching,
         showContactsExpandControls = isSearching,
-        showSettingsExpandControls = isSearching && renderingState.hasSettingResults,
+        showSettingsExpandControls =
+            isSearching &&
+                (renderingState.hasSettingResults || renderingState.hasAppSettingResults),
         showAppShortcutsExpandControls = isSearching,
         filesExpandClick = filesParams.onExpandClick,
         contactsExpandClick = contactsParams.onExpandClick,
@@ -389,6 +414,7 @@ data class SectionRenderContext(
     val shouldRenderSettings: Boolean = false,
     val isSettingsExpanded: Boolean = false,
     val settingsList: List<DeviceSetting> = emptyList(),
+    val appSettingsList: List<AppSettingResult> = emptyList(),
     val showAllSettingsResults: Boolean = false,
     val showSettingsExpandControls: Boolean = false,
     val settingsExpandClick: () -> Unit = {},

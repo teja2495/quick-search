@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.searchScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
@@ -26,6 +27,8 @@ sealed interface PredictedSubmitTarget {
     data class File(val uri: String) : PredictedSubmitTarget
 
     data class Setting(val id: String) : PredictedSubmitTarget
+
+    data class AppSetting(val id: String) : PredictedSubmitTarget
 
     data class SearchTarget(val targetId: String) : PredictedSubmitTarget
 }
@@ -74,6 +77,12 @@ internal fun resolvePredictedSubmitTarget(
         return PredictedSubmitTarget.Setting(firstSetting.id)
     }
 
+    val firstAppSetting =
+        renderingState.appSettingResults.firstOrNull { it.isNavigateAction }
+    if (firstAppSetting != null) {
+        return PredictedSubmitTarget.AppSetting(firstAppSetting.id)
+    }
+
     if (detectedShortcutTarget != null) {
         return PredictedSubmitTarget.SearchTarget(detectedShortcutTarget.getId())
     }
@@ -119,9 +128,13 @@ data class FilesSectionParams(
 /** Data class for Settings section parameters */
 data class SettingsSectionParams(
     val settings: List<DeviceSetting>,
+    val appSettings: List<AppSettingResult>,
     val isExpanded: Boolean,
     val pinnedSettingIds: Set<String>,
     val onSettingClick: (DeviceSetting) -> Unit,
+    val onAppSettingClick: (AppSettingResult) -> Unit,
+    val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit,
+    val isAppSettingToggleChecked: (AppSettingResult) -> Boolean,
     val onTogglePin: (DeviceSetting) -> Unit,
     val onExclude: (DeviceSetting) -> Unit,
     val onNicknameClick: (DeviceSetting) -> Unit,
@@ -241,6 +254,9 @@ internal fun buildSectionParams(
     onExcludeFileExtension: (DeviceFile) -> Unit,
     onOpenStorageAccessSettings: () -> Unit,
     onSettingClick: (DeviceSetting) -> Unit,
+    onAppSettingClick: (AppSettingResult) -> Unit,
+    onAppSettingToggle: (AppSettingResult, Boolean) -> Unit,
+    isAppSettingToggleChecked: (AppSettingResult) -> Boolean,
     onPinSetting: (DeviceSetting) -> Unit,
     onUnpinSetting: (DeviceSetting) -> Unit,
     onExcludeSetting: (DeviceSetting) -> Unit,
@@ -291,6 +307,9 @@ internal fun buildSectionParams(
     onExcludeFileExtension,
     onOpenStorageAccessSettings,
     onSettingClick,
+    onAppSettingClick,
+    onAppSettingToggle,
+    isAppSettingToggleChecked,
     onPinSetting,
     onUnpinSetting,
     onExcludeSetting,
@@ -443,9 +462,13 @@ internal fun buildSectionParams(
     val settingsParams =
         SettingsSectionParams(
             settings = state.settingResults,
+            appSettings = state.appSettingResults,
             isExpanded = expandedSection == ExpandedSection.SETTINGS,
             pinnedSettingIds = derivedState.pinnedSettingIds,
             onSettingClick = onSettingClick,
+            onAppSettingClick = onAppSettingClick,
+            onAppSettingToggle = onAppSettingToggle,
+            isAppSettingToggleChecked = isAppSettingToggleChecked,
             onTogglePin = { setting ->
                 if (derivedState.pinnedSettingIds.contains(setting.id)) {
                     onUnpinSetting(setting)

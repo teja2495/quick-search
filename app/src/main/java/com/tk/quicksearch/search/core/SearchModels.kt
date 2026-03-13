@@ -3,6 +3,7 @@ package com.tk.quicksearch.search.core
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -305,6 +306,7 @@ data class SearchUiState(
         val excludedFiles: List<DeviceFile> = emptyList(),
         // Settings results
         val settingResults: List<DeviceSetting> = emptyList(),
+        val appSettingResults: List<AppSettingResult> = emptyList(),
         val allDeviceSettings: List<DeviceSetting> = emptyList(),
         val pinnedSettings: List<DeviceSetting> = emptyList(),
         val excludedSettings: List<DeviceSetting> = emptyList(),
@@ -450,6 +452,7 @@ fun SearchUiState(
                 pinnedFiles = results.pinnedFiles,
                 excludedFiles = results.excludedFiles,
                 settingResults = results.settingResults,
+                appSettingResults = results.appSettingResults,
                 allDeviceSettings = results.allDeviceSettings,
                 pinnedSettings = results.pinnedSettings,
                 excludedSettings = results.excludedSettings,

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.tk.quicksearch.onboarding.FinalSetupScreen
 import com.tk.quicksearch.onboarding.SearchEngineSetupScreen
 import com.tk.quicksearch.onboarding.permissionScreen.PermissionsScreen
+import com.tk.quicksearch.search.appSettings.AppSettingsDestination
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.searchScreen.SearchRoute
@@ -415,6 +416,41 @@ private fun NavigationContent(
                     viewModel = viewModel,
                     onSettingsClick = {
                         navigateToSettings(settingsDetailType ?: lastOpenedSettingsDetail)
+                    },
+                    onOpenAppSettingDestination = { destination ->
+                        when (destination) {
+                            AppSettingsDestination.ROOT -> navigateToSettings(null)
+                            AppSettingsDestination.APPEARANCE ->
+                                navigateToSettings(SettingsDetailType.APPEARANCE)
+                            AppSettingsDestination.SEARCH_RESULTS ->
+                                navigateToSettings(SettingsDetailType.SEARCH_RESULTS)
+                            AppSettingsDestination.SEARCH_ENGINES ->
+                                navigateToSettings(SettingsDetailType.SEARCH_ENGINES)
+                            AppSettingsDestination.TOOLS ->
+                                navigateToSettings(SettingsDetailType.TOOLS)
+                            AppSettingsDestination.LAUNCH_OPTIONS ->
+                                navigateToSettings(SettingsDetailType.LAUNCH_OPTIONS)
+                            AppSettingsDestination.PERMISSIONS ->
+                                navigateToSettings(SettingsDetailType.PERMISSIONS)
+                            AppSettingsDestination.APP_MANAGEMENT ->
+                                navigateToSettings(SettingsDetailType.APP_MANAGEMENT)
+                            AppSettingsDestination.APP_SHORTCUTS ->
+                                navigateToSettings(SettingsDetailType.APP_SHORTCUTS)
+                            AppSettingsDestination.CALLS_TEXTS ->
+                                navigateToSettings(SettingsDetailType.CALLS_TEXTS)
+                            AppSettingsDestination.FILES ->
+                                navigateToSettings(SettingsDetailType.FILES)
+                            AppSettingsDestination.DEVICE_SETTINGS ->
+                                navigateToSettings(SettingsDetailType.DEVICE_SETTINGS)
+                            AppSettingsDestination.EXCLUDED_ITEMS ->
+                                navigateToSettings(SettingsDetailType.EXCLUDED_ITEMS)
+                            AppSettingsDestination.DIRECT_SEARCH_CONFIGURE ->
+                                navigateToSettings(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                            AppSettingsDestination.FEATURES_LIST ->
+                                navigateToSettings(SettingsDetailType.FEATURES_LIST)
+                            AppSettingsDestination.OPEN_SOURCE_LICENSES ->
+                                navigateToSettings(SettingsDetailType.OPEN_SOURCE_LICENSES)
+                        }
                     },
                     onOpenSearchHistorySettings = {
                         navigateToSettings(SettingsDetailType.SEARCH_RESULTS)

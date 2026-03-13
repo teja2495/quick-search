@@ -2,6 +2,8 @@ package com.tk.quicksearch.search.core
 
 import android.content.Context
 import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
+import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.contacts.ContactSearchPolicy
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.ContactRepository
@@ -32,6 +34,7 @@ data class UnifiedSearchResults(
         val fileResults: List<DeviceFile> = emptyList(),
         val settingResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting> =
                 emptyList(),
+        val appSettingResults: List<AppSettingResult> = emptyList(),
         val appShortcutResults: List<StaticShortcut> = emptyList(),
 )
 
@@ -41,6 +44,7 @@ class UnifiedSearchHandler(
         private val fileRepository: FileSearchRepository,
         private val userPreferences: UserAppPreferences,
         private val settingsSearchHandler: DeviceSettingsSearchHandler,
+        private val appSettingsSearchHandler: AppSettingsSearchHandler,
         private val appShortcutSearchHandler: AppShortcutSearchHandler,
         private val fileSearchHandler: FileSearchHandler,
         private val searchOperations: SearchOperations,
@@ -67,6 +71,7 @@ class UnifiedSearchHandler(
                 canSearchContacts: Boolean,
                 canSearchFiles: Boolean,
                 canSearchSettings: Boolean,
+                canSearchAppSettings: Boolean,
                 canSearchAppShortcuts: Boolean,
                 enableFuzzyContactSearch: Boolean = false,
                 enableFuzzyFileSearch: Boolean = false,
@@ -140,7 +145,13 @@ class UnifiedSearchHandler(
                                         userPreferences.getRecentResultOpens()
                                 )
 
-                        val (contactResults, fileResults, settingsMatches, appShortcutMatches) =
+                        val (
+                                contactResults,
+                                fileResults,
+                                settingsMatches,
+                                appSettingsMatches,
+                                appShortcutMatches,
+                        ) =
                                 coroutineScope {
                                         val contactsDeferred = async {
                                                 if (canSearchContacts) {
@@ -192,6 +203,19 @@ class UnifiedSearchHandler(
                                                         emptyList()
                                                 }
                                         }
+                                        val appSettingsDeferred = async {
+                                                if (canSearchAppSettings) {
+                                                        appSettingsSearchHandler.searchSettings(
+                                                                queryContext = queryContext,
+                                                                recentSettingScores =
+                                                                        recencyIndex.settingScores,
+                                                                enableFuzzyMatching =
+                                                                        enableFuzzySettingsSearch,
+                                                        )
+                                                } else {
+                                                        emptyList()
+                                                }
+                                        }
                                         val appShortcutsDeferred = async {
                                                 if (canSearchAppShortcuts) {
                                                         appShortcutSearchHandler.searchShortcuts(
@@ -207,6 +231,7 @@ class UnifiedSearchHandler(
                                                 contactsDeferred.await(),
                                                 filesDeferred.await(),
                                                 settingsDeferred.await(),
+                                                appSettingsDeferred.await(),
                                                 appShortcutsDeferred.await(),
                                         )
                                 }
@@ -262,6 +287,7 @@ class UnifiedSearchHandler(
                                 contactResults = hydratedContacts,
                                 fileResults = filteredFiles,
                                 settingResults = settingsMatches,
+                                appSettingResults = appSettingsMatches,
                                 appShortcutResults = appShortcutMatches,
                         )
                 }
@@ -272,6 +298,7 @@ class UnifiedSearchHandler(
                 val contactResults: List<ContactInfo>,
                 val fileResults: List<DeviceFile>,
                 val settingsResults: List<com.tk.quicksearch.search.deviceSettings.DeviceSetting>,
+                val appSettingsResults: List<AppSettingResult>,
                 val appShortcutResults: List<StaticShortcut>,
         )
 

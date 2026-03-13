@@ -2,6 +2,7 @@ package com.tk.quicksearch.search.searchScreen.searchScreenLayout
 
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
@@ -17,6 +18,7 @@ data class SectionRenderingState(
     val hasContactResults: Boolean,
     val hasFileResults: Boolean,
     val hasSettingResults: Boolean,
+    val hasAppSettingResults: Boolean,
     val hasPinnedAppShortcuts: Boolean,
     val hasPinnedContacts: Boolean,
     val hasPinnedFiles: Boolean,
@@ -32,6 +34,7 @@ data class SectionRenderingState(
     val contactResults: List<ContactInfo>,
     val fileResults: List<DeviceFile>,
     val settingResults: List<DeviceSetting>,
+    val appSettingResults: List<AppSettingResult>,
     val pinnedAppShortcuts: List<StaticShortcut>,
     val pinnedContacts: List<ContactInfo>,
     val pinnedFiles: List<DeviceFile>,

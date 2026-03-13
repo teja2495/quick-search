@@ -31,6 +31,10 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
+import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.appSettings.AppSettingResultAction
+import com.tk.quicksearch.search.appSettings.AppSettingsDestination
+import com.tk.quicksearch.search.appSettings.AppSettingsToggleKey
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -53,6 +57,7 @@ fun SearchRoute(
     onCustomizeSearchEnginesClick: () -> Unit = {},
     onOpenDirectSearchConfigure: () -> Unit = {},
     onOpenReleaseNotesFeatures: () -> Unit = {},
+    onOpenAppSettingDestination: (AppSettingsDestination) -> Unit = {},
     onOverlayDismissRequest: (() -> Unit)? = null,
     onShowToast: (Int) -> Unit = {},
     viewModel: SearchViewModel = viewModel(),
@@ -203,12 +208,37 @@ fun SearchRoute(
     var showPermissionSettingsDialog by remember { mutableStateOf(false) }
     var pendingPermissionSettingsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var pendingPermissionSettingsType by remember { mutableStateOf<Int?>(null) }
+    var pendingDirectDialToggleFromAppSetting by remember { mutableStateOf(false) }
 
     val callPermissionLauncher =
         if (context is android.app.Activity) {
             rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
             ) { isGranted ->
+                if (pendingDirectDialToggleFromAppSetting) {
+                    pendingDirectDialToggleFromAppSetting = false
+                    if (isGranted) {
+                        viewModel.setDirectDialEnabled(true)
+                    } else {
+                        var shouldShowSettingsDialog = false
+                        PermissionHelper.handleDeniedRuntimePermission(
+                            context = context,
+                            permission = Manifest.permission.CALL_PHONE,
+                            wasPreviouslyDenied = true,
+                            onOpenSettings = {
+                                shouldShowSettingsDialog = true
+                                pendingPermissionSettingsType = R.string.settings_call_permission_title
+                                pendingPermissionSettingsAction = viewModel::openAppSettings
+                                showPermissionSettingsDialog = true
+                            },
+                        )
+                        if (!shouldShowSettingsDialog) {
+                            onShowToast(R.string.error_call_permission_required)
+                        }
+                    }
+                    return@rememberLauncherForActivityResult
+                }
+
                 if (isGranted) {
                     viewModel.onCallPermissionResult(true)
                 } else {
@@ -233,6 +263,73 @@ fun SearchRoute(
         } else {
             null
         }
+
+    val isAppSettingToggleChecked: (AppSettingResult) -> Boolean = { setting ->
+        when (setting.toggleKey) {
+            AppSettingsToggleKey.OVERLAY_MODE -> uiState.overlayModeEnabled
+            AppSettingsToggleKey.ONE_HANDED_MODE -> uiState.oneHandedMode
+            AppSettingsToggleKey.BOTTOM_SEARCHBAR -> uiState.bottomSearchBarEnabled
+            AppSettingsToggleKey.APP_LABELS -> uiState.showAppLabels
+            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> uiState.isSearchEngineCompactMode
+            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> uiState.isSearchEngineAliasSuffixEnabled
+            AppSettingsToggleKey.CALCULATOR -> uiState.calculatorEnabled
+            AppSettingsToggleKey.APP_SUGGESTIONS -> uiState.appSuggestionsEnabled
+            AppSettingsToggleKey.WEB_SUGGESTIONS -> uiState.webSuggestionsEnabled
+            AppSettingsToggleKey.RECENT_QUERIES -> uiState.recentQueriesEnabled
+            AppSettingsToggleKey.TOP_RESULT_INDICATOR -> uiState.topResultIndicatorEnabled
+            AppSettingsToggleKey.OPEN_KEYBOARD -> uiState.openKeyboardOnLaunch
+            AppSettingsToggleKey.CLEAR_QUERY -> uiState.clearQueryOnLaunch
+            AppSettingsToggleKey.SHOW_FOLDERS -> uiState.showFolders
+            AppSettingsToggleKey.SHOW_SYSTEM_FILES -> uiState.showSystemFiles
+            AppSettingsToggleKey.SHOW_HIDDEN_FILES -> uiState.showHiddenFiles
+            AppSettingsToggleKey.DIRECT_DIAL -> uiState.directDialEnabled
+            null -> false
+        }
+    }
+
+    val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
+        when (setting.toggleKey) {
+            AppSettingsToggleKey.OVERLAY_MODE -> viewModel.setOverlayModeEnabled(enabled)
+            AppSettingsToggleKey.ONE_HANDED_MODE -> viewModel.setOneHandedMode(enabled)
+            AppSettingsToggleKey.BOTTOM_SEARCHBAR -> viewModel.setBottomSearchBarEnabled(enabled)
+            AppSettingsToggleKey.APP_LABELS -> viewModel.setShowAppLabels(enabled)
+            AppSettingsToggleKey.SEARCH_ENGINE_COMPACT_MODE -> viewModel.setSearchEngineCompactMode(enabled)
+            AppSettingsToggleKey.SEARCH_ENGINE_ALIAS_SUFFIX -> viewModel.setSearchEngineAliasSuffixEnabled(enabled)
+            AppSettingsToggleKey.CALCULATOR -> viewModel.setCalculatorEnabled(enabled)
+            AppSettingsToggleKey.APP_SUGGESTIONS -> viewModel.setAppSuggestionsEnabled(enabled)
+            AppSettingsToggleKey.WEB_SUGGESTIONS -> viewModel.setWebSuggestionsEnabled(enabled)
+            AppSettingsToggleKey.RECENT_QUERIES -> viewModel.setRecentQueriesEnabled(enabled)
+            AppSettingsToggleKey.TOP_RESULT_INDICATOR -> viewModel.setTopResultIndicatorEnabled(enabled)
+            AppSettingsToggleKey.OPEN_KEYBOARD -> viewModel.setOpenKeyboardOnLaunchEnabled(enabled)
+            AppSettingsToggleKey.CLEAR_QUERY -> viewModel.setClearQueryOnLaunchEnabled(enabled)
+            AppSettingsToggleKey.SHOW_FOLDERS -> viewModel.setShowFolders(enabled)
+            AppSettingsToggleKey.SHOW_SYSTEM_FILES -> viewModel.setShowSystemFiles(enabled)
+            AppSettingsToggleKey.SHOW_HIDDEN_FILES -> viewModel.setShowHiddenFiles(enabled)
+            AppSettingsToggleKey.DIRECT_DIAL -> {
+                if (enabled) {
+                    if (uiState.hasCallPermission) {
+                        viewModel.setDirectDialEnabled(true)
+                    } else if (context is android.app.Activity) {
+                        pendingDirectDialToggleFromAppSetting = true
+                        callPermissionLauncher?.launch(Manifest.permission.CALL_PHONE)
+                    } else {
+                        onShowToast(R.string.error_call_permission_required)
+                    }
+                } else {
+                    pendingDirectDialToggleFromAppSetting = false
+                    viewModel.setDirectDialEnabled(false)
+                }
+            }
+            null -> Unit
+        }
+    }
+
+    val onAppSettingClick: (AppSettingResult) -> Unit = appSettingClick@{ setting ->
+        if (setting.action != AppSettingResultAction.NAVIGATE) return@appSettingClick
+        setting.destination?.let { destination ->
+            onOpenAppSettingDestination(destination)
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -304,6 +401,9 @@ fun SearchRoute(
             onExcludeFile = onExcludeFileWithUndo,
             onExcludeFileExtension = onExcludeFileExtensionWithUndo,
             onSettingClick = { setting: com.tk.quicksearch.search.deviceSettings.DeviceSetting -> viewModel.openSetting(setting) },
+            onAppSettingClick = onAppSettingClick,
+            onAppSettingToggle = onAppSettingToggle,
+            isAppSettingToggleChecked = isAppSettingToggleChecked,
             onPinSetting = viewModel::pinSetting,
             onUnpinSetting = viewModel::unpinSetting,
             onExcludeSetting = onExcludeSettingWithUndo,

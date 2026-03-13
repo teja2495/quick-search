@@ -176,6 +176,7 @@ internal fun SearchScreenContent(
                     renderingState.contactResults,
                     renderingState.fileResults,
                     renderingState.settingResults,
+                    renderingState.appSettingResults,
                     state.detectedShortcutTarget,
                     state.searchTargetsOrder,
                     enabledTargets,
@@ -360,6 +361,14 @@ internal fun SearchScreenContent(
                                     if (firstSetting != null) {
                                         settingsParams.onSettingClick(firstSetting)
                                     } else {
+                                        val firstAppSetting =
+                                            renderingState.appSettingResults.firstOrNull {
+                                                it.isNavigateAction
+                                            }
+                                        if (firstAppSetting != null) {
+                                            settingsParams.onAppSettingClick(firstAppSetting)
+                                            return@PersistentSearchBar
+                                        }
                                         // Check if a shortcut is detected
                                         if (isCalculatorMode) {
                                             return@PersistentSearchBar

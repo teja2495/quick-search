@@ -12,6 +12,9 @@ import com.tk.quicksearch.app.navigation.NavigationHandler
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.search.appShortcuts.AppShortcutManagementHandler
 import com.tk.quicksearch.search.appShortcuts.AppShortcutSearchHandler
+import com.tk.quicksearch.search.appSettings.AppSettingResult
+import com.tk.quicksearch.search.appSettings.AppSettingsRepository
+import com.tk.quicksearch.search.appSettings.AppSettingsSearchHandler
 import com.tk.quicksearch.search.apps.AppManagementService
 import com.tk.quicksearch.search.apps.AppSearchManager
 import com.tk.quicksearch.search.apps.IconPackService
@@ -174,6 +177,9 @@ class SearchViewModel(
     private val fileRepository by lazy { FileSearchRepository(appContext) }
     private val settingsShortcutRepository by lazy {
         DeviceSettingsRepository(appContext)
+    }
+    private val appSettingsRepository by lazy {
+        AppSettingsRepository(appContext)
     }
     private val userPreferences by lazy { UserAppPreferences(appContext) }
     private val contactPreferences by lazy {
@@ -390,6 +396,7 @@ class SearchViewModel(
                     pinnedFiles = s.pinnedFiles,
                     excludedFiles = s.excludedFiles,
                     settingResults = s.settingResults,
+                    appSettingResults = s.appSettingResults,
                     allDeviceSettings = s.allDeviceSettings,
                     pinnedSettings = s.pinnedSettings,
                     excludedSettings = s.excludedSettings,
@@ -639,6 +646,13 @@ class SearchViewModel(
         )
     }
 
+    val appSettingsSearchHandler by lazy {
+        AppSettingsSearchHandler(
+                repository = appSettingsRepository,
+                userPreferences = userPreferences,
+        )
+    }
+
     val fileSearchHandler by lazy {
         FileSearchHandler(fileRepository = fileRepository, userPreferences = userPreferences)
     }
@@ -672,6 +686,7 @@ class SearchViewModel(
                 fileRepository = fileRepository,
                 userPreferences = userPreferences,
                 settingsSearchHandler = settingsSearchHandler,
+                appSettingsSearchHandler = appSettingsSearchHandler,
                 appShortcutSearchHandler = appShortcutSearchHandler,
                 fileSearchHandler = fileSearchHandler,
                 searchOperations = searchOperations,
@@ -1228,6 +1243,7 @@ class SearchViewModel(
 
             // Load full shortcuts/settings in background (slower, for search)
             launch(Dispatchers.IO) { loadSettingsShortcuts() }
+            launch(Dispatchers.IO) { appSettingsSearchHandler.loadSettings() }
 
             launch(Dispatchers.IO) { loadAppShortcuts() }
 
@@ -2044,6 +2060,7 @@ class SearchViewModel(
                             contactResults = emptyList(),
                             fileResults = emptyList(),
                             settingResults = emptyList(),
+                            appSettingResults = emptyList(),
                             DirectSearchState = DirectSearchState(),
                             calculatorState =
                                     if (lockedCalculatorMode) {
@@ -2074,6 +2091,7 @@ class SearchViewModel(
                         contactResults = emptyList(),
                         fileResults = emptyList(),
                         settingResults = emptyList(),
+                        appSettingResults = emptyList(),
                         DirectSearchState = DirectSearchState(),
                         calculatorState =
                                 if (clearShortcutWhenBlank || !lockedCalculatorMode) {
@@ -2188,6 +2206,9 @@ class SearchViewModel(
                     settingResults =
                             if (showingCalculator || shouldClearSecondaryResults) emptyList()
                             else state.settingResults,
+                    appSettingResults =
+                            if (showingCalculator || shouldClearSecondaryResults) emptyList()
+                            else state.appSettingResults,
                     appShortcutResults =
                             if (showingCalculator || shouldClearSecondaryResults) emptyList()
                             else state.appShortcutResults,
@@ -2248,6 +2269,7 @@ class SearchViewModel(
                                 contactResults = emptyList(),
                                 fileResults = emptyList(),
                                 settingResults = emptyList(),
+                                appSettingResults = emptyList(),
                                 appShortcutResults = emptyList(),
                                 webSuggestions = emptyList(),
                         )
@@ -3008,6 +3030,12 @@ class SearchViewModel(
         }
     }
 
+    fun trackRecentSettingTap(settingId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.addRecentItem(RecentSearchEntry.Setting(settingId))
+        }
+    }
+
     fun getEnabledSearchTargets(): List<SearchTarget> =
             searchEngineManager.getEnabledSearchTargets()
 
@@ -3413,15 +3441,19 @@ class SearchViewModel(
     /** Computes the settings section visibility state. */
     private fun computeSettingsSectionVisibility(state: SearchUiState): SettingsSectionVisibility {
         val sectionEnabled = isSectionEnabledForCurrentQuery(state, SearchSection.SETTINGS)
+        val hasAppSettingResults = state.appSettingResults.isNotEmpty()
+        val hasPinned = state.pinnedSettings.isNotEmpty()
+        val hasDeviceSettingResults = state.settingResults.isNotEmpty()
 
         return when {
+            hasAppSettingResults -> {
+                SettingsSectionVisibility.ShowingResults(hasPinned = hasPinned)
+            }
             !sectionEnabled -> {
                 SettingsSectionVisibility.Hidden
             }
             else -> {
-                val hasResults = state.settingResults.isNotEmpty()
-                val hasPinned = state.pinnedSettings.isNotEmpty()
-                if (hasResults || hasPinned) {
+                if (hasDeviceSettingResults || hasPinned) {
                     SettingsSectionVisibility.ShowingResults(hasPinned = hasPinned)
                 } else {
                     SettingsSectionVisibility.NoResults

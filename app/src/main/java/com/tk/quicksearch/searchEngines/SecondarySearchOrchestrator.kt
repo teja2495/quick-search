@@ -29,6 +29,7 @@ class SecondarySearchOrchestrator(
     private var lastQueryWithNoContacts: String? = null
     private var lastQueryWithNoFiles: String? = null
     private var lastQueryWithNoSettings: String? = null
+    private var lastQueryWithNoAppSettings: String? = null
     private var lastQueryWithNoAppShortcuts: String? = null
     private var lastQueryLength: Int = 0
 
@@ -54,6 +55,7 @@ class SecondarySearchOrchestrator(
             lastQueryWithNoContacts = null
             lastQueryWithNoFiles = null
             lastQueryWithNoSettings = null
+            lastQueryWithNoAppSettings = null
             lastQueryWithNoAppShortcuts = null
             lastQueryLength = 0
 
@@ -62,6 +64,7 @@ class SecondarySearchOrchestrator(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
+                    appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                 )
             }
@@ -85,6 +88,11 @@ class SecondarySearchOrchestrator(
             ) {
                 lastQueryWithNoSettings = null
             }
+            if (lastQueryWithNoAppSettings != null &&
+                trimmedQuery.length < lastQueryWithNoAppSettings!!.length
+            ) {
+                lastQueryWithNoAppSettings = null
+            }
             if (lastQueryWithNoAppShortcuts != null &&
                 trimmedQuery.length < lastQueryWithNoAppShortcuts!!.length
             ) {
@@ -104,6 +112,7 @@ class SecondarySearchOrchestrator(
                 SearchSection.FILES !in sectionManager.disabledSections
         val canSearchSettings =
             !isSingleCharacterQuery && SearchSection.SETTINGS !in sectionManager.disabledSections
+        val canSearchAppSettings = !isSingleCharacterQuery
         val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
 
         // Skip searches if current query extends a previous no-results query
@@ -119,6 +128,10 @@ class SecondarySearchOrchestrator(
             !isBackspacing &&
                 lastQueryWithNoSettings != null &&
                 trimmedQuery.startsWith(lastQueryWithNoSettings!!)
+        val shouldSkipAppSettings =
+            !isBackspacing &&
+                lastQueryWithNoAppSettings != null &&
+                trimmedQuery.startsWith(lastQueryWithNoAppSettings!!)
         val shouldSkipAppShortcuts =
             !isBackspacing &&
                 lastQueryWithNoAppShortcuts != null &&
@@ -126,6 +139,7 @@ class SecondarySearchOrchestrator(
         val shouldSearchContacts = canSearchContacts && !shouldSkipContacts
         val shouldSearchFiles = canSearchFiles && !shouldSkipFiles
         val shouldSearchSettings = canSearchSettings && !shouldSkipSettings
+        val shouldSearchAppSettings = canSearchAppSettings && !shouldSkipAppSettings
         val shouldSearchAppShortcuts = canSearchAppShortcuts && !shouldSkipAppShortcuts
 
         val currentVersion = queryVersion.incrementAndGet()
@@ -144,6 +158,7 @@ class SecondarySearchOrchestrator(
                         canSearchContacts = shouldSearchContacts,
                         canSearchFiles = shouldSearchFiles,
                         canSearchSettings = shouldSearchSettings,
+                        canSearchAppSettings = shouldSearchAppSettings,
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
                         enableFuzzyContactSearch = false,
                         enableFuzzyFileSearch = false,
@@ -176,6 +191,14 @@ class SecondarySearchOrchestrator(
                             lastQueryWithNoSettings = null
                         }
 
+                        if (shouldSearchAppSettings && unifiedResults.appSettingResults.isEmpty()) {
+                            lastQueryWithNoAppSettings = trimmedQuery
+                        } else if (shouldSearchAppSettings &&
+                            unifiedResults.appSettingResults.isNotEmpty()
+                        ) {
+                            lastQueryWithNoAppSettings = null
+                        }
+
                         if (shouldSearchAppShortcuts && unifiedResults.appShortcutResults.isEmpty()) {
                             lastQueryWithNoAppShortcuts = trimmedQuery
                         } else if (shouldSearchAppShortcuts &&
@@ -189,6 +212,7 @@ class SecondarySearchOrchestrator(
                                 contactResults = unifiedResults.contactResults,
                                 fileResults = unifiedResults.fileResults,
                                 settingResults = unifiedResults.settingResults,
+                                appSettingResults = unifiedResults.appSettingResults,
                                 appShortcutResults = unifiedResults.appShortcutResults,
                             )
                         }
@@ -256,6 +280,7 @@ class SecondarySearchOrchestrator(
                     contactResults = emptyList(),
                     fileResults = emptyList(),
                     settingResults = emptyList(),
+                    appSettingResults = emptyList(),
                     appShortcutResults = emptyList(),
                     webSuggestions = emptyList(),
                 )
@@ -279,12 +304,14 @@ class SecondarySearchOrchestrator(
                 isSectionEnabled(SearchSection.FILES)
         val isSettingsEnabled =
             !isSingleCharacterQuery && isSectionEnabled(SearchSection.SETTINGS)
+        val isAppSettingsEnabled = !isSingleCharacterQuery
         val isAppShortcutsEnabled =
             isSectionEnabled(SearchSection.APP_SHORTCUTS)
 
         val shouldSearchContacts = section == SearchSection.CONTACTS && isContactsEnabled
         val shouldSearchFiles = section == SearchSection.FILES && isFilesEnabled
         val shouldSearchSettings = section == SearchSection.SETTINGS && isSettingsEnabled
+        val shouldSearchAppSettings = section == SearchSection.SETTINGS && isAppSettingsEnabled
         val shouldSearchAppShortcuts =
             section == SearchSection.APP_SHORTCUTS && isAppShortcutsEnabled
 
@@ -301,6 +328,7 @@ class SecondarySearchOrchestrator(
                         canSearchContacts = shouldSearchContacts,
                         canSearchFiles = shouldSearchFiles,
                         canSearchSettings = shouldSearchSettings,
+                        canSearchAppSettings = shouldSearchAppSettings,
                         canSearchAppShortcuts = shouldSearchAppShortcuts,
                         enableFuzzyContactSearch = shouldSearchContacts && useFuzzyMatching,
                         enableFuzzyFileSearch = shouldSearchFiles && useFuzzyMatching,
@@ -318,6 +346,7 @@ class SecondarySearchOrchestrator(
                             contactResults = unifiedResults.contactResults,
                             fileResults = unifiedResults.fileResults,
                             settingResults = unifiedResults.settingResults,
+                            appSettingResults = unifiedResults.appSettingResults,
                             appShortcutResults = unifiedResults.appShortcutResults,
                             webSuggestions = emptyList(),
                         )
@@ -340,6 +369,7 @@ class SecondarySearchOrchestrator(
         lastQueryWithNoContacts = null
         lastQueryWithNoFiles = null
         lastQueryWithNoSettings = null
+        lastQueryWithNoAppSettings = null
         lastQueryWithNoAppShortcuts = null
         lastQueryLength = 0
     }
@@ -373,6 +403,7 @@ class SecondarySearchOrchestrator(
                             contactResults = emptyList(),
                             fileResults = emptyList(),
                             settingResults = emptyList(),
+                            appSettingResults = emptyList(),
                             appShortcutResults = emptyList(),
                         )
                     }

@@ -220,9 +220,13 @@ private fun renderSettingsSection(
     if (context.shouldRenderSettings && params.settingsParams != null) {
         DeviceSettingsResultsSection(
             settings = context.settingsList,
+            appSettings = context.appSettingsList,
             isExpanded = context.isSettingsExpanded,
             pinnedSettingIds = params.settingsParams.pinnedSettingIds,
             onSettingClick = params.settingsParams.onSettingClick,
+            onAppSettingClick = params.settingsParams.onAppSettingClick,
+            onAppSettingToggle = params.settingsParams.onAppSettingToggle,
+            isAppSettingToggleChecked = params.settingsParams.isAppSettingToggleChecked,
             onTogglePin = params.settingsParams.onTogglePin,
             onExclude = params.settingsParams.onExclude,
             onNicknameClick = params.settingsParams.onNicknameClick,

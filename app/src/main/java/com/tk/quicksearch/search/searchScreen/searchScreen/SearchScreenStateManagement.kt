@@ -1,8 +1,5 @@
 package com.tk.quicksearch.search.searchScreen
 
-import androidx.compose.foundation.rememberScrollState
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.rememberScrollState
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
@@ -19,6 +16,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.tk.quicksearch.search.contacts.models.ContactCardAction
 import com.tk.quicksearch.search.contacts.utils.ContactCallingAppResolver
 import com.tk.quicksearch.search.contacts.utils.ContactMessagingAppResolver
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
@@ -77,6 +75,9 @@ internal fun SearchScreenStateManagement(
     onExcludeFile: (DeviceFile) -> Unit,
     onExcludeFileExtension: (DeviceFile) -> Unit,
     onSettingClick: (DeviceSetting) -> Unit,
+    onAppSettingClick: (AppSettingResult) -> Unit,
+    onAppSettingToggle: (AppSettingResult, Boolean) -> Unit,
+    isAppSettingToggleChecked: (AppSettingResult) -> Boolean,
     onPinSetting: (DeviceSetting) -> Unit,
     onUnpinSetting: (DeviceSetting) -> Unit,
     onExcludeSetting: (DeviceSetting) -> Unit,
@@ -289,7 +290,7 @@ internal fun SearchScreenStateManagement(
         pinnedContactsSize = state.pinnedContacts.size,
         pinnedAppShortcutsSize = state.pinnedAppShortcuts.size,
         pinnedFilesSize = state.pinnedFiles.size,
-        settingResultsSize = state.settingResults.size,
+        settingResultsSize = state.settingResults.size + state.appSettingResults.size,
         pinnedSettingsSize = state.pinnedSettings.size,
         hasUsagePermission = state.hasUsagePermission,
         errorMessage = state.errorMessage,
@@ -325,6 +326,9 @@ internal fun SearchScreenStateManagement(
             onExcludeFileExtension = onExcludeFileExtension,
             onOpenStorageAccessSettings = onOpenStorageAccessSettings,
             onSettingClick = onSettingClick,
+            onAppSettingClick = onAppSettingClick,
+            onAppSettingToggle = onAppSettingToggle,
+            isAppSettingToggleChecked = isAppSettingToggleChecked,
             onPinSetting = onPinSetting,
             onUnpinSetting = onUnpinSetting,
             onExcludeSetting = onExcludeSetting,
@@ -395,6 +399,7 @@ internal fun SearchScreenStateManagement(
             hasContactResults = derivedState.hasContactResults,
             hasFileResults = derivedState.hasFileResults,
             hasSettingResults = derivedState.hasSettingResults,
+            hasAppSettingResults = derivedState.hasAppSettingResults,
             hasPinnedAppShortcuts = derivedState.hasPinnedAppShortcuts,
             hasPinnedContacts = derivedState.hasPinnedContacts,
             hasPinnedFiles = derivedState.hasPinnedFiles,
@@ -410,6 +415,7 @@ internal fun SearchScreenStateManagement(
             contactResults = state.contactResults,
             fileResults = state.fileResults,
             settingResults = state.settingResults,
+            appSettingResults = state.appSettingResults,
             pinnedAppShortcuts = state.pinnedAppShortcuts,
             pinnedContacts = state.pinnedContacts,
             pinnedFiles = state.pinnedFiles,

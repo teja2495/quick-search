@@ -15,6 +15,7 @@ import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
 import com.tk.quicksearch.search.models.DeviceFile
+import com.tk.quicksearch.search.appSettings.AppSettingResult
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
@@ -62,6 +63,9 @@ fun SearchScreen(
     onExcludeFile: (DeviceFile) -> Unit,
     onExcludeFileExtension: (DeviceFile) -> Unit,
     onSettingClick: (DeviceSetting) -> Unit,
+    onAppSettingClick: (AppSettingResult) -> Unit,
+    onAppSettingToggle: (AppSettingResult, Boolean) -> Unit,
+    isAppSettingToggleChecked: (AppSettingResult) -> Boolean,
     onPinSetting: (DeviceSetting) -> Unit,
     onUnpinSetting: (DeviceSetting) -> Unit,
     onExcludeSetting: (DeviceSetting) -> Unit,
@@ -155,6 +159,9 @@ fun SearchScreen(
         onExcludeFile = onExcludeFile,
         onExcludeFileExtension = onExcludeFileExtension,
         onSettingClick = onSettingClick,
+        onAppSettingClick = onAppSettingClick,
+        onAppSettingToggle = onAppSettingToggle,
+        isAppSettingToggleChecked = isAppSettingToggleChecked,
         onPinSetting = onPinSetting,
         onUnpinSetting = onUnpinSetting,
         onExcludeSetting = onExcludeSetting,

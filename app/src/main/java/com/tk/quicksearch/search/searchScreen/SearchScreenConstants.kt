@@ -45,6 +45,7 @@ internal data class DerivedState(
     val hasContactResults: Boolean,
     val hasFileResults: Boolean,
     val hasSettingResults: Boolean,
+    val hasAppSettingResults: Boolean,
     val hasAppShortcutResults: Boolean,
     val pinnedContactIds: Set<Long>,
     val pinnedFileUris: Set<String>,
@@ -112,6 +113,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
     val hasContactResults = state.contactResults.isNotEmpty()
     val hasFileResults = state.fileResults.isNotEmpty()
     val hasSettingResults = state.settingResults.isNotEmpty()
+    val hasAppSettingResults = state.appSettingResults.isNotEmpty()
     val hasAppShortcutResults = state.appShortcutResults.isNotEmpty()
     val pinnedContactIds =
         remember(state.pinnedContacts) { state.pinnedContacts.map { it.contactId }.toSet() }
@@ -124,13 +126,20 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
             state.pinnedAppShortcuts.map { shortcutKey(it) }.toSet()
         }
     val hasMultipleExpandableSections =
-        listOf(hasContactResults, hasFileResults, hasSettingResults, hasAppShortcutResults)
+        listOf(
+            hasContactResults,
+            hasFileResults,
+            hasSettingResults || hasAppSettingResults,
+            hasAppShortcutResults,
+        )
             .count { it } > 1
 
     val orderedSections =
-        remember(state.disabledSections, state.detectedAliasSearchSection) {
+        remember(state.disabledSections, state.detectedAliasSearchSection, hasAppSettingResults) {
             ItemPriorityConfig.getSearchResultsPriority().filter { section ->
-                section !in state.disabledSections || state.detectedAliasSearchSection == section
+                section !in state.disabledSections ||
+                    state.detectedAliasSearchSection == section ||
+                    (section == SearchSection.SETTINGS && hasAppSettingResults)
             }
         }
 
@@ -158,7 +167,8 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         ) &&
             (!state.hasFilePermission || hasFileResults || hasPinnedFiles)
     val shouldShowSettings =
-        (
+        hasAppSettingResults ||
+            (
             SearchSection.SETTINGS !in state.disabledSections ||
                 state.detectedAliasSearchSection == SearchSection.SETTINGS
         ) &&
@@ -180,6 +190,7 @@ internal fun rememberDerivedState(state: SearchUiState): DerivedState {
         hasContactResults = hasContactResults,
         hasFileResults = hasFileResults,
         hasSettingResults = hasSettingResults,
+        hasAppSettingResults = hasAppSettingResults,
         hasAppShortcutResults = hasAppShortcutResults,
         pinnedContactIds = pinnedContactIds,
         pinnedFileUris = pinnedFileUris,
