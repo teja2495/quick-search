@@ -3,6 +3,7 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.SearchOff
@@ -12,10 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
 
 @Composable
 fun MoreOptionsSettings(
+    appIconShape: AppIconShape,
+    onSetAppIconShape: (AppIconShape) -> Unit,
     topResultIndicatorEnabled: Boolean,
     onTopResultIndicatorToggle: (Boolean) -> Unit,
     openKeyboardOnLaunch: Boolean,
@@ -30,12 +34,26 @@ fun MoreOptionsSettings(
     ) {
         Column {
             SettingsToggleRow(
+                title = stringResource(R.string.settings_circular_app_icons_title),
+                subtitle = stringResource(R.string.settings_circular_app_icons_desc),
+                checked = appIconShape == AppIconShape.CIRCLE,
+                onCheckedChange = { enabled ->
+                    onSetAppIconShape(
+                        if (enabled) AppIconShape.CIRCLE else AppIconShape.DEFAULT,
+                    )
+                },
+                leadingIcon = Icons.Rounded.Apps,
+                isFirstItem = true,
+                isLastItem = false,
+            )
+
+            SettingsToggleRow(
                 title = stringResource(R.string.top_result_indicator_toggle_title),
                 subtitle = stringResource(R.string.top_result_indicator_toggle_desc),
                 checked = topResultIndicatorEnabled,
                 onCheckedChange = onTopResultIndicatorToggle,
                 leadingIcon = Icons.Rounded.CheckCircle,
-                isFirstItem = true,
+                isFirstItem = false,
                 isLastItem = false,
             )
 

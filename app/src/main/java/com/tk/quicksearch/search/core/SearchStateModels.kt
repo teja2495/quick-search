@@ -185,6 +185,7 @@ data class SearchUiConfigState(
         val fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
         // App display preferences
         val showAppLabels: Boolean = true,
+        val appIconShape: AppIconShape = AppIconShape.DEFAULT,
         val appSuggestionsEnabled: Boolean = true,
         val selectedIconPackPackage: String? = null,
         val availableIconPacks: List<IconPackInfo> = emptyList(),

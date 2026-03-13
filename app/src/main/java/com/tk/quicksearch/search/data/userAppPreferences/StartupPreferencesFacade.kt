@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data
 
 import android.content.Context
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.models.FileType
@@ -48,6 +49,7 @@ class StartupPreferencesFacade(
             val searchHistoryEnabled: Boolean,
             val appSuggestionsEnabled: Boolean,
             val showAppLabels: Boolean,
+            val appIconShape: AppIconShape,
     )
 
     /**
@@ -332,6 +334,18 @@ class StartupPreferencesFacade(
                         ] as?
                                 Boolean
                                 ?: true,
+                appIconShape =
+                        (
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_APP_ICON_SHAPE,
+                                ] as?
+                                        String
+                                )
+                                ?.let { value ->
+                                    runCatching { AppIconShape.valueOf(value) }.getOrNull()
+                                }
+                                ?: AppIconShape.DEFAULT,
         )
     }
 
@@ -620,6 +634,18 @@ class StartupPreferencesFacade(
                                 ] as?
                                         Boolean
                                 ?: true,
+                        appIconShape =
+                                (
+                                        allPrefs[
+                                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                        .KEY_APP_ICON_SHAPE,
+                                        ] as?
+                                                String
+                                        )
+                                        ?.let { value ->
+                                            runCatching { AppIconShape.valueOf(value) }.getOrNull()
+                                        }
+                                        ?: AppIconShape.DEFAULT,
                 )
 
         return StartupConfig(

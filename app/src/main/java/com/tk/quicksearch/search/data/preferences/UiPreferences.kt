@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.data.preferences
 
 import android.content.Context
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
@@ -221,6 +222,16 @@ class UiPreferences(
             editor.putString(UiPreferences.KEY_SELECTED_ICON_PACK, packageName)
         }
         editor.apply()
+    }
+
+    fun getAppIconShape(): AppIconShape {
+        val saved = prefs.getString(KEY_APP_ICON_SHAPE, null)
+        return saved?.let { runCatching { AppIconShape.valueOf(it) }.getOrNull() }
+                ?: AppIconShape.DEFAULT
+    }
+
+    fun setAppIconShape(shape: AppIconShape) {
+        prefs.edit().putString(KEY_APP_ICON_SHAPE, shape.name).apply()
     }
 
     fun shouldShowAppLabels(): Boolean = getBooleanPref(KEY_SHOW_APP_LABELS, true)
@@ -556,6 +567,7 @@ class UiPreferences(
         const val KEY_OVERLAY_BACKGROUND_SOURCE = "overlay_background_source" // Legacy only.
         const val KEY_OVERLAY_CUSTOM_IMAGE_URI = "overlay_custom_image_uri" // Legacy only.
         const val KEY_SELECTED_ICON_PACK = "selected_icon_pack"
+        const val KEY_APP_ICON_SHAPE = "app_icon_shape"
         const val KEY_SHOW_APP_LABELS = "show_app_labels"
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_DIRECT_SEARCH_SETUP_EXPANDED = "direct_search_setup_expanded"

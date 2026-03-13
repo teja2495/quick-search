@@ -257,6 +257,8 @@ internal fun SettingsDetailLevel1Screen(
 
                     SettingsDetailType.MORE_OPTIONS -> {
                         MoreOptionsSettings(
+                            appIconShape = state.appIconShape,
+                            onSetAppIconShape = callbacks.onSetAppIconShape,
                             topResultIndicatorEnabled = state.topResultIndicatorEnabled,
                             onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
                             openKeyboardOnLaunch = state.openKeyboardOnLaunch,

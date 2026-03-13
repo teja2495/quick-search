@@ -1,6 +1,7 @@
 package com.tk.quicksearch.settings.shared
 
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
@@ -65,6 +66,7 @@ data class SettingsScreenState(
     val selectedIconPackPackage: String? = null,
     val availableIconPacks: List<IconPackInfo> = emptyList(),
     val showAppLabels: Boolean = true,
+    val appIconShape: AppIconShape = AppIconShape.DEFAULT,
     val directDialEnabled: Boolean,
     val disabledSections: Set<SearchSection>,
     val isSearchEngineCompactMode: Boolean,
@@ -129,6 +131,7 @@ data class SettingsScreenCallbacks(
     val onSearchIconPacks: () -> Unit,
     val onRefreshIconPacks: () -> Unit,
     val onToggleAppLabels: (Boolean) -> Unit,
+    val onSetAppIconShape: (AppIconShape) -> Unit,
     val onToggleDirectDial: (Boolean) -> Unit,
     val onToggleSection: (SearchSection, Boolean) -> Unit,
     val onToggleSearchEngineCompactMode: (Boolean) -> Unit,

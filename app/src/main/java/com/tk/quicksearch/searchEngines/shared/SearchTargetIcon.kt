@@ -3,6 +3,7 @@ package com.tk.quicksearch.searchEngines.shared
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import com.tk.quicksearch.search.apps.rememberAppIcon
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getAppPackageCandidates
@@ -53,6 +55,7 @@ fun SearchTargetIcon(
     target: SearchTarget,
     iconSize: Dp,
     style: IconRenderStyle = IconRenderStyle.SIMPLE,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
     modifier: Modifier = Modifier,
 ) {
     when (target) {
@@ -68,7 +71,14 @@ fun SearchTargetIcon(
                 Image(
                     bitmap = appIconBitmap,
                     contentDescription = targetEngine.getContentDescription(),
-                    modifier = modifier.size(iconSize),
+                    modifier =
+                        modifier.size(iconSize).then(
+                            if (appIconShape == AppIconShape.CIRCLE) {
+                                Modifier.clip(CircleShape)
+                            } else {
+                                Modifier
+                            },
+                        ),
                     contentScale = ContentScale.Fit,
                 )
             } else if (!targetEngine.isInstallOnlyEngine()) {
@@ -176,7 +186,14 @@ fun SearchTargetIcon(
                 Image(
                     bitmap = iconResult.bitmap!!,
                     contentDescription = target.app.label,
-                    modifier = modifier.size(iconSize),
+                    modifier =
+                        modifier.size(iconSize).then(
+                            if (appIconShape == AppIconShape.CIRCLE) {
+                                Modifier.clip(CircleShape)
+                            } else {
+                                Modifier
+                            },
+                        ),
                     contentScale = ContentScale.Fit,
                 )
             } else {

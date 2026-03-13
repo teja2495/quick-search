@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -39,6 +40,7 @@ fun SearchEngineIconItem(
     onSearchEngineClick: (String, SearchTarget) -> Unit,
     onSearchEngineLongPress: (() -> Unit)? = null,
     isPredicted: Boolean = false,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
     modifier: Modifier = Modifier,
 ) {
     val view = LocalView.current
@@ -94,6 +96,7 @@ fun SearchEngineIconItem(
             target = engine,
             iconSize = iconSize,
             style = IconRenderStyle.ADVANCED,
+            appIconShape = appIconShape,
         )
     }
 }

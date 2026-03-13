@@ -497,6 +497,7 @@ class SearchViewModel(
                     clearQueryOnLaunch = s.clearQueryOnLaunch,
                     fontScaleMultiplier = s.fontScaleMultiplier,
                     showAppLabels = s.showAppLabels,
+                    appIconShape = s.appIconShape,
                     appSuggestionsEnabled = s.appSuggestionsEnabled,
                     selectedIconPackPackage = s.selectedIconPackPackage,
                     availableIconPacks = s.availableIconPacks,
@@ -747,6 +748,7 @@ class SearchViewModel(
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
     private var showAppLabels: Boolean = true
+    private var appIconShape: AppIconShape = AppIconShape.DEFAULT
     private var wallpaperBackgroundAlpha: Float = UiPreferences.DEFAULT_WALLPAPER_BACKGROUND_ALPHA
     private var wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS
     private var overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME
@@ -947,6 +949,7 @@ class SearchViewModel(
         overlayThemeIntensity = sanitizeOverlayThemeIntensity(startupPrefs.overlayThemeIntensity)
         backgroundSource = startupPrefs.backgroundSource
         customImageUri = startupPrefs.customImageUri
+        appIconShape = startupPrefs.appIconShape
 
         // Load cached data - this is the critical path for content
         // This is just a fast JSON parse
@@ -974,6 +977,7 @@ class SearchViewModel(
                         overlayThemeIntensity = overlayThemeIntensity,
                         backgroundSource = backgroundSource,
                         customImageUri = customImageUri,
+                        appIconShape = appIconShape,
                         // We don't have full prefs yet, so keep initializing flag true
                         // but show the apps we found in cache
                         isInitializing = true,
@@ -1061,6 +1065,7 @@ class SearchViewModel(
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
         appSuggestionsEnabled = prefs.appSuggestionsEnabled
         showAppLabels = prefs.showAppLabels
+        appIconShape = prefs.appIconShape
         wallpaperBackgroundAlpha = prefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = prefs.wallpaperBlurRadius
         overlayGradientTheme = prefs.overlayGradientTheme
@@ -1081,6 +1086,7 @@ class SearchViewModel(
                     overlayModeEnabled = overlayModeEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     showAppLabels = showAppLabels,
+                    appIconShape = appIconShape,
                     showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                     wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                     wallpaperBlurRadius = wallpaperBlurRadius,
@@ -3085,6 +3091,15 @@ class SearchViewModel(
                 packageName = packageName,
                 visiblePackageNames = visiblePackageNames,
         )
+    }
+
+    fun setAppIconShape(shape: AppIconShape) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (appIconShape == shape) return@launch
+            userPreferences.setAppIconShape(shape)
+            appIconShape = shape
+            updateConfigState { it.copy(appIconShape = shape) }
+        }
     }
 
     // Aliases

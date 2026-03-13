@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.compact.SearchEngineCard
@@ -86,6 +87,7 @@ fun SearchEngineIconsSection(
     isOverlayExpanded: Boolean = false,
     compactRowCount: Int = 1,
     predictedTarget: PredictedSubmitTarget? = null,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     if (enabledEngines.isEmpty() && detectedShortcutTarget == null) return
 
@@ -114,6 +116,7 @@ fun SearchEngineIconsSection(
                 isPredicted =
                     (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
                         detectedShortcutTarget.getId(),
+                appIconShape = appIconShape,
             )
         }
     } else {
@@ -143,6 +146,7 @@ fun SearchEngineIconsSection(
                 isOverlayExpanded = isOverlayExpanded,
                 compactRowCount = compactRowCount,
                 predictedTarget = predictedTarget,
+                appIconShape = appIconShape,
             )
         }
     }
@@ -161,6 +165,7 @@ private fun SearchEngineContent(
     isOverlayExpanded: Boolean,
     compactRowCount: Int,
     predictedTarget: PredictedSubmitTarget?,
+    appIconShape: AppIconShape,
 ) {
     Row(
         modifier =
@@ -189,6 +194,7 @@ private fun SearchEngineContent(
             onSearchEngineLongPress = onSearchEngineLongPress,
             compactRowCount = compactRowCount,
             predictedTarget = predictedTarget,
+            appIconShape = appIconShape,
         )
     }
 }
@@ -238,6 +244,7 @@ private fun ScrollableEngineIcons(
     onSearchEngineLongPress: () -> Unit,
     compactRowCount: Int,
     predictedTarget: PredictedSubmitTarget?,
+    appIconShape: AppIconShape,
 ) {
     val resolvedRowCount = compactRowCount.coerceIn(1, 2)
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -288,6 +295,7 @@ private fun ScrollableEngineIcons(
                                 isPredicted =
                                     (predictedTarget as? PredictedSubmitTarget.SearchTarget)
                                         ?.targetId == topEngine.getId(),
+                                appIconShape = appIconShape,
                             )
                         }
                         column.bottom?.let { bottomEngine ->
@@ -301,6 +309,7 @@ private fun ScrollableEngineIcons(
                                 isPredicted =
                                     (predictedTarget as? PredictedSubmitTarget.SearchTarget)
                                         ?.targetId == bottomEngine.getId(),
+                                appIconShape = appIconShape,
                             )
                         }
                     }
@@ -327,6 +336,7 @@ private fun ScrollableEngineIcons(
                         isPredicted =
                             (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
                                 engine.getId(),
+                        appIconShape = appIconShape,
                     )
                 }
             }

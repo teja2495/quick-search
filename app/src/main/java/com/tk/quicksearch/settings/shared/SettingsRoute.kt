@@ -323,6 +323,7 @@ fun SettingsRoute(
             onSearchIconPacks = viewModel::searchIconPacks,
             onRefreshIconPacks = viewModel::refreshIconPacks,
             onToggleAppLabels = viewModel::setShowAppLabels,
+            onSetAppIconShape = viewModel::setAppIconShape,
             onToggleDirectDial = onToggleDirectDial,
             onToggleSection = onToggleSection,
             onToggleSearchEngineCompactMode = viewModel::setSearchEngineCompactMode,

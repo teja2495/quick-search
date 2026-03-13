@@ -606,6 +606,12 @@ class UserAppPreferences(
     fun setSelectedIconPackPackage(packageName: String?) =
             uiPreferences.setSelectedIconPackPackage(packageName)
 
+    fun getAppIconShape(): com.tk.quicksearch.search.core.AppIconShape =
+            uiPreferences.getAppIconShape()
+
+    fun setAppIconShape(shape: com.tk.quicksearch.search.core.AppIconShape) =
+            uiPreferences.setAppIconShape(shape)
+
     fun isDirectSearchSetupExpanded(): Boolean = uiPreferences.isDirectSearchSetupExpanded()
 
     fun setDirectSearchSetupExpanded(expanded: Boolean) =

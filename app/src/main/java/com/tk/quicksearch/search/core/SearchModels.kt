@@ -407,6 +407,7 @@ data class SearchUiState(
         val availableIconPacks: List<IconPackInfo> = emptyList(),
         // App display
         val showAppLabels: Boolean = true,
+        val appIconShape: AppIconShape = AppIconShape.DEFAULT,
         val appSuggestionsEnabled: Boolean = true,
         // Section visibility preferences
         val disabledSections: Set<SearchSection> = emptySet(),
@@ -571,6 +572,7 @@ fun SearchUiState(
                 selectRetainedQuery = config.selectRetainedQuery,
                 fontScaleMultiplier = config.fontScaleMultiplier,
                 showAppLabels = config.showAppLabels,
+                appIconShape = config.appIconShape,
                 appSuggestionsEnabled = config.appSuggestionsEnabled,
                 selectedIconPackPackage = config.selectedIconPackPackage,
                 availableIconPacks = config.availableIconPacks,

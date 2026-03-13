@@ -534,6 +534,7 @@ internal fun SearchScreenContent(
                                         hasBottomSearchBar = showBottomSearchBar,
                                         compactRowCount = state.searchEngineCompactRowCount,
                                         predictedTarget = predictedTargetForIndicator,
+                                        appIconShape = state.appIconShape,
                                 )
                             },
                             fullContent = {
@@ -551,6 +552,7 @@ internal fun SearchScreenContent(
                                         hasBottomSearchBar = showBottomSearchBar,
                                         compactRowCount = 1,
                                         predictedTarget = predictedTargetForIndicator,
+                                        appIconShape = state.appIconShape,
                                 )
                             },
                             shortcutContent = { target ->
@@ -568,6 +570,7 @@ internal fun SearchScreenContent(
                                         hasBottomSearchBar = showBottomSearchBar,
                                         compactRowCount = 1,
                                         predictedTarget = predictedTargetForIndicator,
+                                        appIconShape = state.appIconShape,
                                 )
                             },
                             hiddenContent = {

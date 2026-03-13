@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.isLikelyWebUrl
 import com.tk.quicksearch.searchEngines.getDisplayName
@@ -55,6 +56,7 @@ fun NoResultsSearchEngineCards(
     isReversed: Boolean = false,
     showWallpaperBackground: Boolean = false,
     predictedTarget: PredictedSubmitTarget? = null,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     // Reverse the engine list when results are at the bottom
     val orderedEngines =
@@ -89,6 +91,7 @@ fun NoResultsSearchEngineCards(
                 isPredicted =
                     (predictedTarget as? PredictedSubmitTarget.SearchTarget)?.targetId ==
                         engine.getId(),
+                appIconShape = appIconShape,
             )
         }
 
@@ -115,6 +118,7 @@ fun SearchEngineCard(
     showWallpaperBackground: Boolean = false,
     onClear: (() -> Unit)? = null,
     isPredicted: Boolean = false,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val view = LocalView.current
     val targetName = target.getDisplayName()
@@ -168,6 +172,7 @@ fun SearchEngineCard(
                 target = target,
                 iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
                 style = IconRenderStyle.SIMPLE,
+                appIconShape = appIconShape,
             )
 
             androidx.compose.foundation.layout
@@ -208,6 +213,7 @@ private fun SearchTargetCard(
     modifier: Modifier = Modifier,
     showWallpaperBackground: Boolean = false,
     isPredicted: Boolean = false,
+    appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val view = LocalView.current
     val overlayCardColor = LocalOverlayResultCardColor.current
@@ -259,6 +265,7 @@ private fun SearchTargetCard(
                 target = target,
                 iconSize = SearchTargetConstants.DEFAULT_ICON_SIZE,
                 style = IconRenderStyle.SIMPLE,
+                appIconShape = appIconShape,
             )
 
             androidx.compose.foundation.layout

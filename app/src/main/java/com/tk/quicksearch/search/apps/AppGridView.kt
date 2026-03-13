@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.common.AddToHomeHandler
+import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.search.core.StartupPhase
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
@@ -110,6 +111,7 @@ fun AppGridView(
         isOverlayPresentation: Boolean = false,
         startupPhase: StartupPhase = StartupPhase.COMPLETE,
         predictedTarget: PredictedSubmitTarget? = null,
+        appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val context = LocalContext.current
     val shortcutsByPackage =
@@ -166,6 +168,7 @@ fun AppGridView(
                         oneHandedMode = oneHandedMode,
                         isOverlayPresentation = isOverlayPresentation,
                         predictedTarget = predictedTarget,
+                        appIconShape = appIconShape,
                 )
             }
         } else {
@@ -205,6 +208,7 @@ fun AppGridView(
                         oneHandedMode = oneHandedMode,
                         isOverlayPresentation = isOverlayPresentation,
                         predictedTarget = predictedTarget,
+                        appIconShape = appIconShape,
                 )
             }
         }
@@ -231,6 +235,7 @@ private fun AppGrid(
         oneHandedMode: Boolean,
         isOverlayPresentation: Boolean,
         predictedTarget: PredictedSubmitTarget?,
+        appIconShape: AppIconShape,
 ) {
     val maxVisibleColumns = getAppGridColumns()
     val columns =
@@ -315,6 +320,7 @@ private fun AppGrid(
                         createAppActions = createAppActions,
                         createAppState = createAppState,
                         predictedTarget = predictedTarget,
+                        appIconShape = appIconShape,
                 )
             }
         }
@@ -330,6 +336,7 @@ private fun AppGridRow(
         createAppActions: (AppInfo) -> AppActions,
         createAppState: (AppInfo) -> AppState,
         predictedTarget: PredictedSubmitTarget?,
+        appIconShape: AppIconShape,
 ) {
     Row(
             modifier = Modifier.fillMaxWidth(),
@@ -350,6 +357,7 @@ private fun AppGridRow(
                                     it.packageName == app.packageName &&
                                             it.userHandleId == app.userHandleId
                                 } == true,
+                        appIconShape = appIconShape,
                 )
             }
         }
@@ -366,6 +374,7 @@ private fun AppGridItem(
         appState: AppState,
         iconPackPackage: String?,
         isPredicted: Boolean = false,
+        appIconShape: AppIconShape = AppIconShape.DEFAULT,
 ) {
     val context = LocalContext.current
     val iconResult =
@@ -405,6 +414,8 @@ private fun AppGridItem(
                     onLongClick = { showOptions = true },
                     isPredicted = isPredicted,
                     appIconSize = appIconSize,
+                    appIconShape = appIconShape,
+                    hasCustomIconPack = iconPackPackage != null,
             )
             if (appState.showAppLabel) {
                 AppLabelText(
@@ -443,6 +454,8 @@ private fun AppIconSurface(
         onLongClick: () -> Unit,
         appIconSize: Dp,
         isPredicted: Boolean = false,
+        appIconShape: AppIconShape = AppIconShape.DEFAULT,
+        hasCustomIconPack: Boolean = false,
 ) {
     val view = LocalView.current
     val predictedHighlightHeight =
@@ -495,6 +508,13 @@ private fun AppIconSurface(
                 contentAlignment = Alignment.Center,
             ) {
                 if (iconBitmap != null) {
+                    val clipModifier =
+                            when {
+                                appIconShape == AppIconShape.CIRCLE && !hasCustomIconPack ->
+                                        Modifier.clip(androidx.compose.foundation.shape.CircleShape)
+                                iconIsLegacy -> Modifier.clip(DesignTokens.ShapeLarge)
+                                else -> Modifier
+                            }
                     Image(
                             bitmap = iconBitmap,
                             contentDescription =
@@ -502,15 +522,7 @@ private fun AppIconSurface(
                                             R.string.desc_launch_app,
                                             appName,
                                     ),
-                            modifier =
-                                    Modifier.size(appIconSize)
-                                            .then(
-                                                    if (iconIsLegacy) {
-                                                        Modifier.clip(DesignTokens.ShapeLarge)
-                                                    } else {
-                                                        Modifier
-                                                    },
-                                            ),
+                            modifier = Modifier.size(appIconSize).then(clipModifier),
                     )
                 }
             }
