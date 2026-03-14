@@ -10,6 +10,7 @@ enum class FeatureFlag {
     CALENDAR_SEARCH,
     UNIT_CONVERTER,
     APP_SETTINGS_SEARCH,
+    APP_THEME_SELECTION,
 }
 
 private data class FeatureFlagDefinition(
@@ -67,6 +68,10 @@ object FeatureFlags {
                 FeatureFlagDefinition(
                     enabledByDefault = false,
                 ),
+            FeatureFlag.APP_THEME_SELECTION to
+                FeatureFlagDefinition(
+                    enabledByDefault = false,
+                ),
         )
 
     @Volatile
@@ -107,6 +112,8 @@ object FeatureFlags {
     fun isUnitConverterEnabled(): Boolean = isEnabled(FeatureFlag.UNIT_CONVERTER)
 
     fun isAppSettingsSearchEnabled(): Boolean = isEnabled(FeatureFlag.APP_SETTINGS_SEARCH)
+
+    fun isAppThemeSelectionEnabled(): Boolean = isEnabled(FeatureFlag.APP_THEME_SELECTION)
 
     fun isSearchSectionEnabled(section: SearchSection): Boolean =
         when (section) {

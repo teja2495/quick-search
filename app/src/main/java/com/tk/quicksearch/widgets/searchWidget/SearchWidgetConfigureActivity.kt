@@ -11,7 +11,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,6 +26,7 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import com.tk.quicksearch.widgets.WidgetConfigScreen.WidgetConfigScreen
@@ -61,7 +65,33 @@ class SearchWidgetConfigureActivity : ComponentActivity() {
         widgetVariant = resolveWidgetVariant(appWidgetId)
 
         setContent {
-            QuickSearchTheme {
+            val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
+            val isSystemDarkTheme = isSystemInDarkTheme()
+            val useDarkSystemBars =
+                when (uiState.appThemeMode) {
+                    AppThemeMode.LIGHT -> false
+                    AppThemeMode.DARK -> true
+                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                }
+            SideEffect {
+                val systemBarStyle =
+                    if (useDarkSystemBars) {
+                        SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                        )
+                    }
+                enableEdgeToEdge(
+                    statusBarStyle = systemBarStyle,
+                    navigationBarStyle = systemBarStyle,
+                )
+            }
+            QuickSearchTheme(
+                fontScaleMultiplier = uiState.fontScaleMultiplier,
+                appThemeMode = uiState.appThemeMode,
+            ) {
                 WidgetConfigurationContent(
                     appWidgetId = appWidgetId,
                     widgetVariant = widgetVariant,

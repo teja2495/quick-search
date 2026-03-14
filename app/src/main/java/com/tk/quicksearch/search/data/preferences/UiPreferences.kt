@@ -6,6 +6,7 @@ import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /** Preferences for UI-related settings such as layout, messaging app, banners, etc. */
 class UiPreferences(
@@ -136,6 +137,24 @@ class UiPreferences(
 
     fun setOverlayGradientTheme(theme: OverlayGradientTheme) {
         prefs.edit().putString(KEY_OVERLAY_GRADIENT_THEME, theme.name).apply()
+    }
+
+    fun getAppThemeMode(): com.tk.quicksearch.search.core.AppThemeMode {
+        FeatureFlags.initialize(appContext)
+        val defaultMode =
+                if (FeatureFlags.isAppThemeSelectionEnabled()) {
+                    com.tk.quicksearch.search.core.AppThemeMode.SYSTEM
+                } else {
+                    com.tk.quicksearch.search.core.AppThemeMode.DARK
+                }
+        val saved = prefs.getString(KEY_APP_THEME_MODE, null)
+        return saved?.let {
+            runCatching { com.tk.quicksearch.search.core.AppThemeMode.valueOf(it) }.getOrNull()
+        } ?: defaultMode
+    }
+
+    fun setAppThemeMode(theme: com.tk.quicksearch.search.core.AppThemeMode) {
+        prefs.edit().putString(KEY_APP_THEME_MODE, theme.name).apply()
     }
 
     fun getOverlayThemeIntensity(): Float =
@@ -559,6 +578,7 @@ class UiPreferences(
         const val KEY_WALLPAPER_BACKGROUND_ALPHA = "wallpaper_background_alpha"
         const val KEY_WALLPAPER_BLUR_RADIUS = "wallpaper_blur_radius"
         const val KEY_OVERLAY_GRADIENT_THEME = "overlay_gradient_theme"
+        const val KEY_APP_THEME_MODE = "app_theme_mode"
         const val KEY_OVERLAY_THEME_INTENSITY = "overlay_theme_intensity"
         const val KEY_FONT_SCALE_MULTIPLIER = "font_scale_multiplier"
         const val KEY_BACKGROUND_SOURCE = "background_source"

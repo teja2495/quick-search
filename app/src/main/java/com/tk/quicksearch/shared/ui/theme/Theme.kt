@@ -81,7 +81,7 @@ private val LightColorScheme =
 @Composable
 fun QuickSearchTheme(
     fontScaleMultiplier: Float = 1f,
-    useDarkTheme: Boolean = true,
+    appThemeMode: com.tk.quicksearch.search.core.AppThemeMode = com.tk.quicksearch.search.core.AppThemeMode.SYSTEM,
     content: @Composable () -> Unit,
 ) {
     val baseDensity = LocalDensity.current
@@ -92,6 +92,12 @@ fun QuickSearchTheme(
                 fontScale = baseDensity.fontScale * fontScaleMultiplier,
             )
         }
+    val isSystemDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
+    val useDarkTheme = when (appThemeMode) {
+        com.tk.quicksearch.search.core.AppThemeMode.LIGHT -> false
+        com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
+        com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
+    }
     val colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
     val appPalette =
         if (useDarkTheme) {

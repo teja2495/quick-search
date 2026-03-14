@@ -41,6 +41,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         wallpaperBlurRadius = wallpaperBlurRadius,
         overlayGradientTheme = overlayGradientTheme,
         overlayThemeIntensity = overlayThemeIntensity,
+        appThemeMode = appThemeMode,
         fontScaleMultiplier = fontScaleMultiplier,
         backgroundSource = backgroundSource,
         customImageUri = customImageUri,

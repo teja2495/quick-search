@@ -143,6 +143,8 @@ class SearchViewModel(
                                     startupSnapshot?.overlayThemeIntensity
                                             ?: startupPreferencesReader.getOverlayThemeIntensity(),
                             ),
+                    appThemeMode =
+                            startupPreferencesReader.getAppThemeMode(),
                     backgroundSource =
                             initialBackgroundSource,
                     customImageUri = initialCustomImageUri,
@@ -486,6 +488,7 @@ class SearchViewModel(
                     wallpaperBlurRadius = s.wallpaperBlurRadius,
                     overlayGradientTheme = s.overlayGradientTheme,
                     overlayThemeIntensity = s.overlayThemeIntensity,
+                    appThemeMode = s.appThemeMode,
                     backgroundSource = s.backgroundSource,
                     customImageUri = s.customImageUri,
                     startupBackgroundPreviewPath = s.startupBackgroundPreviewPath,
@@ -3015,6 +3018,11 @@ class SearchViewModel(
             updateConfigState { it.copy(overlayGradientTheme = theme) }
             saveStartupSurfaceSnapshotAsync(allowDuringQuery = true)
         }
+    }
+
+    fun setAppThemeMode(theme: AppThemeMode) {
+        userPreferences.setAppThemeMode(theme)
+        updateConfigState { it.copy(appThemeMode = theme) }
     }
 
     fun setOverlayThemeIntensity(intensity: Float) {

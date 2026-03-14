@@ -339,6 +339,10 @@
     <string name="settings_icon_pack_search_query">Free icon packs</string>
     <string name="settings_circular_app_icons_title">Circular App Icons</string>
     <string name="settings_circular_app_icons_desc">Force circular app icons</string>
+    <string name="settings_app_theme_title">Theme</string>
+    <string name="settings_app_theme_light">Light</string>
+    <string name="settings_app_theme_dark">Dark</string>
+    <string name="settings_app_theme_system">System</string>
     <string name="settings_overlay_theme_title">Background Theme</string>
     <string name="settings_font_size_title">Font Size</string>
     <string name="settings_font_size_small">Small</string>

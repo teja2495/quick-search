@@ -665,7 +665,7 @@ private fun ExpandButton(
     val overlayActionColor = LocalOverlayActionColor.current
     val moreActionColor =
             if (overlayActionColor != null) {
-                Color.White
+                MaterialTheme.colorScheme.onSurfaceVariant
             } else {
                 MaterialTheme.colorScheme.primary
             }

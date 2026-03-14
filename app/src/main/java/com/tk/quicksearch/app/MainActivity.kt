@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,6 +31,7 @@ import com.tk.quicksearch.app.startup.StartupMode
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.search.core.SearchViewModel
+import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
@@ -196,7 +199,32 @@ class MainActivity : ComponentActivity() {
     private fun setupContent() {
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
-            QuickSearchTheme(fontScaleMultiplier = uiState.fontScaleMultiplier) {
+            val isSystemDarkTheme = isSystemInDarkTheme()
+            val useDarkSystemBars =
+                when (uiState.appThemeMode) {
+                    AppThemeMode.LIGHT -> false
+                    AppThemeMode.DARK -> true
+                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                }
+            SideEffect {
+                val systemBarStyle =
+                    if (useDarkSystemBars) {
+                        SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                        )
+                    }
+                enableEdgeToEdge(
+                    statusBarStyle = systemBarStyle,
+                    navigationBarStyle = systemBarStyle,
+                )
+            }
+            QuickSearchTheme(
+                fontScaleMultiplier = uiState.fontScaleMultiplier,
+                appThemeMode = uiState.appThemeMode,
+            ) {
                 Box(
                     modifier =
                         Modifier

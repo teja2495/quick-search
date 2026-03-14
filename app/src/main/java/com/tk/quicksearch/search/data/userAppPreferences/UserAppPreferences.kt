@@ -584,6 +584,11 @@ class UserAppPreferences(
     fun setOverlayGradientTheme(theme: OverlayGradientTheme) =
             uiPreferences.setOverlayGradientTheme(theme)
 
+    fun getAppThemeMode(): com.tk.quicksearch.search.core.AppThemeMode = uiPreferences.getAppThemeMode()
+
+    fun setAppThemeMode(theme: com.tk.quicksearch.search.core.AppThemeMode) =
+            uiPreferences.setAppThemeMode(theme)
+
     fun getOverlayThemeIntensity(): Float = uiPreferences.getOverlayThemeIntensity()
 
     fun setOverlayThemeIntensity(intensity: Float) = uiPreferences.setOverlayThemeIntensity(intensity)

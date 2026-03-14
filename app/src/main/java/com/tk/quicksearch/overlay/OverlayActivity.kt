@@ -10,6 +10,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tk.quicksearch.app.startup.StartupCoordinator
 import com.tk.quicksearch.app.startup.StartupMode
+import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
@@ -99,7 +102,32 @@ class OverlayActivity : ComponentActivity() {
     private fun renderOverlayContent() {
         setContent {
             val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
-            QuickSearchTheme(fontScaleMultiplier = uiState.fontScaleMultiplier) {
+            val isSystemDarkTheme = isSystemInDarkTheme()
+            val useDarkSystemBars =
+                when (uiState.appThemeMode) {
+                    AppThemeMode.LIGHT -> false
+                    AppThemeMode.DARK -> true
+                    AppThemeMode.SYSTEM -> isSystemDarkTheme
+                }
+            SideEffect {
+                val systemBarStyle =
+                    if (useDarkSystemBars) {
+                        SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                    } else {
+                        SystemBarStyle.light(
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                        )
+                    }
+                enableEdgeToEdge(
+                    statusBarStyle = systemBarStyle,
+                    navigationBarStyle = systemBarStyle,
+                )
+            }
+            QuickSearchTheme(
+                fontScaleMultiplier = uiState.fontScaleMultiplier,
+                appThemeMode = uiState.appThemeMode,
+            ) {
                 Box(
                     modifier = Modifier.fillMaxSize().background(Color.Transparent),
                 ) {

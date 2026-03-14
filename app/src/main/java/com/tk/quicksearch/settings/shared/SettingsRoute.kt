@@ -316,6 +316,7 @@ fun SettingsRoute(
             onWallpaperBlurRadiusChange = viewModel::setWallpaperBlurRadius,
             onSetOverlayGradientTheme = viewModel::setOverlayGradientTheme,
             onOverlayThemeIntensityChange = viewModel::setOverlayThemeIntensity,
+            onSetAppThemeMode = viewModel::setAppThemeMode,
             onFontScaleMultiplierChange = viewModel::setFontScaleMultiplier,
             onSetBackgroundSource = viewModel::setBackgroundSource,
             onPickCustomImage = {},

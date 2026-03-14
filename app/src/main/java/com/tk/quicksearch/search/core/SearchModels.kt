@@ -111,6 +111,12 @@ enum class BackgroundSource {
         CUSTOM_IMAGE,
 }
 
+enum class AppThemeMode {
+        LIGHT,
+        DARK,
+        SYSTEM,
+}
+
 enum class StartupPhase {
         PHASE_0_SHELL,
         PHASE_1_CACHE_PREFS,
@@ -398,6 +404,7 @@ data class SearchUiState(
         val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
         val overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME,
         val overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
+        val appThemeMode: AppThemeMode = AppThemeMode.SYSTEM,
         val fontScaleMultiplier: Float = UiPreferences.DEFAULT_FONT_SCALE_MULTIPLIER,
         val backgroundSource: BackgroundSource = BackgroundSource.THEME,
         val customImageUri: String? = null,
@@ -560,6 +567,7 @@ fun SearchUiState(
                 wallpaperBlurRadius = config.wallpaperBlurRadius,
                 overlayGradientTheme = config.overlayGradientTheme,
                 overlayThemeIntensity = config.overlayThemeIntensity,
+                appThemeMode = config.appThemeMode,
                 backgroundSource = config.backgroundSource,
                 customImageUri = config.customImageUri,
                 startupBackgroundPreviewPath = config.startupBackgroundPreviewPath,

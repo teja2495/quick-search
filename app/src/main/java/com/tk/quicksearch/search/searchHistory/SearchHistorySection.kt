@@ -383,7 +383,7 @@ private fun RecentSearchItemRow(
                         showDescription = false,
                         enableLongPress = false,
                         onLongPressOverride = { showRemoveMenu = true },
-                        iconTint = Color.White,
+                        iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

@@ -171,6 +171,7 @@ data class SearchUiConfigState(
         val wallpaperBlurRadius: Float = UiPreferences.DEFAULT_WALLPAPER_BLUR_RADIUS,
         val overlayGradientTheme: OverlayGradientTheme = OverlayGradientTheme.MONOCHROME,
         val overlayThemeIntensity: Float = UiPreferences.DEFAULT_OVERLAY_THEME_INTENSITY,
+        val appThemeMode: AppThemeMode = AppThemeMode.SYSTEM,
         val backgroundSource: BackgroundSource = BackgroundSource.THEME,
         val customImageUri: String? = null,
         val startupBackgroundPreviewPath: String? = null,

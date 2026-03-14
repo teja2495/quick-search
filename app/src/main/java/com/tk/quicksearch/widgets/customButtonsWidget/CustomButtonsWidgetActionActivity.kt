@@ -23,6 +23,7 @@ import com.tk.quicksearch.search.data.ContactRepository
 import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.ContactMethod
+import com.tk.quicksearch.search.data.UserAppPreferences
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
 import com.tk.quicksearch.shared.ui.theme.QuickSearchTheme
 import kotlinx.coroutines.launch
@@ -147,8 +148,10 @@ class WidgetActionActivity : ComponentActivity() {
     }
 
     private fun showContactMethodsDialog(contactInfo: ContactInfo) {
+        val userPreferences = UserAppPreferences(applicationContext)
+        val appThemeMode = userPreferences.getAppThemeMode()
         setContent {
-            QuickSearchTheme {
+            QuickSearchTheme(appThemeMode = appThemeMode) {
                 var showDialog by remember { mutableStateOf(true) }
                 if (showDialog) {
                     ContactActionsPopup(

@@ -279,7 +279,7 @@ internal fun SettingResultRow(
         enableLongPress: Boolean = true,
         onLongPressOverride: (() -> Unit)? = null,
         icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-        iconTint: Color = Color.White,
+        iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         isPredicted: Boolean = false,
 ) {
         val context = LocalContext.current
@@ -413,7 +413,7 @@ private fun AppSettingResultRow(
                                 Icon(
                                         imageVector = Icons.Rounded.Settings,
                                         contentDescription = null,
-                                        tint = Color.White,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(ICON_SIZE.dp),
                                 )
                         }
@@ -466,8 +466,8 @@ private fun ExpandButton(
         val overlayActionColor = LocalOverlayActionColor.current
         val moreActionColor =
                 if (overlayActionColor != null) {
-                        Color.White
-                } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
                         MaterialTheme.colorScheme.primary
                 }
 

@@ -20,7 +20,9 @@ import com.tk.quicksearch.settings.AppearanceSettings.FontSizeCard
 import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
 import com.tk.quicksearch.settings.AppearanceSettings.CombinedLayoutIconCard
 import com.tk.quicksearch.settings.AppearanceSettings.OverlayThemeCard
+import com.tk.quicksearch.settings.AppearanceSettings.AppThemeCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
+import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /** Complete appearance settings section with all appearance-related components and dialogs. */
 @Composable
@@ -38,6 +40,8 @@ fun AppearanceSettingsSection(
         fontScaleMultiplier: Float,
         onSetOverlayGradientTheme: (OverlayGradientTheme) -> Unit,
         onOverlayThemeIntensityChange: (Float) -> Unit,
+        appThemeMode: com.tk.quicksearch.search.core.AppThemeMode,
+        onSetAppThemeMode: (com.tk.quicksearch.search.core.AppThemeMode) -> Unit,
         onFontScaleMultiplierChange: (Float) -> Unit,
         backgroundSource: BackgroundSource,
         customImageUri: String?,
@@ -77,6 +81,15 @@ fun AppearanceSettingsSection(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (FeatureFlags.isAppThemeSelectionEnabled()) {
+            AppThemeCard(
+                    currentThemeMode = appThemeMode,
+                    onSetAppThemeMode = onSetAppThemeMode,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         OverlayThemeCard(
                 selectedTheme = overlayGradientTheme,
