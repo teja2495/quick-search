@@ -50,6 +50,13 @@ class UiPreferences(
         setBooleanPref(UiPreferences.KEY_CLEAR_QUERY_ON_LAUNCH, enabled)
     }
 
+    fun isAutoCloseOverlayEnabled(): Boolean =
+            getBooleanPref(UiPreferences.KEY_AUTO_CLOSE_OVERLAY, true)
+
+    fun setAutoCloseOverlayEnabled(enabled: Boolean) {
+        setBooleanPref(UiPreferences.KEY_AUTO_CLOSE_OVERLAY, enabled)
+    }
+
     fun isOverlayModeEnabled(): Boolean =
             getBooleanPref(UiPreferences.KEY_OVERLAY_MODE_ENABLED, false)
 
@@ -568,6 +575,7 @@ class UiPreferences(
         const val KEY_OPEN_KEYBOARD_ON_LAUNCH = "open_keyboard_on_launch"
         const val KEY_TOP_RESULT_INDICATOR_ENABLED = "top_result_indicator_enabled"
         const val KEY_CLEAR_QUERY_ON_LAUNCH = "clear_query_on_launch"
+        const val KEY_AUTO_CLOSE_OVERLAY = "auto_close_overlay"
         const val KEY_OVERLAY_MODE_ENABLED = "overlay_mode_enabled"
         const val KEY_USE_WHATSAPP_FOR_MESSAGES =
                 "use_whatsapp_for_messages" // Deprecated, kept for migration

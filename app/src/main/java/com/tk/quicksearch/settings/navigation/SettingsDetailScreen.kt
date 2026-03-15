@@ -265,12 +265,15 @@ internal fun SettingsDetailLevel1Screen(
                         MoreOptionsSettings(
                             appIconShape = state.appIconShape,
                             onSetAppIconShape = callbacks.onSetAppIconShape,
+                            overlayModeEnabled = state.overlayModeEnabled,
                             topResultIndicatorEnabled = state.topResultIndicatorEnabled,
                             onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
                             openKeyboardOnLaunch = state.openKeyboardOnLaunch,
                             onOpenKeyboardOnLaunchToggle = callbacks.onToggleOpenKeyboardOnLaunch,
                             clearQueryOnLaunch = state.clearQueryOnLaunch,
                             onClearQueryOnLaunchToggle = callbacks.onToggleClearQueryOnLaunch,
+                            autoCloseOverlay = state.autoCloseOverlay,
+                            onAutoCloseOverlayToggle = callbacks.onToggleAutoCloseOverlay,
                             modifier = Modifier,
                         )
                     }

@@ -163,6 +163,8 @@ class SearchViewModel(
                                     ?: startupPreferencesReader.isOpenKeyboardOnLaunchEnabled(),
                     clearQueryOnLaunch =
                             startupPreferencesReader.isClearQueryOnLaunchEnabled(),
+                    autoCloseOverlay =
+                            startupPreferencesReader.isAutoCloseOverlayEnabled(),
                     fontScaleMultiplier =
                             sanitizeFontScaleMultiplier(
                                     startupSnapshot?.fontScaleMultiplier
@@ -498,6 +500,7 @@ class SearchViewModel(
                     topResultIndicatorEnabled = s.topResultIndicatorEnabled,
                     openKeyboardOnLaunch = s.openKeyboardOnLaunch,
                     clearQueryOnLaunch = s.clearQueryOnLaunch,
+                    autoCloseOverlay = s.autoCloseOverlay,
                     fontScaleMultiplier = s.fontScaleMultiplier,
                     showAppLabels = s.showAppLabels,
                     appIconShape = s.appIconShape,
@@ -747,6 +750,7 @@ class SearchViewModel(
     private var topResultIndicatorEnabled: Boolean = true
     private var openKeyboardOnLaunch: Boolean = true
     private var overlayModeEnabled: Boolean = false
+    private var autoCloseOverlay: Boolean = true
     private var directDialEnabled: Boolean = false
     private var hasSeenDirectDialChoice: Boolean = false
     private var appSuggestionsEnabled: Boolean = true
@@ -946,6 +950,7 @@ class SearchViewModel(
         topResultIndicatorEnabled = startupPrefs.topResultIndicatorEnabled
         openKeyboardOnLaunch = startupPrefs.openKeyboardOnLaunch
         clearQueryOnLaunch = startupPrefs.clearQueryOnLaunch
+        autoCloseOverlay = startupPrefs.autoCloseOverlay
         wallpaperBackgroundAlpha = startupPrefs.wallpaperBackgroundAlpha
         wallpaperBlurRadius = startupPrefs.wallpaperBlurRadius
         overlayGradientTheme = startupPrefs.overlayGradientTheme
@@ -973,6 +978,7 @@ class SearchViewModel(
                         topResultIndicatorEnabled = topResultIndicatorEnabled,
                         openKeyboardOnLaunch = openKeyboardOnLaunch,
                         clearQueryOnLaunch = clearQueryOnLaunch,
+                        autoCloseOverlay = autoCloseOverlay,
                         showWallpaperBackground = backgroundSource != BackgroundSource.THEME,
                         wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                         wallpaperBlurRadius = wallpaperBlurRadius,
@@ -1063,6 +1069,7 @@ class SearchViewModel(
         topResultIndicatorEnabled = prefs.topResultIndicatorEnabled
         openKeyboardOnLaunch = prefs.openKeyboardOnLaunch
         clearQueryOnLaunch = prefs.clearQueryOnLaunch
+        autoCloseOverlay = prefs.autoCloseOverlay
         overlayModeEnabled = prefs.overlayModeEnabled
         directDialEnabled = prefs.directDialEnabled
         hasSeenDirectDialChoice = prefs.hasSeenDirectDialChoice
@@ -1086,6 +1093,7 @@ class SearchViewModel(
                     topResultIndicatorEnabled = topResultIndicatorEnabled,
                     openKeyboardOnLaunch = openKeyboardOnLaunch,
                     clearQueryOnLaunch = clearQueryOnLaunch,
+                    autoCloseOverlay = autoCloseOverlay,
                     overlayModeEnabled = overlayModeEnabled,
                     appSuggestionsEnabled = appSuggestionsEnabled,
                     showAppLabels = showAppLabels,
@@ -1224,6 +1232,7 @@ class SearchViewModel(
                         topResultIndicatorEnabled = userPreferences.isTopResultIndicatorEnabled(),
                         openKeyboardOnLaunch = userPreferences.isOpenKeyboardOnLaunchEnabled(),
                         clearQueryOnLaunch = userPreferences.isClearQueryOnLaunchEnabled(),
+                        autoCloseOverlay = userPreferences.isAutoCloseOverlayEnabled(),
                         showPersonalContextHint =
                                 !userPreferences.hasSeenPersonalContextHint() &&
                                         directSearchHandler.getPersonalContext().isBlank(),
@@ -3406,6 +3415,17 @@ class SearchViewModel(
                 stateUpdater = {
                     clearQueryOnLaunch = it
                     updateUiState { state -> state.copy(clearQueryOnLaunch = it) }
+                },
+        )
+    }
+
+    fun setAutoCloseOverlayEnabled(enabled: Boolean) {
+        updateBooleanPreference(
+                value = enabled,
+                preferenceSetter = userPreferences::setAutoCloseOverlayEnabled,
+                stateUpdater = {
+                    autoCloseOverlay = it
+                    updateUiState { state -> state.copy(autoCloseOverlay = it) }
                 },
         )
     }

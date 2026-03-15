@@ -481,6 +481,8 @@
     <string name="settings_refresh_apps_disabled">App search is disabled, cannot refresh apps data</string>
     <string name="settings_refresh_contacts_disabled">Contacts search is disabled, cannot refresh contacts data</string>
     <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
+    <string name="auto_close_overlay_toggle_title">Auto-Close Overlay</string>
+    <string name="auto_close_overlay_toggle_desc">Automatically close the overlay after result is opened</string>
 
     <!-- ============================================================================
          Settings - Messaging

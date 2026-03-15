@@ -378,8 +378,9 @@ fun SearchRoute(
         } else {
             modifier.fillMaxSize()
         }
+    val shouldAutoCloseOverlay = isOverlayPresentation && uiState.autoCloseOverlay
     val dismissOverlayIfNeeded: () -> Unit = {
-        if (isOverlayPresentation) {
+        if (shouldAutoCloseOverlay) {
             onOverlayDismissRequest?.invoke()
         }
     }

@@ -327,6 +327,7 @@ fun SettingsDetailRoute(
                     onToggleTopResultIndicator = viewModel::setTopResultIndicatorEnabled,
                     onToggleOpenKeyboardOnLaunch = viewModel::setOpenKeyboardOnLaunchEnabled,
                     onToggleClearQueryOnLaunch = viewModel::setClearQueryOnLaunchEnabled,
+                    onToggleAutoCloseOverlay = viewModel::setAutoCloseOverlayEnabled,
                     onToggleRecentQueries = viewModel::setRecentQueriesEnabled,
                     onSetGeminiApiKey = viewModel::setGeminiApiKey,
                     onSetPersonalContext = viewModel::setPersonalContext,

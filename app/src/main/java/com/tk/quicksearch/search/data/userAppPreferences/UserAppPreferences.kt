@@ -555,6 +555,11 @@ class UserAppPreferences(
     fun setClearQueryOnLaunchEnabled(enabled: Boolean) =
             uiPreferences.setClearQueryOnLaunchEnabled(enabled)
 
+    fun isAutoCloseOverlayEnabled(): Boolean = uiPreferences.isAutoCloseOverlayEnabled()
+
+    fun setAutoCloseOverlayEnabled(enabled: Boolean) =
+            uiPreferences.setAutoCloseOverlayEnabled(enabled)
+
     fun isOverlayModeEnabled(): Boolean = uiPreferences.isOverlayModeEnabled()
 
     fun setOverlayModeEnabled(enabled: Boolean) = uiPreferences.setOverlayModeEnabled(enabled)

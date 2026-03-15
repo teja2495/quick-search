@@ -63,6 +63,7 @@ internal fun SearchUiState.toSettingsScreenState(): SettingsScreenState =
         topResultIndicatorEnabled = topResultIndicatorEnabled,
         openKeyboardOnLaunch = openKeyboardOnLaunch,
         clearQueryOnLaunch = clearQueryOnLaunch,
+        autoCloseOverlay = autoCloseOverlay,
         recentQueriesEnabled = recentQueriesEnabled,
         hasGeminiApiKey = hasGeminiApiKey,
         geminiApiKeyLast4 = geminiApiKeyLast4,

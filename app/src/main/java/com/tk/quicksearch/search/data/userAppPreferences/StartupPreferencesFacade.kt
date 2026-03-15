@@ -31,6 +31,7 @@ class StartupPreferencesFacade(
             val topResultIndicatorEnabled: Boolean,
             val openKeyboardOnLaunch: Boolean,
             val clearQueryOnLaunch: Boolean,
+            val autoCloseOverlay: Boolean,
             val overlayModeEnabled: Boolean,
             val directDialEnabled: Boolean,
             val hasSeenDirectDialChoice: Boolean,
@@ -173,6 +174,13 @@ class StartupPreferencesFacade(
                         allPrefs[
                                 com.tk.quicksearch.search.data.preferences.UiPreferences
                                         .KEY_CLEAR_QUERY_ON_LAUNCH,
+                        ] as?
+                                Boolean
+                                ?: true,
+                autoCloseOverlay =
+                        allPrefs[
+                                com.tk.quicksearch.search.data.preferences.UiPreferences
+                                        .KEY_AUTO_CLOSE_OVERLAY,
                         ] as?
                                 Boolean
                                 ?: true,
@@ -470,6 +478,13 @@ class StartupPreferencesFacade(
                                 allPrefs[
                                         com.tk.quicksearch.search.data.preferences.UiPreferences
                                                 .KEY_CLEAR_QUERY_ON_LAUNCH,
+                                ] as?
+                                        Boolean
+                                        ?: true,
+                        autoCloseOverlay =
+                                allPrefs[
+                                        com.tk.quicksearch.search.data.preferences.UiPreferences
+                                                .KEY_AUTO_CLOSE_OVERLAY,
                                 ] as?
                                         Boolean
                                         ?: true,

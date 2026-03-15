@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.ElevatedCard
@@ -20,19 +21,36 @@ import com.tk.quicksearch.settings.shared.SettingsToggleRow
 fun MoreOptionsSettings(
     appIconShape: AppIconShape,
     onSetAppIconShape: (AppIconShape) -> Unit,
+    overlayModeEnabled: Boolean,
     topResultIndicatorEnabled: Boolean,
     onTopResultIndicatorToggle: (Boolean) -> Unit,
     openKeyboardOnLaunch: Boolean,
     onOpenKeyboardOnLaunchToggle: (Boolean) -> Unit,
     clearQueryOnLaunch: Boolean,
     onClearQueryOnLaunchToggle: (Boolean) -> Unit,
+    autoCloseOverlay: Boolean,
+    onAutoCloseOverlayToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val showAutoCloseOverlayToggle = overlayModeEnabled
+
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
+            if (showAutoCloseOverlayToggle) {
+                SettingsToggleRow(
+                    title = stringResource(R.string.auto_close_overlay_toggle_title),
+                    subtitle = stringResource(R.string.auto_close_overlay_toggle_desc),
+                    checked = autoCloseOverlay,
+                    onCheckedChange = onAutoCloseOverlayToggle,
+                    leadingIcon = Icons.Rounded.Close,
+                    isFirstItem = true,
+                    isLastItem = false,
+                )
+            }
+
             SettingsToggleRow(
                 title = stringResource(R.string.settings_circular_app_icons_title),
                 subtitle = stringResource(R.string.settings_circular_app_icons_desc),
@@ -43,7 +61,7 @@ fun MoreOptionsSettings(
                     )
                 },
                 leadingIcon = Icons.Rounded.Apps,
-                isFirstItem = true,
+                isFirstItem = !showAutoCloseOverlayToggle,
                 isLastItem = false,
             )
 
