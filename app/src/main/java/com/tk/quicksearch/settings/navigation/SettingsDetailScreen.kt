@@ -266,6 +266,7 @@ internal fun SettingsDetailLevel1Screen(
                         MoreOptionsSettings(
                             appIconShape = state.appIconShape,
                             onSetAppIconShape = callbacks.onSetAppIconShape,
+                            selectedIconPackPackage = state.selectedIconPackPackage,
                             overlayModeEnabled = state.overlayModeEnabled,
                             topResultIndicatorEnabled = state.topResultIndicatorEnabled,
                             onTopResultIndicatorToggle = callbacks.onToggleTopResultIndicator,
