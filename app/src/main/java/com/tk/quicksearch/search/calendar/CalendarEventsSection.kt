@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.DropdownMenu
@@ -48,9 +49,6 @@ import com.tk.quicksearch.search.searchScreen.components.topPredictedRowContentP
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 private const val ROW_MIN_HEIGHT_DP = 52
 
@@ -223,6 +221,7 @@ private fun CalendarEventRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
+            val recurrenceLabel = calendarRecurrenceLabel(recurrenceRule = event.recurrenceRule)
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.bodyMedium,
@@ -232,6 +231,33 @@ private fun CalendarEventRow(
             )
             Text(
                 text = formatCalendarEventDate(event),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            recurrenceLabel?.let { recurrence ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Repeat,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Text(
+                        text = recurrence,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Text(
+                text = calendarRelativeDateLabel(event.startMillis),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -309,19 +335,5 @@ private fun CalendarEventRow(
                 },
             )
         }
-    }
-}
-
-private fun formatCalendarEventDate(event: CalendarEventInfo): String {
-    val locale = Locale.getDefault()
-    val datePattern = "EEE, MMM d"
-    val dateTimePattern = "EEE, MMM d • h:mm a"
-    val allDayFormat = SimpleDateFormat(datePattern, locale)
-    val dateTimeFormat = SimpleDateFormat(dateTimePattern, locale)
-    val date = Date(event.startMillis)
-    return if (event.allDay) {
-        allDayFormat.format(date)
-    } else {
-        dateTimeFormat.format(date)
     }
 }

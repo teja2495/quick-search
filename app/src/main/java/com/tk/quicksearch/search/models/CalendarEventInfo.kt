@@ -7,4 +7,5 @@ data class CalendarEventInfo(
     val startMillis: Long,
     val endMillis: Long,
     val allDay: Boolean,
+    val recurrenceRule: String? = null,
 )

@@ -62,6 +62,7 @@ internal fun SettingsDetailLevel2Screen(
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var appShortcutsSearchQuery by remember { mutableStateOf("") }
     var appManagementSearchQuery by remember { mutableStateOf("") }
+    var calendarEventsSearchQuery by remember { mutableStateOf("") }
     var appShortcutsCollapseAllTrigger by remember { mutableIntStateOf(0) }
 
     val hasExcludedItems =
@@ -131,6 +132,21 @@ internal fun SettingsDetailLevel2Screen(
                     focusShortcut = appShortcutFocusShortcut,
                     focusPackageName = appShortcutFocusPackageName,
                     onFocusHandled = onAppShortcutFocusHandled,
+                    modifier =
+                        Modifier
+                            .settingsContentWidth()
+                            .fillMaxHeight()
+                            .align(androidx.compose.ui.Alignment.CenterHorizontally)
+                            .padding(
+                                start = DesignTokens.ContentHorizontalPadding,
+                                end = DesignTokens.ContentHorizontalPadding,
+                                bottom = 96.dp,
+                            ),
+                )
+            } else if (detailType == SettingsDetailType.CALENDAR_EVENTS) {
+                CalendarEventsSettingsSection(
+                    onEventClick = callbacks.onLaunchCalendarEvent,
+                    searchQuery = calendarEventsSearchQuery,
                     modifier =
                         Modifier
                             .settingsContentWidth()
@@ -288,24 +304,41 @@ internal fun SettingsDetailLevel2Screen(
             }
         }
 
-        if (detailType == SettingsDetailType.APP_SHORTCUTS || detailType == SettingsDetailType.APP_MANAGEMENT) {
-            val isAppShortcuts = detailType == SettingsDetailType.APP_SHORTCUTS
-            val query = if (isAppShortcuts) appShortcutsSearchQuery else appManagementSearchQuery
+        if (
+            detailType == SettingsDetailType.APP_SHORTCUTS ||
+                detailType == SettingsDetailType.APP_MANAGEMENT ||
+                detailType == SettingsDetailType.CALENDAR_EVENTS
+        ) {
+            val query =
+                when (detailType) {
+                    SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery
+                    SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery
+                    SettingsDetailType.CALENDAR_EVENTS -> calendarEventsSearchQuery
+                    else -> ""
+                }
             SettingsManagementSearchBar(
                 query = query,
                 onQueryChange = { updatedQuery ->
-                    if (isAppShortcuts) {
-                        appShortcutsSearchQuery = updatedQuery
-                    } else {
-                        appManagementSearchQuery = updatedQuery
+                    when (detailType) {
+                        SettingsDetailType.APP_SHORTCUTS -> appShortcutsSearchQuery = updatedQuery
+                        SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = updatedQuery
+                        SettingsDetailType.CALENDAR_EVENTS -> {
+                            calendarEventsSearchQuery = updatedQuery
+                        }
+
+                        else -> Unit
                     }
                 },
                 onClear = {
-                    if (isAppShortcuts) {
-                        appShortcutsCollapseAllTrigger++
-                        appShortcutsSearchQuery = ""
-                    } else {
-                        appManagementSearchQuery = ""
+                    when (detailType) {
+                        SettingsDetailType.APP_SHORTCUTS -> {
+                            appShortcutsCollapseAllTrigger++
+                            appShortcutsSearchQuery = ""
+                        }
+
+                        SettingsDetailType.APP_MANAGEMENT -> appManagementSearchQuery = ""
+                        SettingsDetailType.CALENDAR_EVENTS -> calendarEventsSearchQuery = ""
+                        else -> Unit
                     }
                 },
                 modifier =

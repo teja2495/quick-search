@@ -189,6 +189,9 @@ internal fun SettingsDetailLevel1Screen(
                             onNavigateToDeviceSettings = {
                                 onNavigateToDetail(SettingsDetailType.DEVICE_SETTINGS)
                             },
+                            onNavigateToCalendarEvents = {
+                                onNavigateToDetail(SettingsDetailType.CALENDAR_EVENTS)
+                            },
                         )
                     }
 
@@ -307,6 +310,7 @@ internal fun SettingsDetailLevel1Screen(
                     SettingsDetailType.APP_MANAGEMENT,
                     SettingsDetailType.APP_SHORTCUTS,
                     SettingsDetailType.DEVICE_SETTINGS,
+                    SettingsDetailType.CALENDAR_EVENTS,
                     SettingsDetailType.CALLS_TEXTS,
                     SettingsDetailType.FILES,
                     SettingsDetailType.DIRECT_SEARCH_CONFIGURE,
@@ -382,6 +386,7 @@ internal fun SettingsDetailType.titleResId(): Int =
         SettingsDetailType.APP_MANAGEMENT -> R.string.settings_manage_apps_title
         SettingsDetailType.APP_SHORTCUTS -> R.string.section_app_shortcuts
         SettingsDetailType.DEVICE_SETTINGS -> R.string.section_settings
+        SettingsDetailType.CALENDAR_EVENTS -> R.string.settings_calendar_events_title
         SettingsDetailType.APPEARANCE -> R.string.settings_appearance_title
         SettingsDetailType.CALLS_TEXTS -> R.string.settings_calls_texts_title
         SettingsDetailType.FILES -> R.string.settings_file_types_title
@@ -399,6 +404,7 @@ internal fun SettingsDetailType.isLevel2(): Boolean =
         this == SettingsDetailType.APP_SHORTCUTS ||
         this == SettingsDetailType.EXCLUDED_ITEMS ||
         this == SettingsDetailType.DEVICE_SETTINGS ||
+        this == SettingsDetailType.CALENDAR_EVENTS ||
         this == SettingsDetailType.CALLS_TEXTS ||
         this == SettingsDetailType.FILES ||
         this == SettingsDetailType.DIRECT_SEARCH_CONFIGURE ||
@@ -416,6 +422,7 @@ enum class SettingsDetailType {
     APP_MANAGEMENT,
     APP_SHORTCUTS,
     DEVICE_SETTINGS,
+    CALENDAR_EVENTS,
     APPEARANCE,
     CALLS_TEXTS,
     FILES,

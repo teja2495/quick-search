@@ -365,6 +365,7 @@ fun SettingsDetailRoute(
                     onUpdateCustomAppShortcut = viewModel::updateCustomAppShortcut,
                     onDeleteCustomAppShortcut = viewModel::deleteCustomAppShortcut,
                     onLaunchDeviceSetting = viewModel::openSetting,
+                    onLaunchCalendarEvent = viewModel::openCalendarEvent,
                     onRequestAppUninstall = viewModel::requestUninstall,
                     onOpenAppInfo = viewModel::openAppInfo,
                     onAddHomeScreenWidget = onRequestAddHomeScreenWidget,

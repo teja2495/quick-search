@@ -10,6 +10,7 @@ import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.data.AppShortcutRepository.SearchTargetShortcutMode
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.models.AppInfo
+import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.models.FileType
@@ -167,6 +168,7 @@ data class SettingsScreenCallbacks(
     val onUpdateCustomAppShortcut: (StaticShortcut, String, String?, String?) -> Unit,
     val onDeleteCustomAppShortcut: (StaticShortcut) -> Unit,
     val onLaunchDeviceSetting: (DeviceSetting) -> Unit,
+    val onLaunchCalendarEvent: (CalendarEventInfo) -> Unit,
     val onRequestAppUninstall: (AppInfo) -> Unit,
     val onOpenAppInfo: (AppInfo) -> Unit,
     val onAddHomeScreenWidget: () -> Unit,

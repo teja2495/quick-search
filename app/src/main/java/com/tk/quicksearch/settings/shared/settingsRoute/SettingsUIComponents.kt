@@ -62,6 +62,9 @@ fun SectionSettingsSection(
     deviceSettingsSubtitle: String? = null,
     onDeviceSettingsClick: (() -> Unit)? = null,
     onDeviceSettingsClickNoRipple: Boolean = false,
+    calendarSubtitle: String? = null,
+    onCalendarClick: (() -> Unit)? = null,
+    onCalendarClickNoRipple: Boolean = false,
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
 ) {
@@ -83,6 +86,7 @@ fun SectionSettingsSection(
                 val isContactsRow = section == SearchSection.CONTACTS
                 val isFilesRow = section == SearchSection.FILES
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
+                val isCalendarRow = section == SearchSection.CALENDAR
                 val showAliasForSection = true
                 val aliasTargetId = section.getAliasTargetId()
                 SectionRowWithoutDrag(
@@ -105,6 +109,7 @@ fun SectionSettingsSection(
                             isContactsRow -> contactsSubtitle
                             isFilesRow -> filesSubtitle
                             isDeviceSettingsRow -> deviceSettingsSubtitle
+                            isCalendarRow -> calendarSubtitle
                             else -> null
                         },
                     onRowClick =
@@ -114,6 +119,7 @@ fun SectionSettingsSection(
                             isContactsRow -> onContactsClick
                             isFilesRow -> onFilesClick
                             isDeviceSettingsRow -> onDeviceSettingsClick
+                            isCalendarRow -> onCalendarClick
                             else -> null
                         },
                     noRippleOnRowClick =
@@ -123,6 +129,7 @@ fun SectionSettingsSection(
                             isContactsRow -> onContactsClickNoRipple
                             isFilesRow -> onFilesClickNoRipple
                             isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
+                            isCalendarRow -> onCalendarClickNoRipple
                             else -> false
                         },
                 )

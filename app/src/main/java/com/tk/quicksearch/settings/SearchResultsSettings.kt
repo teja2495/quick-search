@@ -265,6 +265,7 @@ fun SearchResultsSettingsSection(
     onNavigateToCallsTexts: () -> Unit,
     onNavigateToFiles: () -> Unit,
     onNavigateToDeviceSettings: () -> Unit,
+    onNavigateToCalendarEvents: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val hasExcludedItems =
@@ -302,6 +303,9 @@ fun SearchResultsSettingsSection(
             deviceSettingsSubtitle = stringResource(R.string.settings_view_all_desc),
             onDeviceSettingsClick = onNavigateToDeviceSettings,
             onDeviceSettingsClickNoRipple = true,
+            calendarSubtitle = stringResource(R.string.settings_calendar_view_all_events_desc),
+            onCalendarClick = onNavigateToCalendarEvents,
+            onCalendarClickNoRipple = true,
             showTitle = false,
         )
 

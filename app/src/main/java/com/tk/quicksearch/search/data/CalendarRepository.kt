@@ -19,16 +19,24 @@ class CalendarRepository(
     private val contentResolver = context.contentResolver
 
     companion object {
-        private val EVENT_PROJECTION =
+        private val INSTANCE_PROJECTION =
+            arrayOf(
+                CalendarContract.Instances.EVENT_ID,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.BEGIN,
+                CalendarContract.Instances.END,
+                CalendarContract.Instances.ALL_DAY,
+            )
+        private val EVENT_RECURRENCE_PROJECTION =
             arrayOf(
                 CalendarContract.Events._ID,
-                CalendarContract.Events.TITLE,
-                CalendarContract.Events.DTSTART,
-                CalendarContract.Events.DTEND,
-                CalendarContract.Events.ALL_DAY,
+                CalendarContract.Events.RRULE,
             )
 
         private const val MAX_EVENT_SEARCH_CANDIDATES = 500
+        private const val PAST_WINDOW_YEARS = 2L
+        private const val FUTURE_WINDOW_YEARS = 2L
+        private const val MILLIS_PER_YEAR = 1000L * 60L * 60L * 24L * 365L
     }
 
     fun hasPermission(): Boolean =
@@ -45,7 +53,7 @@ class CalendarRepository(
         val normalizedQuery = SearchTextNormalizer.normalizeForSearch(query.trim())
         if (normalizedQuery.isBlank()) return emptyList()
 
-        val candidates = queryFutureEvents(now = now, limit = MAX_EVENT_SEARCH_CANDIDATES)
+        val candidates = queryEventsAroundNow(now = now, limit = MAX_EVENT_SEARCH_CANDIDATES)
 
         return candidates
             .asSequence()
@@ -59,6 +67,8 @@ class CalendarRepository(
             }
             .sortedWith(
                 compareBy<Pair<CalendarEventInfo, Int>> { it.second }
+                    .thenBy { eventDistanceToNow(it.first.startMillis, now) }
+                    .thenByDescending { it.first.startMillis >= now }
                     .thenBy { it.first.startMillis }
                     .thenBy { it.first.title.lowercase(Locale.getDefault()) },
             )
@@ -69,35 +79,137 @@ class CalendarRepository(
 
     fun getEventsByIds(ids: Set<Long>): List<CalendarEventInfo> {
         if (ids.isEmpty() || !hasPermission()) return emptyList()
+        val now = System.currentTimeMillis()
+        return queryEventsAroundNow(now = now, limit = ids.size, eventIds = ids)
+    }
+
+    fun getFutureEvents(limit: Int = MAX_EVENT_SEARCH_CANDIDATES): List<CalendarEventInfo> {
+        if (limit <= 0 || !hasPermission()) return emptyList()
+        return queryEventsAroundNow(now = System.currentTimeMillis(), limit = limit)
+    }
+
+    fun getEventInstancesAroundNow(limit: Int = 2000): List<CalendarEventInfo> {
+        if (limit <= 0 || !hasPermission()) return emptyList()
+        return queryEventInstancesAroundNow(now = System.currentTimeMillis(), limit = limit)
+    }
+
+    fun getEventRecurrenceRules(eventIds: Set<Long>): Map<Long, String?> {
+        if (eventIds.isEmpty() || !hasPermission()) return emptyMap()
 
         val selection =
             buildString {
                 append(CalendarContract.Events._ID)
                 append(" IN (")
-                append(ids.joinToString(","))
+                append(eventIds.joinToString(","))
                 append(")")
+            }
+
+        val recurrenceByEventId = mutableMapOf<Long, String?>()
+        contentResolver
+            .query(
+                CalendarContract.Events.CONTENT_URI,
+                EVENT_RECURRENCE_PROJECTION,
+                selection,
+                null,
+                null,
+            )
+            ?.use { cursor ->
+                val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events._ID)
+                val rruleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events.RRULE)
+
+                while (cursor.moveToNext()) {
+                    val eventId = cursor.getLong(idIndex)
+                    val recurrenceRule = cursor.getString(rruleIndex)?.trim().orEmpty()
+                    recurrenceByEventId[eventId] = recurrenceRule.ifBlank { null }
+                }
+            }
+
+        return recurrenceByEventId
+    }
+
+    fun createViewEventIntent(eventId: Long): Intent =
+        Intent(Intent.ACTION_VIEW).apply {
+            data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+    private fun queryEventsAroundNow(
+        now: Long,
+        limit: Int,
+        eventIds: Set<Long>? = null,
+    ): List<CalendarEventInfo> {
+        if (limit <= 0) return emptyList()
+
+        val windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS)
+        val windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS)
+        val rows = queryInstancesInWindow(windowStart, windowEnd, limit * 8, eventIds)
+        if (rows.isEmpty()) return emptyList()
+
+        val nearestInstances = selectNearestInstancePerEvent(rows, now)
+        return nearestInstances.values
+            .sortedWith(
+                compareBy<CalendarEventInfo> { eventDistanceToNow(it.startMillis, now) }
+                    .thenByDescending { it.startMillis >= now }
+                    .thenBy { it.startMillis },
+            )
+            .take(limit)
+    }
+
+    private fun queryEventInstancesAroundNow(
+        now: Long,
+        limit: Int,
+    ): List<CalendarEventInfo> {
+        val windowStart = now - (MILLIS_PER_YEAR * PAST_WINDOW_YEARS)
+        val windowEnd = now + (MILLIS_PER_YEAR * FUTURE_WINDOW_YEARS)
+        return queryInstancesInWindow(windowStart, windowEnd, limit, eventIds = null)
+            .sortedBy { it.startMillis }
+    }
+
+    private fun queryInstancesInWindow(
+        windowStart: Long,
+        windowEnd: Long,
+        limit: Int,
+        eventIds: Set<Long>?,
+    ): List<CalendarEventInfo> {
+        val uri: Uri = CalendarContract.Instances.CONTENT_URI
+            .buildUpon()
+            .appendPath(windowStart.toString())
+            .appendPath(windowEnd.toString())
+            .build()
+
+        val selection =
+            if (eventIds.isNullOrEmpty()) {
+                null
+            } else {
+                buildString {
+                    append(CalendarContract.Instances.EVENT_ID)
+                    append(" IN (")
+                    append(eventIds.joinToString(","))
+                    append(")")
+                }
             }
 
         val rows = mutableListOf<CalendarEventInfo>()
         contentResolver
             .query(
-                CalendarContract.Events.CONTENT_URI,
-                EVENT_PROJECTION,
+                uri,
+                INSTANCE_PROJECTION,
                 selection,
                 null,
-                "${CalendarContract.Events.DTSTART} ASC",
+                "${CalendarContract.Instances.BEGIN} ASC",
             )
             ?.use { cursor ->
-                val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events._ID)
-                val titleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events.TITLE)
-                val startIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events.DTSTART)
-                val endIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events.DTEND)
-                val allDayIndex = cursor.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)
+                val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_ID)
+                val titleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
+                val beginIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
+                val endIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.END)
+                val allDayIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
+                val rawLimit = if (eventIds.isNullOrEmpty()) limit else Int.MAX_VALUE
 
-                while (cursor.moveToNext()) {
+                while (cursor.moveToNext() && rows.size < rawLimit) {
                     val id = cursor.getLong(idIndex)
                     val title = cursor.getString(titleIndex)?.trim().orEmpty()
-                    val startMillis = cursor.getLong(startIndex)
+                    val startMillis = cursor.getLong(beginIndex)
                     val endMillis = cursor.getLong(endIndex)
                     val allDay = cursor.getInt(allDayIndex) == 1
 
@@ -115,71 +227,27 @@ class CalendarRepository(
                 }
             }
 
-        return rows
+        if (rows.isEmpty()) return emptyList()
+
+        val recurrenceByEventId = getEventRecurrenceRules(rows.map { it.eventId }.toSet())
+        return rows.map { event -> event.copy(recurrenceRule = recurrenceByEventId[event.eventId]) }
     }
 
-    fun createViewEventIntent(eventId: Long): Intent =
-        Intent(Intent.ACTION_VIEW).apply {
-            data = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
-    private fun queryFutureEvents(
+    private fun selectNearestInstancePerEvent(
+        instances: List<CalendarEventInfo>,
         now: Long,
-        limit: Int,
-    ): List<CalendarEventInfo> {
-        val uri: Uri = CalendarContract.Instances.CONTENT_URI
-            .buildUpon()
-            .appendPath(now.toString())
-            .appendPath((now + 1000L * 60L * 60L * 24L * 365L * 2L).toString())
-            .build()
-
-        val projection =
-            arrayOf(
-                CalendarContract.Instances.EVENT_ID,
-                CalendarContract.Instances.TITLE,
-                CalendarContract.Instances.BEGIN,
-                CalendarContract.Instances.END,
-                CalendarContract.Instances.ALL_DAY,
-            )
-
-        val rows = mutableListOf<CalendarEventInfo>()
-        contentResolver
-            .query(
-                uri,
-                projection,
-                null,
-                null,
-                "${CalendarContract.Instances.BEGIN} ASC",
-            )
-            ?.use { cursor ->
-                val idIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.EVENT_ID)
-                val titleIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.TITLE)
-                val beginIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)
-                val endIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.END)
-                val allDayIndex = cursor.getColumnIndexOrThrow(CalendarContract.Instances.ALL_DAY)
-
-                while (cursor.moveToNext() && rows.size < limit) {
-                    val id = cursor.getLong(idIndex)
-                    val title = cursor.getString(titleIndex)?.trim().orEmpty()
-                    val startMillis = cursor.getLong(beginIndex)
-                    val endMillis = cursor.getLong(endIndex)
-                    val allDay = cursor.getInt(allDayIndex) == 1
-
-                    if (title.isNotBlank() && startMillis >= now) {
-                        rows.add(
-                            CalendarEventInfo(
-                                eventId = id,
-                                title = title,
-                                startMillis = startMillis,
-                                endMillis = endMillis,
-                                allDay = allDay,
-                            ),
-                        )
-                    }
-                }
+    ): Map<Long, CalendarEventInfo> =
+        instances.groupBy { it.eventId }
+            .mapValues { (_, candidates) ->
+                candidates.minWithOrNull(
+                    compareBy<CalendarEventInfo> { eventDistanceToNow(it.startMillis, now) }
+                        .thenByDescending { it.startMillis >= now }
+                        .thenBy { it.startMillis },
+                ) ?: candidates.first()
             }
 
-        return rows
-    }
+    private fun eventDistanceToNow(
+        startMillis: Long,
+        now: Long,
+    ): Long = if (startMillis >= now) startMillis - now else now - startMillis
 }
