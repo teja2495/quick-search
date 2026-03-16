@@ -20,7 +20,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +45,6 @@ import com.tk.quicksearch.search.calendar.formatCalendarEventDate
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Calendar
 import java.util.Locale
@@ -214,73 +212,16 @@ fun CalendarEventsSettingsSection(
     }
 
     selectedEventGroupForSheet?.let { eventGroup ->
-        ModalBottomSheet(
+        CalendarEventInstancesDrawer(
+            title = eventGroup.title,
+            nearestInstance = eventGroup.nearestInstance,
+            instances = eventGroup.instances,
             onDismissRequest = { selectedEventGroupForSheet = null },
-            containerColor = AppColors.DialogBackground,
-            tonalElevation = 0.dp,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = DesignTokens.SpacingLarge),
-            ) {
-                Text(
-                    text = eventGroup.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier =
-                        Modifier.padding(
-                            start = DesignTokens.ContentHorizontalPadding,
-                            end = DesignTokens.ContentHorizontalPadding,
-                            bottom = DesignTokens.SpacingSmall,
-                        ),
-                )
-                calendarRecurrenceLabel(
-                    recurrenceRule = eventGroup.nearestInstance.recurrenceRule,
-                    instanceCount = eventGroup.instances.size,
-                )?.let { recurrenceText ->
-                    Text(
-                        text = recurrenceText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier =
-                            Modifier.padding(
-                                start = DesignTokens.ContentHorizontalPadding,
-                                end = DesignTokens.ContentHorizontalPadding,
-                                bottom = DesignTokens.SpacingMedium,
-                            ),
-                    )
-                }
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 420.dp),
-                ) {
-                    itemsIndexed(
-                        items = eventGroup.instances,
-                        key = { _, instance -> "${instance.eventId}_${instance.startMillis}" },
-                    ) { index, instance ->
-                        CalendarEventInstanceRow(
-                            dateLabel = formatCalendarEventDate(instance),
-                            relativeLabel = calendarRelativeDateLabel(instance.startMillis),
-                            onClick = {
-                                selectedEventGroupForSheet = null
-                                onEventClick(instance)
-                            },
-                        )
-                        if (index < eventGroup.instances.lastIndex) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        }
-                    }
-                }
-            }
-        }
+            onInstanceClick = { instance ->
+                selectedEventGroupForSheet = null
+                onEventClick(instance)
+            },
+        )
     }
 }
 
@@ -346,49 +287,6 @@ private fun CalendarEventManagementRow(
                     )
                 }
             }
-            Text(
-                text = relativeLabel,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
-}
-
-@Composable
-private fun CalendarEventInstanceRow(
-    dateLabel: String,
-    relativeLabel: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(
-                    horizontal = DesignTokens.CardHorizontalPadding,
-                    vertical = DesignTokens.CardVerticalPadding,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.ItemRowSpacing),
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.CalendarMonth,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(DesignTokens.IconSize),
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = dateLabel,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
             Text(
                 text = relativeLabel,
                 style = MaterialTheme.typography.bodySmall,

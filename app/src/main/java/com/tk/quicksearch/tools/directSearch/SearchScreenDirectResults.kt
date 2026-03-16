@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -41,8 +42,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.*
@@ -52,7 +55,6 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private val unitResultRegex = Regex("^([+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+))(?:\\s+(.+))?$")
-private const val unitResultMultiLineThreshold = 10
 
 /** Composable that displays direct search results with loading, success, and error states. */
 @Composable
@@ -287,42 +289,66 @@ private fun UnitConverterResultText(result: String) {
     val match = unitResultRegex.matchEntire(result)
     val value = match?.groupValues?.getOrNull(1) ?: result
     val unit = match?.groupValues?.getOrNull(2).orEmpty()
-    val shouldShowUnitOnNextLine = unit.isNotBlank() && value.length >= unitResultMultiLineThreshold
+    val valueTextStyle = MaterialTheme.typography.displayMedium
+    val unitTextStyle = MaterialTheme.typography.bodyMedium
 
-    if (shouldShowUnitOnNextLine) {
-        Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
-        ) {
-            Text(
-                    text = value,
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                    text = unit,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    } else {
-        Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
-        ) {
-            Text(
-                    text = value,
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-            )
-            if (unit.isNotBlank()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val density = LocalDensity.current
+        val textMeasurer = rememberTextMeasurer()
+        val valueWidthPx = textMeasurer.measure(text = value, style = valueTextStyle).size.width
+        val unitWidthPx =
+                if (unit.isNotBlank()) {
+                    textMeasurer.measure(text = unit, style = unitTextStyle).size.width
+                } else {
+                    0
+                }
+        val spacingPx =
+                with(density) {
+                    if (unit.isNotBlank()) {
+                        DesignTokens.SpacingSmall.roundToPx()
+                    } else {
+                        0
+                    }
+                }
+        val hasRoomForSingleLine =
+                valueWidthPx + spacingPx + unitWidthPx <= with(density) { maxWidth.roundToPx() }
+
+        if (unit.isNotBlank() && !hasRoomForSingleLine) {
+            Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+            ) {
+                Text(
+                        text = value,
+                        style = valueTextStyle,
+                        color = MaterialTheme.colorScheme.onSurface,
+                )
                 Text(
                         text = unit,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = unitTextStyle,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.offset(y = 10.dp),
                 )
+            }
+        } else {
+            Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
+            ) {
+                Text(
+                        text = value,
+                        style = valueTextStyle,
+                        color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (unit.isNotBlank()) {
+                    Text(
+                            text = unit,
+                            style = unitTextStyle,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier.offset(y = 10.dp),
+                    )
+                }
             }
         }
     }
