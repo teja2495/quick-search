@@ -2,7 +2,7 @@
 
 This document highlights all the available features. It also includes details about hidden or non-obvious features that you might miss.
 
-**Version**: 2.7 (Updated March 12 2026)
+**Version**: 2.8 (Updated March 16 2026)
 
 ### Search
 
@@ -11,6 +11,7 @@ This document highlights all the available features. It also includes details ab
 - **Contact Search** - Quickly locate contacts in your phone and perform various actions for that contact, e.g. Call, SMS, Google Meet Voice/Video call, WhatsApp (Chat, Audio/Video Call), Telegram (Chat, Audio/Video Call), Signal (Chat, Audio/Video Call)
 - **File Search** - Search through device files & folders
 - **Device Settings Search** - Find specific device settings
+- **Calendar Events Search** - Search through your calendar events
 - **App Suggestions** - Shows suggested apps when no search query is entered. You can also choose to hide app suggestions completely. This feature requires usage access permission. If permission is not granted, the app shows suggestions based on apps you recently opened from within the app.
 
 ---
@@ -29,6 +30,20 @@ This document highlights all the available features. It also includes details ab
 ### Tools
 
 - **Calculator** - Type basic math expressions in the search bar to see results directly. Switching to the numeric keyboard while using the calculator displays calculator buttons for easy access. You can trigger calculator mode with an alias.
+- **Unit Converter** - Convert units directly from the search bar example: 5 lbs in kgs. Supported conversions:
+  - Length: m, km, cm, mm, µm (um), nm, mi, yd, ft, in, nmi
+  - Mass: kg, g, mg, µg (ug), lb, oz, st, tonne (metric ton), US ton (short ton)
+  - Temperature: °C, °F, K
+  - Area: m², km², cm², mm², ft², in², yd², mi², acre, ha
+  - Volume: L, mL, m³, cm³ (cc), mm³, ft³, in³, gal, qt, pt, cup, fl oz, tbsp, tsp
+  - Time: s, ms, µs (us), ns, min, h, day, week, month, year
+  - Speed: m/s, km/h, mph, kt, ft/s, in/s
+  - Data: byte (B), bit, KB/MB/GB/TB, KiB/MiB/GiB/TiB
+  - Energy: J, kJ, cal, kcal, Wh, kWh, eV, BTU
+  - Power: W, kW, mW, hp
+  - Pressure: Pa, kPa, MPa, bar, mbar, psi, atm, torr, mmHg
+  - Angle: rad, deg, grad, rev
+  - Frequency: Hz, kHz, MHz, GHz, rpm
 
 ---
 
@@ -167,9 +182,11 @@ Long-press on most results to open a context menu with quick actions.
 
 ### More Options
 
+- **Auto-Close App** - Option to toggle auto-close app after any action
 - **Top Result Indicator Toggle** - Option to hide the top result indicator for top results that can be opened with the keyboard.
 - **Open Keyboard Toggle** - Choose to disable automatic keyboard opening during app launch. This is useful if you want to use this app just to quickly access pinned items.
 - **Clear Query** - The app clears your query by default when you reopen the app; you can choose to keep the query by disabling this toggle.
+- **Circular App icons** - Option to force circular app icons
 
 ---
 
@@ -213,6 +230,7 @@ Long-press on most results to open a context menu with quick actions.
 - **Add Contact Action to Home** - Open any contact and long-press on any of the actions (e.g. WhatsApp call, Telegram video, etc.) to add it to your home screen as a shortcut.
 - **Contact Image Tap** - Tap on the contact photo to open the contact in the default contacts app to edit it.
 - **Access Beta Features** - Tap on version number 5 times to unlock new beta features. These features are hidden because they're not fully implemented & tested, so expect bugs. You can disable these features by long-pressing on the version number.
+- Long-press Direct Search, Calculator or any tool result to copy it to clipboard.
 
 ---
 

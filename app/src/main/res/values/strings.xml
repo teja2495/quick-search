@@ -773,14 +773,12 @@
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string-array name="release_notes_points">
-        <item>Alias support for individual searches and calculator</item>
-        <item>New Search Engine: Wikipedia</item>
-        <item>Faster and better search results</item>
-        <item>Option to disable top result indicator, auto-launch keyboard and auto-clear query</item>
-        <item>Widget padding customization</item>
-        <item>Search engine aliases at the end of your query now requires a space to trigger</item>
-        <item>Features list documentation is updated and is now readable within the app</item>
-        <item>Performance improvements, enhancements and bug fixes</item>
+        <item>Search for calendar events</item>
+        <item>New tool: Unit converter</item>
+        <item>Fixed a bug causing the overlay to close for direct searches</item>
+        <item>Option to force circular app icons</item>
+        <item>Option to toggle auto-close app after any action</item>
+        <item>Enhancements and bug fixes</item>
     </string-array>
     <string name="release_notes_action_got_it">Got it</string>
     <string name="release_notes_view_all_features">View all features</string>
