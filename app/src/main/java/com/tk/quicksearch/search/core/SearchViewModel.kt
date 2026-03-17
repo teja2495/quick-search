@@ -1026,7 +1026,6 @@ class SearchViewModel(
         // Icons will lazy-load via rememberAppIcon() with placeholders until ready
         if (cachedAppsList != null && cachedAppsList.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                waitForSearchInputIdle(maxWaitMs = STARTUP_ICON_PREFETCH_MAX_WAIT_MS)
                 if (userPreferences.areAppSuggestionsEnabled()) {
                     val visibleApps =
                             extractSuggestedApps(
@@ -1060,8 +1059,6 @@ class SearchViewModel(
         }
 
         // Compute heavier derived startup state off the main thread.
-        // If the user is already typing, briefly defer this to prioritize input latency.
-        waitForSearchInputIdle(maxWaitMs = STARTUP_PHASE2_DERIVED_REFRESH_MAX_WAIT_MS)
         val lastUpdated = startupConfig?.cachedAppsLastUpdate ?: repository.cacheLastUpdatedMillis()
         withContext(Dispatchers.Default) { refreshDerivedState(lastUpdated = lastUpdated, isLoading = false) }
 
@@ -1273,9 +1270,7 @@ class SearchViewModel(
                 }
             }
 
-            // 3. Start heavy background loads. If the user is actively typing right after
-            // startup, briefly wait for an idle input window before kicking these off.
-            waitForSearchInputIdle(maxWaitMs = STARTUP_PHASE3_HEAVY_INIT_MAX_WAIT_MS)
+            // 3. Start heavy background loads
             launch(Dispatchers.IO) {
                 delay(DEFERRED_APP_REFRESH_DELAY_MS)
                 loadApps()
@@ -1335,23 +1330,8 @@ class SearchViewModel(
                     )
                 }
             }
-            waitForSearchInputIdle(maxWaitMs = STARTUP_PHASE3_FINAL_REFRESH_MAX_WAIT_MS)
             withContext(Dispatchers.Default) { refreshDerivedState() }
             saveStartupSurfaceSnapshotAsync(forcePreviewRefresh = true)
-        }
-    }
-
-    private suspend fun waitForSearchInputIdle(maxWaitMs: Long) {
-        if (maxWaitMs <= 0L) return
-
-        val deadlineMs = System.currentTimeMillis() + maxWaitMs
-        while (System.currentTimeMillis() < deadlineMs) {
-            if (_resultsState.value.query.isBlank()) {
-                delay(STARTUP_INPUT_IDLE_WINDOW_MS)
-                if (_resultsState.value.query.isBlank()) return
-            } else {
-                delay(STARTUP_INPUT_IDLE_POLL_MS)
-            }
         }
     }
 
@@ -3785,12 +3765,6 @@ class SearchViewModel(
         private const val APP_SEARCH_DEBOUNCE_MS = 60L
         /** Minimum interval between browser-target refreshes triggered by onResume. */
         private const val BROWSER_REFRESH_INTERVAL_MS = 5 * 60 * 1_000L // 5 minutes
-        private const val STARTUP_INPUT_IDLE_WINDOW_MS = 350L
-        private const val STARTUP_INPUT_IDLE_POLL_MS = 100L
-        private const val STARTUP_ICON_PREFETCH_MAX_WAIT_MS = 1_200L
-        private const val STARTUP_PHASE2_DERIVED_REFRESH_MAX_WAIT_MS = 1_500L
-        private const val STARTUP_PHASE3_HEAVY_INIT_MAX_WAIT_MS = 4_000L
-        private const val STARTUP_PHASE3_FINAL_REFRESH_MAX_WAIT_MS = 1_500L
         private const val DEFERRED_APP_REFRESH_DELAY_MS = 2_000L
         private const val DEFERRED_DIRECT_SEARCH_MODELS_DELAY_MS = 3_000L
         private const val DEFERRED_RELEASE_NOTES_DELAY_MS = 3_000L
