@@ -297,6 +297,11 @@ class SearchViewModel(
     private val isAppShortcutsLoadInFlight = AtomicBoolean(false)
     private val hasStartedStartupPhases = AtomicBoolean(false)
 
+    // Single-threaded dispatcher for Phase 3 background loads. Limits startup work
+    // to one concurrent task so it never saturates Dispatchers.IO and doesn't
+    // flood the main thread with simultaneous state updates while the user types.
+    private val startupDispatcher = Dispatchers.IO.limitedParallelism(1)
+
     // -------------------------------------------------------------------------
     // Resume dirty-flags — set when something changes while the screen is in
     // the background, cleared after handleOnResume() services the flag.
@@ -1271,6 +1276,9 @@ class SearchViewModel(
             }
 
             // 3. Start heavy background loads
+            // Apps load on Dispatchers.IO immediately (parallel) for fastest app availability.
+            // All other loads use startupDispatcher (single-threaded) so they run serially and
+            // don't saturate the thread pool while the user is typing.
             launch(Dispatchers.IO) {
                 delay(DEFERRED_APP_REFRESH_DELAY_MS)
                 loadApps()
@@ -1278,7 +1286,7 @@ class SearchViewModel(
 
             launch(Dispatchers.IO) { iconPackHandler.refreshIconPacks() }
 
-            launch(Dispatchers.IO) {
+            launch(startupDispatcher) {
                 // Load pinned items first (fast) - contacts, files, app shortcuts, and device
                 // settings
                 pinningHandler.loadPinnedContactsAndFiles()
@@ -1307,10 +1315,10 @@ class SearchViewModel(
             }
 
             // Load full shortcuts/settings in background (slower, for search)
-            launch(Dispatchers.IO) { loadSettingsShortcuts() }
-            launch(Dispatchers.IO) { appSettingsSearchHandler.loadSettings() }
+            launch(startupDispatcher) { loadSettingsShortcuts() }
+            launch(startupDispatcher) { appSettingsSearchHandler.loadSettings() }
 
-            launch(Dispatchers.IO) { loadAppShortcuts() }
+            launch(startupDispatcher) { loadAppShortcuts() }
 
             // 4. Release notes
             launch(Dispatchers.IO) {
