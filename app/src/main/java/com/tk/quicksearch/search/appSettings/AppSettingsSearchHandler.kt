@@ -1,6 +1,7 @@
 package com.tk.quicksearch.search.appSettings
 
 import com.tk.quicksearch.search.data.UserAppPreferences
+import com.tk.quicksearch.search.appSettings.AppSettingsDestination.EXCLUDED_ITEMS
 import com.tk.quicksearch.search.utils.RecentResultRankingUtils
 import com.tk.quicksearch.search.utils.SearchQueryContext
 import java.util.Locale
@@ -20,14 +21,14 @@ class AppSettingsSearchHandler(
     fun getSettingsByIds(ids: Set<String>): Map<String, AppSettingResult> {
         if (ids.isEmpty()) return emptyMap()
         ensureLoaded()
-        return availableSettings
+        return getVisibleSettings()
             .filter { ids.contains(it.id) }
             .associateBy { it.id }
     }
 
     fun getAvailableSettings(): List<AppSettingResult> {
         ensureLoaded()
-        return availableSettings.sortedBy { it.title.lowercase(Locale.getDefault()) }
+        return getVisibleSettings().sortedBy { it.title.lowercase(Locale.getDefault()) }
     }
 
     fun searchSettings(
@@ -36,13 +37,14 @@ class AppSettingsSearchHandler(
         enableFuzzyMatching: Boolean = false,
     ): List<AppSettingResult> {
         ensureLoaded()
-        return AppSettingsSearchAlgorithm.search(
-            fullList = availableSettings,
-            queryContext = queryContext,
-            recentSettingScores = recentSettingScores,
-            resultLimit = RESULT_LIMIT,
-            enableFuzzyMatching = enableFuzzyMatching,
-        )
+        return AppSettingsSearchAlgorithm
+            .search(
+                fullList = getVisibleSettings(),
+                queryContext = queryContext,
+                recentSettingScores = recentSettingScores,
+                resultLimit = RESULT_LIMIT,
+                enableFuzzyMatching = enableFuzzyMatching,
+            )
     }
 
     private fun ensureLoaded() {
@@ -55,4 +57,24 @@ class AppSettingsSearchHandler(
         RecentResultRankingUtils
             .buildRecencyIndex(userPreferences.getRecentResultOpens())
             .settingScores
+
+    private fun getVisibleSettings(): List<AppSettingResult> {
+        return availableSettings.filter { setting ->
+            val shouldHideExcludedItems =
+                !hasExcludedItems() && setting.destination == EXCLUDED_ITEMS
+            val shouldHideCircularAppIconsToggle =
+                setting.toggleKey == AppSettingsToggleKey.CIRCULAR_APP_ICONS &&
+                    !userPreferences.getSelectedIconPackPackage().isNullOrBlank()
+            !shouldHideExcludedItems && !shouldHideCircularAppIconsToggle
+        }
+    }
+
+    private fun hasExcludedItems(): Boolean =
+        userPreferences.getSuggestionHiddenPackages().isNotEmpty() ||
+            userPreferences.getResultHiddenPackages().isNotEmpty() ||
+            userPreferences.getExcludedContactIds().isNotEmpty() ||
+            userPreferences.getExcludedFileUris().isNotEmpty() ||
+            userPreferences.getExcludedFileExtensions().isNotEmpty() ||
+            userPreferences.getExcludedSettingIds().isNotEmpty() ||
+            userPreferences.getExcludedAppShortcutIds().isNotEmpty()
 }

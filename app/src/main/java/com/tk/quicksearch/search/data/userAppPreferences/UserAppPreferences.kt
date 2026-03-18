@@ -674,6 +674,11 @@ class UserAppPreferences(
     fun setHasSeenOverlayAssistantTip(seen: Boolean) =
             uiPreferences.setHasSeenOverlayAssistantTip(seen)
 
+    fun hasSeenSettingsSearchTip(): Boolean = uiPreferences.hasSeenSettingsSearchTip()
+
+    fun setHasSeenSettingsSearchTip(seen: Boolean) =
+            uiPreferences.setHasSeenSettingsSearchTip(seen)
+
     fun getLastSeenVersionName(): String? = uiPreferences.getLastSeenVersionName()
 
     fun setLastSeenVersionName(versionName: String?) =

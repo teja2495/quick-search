@@ -321,6 +321,7 @@
     <string name="wallpaper_permission_fallback_message">Couldn\u2019t fetch wallpaper with files permission. Should I try another method to fetch your wallpaper?</string>
     <string name="settings_overlay_mode_title">Overlay Mode</string>
     <string name="settings_overlay_mode_desc">Search bar opens as an overlay on top of other apps</string>
+    <string name="settings_search_tip_banner_message">Tip: You can search for settings directly from the search bar.</string>
     <string name="settings_overlay_assistant_tip">Tip: Set this app as your digital assistant to open the overlay from anywhere.</string>
     <string name="settings_overlay_assistant_setup_now">Setup Now</string>
     <string name="settings_layout_option_bottom_title">One-Handed Mode</string>
@@ -366,6 +367,12 @@
          ============================================================================ -->
     <string name="settings_search_results_title">Search Results</string>
     <string name="settings_search_results_desc">Manage result types, web suggestions, and search history</string>
+    <string name="settings_search_dynamic_description_template">Manage %1$s settings</string>
+    <string name="settings_search_description_change_app_theme">Change app theme</string>
+    <string name="settings_search_description_change_icon_pack">Change icon pack</string>
+    <string name="settings_search_description_change_wallpaper">Change wallpaper appearance</string>
+    <string name="settings_search_description_change_font_size">Change app font size</string>
+    <string name="settings_search_description_change_layout">Change app layout options</string>
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
     <string name="settings_tools_title">Tools</string>

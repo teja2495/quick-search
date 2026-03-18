@@ -98,6 +98,9 @@ fun SettingsRoute(
     val state = uiState.toSettingsScreenState()
 
     val shouldShowBanner = remember { mutableStateOf(uiState.shouldShowUsagePermissionBanner) }
+    val hasSeenSettingsSearchTip = remember {
+        mutableStateOf(userPreferences.hasSeenSettingsSearchTip())
+    }
     val lifecycleOwner = LocalLifecycleOwner.current
     val pendingEnableDirectDial = remember { mutableStateOf(false) }
     var showPermissionSettingsDialog by remember { mutableStateOf(false) }
@@ -495,6 +498,10 @@ fun SettingsRoute(
         viewModel.setUsagePermissionBannerSessionDismissed(true)
         shouldShowBanner.value = viewModel.uiState.value.shouldShowUsagePermissionBanner
     }
+    val onDismissSettingsSearchTip = {
+        userPreferences.setHasSeenSettingsSearchTip(true)
+        hasSeenSettingsSearchTip.value = true
+    }
 
     val resolvedState = state.copy(hasWallpaperPermission = wallpaperPermissionController.hasWallpaperPermission)
 
@@ -513,6 +520,8 @@ fun SettingsRoute(
         onRequestCalendarPermission = onRequestCalendarPermission,
         onRequestCallPermission = onRequestCallPermission,
         onDismissBanner = onDismissBanner,
+        shouldShowSettingsSearchTip = !hasSeenSettingsSearchTip.value,
+        onDismissSettingsSearchTip = onDismissSettingsSearchTip,
         onNavigateToDetail = onNavigateToDetail,
         onSettingsImported = viewModel::onSettingsImported,
         scrollState = scrollState,

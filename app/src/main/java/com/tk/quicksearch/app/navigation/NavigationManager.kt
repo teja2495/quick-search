@@ -1,7 +1,10 @@
 package com.tk.quicksearch.app.navigation
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,6 +37,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.SettingsRoute
 import com.tk.quicksearch.shared.permissions.PermissionHelper
+import com.tk.quicksearch.shared.util.FeedbackUtils
 
 enum class RootDestination {
     Search,
@@ -41,6 +45,7 @@ enum class RootDestination {
 }
 
 private const val NAVIGATION_ANIMATION_DURATION_MS = 180
+private const val QUICK_SEARCH_DEVELOPMENT_URL = "https://github.com/teja2495/quick-search"
 
 data class NavigationRequest(
     val destination: RootDestination,
@@ -427,7 +432,6 @@ private fun NavigationContent(
                     },
                     onOpenAppSettingDestination = { destination ->
                         when (destination) {
-                            AppSettingsDestination.ROOT -> navigateToSettings(null)
                             AppSettingsDestination.APPEARANCE ->
                                 navigateToSettings(SettingsDetailType.APPEARANCE)
                             AppSettingsDestination.SEARCH_RESULTS ->
@@ -438,6 +442,8 @@ private fun NavigationContent(
                                 navigateToSettings(SettingsDetailType.TOOLS)
                             AppSettingsDestination.LAUNCH_OPTIONS ->
                                 navigateToSettings(SettingsDetailType.LAUNCH_OPTIONS)
+                            AppSettingsDestination.MORE_OPTIONS ->
+                                navigateToSettings(SettingsDetailType.MORE_OPTIONS)
                             AppSettingsDestination.PERMISSIONS ->
                                 navigateToSettings(SettingsDetailType.PERMISSIONS)
                             AppSettingsDestination.APP_MANAGEMENT ->
@@ -454,6 +460,18 @@ private fun NavigationContent(
                                 navigateToSettings(SettingsDetailType.EXCLUDED_ITEMS)
                             AppSettingsDestination.DIRECT_SEARCH_CONFIGURE ->
                                 navigateToSettings(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                            AppSettingsDestination.RELOAD_APPS ->
+                                viewModel.refreshApps(showToast = true)
+                            AppSettingsDestination.RELOAD_CONTACTS ->
+                                viewModel.refreshContacts(showToast = true)
+                            AppSettingsDestination.RELOAD_FILES ->
+                                viewModel.refreshFiles(showToast = true)
+                            AppSettingsDestination.SEND_FEEDBACK ->
+                                FeedbackUtils.launchFeedbackEmail(context = context, feedbackText = null)
+                            AppSettingsDestination.RATE_QUICK_SEARCH ->
+                                launchRateQuickSearch(context)
+                            AppSettingsDestination.DEVELOPMENT ->
+                                launchDevelopmentPage(context)
                             AppSettingsDestination.FEATURES_LIST ->
                                 navigateToSettings(SettingsDetailType.FEATURES_LIST)
                             AppSettingsDestination.OPEN_SOURCE_LICENSES ->
@@ -482,5 +500,32 @@ private fun NavigationContent(
                 )
             }
         }
+    }
+}
+
+private fun launchRateQuickSearch(context: Context) {
+    val packageName = context.packageName
+    try {
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("market://details?id=$packageName")
+                setPackage("com.android.vending")
+            },
+        )
+    } catch (_: ActivityNotFoundException) {
+        runCatching {
+            context.startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
+                ),
+            )
+        }
+    }
+}
+
+private fun launchDevelopmentPage(context: Context) {
+    runCatching {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(QUICK_SEARCH_DEVELOPMENT_URL)))
     }
 }

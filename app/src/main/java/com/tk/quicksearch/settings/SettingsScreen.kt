@@ -112,6 +112,8 @@ fun SettingsScreen(
     onRequestCalendarPermission: () -> Unit,
     onRequestCallPermission: () -> Unit,
     onDismissBanner: () -> Unit,
+    shouldShowSettingsSearchTip: Boolean,
+    onDismissSettingsSearchTip: () -> Unit,
     onNavigateToDetail: (SettingsDetailType) -> Unit,
     onSettingsImported: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState =
@@ -201,6 +203,14 @@ fun SettingsScreen(
                     .verticalScroll(scrollState)
                     .padding(horizontal = DesignTokens.ContentHorizontalPadding),
         ) {
+            if (shouldShowSettingsSearchTip) {
+                TipBanner(
+                    modifier = Modifier.padding(bottom = DesignTokens.SectionTopPadding),
+                    text = stringResource(R.string.settings_search_tip_banner_message),
+                    onDismiss = onDismissSettingsSearchTip,
+                )
+            }
+
             // Overlay Mode Card (top)
             ElevatedCard(
                 modifier =

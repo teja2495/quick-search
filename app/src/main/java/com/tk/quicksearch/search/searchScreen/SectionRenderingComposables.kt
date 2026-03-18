@@ -6,10 +6,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.tween
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import com.tk.quicksearch.search.appSettings.AppSettingsResultsSection
 import com.tk.quicksearch.search.appShortcuts.AppShortcutResultsSection
 import com.tk.quicksearch.search.apps.AppGridView
+import com.tk.quicksearch.search.calendar.CalendarEventsSection
 import com.tk.quicksearch.search.contacts.ContactResultsSection
 import com.tk.quicksearch.search.core.CallingApp
 import com.tk.quicksearch.search.core.MessagingApp
@@ -18,7 +23,6 @@ import com.tk.quicksearch.search.core.SectionRenderContext
 import com.tk.quicksearch.search.core.SectionRenderParams
 import com.tk.quicksearch.search.deviceSettings.DeviceSettingsResultsSection
 import com.tk.quicksearch.search.files.FileResultsSection
-import com.tk.quicksearch.search.calendar.CalendarEventsSection
 
 // ============================================================================
 // Section Rendering Functions
@@ -251,27 +255,46 @@ private fun renderSettingsSection(
     context: SectionRenderContext,
 ) {
     if (context.shouldRenderSettings && params.settingsParams != null) {
-        DeviceSettingsResultsSection(
-            settings = context.settingsList,
-            appSettings = context.appSettingsList,
-            isExpanded = context.isSettingsExpanded,
-            pinnedSettingIds = params.settingsParams.pinnedSettingIds,
-            onSettingClick = params.settingsParams.onSettingClick,
-            onAppSettingClick = params.settingsParams.onAppSettingClick,
-            onAppSettingToggle = params.settingsParams.onAppSettingToggle,
-            isAppSettingToggleChecked = params.settingsParams.isAppSettingToggleChecked,
-            onTogglePin = params.settingsParams.onTogglePin,
-            onExclude = params.settingsParams.onExclude,
-            onNicknameClick = params.settingsParams.onNicknameClick,
-            getSettingNickname = params.settingsParams.getSettingNickname,
-            showAllResults = context.showAllSettingsResults,
-            showExpandControls = context.showSettingsExpandControls,
-            onExpandClick = context.settingsExpandClick,
-            expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
-            showWallpaperBackground = params.settingsParams.showWallpaperBackground,
-            predictedTarget = params.settingsParams.predictedTarget,
-            fillExpandedHeight = context.isSectionAliasMode,
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (context.settingsList.isNotEmpty()) {
+                DeviceSettingsResultsSection(
+                    settings = context.settingsList,
+                    isExpanded = context.isSettingsExpanded,
+                    pinnedSettingIds = params.settingsParams.pinnedSettingIds,
+                    onSettingClick = params.settingsParams.onSettingClick,
+                    onTogglePin = params.settingsParams.onTogglePin,
+                    onExclude = params.settingsParams.onExclude,
+                    onNicknameClick = params.settingsParams.onNicknameClick,
+                    getSettingNickname = params.settingsParams.getSettingNickname,
+                    showAllResults = context.showAllSettingsResults,
+                    showExpandControls = context.showSettingsExpandControls,
+                    onExpandClick = context.settingsExpandClick,
+                    expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
+                    showWallpaperBackground = params.settingsParams.showWallpaperBackground,
+                    predictedTarget = params.settingsParams.predictedTarget,
+                    fillExpandedHeight = context.isSectionAliasMode,
+                )
+            }
+            if (context.appSettingsList.isNotEmpty()) {
+                AppSettingsResultsSection(
+                    appSettings = context.appSettingsList,
+                    isExpanded = context.isSettingsExpanded,
+                    onAppSettingClick = params.settingsParams.onAppSettingClick,
+                    onAppSettingToggle = params.settingsParams.onAppSettingToggle,
+                    onWebSuggestionsCountChange =
+                        params.settingsParams.onAppSettingWebSuggestionsCountChange,
+                    isAppSettingToggleChecked = params.settingsParams.isAppSettingToggleChecked,
+                    webSuggestionsCount = params.settingsParams.appSettingWebSuggestionsCount,
+                    showAllResults = context.showAllSettingsResults,
+                    showExpandControls = context.showSettingsExpandControls,
+                    onExpandClick = context.settingsExpandClick,
+                    expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
+                    showWallpaperBackground = params.settingsParams.showWallpaperBackground,
+                    predictedTarget = params.settingsParams.predictedTarget,
+                    fillExpandedHeight = context.isSectionAliasMode,
+                )
+            }
+        }
     }
 }
 

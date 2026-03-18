@@ -10,12 +10,12 @@ enum class AppSettingResultAction {
 }
 
 enum class AppSettingsDestination {
-    ROOT,
     APPEARANCE,
     SEARCH_RESULTS,
     SEARCH_ENGINES,
     TOOLS,
     LAUNCH_OPTIONS,
+    MORE_OPTIONS,
     PERMISSIONS,
     APP_MANAGEMENT,
     APP_SHORTCUTS,
@@ -24,6 +24,12 @@ enum class AppSettingsDestination {
     DEVICE_SETTINGS,
     EXCLUDED_ITEMS,
     DIRECT_SEARCH_CONFIGURE,
+    RELOAD_APPS,
+    RELOAD_CONTACTS,
+    RELOAD_FILES,
+    SEND_FEEDBACK,
+    RATE_QUICK_SEARCH,
+    DEVELOPMENT,
     FEATURES_LIST,
     OPEN_SOURCE_LICENSES,
 }
@@ -43,6 +49,8 @@ enum class AppSettingsToggleKey {
     TOP_RESULT_INDICATOR,
     OPEN_KEYBOARD,
     CLEAR_QUERY,
+    AUTO_CLOSE_OVERLAY,
+    CIRCULAR_APP_ICONS,
     SHOW_FOLDERS,
     SHOW_SYSTEM_FILES,
     SHOW_HIDDEN_FILES,

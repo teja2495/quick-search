@@ -296,6 +296,9 @@ fun SearchRoute(
             AppSettingsToggleKey.TOP_RESULT_INDICATOR -> uiState.topResultIndicatorEnabled
             AppSettingsToggleKey.OPEN_KEYBOARD -> uiState.openKeyboardOnLaunch
             AppSettingsToggleKey.CLEAR_QUERY -> uiState.clearQueryOnLaunch
+            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> uiState.autoCloseOverlay
+            AppSettingsToggleKey.CIRCULAR_APP_ICONS ->
+                uiState.appIconShape == com.tk.quicksearch.search.core.AppIconShape.CIRCLE
             AppSettingsToggleKey.SHOW_FOLDERS -> uiState.showFolders
             AppSettingsToggleKey.SHOW_SYSTEM_FILES -> uiState.showSystemFiles
             AppSettingsToggleKey.SHOW_HIDDEN_FILES -> uiState.showHiddenFiles
@@ -320,6 +323,15 @@ fun SearchRoute(
             AppSettingsToggleKey.TOP_RESULT_INDICATOR -> viewModel.setTopResultIndicatorEnabled(enabled)
             AppSettingsToggleKey.OPEN_KEYBOARD -> viewModel.setOpenKeyboardOnLaunchEnabled(enabled)
             AppSettingsToggleKey.CLEAR_QUERY -> viewModel.setClearQueryOnLaunchEnabled(enabled)
+            AppSettingsToggleKey.AUTO_CLOSE_OVERLAY -> viewModel.setAutoCloseOverlayEnabled(enabled)
+            AppSettingsToggleKey.CIRCULAR_APP_ICONS ->
+                viewModel.setAppIconShape(
+                    if (enabled) {
+                        com.tk.quicksearch.search.core.AppIconShape.CIRCLE
+                    } else {
+                        com.tk.quicksearch.search.core.AppIconShape.DEFAULT
+                    },
+                )
             AppSettingsToggleKey.SHOW_FOLDERS -> viewModel.setShowFolders(enabled)
             AppSettingsToggleKey.SHOW_SYSTEM_FILES -> viewModel.setShowSystemFiles(enabled)
             AppSettingsToggleKey.SHOW_HIDDEN_FILES -> viewModel.setShowHiddenFiles(enabled)
@@ -464,7 +476,9 @@ fun SearchRoute(
             },
             onAppSettingClick = onAppSettingClick,
             onAppSettingToggle = onAppSettingToggle,
+            onAppSettingWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
             isAppSettingToggleChecked = isAppSettingToggleChecked,
+            appSettingWebSuggestionsCount = uiState.webSuggestionsCount,
             onPinSetting = viewModel::pinSetting,
             onUnpinSetting = viewModel::unpinSetting,
             onExcludeSetting = onExcludeSettingWithUndo,

@@ -2,6 +2,9 @@ package com.tk.quicksearch.search.appSettings
 
 import android.content.Context
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.utils.SearchQueryContext
+
+private val WHITESPACE_REGEX = "\\s+".toRegex()
 
 class AppSettingsRepository(
     private val context: Context,
@@ -9,18 +12,21 @@ class AppSettingsRepository(
     fun loadSettings(): List<AppSettingResult> {
         return buildList {
             addNavigation(
-                id = "app_settings_root",
-                titleRes = R.string.settings_title,
-                descriptionRes = R.string.settings_search_results_desc,
-                destination = AppSettingsDestination.ROOT,
-                keywords = listOf("preferences", "configuration"),
-            )
-            addNavigation(
                 id = "app_settings_appearance",
                 titleRes = R.string.settings_appearance_title,
                 descriptionRes = R.string.settings_appearance_desc,
                 destination = AppSettingsDestination.APPEARANCE,
-                keywords = listOf("theme", "wallpaper", "style", "font"),
+                keywords =
+                    listOf(
+                        "theme",
+                        "wallpaper",
+                        "style",
+                        "font",
+                        "icon",
+                        "icons",
+                        "icon pack",
+                        "icon packs",
+                    ),
             )
             addNavigation(
                 id = "app_settings_search_results",
@@ -51,6 +57,13 @@ class AppSettingsRepository(
                 keywords = listOf("assistant", "widget", "tile"),
             )
             addNavigation(
+                id = "app_settings_more_options",
+                titleRes = R.string.settings_more_options_title,
+                descriptionRes = R.string.settings_more_options_desc,
+                destination = AppSettingsDestination.MORE_OPTIONS,
+                keywords = listOf("more", "options", "misc", "advanced"),
+            )
+            addNavigation(
                 id = "app_settings_permissions",
                 titleRes = R.string.settings_permissions_title,
                 descriptionRes = R.string.settings_permissions_desc,
@@ -79,11 +92,50 @@ class AppSettingsRepository(
                 keywords = listOf("calling", "messaging", "whatsapp", "telegram", "signal"),
             )
             addNavigation(
+                id = "app_settings_default_calling_app",
+                titleRes = R.string.settings_calling_card_title,
+                destination = AppSettingsDestination.CALLS_TEXTS,
+                keywords = listOf("default calling app", "calling app", "default call app"),
+            )
+            addNavigation(
+                id = "app_settings_default_messaging_app",
+                titleRes = R.string.settings_messaging_card_title,
+                destination = AppSettingsDestination.CALLS_TEXTS,
+                keywords = listOf("default messaging app", "messaging app", "default text app"),
+            )
+            addNavigation(
                 id = "app_settings_files",
                 titleRes = R.string.settings_file_types_title,
                 descriptionRes = R.string.settings_manage_files_desc,
                 destination = AppSettingsDestination.FILES,
-                keywords = listOf("files", "folders", "extensions"),
+                keywords =
+                    listOf(
+                        "files",
+                        "folders",
+                        "extensions",
+                        "folder path filters",
+                        "path filters",
+                        "whitelist",
+                        "blacklist",
+                    ),
+            )
+            addNavigation(
+                id = "app_settings_reload_apps",
+                titleRes = R.string.settings_refresh_apps_title,
+                destination = AppSettingsDestination.RELOAD_APPS,
+                keywords = listOf("reload apps", "refresh apps", "reindex apps"),
+            )
+            addNavigation(
+                id = "app_settings_reload_contacts",
+                titleRes = R.string.settings_refresh_contacts_title,
+                destination = AppSettingsDestination.RELOAD_CONTACTS,
+                keywords = listOf("reload contacts", "refresh contacts", "sync contacts"),
+            )
+            addNavigation(
+                id = "app_settings_reload_files",
+                titleRes = R.string.settings_refresh_files_title,
+                destination = AppSettingsDestination.RELOAD_FILES,
+                keywords = listOf("reload files", "refresh files", "rescan files"),
             )
             addNavigation(
                 id = "app_settings_device_settings",
@@ -105,6 +157,27 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_direct_search_desc,
                 destination = AppSettingsDestination.DIRECT_SEARCH_CONFIGURE,
                 keywords = listOf("gemini", "api", "direct search"),
+            )
+            addNavigation(
+                id = "app_settings_send_feedback",
+                titleRes = R.string.settings_feedback_send_title,
+                descriptionRes = R.string.settings_feedback_send_desc,
+                destination = AppSettingsDestination.SEND_FEEDBACK,
+                keywords = listOf("feedback", "support", "bug", "request"),
+            )
+            addNavigation(
+                id = "app_settings_rate_quick_search",
+                titleRes = R.string.settings_feedback_rate_title,
+                descriptionRes = R.string.settings_feedback_rate_desc,
+                destination = AppSettingsDestination.RATE_QUICK_SEARCH,
+                keywords = listOf("rate", "review", "play store"),
+            )
+            addNavigation(
+                id = "app_settings_development",
+                titleRes = R.string.settings_feedback_github_title,
+                descriptionRes = R.string.settings_feedback_github_desc,
+                destination = AppSettingsDestination.DEVELOPMENT,
+                keywords = listOf("github", "source code", "development"),
             )
             addNavigation(
                 id = "app_settings_features_list",
@@ -179,7 +252,6 @@ class AppSettingsRepository(
             addToggle(
                 id = "app_toggle_web_suggestions",
                 titleRes = R.string.web_search_suggestions_title,
-                descriptionRes = R.string.settings_search_results_desc,
                 toggleKey = AppSettingsToggleKey.WEB_SUGGESTIONS,
                 keywords = listOf("web", "suggestions", "autocomplete"),
             )
@@ -212,25 +284,18 @@ class AppSettingsRepository(
                 keywords = listOf("clear", "query", "launch"),
             )
             addToggle(
-                id = "app_toggle_show_folders",
-                titleRes = R.string.settings_folders_toggle,
-                descriptionRes = R.string.settings_manage_files_desc,
-                toggleKey = AppSettingsToggleKey.SHOW_FOLDERS,
-                keywords = listOf("folders", "directories"),
+                id = "app_toggle_auto_close_overlay",
+                titleRes = R.string.auto_close_overlay_toggle_title,
+                descriptionRes = R.string.auto_close_overlay_toggle_desc,
+                toggleKey = AppSettingsToggleKey.AUTO_CLOSE_OVERLAY,
+                keywords = listOf("auto close", "close app", "close after open"),
             )
             addToggle(
-                id = "app_toggle_show_system_files",
-                titleRes = R.string.settings_system_files_toggle,
-                descriptionRes = R.string.settings_manage_files_desc,
-                toggleKey = AppSettingsToggleKey.SHOW_SYSTEM_FILES,
-                keywords = listOf("system files"),
-            )
-            addToggle(
-                id = "app_toggle_show_hidden_files",
-                titleRes = R.string.settings_hidden_files_toggle,
-                descriptionRes = R.string.settings_manage_files_desc,
-                toggleKey = AppSettingsToggleKey.SHOW_HIDDEN_FILES,
-                keywords = listOf("hidden files", "dot files"),
+                id = "app_toggle_circular_app_icons",
+                titleRes = R.string.settings_circular_app_icons_title,
+                descriptionRes = R.string.settings_circular_app_icons_desc,
+                toggleKey = AppSettingsToggleKey.CIRCULAR_APP_ICONS,
+                keywords = listOf("circular icons", "circle icons", "icon shape"),
             )
             addToggle(
                 id = "app_toggle_direct_dial",
@@ -278,5 +343,94 @@ class AppSettingsRepository(
                 toggleKey = toggleKey,
             ),
         )
+    }
+
+    fun resolveSearchDescription(
+        setting: AppSettingResult,
+        queryContext: SearchQueryContext,
+    ): String? {
+        if (!setting.isNavigateAction || queryContext.tokens.isEmpty()) {
+            return setting.description
+        }
+        if (setting.destination == AppSettingsDestination.APPEARANCE) {
+            val appearanceDescription = getAppearanceSearchDescription(queryContext.tokens.toSet())
+            if (appearanceDescription != null) {
+                return appearanceDescription
+            }
+        }
+
+        val matchedKeyword = findBestMatchingKeyword(setting.keywords, queryContext.tokens)
+        return matchedKeyword?.let {
+            context.getString(R.string.settings_search_dynamic_description_template, it)
+        } ?: setting.description
+    }
+
+    private fun getAppearanceSearchDescription(queryTokens: Set<String>): String? {
+        if (queryTokens.any { tokenMatchesAny(it, APPEARANCE_THEME_TOKENS) }) {
+            return context.getString(R.string.settings_search_description_change_app_theme)
+        }
+        if (queryTokens.any { tokenMatchesAny(it, APPEARANCE_ICON_PACK_TOKENS) }) {
+            return context.getString(R.string.settings_search_description_change_icon_pack)
+        }
+        if (queryTokens.any { tokenMatchesAny(it, APPEARANCE_WALLPAPER_TOKENS) }) {
+            return context.getString(R.string.settings_search_description_change_wallpaper)
+        }
+        if (queryTokens.any { tokenMatchesAny(it, APPEARANCE_FONT_TOKENS) }) {
+            return context.getString(R.string.settings_search_description_change_font_size)
+        }
+        if (queryTokens.any { tokenMatchesAny(it, APPEARANCE_LAYOUT_TOKENS) }) {
+            return context.getString(R.string.settings_search_description_change_layout)
+        }
+        return null
+    }
+
+    private fun findBestMatchingKeyword(
+        keywords: List<String>,
+        queryTokens: List<String>,
+    ): String? {
+        if (keywords.isEmpty() || queryTokens.isEmpty()) return null
+
+        return keywords
+            .asSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { keyword ->
+                val normalizedKeywordTokens =
+                    WHITESPACE_REGEX.split(keyword.lowercase()).filter { it.isNotBlank() }
+                val score =
+                    queryTokens.count { queryToken ->
+                        normalizedKeywordTokens.any { keywordToken ->
+                            tokenMatches(queryToken, keywordToken)
+                        }
+                    }
+                keyword to score
+            }.filter { it.second > 0 }
+            .maxByOrNull { it.second }
+            ?.first
+    }
+
+    private fun tokenMatchesAny(
+        queryToken: String,
+        candidates: Set<String>,
+    ): Boolean = candidates.any { candidate -> tokenMatches(queryToken, candidate) }
+
+    private fun tokenMatches(
+        queryToken: String,
+        candidateToken: String,
+    ): Boolean {
+        val query = queryToken.trim().lowercase()
+        val candidate = candidateToken.trim().lowercase()
+        if (query.isEmpty() || candidate.isEmpty()) return false
+        return query == candidate || query.startsWith(candidate) || candidate.startsWith(query)
+    }
+
+    private companion object {
+        val APPEARANCE_THEME_TOKENS = setOf("theme", "themes", "dark", "light", "system")
+        val APPEARANCE_ICON_PACK_TOKENS = setOf("icon", "icons", "pack", "packs")
+        val APPEARANCE_WALLPAPER_TOKENS =
+            setOf("wallpaper", "background", "blur", "transparency")
+        val APPEARANCE_FONT_TOKENS = setOf("font", "fonts", "size")
+        val APPEARANCE_LAYOUT_TOKENS =
+            setOf("layout", "one-handed", "one", "bottom", "searchbar")
     }
 }

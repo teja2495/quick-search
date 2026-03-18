@@ -341,6 +341,16 @@ class UiPreferences(
                 .apply()
     }
 
+    fun hasSeenSettingsSearchTip(): Boolean =
+            firstLaunchPrefs.getBoolean(UiPreferences.KEY_HAS_SEEN_SETTINGS_SEARCH_TIP, false)
+
+    fun setHasSeenSettingsSearchTip(seen: Boolean) {
+        firstLaunchPrefs
+                .edit()
+                .putBoolean(UiPreferences.KEY_HAS_SEEN_SETTINGS_SEARCH_TIP, seen)
+                .apply()
+    }
+
     fun getLastSeenVersionName(): String? =
             sessionPrefs.getString(UiPreferences.KEY_LAST_SEEN_VERSION, null)
 
@@ -608,6 +618,7 @@ class UiPreferences(
         const val KEY_HAS_SEEN_PERSONAL_CONTEXT_HINT = "has_seen_personal_context_hint"
         const val KEY_SEARCH_HISTORY_TIP_DISMISSED = "search_history_tip_dismissed"
         const val KEY_HAS_SEEN_OVERLAY_ASSISTANT_TIP = "has_seen_overlay_assistant_tip"
+        const val KEY_HAS_SEEN_SETTINGS_SEARCH_TIP = "has_seen_settings_search_tip"
         // Section preferences keys
         const val KEY_SECTION_ORDER = "section_order"
         const val KEY_DISABLED_SECTIONS = "disabled_sections"
