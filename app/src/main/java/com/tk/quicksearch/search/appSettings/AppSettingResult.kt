@@ -62,6 +62,7 @@ enum class AppSettingsToggleKey {
     SEARCH_FILES,
     SEARCH_DEVICE_SETTINGS,
     SEARCH_CALENDAR,
+    SEARCH_APP_SETTINGS,
 }
 
 data class AppSettingResult(

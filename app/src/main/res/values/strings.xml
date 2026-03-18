@@ -876,6 +876,8 @@
     <string name="search_section_device_settings_toggle_desc">Turn device settings search on or off</string>
     <string name="search_section_calendar_toggle_title">Calendar Search</string>
     <string name="search_section_calendar_toggle_desc">Turn calendar search on or off</string>
+    <string name="search_section_app_settings_toggle_title">App Settings Search</string>
+    <string name="search_section_app_settings_toggle_desc">Turn app settings search on or off</string>
     <string name="app_suggestions_usage_access_tip">Grant usage access permission to see more appropriate suggestions</string>
     <string name="app_suggestions_usage_access_link">usage access permission</string>
 

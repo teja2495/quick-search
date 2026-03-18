@@ -311,6 +311,7 @@ fun SearchRoute(
             AppSettingsToggleKey.SEARCH_FILES -> !uiState.disabledSections.contains(SearchSection.FILES)
             AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> !uiState.disabledSections.contains(SearchSection.SETTINGS)
             AppSettingsToggleKey.SEARCH_CALENDAR -> !uiState.disabledSections.contains(SearchSection.CALENDAR)
+            AppSettingsToggleKey.SEARCH_APP_SETTINGS -> !uiState.disabledSections.contains(SearchSection.APP_SETTINGS)
             null -> false
         }
     }
@@ -379,6 +380,7 @@ fun SearchRoute(
             AppSettingsToggleKey.SEARCH_FILES -> viewModel.setSectionEnabled(SearchSection.FILES, enabled)
             AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> viewModel.setSectionEnabled(SearchSection.SETTINGS, enabled)
             AppSettingsToggleKey.SEARCH_CALENDAR -> viewModel.setSectionEnabled(SearchSection.CALENDAR, enabled)
+            AppSettingsToggleKey.SEARCH_APP_SETTINGS -> viewModel.setSectionEnabled(SearchSection.APP_SETTINGS, enabled)
             null -> Unit
         }
     }

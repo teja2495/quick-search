@@ -34,7 +34,6 @@ class AppSettingsSearchHandler(
     fun searchSettings(
         queryContext: SearchQueryContext,
         recentSettingScores: Map<String, Int> = getRecentSettingScores(),
-        enableFuzzyMatching: Boolean = false,
     ): List<AppSettingResult> {
         ensureLoaded()
         return AppSettingsSearchAlgorithm
@@ -43,7 +42,6 @@ class AppSettingsSearchHandler(
                 queryContext = queryContext,
                 recentSettingScores = recentSettingScores,
                 resultLimit = RESULT_LIMIT,
-                enableFuzzyMatching = enableFuzzyMatching,
             )
     }
 

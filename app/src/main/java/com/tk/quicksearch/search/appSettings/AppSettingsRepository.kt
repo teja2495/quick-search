@@ -21,15 +21,15 @@ class AppSettingsRepository(
                         "theme",
                         "wallpaper",
                         "style",
+                        "search engines style",
                         "font",
                         "font size",
                         "text size",
-                        "background",
                         "background theme",
-                        "icon",
                         "icons",
-                        "icon pack",
                         "icon packs",
+                        "inline",
+                        "compact"
                     ),
             )
             addNavigation(
@@ -114,7 +114,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_calls_texts_title,
                 descriptionRes = R.string.settings_manage_calls_texts_contacts_desc,
                 destination = AppSettingsDestination.CALLS_TEXTS,
-                keywords = listOf("calling", "messaging", "whatsapp", "telegram", "signal"),
+                keywords = listOf("contacts", "calling", "messaging", "whatsapp", "telegram", "signal"),
             )
             addNavigation(
                 id = "app_settings_default_calling_app",
@@ -137,9 +137,7 @@ class AppSettingsRepository(
                     listOf(
                         "files",
                         "folders",
-                        "extensions",
-                        "folder path filters",
-                        "path filters",
+                        "filters",
                         "whitelist",
                         "blacklist",
                     ),
@@ -148,7 +146,7 @@ class AppSettingsRepository(
                 id = "app_settings_reload_apps",
                 titleRes = R.string.settings_refresh_apps_title,
                 destination = AppSettingsDestination.RELOAD_APPS,
-                keywords = listOf("reload apps", "refresh apps", "reindex apps"),
+                keywords = listOf("reload apps", "refresh apps"),
             )
             addNavigation(
                 id = "app_settings_reload_contacts",
@@ -160,7 +158,7 @@ class AppSettingsRepository(
                 id = "app_settings_reload_files",
                 titleRes = R.string.settings_refresh_files_title,
                 destination = AppSettingsDestination.RELOAD_FILES,
-                keywords = listOf("reload files", "refresh files", "rescan files"),
+                keywords = listOf("reload files", "refresh files"),
             )
             addNavigation(
                 id = "app_settings_device_settings",
@@ -174,14 +172,14 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_excluded_items_title,
                 descriptionRes = R.string.settings_excluded_items_desc,
                 destination = AppSettingsDestination.EXCLUDED_ITEMS,
-                keywords = listOf("excluded", "hidden", "blocked"),
+                keywords = listOf("excluded"),
             )
             addNavigation(
                 id = "app_settings_calendar_events",
                 titleRes = R.string.settings_calendar_events_title,
                 descriptionRes = R.string.settings_calendar_view_all_events_desc,
                 destination = AppSettingsDestination.CALENDAR_EVENTS,
-                keywords = listOf("calendar", "events", "schedule"),
+                keywords = listOf("calendar", "events"),
             )
             addNavigation(
                 id = "app_settings_send_feedback",
@@ -195,27 +193,21 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_feedback_rate_title,
                 descriptionRes = R.string.settings_feedback_rate_desc,
                 destination = AppSettingsDestination.RATE_QUICK_SEARCH,
-                keywords = listOf("rate", "review", "play store"),
+                keywords = listOf("rate", "review"),
             )
             addNavigation(
                 id = "app_settings_development",
                 titleRes = R.string.settings_feedback_github_title,
                 descriptionRes = R.string.settings_feedback_github_desc,
                 destination = AppSettingsDestination.DEVELOPMENT,
-                keywords = listOf("github", "source code", "development"),
+                keywords = listOf("github", "code", "development"),
             )
             addNavigation(
                 id = "app_settings_features_list",
                 titleRes = R.string.settings_all_quick_search_features,
                 descriptionRes = R.string.settings_all_quick_search_features_desc,
                 destination = AppSettingsDestination.FEATURES_LIST,
-                keywords = listOf("features", "capabilities"),
-            )
-            addNavigation(
-                id = "app_settings_open_source_licenses",
-                titleRes = R.string.settings_open_source_licenses_title,
-                destination = AppSettingsDestination.OPEN_SOURCE_LICENSES,
-                keywords = listOf("oss", "licenses", "open source"),
+                keywords = listOf("features"),
             )
 
             addToggle(
@@ -223,14 +215,14 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_overlay_mode_title,
                 descriptionRes = R.string.settings_overlay_mode_desc,
                 toggleKey = AppSettingsToggleKey.OVERLAY_MODE,
-                keywords = listOf("overlay", "floating"),
+                keywords = listOf("overlay"),
             )
             addToggle(
                 id = "app_toggle_one_handed_mode",
                 titleRes = R.string.settings_layout_option_bottom_title,
                 descriptionRes = R.string.settings_layout_option_bottom_desc,
                 toggleKey = AppSettingsToggleKey.ONE_HANDED_MODE,
-                keywords = listOf("one handed", "onehanded", "bottom"),
+                keywords = listOf("one handed", "onehanded"),
             )
             addToggle(
                 id = "app_toggle_bottom_searchbar",
@@ -258,21 +250,21 @@ class AppSettingsRepository(
                 titleRes = R.string.calculator_toggle_title,
                 descriptionRes = R.string.calculator_toggle_desc,
                 toggleKey = AppSettingsToggleKey.CALCULATOR,
-                keywords = listOf("calculator", "math"),
+                keywords = listOf("calculator"),
             )
             addToggle(
                 id = "app_toggle_unit_converter",
                 titleRes = R.string.unit_converter_toggle_title,
                 descriptionRes = R.string.unit_converter_toggle_desc,
                 toggleKey = AppSettingsToggleKey.UNIT_CONVERTER,
-                keywords = listOf("unit", "converter", "conversion", "lbs", "kg"),
+                keywords = listOf("unit", "converter", "conversion"),
             )
             addToggle(
                 id = "app_toggle_app_suggestions",
                 titleRes = R.string.app_suggestions_toggle_title,
                 descriptionRes = R.string.app_suggestions_toggle_desc,
                 toggleKey = AppSettingsToggleKey.APP_SUGGESTIONS,
-                keywords = listOf("suggestions", "recommended apps"),
+                keywords = listOf("suggestions"),
             )
             addToggle(
                 id = "app_toggle_web_suggestions",
@@ -299,28 +291,28 @@ class AppSettingsRepository(
                 titleRes = R.string.open_keyboard_toggle_title,
                 descriptionRes = R.string.open_keyboard_toggle_desc,
                 toggleKey = AppSettingsToggleKey.OPEN_KEYBOARD,
-                keywords = listOf("keyboard", "launch"),
+                keywords = listOf("keyboard"),
             )
             addToggle(
                 id = "app_toggle_clear_query",
                 titleRes = R.string.clear_query_toggle_title,
                 descriptionRes = R.string.clear_query_toggle_desc,
                 toggleKey = AppSettingsToggleKey.CLEAR_QUERY,
-                keywords = listOf("clear", "query", "launch"),
+                keywords = listOf("clear", "query"),
             )
             addToggle(
                 id = "app_toggle_auto_close_overlay",
                 titleRes = R.string.auto_close_overlay_toggle_title,
                 descriptionRes = R.string.auto_close_overlay_toggle_desc,
                 toggleKey = AppSettingsToggleKey.AUTO_CLOSE_OVERLAY,
-                keywords = listOf("auto close", "close app", "close after open"),
+                keywords = listOf("auto close", "close app"),
             )
             addToggle(
                 id = "app_toggle_circular_app_icons",
                 titleRes = R.string.settings_circular_app_icons_title,
                 descriptionRes = R.string.settings_circular_app_icons_desc,
                 toggleKey = AppSettingsToggleKey.CIRCULAR_APP_ICONS,
-                keywords = listOf("circular icons", "circle icons", "icon shape"),
+                keywords = listOf("circular icons", "icon shape"),
             )
             addToggle(
                 id = "app_toggle_direct_dial",
@@ -334,42 +326,49 @@ class AppSettingsRepository(
                 titleRes = R.string.search_section_apps_toggle_title,
                 descriptionRes = R.string.search_section_apps_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_APPS,
-                keywords = listOf("apps", "app search", "disable apps", "enable apps"),
+                keywords = listOf("apps", "search"),
             )
             addToggle(
                 id = "app_toggle_search_app_shortcuts",
                 titleRes = R.string.search_section_app_shortcuts_toggle_title,
                 descriptionRes = R.string.search_section_app_shortcuts_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
-                keywords = listOf("shortcuts", "app shortcuts", "disable shortcuts", "enable shortcuts"),
+                keywords = listOf("shortcuts", "app shortcuts", "search"),
             )
             addToggle(
                 id = "app_toggle_search_contacts",
                 titleRes = R.string.search_section_contacts_toggle_title,
                 descriptionRes = R.string.search_section_contacts_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_CONTACTS,
-                keywords = listOf("contacts", "contact search", "disable contacts", "enable contacts"),
+                keywords = listOf("contacts", "contact search", "search"),
             )
             addToggle(
                 id = "app_toggle_search_files",
                 titleRes = R.string.search_section_files_toggle_title,
                 descriptionRes = R.string.search_section_files_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_FILES,
-                keywords = listOf("files", "file search", "disable files", "enable files"),
+                keywords = listOf("files", "file search", "search"),
             )
             addToggle(
                 id = "app_toggle_search_device_settings",
                 titleRes = R.string.search_section_device_settings_toggle_title,
                 descriptionRes = R.string.search_section_device_settings_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
-                keywords = listOf("device settings", "settings search", "disable settings", "enable settings"),
+                keywords = listOf("device settings", "settings search", "search"),
             )
             addToggle(
                 id = "app_toggle_search_calendar",
                 titleRes = R.string.search_section_calendar_toggle_title,
                 descriptionRes = R.string.search_section_calendar_toggle_desc,
                 toggleKey = AppSettingsToggleKey.SEARCH_CALENDAR,
-                keywords = listOf("calendar", "calendar search", "disable calendar", "enable calendar"),
+                keywords = listOf("calendar", "calendar search", "search"),
+            )
+            addToggle(
+                id = "app_toggle_search_app_settings",
+                titleRes = R.string.search_section_app_settings_toggle_title,
+                descriptionRes = R.string.search_section_app_settings_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_APP_SETTINGS,
+                keywords = listOf("settings", "search"),
             )
         }
     }
