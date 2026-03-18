@@ -68,6 +68,7 @@ fun SectionSettingsSection(
     appSettingsSubtitle: String? = null,
     onAppSettingsClick: (() -> Unit)? = null,
     onAppSettingsClickNoRipple: Boolean = false,
+    sectionsWithHiddenAlias: Set<SearchSection> = emptySet(),
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
 ) {
@@ -91,7 +92,7 @@ fun SectionSettingsSection(
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 val isCalendarRow = section == SearchSection.CALENDAR
                 val isAppSettingsRow = section == SearchSection.APP_SETTINGS
-                val showAliasForSection = true
+                val showAliasForSection = section !in sectionsWithHiddenAlias
                 val aliasTargetId = section.getAliasTargetId()
                 SectionRowWithoutDrag(
                     section = section,

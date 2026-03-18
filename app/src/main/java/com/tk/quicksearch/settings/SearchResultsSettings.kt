@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.ItemPriorityConfig
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -310,12 +311,22 @@ fun SearchResultsSettingsSection(
             appShortcutsSubtitle = stringResource(R.string.settings_manage_shortcuts_desc),
             onAppShortcutsClick = onNavigateToAppShortcuts,
             onAppShortcutsClickNoRipple = true,
-            contactsSubtitle = stringResource(R.string.settings_manage_calls_texts_contacts_desc),
-            onContactsClick = onNavigateToCallsTexts,
-            onContactsClickNoRipple = true,
-            filesSubtitle = stringResource(R.string.settings_manage_files_desc),
-            onFilesClick = onNavigateToFiles,
-            onFilesClickNoRipple = true,
+            contactsSubtitle =
+                if (hasContactPermission) {
+                    stringResource(R.string.settings_manage_calls_texts_contacts_desc)
+                } else {
+                    stringResource(R.string.settings_overlay_source_permission_required)
+                },
+            onContactsClick = if (hasContactPermission) onNavigateToCallsTexts else null,
+            onContactsClickNoRipple = hasContactPermission,
+            filesSubtitle =
+                if (hasFilePermission) {
+                    stringResource(R.string.settings_manage_files_desc)
+                } else {
+                    stringResource(R.string.settings_overlay_source_permission_required)
+                },
+            onFilesClick = if (hasFilePermission) onNavigateToFiles else null,
+            onFilesClickNoRipple = hasFilePermission,
             deviceSettingsSubtitle = stringResource(R.string.settings_view_all_desc),
             onDeviceSettingsClick = onNavigateToDeviceSettings,
             onDeviceSettingsClickNoRipple = true,
@@ -324,15 +335,20 @@ fun SearchResultsSettingsSection(
                 if (hasCalendarPermission) {
                     stringResource(R.string.settings_calendar_view_all_events_desc)
                 } else {
-                    null
+                    stringResource(R.string.settings_overlay_source_permission_required)
                 },
-onCalendarClick =
+            onCalendarClick =
                 if (hasCalendarPermission) {
                     onNavigateToCalendarEvents
                 } else {
                     null
                 },
             onCalendarClickNoRipple = hasCalendarPermission,
+            sectionsWithHiddenAlias = buildSet {
+                if (!hasContactPermission) add(SearchSection.CONTACTS)
+                if (!hasFilePermission) add(SearchSection.FILES)
+                if (!hasCalendarPermission) add(SearchSection.CALENDAR)
+            },
             showTitle = false,
         )
 
