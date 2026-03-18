@@ -126,7 +126,9 @@ class SecondarySearchOrchestrator(
                 currentState.hasCalendarPermission &&
                 SearchSection.CALENDAR !in sectionManager.disabledSections
         val canSearchAppSettings =
-            !isSingleCharacterQuery && FeatureFlags.isAppSettingsSearchEnabled()
+            !isSingleCharacterQuery &&
+                FeatureFlags.isAppSettingsSearchEnabled() &&
+                SearchSection.APP_SETTINGS !in sectionManager.disabledSections
         val canSearchAppShortcuts = SearchSection.APP_SHORTCUTS !in sectionManager.disabledSections
 
         // Skip searches if current query extends a previous no-results query
@@ -336,7 +338,9 @@ class SecondarySearchOrchestrator(
                 currentState.hasCalendarPermission &&
                 isSectionEnabled(SearchSection.CALENDAR)
         val isAppSettingsEnabled =
-            !isSingleCharacterQuery && FeatureFlags.isAppSettingsSearchEnabled()
+            !isSingleCharacterQuery &&
+                FeatureFlags.isAppSettingsSearchEnabled() &&
+                isSectionEnabled(SearchSection.APP_SETTINGS)
         val isAppShortcutsEnabled =
             isSectionEnabled(SearchSection.APP_SHORTCUTS)
 

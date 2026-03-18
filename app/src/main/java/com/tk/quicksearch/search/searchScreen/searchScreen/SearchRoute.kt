@@ -46,6 +46,7 @@ import com.tk.quicksearch.search.models.ContactInfo
 import com.tk.quicksearch.search.models.DeviceFile
 import com.tk.quicksearch.search.searchHistory.RecentSearchEntry
 import com.tk.quicksearch.search.utils.FileUtils
+import com.tk.quicksearch.overlay.OverlayModeController
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
@@ -309,7 +310,22 @@ fun SearchRoute(
 
     val onAppSettingToggle: (AppSettingResult, Boolean) -> Unit = { setting, enabled ->
         when (setting.toggleKey) {
-            AppSettingsToggleKey.OVERLAY_MODE -> viewModel.setOverlayModeEnabled(enabled)
+            AppSettingsToggleKey.OVERLAY_MODE -> {
+                viewModel.setOverlayModeEnabled(enabled)
+                if (enabled) {
+                    OverlayModeController.startOverlay(
+                        context = context,
+                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
+                    )
+                    (context as? android.app.Activity)?.finish()
+                } else if (isOverlayPresentation) {
+                    OverlayModeController.openMainActivity(
+                        context = context,
+                        initialQuery = uiState.query.takeIf { it.isNotBlank() },
+                    )
+                    (context as? android.app.Activity)?.finish()
+                }
+            }
             AppSettingsToggleKey.ONE_HANDED_MODE -> viewModel.setOneHandedMode(enabled)
             AppSettingsToggleKey.BOTTOM_SEARCHBAR -> viewModel.setBottomSearchBarEnabled(enabled)
             AppSettingsToggleKey.APP_LABELS -> viewModel.setShowAppLabels(enabled)

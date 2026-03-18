@@ -460,6 +460,8 @@ private fun NavigationContent(
                                 navigateToSettings(SettingsDetailType.EXCLUDED_ITEMS)
                             AppSettingsDestination.DIRECT_SEARCH_CONFIGURE ->
                                 navigateToSettings(SettingsDetailType.DIRECT_SEARCH_CONFIGURE)
+                            AppSettingsDestination.CALENDAR_EVENTS ->
+                                navigateToSettings(SettingsDetailType.CALENDAR_EVENTS)
                             AppSettingsDestination.RELOAD_APPS ->
                                 viewModel.refreshApps(showToast = true)
                             AppSettingsDestination.RELOAD_CONTACTS ->

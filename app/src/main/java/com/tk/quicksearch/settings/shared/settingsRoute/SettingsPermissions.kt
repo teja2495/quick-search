@@ -196,6 +196,10 @@ fun rememberSectionToggleHandler(
                         SearchSection.SETTINGS -> {
                             viewModel.setSectionEnabled(section, true)
                         }
+
+                        SearchSection.APP_SETTINGS -> {
+                            viewModel.setSectionEnabled(section, true)
+                        }
                     }
                 }
             } else {

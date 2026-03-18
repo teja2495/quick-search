@@ -483,9 +483,9 @@
          Settings - More Options
          ============================================================================ -->
     <string name="settings_refresh_data_title">Refresh Data</string>
-    <string name="settings_refresh_apps_title">Reload\nApps</string>
-    <string name="settings_refresh_contacts_title">Reload\nContacts</string>
-    <string name="settings_refresh_files_title">Reload\nFiles</string>
+    <string name="settings_refresh_apps_title">Reload Apps</string>
+    <string name="settings_refresh_contacts_title">Reload Contacts</string>
+    <string name="settings_refresh_files_title">Reload Files</string>
     <string name="settings_refresh_apps_disabled">App search is disabled, cannot refresh apps data</string>
     <string name="settings_refresh_contacts_disabled">Contacts search is disabled, cannot refresh contacts data</string>
     <string name="settings_refresh_files_disabled">Files search is disabled, cannot refresh files data</string>
@@ -516,6 +516,7 @@
     <string name="section_apps">Apps</string>
     <string name="section_app_shortcuts">App Shortcuts</string>
     <string name="section_calendar">Calendar</string>
+    <string name="section_app_settings">Quick Search Settings</string>
     <string name="settings_manage_apps_title">Manage Apps</string>
     <string name="settings_manage_apps_desc">Manage your apps</string>
     <string name="settings_manage_shortcuts_desc">Manage your app shortcuts</string>

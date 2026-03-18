@@ -226,8 +226,7 @@ class UnifiedSearchHandler(
                                                                 queryContext = queryContext,
                                                                 recentSettingScores =
                                                                         recencyIndex.settingScores,
-                                                                enableFuzzyMatching =
-                                                                        enableFuzzySettingsSearch,
+                                                                enableFuzzyMatching = true,
                                                         )
                                                 } else {
                                                         emptyList()

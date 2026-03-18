@@ -46,6 +46,7 @@ class PermissionManager(
             SearchSection.APPS -> true
             SearchSection.APP_SHORTCUTS -> true
             SearchSection.SETTINGS -> true
+            SearchSection.APP_SETTINGS -> true
         }
 
     fun enableSection(

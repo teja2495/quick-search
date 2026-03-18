@@ -21,7 +21,6 @@ object AppSettingsSearchPolicy {
             matcher.matchAny(
                 query,
                 setting.title,
-                setting.description.orEmpty(),
                 setting.keywords.joinToString(" "),
             )
 

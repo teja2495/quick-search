@@ -31,7 +31,7 @@ object FeatureFlags {
         mapOf(
             FeatureFlag.APP_SETTINGS_SEARCH to
                 FeatureFlagDefinition(
-                    enabledByDefault = false,
+                    enabledByDefault = true,
                 ),
             FeatureFlag.APP_THEME_SELECTION to
                 FeatureFlagDefinition(

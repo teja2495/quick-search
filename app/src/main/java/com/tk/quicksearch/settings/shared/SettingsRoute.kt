@@ -212,6 +212,10 @@ fun SettingsRoute(
 
     val onToggleOverlayMode: (Boolean) -> Unit = { enabled ->
         viewModel.setOverlayModeEnabled(enabled)
+        if (enabled) {
+            com.tk.quicksearch.overlay.OverlayModeController.startOverlay(context)
+            (context as? android.app.Activity)?.finish()
+        }
     }
     val appShortcutSourceFlow =
         rememberAppShortcutSourceFlow(

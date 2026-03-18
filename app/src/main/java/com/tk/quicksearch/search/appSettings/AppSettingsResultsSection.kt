@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -272,8 +273,11 @@ private fun AppSettingResultRow(
                 modifier = Modifier.scale(TOGGLE_SCALE),
             )
         } else {
+            val isReloadDestination = setting.destination == AppSettingsDestination.RELOAD_APPS ||
+                setting.destination == AppSettingsDestination.RELOAD_CONTACTS ||
+                setting.destination == AppSettingsDestination.RELOAD_FILES
             Icon(
-                imageVector = Icons.Rounded.ChevronRight,
+                imageVector = if (isReloadDestination) Icons.Rounded.Refresh else Icons.Rounded.ChevronRight,
                 contentDescription = stringResource(R.string.desc_navigate_forward),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )

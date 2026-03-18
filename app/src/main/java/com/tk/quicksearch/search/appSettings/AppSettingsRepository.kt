@@ -22,6 +22,10 @@ class AppSettingsRepository(
                         "wallpaper",
                         "style",
                         "font",
+                        "font size",
+                        "text size",
+                        "background",
+                        "background theme",
                         "icon",
                         "icons",
                         "icon pack",
@@ -40,7 +44,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_search_engines_title,
                 descriptionRes = R.string.settings_search_engines_desc,
                 destination = AppSettingsDestination.SEARCH_ENGINES,
-                keywords = listOf("engines", "gemini", "google", "alias"),
+                keywords = listOf("engines", "gemini", "google", "alias", "api", "gemini api key", "direct search"),
             )
             addNavigation(
                 id = "app_settings_tools",
@@ -72,7 +76,7 @@ class AppSettingsRepository(
             )
             addNavigation(
                 id = "app_settings_app_management",
-                titleRes = R.string.settings_manage_apps_title,
+                titleRes = R.string.section_apps,
                 descriptionRes = R.string.settings_manage_apps_desc,
                 destination = AppSettingsDestination.APP_MANAGEMENT,
                 keywords = listOf("apps", "uninstall", "info"),
@@ -152,11 +156,11 @@ class AppSettingsRepository(
                 keywords = listOf("excluded", "hidden", "blocked"),
             )
             addNavigation(
-                id = "app_settings_direct_search_configure",
-                titleRes = R.string.settings_direct_search_configure_title,
-                descriptionRes = R.string.settings_direct_search_desc,
-                destination = AppSettingsDestination.DIRECT_SEARCH_CONFIGURE,
-                keywords = listOf("gemini", "api", "direct search"),
+                id = "app_settings_calendar_events",
+                titleRes = R.string.settings_calendar_events_title,
+                descriptionRes = R.string.settings_calendar_view_all_events_desc,
+                destination = AppSettingsDestination.CALENDAR_EVENTS,
+                keywords = listOf("calendar", "events", "schedule"),
             )
             addNavigation(
                 id = "app_settings_send_feedback",
@@ -205,7 +209,7 @@ class AppSettingsRepository(
                 titleRes = R.string.settings_layout_option_bottom_title,
                 descriptionRes = R.string.settings_layout_option_bottom_desc,
                 toggleKey = AppSettingsToggleKey.ONE_HANDED_MODE,
-                keywords = listOf("one handed", "bottom"),
+                keywords = listOf("one handed", "onehanded", "bottom"),
             )
             addToggle(
                 id = "app_toggle_bottom_searchbar",
@@ -425,11 +429,11 @@ class AppSettingsRepository(
     }
 
     private companion object {
-        val APPEARANCE_THEME_TOKENS = setOf("theme", "themes", "dark", "light", "system")
+        val APPEARANCE_THEME_TOKENS = setOf("theme", "themes", "dark", "light", "system", "background")
         val APPEARANCE_ICON_PACK_TOKENS = setOf("icon", "icons", "pack", "packs")
         val APPEARANCE_WALLPAPER_TOKENS =
-            setOf("wallpaper", "background", "blur", "transparency")
-        val APPEARANCE_FONT_TOKENS = setOf("font", "fonts", "size")
+            setOf("wallpaper", "blur", "transparency")
+        val APPEARANCE_FONT_TOKENS = setOf("font", "fonts", "size", "text")
         val APPEARANCE_LAYOUT_TOKENS =
             setOf("layout", "one-handed", "one", "bottom", "searchbar")
     }

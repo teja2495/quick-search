@@ -126,6 +126,7 @@ object ItemPriorityConfig {
             SearchSection.FILES,
             SearchSection.SETTINGS,
             SearchSection.CALENDAR,
+            SearchSection.APP_SETTINGS,
         )
 
     /**
@@ -141,6 +142,7 @@ object ItemPriorityConfig {
             SearchSection.FILES,
             SearchSection.SETTINGS,
             SearchSection.CALENDAR,
+            SearchSection.APP_SETTINGS,
         )
 
     /**

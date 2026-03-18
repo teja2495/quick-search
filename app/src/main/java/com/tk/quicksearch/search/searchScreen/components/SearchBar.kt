@@ -667,6 +667,7 @@ private fun SearchBarLeadingIcon(
                         SearchSection.FILES -> Icons.AutoMirrored.Rounded.InsertDriveFile
                         SearchSection.SETTINGS -> Icons.Rounded.Settings
                         SearchSection.CALENDAR -> Icons.Rounded.CalendarMonth
+                        SearchSection.APP_SETTINGS -> Icons.Rounded.Settings
                     },
                 contentDescription = stringResource(R.string.desc_search_icon),
                 tint = iconTint,

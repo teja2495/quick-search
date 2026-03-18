@@ -50,12 +50,15 @@ object OverlayModeController {
         context: Context,
         openSettings: Boolean = false,
         settingsDetailType: SettingsDetailType? = null,
+        initialQuery: String? = null,
     ) {
         val intent =
             Intent(context, MainActivity::class.java).apply {
+                action = Intent.ACTION_MAIN
                 putExtra(EXTRA_FORCE_NORMAL_LAUNCH, true)
                 putExtra(EXTRA_OPEN_SETTINGS, openSettings)
                 settingsDetailType?.let { putExtra(EXTRA_OPEN_SETTINGS_DETAIL, it.name) }
+                initialQuery?.takeIf { it.isNotBlank() }?.let { putExtra("query", it) }
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
         context.startActivity(intent)

@@ -94,4 +94,11 @@ internal fun getSectionMetadata(section: SearchSection): SectionMetadata =
                 icon = Icons.Rounded.CalendarMonth,
             )
         }
+
+        SearchSection.APP_SETTINGS -> {
+            SectionMetadata(
+                name = stringResource(R.string.section_app_settings),
+                icon = Icons.Rounded.Settings,
+            )
+        }
     }

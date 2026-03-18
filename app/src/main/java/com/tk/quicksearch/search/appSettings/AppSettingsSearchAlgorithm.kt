@@ -51,17 +51,7 @@ object AppSettingsSearchAlgorithm {
                     val fuzzyScore =
                         FuzzyMatcher.score(
                             query = queryContext.normalizedQuery,
-                            primaryTarget = SearchTextNormalizer.normalizeForSearch(setting.title),
-                            secondaryTarget =
-                                SearchTextNormalizer.normalizeForSearch(
-                                    buildString {
-                                        append(setting.description.orEmpty())
-                                        if (setting.keywords.isNotEmpty()) {
-                                            append(' ')
-                                            append(setting.keywords.joinToString(" "))
-                                        }
-                                    },
-                                ),
+                            target = SearchTextNormalizer.normalizeForSearch(setting.title),
                         )
                     if (fuzzyScore < FUZZY_MIN_SCORE) {
                         null

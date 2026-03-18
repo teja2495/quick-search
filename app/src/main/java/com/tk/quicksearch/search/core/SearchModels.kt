@@ -81,6 +81,7 @@ enum class SearchSection {
         FILES,
         SETTINGS,
         CALENDAR,
+        APP_SETTINGS,
 }
 
 enum class MessagingApp {

@@ -65,6 +65,9 @@ fun SectionSettingsSection(
     calendarTagLabel: String? = null,
     onCalendarClick: (() -> Unit)? = null,
     onCalendarClickNoRipple: Boolean = false,
+    appSettingsSubtitle: String? = null,
+    onAppSettingsClick: (() -> Unit)? = null,
+    onAppSettingsClickNoRipple: Boolean = false,
     modifier: Modifier = Modifier,
     showTitle: Boolean = true,
 ) {
@@ -87,6 +90,7 @@ fun SectionSettingsSection(
                 val isFilesRow = section == SearchSection.FILES
                 val isDeviceSettingsRow = section == SearchSection.SETTINGS
                 val isCalendarRow = section == SearchSection.CALENDAR
+                val isAppSettingsRow = section == SearchSection.APP_SETTINGS
                 val showAliasForSection = true
                 val aliasTargetId = section.getAliasTargetId()
                 SectionRowWithoutDrag(
@@ -110,6 +114,7 @@ fun SectionSettingsSection(
                             isFilesRow -> filesSubtitle
                             isDeviceSettingsRow -> deviceSettingsSubtitle
                             isCalendarRow -> calendarSubtitle
+                            isAppSettingsRow -> appSettingsSubtitle
                             else -> null
                         },
                     onRowClick =
@@ -120,6 +125,7 @@ fun SectionSettingsSection(
                             isFilesRow -> onFilesClick
                             isDeviceSettingsRow -> onDeviceSettingsClick
                             isCalendarRow -> onCalendarClick
+                            isAppSettingsRow -> onAppSettingsClick
                             else -> null
                         },
                     noRippleOnRowClick =
@@ -130,6 +136,7 @@ fun SectionSettingsSection(
                             isFilesRow -> onFilesClickNoRipple
                             isDeviceSettingsRow -> onDeviceSettingsClickNoRipple
                             isCalendarRow -> onCalendarClickNoRipple
+                            isAppSettingsRow -> onAppSettingsClickNoRipple
                             else -> false
                         },
                     tagLabel = if (isCalendarRow) calendarTagLabel else null,
@@ -278,4 +285,5 @@ private fun SearchSection.getAliasTargetId(): String =
         SearchSection.FILES -> AliasHandler.SEARCH_SECTION_FILES_ALIAS_ID
         SearchSection.SETTINGS -> AliasHandler.SEARCH_SECTION_SETTINGS_ALIAS_ID
         SearchSection.CALENDAR -> AliasHandler.SEARCH_SECTION_CALENDAR_ALIAS_ID
+        SearchSection.APP_SETTINGS -> AliasHandler.SEARCH_SECTION_APP_SETTINGS_ALIAS_ID
     }

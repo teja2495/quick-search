@@ -42,6 +42,7 @@ fun renderSection(
         SearchSection.APP_SHORTCUTS -> renderAppShortcutsSection(params, sectionContext)
         SearchSection.SETTINGS -> renderSettingsSection(params, sectionContext)
         SearchSection.CALENDAR -> renderCalendarSection(params, sectionContext)
+        SearchSection.APP_SETTINGS -> Unit // Rendered separately via AppSettingsResultsSection
     }
 }
 
