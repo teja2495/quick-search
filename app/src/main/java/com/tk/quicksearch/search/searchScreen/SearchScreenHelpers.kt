@@ -152,6 +152,7 @@ data class SettingsSectionParams(
     val showAllResults: Boolean,
     val showExpandControls: Boolean,
     val onExpandClick: () -> Unit,
+    val onAppSettingExpandClick: () -> Unit,
     val expandedCardMaxHeight: Dp =
         SearchScreenConstants.EXPANDED_CARD_MAX_HEIGHT,
     val showWallpaperBackground: Boolean,
@@ -558,6 +559,15 @@ internal fun buildSectionParams(
                         ExpandedSection.NONE
                     } else {
                         ExpandedSection.SETTINGS
+                    },
+                )
+            },
+            onAppSettingExpandClick = {
+                onUpdateExpandedSection(
+                    if (expandedSection == ExpandedSection.APP_SETTINGS) {
+                        ExpandedSection.NONE
+                    } else {
+                        ExpandedSection.APP_SETTINGS
                     },
                 )
             },

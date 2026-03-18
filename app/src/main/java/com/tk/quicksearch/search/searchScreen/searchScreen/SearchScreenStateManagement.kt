@@ -44,9 +44,9 @@ private fun SearchSection.toExpandedSectionOrNone(): ExpandedSection =
         SearchSection.CONTACTS -> ExpandedSection.CONTACTS
         SearchSection.FILES -> ExpandedSection.FILES
         SearchSection.SETTINGS -> ExpandedSection.SETTINGS
+        SearchSection.APP_SETTINGS -> ExpandedSection.APP_SETTINGS
         SearchSection.CALENDAR -> ExpandedSection.CALENDAR
         SearchSection.APPS -> ExpandedSection.NONE
-        SearchSection.APP_SETTINGS -> ExpandedSection.NONE
     }
 
 @Composable

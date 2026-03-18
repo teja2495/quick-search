@@ -257,10 +257,10 @@ private fun renderSettingsSection(
 ) {
     if (context.shouldRenderSettings && params.settingsParams != null) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (context.settingsList.isNotEmpty()) {
+            if (context.settingsList.isNotEmpty() && !context.isAppSettingsExpanded) {
                 DeviceSettingsResultsSection(
                     settings = context.settingsList,
-                    isExpanded = context.isSettingsExpanded,
+                    isExpanded = context.isDeviceSettingsExpanded,
                     pinnedSettingIds = params.settingsParams.pinnedSettingIds,
                     onSettingClick = params.settingsParams.onSettingClick,
                     onTogglePin = params.settingsParams.onTogglePin,
@@ -268,18 +268,18 @@ private fun renderSettingsSection(
                     onNicknameClick = params.settingsParams.onNicknameClick,
                     getSettingNickname = params.settingsParams.getSettingNickname,
                     showAllResults = context.showAllSettingsResults,
-                    showExpandControls = context.showSettingsExpandControls,
-                    onExpandClick = context.settingsExpandClick,
+                    showExpandControls = context.showDeviceSettingsExpandControls,
+                    onExpandClick = context.deviceSettingsExpandClick,
                     expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
                     showWallpaperBackground = params.settingsParams.showWallpaperBackground,
                     predictedTarget = params.settingsParams.predictedTarget,
                     fillExpandedHeight = context.isSectionAliasMode,
                 )
             }
-            if (context.appSettingsList.isNotEmpty()) {
+            if (context.appSettingsList.isNotEmpty() && !context.isDeviceSettingsExpanded) {
                 AppSettingsResultsSection(
                     appSettings = context.appSettingsList,
-                    isExpanded = context.isSettingsExpanded,
+                    isExpanded = context.isAppSettingsExpanded,
                     onAppSettingClick = params.settingsParams.onAppSettingClick,
                     onAppSettingToggle = params.settingsParams.onAppSettingToggle,
                     onWebSuggestionsCountChange =
@@ -287,8 +287,8 @@ private fun renderSettingsSection(
                     isAppSettingToggleChecked = params.settingsParams.isAppSettingToggleChecked,
                     webSuggestionsCount = params.settingsParams.appSettingWebSuggestionsCount,
                     showAllResults = context.showAllSettingsResults,
-                    showExpandControls = context.showSettingsExpandControls,
-                    onExpandClick = context.settingsExpandClick,
+                    showExpandControls = context.showAppSettingsExpandControls,
+                    onExpandClick = context.appSettingsExpandClick,
                     expandedCardMaxHeight = params.settingsParams.expandedCardMaxHeight,
                     showWallpaperBackground = params.settingsParams.showWallpaperBackground,
                     predictedTarget = params.settingsParams.predictedTarget,

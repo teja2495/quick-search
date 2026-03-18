@@ -280,6 +280,7 @@ private fun AppSettingResultRow(
                 imageVector = if (isReloadDestination) Icons.Rounded.Refresh else Icons.Rounded.ChevronRight,
                 contentDescription = stringResource(R.string.desc_navigate_forward),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 6.dp),
             )
         }
     }

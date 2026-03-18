@@ -56,6 +56,12 @@ enum class AppSettingsToggleKey {
     SHOW_SYSTEM_FILES,
     SHOW_HIDDEN_FILES,
     DIRECT_DIAL,
+    SEARCH_APPS,
+    SEARCH_APP_SHORTCUTS,
+    SEARCH_CONTACTS,
+    SEARCH_FILES,
+    SEARCH_DEVICE_SETTINGS,
+    SEARCH_CALENDAR,
 }
 
 data class AppSettingResult(

@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.search.core.SearchUiState
 import com.tk.quicksearch.search.core.SearchViewModel
 import com.tk.quicksearch.search.core.SearchEngine
@@ -304,6 +305,12 @@ fun SearchRoute(
             AppSettingsToggleKey.SHOW_SYSTEM_FILES -> uiState.showSystemFiles
             AppSettingsToggleKey.SHOW_HIDDEN_FILES -> uiState.showHiddenFiles
             AppSettingsToggleKey.DIRECT_DIAL -> uiState.directDialEnabled
+            AppSettingsToggleKey.SEARCH_APPS -> !uiState.disabledSections.contains(SearchSection.APPS)
+            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS -> !uiState.disabledSections.contains(SearchSection.APP_SHORTCUTS)
+            AppSettingsToggleKey.SEARCH_CONTACTS -> !uiState.disabledSections.contains(SearchSection.CONTACTS)
+            AppSettingsToggleKey.SEARCH_FILES -> !uiState.disabledSections.contains(SearchSection.FILES)
+            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> !uiState.disabledSections.contains(SearchSection.SETTINGS)
+            AppSettingsToggleKey.SEARCH_CALENDAR -> !uiState.disabledSections.contains(SearchSection.CALENDAR)
             null -> false
         }
     }
@@ -366,6 +373,12 @@ fun SearchRoute(
                     viewModel.setDirectDialEnabled(false)
                 }
             }
+            AppSettingsToggleKey.SEARCH_APPS -> viewModel.setSectionEnabled(SearchSection.APPS, enabled)
+            AppSettingsToggleKey.SEARCH_APP_SHORTCUTS -> viewModel.setSectionEnabled(SearchSection.APP_SHORTCUTS, enabled)
+            AppSettingsToggleKey.SEARCH_CONTACTS -> viewModel.setSectionEnabled(SearchSection.CONTACTS, enabled)
+            AppSettingsToggleKey.SEARCH_FILES -> viewModel.setSectionEnabled(SearchSection.FILES, enabled)
+            AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS -> viewModel.setSectionEnabled(SearchSection.SETTINGS, enabled)
+            AppSettingsToggleKey.SEARCH_CALENDAR -> viewModel.setSectionEnabled(SearchSection.CALENDAR, enabled)
             null -> Unit
         }
     }

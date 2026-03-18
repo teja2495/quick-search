@@ -47,7 +47,8 @@ fun shouldShowSettingsSection(renderingState: SectionRenderingState): Boolean =
         renderingState.shouldShowSettings &&
         (
             renderingState.expandedSection == ExpandedSection.NONE ||
-                renderingState.expandedSection == ExpandedSection.SETTINGS
+                renderingState.expandedSection == ExpandedSection.SETTINGS ||
+                renderingState.expandedSection == ExpandedSection.APP_SETTINGS
         )
 
 /** Determines if apps section should be shown. */
@@ -194,6 +195,7 @@ fun rememberSectionRenderContext(
     val isContactsExpanded = renderingState.expandedSection == ExpandedSection.CONTACTS
     val isFilesExpanded = renderingState.expandedSection == ExpandedSection.FILES
     val isSettingsExpanded = renderingState.expandedSection == ExpandedSection.SETTINGS
+    val isAppSettingsExpanded = renderingState.expandedSection == ExpandedSection.APP_SETTINGS
     val isCalendarExpanded = renderingState.expandedSection == ExpandedSection.CALENDAR
     val isAppShortcutsExpanded = renderingState.expandedSection == ExpandedSection.APP_SHORTCUTS
 
@@ -212,6 +214,7 @@ fun rememberSectionRenderContext(
                     !isFilesExpanded &&
                         !isContactsExpanded &&
                         !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded
                 }
@@ -225,6 +228,7 @@ fun rememberSectionRenderContext(
                 is FilesSectionVisibility.ShowingResults -> {
                     !isContactsExpanded &&
                         !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded
                 }
@@ -238,6 +242,7 @@ fun rememberSectionRenderContext(
                 is ContactsSectionVisibility.ShowingResults -> {
                     !isFilesExpanded &&
                         !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
                         !isAppShortcutsExpanded &&
                         !isCalendarExpanded
                 }
@@ -252,6 +257,7 @@ fun rememberSectionRenderContext(
                         !isFilesExpanded &&
                         !isContactsExpanded &&
                         !isSettingsExpanded &&
+                        !isAppSettingsExpanded &&
                         !isCalendarExpanded
                 }
 
@@ -278,7 +284,8 @@ fun rememberSectionRenderContext(
                     !isFilesExpanded &&
                         !isContactsExpanded &&
                         !isAppShortcutsExpanded &&
-                        !isSettingsExpanded
+                        !isSettingsExpanded &&
+                        !isAppSettingsExpanded
                 }
 
                 else -> false
@@ -349,7 +356,8 @@ fun rememberSectionRenderContext(
         shouldRenderCalendar = shouldRenderCalendar,
         isFilesExpanded = isFilesExpanded || !isSearching,
         isContactsExpanded = isContactsExpanded || !isSearching,
-        isSettingsExpanded = isSettingsExpanded || !isSearching,
+        isDeviceSettingsExpanded = isSettingsExpanded || !isSearching,
+        isAppSettingsExpanded = isAppSettingsExpanded || !isSearching,
         isCalendarExpanded = isCalendarExpanded || !isSearching,
         isAppShortcutsExpanded = isAppShortcutsExpanded || !isSearching,
         filesList =
@@ -386,7 +394,7 @@ fun rememberSectionRenderContext(
             if (isSearching) {
                 getAppSettingsListForRendering(
                     renderingState,
-                    isSettingsExpanded,
+                    isAppSettingsExpanded,
                     oneHandedMode,
                 )
             } else {
@@ -415,14 +423,14 @@ fun rememberSectionRenderContext(
         showAllAppShortcutsResults = !isSearching,
         showFilesExpandControls = isSearching,
         showContactsExpandControls = isSearching,
-        showSettingsExpandControls =
-            isSearching &&
-                (renderingState.hasSettingResults || renderingState.hasAppSettingResults),
+        showDeviceSettingsExpandControls = isSearching && renderingState.hasSettingResults,
+        showAppSettingsExpandControls = isSearching && renderingState.hasAppSettingResults,
         showCalendarExpandControls = isSearching,
         showAppShortcutsExpandControls = isSearching,
         filesExpandClick = filesParams.onExpandClick,
         contactsExpandClick = contactsParams.onExpandClick,
-        settingsExpandClick = settingsParams.onExpandClick,
+        deviceSettingsExpandClick = settingsParams.onExpandClick,
+        appSettingsExpandClick = settingsParams.onAppSettingExpandClick,
         calendarExpandClick = calendarParams.onExpandClick,
         appShortcutsExpandClick = appShortcutsParams.onExpandClick,
         isSectionAliasMode = state.detectedAliasSearchSection != null,
@@ -469,11 +477,14 @@ data class SectionRenderContext(
     val appShortcutsExpandClick: () -> Unit = {},
     val calendarExpandClick: () -> Unit = {},
     val shouldRenderSettings: Boolean = false,
-    val isSettingsExpanded: Boolean = false,
+    val isDeviceSettingsExpanded: Boolean = false,
+    val isAppSettingsExpanded: Boolean = false,
     val settingsList: List<DeviceSetting> = emptyList(),
     val appSettingsList: List<AppSettingResult> = emptyList(),
     val showAllSettingsResults: Boolean = false,
-    val showSettingsExpandControls: Boolean = false,
-    val settingsExpandClick: () -> Unit = {},
+    val showDeviceSettingsExpandControls: Boolean = false,
+    val showAppSettingsExpandControls: Boolean = false,
+    val deviceSettingsExpandClick: () -> Unit = {},
+    val appSettingsExpandClick: () -> Unit = {},
     val isSectionAliasMode: Boolean = false,
 )

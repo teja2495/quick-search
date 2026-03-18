@@ -864,6 +864,18 @@
     <string name="web_search_suggestions_title">Web Suggestions</string>
     <string name="app_suggestions_toggle_title">App Suggestions</string>
     <string name="app_suggestions_toggle_desc">Show or hide suggested apps on the home screen</string>
+    <string name="search_section_apps_toggle_title">App Search</string>
+    <string name="search_section_apps_toggle_desc">Turn app search on or off</string>
+    <string name="search_section_app_shortcuts_toggle_title">App Shortcuts Search</string>
+    <string name="search_section_app_shortcuts_toggle_desc">Turn app shortcuts search on or off</string>
+    <string name="search_section_contacts_toggle_title">Contact Search</string>
+    <string name="search_section_contacts_toggle_desc">Turn contacts search on or off</string>
+    <string name="search_section_files_toggle_title">File Search</string>
+    <string name="search_section_files_toggle_desc">Turn files search on or off</string>
+    <string name="search_section_device_settings_toggle_title">Device Settings Search</string>
+    <string name="search_section_device_settings_toggle_desc">Turn device settings search on or off</string>
+    <string name="search_section_calendar_toggle_title">Calendar Search</string>
+    <string name="search_section_calendar_toggle_desc">Turn calendar search on or off</string>
     <string name="app_suggestions_usage_access_tip">Grant usage access permission to see more appropriate suggestions</string>
     <string name="app_suggestions_usage_access_link">usage access permission</string>
 

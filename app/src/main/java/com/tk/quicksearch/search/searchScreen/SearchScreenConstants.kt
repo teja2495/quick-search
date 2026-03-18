@@ -17,6 +17,7 @@ enum class ExpandedSection {
     CONTACTS,
     FILES,
     SETTINGS,
+    APP_SETTINGS,
     CALENDAR,
 }
 

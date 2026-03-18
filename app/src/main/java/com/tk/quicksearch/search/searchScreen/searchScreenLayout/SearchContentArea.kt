@@ -431,6 +431,10 @@ fun SearchContentArea(
                                 settingsParams.onExpandClick()
                             }
 
+                            ExpandedSection.APP_SETTINGS -> {
+                                settingsParams.onAppSettingExpandClick()
+                            }
+
                             ExpandedSection.CALENDAR -> {
                                 calendarParams.onExpandClick()
                             }

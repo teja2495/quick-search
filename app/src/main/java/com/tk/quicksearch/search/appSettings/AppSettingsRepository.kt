@@ -54,11 +54,32 @@ class AppSettingsRepository(
                 keywords = listOf("calculator", "unit converter", "conversion", "tools"),
             )
             addNavigation(
-                id = "app_settings_launch_options",
-                titleRes = R.string.settings_launch_options_title,
-                descriptionRes = R.string.settings_launch_options_desc,
+                id = "app_settings_default_assistant",
+                titleRes = R.string.settings_default_assistant_title,
+                descriptionRes = R.string.settings_default_assistant_desc,
                 destination = AppSettingsDestination.LAUNCH_OPTIONS,
-                keywords = listOf("assistant", "widget", "tile"),
+                keywords = listOf("launch options", "digital assistant", "assistant", "default assistant"),
+            )
+            addNavigation(
+                id = "app_settings_assistant_voice_mode",
+                titleRes = R.string.settings_assistant_voice_mode_title,
+                descriptionRes = R.string.settings_assistant_voice_mode_desc,
+                destination = AppSettingsDestination.LAUNCH_OPTIONS,
+                keywords = listOf("launch options", "assistant voice", "voice mode", "assistant"),
+            )
+            addNavigation(
+                id = "app_settings_home_screen_widget",
+                titleRes = R.string.settings_home_screen_widget_title,
+                descriptionRes = R.string.settings_home_screen_widget_desc,
+                destination = AppSettingsDestination.LAUNCH_OPTIONS,
+                keywords = listOf("launch options", "widget", "home screen"),
+            )
+            addNavigation(
+                id = "app_settings_quick_settings_tile",
+                titleRes = R.string.settings_quick_settings_tile_title,
+                descriptionRes = R.string.settings_quick_settings_tile_desc,
+                destination = AppSettingsDestination.LAUNCH_OPTIONS,
+                keywords = listOf("launch options", "tile", "quick settings", "notification shade"),
             )
             addNavigation(
                 id = "app_settings_more_options",
@@ -307,6 +328,48 @@ class AppSettingsRepository(
                 descriptionRes = R.string.settings_direct_dial_desc,
                 toggleKey = AppSettingsToggleKey.DIRECT_DIAL,
                 keywords = listOf("direct dial", "call"),
+            )
+            addToggle(
+                id = "app_toggle_search_apps",
+                titleRes = R.string.search_section_apps_toggle_title,
+                descriptionRes = R.string.search_section_apps_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_APPS,
+                keywords = listOf("apps", "app search", "disable apps", "enable apps"),
+            )
+            addToggle(
+                id = "app_toggle_search_app_shortcuts",
+                titleRes = R.string.search_section_app_shortcuts_toggle_title,
+                descriptionRes = R.string.search_section_app_shortcuts_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_APP_SHORTCUTS,
+                keywords = listOf("shortcuts", "app shortcuts", "disable shortcuts", "enable shortcuts"),
+            )
+            addToggle(
+                id = "app_toggle_search_contacts",
+                titleRes = R.string.search_section_contacts_toggle_title,
+                descriptionRes = R.string.search_section_contacts_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_CONTACTS,
+                keywords = listOf("contacts", "contact search", "disable contacts", "enable contacts"),
+            )
+            addToggle(
+                id = "app_toggle_search_files",
+                titleRes = R.string.search_section_files_toggle_title,
+                descriptionRes = R.string.search_section_files_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_FILES,
+                keywords = listOf("files", "file search", "disable files", "enable files"),
+            )
+            addToggle(
+                id = "app_toggle_search_device_settings",
+                titleRes = R.string.search_section_device_settings_toggle_title,
+                descriptionRes = R.string.search_section_device_settings_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_DEVICE_SETTINGS,
+                keywords = listOf("device settings", "settings search", "disable settings", "enable settings"),
+            )
+            addToggle(
+                id = "app_toggle_search_calendar",
+                titleRes = R.string.search_section_calendar_toggle_title,
+                descriptionRes = R.string.search_section_calendar_toggle_desc,
+                toggleKey = AppSettingsToggleKey.SEARCH_CALENDAR,
+                keywords = listOf("calendar", "calendar search", "disable calendar", "enable calendar"),
             )
         }
     }
