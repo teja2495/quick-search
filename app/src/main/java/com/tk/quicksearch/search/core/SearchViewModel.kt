@@ -72,6 +72,7 @@ import com.tk.quicksearch.shared.util.PackageConstants
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.tools.calculator.CalculatorHandler
+import com.tk.quicksearch.tools.dateCalculator.DateCalculatorHandler
 import com.tk.quicksearch.tools.directSearch.DirectSearchHandler
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.unitConverter.UnitConverterHandler
@@ -486,6 +487,7 @@ class SearchViewModel(
                     webSuggestionsCount = s.webSuggestionsCount,
                     calculatorEnabled = s.calculatorEnabled,
                     unitConverterEnabled = s.unitConverterEnabled,
+                    dateCalculatorEnabled = s.dateCalculatorEnabled,
                     recentQueriesEnabled = s.recentQueriesEnabled,
                     hasDismissedSearchHistoryTip = s.hasDismissedSearchHistoryTip,
                     directDialEnabled = s.directDialEnabled,
@@ -657,6 +659,12 @@ class SearchViewModel(
 
     val unitConverterHandler by lazy {
         UnitConverterHandler(
+                userPreferences = userPreferences,
+        )
+    }
+
+    val dateCalculatorHandler by lazy {
+        DateCalculatorHandler(
                 userPreferences = userPreferences,
         )
     }
@@ -1230,6 +1238,7 @@ class SearchViewModel(
                         webSuggestionsEnabled = webSuggestionHandler.isEnabled,
                         calculatorEnabled = userPreferences.isCalculatorEnabled(),
                         unitConverterEnabled = userPreferences.isUnitConverterEnabled(),
+                        dateCalculatorEnabled = userPreferences.isDateCalculatorEnabled(),
                         hasGeminiApiKey = !directSearchHandler.getGeminiApiKey().isNullOrBlank(),
                         geminiApiKeyLast4 = directSearchHandler.getGeminiApiKey()?.takeLast(4),
                         personalContext = directSearchHandler.getPersonalContext(),
@@ -1472,6 +1481,13 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             userPreferences.setUnitConverterEnabled(enabled)
             updateFeatureState { it.copy(unitConverterEnabled = enabled) }
+        }
+    }
+
+    fun setDateCalculatorEnabled(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userPreferences.setDateCalculatorEnabled(enabled)
+            updateFeatureState { it.copy(dateCalculatorEnabled = enabled) }
         }
     }
 
@@ -2128,6 +2144,7 @@ class SearchViewModel(
                 when (featureId) {
                     AliasHandler.CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.CALCULATOR
                     AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID -> SearchToolType.UNIT_CONVERTER
+                    AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID -> SearchToolType.DATE_CALCULATOR
                     else -> null
                 }
         if (toolMode == null || !isToolEnabled(toolMode)) {
@@ -2145,6 +2162,7 @@ class SearchViewModel(
             when (toolMode) {
                 SearchToolType.CALCULATOR -> userPreferences.isCalculatorEnabled()
                 SearchToolType.UNIT_CONVERTER -> userPreferences.isUnitConverterEnabled()
+                SearchToolType.DATE_CALCULATOR -> userPreferences.isDateCalculatorEnabled()
             }
 
     private fun createToolModeState(toolMode: SearchToolType): CalculatorState =
@@ -2158,6 +2176,11 @@ class SearchViewModel(
                         CalculatorState(
                                 isUnitConverterMode = true,
                                 toolType = SearchToolType.UNIT_CONVERTER,
+                        )
+                SearchToolType.DATE_CALCULATOR ->
+                        CalculatorState(
+                                isDateCalculatorMode = true,
+                                toolType = SearchToolType.DATE_CALCULATOR,
                         )
             }
 
@@ -2179,6 +2202,11 @@ class SearchViewModel(
                                 query = trimmedQuery,
                                 forceUnitConverterMode = true,
                         )
+                SearchToolType.DATE_CALCULATOR ->
+                        dateCalculatorHandler.processQuery(
+                                query = trimmedQuery,
+                                forceDateCalculatorMode = true,
+                        )
             }
         }
 
@@ -2195,9 +2223,18 @@ class SearchViewModel(
             return calculatorResult
         }
 
-        return unitConverterHandler.processQuery(
+        val unitConverterResult =
+                unitConverterHandler.processQuery(
+                        query = trimmedQuery,
+                        forceUnitConverterMode = false,
+                )
+        if (unitConverterResult.result != null) {
+            return unitConverterResult
+        }
+
+        return dateCalculatorHandler.processQuery(
                 query = trimmedQuery,
-                forceUnitConverterMode = false,
+                forceDateCalculatorMode = false,
         )
     }
 

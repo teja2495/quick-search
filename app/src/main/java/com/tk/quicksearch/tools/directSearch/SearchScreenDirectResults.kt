@@ -22,6 +22,7 @@ import android.content.ClipData
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.search.searchScreen.LocalOverlayResultCardColor
 import com.tk.quicksearch.search.utils.PhoneNumberUtils
@@ -55,6 +57,7 @@ import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private val unitResultRegex = Regex("^([+-]?(?:\\d+(?:\\.\\d+)?|\\.\\d+))(?:\\s+(.+))?$")
+private val dateNumberRegex = Regex("(\\d+)")
 
 /** Composable that displays direct search results with loading, success, and error states. */
 @Composable
@@ -175,7 +178,17 @@ fun CalculatorResult(
     val result = calculatorState.result
     val isToolMode = calculatorState.isToolMode
     val showInvalidExpression = calculatorState.showInvalidExpression
-    if (result == null && !isToolMode) return
+
+    // For date calculator, compute the relative label from parsedDateMillis
+    val dateLabel: String? =
+            if (calculatorState.toolType == SearchToolType.DATE_CALCULATOR &&
+                    calculatorState.parsedDateMillis != null) {
+                calendarRelativeDateLabel(calculatorState.parsedDateMillis)
+            } else {
+                null
+            }
+
+    if (result == null && dateLabel == null && !isToolMode) return
 
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
@@ -189,9 +202,10 @@ fun CalculatorResult(
     val cardElevation =
             AppColors.getCardElevation(showWallpaperBackground = showWallpaperBackground)
 
+    val copyText = dateLabel ?: result
     val onLongClick: (() -> Unit)? =
-            if (result != null) {
-                { clipboardManager.setText(AnnotatedString(result)) }
+            if (copyText != null) {
+                { clipboardManager.setText(AnnotatedString(copyText)) }
             } else {
                 null
             }
@@ -203,6 +217,10 @@ fun CalculatorResult(
                 verticalArrangement = Arrangement.Center,
         ) {
             when {
+                dateLabel != null -> {
+                    DateCalculatorResultText(label = dateLabel)
+                }
+
                 result != null -> {
                     if (calculatorState.toolType == SearchToolType.UNIT_CONVERTER) {
                         UnitConverterResultText(result = result)
@@ -218,19 +236,22 @@ fun CalculatorResult(
                 showInvalidExpression -> {
                     Text(
                             text =
-                                    if (
-                                            calculatorState.toolType ==
-                                                    SearchToolType.UNIT_CONVERTER
-                                    ) {
-                                        stringResource(
-                                                R.string
-                                                        .unit_converter_invalid_or_unsupported_query
-                                        )
-                                    } else {
-                                        stringResource(
-                                                R.string
-                                                        .calculator_invalid_or_unsupported_expression
-                                        )
+                                    when (calculatorState.toolType) {
+                                        SearchToolType.UNIT_CONVERTER ->
+                                                stringResource(
+                                                        R.string
+                                                                .unit_converter_invalid_or_unsupported_query
+                                                )
+                                        SearchToolType.DATE_CALCULATOR ->
+                                                stringResource(
+                                                        R.string
+                                                                .date_calculator_invalid_date
+                                                )
+                                        else ->
+                                                stringResource(
+                                                        R.string
+                                                                .calculator_invalid_or_unsupported_expression
+                                                )
                                     },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -238,7 +259,7 @@ fun CalculatorResult(
                 }
 
                 else -> {
-                    // Intentionally empty while in calculator mode with no expression.
+                    // Intentionally empty while in tool mode with no expression.
                 }
             }
         }
@@ -354,6 +375,60 @@ private fun UnitConverterResultText(result: String) {
     }
 }
 
+@Composable
+private fun DateCalculatorResultText(label: String) {
+    // Split into alternating text/number segments: e.g. "30 years 6 months ago"
+    // → ["30"(num), " years "(text), "6"(num), " months ago"(text)]
+    val segments = remember(label) {
+        val list = mutableListOf<Pair<String, Boolean>>() // content, isNumber
+        var lastEnd = 0
+        for (match in dateNumberRegex.findAll(label)) {
+            if (match.range.first > lastEnd) {
+                list.add(label.substring(lastEnd, match.range.first) to false)
+            }
+            list.add(match.value to true)
+            lastEnd = match.range.last + 1
+        }
+        if (lastEnd < label.length) list.add(label.substring(lastEnd) to false)
+        list
+    }
+
+    val hasNumbers = segments.any { it.second }
+    if (!hasNumbers) {
+        // Today / Tomorrow / Yesterday — no number, show as large single text
+        Text(
+            text = label,
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        return
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.SpacingXSmall),
+    ) {
+        for ((text, isNumber) in segments) {
+            val trimmed = text.trim()
+            if (trimmed.isEmpty()) continue
+            if (isNumber) {
+                Text(
+                    text = trimmed,
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.alignByBaseline(),
+                )
+            } else {
+                Text(
+                    text = trimmed,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.alignByBaseline(),
+                )
+            }
+        }
+    }
+}
+
 /** Attribution row showing powered by Gemini or Gemma branding. */
 @Composable
 private fun GeminiAttributionRow(
@@ -402,16 +477,16 @@ private fun CalculatorAttributionRow(
         toolType: SearchToolType = SearchToolType.CALCULATOR,
 ) {
     val titleRes =
-            if (toolType == SearchToolType.UNIT_CONVERTER) {
-                R.string.unit_converter_toggle_title
-            } else {
-                R.string.calculator_toggle_title
+            when (toolType) {
+                SearchToolType.UNIT_CONVERTER -> R.string.unit_converter_toggle_title
+                SearchToolType.DATE_CALCULATOR -> R.string.date_calculator_toggle_title
+                else -> R.string.calculator_toggle_title
             }
     val icon =
-            if (toolType == SearchToolType.UNIT_CONVERTER) {
-                Icons.Rounded.Straighten
-            } else {
-                Icons.Rounded.Calculate
+            when (toolType) {
+                SearchToolType.UNIT_CONVERTER -> Icons.Rounded.Straighten
+                SearchToolType.DATE_CALCULATOR -> Icons.Rounded.CalendarMonth
+                else -> Icons.Rounded.Calculate
             }
     Row(
             modifier = modifier.padding(horizontal = DesignTokens.SpacingLarge),

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,11 +26,15 @@ fun ToolsSettingsSection(
     calculatorAlias: String,
     unitConverterEnabled: Boolean,
     unitConverterAlias: String,
+    dateCalculatorEnabled: Boolean,
+    dateCalculatorAlias: String,
     existingShortcuts: Map<String, String>,
     onSetCalculatorAlias: (String) -> Unit,
     onSetUnitConverterAlias: (String) -> Unit,
+    onSetDateCalculatorAlias: (String) -> Unit,
     onCalculatorToggle: (Boolean) -> Unit,
     onUnitConverterToggle: (Boolean) -> Unit,
+    onDateCalculatorToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -63,6 +68,19 @@ fun ToolsSettingsSection(
                             onAliasCodeChange = onSetUnitConverterAlias,
                             existingShortcuts = existingShortcuts,
                             aliasFeatureId = AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
+                        )
+                    )
+                    add(
+                        ToolToggleCardModel(
+                            title = stringResource(R.string.date_calculator_toggle_title),
+                            subtitle = stringResource(R.string.date_calculator_toggle_desc),
+                            checked = dateCalculatorEnabled,
+                            onCheckedChange = onDateCalculatorToggle,
+                            leadingIcon = Icons.Rounded.CalendarMonth,
+                            aliasCode = dateCalculatorAlias,
+                            onAliasCodeChange = onSetDateCalculatorAlias,
+                            existingShortcuts = existingShortcuts,
+                            aliasFeatureId = AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
                         )
                     )
                 },

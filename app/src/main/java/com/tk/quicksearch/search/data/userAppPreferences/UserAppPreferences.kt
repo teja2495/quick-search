@@ -735,6 +735,10 @@ class UserAppPreferences(
 
     fun setUnitConverterEnabled(enabled: Boolean) = uiPreferences.setUnitConverterEnabled(enabled)
 
+    fun isDateCalculatorEnabled(): Boolean = uiPreferences.isDateCalculatorEnabled()
+
+    fun setDateCalculatorEnabled(enabled: Boolean) = uiPreferences.setDateCalculatorEnabled(enabled)
+
     // ============================================================================
     // Recent Queries Preferences
     // ============================================================================

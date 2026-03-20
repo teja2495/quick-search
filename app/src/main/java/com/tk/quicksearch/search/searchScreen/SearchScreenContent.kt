@@ -459,7 +459,7 @@ internal fun SearchScreenContent(
                 onOpenSearchHistorySettings = onOpenSearchHistorySettings,
                 onDismissSearchHistoryTip = onDismissSearchHistoryTip,
                 onGeminiModelInfoClick = onGeminiModelInfoClick,
-                showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null,
+                showCalculator = state.calculatorState.isToolMode || state.calculatorState.result != null || state.calculatorState.parsedDateMillis != null,
                 showDirectSearch = state.DirectSearchState.status != DirectSearchStatus.Idle,
                 directSearchState = state.DirectSearchState,
                 isOverlayPresentation = isOverlayPresentation,

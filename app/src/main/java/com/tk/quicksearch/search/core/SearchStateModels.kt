@@ -146,6 +146,7 @@ data class SearchFeatureState(
         // Calculator
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
+        val dateCalculatorEnabled: Boolean = true,
         // Search history
         val recentQueriesEnabled: Boolean = true,
         val hasDismissedSearchHistoryTip: Boolean = false,

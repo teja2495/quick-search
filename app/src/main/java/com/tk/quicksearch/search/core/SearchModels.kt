@@ -135,6 +135,7 @@ enum class DirectSearchStatus {
 enum class SearchToolType {
         CALCULATOR,
         UNIT_CONVERTER,
+        DATE_CALCULATOR,
 }
 
 data class DirectSearchState(
@@ -150,11 +151,14 @@ data class CalculatorState(
         val expression: String? = null,
         val isCalculatorMode: Boolean = false,
         val isUnitConverterMode: Boolean = false,
+        val isDateCalculatorMode: Boolean = false,
         val toolType: SearchToolType = SearchToolType.CALCULATOR,
         val showInvalidExpression: Boolean = false,
+        /** Epoch millis for the date parsed by the date calculator tool. */
+        val parsedDateMillis: Long? = null,
 ) {
         val isToolMode: Boolean
-                get() = isCalculatorMode || isUnitConverterMode
+                get() = isCalculatorMode || isUnitConverterMode || isDateCalculatorMode
 }
 
 data class PhoneNumberSelection(
@@ -427,6 +431,7 @@ data class SearchUiState(
         // Calculator / Direct Search
         val calculatorEnabled: Boolean = true,
         val unitConverterEnabled: Boolean = true,
+        val dateCalculatorEnabled: Boolean = true,
         val DirectSearchState: DirectSearchState = DirectSearchState(),
         // Gemini
         val hasGeminiApiKey: Boolean = false,
@@ -557,6 +562,7 @@ fun SearchUiState(
                 webSuggestionsCount = features.webSuggestionsCount,
                 calculatorEnabled = features.calculatorEnabled,
                 unitConverterEnabled = features.unitConverterEnabled,
+                dateCalculatorEnabled = features.dateCalculatorEnabled,
                 recentQueriesEnabled = features.recentQueriesEnabled,
                 hasDismissedSearchHistoryTip = features.hasDismissedSearchHistoryTip,
                 directDialEnabled = features.directDialEnabled,

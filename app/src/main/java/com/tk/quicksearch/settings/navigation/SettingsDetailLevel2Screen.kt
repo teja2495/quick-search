@@ -272,11 +272,18 @@ internal fun SettingsDetailLevel2Screen(
                                     state.shortcutCodes[
                                         com.tk.quicksearch.searchEngines.AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID
                                     ].orEmpty(),
+                                dateCalculatorEnabled = state.dateCalculatorEnabled,
+                                dateCalculatorAlias =
+                                    state.shortcutCodes[
+                                        com.tk.quicksearch.searchEngines.AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID
+                                    ].orEmpty(),
                                 existingShortcuts = state.shortcutCodes,
                                 onSetCalculatorAlias = callbacks.onSetCalculatorAlias,
                                 onSetUnitConverterAlias = callbacks.onSetUnitConverterAlias,
+                                onSetDateCalculatorAlias = callbacks.onSetDateCalculatorAlias,
                                 onCalculatorToggle = callbacks.onToggleCalculator,
                                 onUnitConverterToggle = callbacks.onToggleUnitConverter,
+                                onDateCalculatorToggle = callbacks.onToggleDateCalculator,
                             )
                         }
 

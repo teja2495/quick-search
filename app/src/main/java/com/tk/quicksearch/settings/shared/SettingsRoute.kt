@@ -350,11 +350,18 @@ fun SettingsRoute(
                     code,
                 )
             },
+            onSetDateCalculatorAlias = { code ->
+                viewModel.setAlias(
+                    com.tk.quicksearch.searchEngines.AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
+                    code,
+                )
+            },
             onSetSearchSectionAlias = { targetId, code ->
                 viewModel.setAlias(targetId, code)
             },
             onToggleCalculator = viewModel::setCalculatorEnabled,
             onToggleUnitConverter = viewModel::setUnitConverterEnabled,
+            onToggleDateCalculator = viewModel::setDateCalculatorEnabled,
             onToggleAppSuggestions = viewModel::setAppSuggestionsEnabled,
             onToggleWebSuggestions = viewModel::setWebSuggestionsEnabled,
             onWebSuggestionsCountChange = viewModel::setWebSuggestionsCount,
