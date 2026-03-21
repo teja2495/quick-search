@@ -792,7 +792,7 @@
     <string-array name="release_notes_points">
         <item>New Tool: Date &amp; Time Calculator</item>
         <item>Search for app settings directly from search bar</item>
-        <item>Added Quick Search to your phone's text-selection menu and share sheet.</item>
+        <item>Added Quick Search to your phone\u2019s text-selection menu and share sheet.</item>
         <item>Enhancements and bug fixes</item>
     </string-array>
     <string name="release_notes_action_got_it">Got it</string>

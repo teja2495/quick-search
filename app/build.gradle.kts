@@ -81,3 +81,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+// Gradle 8.13+ validates implicit task input/output dependencies.
+// The OSS licenses plugin’s cleanup task consumes the generated dependencies file,
+// so we explicitly wire the task dependency to keep builds deterministic.
+tasks.matching { it.name == "debugOssLicensesCleanUp" }.configureEach {
+    dependsOn("debugOssDependencyTask")
+}
