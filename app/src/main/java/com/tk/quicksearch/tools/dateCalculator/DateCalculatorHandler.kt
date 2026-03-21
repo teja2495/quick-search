@@ -23,6 +23,49 @@ class DateCalculatorHandler(
                     toolType = SearchToolType.DATE_CALCULATOR,
                 )
             }
+
+            // Time queries — checked before date queries to avoid "to" ambiguity
+            DateCalculatorUtils.parseTimeDiffQuery(trimmedQuery)?.let { r ->
+                return CalculatorState(
+                    timeResultLabel = r.label,
+                    timeContextLabel = r.contextLabel,
+                    isTimeAbsoluteResult = r.isAbsolute,
+                    isDateCalculatorMode = true,
+                    toolType = SearchToolType.DATE_CALCULATOR,
+                )
+            }
+
+            DateCalculatorUtils.parseTimeOffsetQuery(trimmedQuery)?.let { r ->
+                return CalculatorState(
+                    timeResultLabel = r.label,
+                    timeContextLabel = r.contextLabel,
+                    isTimeAbsoluteResult = r.isAbsolute,
+                    isDateCalculatorMode = true,
+                    toolType = SearchToolType.DATE_CALCULATOR,
+                )
+            }
+
+            DateCalculatorUtils.parseTimeArithmeticQuery(trimmedQuery)?.let { r ->
+                return CalculatorState(
+                    timeResultLabel = r.label,
+                    timeContextLabel = r.contextLabel,
+                    isTimeAbsoluteResult = r.isAbsolute,
+                    isDateCalculatorMode = true,
+                    toolType = SearchToolType.DATE_CALCULATOR,
+                )
+            }
+
+            DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (past, future) ->
+                return CalculatorState(
+                    timeResultLabel = past.label,
+                    timeContextLabel = past.contextLabel,
+                    timeResultLabel2 = future.label,
+                    timeContextLabel2 = future.contextLabel,
+                    isDateCalculatorMode = true,
+                    toolType = SearchToolType.DATE_CALCULATOR,
+                )
+            }
+
             DateCalculatorUtils.parseDateDiffQuery(trimmedQuery)?.let { (date1, date2) ->
                 return CalculatorState(
                     dateDiffLabel = DateCalculatorUtils.diffLabel(date1, date2),
@@ -61,6 +104,44 @@ class DateCalculatorHandler(
                 isDateCalculatorMode = true,
                 toolType = SearchToolType.DATE_CALCULATOR,
                 showInvalidExpression = true,
+            )
+        }
+
+        // Time queries — checked before date queries to avoid "to" ambiguity
+        DateCalculatorUtils.parseTimeDiffQuery(trimmedQuery)?.let { r ->
+            return CalculatorState(
+                timeResultLabel = r.label,
+                timeContextLabel = r.contextLabel,
+                isTimeAbsoluteResult = r.isAbsolute,
+                toolType = SearchToolType.DATE_CALCULATOR,
+            )
+        }
+
+        DateCalculatorUtils.parseTimeOffsetQuery(trimmedQuery)?.let { r ->
+            return CalculatorState(
+                timeResultLabel = r.label,
+                timeContextLabel = r.contextLabel,
+                isTimeAbsoluteResult = r.isAbsolute,
+                toolType = SearchToolType.DATE_CALCULATOR,
+            )
+        }
+
+        DateCalculatorUtils.parseTimeArithmeticQuery(trimmedQuery)?.let { r ->
+            return CalculatorState(
+                timeResultLabel = r.label,
+                timeContextLabel = r.contextLabel,
+                isTimeAbsoluteResult = r.isAbsolute,
+                toolType = SearchToolType.DATE_CALCULATOR,
+            )
+        }
+
+        DateCalculatorUtils.parseAbsoluteTimeQuery(trimmedQuery)?.let { (past, future) ->
+            return CalculatorState(
+                timeResultLabel = past.label,
+                timeContextLabel = past.contextLabel,
+                timeResultLabel2 = future.label,
+                timeContextLabel2 = future.contextLabel,
+                toolType = SearchToolType.DATE_CALCULATOR,
             )
         }
 

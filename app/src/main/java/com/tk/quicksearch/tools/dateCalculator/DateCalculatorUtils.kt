@@ -1,7 +1,10 @@
 package com.tk.quicksearch.tools.dateCalculator
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.Period
+import java.time.ZoneId
 import java.util.Locale
 
 object DateCalculatorUtils {
@@ -162,6 +165,231 @@ object DateCalculatorUtils {
             if (period.days > 0) add("${period.days} ${if (period.days == 1) "day" else "days"}")
         }
         return if (parts.isEmpty()) "0 days" else parts.joinToString(" ")
+    }
+
+    // -------------------------------------------------------------------------
+    // Time helpers
+    // -------------------------------------------------------------------------
+
+    /** Carries a formatted time result with optional day context ("tomorrow" / "yesterday"). */
+    data class TimeResult(val label: String, val contextLabel: String? = null, val isAbsolute: Boolean = false)
+
+    /**
+     * Parses a standalone time string into [LocalTime].
+     * Accepted formats: "5am", "5:00 AM", "14:30", "5:30pm", "5 pm".
+     * Hour-only without am/pm is rejected (too ambiguous).
+     */
+    fun parseTimeString(s: String): LocalTime? {
+        val lower = s.trim().lowercase(Locale.US)
+        val match = Regex("""^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$""").matchEntire(lower) ?: return null
+        var hour = match.groupValues[1].toIntOrNull() ?: return null
+        val minute = match.groupValues[2].let { if (it.isEmpty()) 0 else it.toIntOrNull() ?: return null }
+        val ampm = match.groupValues[3].takeIf { it.isNotEmpty() }
+
+        // Require am/pm for bare-hour (no colon) to avoid matching plain integers
+        if (match.groupValues[2].isEmpty() && ampm == null) return null
+
+        if (ampm != null) {
+            hour = when {
+                ampm == "am" && hour == 12 -> 0
+                ampm == "pm" && hour != 12 -> hour + 12
+                else -> hour
+            }
+        }
+        if (hour !in 0..23 || minute !in 0..59) return null
+        return try { LocalTime.of(hour, minute) } catch (_: Exception) { null }
+    }
+
+    /** Formats a [LocalTime] as 12-hour AM/PM, e.g. "3:45 PM", "12:00 AM". */
+    fun formatTime12Hr(time: LocalTime): String {
+        val hour12 = when (val h = time.hour) {
+            0 -> 12
+            in 1..12 -> h
+            else -> h - 12
+        }
+        val ampm = if (time.hour < 12) "AM" else "PM"
+        val minute = time.minute.toString().padStart(2, '0')
+        return "$hour12:$minute $ampm"
+    }
+
+    /**
+     * Returns the formatted time and an optional day context label ("tomorrow" / "yesterday").
+     * No context is returned for today — the time alone is sufficient.
+     */
+    fun formatTimeWithDayContext(dateTime: LocalDateTime): Pair<String, String?> {
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val resultDate = dateTime.toLocalDate()
+        val time = formatTime12Hr(dateTime.toLocalTime())
+        val context = when (resultDate) {
+            today -> null
+            today.plusDays(1) -> "tomorrow"
+            today.minusDays(1) -> "yesterday"
+            else -> null
+        }
+        return time to context
+    }
+
+    /** Formats an absolute minute count as "X hours Y minutes" with no prefix/suffix. */
+    private fun timeDurationLabel(absMinutes: Long): String {
+        val hours = absMinutes / 60
+        val mins = absMinutes % 60
+        val parts = buildList {
+            if (hours > 0) add("$hours ${if (hours == 1L) "hour" else "hours"}")
+            if (mins > 0) add("$mins ${if (mins == 1L) "minute" else "minutes"}")
+        }
+        return if (parts.isEmpty()) "0 minutes" else parts.joinToString(" ")
+    }
+
+    /**
+     * Builds a human-readable relative time label from a signed minute offset.
+     * e.g. +270 → "in 4 hours 30 minutes", -90 → "1 hour 30 minutes ago"
+     */
+    fun timeRelativeLabel(totalMinutes: Long): String {
+        val duration = timeDurationLabel(kotlin.math.abs(totalMinutes))
+        return if (totalMinutes >= 0) "in $duration" else "$duration ago"
+    }
+
+    /**
+     * Parses time arithmetic queries like "6 hours from now", "45 minutes ago",
+     * "2 hours 30 minutes from now". Returns a [TimeResult] with the formatted time,
+     * an optional day context ("tomorrow" / "yesterday"), and isAbsolute = true.
+     *
+     * Returns null if the query doesn't match.
+     */
+    fun parseTimeArithmeticQuery(query: String): TimeResult? {
+        val lower = query.trim().lowercase(Locale.US)
+
+        val isFuture = lower.endsWith(" from now") || lower.endsWith(" later")
+        val isPast = lower.endsWith(" ago")
+        if (!isFuture && !isPast) return null
+
+        val core = when {
+            lower.endsWith(" from now") -> lower.removeSuffix(" from now").trim()
+            lower.endsWith(" later") -> lower.removeSuffix(" later").trim()
+            else -> lower.removeSuffix(" ago").trim()
+        }
+
+        val unitPattern = Regex("""(\d+)\s*(hours?|hrs?|minutes?|mins?|seconds?|secs?)""")
+        var hours = 0L
+        var minutes = 0L
+        var remaining = core
+        for (match in unitPattern.findAll(core)) {
+            val value = match.groupValues[1].toLongOrNull() ?: continue
+            when {
+                match.groupValues[2].startsWith("hour") || match.groupValues[2].startsWith("hr") -> hours = value
+                match.groupValues[2].startsWith("min") -> minutes = value
+                match.groupValues[2].startsWith("sec") -> minutes += value / 60
+            }
+            remaining = remaining.replace(match.value, " ")
+        }
+
+        if (remaining.trim().any { it.isLetterOrDigit() }) return null
+        if (hours == 0L && minutes == 0L) return null
+
+        val totalMinutes = hours * 60 + minutes
+        val now = LocalDateTime.now(ZoneId.systemDefault())
+        val resultDt = if (isFuture) now.plusMinutes(totalMinutes) else now.minusMinutes(totalMinutes)
+        val (time, context) = formatTimeWithDayContext(resultDt)
+        return TimeResult(label = time, contextLabel = context, isAbsolute = true)
+    }
+
+    /**
+     * Parses an absolute time reference like "5am", "5:00 AM", "14:30" and returns both
+     * the past occurrence and the next future occurrence as a pair (past, future).
+     *
+     * e.g. "1pm" at 10:55 PM → past: "9 hours 55 minutes ago" / "today", future: "in 14 hours 5 minutes" / "tomorrow"
+     * e.g. "1pm" at  9:00 AM → past: "20 hours ago" / "yesterday", future: "in 4 hours" / "today"
+     *
+     * Returns null if the query is not a standalone time expression.
+     */
+    fun parseAbsoluteTimeQuery(query: String): Pair<TimeResult, TimeResult>? {
+        val time = parseTimeString(query.trim()) ?: return null
+        val now = LocalDateTime.now(ZoneId.systemDefault())
+        val nowTime = now.toLocalTime()
+        // Signed diff: positive = time is still ahead today, negative = time already passed today
+        val diffMinutes = java.time.Duration.between(nowTime, time).toMinutes()
+
+        val past: TimeResult
+        val future: TimeResult
+        if (diffMinutes >= 0) {
+            // Time is still in the future today
+            val minutesUntil = diffMinutes
+            val minutesSince = 24 * 60 - diffMinutes
+            future = TimeResult(label = "${timeDurationLabel(minutesUntil)} later", contextLabel = "today", isAbsolute = false)
+            past = TimeResult(label = "${timeDurationLabel(minutesSince)} ago", contextLabel = "yesterday", isAbsolute = false)
+        } else {
+            // Time already passed today
+            val minutesSince = -diffMinutes
+            val minutesUntil = 24 * 60 - minutesSince
+            past = TimeResult(label = "${timeDurationLabel(minutesSince)} ago", contextLabel = "today", isAbsolute = false)
+            future = TimeResult(label = "${timeDurationLabel(minutesUntil)} later", contextLabel = "tomorrow", isAbsolute = false)
+        }
+        return past to future
+    }
+
+    /**
+     * Parses "3 hours after 5pm", "30 minutes before 9am" and similar mixed expressions.
+     * Returns a [TimeResult] with the formatted time and isAbsolute = true.
+     */
+    fun parseTimeOffsetQuery(query: String): TimeResult? {
+        val lower = query.trim().lowercase(Locale.US)
+
+        val separators = listOf(" after " to true, " before " to false)
+        for ((sep, isAddition) in separators) {
+            val idx = lower.indexOf(sep)
+            if (idx < 0) continue
+
+            val unitsPart = lower.substring(0, idx).trim()
+            val timePart = query.substring(idx + sep.length).trim()
+            val baseTime = parseTimeString(timePart) ?: continue
+
+            val unitPattern = Regex("""(\d+)\s*(hours?|hrs?|minutes?|mins?)""")
+            var hours = 0L
+            var minutes = 0L
+            var remaining = unitsPart
+            for (match in unitPattern.findAll(unitsPart)) {
+                val value = match.groupValues[1].toLongOrNull() ?: continue
+                when {
+                    match.groupValues[2].startsWith("hour") || match.groupValues[2].startsWith("hr") -> hours = value
+                    match.groupValues[2].startsWith("min") -> minutes = value
+                }
+                remaining = remaining.replace(match.value, " ")
+            }
+
+            if (remaining.trim().any { it.isLetterOrDigit() }) continue
+            if (hours == 0L && minutes == 0L) continue
+
+            val totalMinutes = hours * 60 + minutes
+            val result = if (isAddition) baseTime.plusMinutes(totalMinutes) else baseTime.minusMinutes(totalMinutes)
+            return TimeResult(label = formatTime12Hr(result), isAbsolute = true)
+        }
+        return null
+    }
+
+    /**
+     * Parses "9am to 5:30pm" or "14:00 to 17:30" and returns the duration,
+     * e.g. "8 hours 30 minutes". Returns null if both sides are not valid times.
+     */
+    fun parseTimeDiffQuery(query: String): TimeResult? {
+        val lower = query.trim().lowercase(Locale.US)
+        val toIdx = lower.indexOf(" to ")
+        if (toIdx < 0) return null
+
+        val part1 = query.substring(0, toIdx).trim()
+        val part2 = query.substring(toIdx + 4).trim()
+        val t1 = parseTimeString(part1) ?: return null
+        val t2 = parseTimeString(part2) ?: return null
+
+        val duration = java.time.Duration.between(t1, t2).abs()
+        val totalMinutes = duration.toMinutes()
+        val hours = totalMinutes / 60
+        val mins = totalMinutes % 60
+        val parts = buildList {
+            if (hours > 0) add("$hours ${if (hours == 1L) "hour" else "hours"}")
+            if (mins > 0) add("$mins ${if (mins == 1L) "minute" else "minutes"}")
+        }
+        val label = if (parts.isEmpty()) "0 minutes" else parts.joinToString(" ")
+        return TimeResult(label = label, isAbsolute = false)
     }
 
     /**

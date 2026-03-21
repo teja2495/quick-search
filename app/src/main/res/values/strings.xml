@@ -913,9 +913,9 @@
     <string name="unit_converter_toggle_desc">Convert units for length, weight, temperature, time, etc.</string>
     <string name="unit_converter_enter_conversion_hint">Enter a conversion (e.g., 5lbs in kgs)</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
-    <string name="date_calculator_toggle_title">Date Calculator</string>
-    <string name="date_calculator_toggle_desc">Calculate how far a date is from today (e.g., March 12 2025)</string>
-    <string name="date_calculator_invalid_date">Invalid or unrecognized date</string>
+    <string name="date_calculator_toggle_title">Date &amp; Time Calculator</string>
+    <string name="date_calculator_toggle_desc">Calculate dates and times (e.g., March 12 2025, 6 hours from now, 9am to 5pm)</string>
+    <string name="date_calculator_invalid_date">Invalid or unrecognized date or time</string>
 
     <!-- ============================================================================
          No Results

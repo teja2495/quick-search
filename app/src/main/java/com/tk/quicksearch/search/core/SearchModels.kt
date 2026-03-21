@@ -160,6 +160,15 @@ data class CalculatorState(
         val isReverseDateMode: Boolean = false,
         /** Human-readable difference label when two dates are compared, e.g. "1 year 2 months 3 days". */
         val dateDiffLabel: String? = null,
+        /** Pre-formatted time result, e.g. "3:45 PM", "in 4 hours 20 minutes", "8 hours 30 minutes". */
+        val timeResultLabel: String? = null,
+        /** Optional day context shown below the time, e.g. "tomorrow" or "yesterday". Null for today. */
+        val timeContextLabel: String? = null,
+        /** True when timeResultLabel is an absolute clock time (e.g. "3:45 PM"). */
+        val isTimeAbsoluteResult: Boolean = false,
+        /** Secondary time result shown alongside the primary (used for absolute time queries: past + future). */
+        val timeResultLabel2: String? = null,
+        val timeContextLabel2: String? = null,
 ) {
         val isToolMode: Boolean
                 get() = isCalculatorMode || isUnitConverterMode || isDateCalculatorMode

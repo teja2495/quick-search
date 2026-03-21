@@ -184,6 +184,11 @@ fun CalculatorResult(
     val isReverseDateMode = calculatorState.isReverseDateMode
     val parsedDateMillis = calculatorState.parsedDateMillis
     val dateDiffLabel = calculatorState.dateDiffLabel
+    val timeResultLabel = calculatorState.timeResultLabel
+    val timeContextLabel = calculatorState.timeContextLabel
+    val isTimeAbsoluteResult = calculatorState.isTimeAbsoluteResult
+    val timeResultLabel2 = calculatorState.timeResultLabel2
+    val timeContextLabel2 = calculatorState.timeContextLabel2
 
     // For normal date calc: compute relative label from parsedDateMillis
     val dateLabel: String? =
@@ -206,7 +211,7 @@ fun CalculatorResult(
     // Day of week shown for both modes (not for diff mode)
     val dayOfWeek: String? = parsedDateMillis?.let { getDayOfWeekName(it) }
 
-    if (result == null && dateLabel == null && absoluteDateLabel == null && dateDiffLabel == null && !isToolMode) return
+    if (result == null && dateLabel == null && absoluteDateLabel == null && dateDiffLabel == null && timeResultLabel == null && !isToolMode) return
 
     @Suppress("DEPRECATION")
     val clipboardManager = LocalClipboardManager.current
@@ -220,7 +225,7 @@ fun CalculatorResult(
     val cardElevation =
             AppColors.getCardElevation(showWallpaperBackground = showWallpaperBackground)
 
-    val copyText = absoluteDateLabel ?: dateDiffLabel ?: dateLabel ?: result
+    val copyText = timeResultLabel ?: absoluteDateLabel ?: dateDiffLabel ?: dateLabel ?: result
     val onLongClick: (() -> Unit)? =
             if (copyText != null) {
                 { clipboardManager.setText(AnnotatedString(copyText)) }
@@ -228,13 +233,39 @@ fun CalculatorResult(
                 null
             }
 
+    val isDualTimeResult = timeResultLabel != null && timeResultLabel2 != null
     val content: @Composable () -> Unit = {
         Column(
                 modifier =
                         Modifier.fillMaxWidth().fillMaxHeight().padding(DesignTokens.SpacingLarge),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = if (isDualTimeResult) Arrangement.spacedBy(0.dp) else Arrangement.Center,
         ) {
             when {
+                timeResultLabel != null && timeResultLabel2 != null -> {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+                    ) {
+                        DateCalculatorResultText(
+                            label = timeResultLabel,
+                            contextLabel = timeContextLabel,
+                            isAbsoluteDate = false,
+                        )
+                        DateCalculatorResultText(
+                            label = timeResultLabel2,
+                            contextLabel = timeContextLabel2,
+                            isAbsoluteDate = false,
+                        )
+                    }
+                }
+
+                timeResultLabel != null -> {
+                    DateCalculatorResultText(
+                        label = timeResultLabel,
+                        contextLabel = timeContextLabel,
+                        isAbsoluteDate = isTimeAbsoluteResult,
+                    )
+                }
+
                 absoluteDateLabel != null -> {
                     DateCalculatorResultText(label = absoluteDateLabel, dayOfWeek = dayOfWeek, isAbsoluteDate = true)
                 }
@@ -295,11 +326,12 @@ fun CalculatorResult(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingSmall),
     ) {
+        val cardMinHeight = if (isDualTimeResult) 280.dp else 175.dp
         if (showWallpaperBackground) {
             Card(
                     modifier =
                             Modifier.fillMaxWidth()
-                                    .heightIn(min = 175.dp)
+                                    .heightIn(min = cardMinHeight)
                                     .combinedClickable(
                                             onClick = {},
                                             onLongClick = onLongClick,
@@ -312,7 +344,7 @@ fun CalculatorResult(
             ElevatedCard(
                     modifier =
                             Modifier.fillMaxWidth()
-                                    .heightIn(min = 175.dp)
+                                    .heightIn(min = cardMinHeight)
                                     .combinedClickable(
                                             onClick = {},
                                             onLongClick = onLongClick,
@@ -405,6 +437,7 @@ private fun UnitConverterResultText(result: String) {
 private fun DateCalculatorResultText(
     label: String,
     dayOfWeek: String? = null,
+    contextLabel: String? = null,
     isAbsoluteDate: Boolean = false,
 ) {
     // Split into alternating text/number segments: e.g. "30 years 6 months ago"
@@ -459,6 +492,14 @@ private fun DateCalculatorResultText(
                     }
                 }
             }
+        }
+
+        if (contextLabel != null) {
+            Text(
+                text = contextLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
 
         if (dayOfWeek != null) {
