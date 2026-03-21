@@ -790,11 +790,9 @@
     <string name="release_notes_title">Quick Search v%1$s Release Notes</string>
     <string name="release_notes_title_no_version">Quick Search Release Notes</string>
     <string-array name="release_notes_points">
-        <item>Search for calendar events</item>
-        <item>New tool: Unit converter</item>
-        <item>Fixed a bug causing the overlay to close for direct searches</item>
-        <item>Option to force circular app icons</item>
-        <item>Option to toggle auto-close app after any action</item>
+        <item>New Tool: Date &amp; Time Calculator</item>
+        <item>Search for app settings directly from search bar</item>
+        <item>Added Quick Search to your phone's text-selection menu and share sheet.</item>
         <item>Enhancements and bug fixes</item>
     </string-array>
     <string name="release_notes_action_got_it">Got it</string>
