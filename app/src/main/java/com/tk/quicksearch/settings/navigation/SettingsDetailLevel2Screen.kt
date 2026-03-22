@@ -53,6 +53,7 @@ internal fun SettingsDetailLevel2Screen(
     appShortcutSources: List<AppShortcutSource> = emptyList(),
     searchTargets: List<SearchTarget> = emptyList(),
     onAppShortcutFocusHandled: () -> Unit = {},
+    onNavigateToDetail: (SettingsDetailType) -> Unit = {},
 ) {
     if (!detailType.isLevel2()) return
 
@@ -282,7 +283,21 @@ internal fun SettingsDetailLevel2Screen(
                                 onCalculatorToggle = callbacks.onToggleCalculator,
                                 onUnitConverterToggle = callbacks.onToggleUnitConverter,
                                 onDateCalculatorToggle = callbacks.onToggleDateCalculator,
+                                onNavigateToUnitConverterInfo = {
+                                    onNavigateToDetail(SettingsDetailType.UNIT_CONVERTER_INFO)
+                                },
+                                onNavigateToDateCalculatorInfo = {
+                                    onNavigateToDetail(SettingsDetailType.DATE_CALCULATOR_INFO)
+                                },
                             )
+                        }
+
+                        SettingsDetailType.UNIT_CONVERTER_INFO -> {
+                            UnitConverterInfoSection(modifier = Modifier.fillMaxWidth())
+                        }
+
+                        SettingsDetailType.DATE_CALCULATOR_INFO -> {
+                            DateCalculatorInfoSection(modifier = Modifier.fillMaxWidth())
                         }
 
                         else -> Unit

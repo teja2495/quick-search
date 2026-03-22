@@ -382,9 +382,10 @@
     <string name="settings_search_engines_title">Search Engines</string>
     <string name="settings_search_engines_desc">Manage search engines and configure Gemini API key</string>
     <string name="settings_tools_title">Tools</string>
-    <string name="settings_tools_desc">Calculator and unit converter</string>
+    <string name="settings_tools_desc">Calculator, Unit converter, Date Converter</string>
     <string name="settings_tools_desc_calculator_only">Calculator</string>
     <string name="settings_tools_more_coming_soon">More tools coming soon</string>
+    <string name="settings_tools_info_examples_header">Here are some examples of things you can ask in the search bar</string>
     <string name="settings_appearance_title">Appearance</string>
     <string name="settings_appearance_desc">Wallpaper, search engine styles, one-handed mode, etc.</string>
     <string name="settings_calls_texts_title">Calls &amp; Texts</string>
@@ -908,11 +909,36 @@
     <string name="calculator_enter_math_expression_hint">Enter a math expression</string>
     <string name="calculator_invalid_or_unsupported_expression">Invalid or unsupported expression</string>
     <string name="unit_converter_toggle_title">Unit Converter</string>
-    <string name="unit_converter_toggle_desc">Convert units for length, weight, temperature, time, etc.</string>
+    <string name="unit_converter_toggle_desc">Usage instructions and examples</string>
     <string name="unit_converter_enter_conversion_hint">Enter a conversion (e.g., 5lbs in kgs)</string>
     <string name="unit_converter_invalid_or_unsupported_query">Invalid or unsupported conversion</string>
+    <string name="unit_converter_info_title">Unit Converter</string>
     <string name="date_calculator_toggle_title">Date &amp; Time Calculator</string>
-    <string name="date_calculator_toggle_desc">Calculate dates and times (e.g., March 12 2025, 6 hours from now, 9am to 5pm)</string>
+    <string name="date_calculator_toggle_desc">Usage instructions and examples</string>
+    <string name="date_calculator_info_title">Date &amp; Time Calculator</string>
+    <!-- Unit Converter info screen categories -->
+    <string name="unit_converter_category_length">Length</string>
+    <string name="unit_converter_category_weight_mass">Weight / Mass</string>
+    <string name="unit_converter_category_temperature">Temperature</string>
+    <string name="unit_converter_category_area">Area</string>
+    <string name="unit_converter_category_volume">Volume</string>
+    <string name="unit_converter_category_time">Time</string>
+    <string name="unit_converter_category_speed">Speed</string>
+    <string name="unit_converter_category_data">Data</string>
+    <string name="unit_converter_category_energy">Energy</string>
+    <string name="unit_converter_category_power">Power</string>
+    <string name="unit_converter_category_pressure">Pressure</string>
+    <string name="unit_converter_category_angle">Angle</string>
+    <string name="unit_converter_category_frequency">Frequency</string>
+    <!-- Date &amp; Time Calculator info screen categories -->
+    <string name="date_calculator_category_named_dates">Named Dates</string>
+    <string name="date_calculator_category_relative_dates">Relative Dates</string>
+    <string name="date_calculator_category_date_differences">Date Differences</string>
+    <string name="date_calculator_category_offset_from_date">Offset from a Date</string>
+    <string name="date_calculator_category_time_arithmetic">Time Arithmetic</string>
+    <string name="date_calculator_category_time_ranges">Time Ranges</string>
+    <string name="date_calculator_category_absolute_time">Absolute Time</string>
+    <string name="date_calculator_category_time_offset">Time Offset</string>
     <string name="date_calculator_invalid_date">Invalid or unrecognized date or time</string>
 
     <!-- ============================================================================

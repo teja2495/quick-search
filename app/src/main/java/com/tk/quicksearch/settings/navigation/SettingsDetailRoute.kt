@@ -243,6 +243,10 @@ fun SettingsDetailRoute(
                         SettingsDetailType.TOOLS -> {
                             onBack()
                         }
+                        SettingsDetailType.UNIT_CONVERTER_INFO,
+                        SettingsDetailType.DATE_CALCULATOR_INFO -> {
+                            onNavigateToDetail(SettingsDetailType.TOOLS)
+                        }
                         else -> {
                             onNavigateToDetail(SettingsDetailType.SEARCH_RESULTS)
                         }
@@ -464,6 +468,7 @@ fun SettingsDetailRoute(
                     appShortcutFocusShortcut = null
                     appShortcutFocusPackageName = null
                 },
+                onNavigateToDetail = onNavigateToDetail,
         )
     } else {
         SettingsDetailLevel1Screen(

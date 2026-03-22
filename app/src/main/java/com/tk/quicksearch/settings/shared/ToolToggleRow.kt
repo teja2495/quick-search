@@ -29,6 +29,7 @@ data class ToolToggleCardModel(
     val onAliasCodeChange: ((String) -> Unit)? = null,
     val existingShortcuts: Map<String, String> = emptyMap(),
     val aliasFeatureId: String? = null,
+    val onRowClick: (() -> Unit)? = null,
 )
 
 @Composable
@@ -65,6 +66,7 @@ fun ToolToggleRow(
         leadingIcon = tool.leadingIcon,
         isBeta = tool.isBeta,
         tagLabel = tool.tagLabel,
+        onRowClick = tool.onRowClick,
         subtitleContent =
             if (tool.aliasCode != null) {
                 {

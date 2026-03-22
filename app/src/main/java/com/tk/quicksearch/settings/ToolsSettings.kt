@@ -35,6 +35,8 @@ fun ToolsSettingsSection(
     onCalculatorToggle: (Boolean) -> Unit,
     onUnitConverterToggle: (Boolean) -> Unit,
     onDateCalculatorToggle: (Boolean) -> Unit,
+    onNavigateToUnitConverterInfo: () -> Unit = {},
+    onNavigateToDateCalculatorInfo: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -68,6 +70,7 @@ fun ToolsSettingsSection(
                             onAliasCodeChange = onSetUnitConverterAlias,
                             existingShortcuts = existingShortcuts,
                             aliasFeatureId = AliasHandler.UNIT_CONVERTER_ALIAS_FEATURE_ID,
+                            onRowClick = onNavigateToUnitConverterInfo,
                         )
                     )
                     add(
@@ -81,6 +84,7 @@ fun ToolsSettingsSection(
                             onAliasCodeChange = onSetDateCalculatorAlias,
                             existingShortcuts = existingShortcuts,
                             aliasFeatureId = AliasHandler.DATE_CALCULATOR_ALIAS_FEATURE_ID,
+                            onRowClick = onNavigateToDateCalculatorInfo,
                         )
                     )
                 },
