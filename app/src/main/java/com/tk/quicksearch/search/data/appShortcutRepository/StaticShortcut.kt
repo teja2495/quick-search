@@ -69,7 +69,8 @@ private val HARDCODED_SHORTCUT_DEFINITIONS =
             id = "song_search",
             packageName = "com.google.android.googlequicksearchbox",
             shortLabelResId = R.string.shortcut_song_search_label,
-            targetClassName = "com.google.android.apps.search.soundsearch.shortcut.AliasAddShortcutActivity",
+            intentAction = "com.google.android.googlequicksearchbox.MUSIC_SEARCH",
+            shortcutSourceClassName = "com.google.android.apps.search.soundsearch.shortcut.AliasAddShortcutActivity",
         ),
         HardcodedShortcutDefinition(
             id = "watch_later",

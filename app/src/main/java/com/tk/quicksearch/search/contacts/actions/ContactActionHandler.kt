@@ -35,12 +35,12 @@ class ContactActionHandler(
     private val clearQuery: () -> Unit,
     private val showToastCallback: (Int) -> Unit,
 ) {
-    fun callContact(contactInfo: ContactInfo) {
+    fun callContact(contactInfo: ContactInfo, trackHistory: Boolean = true) {
         if (contactInfo.phoneNumbers.isEmpty()) {
             showToastCallback(R.string.error_missing_phone_number)
             return
         }
-        trackRecentContactAction(contactInfo)
+        if (trackHistory) trackRecentContactAction(contactInfo)
 
         // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
@@ -60,12 +60,12 @@ class ContactActionHandler(
         performCalling(contactInfo, contactInfo.phoneNumbers.first())
     }
 
-    fun smsContact(contactInfo: ContactInfo) {
+    fun smsContact(contactInfo: ContactInfo, trackHistory: Boolean = true) {
         if (contactInfo.phoneNumbers.isEmpty()) {
             showToastCallback(R.string.error_missing_phone_number)
             return
         }
-        trackRecentContactAction(contactInfo)
+        if (trackHistory) trackRecentContactAction(contactInfo)
 
         // Check if there's a preferred number stored
         val preferredNumber = userPreferences.getPreferredPhoneNumber(contactInfo.contactId)
@@ -110,6 +110,10 @@ class ContactActionHandler(
 
     fun dismissPhoneNumberSelection() {
         uiStateUpdater { it.copy(phoneNumberSelection = null) }
+    }
+
+    private fun trackRecentContactAction(contactInfo: ContactInfo) {
+        userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
     }
 
     private fun beginRegularCallFlow(
@@ -214,10 +218,9 @@ class ContactActionHandler(
     fun handleContactMethod(
         contactInfo: ContactInfo,
         method: ContactMethod,
+        trackHistory: Boolean = true,
     ) {
-        if (method !is ContactMethod.Phone) {
-            trackRecentContactAction(contactInfo)
-        }
+        if (trackHistory) trackRecentContactAction(contactInfo)
         when (method) {
             is ContactMethod.Phone -> {
                 val phoneNumber =
@@ -228,7 +231,6 @@ class ContactActionHandler(
                     showToastCallback(R.string.error_missing_phone_number)
                     return
                 }
-                trackRecentContactAction(contactInfo)
                 beginRegularCallFlow(contactInfo.displayName, phoneNumber)
             }
 
@@ -408,10 +410,6 @@ class ContactActionHandler(
                 }
             }
         }
-    }
-
-    private fun trackRecentContactAction(contactInfo: ContactInfo) {
-        userPreferences.addRecentItem(RecentSearchEntry.Contact(contactInfo.contactId))
     }
 
     /**

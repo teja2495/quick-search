@@ -84,7 +84,7 @@ fun AppShortcutsSettingsSection(
     onFocusHandled: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
+val context = LocalContext.current
     val locale = Locale.getDefault()
     val normalizedSearchQuery =
         remember(searchQuery, locale) { searchQuery.trim().lowercase(locale) }
@@ -250,16 +250,20 @@ fun AppShortcutsSettingsSection(
     var shortcutToEdit by remember { mutableStateOf<StaticShortcut?>(null) }
     val shortcutListState = rememberLazyListState()
     val visibleShortcutGroups =
-        remember(shortcutGroups, selectedFilterOption) {
-            when (selectedFilterOption) {
-                ShortcutFilterOption.ALL -> shortcutGroups
-                ShortcutFilterOption.APPS_WITH_SHORTCUTS -> shortcutGroups.filter { it.shortcuts.isNotEmpty() }
-                ShortcutFilterOption.SEARCH_ENGINES ->
-                    shortcutGroups.filter { it.searchTargetSources.isNotEmpty() }
-                ShortcutFilterOption.BROWSERS ->
-                    shortcutGroups.filter { group ->
-                        group.searchTargetSources.any { it.target is SearchTarget.Browser }
-                    }
+        remember(shortcutGroups, selectedFilterOption, normalizedSearchQuery) {
+            if (normalizedSearchQuery.isNotBlank()) {
+                shortcutGroups
+            } else {
+                when (selectedFilterOption) {
+                    ShortcutFilterOption.ALL -> shortcutGroups
+                    ShortcutFilterOption.APPS_WITH_SHORTCUTS -> shortcutGroups.filter { it.shortcuts.isNotEmpty() }
+                    ShortcutFilterOption.SEARCH_ENGINES ->
+                        shortcutGroups.filter { it.searchTargetSources.isNotEmpty() }
+                    ShortcutFilterOption.BROWSERS ->
+                        shortcutGroups.filter { group ->
+                            group.searchTargetSources.any { it.target is SearchTarget.Browser }
+                        }
+                }
             }
         }
     val expandedCards = remember { mutableStateMapOf<String, Boolean>() }

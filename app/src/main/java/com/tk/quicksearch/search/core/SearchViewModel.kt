@@ -1833,8 +1833,9 @@ class SearchViewModel(
                     }
 
             withContext(Dispatchers.Main) {
+                val trackHistory = !isDirectSearchActive()
                 if (matchedMethod != null) {
-                    contactActionHandler.handleContactMethod(contactInfo, matchedMethod)
+                    contactActionHandler.handleContactMethod(contactInfo, matchedMethod, trackHistory = trackHistory)
                 } else {
                     // Fallback to generic action if specific method not found (e.g. dataId changed)
                     // For Phone/SMS this is easy
@@ -1848,6 +1849,7 @@ class SearchViewModel(
                                             ),
                                             action.phoneNumber
                                     ),
+                                    trackHistory = trackHistory,
                             )
                         }
                         is com.tk.quicksearch.search.contacts.models.ContactCardAction.Sms -> {
@@ -1859,6 +1861,7 @@ class SearchViewModel(
                                             ),
                                             action.phoneNumber
                                     ),
+                                    trackHistory = trackHistory,
                             )
                         }
                         else -> {
@@ -3263,9 +3266,14 @@ class SearchViewModel(
     }
 
     // Contact Actions
-    fun callContact(contactInfo: ContactInfo) = contactActionHandler.callContact(contactInfo)
+    private fun isDirectSearchActive() =
+        _resultsState.value.DirectSearchState.status != DirectSearchStatus.Idle
 
-    fun smsContact(contactInfo: ContactInfo) = contactActionHandler.smsContact(contactInfo)
+    fun callContact(contactInfo: ContactInfo) =
+        contactActionHandler.callContact(contactInfo, trackHistory = !isDirectSearchActive())
+
+    fun smsContact(contactInfo: ContactInfo) =
+        contactActionHandler.smsContact(contactInfo, trackHistory = !isDirectSearchActive())
 
     fun onPhoneNumberSelected(
             phoneNumber: String,
@@ -3279,7 +3287,7 @@ class SearchViewModel(
     fun handleContactMethod(
             contactInfo: ContactInfo,
             method: ContactMethod,
-    ) = contactActionHandler.handleContactMethod(contactInfo, method)
+    ) = contactActionHandler.handleContactMethod(contactInfo, method, trackHistory = !isDirectSearchActive())
 
     fun trackRecentContactTap(contactInfo: ContactInfo) {
         viewModelScope.launch(Dispatchers.IO) {

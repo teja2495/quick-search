@@ -1,5 +1,7 @@
 package com.tk.quicksearch.search.contacts.dialogs
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,8 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,6 +81,7 @@ internal fun ContactActionsPopup(
         }
     val hasMultipleNumbers = contactInfo.phoneNumbers.size > 1
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val addToHomeHandler = remember(context) { AddToHomeHandler(context) }
 
     val reorderedPhoneNumbers =
@@ -186,12 +191,22 @@ internal fun ContactActionsPopup(
                                         Spacer(modifier = Modifier.size(32.dp))
                                     }
 
+                                    @OptIn(ExperimentalFoundationApi::class)
                                     Text(
                                         text = PhoneNumberUtils.formatPhoneNumberForDisplay(phoneNumber),
                                         style = MaterialTheme.typography.titleMedium,
                                         color = Color.White,
                                         textAlign = TextAlign.Center,
-                                        modifier = Modifier.weight(1f),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .combinedClickable(
+                                                indication = null,
+                                                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                                onClick = {},
+                                                onLongClick = {
+                                                    clipboardManager.setText(AnnotatedString(phoneNumber))
+                                                },
+                                            ),
                                     )
 
                                     if (reorderedPhoneNumbers.size > 1 &&
