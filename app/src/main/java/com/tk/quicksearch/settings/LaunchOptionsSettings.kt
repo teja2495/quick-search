@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.settings.shared.SettingsCardItem
 import com.tk.quicksearch.settings.shared.SettingsNavigationRow
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -62,8 +63,9 @@ fun LaunchOptionsSettings(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxWidth(),
+            elevation = AppColors.getCardElevation(false),
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             Column {
@@ -99,8 +101,9 @@ fun LaunchOptionsSettings(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxWidth(),
+            elevation = AppColors.getCardElevation(false),
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             Column {

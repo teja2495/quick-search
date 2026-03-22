@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 private data class DateCategory(@StringRes val nameRes: Int, val examples: List<String>)
@@ -75,8 +76,9 @@ internal fun DateCalculatorInfoSection(modifier: Modifier = Modifier) {
         )
 
         dateCategories.forEach { category ->
-            ElevatedCard(
+            Card(
                 modifier = Modifier.fillMaxWidth(),
+                elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.large,
             ) {
                 Column(

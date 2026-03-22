@@ -109,6 +109,7 @@ fun QuickSearchTheme(
     CompositionLocalProvider(
         LocalDensity provides appDensity,
         LocalQuickSearchAppColorPalette provides appPalette,
+        LocalAppIsDarkTheme provides useDarkTheme,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

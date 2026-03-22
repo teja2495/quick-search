@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,6 +34,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.tools.directSearch.GeminiModelCatalog
 import com.tk.quicksearch.tools.directSearch.GeminiModelPickerDialog
 import com.tk.quicksearch.tools.directSearch.GeminiTextModel
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -84,7 +85,7 @@ fun DirectSearchConfigureSettingsSection(
                 val supportsGrounding = selectedModel?.supportsGrounding != false
 
                 if (!supportsInstructions || !supportsGrounding) {
-                        ElevatedCard(
+                        Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors =
                                         CardDefaults.elevatedCardColors(
@@ -95,6 +96,7 @@ fun DirectSearchConfigureSettingsSection(
                                                         MaterialTheme.colorScheme
                                                                 .onSecondaryContainer
                                         ),
+                                elevation = AppColors.getCardElevation(false),
                                 shape = MaterialTheme.shapes.large
                         ) {
                                 Row(
@@ -157,8 +159,9 @@ fun DirectSearchConfigureSettingsSection(
                         )
                 }
 
-                ElevatedCard(
+                Card(
                         modifier = Modifier.fillMaxWidth(),
+                        elevation = AppColors.getCardElevation(false),
                         shape = MaterialTheme.shapes.extraLarge,
                 ) {
                         Column(

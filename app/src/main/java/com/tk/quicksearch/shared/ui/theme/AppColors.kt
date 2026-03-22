@@ -108,6 +108,8 @@ internal val LocalQuickSearchAppColorPalette =
         DarkQuickSearchAppColorPalette
     }
 
+internal val LocalAppIsDarkTheme = staticCompositionLocalOf { true }
+
 object AppColors {
     // Theme-aware semantic colors ------------------------------------------------------------
 
@@ -397,12 +399,12 @@ object AppColors {
         }
 
     /**
-     * Returns appropriate card elevation based on wallpaper background setting.
-     * Cards with wallpaper background use no elevation, others use standard elevation.
+     * Returns appropriate card elevation based on wallpaper background setting and theme.
+     * Cards with wallpaper background or in light mode use no elevation; dark mode uses standard elevation.
      */
     @Composable
     fun getCardElevation(showWallpaperBackground: Boolean): CardElevation =
-        if (showWallpaperBackground) {
+        if (showWallpaperBackground || !LocalAppIsDarkTheme.current) {
             CardDefaults.cardElevation(defaultElevation = 0.dp)
         } else {
             CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)

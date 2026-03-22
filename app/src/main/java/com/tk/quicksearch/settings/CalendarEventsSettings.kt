@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Repeat
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -45,6 +45,7 @@ import com.tk.quicksearch.search.calendar.formatCalendarEventDate
 import com.tk.quicksearch.search.data.CalendarRepository
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.settings.AppShortcutsSettings.shortcutMatchPriority
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import java.util.Calendar
 import java.util.Locale
@@ -148,8 +149,9 @@ fun CalendarEventsSettingsSection(
         }
 
     Column(modifier = modifier) {
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxSize(),
+            elevation = AppColors.getCardElevation(false),
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             if (!hasPermission) {

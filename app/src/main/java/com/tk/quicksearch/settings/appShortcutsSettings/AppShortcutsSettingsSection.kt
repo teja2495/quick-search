@@ -19,7 +19,7 @@ import androidx.compose.material.icons.rounded.UnfoldLess
 import androidx.compose.material.icons.rounded.UnfoldMore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -474,8 +474,9 @@ val context = LocalContext.current
                     }
                 }
 
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
+                    elevation = AppColors.getCardElevation(false),
                     shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     AppShortcutCardHeader(

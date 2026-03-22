@@ -8,7 +8,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.shared.ui.theme.AppColors
 
 @Composable
 fun MoreOptionsSettings(
@@ -31,8 +32,9 @@ fun MoreOptionsSettings(
     onAutoCloseOverlayToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {

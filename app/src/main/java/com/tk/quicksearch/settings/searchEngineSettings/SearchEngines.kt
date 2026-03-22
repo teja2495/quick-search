@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.core.SearchEngine
 import com.tk.quicksearch.search.core.SearchTarget
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
@@ -167,11 +168,12 @@ private fun SearchEngineAliasSuffixCard(
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         SettingsToggleRow(

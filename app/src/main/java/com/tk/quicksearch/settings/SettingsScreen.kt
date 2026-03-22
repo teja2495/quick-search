@@ -42,7 +42,7 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -74,6 +74,7 @@ import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.TipBanner
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import java.text.SimpleDateFormat
@@ -212,11 +213,12 @@ fun SettingsScreen(
             }
 
             // Overlay Mode Card (top)
-            ElevatedCard(
+            Card(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
+                elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
@@ -307,11 +309,12 @@ fun SettingsScreen(
                     )
                 }
 
-            ElevatedCard(
+            Card(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
+                elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
@@ -334,11 +337,12 @@ fun SettingsScreen(
                 }
             }
 
-            ElevatedCard(
+            Card(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
+                elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
@@ -593,8 +597,9 @@ fun SettingsMoreOptions(
             ),
         )
 
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {

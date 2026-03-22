@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.settings.shared.SettingsToggleRow
+import com.tk.quicksearch.shared.ui.theme.AppColors
 
 /** Combined card for keyboard alignment and icon pack settings. */
 @Composable
@@ -39,7 +40,7 @@ fun CombinedLayoutIconCard(
         onRefreshIconPacks: () -> Unit = {},
         modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+    Card(modifier = modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             SettingsToggleRow(
                     title = stringResource(R.string.settings_layout_option_bottom_title),

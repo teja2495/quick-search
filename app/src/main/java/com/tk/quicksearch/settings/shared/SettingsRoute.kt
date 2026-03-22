@@ -28,7 +28,6 @@ import androidx.compose.material.icons.rounded.Contacts
 import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Shortcut
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme

@@ -20,7 +20,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -43,6 +43,7 @@ import com.tk.quicksearch.search.core.ItemPriorityConfig
 import com.tk.quicksearch.search.core.SearchSection
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -80,7 +81,7 @@ private fun SearchOptionsCard(
         }
     }
 
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+    Card(modifier = modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = MaterialTheme.shapes.extraLarge) {
         Column {
             SettingsToggleRow(
                 title = stringResource(R.string.web_search_suggestions_title),
@@ -162,7 +163,7 @@ private fun LaunchOptionsCard(
     hasFilePermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+    Card(modifier = modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = MaterialTheme.shapes.extraLarge) {
         Column(
             modifier = Modifier.padding(
                 horizontal = DesignTokens.SpacingXXLarge,

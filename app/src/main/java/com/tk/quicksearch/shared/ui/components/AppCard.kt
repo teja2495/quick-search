@@ -1,7 +1,8 @@
 package com.tk.quicksearch.shared.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.tk.quicksearch.shared.ui.theme.AppColors
@@ -20,9 +21,10 @@ fun AppCard(
     showWallpaperBackground: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
         colors = AppColors.getCardColors(showWallpaperBackground),
+        elevation = AppColors.getCardElevation(showWallpaperBackground),
         shape = DesignTokens.ShapeMedium,
     ) {
         content()

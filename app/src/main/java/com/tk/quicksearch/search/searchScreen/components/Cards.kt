@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -30,12 +31,13 @@ internal fun PermissionDisabledCard(
     actionLabel: String,
     onActionClick: () -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
         colors =
             CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
@@ -69,12 +71,13 @@ internal fun UsagePermissionCard(
     onRequestPermission: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier = modifier,
         colors =
             CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
+        elevation = AppColors.getCardElevation(false),
     ) {
         Column(
             modifier = Modifier.padding(DesignTokens.SpacingXLarge),

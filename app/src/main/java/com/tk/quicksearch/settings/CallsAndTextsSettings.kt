@@ -19,7 +19,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +43,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
 
@@ -230,8 +231,9 @@ private fun DirectDialCard(
             }
         }
 
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         SettingsToggleRow(
@@ -277,8 +279,9 @@ private fun DefaultMessagingAppCard(
 ) {
     if (messagingOptions.isEmpty()) return
 
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
@@ -342,8 +345,9 @@ private fun DefaultCallingAppCard(
 ) {
     if (callingOptions.isEmpty()) return
 
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
+        elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(

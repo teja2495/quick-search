@@ -16,7 +16,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.data.AppShortcutRepository.StaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutDisplayName
@@ -126,8 +127,9 @@ fun ExcludedItemScreen(
         Spacer(modifier = Modifier.height(SECTION_SPACER_HEIGHT))
 
         // Items card
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxWidth().padding(bottom = LIST_BOTTOM_PADDING),
+            elevation = AppColors.getCardElevation(false),
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             ExcludedItemsList(

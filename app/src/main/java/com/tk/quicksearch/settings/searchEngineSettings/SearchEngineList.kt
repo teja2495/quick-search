@@ -22,7 +22,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -136,8 +136,9 @@ fun SearchEngineListCard(
         if (enabledEngines.isNotEmpty()) {
             val view = LocalView.current
 
-            ElevatedCard(
+            Card(
                 modifier = Modifier.fillMaxWidth(),
+                elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 ReorderableColumn(
@@ -308,12 +309,13 @@ fun SearchEngineListCard(
                     )
                 }
             } else {
-                ElevatedCard(
+                Card(
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = 8.dp)
                             .then(disabledHeaderModifier),
+                    elevation = AppColors.getCardElevation(false),
                     shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Row(
@@ -347,8 +349,9 @@ fun SearchEngineListCard(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
+                    elevation = AppColors.getCardElevation(false),
                     shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Column {

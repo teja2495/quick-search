@@ -25,7 +25,7 @@ import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LightMode
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.core.OverlayGradientTheme
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.searchScreen.overlayGradientColors
 import com.tk.quicksearch.shared.util.WallpaperUtils
@@ -163,7 +164,7 @@ fun OverlayThemeCard(
                 )
             }
 
-    ElevatedCard(modifier = modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge) {
+    Card(modifier = modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = MaterialTheme.shapes.extraLarge) {
         Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
