@@ -1,19 +1,15 @@
 package com.tk.quicksearch.settings.shared
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.searchEngines.AliasValidator.isValidGeneralAliasCode
@@ -40,12 +36,17 @@ fun ToolToggleRows(
     tools: List<ToolToggleCardModel>,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.SpacingLarge),
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
     ) {
-        tools.forEach { tool ->
-            ToolToggleRow(tool = tool)
+        Column {
+            tools.forEachIndexed { index, tool ->
+                ToolToggleRow(tool = tool)
+                if (index != tools.lastIndex) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
         }
     }
 }
@@ -55,59 +56,36 @@ fun ToolToggleRow(
     tool: ToolToggleCardModel,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-    ) {
-        Column {
-            SettingsToggleRow(
-                title = tool.title,
-                titleContent = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = tool.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        if (tool.isBeta || tool.tagLabel != null) {
-                            BetaTagChip(tagText = tool.tagLabel)
-                        }
-                    }
-                },
-                subtitle = tool.subtitle,
-                subtitleContent =
-                    if (tool.aliasCode != null) {
-                        {
-                            Column(modifier = Modifier.padding(top = DesignTokens.SpacingSmall)) {
-                                AliasCodeDisplay(
-                                    shortcutCode = tool.aliasCode,
-                                    isEnabled = true,
-                                    onCodeChange = tool.onAliasCodeChange,
-                                    engineName = tool.title,
-                                    existingShortcuts = tool.existingShortcuts,
-                                    currentShortcutId = tool.aliasFeatureId,
-                                    validateCode = { input -> isValidGeneralAliasCode(input) },
-                                    validateConflict = { input, existing ->
-                                        !hasExactAliasConflict(input, existing)
-                                    },
-                                    conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
-                                    aliasDisplayType = AliasDisplayType.TOOL,
-                                )
-                            }
-                        }
-                    } else {
-                        null
-                    },
-                checked = tool.checked,
-                onCheckedChange = tool.onCheckedChange,
-                leadingIcon = tool.leadingIcon,
-                isFirstItem = true,
-                isLastItem = true,
-                showDivider = false,
-            )
-        }
-    }
+    SettingsNavigationToggleRow(
+        title = tool.title,
+        checked = tool.checked,
+        onCheckedChange = tool.onCheckedChange,
+        modifier = modifier,
+        subtitle = tool.subtitle,
+        leadingIcon = tool.leadingIcon,
+        isBeta = tool.isBeta,
+        tagLabel = tool.tagLabel,
+        subtitleContent =
+            if (tool.aliasCode != null) {
+                {
+                    AliasCodeDisplay(
+                        shortcutCode = tool.aliasCode,
+                        isEnabled = true,
+                        onCodeChange = tool.onAliasCodeChange,
+                        engineName = tool.title,
+                        existingShortcuts = tool.existingShortcuts,
+                        currentShortcutId = tool.aliasFeatureId,
+                        validateCode = { input -> isValidGeneralAliasCode(input) },
+                        validateConflict = { input, existing ->
+                            !hasExactAliasConflict(input, existing)
+                        },
+                        conflictErrorMessage = stringResource(R.string.dialog_edit_alias_error_prefix),
+                        aliasDisplayType = AliasDisplayType.TOOL,
+                        modifier = Modifier.padding(top = DesignTokens.SpacingSmall),
+                    )
+                }
+            } else {
+                null
+            },
+    )
 }

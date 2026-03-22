@@ -125,14 +125,12 @@ private fun SearchOptionsCard(
                 onTipBannerDismiss = { appSuggestionsTipDismissed = true },
             )
 
-            SettingsToggleRow(
+            SettingsNavigationToggleRow(
                 title = stringResource(R.string.recent_queries_toggle_title),
                 subtitle = stringResource(R.string.recent_queries_toggle_desc),
                 checked = recentQueriesEnabled,
                 onCheckedChange = onRecentQueriesToggle,
                 leadingIcon = Icons.Rounded.History,
-                isFirstItem = false,
-                isLastItem = !hasExcludedItems,
             )
 
             if (hasExcludedItems) {
