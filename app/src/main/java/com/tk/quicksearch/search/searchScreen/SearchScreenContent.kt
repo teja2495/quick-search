@@ -54,6 +54,8 @@ import com.tk.quicksearch.search.searchScreen.searchScreenLayout.SearchContentAr
 import com.tk.quicksearch.search.searchScreen.overlayActionColor
 import com.tk.quicksearch.search.searchScreen.overlayDividerColor
 import com.tk.quicksearch.search.searchScreen.overlayResultCardColor
+import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
+import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -139,6 +141,13 @@ internal fun SearchScreenContent(
     val showBottomSearchBar = showSearchField && state.bottomSearchBarEnabled
     val useOverlayThemeTints = state.backgroundSource == com.tk.quicksearch.search.core.BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val searchColorTheme =
+            resolveSearchColorTheme(
+                    theme = state.overlayGradientTheme,
+                    backgroundSource = state.backgroundSource,
+                    isDarkMode = isDarkMode,
+                    intensity = state.overlayThemeIntensity,
+            )
     val overlayCardColor =
             if (useOverlayThemeTints) {
                 overlayResultCardColor(
@@ -416,6 +425,7 @@ internal fun SearchScreenContent(
         )
     }
 
+    CompositionLocalProvider(LocalSearchColorTheme provides searchColorTheme) {
     Column(modifier = contentModifier, verticalArrangement = Arrangement.Top) {
         if (showSearchField && !showBottomSearchBar) {
             // Fixed search bar at the top
@@ -512,7 +522,6 @@ internal fun SearchScreenContent(
                                         onKeyboardSwitchToggle()
                                     }
                                 },
-                                showWallpaperBackground = state.showWallpaperBackground,
                         )
                     }
                 }
@@ -651,4 +660,5 @@ internal fun SearchScreenContent(
             }
         }
     }
+    } // end CompositionLocalProvider(LocalSearchColorTheme)
 }

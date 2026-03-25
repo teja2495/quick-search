@@ -20,9 +20,8 @@ import com.tk.quicksearch.settings.AppearanceSettings.FontSizeCard
 import com.tk.quicksearch.settings.AppearanceSettings.IconPackPickerDialog
 import com.tk.quicksearch.settings.AppearanceSettings.CombinedLayoutIconCard
 import com.tk.quicksearch.settings.AppearanceSettings.OverlayThemeCard
-import com.tk.quicksearch.settings.AppearanceSettings.AppThemeCard
+import com.tk.quicksearch.settings.AppearanceSettings.WallpaperCard
 import com.tk.quicksearch.settings.searchEnginesScreen.SearchEngineAppearanceCard
-import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 
 /** Complete appearance settings section with all appearance-related components and dialogs. */
 @Composable
@@ -82,20 +81,21 @@ fun AppearanceSettingsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (FeatureFlags.isAppThemeSelectionEnabled()) {
-            AppThemeCard(
-                    currentThemeMode = appThemeMode,
-                    onSetAppThemeMode = onSetAppThemeMode,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
         OverlayThemeCard(
                 selectedTheme = overlayGradientTheme,
                 overlayThemeIntensity = overlayThemeIntensity,
                 onThemeSelected = onSetOverlayGradientTheme,
                 onOverlayThemeIntensityChange = onOverlayThemeIntensityChange,
+                backgroundSource = backgroundSource,
+                onSetBackgroundSource = onSetBackgroundSource,
+                appThemeMode = appThemeMode,
+                onSetAppThemeMode = onSetAppThemeMode,
+                hasWallpaperPermission = hasWallpaperPermission,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        WallpaperCard(
                 wallpaperBackgroundAlpha = wallpaperBackgroundAlpha,
                 wallpaperBlurRadius = wallpaperBlurRadius,
                 onWallpaperBackgroundAlphaChange = onWallpaperBackgroundAlphaChange,

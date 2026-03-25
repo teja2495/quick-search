@@ -43,6 +43,9 @@ internal data class QuickSearchAppColorPalette(
     val actionVideoCall: Color,
     val actionCustom: Color,
     val actionView: Color,
+    val wallpaperOverlayTint: Color,
+    val resultCardWallpaperBackground: Color,
+    val compactSectionBackground: Color,
 )
 
 internal val DarkQuickSearchAppColorPalette =
@@ -72,6 +75,9 @@ internal val DarkQuickSearchAppColorPalette =
         actionVideoCall = Color(0xFF9C27B0),
         actionCustom = Color(0xFF607D8B),
         actionView = Color(0xFF9E9E9E),
+        wallpaperOverlayTint = Color.Black,
+        resultCardWallpaperBackground = Color.Black.copy(alpha = 0.4f),
+        compactSectionBackground = Color.Black.copy(alpha = 0.5f),
     )
 
 internal val LightQuickSearchAppColorPalette =
@@ -101,6 +107,9 @@ internal val LightQuickSearchAppColorPalette =
         actionVideoCall = Color(0xFF9C27B0),
         actionCustom = Color(0xFF607D8B),
         actionView = Color(0xFF9E9E9E),
+        wallpaperOverlayTint = Color.White,
+        resultCardWallpaperBackground = Color.White,
+        compactSectionBackground = Color.White.copy(alpha = 0.5f),
     )
 
 internal val LocalQuickSearchAppColorPalette =
@@ -110,12 +119,67 @@ internal val LocalQuickSearchAppColorPalette =
 
 val LocalAppIsDarkTheme = staticCompositionLocalOf { true }
 
+/**
+ * Semantic color slots for the current search UI theme.
+ *
+ * Bundles the background, card container, and keyboard-button colors derived from the active
+ * overlay theme. Provided via [LocalSearchColorTheme] and consumed by [AppColors.KeyboardButtonBackground].
+ */
+@Immutable
+data class SearchColorTheme(
+    /** Dominant background color for the current theme (gradient base in THEME mode). */
+    val background: Color,
+    /** Container color for result/suggestion/history/inline-engine cards. */
+    val cardBackground: Color,
+    /** Background for keyboard-adjacent action buttons (open, switch) — same for both. */
+    val keyboardButtonBackground: Color,
+)
+
+/** Provides the resolved [SearchColorTheme] for the active search screen. Null outside search context. */
+val LocalSearchColorTheme = staticCompositionLocalOf<SearchColorTheme?> { null }
+
 object AppColors {
     // Theme-aware semantic colors ------------------------------------------------------------
 
     private val current: QuickSearchAppColorPalette
         @Composable
         get() = LocalQuickSearchAppColorPalette.current
+
+    // Accent / brand color -----------------------------------------------------------------
+    //
+    // To retheme the entire app, change AppAccentLight / AppAccentDark in Color.kt.
+    // Use these tokens in composables instead of MaterialTheme.colorScheme.primary directly,
+    // so the intent is clear and the origin is traceable.
+
+    /** The app's primary brand accent color (maps to Material `primary`). */
+    val Accent: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary
+
+    /** Color for content drawn on top of an accent-colored surface (maps to `onPrimary`). */
+    val OnAccent: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.onPrimary
+
+    // Icon tints ---------------------------------------------------------------------------
+
+    /**
+     * Tint for primary / active / action icons (toggles, selection indicators, FABs).
+     * Maps to the accent color.
+     */
+    val IconTintPrimary: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary
+
+    /**
+     * Tint for secondary / decorative / neutral icons (placeholders, trailing arrows, hints).
+     * Maps to `onSurfaceVariant`.
+     */
+    val IconTintSecondary: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.onSurfaceVariant
+
+    // Settings colors ----------------------------------------------------------------------
 
     val SearchBarBackground: Color
         @Composable
@@ -138,6 +202,11 @@ object AppColors {
     val SettingsText: Color
         @Composable
         get() = current.settingsText
+
+    /** Tint for icons inside settings rows and cards (e.g. toggle icons, section icons). */
+    val SettingsIconTint: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary
 
     val OverlayLow: Color
         @Composable
@@ -219,10 +288,85 @@ object AppColors {
         @Composable
         get() = current.actionView
 
+    // Wallpaper & background tinting -------------------------------------------------------
+
+    /** Base tint color applied over the wallpaper (Black in dark mode, White in light mode). */
+    val WallpaperOverlayTint: Color
+        @Composable
+        get() = current.wallpaperOverlayTint
+
+    // Result cards -------------------------------------------------------------------------
+
+    /** Card container color when the wallpaper background is enabled. */
+    val ResultCardWallpaperBackground: Color
+        @Composable
+        get() = current.resultCardWallpaperBackground
+
+    // Compact section (search engine strip) ------------------------------------------------
+
+    /** Background for the compact search engine section strip. */
+    val CompactSectionBackground: Color
+        @Composable
+        get() = current.compactSectionBackground
+
+    // Keyboard action buttons (open / switch) -----------------------------------------------
+
+    /**
+     * Background for keyboard open/switch pill buttons.
+     * When inside a search screen with an active [LocalSearchColorTheme], uses the theme-derived
+     * color so that selecting a theme in settings changes these buttons automatically.
+     * Falls back to [compactSectionBackground] outside a themed context.
+     */
+    val KeyboardButtonBackground: Color
+        @Composable
+        get() = LocalSearchColorTheme.current?.keyboardButtonBackground
+            ?: current.compactSectionBackground
+
+    // Wallpaper-mode text & icon colors ----------------------------------------------------
+
+    /** Primary text color used in result rows when the wallpaper background is active. */
+    val WallpaperTextPrimary: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+
+    /** Secondary/icon color used in result rows when the wallpaper background is active. */
+    val WallpaperTextSecondary: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+
+    /** Divider color used between result rows when the wallpaper background is active. */
+    val WallpaperDivider: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+
+    // Inline search engine highlight -------------------------------------------------------
+
+    /** Fill color for the predicted/highlighted engine icon backdrop. */
+    val InlineEngineHighlightBackground: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+
+    /** Border color for the predicted/highlighted engine icon backdrop. */
+    val InlineEngineHighlightBorder: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+
+    // Keyboard operator pills --------------------------------------------------------------
+
+    /** Background color for number-keyboard operator pill chips. */
+    val KeyboardPillBackground: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+
+    /** Text color for number-keyboard operator pill chips. */
+    val KeyboardPillText: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary
+
     // Shared/static tokens -----------------------------------------------------------------
 
     val AppBackgroundTransparent: Color = Color.Transparent
-    val AppBackgroundDark: Color = Color(0xFF121212)
+    val AppBackgroundDark: Color = Color.Black
 
     val ThemeDeepPurple: Color = Color(0xFF651FFF)
     val ThemeNeonPurple: Color = Color(0xFFD500F9)
@@ -347,34 +491,34 @@ object AppColors {
 
     val OverlayForestLightPalette =
         listOf(
-            Color(0xFFE4ECE7),
-            Color(0xFFE4ECE9),
-            Color(0xFFEBEEE2),
-            Color(0xFFE0E9EC),
+            Color(0xFFCDE8D8),
+            Color(0xFFD2EACC),
+            Color(0xFFDAECCA),
+            Color(0xFFC4E4D4),
         )
 
     val OverlayAuroraLightPalette =
         listOf(
-            Color(0xFFDCE8F8),
-            Color(0xFFD8F1F0),
-            Color(0xFFE2E2FA),
-            Color(0xFFDCE6F4),
+            Color(0xFFC8DEF8),
+            Color(0xFFC4E4F8),
+            Color(0xFFCECEF8),
+            Color(0xFFC0D8F4),
         )
 
     val OverlaySunsetLightPalette =
         listOf(
-            Color(0xFFF8E1D8),
-            Color(0xFFF8E8D8),
-            Color(0xFFF4DCE8),
-            Color(0xFFF6E1DF),
+            Color(0xFFF5C8B4),
+            Color(0xFFF5D8B0),
+            Color(0xFFECC4D0),
+            Color(0xFFF0C0BC),
         )
 
     val OverlayMonochromeLightPalette =
         listOf(
-            Color(0xFFF0F0F0),
-            Color(0xFFE2E2E2),
-            Color(0xFFD5D5D5),
-            Color(0xFFBFBFBF),
+            Color(0xFFEDEAE4),
+            Color(0xFFE0DCD6),
+            Color(0xFFD4D0C8),
+            Color(0xFFC6C2BA),
         )
 
     // ============================================================================
@@ -389,15 +533,14 @@ object AppColors {
     @Composable
     fun getCardColors(showWallpaperBackground: Boolean): CardColors =
         if (showWallpaperBackground) {
-            val containerColor = if (LocalAppIsDarkTheme.current) {
-                OverlayMedium
-            } else {
-                Color.White.copy(alpha = 0.5f)
-            }
-            CardDefaults.cardColors(containerColor = containerColor)
+            CardDefaults.cardColors(containerColor = ResultCardWallpaperBackground)
         } else {
+            val themeCardColor = LocalSearchColorTheme.current?.cardBackground
+            val fallback =
+                if (!LocalAppIsDarkTheme.current) Color.White
+                else MaterialTheme.colorScheme.surfaceContainer
             CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                containerColor = themeCardColor ?: fallback,
             )
         }
 
@@ -411,11 +554,7 @@ object AppColors {
      */
     @Composable
     fun getCompactSectionBackground(showWallpaperBackground: Boolean): Color =
-        if (showWallpaperBackground && !LocalAppIsDarkTheme.current) {
-            Color.White.copy(alpha = 0.5f)
-        } else {
-            Color.Black.copy(alpha = 0.5f)
-        }
+        if (showWallpaperBackground) CompactSectionBackground else Color.Black.copy(alpha = 0.5f)
 
     @Composable
     fun getCardElevation(showWallpaperBackground: Boolean): CardElevation =

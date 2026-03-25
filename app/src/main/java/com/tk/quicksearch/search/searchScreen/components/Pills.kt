@@ -34,12 +34,11 @@ internal fun KeyboardSwitchPill(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showWallpaperBackground: Boolean = false,
 ) {
     Surface(
         modifier = modifier.clickable(onClick = onClick),
         shape = DesignTokens.ShapeFull,
-        color = AppColors.getCompactSectionBackground(showWallpaperBackground),
+        color = AppColors.KeyboardButtonBackground,
         tonalElevation = DesignTokens.ElevationLevel0,
     ) {
         Row(
@@ -122,8 +121,8 @@ internal fun NumberKeyboardOperatorPills(
         } else {
             MaterialTheme.colorScheme.surface
         }
-    val operatorChipColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
-    val operatorChipTextColor = MaterialTheme.colorScheme.primary
+    val operatorChipColor = AppColors.KeyboardPillBackground
+    val operatorChipTextColor = AppColors.KeyboardPillText
 
     Surface(
         modifier = if (extendToScreenEdges) modifier.extendToScreenEdges() else modifier,

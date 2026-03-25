@@ -305,16 +305,18 @@ internal fun PersistentSearchBar(
             delay(DesignTokens.AnimationDurationFast.toLong())
             onWelcomeAnimationCompleted?.invoke()
         } else if (query.isEmpty()) {
-            while (true) {
-                borderAlpha.animateTo(
-                    targetValue = 0.60f,
-                    animationSpec = tween(durationMillis = 4000, easing = LinearOutSlowInEasing)
-                )
-                borderAlpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
-                )
-            }
+            // Temporarily disabled: idle border alpha pulse (fade in/out), not the welcome gradient.
+            // while (true) {
+            //     borderAlpha.animateTo(
+            //         targetValue = 0.60f,
+            //         animationSpec = tween(durationMillis = 4000, easing = LinearOutSlowInEasing)
+            //     )
+            //     borderAlpha.animateTo(
+            //         targetValue = 0f,
+            //         animationSpec = tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
+            //     )
+            // }
+            borderAlpha.snapTo(DesignTokens.SearchFieldBorderAlphaDefault)
         } else {
             borderAlpha.animateTo(
                 targetValue = DesignTokens.SearchFieldBorderAlphaDefault,

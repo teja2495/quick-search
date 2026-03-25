@@ -151,7 +151,6 @@ fun SearchContentArea(
                 !directSearchState.activeQuery.isNullOrBlank() &&
                 renderingState.expandedSection == ExpandedSection.NONE
     val isSectionAliasMode = state.detectedAliasSearchSection != null
-    val effectiveShowWallpaperBackground = state.showWallpaperBackground
     val useOverlayThemeTints = state.backgroundSource == BackgroundSource.THEME
     val isDarkMode = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val overlayCardColor =
@@ -442,7 +441,6 @@ fun SearchContentArea(
                             else -> {}
                         }
                     },
-                    showWallpaperBackground = effectiveShowWallpaperBackground,
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)

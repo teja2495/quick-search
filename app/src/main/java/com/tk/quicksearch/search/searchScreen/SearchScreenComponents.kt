@@ -126,12 +126,10 @@ internal fun KeyboardSwitchPill(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    showWallpaperBackground: Boolean = false,
 ) = com.tk.quicksearch.search.searchScreen.components.KeyboardSwitchPill(
     text = text,
     onClick = onClick,
     modifier = modifier,
-    showWallpaperBackground = showWallpaperBackground,
 )
 
 @Composable

@@ -87,18 +87,10 @@ private fun WebSuggestionsCard(
     val overlayCardColor = LocalOverlayResultCardColor.current
     val overlayDividerColor = LocalOverlayDividerColor.current
     val textColor =
-        if (showWallpaperBackground) {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        }
+        if (showWallpaperBackground) AppColors.WallpaperTextPrimary else MaterialTheme.colorScheme.onSurface
 
     val iconColor =
-        if (showWallpaperBackground) {
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        }
+        if (showWallpaperBackground) AppColors.WallpaperTextSecondary else MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -127,13 +119,8 @@ private fun WebSuggestionsCard(
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = DesignTokens.SpacingLarge),
                         color =
-                            if (overlayDividerColor != null) {
-                                overlayDividerColor
-                            } else if (showWallpaperBackground) {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                            } else {
-                                MaterialTheme.colorScheme.outlineVariant
-                            },
+                            overlayDividerColor
+                                ?: if (showWallpaperBackground) AppColors.WallpaperDivider else MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }

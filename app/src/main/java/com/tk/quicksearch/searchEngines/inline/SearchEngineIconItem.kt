@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import com.tk.quicksearch.search.core.SearchTarget
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.search.core.AppIconShape
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
@@ -47,8 +48,8 @@ fun SearchEngineIconItem(
     val highlightExtraWidth = 8.dp
     val highlightExtraHeight = 12.dp
     val highlightShape = RoundedCornerShape(18.dp)
-    val highlightBackgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-    val highlightBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+    val highlightBackgroundColor = AppColors.InlineEngineHighlightBackground
+    val highlightBorderColor = AppColors.InlineEngineHighlightBorder
     Box(
         modifier =
             modifier

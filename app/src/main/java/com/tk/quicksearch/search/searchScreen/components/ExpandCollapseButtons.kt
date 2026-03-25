@@ -9,8 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.searchScreen.LocalOverlayActionColor
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 
 private const val EXPAND_ICON_SIZE = 18
 
@@ -33,7 +33,7 @@ internal fun ExpandButton(
     textResId: Int = R.string.action_expand_more,
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
-    val moreActionColor = moreButtonContentColor(overlayActionColor)
+    val moreActionColor = expandCollapseActionContentColor(overlayActionColor)
 
     TextButton(
         onClick = onClick,
@@ -57,37 +57,21 @@ internal fun ExpandButton(
 @Composable
 internal fun CollapseButton(
     onClick: () -> Unit,
-    showWallpaperBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val overlayActionColor = LocalOverlayActionColor.current
-    val collapseContainerColor =
-        when {
-            showWallpaperBackground -> AppColors.OverlayMedium
-            else -> overlayActionColor ?: MaterialTheme.colorScheme.secondaryContainer
-        }
-    val collapseContentColor =
-        if (showWallpaperBackground) {
-            moreButtonContentColor(overlayActionColor)
-        } else if (overlayActionColor != null) {
-            if (overlayActionColor.luminance() > 0.5f) Color.Black else Color.White
-        } else {
-            MaterialTheme.colorScheme.onSecondaryContainer
-        }
-    val collapseBorderColor = collapseContentColor.copy(alpha = 0.24f)
-    FilledTonalButton(
+    val collapseContentColor = expandCollapseActionContentColor(overlayActionColor)
+    val collapseBorderColor = collapseContentColor.copy(alpha = 0.5f)
+    OutlinedButton(
         onClick = onClick,
         modifier = modifier,
-        border =
-            BorderStroke(
-                1.dp,
-                collapseBorderColor,
-            ),
+        border = BorderStroke(1.dp, collapseBorderColor),
         colors =
-            ButtonDefaults.filledTonalButtonColors(
-                containerColor = collapseContainerColor,
+            ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.Transparent,
                 contentColor = collapseContentColor,
             ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Icon(
             imageVector = Icons.Rounded.ExpandLess,
@@ -105,9 +89,16 @@ internal fun CollapseButton(
 }
 
 @Composable
-private fun moreButtonContentColor(overlayActionColor: Color?): Color =
-    if (overlayActionColor != null) {
-        Color.White
-    } else {
-        MaterialTheme.colorScheme.primary
+private fun expandCollapseActionContentColor(overlayActionColor: Color?): Color {
+    if (overlayActionColor == null) {
+        return MaterialTheme.colorScheme.primary
     }
+    val backdrop =
+        LocalSearchColorTheme.current?.background
+            ?: MaterialTheme.colorScheme.background
+    return if (backdrop.luminance() > 0.5f) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        Color.White
+    }
+}

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.search.core.OverlayGradientTheme
 import com.tk.quicksearch.search.data.preferences.UiPreferences
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -157,25 +158,14 @@ internal fun SearchScreenBackground(
                     alignment = Alignment.TopCenter,
                 )
 
-                // Dark overlay in dark mode
-                if (isDarkMode) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = wallpaperOverlayAlpha))
-                                .graphicsLayer(alpha = wallpaperLayerAlpha),
-                    )
-                } else {
-                    // Light overlay in light mode
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .background(Color.White.copy(alpha = wallpaperOverlayAlpha))
-                                .graphicsLayer(alpha = wallpaperLayerAlpha),
-                    )
-                }
+                // Tint overlay (dark mode: darken, light mode: lighten)
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(AppColors.WallpaperOverlayTint.copy(alpha = wallpaperOverlayAlpha))
+                            .graphicsLayer(alpha = wallpaperLayerAlpha),
+                )
             }
         }
     }
