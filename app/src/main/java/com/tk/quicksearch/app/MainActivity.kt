@@ -225,6 +225,7 @@ class MainActivity : ComponentActivity() {
             }
             QuickSearchTheme(
                 fontScaleMultiplier = uiState.fontScaleMultiplier,
+                appTheme = uiState.appTheme,
                 appThemeMode = uiState.appThemeMode,
             ) {
                 Box(

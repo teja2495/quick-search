@@ -3,17 +3,16 @@ package com.tk.quicksearch.settings.settingsDetailScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tk.quicksearch.R
-import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.permissions.PermissionCardTexts
 import com.tk.quicksearch.shared.permissions.PermissionsCardSection
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 /**
@@ -58,11 +57,7 @@ fun PermissionsSettings(
             onRequestCalendarPermission = onRequestCalendarPermission,
             onRequestCallPermission = onRequestCallPermission,
             cardContainer = { cardModifier, content ->
-                Card(
-                    modifier = cardModifier,
-                    elevation = AppColors.getCardElevation(false),
-                    shape = DesignTokens.ExtraLargeCardShape,
-                ) {
+                SettingsCard(modifier = cardModifier) {
                     content()
                 }
             },

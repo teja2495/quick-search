@@ -21,24 +21,24 @@ internal fun AppThemeColors(
         if (isDarkMode) {
             when (theme) {
                 AppTheme.FOREST ->
-                    AppColors.OverlayForestDarkPalette
+                    AppColors.ForestDarkPalette
                 AppTheme.AURORA ->
-                    AppColors.OverlayAuroraDarkPalette
+                    AppColors.AuroraDarkPalette
                 AppTheme.SUNSET ->
-                    AppColors.OverlaySunsetDarkPalette
+                    AppColors.SunsetDarkPalette
                 AppTheme.MONOCHROME ->
-                    AppColors.OverlayMonochromeDarkPalette
+                    AppColors.MonochromeDarkPalette
             }
         } else {
             when (theme) {
                 AppTheme.FOREST ->
-                    AppColors.OverlayForestLightPalette
+                    AppColors.ForestLightPalette
                 AppTheme.AURORA ->
-                    AppColors.OverlayAuroraLightPalette
+                    AppColors.AuroraLightPalette
                 AppTheme.SUNSET ->
-                    AppColors.OverlaySunsetLightPalette
+                    AppColors.SunsetLightPalette
                 AppTheme.MONOCHROME ->
-                    AppColors.OverlayMonochromeLightPalette
+                    AppColors.MonochromeLightPalette
             }
         }
 

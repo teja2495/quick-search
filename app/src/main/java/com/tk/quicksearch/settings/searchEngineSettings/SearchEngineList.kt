@@ -22,7 +22,6 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +52,7 @@ import com.tk.quicksearch.searchEngines.getDisplayName
 import com.tk.quicksearch.searchEngines.getId
 import com.tk.quicksearch.searchEngines.shared.IconRenderStyle
 import com.tk.quicksearch.searchEngines.shared.SearchTargetIcon
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -136,10 +136,8 @@ fun SearchEngineListCard(
         if (enabledEngines.isNotEmpty()) {
             val view = LocalView.current
 
-            Card(
+            SettingsCard(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = AppColors.getCardElevation(false),
-                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 ReorderableColumn(
                     list = enabledEngines,
@@ -309,14 +307,12 @@ fun SearchEngineListCard(
                     )
                 }
             } else {
-                Card(
+                SettingsCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .padding(top = if (enabledEngines.isNotEmpty()) 24.dp else 0.dp, bottom = 8.dp)
                             .then(disabledHeaderModifier),
-                    elevation = AppColors.getCardElevation(false),
-                    shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Row(
                         modifier =
@@ -349,10 +345,8 @@ fun SearchEngineListCard(
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
-                Card(
+                SettingsCard(
                     modifier = Modifier.fillMaxWidth(),
-                    elevation = AppColors.getCardElevation(false),
-                    shape = MaterialTheme.shapes.extraLarge,
                 ) {
                     Column {
                         disabledEngines.forEachIndexed { index, engine ->

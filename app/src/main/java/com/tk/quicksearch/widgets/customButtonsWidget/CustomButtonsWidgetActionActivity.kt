@@ -149,9 +149,10 @@ class WidgetActionActivity : ComponentActivity() {
 
     private fun showContactMethodsDialog(contactInfo: ContactInfo) {
         val userPreferences = UserAppPreferences(applicationContext)
+        val appTheme = userPreferences.getAppTheme()
         val appThemeMode = userPreferences.getAppThemeMode()
         setContent {
-            QuickSearchTheme(appThemeMode = appThemeMode) {
+            QuickSearchTheme(appTheme = appTheme, appThemeMode = appThemeMode) {
                 var showDialog by remember { mutableStateOf(true) }
                 if (showDialog) {
                     ContactActionsPopup(

@@ -42,7 +42,7 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +51,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -69,13 +70,17 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.search.core.BackgroundSource
 import com.tk.quicksearch.search.data.preferences.GeminiPreferences
+import com.tk.quicksearch.search.searchScreen.resolveSearchColorTheme
 import com.tk.quicksearch.settings.settingsDetailScreen.SettingsDetailType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.shared.featureFlags.FeatureFlags
 import com.tk.quicksearch.shared.ui.components.TipBanner
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
+import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
+import com.tk.quicksearch.shared.ui.theme.LocalSearchColorTheme
 import com.tk.quicksearch.shared.util.FeedbackUtils
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -128,6 +133,15 @@ fun SettingsScreen(
     var includeGeminiApiKeyInNextExport by remember { mutableStateOf(false) }
     var showApiKeyExportWarningDialog by remember { mutableStateOf(false) }
     FeatureFlags.initialize(context)
+    val isDarkMode = LocalAppIsDarkTheme.current
+    val searchColorTheme = remember(state.appTheme, state.overlayThemeIntensity, isDarkMode) {
+        resolveSearchColorTheme(
+            theme = state.appTheme,
+            backgroundSource = BackgroundSource.THEME,
+            isDarkMode = isDarkMode,
+            intensity = state.overlayThemeIntensity,
+        )
+    }
 
     val exportLauncher =
         rememberLauncherForActivityResult(
@@ -185,11 +199,12 @@ fun SettingsScreen(
             }
         }
 
+    CompositionLocalProvider(LocalSearchColorTheme provides searchColorTheme) {
     Column(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(searchColorTheme.background)
                 .safeDrawingPadding(),
     ) {
         SettingsHeader(onBack = callbacks.onBack)
@@ -213,13 +228,11 @@ fun SettingsScreen(
             }
 
             // Overlay Mode Card (top)
-            Card(
+            SettingsCard(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
-                elevation = AppColors.getCardElevation(false),
-                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
                     SettingsToggleRow(
@@ -309,13 +322,11 @@ fun SettingsScreen(
                     )
                 }
 
-            Card(
+            SettingsCard(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
-                elevation = AppColors.getCardElevation(false),
-                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
                     navigationItems.forEachIndexed { index, item ->
@@ -337,13 +348,11 @@ fun SettingsScreen(
                 }
             }
 
-            Card(
+            SettingsCard(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(bottom = DesignTokens.SectionTopPadding),
-                elevation = AppColors.getCardElevation(false),
-                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 Column {
                     SettingsNavigationRow(
@@ -440,6 +449,7 @@ fun SettingsScreen(
             )
         }
     }
+    } // end CompositionLocalProvider
 
     if (showImportWarningDialog) {
         AlertDialog(
@@ -597,10 +607,8 @@ fun SettingsMoreOptions(
             ),
         )
 
-    Card(
+    SettingsCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
             feedbackItems.forEachIndexed { index, item ->

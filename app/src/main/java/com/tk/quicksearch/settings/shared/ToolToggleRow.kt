@@ -3,7 +3,6 @@ package com.tk.quicksearch.settings.shared
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -38,10 +37,8 @@ fun ToolToggleRows(
     tools: List<ToolToggleCardModel>,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    SettingsCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column {
             tools.forEachIndexed { index, tool ->

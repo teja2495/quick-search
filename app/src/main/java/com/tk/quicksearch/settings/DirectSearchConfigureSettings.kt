@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Card
+import com.tk.quicksearch.settings.shared.SettingsCard
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -159,10 +160,8 @@ fun DirectSearchConfigureSettingsSection(
                         )
                 }
 
-                Card(
+                SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = AppColors.getCardElevation(false),
-                        shape = MaterialTheme.shapes.extraLarge,
                 ) {
                         Column(
                                 modifier =

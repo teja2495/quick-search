@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -35,7 +35,7 @@ fun FontSizeCard(
     val mediumSelected = kotlin.math.abs(fontScaleMultiplier - 1.0f) < 0.001f
     val bigSelected = kotlin.math.abs(fontScaleMultiplier - 1.05f) < 0.001f
 
-    Card(modifier = modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = MaterialTheme.shapes.extraLarge) {
+    SettingsCard(modifier = modifier.fillMaxWidth()) {
         Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),

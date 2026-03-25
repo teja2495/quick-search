@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.deviceSettings.DeviceSetting
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 
 @Composable
@@ -41,10 +41,8 @@ fun DeviceSettingsSettingsSection(
         return
     }
 
-    Card(
+    SettingsCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             settings.forEachIndexed { index, setting ->

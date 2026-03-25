@@ -17,7 +17,6 @@ import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.shared.*
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 // Constants for consistent spacing
@@ -209,7 +208,7 @@ fun FileTypesSection(
     }
 
     // Card 1: Folders toggle
-    Card(modifier = Modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = DesignTokens.ExtraLargeCardShape) {
+    SettingsCard(modifier = Modifier.fillMaxWidth()) {
         SettingsToggleRow(
             title = stringResource(R.string.settings_folders_toggle),
             checked = showFolders,
@@ -223,7 +222,7 @@ fun FileTypesSection(
     Spacer(modifier = Modifier.height(12.dp))
 
     // Card 2: File types with icons in specific order
-    Card(modifier = Modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = DesignTokens.ExtraLargeCardShape) {
+    SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column {
             // Define the order: Documents, Pictures, Videos, Music, APKs, Other
             val orderedFileTypes =
@@ -380,7 +379,7 @@ fun FileTypesSection(
             lastAppliedBlacklistPatterns = folderBlacklistPatterns
         }
     }
-    Card(modifier = Modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = DesignTokens.ExtraLargeCardShape) {
+    SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier =
                 Modifier.padding(

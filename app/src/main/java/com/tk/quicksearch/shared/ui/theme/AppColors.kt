@@ -457,10 +457,10 @@ object AppColors {
         )
 
     // ============================================================================
-    // OVERLAY GRADIENT PALETTES
+    // APP THEME GRADIENT PALETTES
     // ============================================================================
 
-    val OverlayForestDarkPalette =
+    val ForestDarkPalette =
         listOf(
             Color(0xFF27382F),
             Color(0xFF2F4640),
@@ -468,7 +468,7 @@ object AppColors {
             Color(0xFF1F3340),
         )
 
-    val OverlayAuroraDarkPalette =
+    val AuroraDarkPalette =
         listOf(
             Color(0xFF1F2E4A),
             Color(0xFF1F4A5A),
@@ -476,7 +476,7 @@ object AppColors {
             Color(0xFF2A3150),
         )
 
-    val OverlaySunsetDarkPalette =
+    val SunsetDarkPalette =
         listOf(
             Color(0xFF4A2C34),
             Color(0xFF5A3A2A),
@@ -484,7 +484,7 @@ object AppColors {
             Color(0xFF3E2A3B),
         )
 
-    val OverlayMonochromeDarkPalette =
+    val MonochromeDarkPalette =
         listOf(
             AppBackgroundDark,
             Color(0xFF2A2A2A),
@@ -492,7 +492,7 @@ object AppColors {
             Color(0xFFE8E8E8),
         )
 
-    val OverlayForestLightPalette =
+    val ForestLightPalette =
         listOf(
             Color(0xFFCDE8D8),
             Color(0xFFD2EACC),
@@ -500,7 +500,7 @@ object AppColors {
             Color(0xFFC4E4D4),
         )
 
-    val OverlayAuroraLightPalette =
+    val AuroraLightPalette =
         listOf(
             Color(0xFFC8DEF8),
             Color(0xFFC4E4F8),
@@ -508,7 +508,7 @@ object AppColors {
             Color(0xFFC0D8F4),
         )
 
-    val OverlaySunsetLightPalette =
+    val SunsetLightPalette =
         listOf(
             Color(0xFFF5C8B4),
             Color(0xFFF5D8B0),
@@ -516,7 +516,7 @@ object AppColors {
             Color(0xFFF0C0BC),
         )
 
-    val OverlayMonochromeLightPalette =
+    val MonochromeLightPalette =
         listOf(
             Color(0xFFEDEAE4),
             Color(0xFFE0DCD6),

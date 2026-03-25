@@ -3,7 +3,6 @@ package com.tk.quicksearch.settings.shared
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,7 +16,7 @@ import com.tk.quicksearch.searchEngines.AliasHandler
 import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
-import com.tk.quicksearch.shared.ui.theme.AppColors
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -62,7 +61,7 @@ fun SectionSettingsSection(
         )
     }
 
-    Card(modifier = Modifier.fillMaxWidth(), elevation = AppColors.getCardElevation(false), shape = DesignTokens.ExtraLargeCardShape) {
+    SettingsCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth()) {
             sectionOrder.forEachIndexed { index, section ->
                 val isSectionEnabled = section !in disabledSections

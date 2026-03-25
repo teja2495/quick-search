@@ -10,11 +10,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 
 // ============================================================================
-// Color Schemes
+// Base Color Schemes
 // ============================================================================
 
 /**
  * Dark theme color scheme following Material Design 3 specifications.
+ * Accent (primary) colors are overridden per-theme at runtime.
  */
 private val DarkColorScheme =
     darkColorScheme(
@@ -66,6 +67,14 @@ private val LightColorScheme =
         outline = md_theme_light_outline,
     )
 
+private fun accentForTheme(appTheme: com.tk.quicksearch.search.core.AppTheme): ThemeAccentColors =
+    when (appTheme) {
+        com.tk.quicksearch.search.core.AppTheme.FOREST -> ForestThemeAccent
+        com.tk.quicksearch.search.core.AppTheme.AURORA -> AuroraThemeAccent
+        com.tk.quicksearch.search.core.AppTheme.SUNSET -> SunsetThemeAccent
+        com.tk.quicksearch.search.core.AppTheme.MONOCHROME -> MonochromeThemeAccent
+    }
+
 // ============================================================================
 // Theme Composable
 // ============================================================================
@@ -81,6 +90,7 @@ private val LightColorScheme =
 @Composable
 fun QuickSearchTheme(
     fontScaleMultiplier: Float = 1f,
+    appTheme: com.tk.quicksearch.search.core.AppTheme = com.tk.quicksearch.search.core.AppTheme.MONOCHROME,
     appThemeMode: com.tk.quicksearch.search.core.AppThemeMode = com.tk.quicksearch.search.core.AppThemeMode.SYSTEM,
     content: @Composable () -> Unit,
 ) {
@@ -98,7 +108,26 @@ fun QuickSearchTheme(
         com.tk.quicksearch.search.core.AppThemeMode.DARK -> true
         com.tk.quicksearch.search.core.AppThemeMode.SYSTEM -> isSystemDarkTheme
     }
-    val colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
+    val accent = accentForTheme(appTheme)
+    val colorScheme = if (useDarkTheme) {
+        DarkColorScheme.copy(
+            primary = accent.darkPrimary,
+            onPrimary = accent.darkOnPrimary,
+            primaryContainer = accent.darkPrimaryContainer,
+            onPrimaryContainer = accent.darkOnPrimaryContainer,
+            secondaryContainer = accent.darkSecondaryContainer,
+            onSecondaryContainer = accent.darkOnSecondaryContainer,
+        )
+    } else {
+        LightColorScheme.copy(
+            primary = accent.lightPrimary,
+            onPrimary = accent.lightOnPrimary,
+            primaryContainer = accent.lightPrimaryContainer,
+            onPrimaryContainer = accent.lightOnPrimaryContainer,
+            secondaryContainer = accent.lightSecondaryContainer,
+            onSecondaryContainer = accent.lightOnSecondaryContainer,
+        )
+    }
     val appPalette =
         if (useDarkTheme) {
             DarkQuickSearchAppColorPalette

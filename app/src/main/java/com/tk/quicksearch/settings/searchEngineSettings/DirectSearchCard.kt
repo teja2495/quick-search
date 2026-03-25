@@ -23,7 +23,6 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
@@ -68,13 +68,11 @@ fun DirectSearchSetupCard(
     val clipboardManager = LocalClipboardManager.current
     val geminiGuideUrl = stringResource(R.string.settings_gemini_guide_url)
 
-    Card(
+    SettingsCard(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
             modifier =

@@ -19,7 +19,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Sms
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +42,7 @@ import com.tk.quicksearch.search.core.*
 import com.tk.quicksearch.shared.permissions.PermissionSettingsDialog
 import com.tk.quicksearch.shared.permissions.PermissionHelper
 import com.tk.quicksearch.settings.shared.*
+import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -231,10 +231,8 @@ private fun DirectDialCard(
             }
         }
 
-    Card(
+    SettingsCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         SettingsToggleRow(
             title = stringResource(R.string.settings_direct_dial_title),
@@ -279,10 +277,8 @@ private fun DefaultMessagingAppCard(
 ) {
     if (messagingOptions.isEmpty()) return
 
-    Card(
+    SettingsCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
             modifier =
@@ -345,10 +341,8 @@ private fun DefaultCallingAppCard(
 ) {
     if (callingOptions.isEmpty()) return
 
-    Card(
+    SettingsCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = AppColors.getCardElevation(false),
-        shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
             modifier =

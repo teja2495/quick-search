@@ -20,14 +20,96 @@ private const val WHITE = 0xFFFFFFFFL
 // App Brand / Accent Colors
 // ============================================================================
 //
-// Single place to change the app's accent. Update these two values to retheme
-// every button, icon highlight, chip, and selection indicator at once.
+// Default purple accent (used as fallback and for MONOCHROME theme).
 
 /** Primary brand accent — used as Material `primary` in the light color scheme. */
 val AppAccentLight = Color(0xFF6750A4)
 
 /** Primary brand accent variant — used as Material `primary` in the dark color scheme. */
 val AppAccentDark = Color(0xFFD0BCFF)
+
+// ============================================================================
+// Per-Theme Accent Palettes
+// ============================================================================
+//
+// Each AppTheme has its own accent colors so that toggles, selection indicators,
+// and icons automatically match the chosen visual theme.
+
+/** Accent color set for a single theme, covering both light and dark modes. */
+data class ThemeAccentColors(
+    val lightPrimary: Color,
+    val lightOnPrimary: Color,
+    val lightPrimaryContainer: Color,
+    val lightOnPrimaryContainer: Color,
+    val lightSecondaryContainer: Color,
+    val lightOnSecondaryContainer: Color,
+    val darkPrimary: Color,
+    val darkOnPrimary: Color,
+    val darkPrimaryContainer: Color,
+    val darkOnPrimaryContainer: Color,
+    val darkSecondaryContainer: Color,
+    val darkOnSecondaryContainer: Color,
+)
+
+val ForestThemeAccent = ThemeAccentColors(
+    lightPrimary = Color(0xFF2E7D32),
+    lightOnPrimary = Color(0xFFFFFFFF),
+    lightPrimaryContainer = Color(0xFFC8E6C9),
+    lightOnPrimaryContainer = Color(0xFF1B5E20),
+    lightSecondaryContainer = Color(0xFFC8E6C9),
+    lightOnSecondaryContainer = Color(0xFF1B5E20),
+    darkPrimary = Color(0xFF81C784),
+    darkOnPrimary = Color(0xFF1B3A1D),
+    darkPrimaryContainer = Color(0xFF2E7D32),
+    darkOnPrimaryContainer = Color(0xFFC8E6C9),
+    darkSecondaryContainer = Color(0xFF1B3A1D),
+    darkOnSecondaryContainer = Color(0xFFC8E6C9),
+)
+
+val AuroraThemeAccent = ThemeAccentColors(
+    lightPrimary = Color(0xFF1565C0),
+    lightOnPrimary = Color(0xFFFFFFFF),
+    lightPrimaryContainer = Color(0xFFBBDEFB),
+    lightOnPrimaryContainer = Color(0xFF0D47A1),
+    lightSecondaryContainer = Color(0xFFBBDEFB),
+    lightOnSecondaryContainer = Color(0xFF0D47A1),
+    darkPrimary = Color(0xFF90CAF9),
+    darkOnPrimary = Color(0xFF0D2A5A),
+    darkPrimaryContainer = Color(0xFF1565C0),
+    darkOnPrimaryContainer = Color(0xFFBBDEFB),
+    darkSecondaryContainer = Color(0xFF0D2A5A),
+    darkOnSecondaryContainer = Color(0xFFBBDEFB),
+)
+
+val SunsetThemeAccent = ThemeAccentColors(
+    lightPrimary = Color(0xFFBF360C),
+    lightOnPrimary = Color(0xFFFFFFFF),
+    lightPrimaryContainer = Color(0xFFFFCCBC),
+    lightOnPrimaryContainer = Color(0xFF7B1E00),
+    lightSecondaryContainer = Color(0xFFFFCCBC),
+    lightOnSecondaryContainer = Color(0xFF7B1E00),
+    darkPrimary = Color(0xFFFFAB91),
+    darkOnPrimary = Color(0xFF5C1A06),
+    darkPrimaryContainer = Color(0xFFBF360C),
+    darkOnPrimaryContainer = Color(0xFFFFCCBC),
+    darkSecondaryContainer = Color(0xFF5C1A06),
+    darkOnSecondaryContainer = Color(0xFFFFCCBC),
+)
+
+val MonochromeThemeAccent = ThemeAccentColors(
+    lightPrimary = AppAccentLight,
+    lightOnPrimary = Color(0xFFFFFFFF),
+    lightPrimaryContainer = Color(0xFFEADDFF),
+    lightOnPrimaryContainer = Color(0xFF21005D),
+    lightSecondaryContainer = Color(0xFFE8DEF8),
+    lightOnSecondaryContainer = Color(0xFF1D192B),
+    darkPrimary = AppAccentDark,
+    darkOnPrimary = Color(0xFF371E73),
+    darkPrimaryContainer = Color(0xFF4F378B),
+    darkOnPrimaryContainer = Color(0xFFEADDFF),
+    darkSecondaryContainer = Color(0xFF4A4458),
+    darkOnSecondaryContainer = Color(0xFFE8DEF8),
+)
 
 // ============================================================================
 // Light Theme Colors
