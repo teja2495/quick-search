@@ -165,7 +165,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.whatsapp_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -183,7 +183,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.whatsapp_video_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -201,7 +201,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.telegram_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -210,7 +210,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.telegram_video_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -219,7 +219,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.signal_video_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }
@@ -228,7 +228,7 @@ private fun ContactActionIcon(
             Icon(
                 painter = painterResource(id = R.drawable.signal_call),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = callIconTint,
                 modifier = Modifier.size(DesignTokens.LargeIconSize),
             )
         }

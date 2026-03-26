@@ -78,6 +78,7 @@ internal fun DateCalculatorInfoSection(modifier: Modifier = Modifier) {
         dateCategories.forEach { category ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                colors = AppColors.getCardColors(showWallpaperBackground = false),
                 elevation = AppColors.getCardElevation(false),
                 shape = MaterialTheme.shapes.large,
             ) {
@@ -101,7 +102,7 @@ internal fun DateCalculatorInfoSection(modifier: Modifier = Modifier) {
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        color = MaterialTheme.colorScheme.secondaryContainer,
                                         shape = CircleShape,
                                     )
                                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -109,7 +110,7 @@ internal fun DateCalculatorInfoSection(modifier: Modifier = Modifier) {
                                 Text(
                                     text = example,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
                             }
                         }

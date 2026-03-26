@@ -88,7 +88,10 @@ fun MainContent(
     LaunchedEffect(navigationRequest) {
         navigationRequest?.let { request ->
             destination = request.destination
-            settingsDetailType = request.settingsDetailType
+            // Only update settingsDetailType when the request explicitly specifies one.
+            // When null (e.g. returning to home on app reopen), preserve the last visited
+            // settings screen so tapping the settings icon resumes where the user left off.
+            request.settingsDetailType?.let { settingsDetailType = it }
             onNavigationRequestHandled()
         }
     }
