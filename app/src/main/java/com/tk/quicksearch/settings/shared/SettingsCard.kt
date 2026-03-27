@@ -6,9 +6,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.tk.quicksearch.shared.ui.theme.AppColors
-import com.tk.quicksearch.shared.ui.theme.LocalAppIsDarkTheme
 
 @Composable
 fun SettingsCard(
@@ -19,12 +17,7 @@ fun SettingsCard(
         modifier = modifier,
         colors =
             CardDefaults.cardColors(
-                containerColor =
-                    if (LocalAppIsDarkTheme.current) {
-                        Color.Black.copy(alpha = 0.7f)
-                    } else {
-                        Color.White
-                    },
+                containerColor = AppColors.getSettingsCardContainerColor(),
             ),
         elevation = AppColors.getCardElevation(false),
         shape = MaterialTheme.shapes.extraLarge,

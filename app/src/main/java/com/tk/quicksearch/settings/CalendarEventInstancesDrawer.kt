@@ -26,6 +26,7 @@ import com.tk.quicksearch.search.calendar.calendarRelativeDateLabel
 import com.tk.quicksearch.search.calendar.formatCalendarEventDate
 import com.tk.quicksearch.search.models.CalendarEventInfo
 import com.tk.quicksearch.shared.ui.components.AppBottomSheet
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -72,7 +73,7 @@ fun CalendarEventInstancesDrawer(
                         ),
                 )
             }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = AppColors.SettingsDivider)
             LazyColumn(
                 modifier =
                     Modifier
@@ -89,7 +90,7 @@ fun CalendarEventInstancesDrawer(
                         onClick = { onInstanceClick(instance) },
                     )
                     if (index < instances.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        HorizontalDivider(color = AppColors.SettingsDivider)
                     }
                 }
             }

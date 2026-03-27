@@ -1,7 +1,9 @@
 package com.tk.quicksearch.search.apps
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,6 +11,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +55,6 @@ import com.tk.quicksearch.search.data.AppShortcutRepository.launchStaticShortcut
 import com.tk.quicksearch.search.data.AppShortcutRepository.shortcutKey
 import com.tk.quicksearch.search.models.AppInfo
 import com.tk.quicksearch.search.searchScreen.PredictedSubmitTarget
-import com.tk.quicksearch.search.searchScreen.predictedSubmitHighlight
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.getAppGridColumns
 import com.tk.quicksearch.shared.util.hapticConfirm
@@ -390,12 +392,26 @@ private fun AppGridItem(
                     AppIconDisplayMode.REGULAR -> DesignTokens.IconSizeXLarge - 4.dp
                 }
             }
+    val indicatorAlpha by animateFloatAsState(
+            targetValue = if (isPredicted) 1f else 0f,
+            animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+            label = "topResultIndicatorAlpha",
+    )
 
     Box(
             modifier = modifier.fillMaxWidth(),
             contentAlignment = Alignment.TopCenter,
     ) {
         Column(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f * indicatorAlpha),
+                        shape = DesignTokens.ShapeLarge,
+                    )
+                    .padding(
+                        horizontal = DesignTokens.SpacingSmall,
+                        vertical = DesignTokens.SpacingXSmall,
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
         ) {
@@ -405,7 +421,6 @@ private fun AppGridItem(
                     appName = appInfo.appName,
                     onClick = appActions.onClick,
                     onLongClick = { showOptions = true },
-                    isPredicted = isPredicted,
                     appIconSize = appIconSize,
                     appIconShape = appIconShape,
                     hasCustomIconPack = iconPackPackage != null,
@@ -446,23 +461,10 @@ private fun AppIconSurface(
         onClick: () -> Unit,
         onLongClick: () -> Unit,
         appIconSize: Dp,
-        isPredicted: Boolean = false,
         appIconShape: AppIconShape = AppIconShape.DEFAULT,
         hasCustomIconPack: Boolean = false,
 ) {
     val view = LocalView.current
-    val predictedHighlightHeight =
-            if (isPredicted) {
-                (DesignTokens.AppIconSize - 4.dp).coerceAtLeast(48.dp)
-            } else {
-                DesignTokens.AppIconSize
-            }
-    val predictedIconHorizontalInset =
-            if (isPredicted && appIconSize >= 60.dp) {
-                DesignTokens.SpacingXSmall
-            } else {
-                0.dp
-            }
     Surface(
             modifier = Modifier.size(DesignTokens.AppIconSize),
             color = Color.Transparent,
@@ -481,43 +483,23 @@ private fun AppIconSurface(
                                 ),
                 contentAlignment = Alignment.Center,
         ) {
-            Box(
-                    modifier =
-                            Modifier.align(Alignment.Center)
-                                    .size(
-                                            width = DesignTokens.AppIconSize,
-                                            height = predictedHighlightHeight,
-                                    )
-                                    .predictedSubmitHighlight(
-                                            isPredicted = isPredicted,
-                                            shape = DesignTokens.ShapeLarge,
-                                    ),
-            )
-            Box(
-                    modifier =
-                            Modifier.fillMaxSize()
-                                .padding(horizontal = predictedIconHorizontalInset)
-                                .align(Alignment.Center),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (iconBitmap != null) {
-                    val clipModifier =
-                            when {
-                                appIconShape == AppIconShape.CIRCLE ->
-                                        Modifier.clip(androidx.compose.foundation.shape.CircleShape)
-                                iconIsLegacy -> Modifier.clip(DesignTokens.ShapeLarge)
-                                else -> Modifier
-                            }
-                    Image(
-                            bitmap = iconBitmap,
-                            contentDescription =
-                                    stringResource(
-                                            R.string.desc_launch_app,
-                                            appName,
-                                    ),
-                            modifier = Modifier.size(appIconSize).then(clipModifier),
-                    )
-                }
+            if (iconBitmap != null) {
+                val clipModifier =
+                        when {
+                            appIconShape == AppIconShape.CIRCLE ->
+                                    Modifier.clip(androidx.compose.foundation.shape.CircleShape)
+                            iconIsLegacy -> Modifier.clip(DesignTokens.ShapeLarge)
+                            else -> Modifier
+                        }
+                Image(
+                        bitmap = iconBitmap,
+                        contentDescription =
+                                stringResource(
+                                        R.string.desc_launch_app,
+                                        appName,
+                                ),
+                        modifier = Modifier.size(appIconSize).then(clipModifier),
+                )
             }
         }
     }

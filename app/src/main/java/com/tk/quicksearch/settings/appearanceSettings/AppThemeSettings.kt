@@ -63,6 +63,7 @@ import com.tk.quicksearch.search.core.AppTheme
 import com.tk.quicksearch.settings.shared.SettingsCard
 import com.tk.quicksearch.search.data.preferences.UiPreferences
 import com.tk.quicksearch.search.searchScreen.AppThemeColors
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.WallpaperUtils
 import com.tk.quicksearch.shared.util.hapticToggle
@@ -169,7 +170,7 @@ fun AppThemeCard(
             }
 
             HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    color = AppColors.SettingsDivider.copy(alpha = 0.5f),
             )
 
             Row(
@@ -212,7 +213,7 @@ fun AppThemeCard(
                                                 )
                                                 .border(
                                                         width = DesignTokens.BorderWidth,
-                                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                                        color = AppColors.SettingsDivider,
                                                         shape = MaterialTheme.shapes.medium,
                                                 ),
                                 contentAlignment = Alignment.Center,
@@ -366,6 +367,7 @@ fun WallpaperCard(
                 OverlaySourceBox(
                         modifier = Modifier.weight(1f),
                         selected = isWallpaperSourceSelected,
+                        hasImage = wallpaperPreviewBitmap != null,
                         onClick = {
                             hapticToggle(view)()
                             onRequestWallpaperPermission()
@@ -437,6 +439,7 @@ fun WallpaperCard(
                 OverlaySourceBox(
                         modifier = Modifier.weight(1f),
                         selected = isCustomSourceSelected,
+                        hasImage = customPreviewBitmap != null,
                         onClick = {
                             hapticToggle(view)()
                             if (customPreviewBitmap != null) {
@@ -601,7 +604,7 @@ private fun AppModeOption(
 ) {
     val borderColor =
             if (selected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.outlineVariant
+            else AppColors.SettingsDivider
     val backgroundColor =
             if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
             else Color.Transparent
@@ -648,6 +651,7 @@ private fun OverlaySourceBox(
         modifier: Modifier = Modifier,
         selected: Boolean,
         label: String,
+        hasImage: Boolean = false,
         onClick: () -> Unit,
         content: @Composable BoxScope.() -> Unit,
 ) {
@@ -669,15 +673,21 @@ private fun OverlaySourceBox(
                                         },
                                 )
                                 .clickable(onClick = onClick)
-                                .border(
-                                        width = if (selected) 2.dp else 1.dp,
-                                        color =
-                                                if (selected) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.outlineVariant
-                                                },
-                                        shape = MaterialTheme.shapes.medium,
+                                .then(
+                                        if (hasImage && !selected) {
+                                            Modifier
+                                        } else {
+                                            Modifier.border(
+                                                    width = if (selected) 2.dp else 1.dp,
+                                                    color =
+                                                            if (selected) {
+                                                                MaterialTheme.colorScheme.primary
+                                                            } else {
+                                                                AppColors.SettingsDivider
+                                                            },
+                                                    shape = MaterialTheme.shapes.medium,
+                                            )
+                                        },
                                 ),
                 contentAlignment = Alignment.Center,
                 content = content,

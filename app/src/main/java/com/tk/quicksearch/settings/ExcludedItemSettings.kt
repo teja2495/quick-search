@@ -184,7 +184,7 @@ private fun ExcludedItemsList(
                 onRemove = { onRemoveItem(item) },
             )
             if (index < allItems.lastIndex) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = AppColors.SettingsDivider)
             }
         }
     }

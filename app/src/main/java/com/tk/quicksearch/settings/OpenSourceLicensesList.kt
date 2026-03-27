@@ -25,6 +25,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -99,7 +100,7 @@ internal fun OpenSourceLicensesList(
                     )
                 }
                 if (index < entries!!.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = AppColors.SettingsDivider)
                 }
             }
         }

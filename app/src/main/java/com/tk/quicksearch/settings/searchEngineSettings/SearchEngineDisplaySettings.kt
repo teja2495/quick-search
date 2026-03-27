@@ -165,7 +165,7 @@ private fun CompactRowCountPills(
                 if (oneRowSelected) {
                     null
                 } else {
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    BorderStroke(1.dp, AppColors.SettingsDivider)
                 },
             colors =
                 AssistChipDefaults.assistChipColors(
@@ -192,7 +192,7 @@ private fun CompactRowCountPills(
                 if (twoRowsSelected) {
                     null
                 } else {
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    BorderStroke(1.dp, AppColors.SettingsDivider)
                 },
             colors =
                 AssistChipDefaults.assistChipColors(

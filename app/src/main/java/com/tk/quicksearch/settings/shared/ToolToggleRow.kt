@@ -44,7 +44,7 @@ fun ToolToggleRows(
             tools.forEachIndexed { index, tool ->
                 ToolToggleRow(tool = tool)
                 if (index != tools.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = AppColors.SettingsDivider)
                 }
             }
         }

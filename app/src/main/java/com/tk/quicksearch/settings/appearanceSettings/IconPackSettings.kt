@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.apps.rememberAppIcon
 import com.tk.quicksearch.search.core.IconPackInfo
+import com.tk.quicksearch.shared.ui.theme.AppColors
 
 @Composable
 fun IconPackPickerDialog(
@@ -80,7 +81,7 @@ fun IconPackPickerDialog(
                                     onClick = { onSelect(null) },
                             )
                             availableIconPacks.forEach { pack ->
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                HorizontalDivider(color = AppColors.SettingsDivider)
                                 IconPackOptionRow(
                                         label = pack.label,
                                         packageName = pack.packageName,

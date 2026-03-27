@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.shared.ui.components.TipBanner
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -223,7 +224,7 @@ fun SettingsToggleRow(
 
         if (showDivider && !isLastItem) {
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
+                color = AppColors.SettingsDivider,
             )
         }
     }

@@ -404,7 +404,7 @@ private fun CallingOptionChip(
         if (selected) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outlineVariant
+            AppColors.SettingsDivider
         }
     val backgroundColor =
         if (selected) {
@@ -498,7 +498,7 @@ private fun MessagingOptionChip(
         if (selected) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outlineVariant
+            AppColors.SettingsDivider
         }
     val backgroundColor =
         if (selected) {

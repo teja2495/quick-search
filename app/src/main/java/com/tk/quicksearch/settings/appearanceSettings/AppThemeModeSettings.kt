@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
 import com.tk.quicksearch.search.core.AppThemeMode
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -88,7 +89,7 @@ private fun AppThemeModeOption(
         if (selected) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outlineVariant
+            AppColors.SettingsDivider
         }
     val backgroundColor =
         if (selected) {

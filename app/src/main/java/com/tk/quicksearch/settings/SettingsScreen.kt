@@ -329,7 +329,7 @@ fun SettingsScreen(
 
                         if (index < navigationItems.lastIndex) {
                             HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outlineVariant,
+                                color = AppColors.SettingsDivider,
                             )
                         }
                     }
@@ -361,7 +361,7 @@ fun SettingsScreen(
                     )
 
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = AppColors.SettingsDivider,
                     )
 
                     SettingsNavigationRow(
@@ -382,7 +382,7 @@ fun SettingsScreen(
                     )
 
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = AppColors.SettingsDivider,
                     )
 
                     SettingsNavigationRow(
@@ -403,7 +403,7 @@ fun SettingsScreen(
                     )
 
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = AppColors.SettingsDivider,
                     )
 
                     BackupRestoreRow(
@@ -611,13 +611,13 @@ fun SettingsMoreOptions(
 
                 if (index < feedbackItems.lastIndex) {
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
+                        color = AppColors.SettingsDivider,
                     )
                 }
             }
 
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant,
+                color = AppColors.SettingsDivider,
             )
 
             Box(
@@ -759,7 +759,6 @@ fun SettingsVersionDisplay(
                     style =
                         SpanStyle(
                             color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline,
                             fontWeight = FontWeight.Medium,
                         ),
                 ) {

@@ -83,7 +83,7 @@ fun DeviceSettingsSettingsSection(
                 }
 
                 if (index != settings.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = AppColors.SettingsDivider)
                 }
             }
         }

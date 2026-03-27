@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tk.quicksearch.R
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 import com.tk.quicksearch.shared.util.hapticToggle
 
@@ -136,7 +137,7 @@ fun SettingsNavigationToggleRow(
                     modifier = Modifier
                         .height(24.dp)
                         .padding(horizontal = 8.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant,
+                    color = AppColors.SettingsDivider,
                 )
             }
         }

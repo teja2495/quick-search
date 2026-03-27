@@ -68,7 +68,7 @@ fun CombinedLayoutIconCard(
                     showDivider = false,
             )
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(color = AppColors.SettingsDivider)
 
             // Icon Pack Section (with navigation)
             val hasIconPacks =

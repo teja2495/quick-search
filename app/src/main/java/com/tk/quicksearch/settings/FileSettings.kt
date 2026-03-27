@@ -39,6 +39,7 @@ import com.tk.quicksearch.R
 import com.tk.quicksearch.search.models.FileType
 import com.tk.quicksearch.settings.shared.*
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 // Constants for consistent spacing
@@ -259,7 +260,7 @@ fun FileTypesSection(
 
             // Excluded extensions section
             if (excludedExtensions.isNotEmpty()) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = AppColors.SettingsDivider)
 
                 Spacer(
                     modifier =

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -39,7 +40,7 @@ fun EditableIcon(
                     shape = RoundedCornerShape(14.dp),
                 ).border(
                     width = 1.25.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant,
+                    color = AppColors.SettingsDivider,
                     shape = RoundedCornerShape(14.dp),
                 ).clickable { onClick() },
     ) {

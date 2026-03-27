@@ -66,7 +66,7 @@ fun AliasPill(
         shape = DesignTokens.ShapeFull,
         border =
             if (showLightModeOutline) {
-                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                BorderStroke(1.dp, AppColors.SettingsDivider)
             } else {
                 null
             },

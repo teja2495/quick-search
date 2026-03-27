@@ -203,7 +203,7 @@ fun CalendarEventsSettingsSection(
                             },
                         )
                         if (index < sortedEventGroups.lastIndex) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            HorizontalDivider(color = AppColors.SettingsDivider)
                         }
                     }
                 }

@@ -128,6 +128,8 @@ internal val LocalQuickSearchAppColorPalette =
 
 val LocalAppIsDarkTheme = staticCompositionLocalOf { true }
 
+val LocalAppTheme = staticCompositionLocalOf { com.tk.quicksearch.search.core.AppTheme.MONOCHROME }
+
 /**
  * Semantic color slots for the current search UI theme.
  *
@@ -500,10 +502,10 @@ object AppColors {
 
     val MonochromeDarkPalette =
         listOf(
-            AppBackgroundDark,
-            Color(0xFF2A2A2A),
-            Color(0xFF3E3E3E),
-            Color(0xFFE8E8E8),
+            Color(0xFF0A0A0A),
+            Color(0xFF1E1E1E),
+            Color(0xFF2C2C2C),
+            Color(0xFF141414),
         )
 
     val ForestLightPalette =
@@ -555,7 +557,7 @@ object AppColors {
         val themeCardColor = LocalSearchColorTheme.current?.cardBackground
         val fallback =
             if (!LocalAppIsDarkTheme.current) {
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.90f)
+                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.8f)
             } else {
                 MaterialTheme.colorScheme.surfaceContainer
             }
@@ -586,6 +588,31 @@ object AppColors {
             showWallpaperBackground -> CompactSectionBackground
             !LocalAppIsDarkTheme.current -> Color.White.copy(alpha = 0.5f)
             else -> Color.Black.copy(alpha = 0.5f)
+        }
+
+    /**
+     * Background color for settings cards and the management search bar.
+     * Mono dark theme matches result cards (surfaceContainer). All other themes use
+     * plain White (light) or Black (dark) with the same alpha as result cards.
+     */
+    /**
+     * Divider and border color for settings rows and cards.
+     * White at low alpha in dark mode; Material outlineVariant in light mode.
+     */
+    val SettingsDivider: Color
+        @Composable
+        get() = if (LocalAppIsDarkTheme.current) {
+            Color.White.copy(alpha = 0.12f)
+        } else {
+            MaterialTheme.colorScheme.outlineVariant
+        }
+
+    @Composable
+    fun getSettingsCardContainerColor(): Color =
+        if (LocalAppIsDarkTheme.current) {
+            Color.White.copy(alpha = 0.08f)
+        } else {
+            Color.White.copy(alpha = 0.8f)
         }
 
     @Composable

@@ -84,7 +84,7 @@ fun LaunchOptionsSettings(
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
                 )
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = AppColors.SettingsDivider)
 
                 SettingsToggleRow(
                     title = stringResource(R.string.settings_assistant_voice_mode_title),
@@ -113,7 +113,7 @@ fun LaunchOptionsSettings(
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
                 )
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(color = AppColors.SettingsDivider)
 
                 SettingsNavigationRow(
                     item =

@@ -17,6 +17,7 @@ import com.tk.quicksearch.searchEngines.AliasValidator.hasExactAliasConflict
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasDisplayType
 import com.tk.quicksearch.settings.searchEnginesScreen.AliasCodeDisplay
 import com.tk.quicksearch.settings.shared.SettingsCard
+import com.tk.quicksearch.shared.ui.theme.AppColors
 import com.tk.quicksearch.shared.ui.theme.DesignTokens
 
 @Composable
@@ -140,7 +141,7 @@ fun SectionSettingsSection(
                 )
 
                 if (index != sectionOrder.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = AppColors.SettingsDivider)
                 }
             }
         }

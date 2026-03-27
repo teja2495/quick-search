@@ -393,7 +393,7 @@ fun AppManagementSettingsSection(
                             )
 
                             if (index < sortedApps.lastIndex) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                HorizontalDivider(color = AppColors.SettingsDivider)
                             }
                         }
                     }

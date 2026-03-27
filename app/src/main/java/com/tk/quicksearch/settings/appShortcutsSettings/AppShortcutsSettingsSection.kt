@@ -504,7 +504,7 @@ val context = LocalContext.current
                             val appShortcuts = group.shortcuts
                             if (appShortcuts.isNotEmpty()) {
                                 if (hasRenderedSection) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
                                 appShortcuts.forEachIndexed { index, shortcut ->
                                     val shortcutId = shortcutKey(shortcut)
@@ -527,7 +527,7 @@ val context = LocalContext.current
                                     )
 
                                     if (index < appShortcuts.lastIndex) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                        HorizontalDivider(color = AppColors.SettingsDivider)
                                     }
                                 }
                                 hasRenderedSection = true
@@ -537,7 +537,7 @@ val context = LocalContext.current
                                 group.sources.filter { it.sourceType != AppShortcutSourceType.APP_ACTIVITY }
                             if (regularAppSources.isNotEmpty()) {
                                 if (hasRenderedSection) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
 
                                 regularAppSources.forEachIndexed { index, source ->
@@ -546,7 +546,7 @@ val context = LocalContext.current
                                         onClick = { onAddShortcutFromSource(source) },
                                     )
                                     if (index < regularAppSources.lastIndex) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                        HorizontalDivider(color = AppColors.SettingsDivider)
                                     }
                                 }
                                 hasRenderedSection = true
@@ -555,7 +555,7 @@ val context = LocalContext.current
                             val searchTargetSources = group.searchTargetSources
                             if (searchTargetSources.isNotEmpty()) {
                                 if (hasRenderedSection) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
                                 searchTargetSources.forEachIndexed { index, source ->
                                     SearchTargetShortcutSourceRow(
@@ -563,7 +563,7 @@ val context = LocalContext.current
                                         onClick = { shortcutDialogSource = source },
                                     )
                                     if (index < searchTargetSources.lastIndex) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                        HorizontalDivider(color = AppColors.SettingsDivider)
                                     }
                                 }
                                 hasRenderedSection = true
@@ -576,7 +576,7 @@ val context = LocalContext.current
                                 group.packageName !in browserPackageNames
                             ) {
                                 if (hasRenderedSection) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
                                 AppDeepLinkSourceRow(
                                     source = appActivitySources.first(),
@@ -586,7 +586,7 @@ val context = LocalContext.current
                             }
                             if (appActivitySources.isNotEmpty()) {
                                 if (hasRenderedSection) {
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = AppColors.SettingsDivider)
                                 }
                                 appActivitySources.forEachIndexed { index, source ->
                                     ShortcutSourceRow(
@@ -594,7 +594,7 @@ val context = LocalContext.current
                                         onClick = { onAddShortcutFromSource(source) },
                                     )
                                     if (index < appActivitySources.lastIndex) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                        HorizontalDivider(color = AppColors.SettingsDivider)
                                     }
                                 }
                             }
